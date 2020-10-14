@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a069e929-3edf-4762-9699-1f5bbfe3929b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/interactive-process-mining-angular-app/main.js" afterDir="false" />
+    <list default="true" id="a069e929-3edf-4762-9699-1f5bbfe3929b" name="Default Changelist" comment="added code for first tree vis">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -14,6 +14,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="JavaScript File" />
+        <option value="TypeScript File" />
       </list>
     </option>
   </component>
@@ -74,8 +75,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.electron-build" />
         <item itemvalue="npm.start" />
+        <item itemvalue="npm.electron-build" />
         <item itemvalue="npm.electron" />
       </list>
     </recent_temporary>
@@ -88,33 +89,76 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1602601506721</updated>
-      <workItem from="1602601507812" duration="7364000" />
+      <workItem from="1602601507812" duration="26133000" />
     </task>
+    <task id="LOCAL-00001" summary="init commit">
+      <created>1602674433102</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1602674433102</updated>
+    </task>
+    <task id="LOCAL-00002" summary="added code for first tree vis">
+      <created>1602692669440</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1602692669440</updated>
+    </task>
+    <task id="LOCAL-00003" summary="added code for first tree vis">
+      <created>1602692709710</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1602692709710</updated>
+    </task>
+    <task id="LOCAL-00004" summary="improved tree vis">
+      <created>1602694046928</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1602694046928</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="init commit" />
+    <MESSAGE value="added code for first tree vis" />
+    <MESSAGE value="improved tree vis" />
+    <option name="LAST_COMMIT_MESSAGE" value="improved tree vis" />
   </component>
   <component name="WindowStateProjectService">
     <state x="375" y="341" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1602601875769">
       <screen x="0" y="0" width="3440" height="1400" />
     </state>
     <state x="375" y="341" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.3440.1400@0.0.3440.1400" timestamp="1602601875769" />
-    <state width="1469" height="365" key="GridCell.Tab.0.bottom" timestamp="1602674253073">
+    <state x="311" y="252" key="CommitChangelistDialog2" timestamp="1602694046351">
       <screen x="0" y="0" width="3440" height="1400" />
     </state>
-    <state width="1469" height="365" key="GridCell.Tab.0.bottom/0.0.3440.1400@0.0.3440.1400" timestamp="1602674253073" />
-    <state width="1469" height="365" key="GridCell.Tab.0.center" timestamp="1602674253073">
+    <state x="311" y="252" key="CommitChangelistDialog2/0.0.3440.1400@0.0.3440.1400" timestamp="1602694046351" />
+    <state width="1727" height="743" key="GridCell.Tab.0.bottom" timestamp="1602693531459">
       <screen x="0" y="0" width="3440" height="1400" />
     </state>
-    <state width="1469" height="365" key="GridCell.Tab.0.center/0.0.3440.1400@0.0.3440.1400" timestamp="1602674253073" />
-    <state width="1469" height="365" key="GridCell.Tab.0.left" timestamp="1602674253072">
+    <state width="1727" height="743" key="GridCell.Tab.0.bottom/0.0.3440.1400@0.0.3440.1400" timestamp="1602693531459" />
+    <state width="1727" height="743" key="GridCell.Tab.0.center" timestamp="1602693531459">
       <screen x="0" y="0" width="3440" height="1400" />
     </state>
-    <state width="1469" height="365" key="GridCell.Tab.0.left/0.0.3440.1400@0.0.3440.1400" timestamp="1602674253072" />
-    <state width="1469" height="365" key="GridCell.Tab.0.right" timestamp="1602674253073">
+    <state width="1727" height="743" key="GridCell.Tab.0.center/0.0.3440.1400@0.0.3440.1400" timestamp="1602693531459" />
+    <state width="1727" height="743" key="GridCell.Tab.0.left" timestamp="1602693531458">
       <screen x="0" y="0" width="3440" height="1400" />
     </state>
-    <state width="1469" height="365" key="GridCell.Tab.0.right/0.0.3440.1400@0.0.3440.1400" timestamp="1602674253073" />
+    <state width="1727" height="743" key="GridCell.Tab.0.left/0.0.3440.1400@0.0.3440.1400" timestamp="1602693531458" />
+    <state width="1727" height="743" key="GridCell.Tab.0.right" timestamp="1602693531459">
+      <screen x="0" y="0" width="3440" height="1400" />
+    </state>
+    <state width="1727" height="743" key="GridCell.Tab.0.right/0.0.3440.1400@0.0.3440.1400" timestamp="1602693531459" />
+    <state x="374" y="416" key="Vcs.Push.Dialog.v2" timestamp="1602694047997">
+      <screen x="0" y="0" width="3440" height="1400" />
+    </state>
+    <state x="374" y="416" key="Vcs.Push.Dialog.v2/0.0.3440.1400@0.0.3440.1400" timestamp="1602694047997" />
   </component>
 </project>
