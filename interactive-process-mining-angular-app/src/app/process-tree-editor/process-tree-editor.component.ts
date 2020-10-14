@@ -34,7 +34,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     console.log(root.descendants());
     console.log(root.links());
 
-    svg.selectAll('circle.node')
+    svg.selectAll('node')
       .data(root.descendants())
       .enter()
       .append('rect')
@@ -51,25 +51,26 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .attr('stroke-width', '2')
       .attr('fill', 'none')
 
-
-    svg.selectAll('circle.node')
+    svg.selectAll('node')
       .data(root.descendants())
       .enter()
       .append("text")
-      .attr("fill", "green")
+      .attr("fill", "blue")
+      .attr("font-size","3em")
       .attr("text-anchor", "middle")
+      .attr("dominant-baseline","middle")
       .attr('x', function (d) {
         return d.x + tree_operator_height_width / 2;
       })
       .attr('y', function (d) {
-        return d.y + tree_operator_height_width / 2+2;
+        return d.y + tree_operator_height_width / 2;
       })
       .text(function (d) {
         return d.data.operator;
       })
 
     // add tree operator text
-    svg.selectAll('.link').data(root.links()).enter()
+    svg.selectAll('link').data(root.links()).enter()
       .append('line').attr('class', 'link')
       .attr('x1', function (d) {
         return d.source.x + tree_operator_height_width / 2
@@ -88,20 +89,20 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     const root = {
-      operator: '\u2613',
+      operator: '\u2715',
       label: null,
       children: [
         {
           operator: '\u21BA',
-          label: "a",
+          label: null,
           children: []
         }, {
           operator: '\u2227',
-          label: "b",
+          label: null,
           children: []
         }, {
           operator: '\u2192',
-          label: "b",
+          label: null,
           children: []
         }
       ]
