@@ -3,10 +3,14 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { FooterComponent } from './footer/footer.component';
+import { ProcessTreeEditorComponent } from './process-tree-editor/process-tree-editor.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    FooterComponent,
+    ProcessTreeEditorComponent
   ],
   imports: [
     BrowserModule,
