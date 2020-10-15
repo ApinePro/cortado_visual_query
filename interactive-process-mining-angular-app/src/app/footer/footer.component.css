@@ -4,9 +4,11 @@
   bottom: 0;
   position: fixed;
   width: 100%;
+  color:whitesmoke;
 }
 
 .footer > .container {
-  padding-right: 15px;
-  padding-left: 15px;
+  padding-right: 1px;
+  padding-left: 1px;
 }
+
