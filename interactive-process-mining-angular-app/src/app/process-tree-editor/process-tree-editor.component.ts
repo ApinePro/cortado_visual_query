@@ -1,9 +1,10 @@
-import {Component, OnInit, ViewChild, AfterViewInit, ElementRef} from '@angular/core';
+import {Component, OnInit, ViewChild, AfterViewInit, ElementRef, ViewEncapsulation} from '@angular/core';
 import * as d3 from "d3";
 import {tree_operator_height_width} from "./constants_tree_d3";
 
 @Component({
   selector: 'app-process-tree-editor',
+  encapsulation: ViewEncapsulation.None,
   templateUrl: './process-tree-editor.component.html',
   styleUrls: ['./process-tree-editor.component.css']
 })
@@ -24,7 +25,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
   plot = function (root) {
     console.log("plot")
-    const svg = d3.select("#d3Container").append("svg").attr('width', 500).attr('height', 200);
+    const svg = d3.select("#d3Container").append("svg").attr('width', "100%").attr('height', "100%");
 
 
     var treeLayout = d3.tree();
@@ -38,7 +39,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .data(root.descendants())
       .enter()
       .append('rect')
-      .classed('node', true)
+      .classed('node-operator', function (d) {
+        return d.data.operator !== null
+      })
+      .classed('node-visible-activity', function (d) {
+        return d.data.label !== null
+      })
       .attr('x', function (d) {
         return d.x;
       })
@@ -49,27 +55,29 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .attr('height', tree_operator_height_width)
       .attr('stroke', 'gray')
       .attr('stroke-width', '2')
-      .attr('fill', 'none')
+    //.attr('fill', 'none')
 
+    //add node text
     svg.selectAll('node')
       .data(root.descendants())
       .enter()
       .append("text")
       .attr("fill", "blue")
-      .attr("font-size","3em")
+      .attr("font-size", "1em")
       .attr("text-anchor", "middle")
-      .attr("dominant-baseline","middle")
+      .attr("dominant-baseline", "middle")
       .attr('x', function (d) {
         return d.x + tree_operator_height_width / 2;
       })
       .attr('y', function (d) {
-        return d.y + tree_operator_height_width / 2;
+        return d.y + tree_operator_height_width / 2 +3;
       })
       .text(function (d) {
-        return d.data.operator;
+        if (d.data.operator) return d.data.operator;
+        if (d.data.label) return d.data.label;
       })
 
-    // add tree operator text
+    // add edges
     svg.selectAll('link').data(root.links()).enter()
       .append('line').attr('class', 'link')
       .attr('x1', function (d) {
@@ -103,7 +111,23 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         }, {
           operator: '\u2192',
           label: null,
-          children: []
+          children: [
+            {
+              operator: null,
+              label: "a",
+              children: []
+            },
+            {
+              operator: null,
+              label: "b",
+              children: []
+            },
+            {
+              operator: null,
+              label: "long activity name c",
+              children: []
+            }
+          ]
         }
       ]
     };

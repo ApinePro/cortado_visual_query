@@ -3,6 +3,34 @@
 
 }
 
-.node {
-  fill:black;
+.node-operator {
+  fill: #404040;
+  rx:3;
+  ry:3;
 }
+
+.node-visible-activity {
+  fill: #aeaeae;
+  rx:3;
+  ry:3;
+}
+
+.node-invisible-activity {
+  fill: #aeaeae;
+  rx:3;
+  ry:3;
+}
+
+.button {
+  color: #ffffff;
+  border: none;
+  padding: 3px 30px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #555555;
+  margin-right: 1px;
+}
+
