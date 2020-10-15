@@ -10,7 +10,7 @@
 }
 
 .node-visible-activity {
-  fill: #aeaeae;
+  fill: #999999;
   rx:3;
   ry:3;
 }
@@ -33,4 +33,10 @@
   background-color: #555555;
   margin-right: 1px;
 }
+
+.button:hover{
+  background-color: #676767;
+}
+
+
 
