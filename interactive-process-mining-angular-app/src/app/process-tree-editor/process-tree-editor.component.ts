@@ -21,12 +21,18 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
   }
 
+  resizeTimer;
+
   @HostListener('window:resize', ['$event'])
   onResize() {
-    console.log("window:resize");
-    this.plot(d3.hierarchy(this.root, (d) => {
-      return d.children;
-    }));
+    clearTimeout(this.resizeTimer);
+    this.resizeTimer = setTimeout(function () {
+      console.log("replot svg");
+      //resizing has potentially "stopped", i.e., user has not resized window since 250ms
+      this.plot(d3.hierarchy(this.root, (d) => {
+        return d.children;
+      }));
+    }.bind(this), 250);
   }
 
   plot = function (root) {
@@ -96,7 +102,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .attr("fill", "white")
       .attr("font-size", (d) => {
         if (d.data.operator) return "1.5em";
-        return "smaller"
+        return "smaller";
       })
       .attr("text-anchor", "middle")
       .attr("dominant-baseline", "middle")
@@ -108,7 +114,14 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       })
       .text(function (d) {
         if (d.data.operator) return d.data.operator;
-        if (d.data.label) return d.data.label;
+        if (d.data.label) {
+          console.log(d.data.label.length)
+          if (d.data.label.length <= 20) {
+            return d.data.label;
+          } else {
+            return d.data.label.substring(0, 20) + "...";
+          }
+        }
       })
 
     // resize leaf nodes if text is too long
@@ -202,7 +215,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
           },
           {
             operator: null,
-            label: "long activity name c long activity name c",
+            label: "very long activity name c long activity name c",
             children: []
           }
         ]
