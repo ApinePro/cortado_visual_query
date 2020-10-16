@@ -35,14 +35,30 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     }.bind(this), 250);
   }
 
+
   plot = function (root) {
     console.log("plot")
-    const svg = d3.select("#d3-svg").call(d3.zoom().on("zoom", function (event) {
-      svg.attr("transform", event.transform)
-    })).append("g")
-
+    const svg = d3.select("#d3-svg")
     //clear svg before plot (needed when window is resized)
     svg.selectAll("*").remove();
+
+    //add zoom option
+    const mainSvgGroup = svg.append("g").attr("id", "zoomGroup")
+
+    function zooming(event) {
+      mainSvgGroup.attr("transform", event.transform)
+    }
+
+    const zoom = d3.zoom().on("zoom", zooming)
+    svg.call(zoom)
+
+    //reset zoom
+    d3.select("#btn-reset-zoom").on("click", () => {
+      svg.transition()
+        .duration(250)
+        .call(zoom.transform, d3.zoomIdentity);
+    });
+
 
     console.log(this.d3ContainerElem.nativeElement.offsetWidth)
     console.log(this.d3ContainerElem.nativeElement.offsetHeight)
@@ -56,7 +72,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     // calculate layout
     treeLayout(root);
 
-    const nodeGroups = svg.selectAll('node')
+    const nodeGroups = mainSvgGroup.selectAll('node')
       .data(root.descendants())
       .enter()
       .append("g")
@@ -65,7 +81,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       })
 
     // add edges
-    svg.selectAll('link').data(root.links()).enter()
+    mainSvgGroup.selectAll('link').data(root.links()).enter()
       .append('line').attr('class', 'link')
       .attr('x1', function (d) {
         return d.source.x

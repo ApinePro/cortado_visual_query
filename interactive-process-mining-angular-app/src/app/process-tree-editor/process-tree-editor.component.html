@@ -1,62 +1,68 @@
-<div class="main h-100">
+<div class="main h-100 d-flex flex-column">
+  <div>
+    <button class="button text-success">
+      <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
+        <use xlink:href="assets/bootstrap-icons.svg#box-arrow-in-left "/>
+      </svg>
+    </button>
 
-  <button class="button text-success">
-    <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
-      <use xlink:href="assets/bootstrap-icons.svg#box-arrow-in-left "/>
-    </svg>
-  </button>
+    <button class="button text-success">
+      <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
+        <use xlink:href="assets/bootstrap-icons.svg#box-arrow-in-down "/>
+      </svg>
+    </button>
 
-  <button class="button text-success">
-    <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
-      <use xlink:href="assets/bootstrap-icons.svg#box-arrow-in-down "/>
-    </svg>
-  </button>
+    <button class="button text-success">
+      <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
+        <use xlink:href="assets/bootstrap-icons.svg#box-arrow-in-right"/>
+      </svg>
+    </button>
 
-  <button class="button text-success">
-    <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
-      <use xlink:href="assets/bootstrap-icons.svg#box-arrow-in-right"/>
-    </svg>
-  </button>
+    <button class="button text-warning">
+      <svg class="bi bi-arrow-bar-down " width="1.5em" height="1.5em" fill="currentColor">
+        <use xlink:href="assets/bootstrap-icons.svg#trash"/>
+      </svg>
+    </button>
 
-  <button class="button text-warning">
-    <svg class="bi bi-arrow-bar-down " width="1.5em" height="1.5em" fill="currentColor">
-      <use xlink:href="assets/bootstrap-icons.svg#trash"/>
-    </svg>
-  </button>
+    <button class="button text-light">
+      <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
+        <use xlink:href="assets/bootstrap-icons.svg#chevron-left"/>
+      </svg>
+    </button>
 
-  <button class="button text-light">
-    <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
-      <use xlink:href="assets/bootstrap-icons.svg#chevron-left"/>
-    </svg>
-  </button>
-
-  <button class="button">
-    <svg class="bi bi-arrow-bar-down text-light" width="1.5em" height="1.5em" fill="currentColor">
-      <use xlink:href="assets/bootstrap-icons.svg#chevron-right"/>
-    </svg>
-  </button>
-
-
-  <button class="button ml-3">
-    select node
-    <svg class="bi bi-arrow-bar-down text-light" width="1em" height="1.5em" fill="currentColor">
-      <use xlink:href="assets/bootstrap-icons.svg#square-fill"/>
-    </svg>
-  </button>
-
-  <button class="button">
-    select subtree
-    <svg class="bi bi-arrow-bar-down text-light" width="1.5em" height="1.5em" fill="currentColor">
-      <use xlink:href="assets/bootstrap-icons.svg#diagram-2"/>
-    </svg>
-  </button>
+    <button class="button">
+      <svg class="bi bi-arrow-bar-down text-light" width="1.5em" height="1.5em" fill="currentColor">
+        <use xlink:href="assets/bootstrap-icons.svg#chevron-right"/>
+      </svg>
+    </button>
 
 
-  <div #d3container id="d3-container" class="mt-4 mb-1">
+
+
+    <button class="button ml-3">
+      select node
+      <svg class="bi bi-arrow-bar-down text-light" width="1.5em" height="1.5em" fill="currentColor">
+        <use xlink:href="assets/bootstrap-icons.svg#check2-square"/>
+      </svg>
+    </button>
+
+    <button class="button">
+      select subtree
+      <svg class="bi bi-arrow-bar-down text-light" width="1.5em" height="1.5em" fill="currentColor">
+        <use xlink:href="assets/bootstrap-icons.svg#diagram-2"/>
+      </svg>
+    </button>
+
+    <button class="button ml-3" id="btn-reset-zoom">
+      <svg class="bi bi-arrow-bar-down text-light" width="1.5em" height="1.5em" fill="currentColor">
+        <use xlink:href="assets/bootstrap-icons.svg#arrows-fullscreen"/>
+      </svg>
+    </button>
+  </div>
+
+  <div #d3container id="d3-container" class="m-1 flex-grow-1">
 
     <svg #d3svg id="d3-svg" width="100%" height="100%"></svg>
 
   </div>
-
-
 </div>
