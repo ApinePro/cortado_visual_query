@@ -2,6 +2,8 @@ import {Component, OnInit, ViewChild, AfterViewInit, ElementRef, ViewEncapsulati
 import * as d3 from "d3";
 import {tree_node_height_width} from "./constants_tree_d3";
 
+declare var $;
+
 @Component({
   selector: 'app-process-tree-editor',
   encapsulation: ViewEncapsulation.None,
@@ -78,6 +80,11 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .append("g")
       .attr("id", function (d) {
         return d.name
+      })
+      .attr("data-toggle", "tooltip")
+      .attr("data-placement", "top")
+      .attr("title", (d) => {
+        return d.data.label
       })
 
     // add edges
@@ -246,11 +253,20 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
 
+
     console.log(d3.hierarchy(this.root));
 
     this.plot(d3.hierarchy(this.root, (d) => {
       return d.children;
     }));
+
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip({
+        container: "body",
+        placement: "top",
+        delay: {show: 240, hide: 60}
+      })
+    })
   }
 
 }
