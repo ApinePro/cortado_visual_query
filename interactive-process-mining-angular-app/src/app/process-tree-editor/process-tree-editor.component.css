@@ -17,7 +17,8 @@
 }
 
 .node-invisible-activity {
-  fill: #aeaeae;
+  fill: #181818;
+  font-size: 2em;
 }
 
 .button {

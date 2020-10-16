@@ -37,19 +37,23 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
   plot = function (root) {
     console.log("plot")
-    const svg = d3.select("#d3-svg")
+    const svg = d3.select("#d3-svg").call(d3.zoom().on("zoom", function (event) {
+      svg.attr("transform", event.transform)
+    })).append("g")
+
+    //clear svg before plot (needed when window is resized)
     svg.selectAll("*").remove();
 
     console.log(this.d3ContainerElem.nativeElement.offsetWidth)
     console.log(this.d3ContainerElem.nativeElement.offsetHeight)
 
     const treeLayout = d3.tree();
-    // If you want nodeSize to work, you can't have a fixed tree size. It will set the size to null.
     treeLayout.size([this.d3ContainerElem.nativeElement.offsetWidth,
       this.d3ContainerElem.nativeElement.offsetHeight - tree_node_height_width]);
-    //if nodeSize is used, the root node is drawn at (0,0)
+    //if nodeSize is used you cannot use fixed tree size and the root node is drawn at (0,0)
     //treeLayout.nodeSize([100,50])
 
+    // calculate layout
     treeLayout(root);
 
     const nodeGroups = svg.selectAll('node')
@@ -77,13 +81,17 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       })
       .attr('stroke', 'gray');
 
+    //add nodes
     nodeGroups.append('rect')
       .classed('node', true)
       .classed('node-operator', function (d) {
         return d.data.operator !== null
       })
       .classed('node-visible-activity', function (d) {
-        return d.data.label !== null
+        return d.data.label !== null && d.data.label !== "\u03C4"
+      })
+      .classed('node-invisible-activity', (d) => {
+        return d.data.label === "\u03C4"
       })
       .attr('x', function (d) {
         return d.x - tree_node_height_width / 2;
@@ -115,7 +123,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .text(function (d) {
         if (d.data.operator) return d.data.operator;
         if (d.data.label) {
-          console.log(d.data.label.length)
+          //shorten text if it is too long
           if (d.data.label.length <= 20) {
             return d.data.label;
           } else {
@@ -134,13 +142,10 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
     nodeGroups.on("click",
       function (event, index) {
-
-
         console.log(this)
         console.log(event);
         console.log(index);
         selectSubtree(this);
-
       });
 
     function selectSubtree(node) {
@@ -171,7 +176,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         label: null,
         children: [{
           operator: null,
-          label: "a",
+          label: "\u03C4",
           children: []
         },
           {
