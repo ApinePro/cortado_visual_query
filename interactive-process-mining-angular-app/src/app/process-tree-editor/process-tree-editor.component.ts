@@ -53,12 +53,13 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     const zooming = function (event) {
       // .translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0) is needed to center the tree
       // otherwise center is at (0,0)
+      console.log(event)
       mainSvgGroup.attr("transform",
         event.transform.translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0));
     }.bind(this);
 
     const zoom = d3.zoom().on("zoom", zooming)
-    svg.call(zoom)
+    svg.call(zoom).on("dblclick.zoom", null);
 
     //reset zoom
     d3.select("#btn-reset-zoom").on("click", () => {
@@ -83,7 +84,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .enter()
       .append("g")
       .attr("id", function (d) {
-        return d.name
+        // @ts-ignore
+        return d.data.id
       })
       .attr("data-toggle", "tooltip")
       .attr("data-placement", "top")
@@ -161,8 +163,10 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
     // resize leaf nodes if text is too long
     nodeGroups.selectAll(".node-visible-activity").attr('x', function (d) {
+      // @ts-ignore
       return d.x - Math.max(tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2;
     }).attr("width", function () {
+      // @ts-ignore
       return Math.max(tree_node_height_width, this.nextSibling.getComputedTextLength() + 10);
     })
 
@@ -172,10 +176,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         console.log(this)
         console.log(event);
         console.log(index);
-        selectSubtree(this);
+        console.log(typeof index.children)
+        selectSubtree(this, index);
+
       });
 
-    function selectSubtree(node) {
+    function selectSubtree(node, index) {
       const selected = 'red';
       const nonSelected = 'gray';
       d3.select(node).select(".node").attr('stroke', () => {
@@ -185,11 +191,13 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
           return selected;
         }
       })
-      console.log(node.children);
-      if (node.children) {
-        node.children.forEach((d) => {
-          this.selectSubtree(d)
-        })
+      if (index.children) {
+        index.children.forEach(c => {
+            console.log(c)
+            console.log(mainSvgGroup.select('[id="' + c.data.id + '"]').node())
+            selectSubtree(mainSvgGroup.select('[id="' + c.data.id + '"]').node(), c);
+          }
+        )
       }
     }
   }
@@ -197,57 +205,69 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   root = {
     operator: '\u2715',
     label: null,
+    id: 7823782323,
     children: [
       {
         operator: '\u21BA',
         label: null,
+        id: 7823342323,
         children: [{
           operator: null,
           label: "\u03C4",
+          id: 7822782323,
           children: []
         },
           {
             operator: null,
             label: "b",
+            id: 7823782399,
             children: []
           }]
       }, {
         operator: '\u2227',
         label: null,
+        id: 1123782323,
         children: [
           {
             operator: null,
             label: "a",
+            id: 7823782823,
             children: []
           },
           {
             operator: null,
             label: "b",
+            id: 7823782023,
             children: []
           },
           {
             operator: null,
             label: "long activity name c",
+            id: 7824782323,
             children: []
           }
         ]
       }, {
         operator: '\u2192',
         label: null,
+        id: 7829482323,
         children: [
           {
             operator: null,
             label: "very long activity name c long activity name c",
+            id: 7824982323,
             children: []
           },
           {
             operator: null,
             label: "very long activity name c long activity name cb",
+            id: 7854782323,
             children: []
           },
           {
             operator: null,
             label: "very long activity name c long activity name c",
+            id: 7899782323,
             children: []
           }
         ]
