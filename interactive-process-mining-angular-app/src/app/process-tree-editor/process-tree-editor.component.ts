@@ -1,7 +1,7 @@
 import {Component, OnInit, ViewChild, AfterViewInit, ElementRef, ViewEncapsulation, HostListener} from '@angular/core';
 import * as d3 from "d3";
 import {tree_node_height_width} from "./constants_tree_d3";
-
+//jQuery
 declare var $;
 
 @Component({
@@ -13,7 +13,6 @@ declare var $;
 export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
   constructor() {
-
   }
 
   @ViewChild("d3svg") svgElem: ElementRef;
@@ -30,7 +29,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     clearTimeout(this.resizeTimer);
     this.resizeTimer = setTimeout(function () {
       console.log("replot svg");
-      //resizing has potentially "stopped", i.e., user has not resized window since 250ms
+      //resizing has potentially "stopped", i.e., user has not resized window since last 250ms
       this.plot(d3.hierarchy(this.root, (d) => {
         return d.children;
       }));
@@ -40,16 +39,23 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
   plot = function (root) {
     console.log("plot")
+    console.log(this.d3ContainerElem.nativeElement.offsetWidth)
+    console.log(this.d3ContainerElem.nativeElement.offsetHeight)
+
     const svg = d3.select("#d3-svg")
     //clear svg before plot (needed when window is resized)
     svg.selectAll("*").remove();
 
     //add zoom option
     const mainSvgGroup = svg.append("g").attr("id", "zoomGroup")
+    mainSvgGroup.attr('transform', 'translate(' + (this.d3ContainerElem.nativeElement.offsetWidth / 2) + ',0)');
 
-    function zooming(event) {
-      mainSvgGroup.attr("transform", event.transform)
-    }
+    const zooming = function (event) {
+      // .translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0) is needed to center the tree
+      // otherwise center is at (0,0)
+      mainSvgGroup.attr("transform",
+        event.transform.translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0));
+    }.bind(this);
 
     const zoom = d3.zoom().on("zoom", zooming)
     svg.call(zoom)
@@ -62,18 +68,16 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     });
 
 
-    console.log(this.d3ContainerElem.nativeElement.offsetWidth)
-    console.log(this.d3ContainerElem.nativeElement.offsetHeight)
-
     const treeLayout = d3.tree();
     treeLayout.size([this.d3ContainerElem.nativeElement.offsetWidth,
       this.d3ContainerElem.nativeElement.offsetHeight - tree_node_height_width]);
     //if nodeSize is used you cannot use fixed tree size and the root node is drawn at (0,0)
-    //treeLayout.nodeSize([100,50])
+    treeLayout.nodeSize([140, 60])
 
     // calculate layout
     treeLayout(root);
 
+    //add node groups that contain a rectangle and text
     const nodeGroups = mainSvgGroup.selectAll('node')
       .data(root.descendants())
       .enter()
@@ -233,12 +237,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         children: [
           {
             operator: null,
-            label: "a",
+            label: "very long activity name c long activity name c",
             children: []
           },
           {
             operator: null,
-            label: "b",
+            label: "very long activity name c long activity name cb",
             children: []
           },
           {
@@ -252,14 +256,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   };
 
   ngAfterViewInit() {
-
-
     console.log(d3.hierarchy(this.root));
-
     this.plot(d3.hierarchy(this.root, (d) => {
       return d.children;
     }));
 
+    //activate tooltips
     $(function () {
       $('[data-toggle="tooltip"]').tooltip({
         container: "body",
@@ -268,5 +270,4 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       })
     })
   }
-
 }
