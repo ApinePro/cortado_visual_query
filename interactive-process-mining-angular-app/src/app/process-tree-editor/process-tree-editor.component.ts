@@ -73,7 +73,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         event.transform.translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0));
     }.bind(this);
 
-    const zoom: any = d3.zoom().on("zoom", zooming)
+    const zoom: any = d3.zoom().scaleExtent([0.1, 3]).on("zoom", zooming)
     svg.call(zoom).on("dblclick.zoom", null);
 
     //reset zoom
