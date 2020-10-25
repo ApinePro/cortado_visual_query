@@ -36,6 +36,21 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     }.bind(this), 250);
   }
 
+  selectNodeActive: boolean = true;
+  selectSubtreeActive: boolean = false;
+
+  selectNode() {
+    this.selectNodeActive = true;
+    this.selectSubtreeActive = false;
+  }
+
+  selectSubtree() {
+    this.selectNodeActive = false;
+    this.selectSubtreeActive = true;
+  }
+
+  selectedTreeNodeStrokeColor = 'red';
+  nonSelectedTreeNodeStrokeColor = 'gray';
 
   plot = function (root) {
     console.log("plot")
@@ -58,7 +73,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         event.transform.translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0));
     }.bind(this);
 
-    const zoom = d3.zoom().on("zoom", zooming)
+    const zoom: any = d3.zoom().on("zoom", zooming)
     svg.call(zoom).on("dblclick.zoom", null);
 
     //reset zoom
@@ -89,23 +104,23 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       })
       .attr("data-toggle", "tooltip")
       .attr("data-placement", "top")
-      .attr("title", (d) => {
+      .attr("title", (d: any) => {
         return d.data.label
       })
 
     // add edges
     mainSvgGroup.selectAll('link').data(root.links()).enter()
       .append('line').attr('class', 'link')
-      .attr('x1', function (d) {
+      .attr('x1', function (d: any) {
         return d.source.x
       })
-      .attr('y1', function (d) {
+      .attr('y1', function (d: any) {
         return d.source.y + tree_node_height_width
       })
-      .attr('x2', function (d) {
+      .attr('x2', function (d: any) {
         return d.target.x
       })
-      .attr('y2', function (d) {
+      .attr('y2', function (d: any) {
         return d.target.y
       })
       .attr('stroke', 'gray');
@@ -113,19 +128,19 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     //add nodes
     nodeGroups.append('rect')
       .classed('node', true)
-      .classed('node-operator', function (d) {
+      .classed('node-operator', function (d: any) {
         return d.data.operator !== null
       })
-      .classed('node-visible-activity', function (d) {
+      .classed('node-visible-activity', function (d: any) {
         return d.data.label !== null && d.data.label !== "\u03C4"
       })
-      .classed('node-invisible-activity', (d) => {
+      .classed('node-invisible-activity', (d: any) => {
         return d.data.label === "\u03C4"
       })
-      .attr('x', function (d) {
+      .attr('x', function (d: any) {
         return d.x - tree_node_height_width / 2;
       })
-      .attr('y', function (d) {
+      .attr('y', function (d: any) {
         return d.y;
       })
       .attr('width', tree_node_height_width)
@@ -137,19 +152,19 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     nodeGroups.append("text")
       .classed('user-select-none', true)
       .attr("fill", "white")
-      .attr("font-size", (d) => {
+      .attr("font-size", (d: any) => {
         if (d.data.operator) return "1.5em";
         return "smaller";
       })
       .attr("text-anchor", "middle")
       .attr("dominant-baseline", "middle")
-      .attr('x', function (d) {
+      .attr('x', function (d: any) {
         return d.x;
       })
-      .attr('y', function (d) {
+      .attr('y', function (d: any) {
         return d.y + tree_node_height_width / 2 + 3;
       })
-      .text(function (d) {
+      .text(function (d: any) {
         if (d.data.operator) return d.data.operator;
         if (d.data.label) {
           //shorten text if it is too long
@@ -172,26 +187,23 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
 
     nodeGroups.on("click",
-      function (event, index) {
+      function (event, index, a) {
         console.log(this)
         console.log(event);
         console.log(index);
-        console.log(typeof index.children)
+        unselectAllNodes()
         selectSubtree(this, index);
-
       });
 
-    function selectSubtree(node, index) {
-      const selected = 'red';
-      const nonSelected = 'gray';
-      d3.select(node).select(".node").attr('stroke', () => {
-        if (d3.select(node).select(".node").attr('stroke') == selected) {
-          return nonSelected;
+    const selectSubtree = function (svgGroup, index) {
+      d3.select(svgGroup).select(".node").attr('stroke', () => {
+        if (d3.select(svgGroup).select(".node").attr('stroke') == this.selectedTreeNodeStrokeColor) {
+          return this.nonSelectedTreeNodeStrokeColor;
         } else {
-          return selected;
+          return this.selectedTreeNodeStrokeColor;
         }
       })
-      if (index.children) {
+      if (index.children && this.selectSubtreeActive) {
         index.children.forEach(c => {
             console.log(c)
             console.log(mainSvgGroup.select('[id="' + c.data.id + '"]').node())
@@ -199,7 +211,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
           }
         )
       }
-    }
+    }.bind(this)
+
+    const unselectAllNodes = function () {
+      console.log(nodeGroups.selectAll('rect'))
+      nodeGroups.selectAll('rect').attr('stroke', this.nonSelectedTreeNodeStrokeColor)
+    }.bind(this)
   }
 
   root = {

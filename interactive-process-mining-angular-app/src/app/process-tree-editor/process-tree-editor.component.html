@@ -37,18 +37,16 @@
     </button>
 
 
-
-
-    <button class="button ml-3">
+    <button class="button ml-3" (click)="selectNode()" [class.button-active]="selectNodeActive">
       select node
-      <svg class="bi bi-arrow-bar-down text-light" width="1.5em" height="1.5em" fill="currentColor">
+      <svg class="bi bi-arrow-bar-down text-danger" width="1.5em" height="1.5em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#check2-square"/>
       </svg>
     </button>
 
-    <button class="button">
+    <button class="button" (click)="selectSubtree()" [class.button-active]="selectSubtreeActive">
       select subtree
-      <svg class="bi bi-arrow-bar-down text-light" width="1.5em" height="1.5em" fill="currentColor">
+      <svg class="bi bi-arrow-bar-down text-danger" width="1.5em" height="1.5em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#diagram-2"/>
       </svg>
     </button>
@@ -60,7 +58,7 @@
       </svg>
     </button>
 
-    
+
   </div>
 
   <div #d3container id="d3-container" class="m-1 flex-grow-1">

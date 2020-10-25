@@ -34,9 +34,11 @@
   margin-right: 2px;
 }
 
+.button-active {
+  background-color: #999999;
+}
+
 .button:hover {
   background-color: #676767;
 }
-
-
 
