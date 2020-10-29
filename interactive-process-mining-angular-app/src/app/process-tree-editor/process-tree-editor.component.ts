@@ -52,38 +52,19 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   selectedTreeNodeStrokeColor = 'red';
   nonSelectedTreeNodeStrokeColor = 'gray';
 
-  plot = function (root) {
-    console.log("plot")
-    console.log(this.d3ContainerElem.nativeElement.offsetWidth)
-    console.log(this.d3ContainerElem.nativeElement.offsetHeight)
+  svg;
+  mainSvgGroup;
+  nodeGroups;
 
-    const svg = d3.select("#d3-svg")
-    //clear svg before plot (needed when window is resized)
-    svg.selectAll("*").remove();
-
-    //add zoom option
-    const mainSvgGroup = svg.append("g").attr("id", "zoomGroup")
-    mainSvgGroup.attr('transform', 'translate(' + (this.d3ContainerElem.nativeElement.offsetWidth / 2) + ',0)');
-
-    const zooming = function (event) {
-      // .translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0) is needed to center the tree
-      // otherwise center is at (0,0)
-      console.log(event)
-      mainSvgGroup.attr("transform",
-        event.transform.translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0));
-    }.bind(this);
-
-    const zoom: any = d3.zoom().scaleExtent([0.1, 3]).on("zoom", zooming)
-    svg.call(zoom).on("dblclick.zoom", null);
-
-    //reset zoom
-    d3.select("#btn-reset-zoom").on("click", () => {
-      svg.transition()
-        .duration(250)
-        .call(zoom.transform, d3.zoomIdentity);
-    });
+  selectedRootNode;
 
 
+  update(root) {
+    this.getTreeLayout(root);
+
+  }
+
+  getTreeLayout(root) {
     const treeLayout = d3.tree();
     treeLayout.size([this.d3ContainerElem.nativeElement.offsetWidth,
       this.d3ContainerElem.nativeElement.offsetHeight - tree_node_height_width]);
@@ -92,9 +73,55 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
     // calculate layout
     treeLayout(root);
+    return root
+  }
+
+  addZoomOption() {
+
+    this.mainSvgGroup.attr('transform', 'translate(' + (this.d3ContainerElem.nativeElement.offsetWidth / 2) + ',0)');
+
+    const zooming = function (event) {
+      // .translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0) is needed to center the tree
+      // otherwise center is at (0,0)
+      console.log(event)
+      this.mainSvgGroup.attr("transform",
+        event.transform.translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0));
+    }.bind(this);
+
+    const zoom: any = d3.zoom().scaleExtent([0.1, 3]).on("zoom", zooming)
+    this.svg.call(zoom).on("dblclick.zoom", null);
+
+    //reset zoom
+    d3.select("#btn-reset-zoom").on("click", () => {
+      this.svg.transition()
+        .duration(250)
+        //.ease(d3.easeLinear)
+        .call(zoom.transform, d3.zoomIdentity);
+    });
+  }
+
+  plot(root) {
+
+    console.log("plot")
+    console.log(this.d3ContainerElem.nativeElement.offsetWidth)
+    console.log(this.d3ContainerElem.nativeElement.offsetHeight)
+
+    this.getTreeLayout(root)
+    console.log(root)
+
+    this.svg = d3.select("#d3-svg")
+    console.log(typeof this.svg)
+    //clear svg before plot (needed when window is resized)
+    this.svg.selectAll("*").remove();
+
+    //add zoom option
+
+    this.mainSvgGroup = this.svg.append("g").attr("id", "zoomGroup")
+
+
 
     //add node groups that contain a rectangle and text
-    const nodeGroups = mainSvgGroup.selectAll('node')
+    this.nodeGroups = this.mainSvgGroup.selectAll('node')
       .data(root.descendants())
       .enter()
       .append("g")
@@ -109,7 +136,9 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       })
 
     // add edges
-    mainSvgGroup.selectAll('link').data(root.links()).enter()
+    this.mainSvgGroup.selectAll('link')
+      .data(root.links())
+      .enter()
       .append('line').attr('class', 'link')
       .attr('x1', function (d: any) {
         return d.source.x
@@ -126,7 +155,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .attr('stroke', 'gray');
 
     //add nodes
-    nodeGroups.append('rect')
+    this.nodeGroups.append('rect')
       .classed('node', true)
       .classed('node-operator', function (d: any) {
         return d.data.operator !== null
@@ -149,7 +178,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .attr('stroke-width', '2')
 
     //add node text
-    nodeGroups.append("text")
+    this.nodeGroups.append("text")
       .classed('user-select-none', true)
       .attr("fill", "white")
       .attr("font-size", (d: any) => {
@@ -177,7 +206,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       })
 
     // resize leaf nodes if text is too long
-    nodeGroups.selectAll(".node-visible-activity").attr('x', function (d) {
+    this.nodeGroups.selectAll(".node-visible-activity").attr('x', function (d) {
       // @ts-ignore
       return d.x - Math.max(tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2;
     }).attr("width", function () {
@@ -186,16 +215,18 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     })
 
 
-    nodeGroups.on("click",
-      function (event, index, a) {
+    this.nodeGroups.on("click",
+      function (event, d) {
         console.log(this)
         console.log(event);
-        console.log(index);
+        console.log(d);
         unselectAllNodes()
-        selectSubtree(this, index);
-      });
+        selectSubtree(this, d);
+      }
+    );
 
-    const selectSubtree = function (svgGroup, index) {
+    const selectSubtree = function (svgGroup, d) {
+      this.selectedRootNode = d;
       d3.select(svgGroup).select(".node").attr('stroke', () => {
         if (d3.select(svgGroup).select(".node").attr('stroke') == this.selectedTreeNodeStrokeColor) {
           return this.nonSelectedTreeNodeStrokeColor;
@@ -203,20 +234,23 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
           return this.selectedTreeNodeStrokeColor;
         }
       })
-      if (index.children && this.selectSubtreeActive) {
-        index.children.forEach(c => {
+      if (d.children && this.selectSubtreeActive) {
+        d.children.forEach(c => {
             console.log(c)
-            console.log(mainSvgGroup.select('[id="' + c.data.id + '"]').node())
-            selectSubtree(mainSvgGroup.select('[id="' + c.data.id + '"]').node(), c);
+            console.log(this.mainSvgGroup.select('[id="' + c.data.id + '"]').node())
+            selectSubtree(this.mainSvgGroup.select('[id="' + c.data.id + '"]').node(), c);
           }
         )
       }
+      console.log(this.selectedRootNode);
     }.bind(this)
 
     const unselectAllNodes = function () {
-      console.log(nodeGroups.selectAll('rect'))
-      nodeGroups.selectAll('rect').attr('stroke', this.nonSelectedTreeNodeStrokeColor)
+      console.log(this.nodeGroups.selectAll('rect'))
+      this.nodeGroups.selectAll('rect').attr('stroke', this.nonSelectedTreeNodeStrokeColor)
     }.bind(this)
+
+    this.addZoomOption();
   }
 
   root = {
@@ -236,7 +270,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         },
           {
             operator: null,
-            label: "b",
+            label: "very long activity label",
             id: 7823782399,
             children: []
           }]
