@@ -74,9 +74,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     let node = this.mainSvgGroup.selectAll('g').data(root.descendants(), function (d) {
       return d.data.id;
     })
-    let nodeUpdate = this.mainSvgGroup.selectAll('g').data(root.descendants(), function (d) {
-      return d.data.id;
-    })
 
     //remove nodes
     node.exit().transition().duration(50).remove()
@@ -91,7 +88,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .attr("title", (d: any) => {
         return d.data.label
       })
-
 
     //add nodes
     this.nodeEnter.append('rect')
@@ -110,7 +106,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .attr('stroke', 'gray')
       .attr('stroke-width', '2')
       .merge(node.select('rect'))
-      //.transition()
       .attr('x', function (d: any) {
         return d.x - tree_node_height_width / 2;
       })
@@ -139,6 +134,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
             return d.data.label.substring(0, 20) + "...";
           }
         }
+      })
+      .attr('x', function (d: any) {
+        return d.x;
+      })
+      .attr('y', function (d: any) {
+        return d.y + tree_node_height_width / 2 + 3;
       })
       .merge(node.select('text'))
       .attr('x', function (d: any) {
@@ -190,7 +191,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       return Math.max(tree_node_height_width, this.nextSibling.getComputedTextLength() + 10);
     })
 
-    this.horizontallyCenterTree();
     this.addSelectionFunctionality();
   }
 
@@ -282,8 +282,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       //console.log(this.nodeGroups.selectAll('rect'))
       this.nodeEnter.selectAll('rect').attr('stroke', this.nonSelectedTreeNodeStrokeColor)
     }.bind(this)
-
-    this.addZoomFunctionality();
   }
 
   plot(root) {
@@ -298,6 +296,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     //add svg group for zooming
     this.mainSvgGroup = this.svg.append("g").attr("id", "zoomGroup")
     this.update(root)
+    this.horizontallyCenterTree()
+    this.addZoomFunctionality();
   }
 
   root: d3.HierarchyNode<any>;
