@@ -1,6 +1,8 @@
 import {Component, OnInit, ViewChild, AfterViewInit, ElementRef, ViewEncapsulation, HostListener} from '@angular/core';
 import * as d3 from "d3";
 import {tree_node_height_width} from "./constants_tree_d3";
+import {root} from "rxjs/internal-compatibility";
+import {isArray} from "util";
 //jQuery
 declare var $;
 
@@ -30,9 +32,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     this.resizeTimer = setTimeout(function () {
       console.log("replot svg");
       //resizing has potentially "stopped", i.e., user has not resized window since last 250ms
-      this.plot(d3.hierarchy(this.root, (d) => {
-        return d.children;
-      }));
+      this.update(this.root);
     }.bind(this), 250);
   }
 
@@ -54,77 +54,34 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
   svg;
   mainSvgGroup;
-  nodeGroups;
+  nodeEnter;
 
   selectedRootNode;
 
 
-  update(root) {
-    this.getTreeLayout(root);
-
-  }
-
-  getTreeLayout(root) {
-    const treeLayout = d3.tree();
-    treeLayout.size([this.d3ContainerElem.nativeElement.offsetWidth,
-      this.d3ContainerElem.nativeElement.offsetHeight - tree_node_height_width]);
-    //if nodeSize is used you cannot use fixed tree size and the root node is drawn at (0,0)
-    treeLayout.nodeSize([140, 60])
-
-    // calculate layout
-    treeLayout(root);
-    return root
-  }
-
-  addZoomOption() {
-
+  horizontallyCenterTree() {
     this.mainSvgGroup.attr('transform', 'translate(' + (this.d3ContainerElem.nativeElement.offsetWidth / 2) + ',0)');
-
-    const zooming = function (event) {
-      // .translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0) is needed to center the tree
-      // otherwise center is at (0,0)
-      console.log(event)
-      this.mainSvgGroup.attr("transform",
-        event.transform.translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0));
-    }.bind(this);
-
-    const zoom: any = d3.zoom().scaleExtent([0.1, 3]).on("zoom", zooming)
-    this.svg.call(zoom).on("dblclick.zoom", null);
-
-    //reset zoom
-    d3.select("#btn-reset-zoom").on("click", () => {
-      this.svg.transition()
-        .duration(250)
-        //.ease(d3.easeLinear)
-        .call(zoom.transform, d3.zoomIdentity);
-    });
   }
 
-  plot(root) {
+  update(root) {
+    this.calculateTreeLayout(root);
 
-    console.log("plot")
-    console.log(this.d3ContainerElem.nativeElement.offsetWidth)
-    console.log(this.d3ContainerElem.nativeElement.offsetHeight)
-
-    this.getTreeLayout(root)
-    console.log(root)
-
-    this.svg = d3.select("#d3-svg")
-    console.log(typeof this.svg)
-    //clear svg before plot (needed when window is resized)
-    this.svg.selectAll("*").remove();
-
-    //add zoom option
-
-    this.mainSvgGroup = this.svg.append("g").attr("id", "zoomGroup")
-
-
+    console.log(root);
+    console.log(root.descendants());
+    console.log(root.links());
 
     //add node groups that contain a rectangle and text
-    this.nodeGroups = this.mainSvgGroup.selectAll('node')
-      .data(root.descendants())
-      .enter()
-      .append("g")
+    let node = this.mainSvgGroup.selectAll('g').data(root.descendants(), function (d) {
+      return d.data.id;
+    })
+    let nodeUpdate = this.mainSvgGroup.selectAll('g').data(root.descendants(), function (d) {
+      return d.data.id;
+    })
+
+    //remove nodes
+    node.exit().transition().duration(50).remove()
+
+    this.nodeEnter = node.enter().append("g")
       .attr("id", function (d) {
         // @ts-ignore
         return d.data.id
@@ -135,11 +92,71 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         return d.data.label
       })
 
+
+    //add nodes
+    this.nodeEnter.append('rect')
+      .classed('node', true)
+      .classed('node-operator', function (d: any) {
+        return d.data.operator !== null
+      })
+      .classed('node-visible-activity', function (d: any) {
+        return d.data.label !== null && d.data.label !== "\u03C4"
+      })
+      .classed('node-invisible-activity', (d: any) => {
+        return d.data.label === "\u03C4"
+      })
+      .attr('width', tree_node_height_width)
+      .attr('height', tree_node_height_width)
+      .attr('stroke', 'gray')
+      .attr('stroke-width', '2')
+      .merge(node.select('rect'))
+      //.transition()
+      .attr('x', function (d: any) {
+        return d.x - tree_node_height_width / 2;
+      })
+      .attr('y', function (d: any) {
+        return d.y;
+      })
+
+
+    //add node text
+    this.nodeEnter.append("text")
+      .classed('user-select-none', true)
+      .attr("fill", "white")
+      .attr("font-size", (d: any) => {
+        if (d.data.operator) return "1.5em";
+        return "smaller";
+      })
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "middle")
+      .text(function (d: any) {
+        if (d.data.operator) return d.data.operator;
+        if (d.data.label) {
+          //shorten text if it is too long
+          if (d.data.label.length <= 20) {
+            return d.data.label;
+          } else {
+            return d.data.label.substring(0, 20) + "...";
+          }
+        }
+      })
+      .merge(node.select('text'))
+      .attr('x', function (d: any) {
+        return d.x;
+      })
+      .attr('y', function (d: any) {
+        return d.y + tree_node_height_width / 2 + 3;
+      })
+
+
     // add edges
-    this.mainSvgGroup.selectAll('link')
+    let edges = this.mainSvgGroup.selectAll('line')
       .data(root.links())
-      .enter()
+
+    edges.enter()
       .append('line').attr('class', 'link')
+      .merge(edges)
+      //.transition()
       .attr('x1', function (d: any) {
         return d.source.x
       })
@@ -154,68 +171,84 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       })
       .attr('stroke', 'gray');
 
-    //add nodes
-    this.nodeGroups.append('rect')
-      .classed('node', true)
-      .classed('node-operator', function (d: any) {
-        return d.data.operator !== null
-      })
-      .classed('node-visible-activity', function (d: any) {
-        return d.data.label !== null && d.data.label !== "\u03C4"
-      })
-      .classed('node-invisible-activity', (d: any) => {
-        return d.data.label === "\u03C4"
-      })
-      .attr('x', function (d: any) {
-        return d.x - tree_node_height_width / 2;
-      })
-      .attr('y', function (d: any) {
-        return d.y;
-      })
-      .attr('width', tree_node_height_width)
-      .attr('height', tree_node_height_width)
-      .attr('stroke', 'gray')
-      .attr('stroke-width', '2')
-
-    //add node text
-    this.nodeGroups.append("text")
-      .classed('user-select-none', true)
-      .attr("fill", "white")
-      .attr("font-size", (d: any) => {
-        if (d.data.operator) return "1.5em";
-        return "smaller";
-      })
-      .attr("text-anchor", "middle")
-      .attr("dominant-baseline", "middle")
-      .attr('x', function (d: any) {
-        return d.x;
-      })
-      .attr('y', function (d: any) {
-        return d.y + tree_node_height_width / 2 + 3;
-      })
-      .text(function (d: any) {
-        if (d.data.operator) return d.data.operator;
-        if (d.data.label) {
-          //shorten text if it is too long
-          if (d.data.label.length <= 20) {
-            return d.data.label;
-          } else {
-            return d.data.label.substring(0, 20) + "...";
-          }
-        }
-      })
+    // remove old edges
+    edges.exit().remove()
 
     // resize leaf nodes if text is too long
-    this.nodeGroups.selectAll(".node-visible-activity").attr('x', function (d) {
+    this.nodeEnter
+      .merge(node)
+      .select(".node-visible-activity")
+      .attr('x', function (d) {
+        // @ts-ignore
+        console.log(d.x)
+
+        console.log(d.x - Math.max(tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2)
+        return d.x - Math.max(tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2;
+      }).attr("width", function () {
       // @ts-ignore
-      return d.x - Math.max(tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2;
-    }).attr("width", function () {
-      // @ts-ignore
+      console.log(Math.max(tree_node_height_width, this.nextSibling.getComputedTextLength() + 10));
       return Math.max(tree_node_height_width, this.nextSibling.getComputedTextLength() + 10);
     })
 
+    this.horizontallyCenterTree();
+    this.addSelectionFunctionality();
+  }
 
-    this.nodeGroups.on("click",
+  deleteSubtree() {
+    console.log(this.selectedRootNode);
+    console.log(this.root)
+    //this.deleteNodeFromTree(this.root,this.selectedRootNode.data.id)
+
+    console.log(this.root);
+    this.deleteNodeAndChildren(this.root, this.selectedRootNode)
+    console.log(this.root)
+    this.update(this.root);
+  }
+
+  deleteNodeAndChildren(tree, nodeToDelete) {
+    if (tree.children) {
+      tree.children = tree.children.filter(c => c != nodeToDelete)
+      tree.children.forEach(function (c) {
+        this.deleteNodeAndChildren(c, nodeToDelete);
+      }.bind(this))
+    }
+  }
+
+
+  calculateTreeLayout(root) {
+    const treeLayout = d3.tree();
+    treeLayout.size([this.d3ContainerElem.nativeElement.offsetWidth,
+      this.d3ContainerElem.nativeElement.offsetHeight - tree_node_height_width]);
+    //if nodeSize is used you cannot use fixed tree size and the root node is drawn at (0,0)
+    treeLayout.nodeSize([140, 60])
+    // calculate layout
+    treeLayout(root);
+  }
+
+  addZoomFunctionality() {
+    this.mainSvgGroup.attr('transform', 'translate(' + (this.d3ContainerElem.nativeElement.offsetWidth / 2) + ',0)');
+    const zooming = function (event) {
+      // .translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0) is needed to center the tree
+      // otherwise center is at (0,0)
+      //console.log(event)
+      this.mainSvgGroup.attr("transform",
+        event.transform.translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0));
+    }.bind(this);
+
+    const zoom: any = d3.zoom().scaleExtent([0.1, 3]).on("zoom", zooming)
+    this.svg.call(zoom).on("dblclick.zoom", null);
+
+    //reset zoom
+    d3.select("#btn-reset-zoom").on("click", () => {
+      this.svg.transition()
+        .duration()
+        //.ease(d3.easeLinear)
+        .call(zoom.transform, d3.zoomIdentity);
+    });
+  }
+
+  addSelectionFunctionality() {
+    this.nodeEnter.on("click",
       function (event, d) {
         console.log(this)
         console.log(event);
@@ -246,14 +279,29 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     }.bind(this)
 
     const unselectAllNodes = function () {
-      console.log(this.nodeGroups.selectAll('rect'))
-      this.nodeGroups.selectAll('rect').attr('stroke', this.nonSelectedTreeNodeStrokeColor)
+      //console.log(this.nodeGroups.selectAll('rect'))
+      this.nodeEnter.selectAll('rect').attr('stroke', this.nonSelectedTreeNodeStrokeColor)
     }.bind(this)
 
-    this.addZoomOption();
+    this.addZoomFunctionality();
   }
 
-  root = {
+  plot(root) {
+    console.log("plot")
+    console.log(this.d3ContainerElem.nativeElement.offsetWidth)
+    console.log(this.d3ContainerElem.nativeElement.offsetHeight)
+    console.log(root)
+
+    this.calculateTreeLayout(root)
+    this.svg = d3.select("#d3-svg")
+    this.svg.selectAll("*").remove();
+    //add svg group for zooming
+    this.mainSvgGroup = this.svg.append("g").attr("id", "zoomGroup")
+    this.update(root)
+  }
+
+  root: d3.HierarchyNode<any>;
+  tree = {
     operator: '\u2715',
     label: null,
     id: 7823782323,
@@ -296,6 +344,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
             label: "long activity name c",
             id: 7824782323,
             children: []
+          },
+          {
+            operator: null,
+            label: "long activity name c",
+            id: 7124782321,
+            children: []
           }
         ]
       }, {
@@ -320,6 +374,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
             label: "very long activity name c long activity name c",
             id: 7899782323,
             children: []
+          },
+          {
+            operator: null,
+            label: "very long activity name c long activity name c",
+            id: 3339782323,
+            children: []
           }
         ]
       }
@@ -327,10 +387,11 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   };
 
   ngAfterViewInit() {
-    console.log(d3.hierarchy(this.root));
-    this.plot(d3.hierarchy(this.root, (d) => {
+    console.log(d3.hierarchy(this.tree));
+    this.root = d3.hierarchy(this.tree, (d) => {
       return d.children;
-    }));
+    })
+    this.plot(this.root);
 
     //activate tooltips
     $(function () {

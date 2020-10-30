@@ -18,7 +18,7 @@
       </svg>
     </button>
 
-    <button class="button text-warning">
+    <button class="button text-warning" (click)="deleteSubtree()">
       <svg class="bi bi-arrow-bar-down " width="1.5em" height="1.5em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#trash"/>
       </svg>
@@ -61,7 +61,7 @@
 
   </div>
 
-  <div #d3container id="d3-container" class="m-1 flex-grow-1">
+  <div #d3container id="d3-container" class="mt-2 flex-grow-1 crosshair">
 
     <svg #d3svg id="d3-svg" width="100%" height="100%"></svg>
 
