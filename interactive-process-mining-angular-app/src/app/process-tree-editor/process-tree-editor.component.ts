@@ -239,12 +239,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     this.svg.call(zoom).on("dblclick.zoom", null);
 
     //reset zoom
-    d3.select("#btn-reset-zoom").on("click", () => {
+    d3.select("#btn-reset-zoom").on("click", function () {
       this.svg.transition()
-        .duration()
-        //.ease(d3.easeLinear)
+        .duration(250)
+        .ease(d3.easeExpInOut)
         .call(zoom.transform, d3.zoomIdentity);
-    });
+    }.bind(this));
   }
 
   addSelectionFunctionality() {
@@ -279,8 +279,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     }.bind(this)
 
     const unselectAllNodes = function () {
-      //console.log(this.nodeGroups.selectAll('rect'))
-      this.nodeEnter.selectAll('rect').attr('stroke', this.nonSelectedTreeNodeStrokeColor)
+      console.log("unselect all nodes")
+      this.mainSvgGroup.selectAll('rect').attr('stroke', this.nonSelectedTreeNodeStrokeColor)
     }.bind(this)
   }
 
@@ -292,7 +292,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
     this.calculateTreeLayout(root)
     this.svg = d3.select("#d3-svg")
-    this.svg.selectAll("*").remove();
     //add svg group for zooming
     this.mainSvgGroup = this.svg.append("g").attr("id", "zoomGroup")
     this.update(root)
