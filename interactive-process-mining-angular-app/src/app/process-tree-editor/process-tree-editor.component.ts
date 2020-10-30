@@ -1,8 +1,6 @@
 import {Component, OnInit, ViewChild, AfterViewInit, ElementRef, ViewEncapsulation, HostListener} from '@angular/core';
 import * as d3 from "d3";
 import {tree_node_height_width} from "./constants_tree_d3";
-import {root} from "rxjs/internal-compatibility";
-import {isArray} from "util";
 //jQuery
 declare var $;
 
