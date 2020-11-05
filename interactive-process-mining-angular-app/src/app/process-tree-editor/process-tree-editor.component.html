@@ -24,14 +24,14 @@
       </svg>
     </button>
 
-    <button class="button" (click)="shiftSubtreeToLeft()" >
+    <button class="button" (click)="shiftSubtreeToLeft()" [disabled]="shiftSubtreeToLeftRightButtonDisabled()">
       <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#chevron-left"/>
       </svg>
     </button>
 
-    <button class="button" (click)="shiftSubtreeToRight()" >
-      <svg class="bi bi-arrow-bar-down text-light" width="1.5em" height="1.5em" fill="currentColor">
+    <button class="button" (click)="shiftSubtreeToRight()" [disabled]="shiftSubtreeToLeftRightButtonDisabled()">
+      <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#chevron-right"/>
       </svg>
     </button>

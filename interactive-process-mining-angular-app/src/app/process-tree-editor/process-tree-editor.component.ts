@@ -67,8 +67,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     return !this.selectedRootNode || this.rootNodeSelected();
   }
 
-  shiftSubtreeToLeftRightButtonDisabled():boolean{
-    return this.selectedRootNode && this.selectedRootNode.parent
+  shiftSubtreeToLeftRightButtonDisabled(): Boolean {
+    return this.selectedRootNode === null || this.selectedRootNode === undefined || this.selectedRootNode.parent === null
   }
 
   shiftSubtreeToLeft(): void {
@@ -258,8 +258,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       }
     }
   }
-
-
 
 
   calculateTreeLayout(root): void {
