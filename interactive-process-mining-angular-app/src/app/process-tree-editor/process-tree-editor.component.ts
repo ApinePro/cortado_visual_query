@@ -59,8 +59,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     return this.selectedRootNode && this.selectedRootNode.height === 0 ? true : false;
   }
 
-  deleteSubtreeActive(): Boolean {
-    return !this.selectedRootNode;
+  rootNodeSelected():Boolean{
+    return this.selectedRootNode && this.selectedRootNode.depth === 0;
+  }
+
+  deleteSubtreeDisabled(): Boolean {
+    return !this.selectedRootNode || this.rootNodeSelected();
   }
 
 
