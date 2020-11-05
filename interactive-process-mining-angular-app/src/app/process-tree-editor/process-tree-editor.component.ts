@@ -35,7 +35,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   insertNewNodeButtonActive(): Boolean {
-    return !(this.selectedRootNode && this.selectNodeActive)
+    return !this.singleNodeSelected();
   }
 
   selectNodeActive: boolean = true;
