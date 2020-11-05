@@ -59,12 +59,42 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     return this.selectedRootNode && this.selectedRootNode.height === 0 ? true : false;
   }
 
-  rootNodeSelected():Boolean{
+  rootNodeSelected(): Boolean {
     return this.selectedRootNode && this.selectedRootNode.depth === 0;
   }
 
   deleteSubtreeDisabled(): Boolean {
     return !this.selectedRootNode || this.rootNodeSelected();
+  }
+
+  shiftSubtreeToLeftRightButtonDisabled():boolean{
+    return this.selectedRootNode && this.selectedRootNode.parent
+  }
+
+  shiftSubtreeToLeft(): void {
+    if (this.selectedRootNode.parent) {
+      const idxInParentChildList = this.selectedRootNode.parent.children.indexOf(this.selectedRootNode);
+      if (idxInParentChildList > 0) {
+        const childToRight = this.selectedRootNode.parent.children[idxInParentChildList - 1]
+        const childToLeft = this.selectedRootNode.parent.children[idxInParentChildList]
+        this.selectedRootNode.parent.children[idxInParentChildList] = childToRight;
+        this.selectedRootNode.parent.children[idxInParentChildList - 1] = childToLeft;
+        this.update(this.root);
+      }
+    }
+  }
+
+  shiftSubtreeToRight(): void {
+    if (this.selectedRootNode.parent) {
+      const idxInParentChildList = this.selectedRootNode.parent.children.indexOf(this.selectedRootNode);
+      if (idxInParentChildList < this.selectedRootNode.parent.children.length - 1) {
+        const childToRight = this.selectedRootNode.parent.children[idxInParentChildList]
+        const childToLeft = this.selectedRootNode.parent.children[idxInParentChildList + 1]
+        this.selectedRootNode.parent.children[idxInParentChildList + 1] = childToRight;
+        this.selectedRootNode.parent.children[idxInParentChildList] = childToLeft;
+        this.update(this.root);
+      }
+    }
   }
 
 
@@ -230,7 +260,9 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
 
-  calculateTreeLayout(root) {
+
+
+  calculateTreeLayout(root): void {
     const treeLayout = d3.tree();
     treeLayout.size([this.d3ContainerElem.nativeElement.offsetWidth,
       this.d3ContainerElem.nativeElement.offsetHeight - tree_node_height_width]);
@@ -240,7 +272,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     treeLayout(root);
   }
 
-  addZoomFunctionality() {
+  addZoomFunctionality(): void {
     this.mainSvgGroup.attr('transform', 'translate(' + (this.d3ContainerElem.nativeElement.offsetWidth / 2) + ',0)');
     const zooming = function (event) {
       // .translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0) is needed to center the tree
