@@ -1,24 +1,24 @@
 <div class="main h-100 d-flex flex-column">
   <div>
-    <button class="button text-success">
+    <button class="button text-success" [disabled]="insertNewNodeButtonActive()">
       <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#box-arrow-in-left "/>
       </svg>
     </button>
 
-    <button class="button text-success">
+    <button class="button text-success" [disabled]="insertNewNodeButtonActive()">
       <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#box-arrow-in-down "/>
       </svg>
     </button>
 
-    <button class="button text-success">
+    <button class="button text-success" [disabled]="insertNewNodeButtonActive()">
       <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#box-arrow-in-right"/>
       </svg>
     </button>
 
-    <button class="button text-warning" (click)="deleteSubtree()">
+    <button class="button text-warning" (click)="deleteSubtree()" [disabled]="deleteSubtreeActive()">
       <svg class="bi bi-arrow-bar-down " width="1.5em" height="1.5em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#trash"/>
       </svg>
@@ -36,29 +36,48 @@
       </svg>
     </button>
 
+    <span class="ml-3"></span>
 
-    <button class="button ml-3" (click)="selectNode()" [class.button-active]="selectNodeActive">
+    <button class="button" (click)="selectNode()" [class.button-active]="selectNodeActive">
       select node
       <svg class="bi bi-arrow-bar-down text-danger" width="1.5em" height="1.5em" fill="currentColor">
-        <use xlink:href="assets/bootstrap-icons.svg#check2-square"/>
+        <use xlink:href="assets/bootstrap-icons.svg#check2"/>
       </svg>
     </button>
 
     <button class="button" (click)="selectSubtree()" [class.button-active]="selectSubtreeActive">
       select subtree
       <svg class="bi bi-arrow-bar-down text-danger" width="1.5em" height="1.5em" fill="currentColor">
-        <use xlink:href="assets/bootstrap-icons.svg#diagram-2"/>
+        <use xlink:href="assets/bootstrap-icons.svg#check2-all"/>
       </svg>
     </button>
 
-    <button class="button ml-3" id="btn-reset-zoom" data-toggle="tooltip" data-placement="top"
+    <button class="button" (click)="clearSelection()">
+      clear selection
+      <svg class="bi bi-arrow-bar-down text-danger" width="1.5em" height="1.5em" fill="currentColor">
+        <use xlink:href="assets/bootstrap-icons.svg#x"/>
+      </svg>
+    </button>
+
+    <span class="ml-3"></span>
+
+    <button class="button" id="btn-reset-zoom" data-toggle="tooltip" data-placement="top"
             title="reset view">
       <svg class="bi bi-arrow-bar-down text-light" width="1.5em" height="1.5em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#arrows-fullscreen"/>
       </svg>
     </button>
 
+    <!--
+    <span class="ml-3"></span>
 
+    <button class="button" data-toggle="tooltip" data-placement="top"
+            title="download process tree as .ptml file">
+      <svg class="bi bi-arrow-bar-down text-light" width="1.5em" height="1.5em" fill="currentColor">
+        <use xlink:href="assets/bootstrap-icons.svg#cloud-download"/>
+      </svg>
+    </button>
+    -->
   </div>
 
   <div #d3container id="d3-container" class="mt-2 flex-grow-1 crosshair">

@@ -34,27 +34,42 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     }.bind(this), 250);
   }
 
+  insertNewNodeButtonActive(): Boolean {
+    return !(this.selectedRootNode && this.selectNodeActive)
+  }
+
   selectNodeActive: boolean = true;
   selectSubtreeActive: boolean = false;
 
   selectNode() {
+    this.clearSelection();
     this.selectNodeActive = true;
     this.selectSubtreeActive = false;
   }
 
   selectSubtree() {
+    this.clearSelection();
     this.selectNodeActive = false;
     this.selectSubtreeActive = true;
   }
 
-  selectedTreeNodeStrokeColor = 'red';
+  selectedRootNode;
+
+  singleNodeSelected(): Boolean {
+    return this.selectedRootNode && this.selectedRootNode.height === 0 ? true : false;
+  }
+
+  deleteSubtreeActive(): Boolean {
+    return !this.selectedRootNode;
+  }
+
+
+  selectedTreeNodeStrokeColor = '#dc3545';
   nonSelectedTreeNodeStrokeColor = 'gray';
 
   svg;
   mainSvgGroup;
   nodeEnter;
-
-  selectedRootNode;
 
 
   horizontallyCenterTree() {
@@ -62,20 +77,18 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   update(root) {
-    this.calculateTreeLayout(root);
-
     console.log(root);
     console.log(root.descendants());
     console.log(root.links());
 
+    this.calculateTreeLayout(root);
     //add node groups that contain a rectangle and text
     let node = this.mainSvgGroup.selectAll('g').data(root.descendants(), function (d) {
       return d.data.id;
     })
-
     //remove nodes
     node.exit().transition().duration(50).remove()
-
+    //add node groups
     this.nodeEnter = node.enter().append("g")
       .attr("id", function (d) {
         // @ts-ignore
@@ -86,7 +99,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .attr("title", (d: any) => {
         return d.data.label
       })
-
     //add nodes
     this.nodeEnter.append('rect')
       .classed('node', true)
@@ -110,8 +122,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .attr('y', function (d: any) {
         return d.y;
       })
-
-
     //add node text
     this.nodeEnter.append("text")
       .classed('user-select-none', true)
@@ -147,11 +157,11 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         return d.y + tree_node_height_width / 2 + 3;
       })
 
-
-    // add edges
-    let edges = this.mainSvgGroup.selectAll('line')
+    const edges = this.mainSvgGroup.selectAll('line')
       .data(root.links())
-
+    // remove old edges
+    edges.exit().remove()
+    // add edges
     edges.enter()
       .append('line').attr('class', 'link')
       .merge(edges)
@@ -169,9 +179,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         return d.target.y
       })
       .attr('stroke', 'gray');
-
-    // remove old edges
-    edges.exit().remove()
 
     // resize leaf nodes if text is too long
     this.nodeEnter
@@ -201,14 +208,20 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     this.deleteNodeAndChildren(this.root, this.selectedRootNode)
     console.log(this.root)
     this.update(this.root);
+    this.selectedRootNode = undefined;
   }
 
   deleteNodeAndChildren(tree, nodeToDelete) {
     if (tree.children) {
       tree.children = tree.children.filter(c => c != nodeToDelete)
-      tree.children.forEach(function (c) {
-        this.deleteNodeAndChildren(c, nodeToDelete);
-      }.bind(this))
+      if (tree.children.length === 0) {
+        tree.children = null;
+      }
+      if (tree.children) {
+        tree.children.forEach(function (c) {
+          this.deleteNodeAndChildren(c, nodeToDelete);
+        }.bind(this))
+      }
     }
   }
 
@@ -252,19 +265,25 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         console.log(event);
         console.log(d);
         unselectAllNodes()
+        setSelectedRootNode(d);
         selectSubtree(this, d);
       }
     );
 
-    const selectSubtree = function (svgGroup, d) {
+    const setSelectedRootNode = function (d) {
       this.selectedRootNode = d;
+    }.bind(this)
+
+    const selectSubtree = function (svgGroup, d) {
       d3.select(svgGroup).select(".node").attr('stroke', () => {
+        //add red stroke around activity nodes
         if (d3.select(svgGroup).select(".node").attr('stroke') == this.selectedTreeNodeStrokeColor) {
           return this.nonSelectedTreeNodeStrokeColor;
         } else {
           return this.selectedTreeNodeStrokeColor;
         }
       })
+      //add red stroke around sub-nodes if select subtree is selected
       if (d.children && this.selectSubtreeActive) {
         d.children.forEach(c => {
             console.log(c)
@@ -273,13 +292,19 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
           }
         )
       }
-      console.log(this.selectedRootNode);
+      //console.log(this.selectedRootNode);
+      //console.log(this.singleNodeSelected());
     }.bind(this)
 
     const unselectAllNodes = function () {
-      console.log("unselect all nodes")
-      this.mainSvgGroup.selectAll('rect').attr('stroke', this.nonSelectedTreeNodeStrokeColor)
+      this.clearSelection();
     }.bind(this)
+  }
+
+  clearSelection(): void {
+    console.log("clear selection")
+    this.selectedRootNode = null;
+    this.mainSvgGroup.selectAll('rect').attr('stroke', this.nonSelectedTreeNodeStrokeColor);
   }
 
   plot(root) {

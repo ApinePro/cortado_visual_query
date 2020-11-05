@@ -24,7 +24,7 @@
 .button {
   color: #ffffff;
   border: none;
-  padding: 3px 30px;
+  padding: 3px 20px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -42,6 +42,13 @@
   background-color: #676767;
 }
 
-.crosshair {cursor: crosshair;}
+.button:disabled {
+  background-color: #414141;
+  color: #757575 !important;
+}
+
+.crosshair {
+  cursor: crosshair;
+}
 
 
