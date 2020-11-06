@@ -5,16 +5,20 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FooterComponent } from './footer/footer.component';
 import { ProcessTreeEditorComponent } from './process-tree-editor/process-tree-editor.component';
+import { StrFilterPipe } from './str-filter.pipe';
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
     AppComponent,
     FooterComponent,
-    ProcessTreeEditorComponent
+    ProcessTreeEditorComponent,
+    StrFilterPipe
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -22,6 +22,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
   }
 
+  searchText: string;
+
+  // TODO implement
+  previousTreeObjects: any[] = [];
+  currentIdxPreviousTreeObjects: number;
+
   resizeTimer;
 
   @HostListener('window:resize', ['$event'])
@@ -34,7 +40,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     }.bind(this), 250);
   }
 
-  insertNewNodeButtonActive(): Boolean {
+  insertNewNodeButtonDisabled(): Boolean {
     return !this.singleNodeSelected();
   }
 
@@ -260,6 +266,52 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
 
+  // Inserting node functionality
+  selectedInsertMethod:Function=this.insertNewNodeRight;
+
+  insertNewNodeLeft():void{
+
+  }
+
+  insertNewNodeBelow():void{
+
+  }
+
+  insertNewNodeRight(operator,label): void {
+
+    console.log("insertNewNodeRight()");
+    console.log(this.selectedRootNode);
+
+    //TODO create new node
+    const nodeData = {
+      operator: operator,
+      label: label,
+      id: 7823872023,
+      children: []
+    }
+    const newNode = d3.hierarchy(nodeData);
+    // @ts-ignore
+    newNode.depth = this.selectedRootNode.depth;
+    newNode.parent = this.selectedRootNode.parent;
+    // @ts-ignore
+    newNode.height = this.selectedRootNode.height;
+    console.log(newNode);
+
+    if (this.selectedRootNode.parent) {
+      const idx: number = this.selectedRootNode.parent.children.indexOf(this.selectedRootNode);
+      if (idx + 1 <= this.selectedRootNode.parent.children.length) {
+        this.selectedRootNode.parent.children.splice(idx + 1, 0, newNode)
+      } else if (idx + 1 === this.selectedRootNode.parent.children.length) {
+        this.selectedRootNode.parent.children.append(newNode)
+      }
+    }
+    this.update(this.root);
+    this.clearSelection();
+  }
+
+  // END - Inserting node functionality
+
+
   calculateTreeLayout(root): void {
     const treeLayout = d3.tree();
     treeLayout.size([this.d3ContainerElem.nativeElement.offsetWidth,
@@ -409,7 +461,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
           }
         ]
       }, {
-        operator: '\u2192',
+        operator: '\u2794',
         label: null,
         id: 7829482323,
         children: [
@@ -441,6 +493,17 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       }
     ]
   };
+
+  activitiesOccurringInLog = [
+    "register request",
+    "examine thoroughly",
+    "examine casually",
+    "check ticket",
+    "decide",
+    "reinitiate request",
+    "pay compensation",
+    "reject request",
+  ]
 
   ngAfterViewInit() {
     console.log(d3.hierarchy(this.tree));

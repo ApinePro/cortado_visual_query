@@ -43,6 +43,10 @@
   background-color: #676767;
 }
 
+.button:focus{
+
+}
+
 .button:disabled {
   background-color: #414141;
   color: #757575 !important;
@@ -51,5 +55,20 @@
 .crosshair {
   cursor: crosshair;
 }
+
+.dropdown-node-insert {
+  font-size: small;
+  max-height: 50vh;
+  overflow-x: auto;
+  user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+}
+
+.insertion-position-active{
+  background-color: #a6cf82;
+}
+
 
 
