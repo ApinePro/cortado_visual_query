@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewChild, AfterViewInit, ElementRef, ViewEncapsulation, HostListener} from '@angular/core';
 import * as d3 from "d3";
-import {tree_node_height_width} from "./constants_tree_d3";
+import * as constants from "./constants_tree_d3";
 //jQuery
 declare var $;
 
@@ -103,10 +103,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     }
   }
 
-
-  selectedTreeNodeStrokeColor = '#dc3545';
-  nonSelectedTreeNodeStrokeColor = 'gray';
-
   svg;
   mainSvgGroup;
   nodeEnter;
@@ -151,13 +147,13 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .classed('node-invisible-activity', (d: any) => {
         return d.data.label === "\u03C4"
       })
-      .attr('width', tree_node_height_width)
-      .attr('height', tree_node_height_width)
+      .attr('width', constants.tree_node_height_width)
+      .attr('height', constants.tree_node_height_width)
       .attr('stroke', 'gray')
       .attr('stroke-width', '2')
       .merge(node.select('rect'))
       .attr('x', function (d: any) {
-        return d.x - tree_node_height_width / 2;
+        return d.x - constants.tree_node_height_width / 2;
       })
       .attr('y', function (d: any) {
         return d.y;
@@ -166,12 +162,11 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     this.nodeEnter.append("text")
       .classed('user-select-none', true)
       .attr("fill", "white")
+      .classed('node-text', true)
       .attr("font-size", (d: any) => {
         if (d.data.operator) return "1.5em";
-        return "smaller";
+        return "12px";
       })
-      .attr("text-anchor", "middle")
-      .attr("dominant-baseline", "middle")
       .text(function (d: any) {
         if (d.data.operator) return d.data.operator;
         if (d.data.label) {
@@ -187,14 +182,14 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         return d.x;
       })
       .attr('y', function (d: any) {
-        return d.y + tree_node_height_width / 2 + 3;
+        return d.y + constants.tree_node_height_width / 2 + 3;
       })
       .merge(node.select('text'))
       .attr('x', function (d: any) {
         return d.x;
       })
       .attr('y', function (d: any) {
-        return d.y + tree_node_height_width / 2 + 3;
+        return d.y + constants.tree_node_height_width / 2 + 3;
       })
 
     const edges = this.mainSvgGroup.selectAll('line')
@@ -210,7 +205,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         return d.source.x
       })
       .attr('y1', function (d: any) {
-        return d.source.y + tree_node_height_width
+        return d.source.y + constants.tree_node_height_width
       })
       .attr('x2', function (d: any) {
         return d.target.x
@@ -228,12 +223,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         // @ts-ignore
         console.log(d.x)
 
-        console.log(d.x - Math.max(tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2)
-        return d.x - Math.max(tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2;
+        console.log(d.x - Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2)
+        return d.x - Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2;
       }).attr("width", function () {
       // @ts-ignore
-      console.log(Math.max(tree_node_height_width, this.nextSibling.getComputedTextLength() + 10));
-      return Math.max(tree_node_height_width, this.nextSibling.getComputedTextLength() + 10);
+      console.log(Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10));
+      return Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10);
     })
 
     this.addSelectionFunctionality();
@@ -267,46 +262,67 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
 
   // Inserting node functionality
-  selectedInsertMethod:Function=this.insertNewNodeRight;
+  selectedInsertMethod: Function = this.insertNewNodeRight;
 
-  insertNewNodeLeft():void{
-
-  }
-
-  insertNewNodeBelow():void{
-
-  }
-
-  insertNewNodeRight(operator,label): void {
-
-    console.log("insertNewNodeRight()");
-    console.log(this.selectedRootNode);
-
-    //TODO create new node
-    const nodeData = {
-      operator: operator,
-      label: label,
-      id: 7823872023,
-      children: []
-    }
-    const newNode = d3.hierarchy(nodeData);
+  insertNewNodeLeft(operator, label): void {
+    console.log("insertNewNodeLeft()");
+    const newNode = this.createNode(operator, label);
     // @ts-ignore
     newNode.depth = this.selectedRootNode.depth;
     newNode.parent = this.selectedRootNode.parent;
     // @ts-ignore
     newNode.height = this.selectedRootNode.height;
+    newNode.children = null;
     console.log(newNode);
 
     if (this.selectedRootNode.parent) {
       const idx: number = this.selectedRootNode.parent.children.indexOf(this.selectedRootNode);
-      if (idx + 1 <= this.selectedRootNode.parent.children.length) {
-        this.selectedRootNode.parent.children.splice(idx + 1, 0, newNode)
-      } else if (idx + 1 === this.selectedRootNode.parent.children.length) {
-        this.selectedRootNode.parent.children.append(newNode)
-      }
+      this.selectedRootNode.parent.children.splice(idx , 0, newNode);
     }
+    this.afterInsertNode();
+
+  }
+
+  insertNewNodeBelow(operator, label): void {
+    console.log("insertNewNodeBelow()");
+    const newNode = this.createNode(operator, label);
+
+  }
+
+  insertNewNodeRight(operator, label): void {
+    console.log("insertNewNodeRight()");
+
+    const newNode = this.createNode(operator, label);
+    // @ts-ignore
+    newNode.depth = this.selectedRootNode.depth;
+    newNode.parent = this.selectedRootNode.parent;
+    // @ts-ignore
+    newNode.height = this.selectedRootNode.height;
+    newNode.children = null;
+    console.log(newNode);
+
+    if (this.selectedRootNode.parent) {
+      const idx: number = this.selectedRootNode.parent.children.indexOf(this.selectedRootNode);
+      this.selectedRootNode.parent.children.splice(idx + 1, 0, newNode);
+    }
+    this.afterInsertNode();
+  }
+
+  afterInsertNode() {
     this.update(this.root);
     this.clearSelection();
+    this.searchText = undefined;
+  }
+
+  createNode(operator, label) {
+    //TODO make sure that IDs are unique
+    const nodeData = {
+      operator: operator,
+      label: label,
+      id: Math.floor(1000000000 + Math.random() * 900000000),
+      children: []
+    }
+    return d3.hierarchy(nodeData);
   }
 
   // END - Inserting node functionality
@@ -315,9 +331,9 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   calculateTreeLayout(root): void {
     const treeLayout = d3.tree();
     treeLayout.size([this.d3ContainerElem.nativeElement.offsetWidth,
-      this.d3ContainerElem.nativeElement.offsetHeight - tree_node_height_width]);
+      this.d3ContainerElem.nativeElement.offsetHeight - constants.tree_node_height_width]);
     //if nodeSize is used you cannot use fixed tree size and the root node is drawn at (0,0)
-    treeLayout.nodeSize([140, 60])
+    treeLayout.nodeSize([123, 60])
     // calculate layout
     treeLayout(root);
   }
@@ -363,10 +379,10 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     const selectSubtree = function (svgGroup, d) {
       d3.select(svgGroup).select(".node").attr('stroke', () => {
         //add red stroke around activity nodes
-        if (d3.select(svgGroup).select(".node").attr('stroke') == this.selectedTreeNodeStrokeColor) {
-          return this.nonSelectedTreeNodeStrokeColor;
+        if (d3.select(svgGroup).select(".node").attr('stroke') == constants.selectedTreeNodeStrokeColor) {
+          return constants.nonSelectedTreeNodeStrokeColor;
         } else {
-          return this.selectedTreeNodeStrokeColor;
+          return constants.selectedTreeNodeStrokeColor;
         }
       })
       //add red stroke around sub-nodes if select subtree is selected
@@ -390,7 +406,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   clearSelection(): void {
     console.log("clear selection")
     this.selectedRootNode = null;
-    this.mainSvgGroup.selectAll('rect').attr('stroke', this.nonSelectedTreeNodeStrokeColor);
+    this.mainSvgGroup.selectAll('rect').attr('stroke', constants.nonSelectedTreeNodeStrokeColor);
   }
 
   plot(root) {

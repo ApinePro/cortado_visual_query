@@ -70,5 +70,10 @@
   background-color: #a6cf82;
 }
 
+.node-text{
+  text-anchor:middle;
+  dominant-baseline:middle;
+}
+
 
 
