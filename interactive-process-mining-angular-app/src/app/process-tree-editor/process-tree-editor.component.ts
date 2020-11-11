@@ -31,6 +31,19 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
   resizeTimer;
 
+  addNewNodePreCheck() {
+    if (this.selectedRootNode) {
+      if (!this.selectedRootNode.parent) {
+        this.insertPositionLeftRightDisabled = true;
+        this.selectedInsertMethod = this.insertNewNodeBelow;
+      } else {
+        this.insertPositionLeftRightDisabled = false;
+      }
+    }
+  }
+
+  insertPositionLeftRightDisabled: Boolean = false;
+
   @HostListener('window:resize', ['$event'])
   onResize() {
     clearTimeout(this.resizeTimer);
@@ -76,18 +89,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
   buttonManipulatingMultipleNodesDisabled(): Boolean {
     return !this.selectedRootNode || this.rootNodeSelected() || this.selectNodeActive && !this.leafNodeSelected();
-  }
-
-  insertPositionLeftRightDisabled: Boolean = false;
-
-  addNewNodePreCheck() {
-    if (this.selectedRootNode && !this.selectedRootNode.parent) {
-      //root node selected --> only allow to insert below
-      this.selectedInsertMethod = this.insertNewNodeBelow;
-      this.insertPositionLeftRightDisabled = true;
-    } else {
-      this.insertPositionLeftRightDisabled = false;
-    }
   }
 
   shiftSubtreeToLeft(): void {
