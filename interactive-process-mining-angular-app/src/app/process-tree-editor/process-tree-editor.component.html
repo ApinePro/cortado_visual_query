@@ -4,8 +4,9 @@
     <div class="btn-group align-baseline"
          data-toggle="tooltip" data-placement="top"
          title="add node">
-      <button class="button text-success" d
+      <button class="button text-success"
               [disabled]="insertNewNodeButtonDisabled()"
+              (click)="addNewNodePreCheck()"
               type="button"
               data-toggle="dropdown"
               aria-haspopup="true"
@@ -19,13 +20,13 @@
         <div class="font-italic font-weight-bold pl-2 text-center">Position</div>
 
         <div class="dropdown-item"
-             [ngClass]="selectedInsertMethod===insertNewNodeLeft? 'insertion-position-active':''">
-          <div (click)="selectedInsertMethod=insertNewNodeLeft;">
-            <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
-              <use xlink:href="assets/bootstrap-icons.svg#box-arrow-in-left"/>
-            </svg>
-            <span class="ml-3">insert left</span>
-          </div>
+             *ngIf="!insertPositionLeftRightDisabled"
+             [ngClass]="selectedInsertMethod===insertNewNodeLeft? 'insertion-position-active':''"
+             (click)="selectedInsertMethod=insertNewNodeLeft;">
+          <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
+            <use xlink:href="assets/bootstrap-icons.svg#box-arrow-in-left"/>
+          </svg>
+          <span class="ml-3">insert left</span>
         </div>
 
         <div class="dropdown-item"
@@ -38,6 +39,7 @@
         </div>
 
         <div class="dropdown-item"
+             *ngIf="!insertPositionLeftRightDisabled"
              [ngClass]="selectedInsertMethod===insertNewNodeRight? 'insertion-position-active':''"
              (click)="selectedInsertMethod=insertNewNodeRight;">
           <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
@@ -50,45 +52,54 @@
 
         <div class="font-italic font-weight-bold pl-2 text-center">Node</div>
 
-        <div class="font-italic pl-2 text-primary">Operator</div>
+        <ng-template #operatorListDropdown>
+          <div class="font-italic pl-2 text-primary">Operator</div>
 
-        <div class="dropdown-item" (click)="selectedInsertMethod('\u2715',null)">
-          <span class="font-weight-bold">&#x2715;</span>
-          <span class="ml-3 text-secondary">choice</span>
-        </div>
-        <div class="dropdown-item" (click)="selectedInsertMethod('\u2794',null)">
-          <span class="font-weight-bold">&#x2794;</span>
-          <span class="ml-3 text-secondary">sequence</span>
-        </div>
-        <div class="dropdown-item" (click)="selectedInsertMethod('\u21BA',null)">
-          <span class="font-weight-bold">&#x21BA;</span>
-          <span class="ml-3 text-secondary">loop</span>
-        </div>
-        <div class="dropdown-item" (click)="selectedInsertMethod('\u2227',null)">
-          <span class="font-weight-bold">&#x2227;</span>
-          <span class="ml-3 text-secondary">parallel</span>
-        </div>
+          <div class="dropdown-item" (click)="selectedInsertMethod('\u2715',null)">
+            <span class="font-weight-bold">&#x2715;</span>
+            <span class="ml-3 text-secondary">choice</span>
+          </div>
+          <div class="dropdown-item" (click)="selectedInsertMethod('\u2794',null)">
+            <span class="font-weight-bold">&#x2794;</span>
+            <span class="ml-3 text-secondary">sequence</span>
+          </div>
+          <div class="dropdown-item" (click)="selectedInsertMethod('\u21BA',null)">
+            <span class="font-weight-bold">&#x21BA;</span>
+            <span class="ml-3 text-secondary">loop</span>
+          </div>
+          <div class="dropdown-item" (click)="selectedInsertMethod('\u2227',null)">
+            <span class="font-weight-bold">&#x2227;</span>
+            <span class="ml-3 text-secondary">parallel</span>
+          </div>
+        </ng-template>
 
-        <div class="font-italic pl-2 text-primary">Activity</div>
+        <ng-template [ngTemplateOutlet]="operatorListDropdown"></ng-template>
 
-        <div class="dropdown-item" (click)="selectedInsertMethod(null,'\u03C4')">
-          <span class="font-weight-bold">&#x03C4;</span>
-          <span class="ml-3 text-secondary">invisible activity</span>
-        </div>
+        <ng-template #activityListDropdown>
+          <div class="font-italic pl-2 text-primary">Activity</div>
 
-        <div class="ml-1 mr-1 mb-1">
-          <input [(ngModel)]="searchText" class="form-control form-control-sm" type="text"
-                 placeholder="type activity name">
-        </div>
-        <div class="dropdown-item" *ngFor="let a of activitiesOccurringInLog | strFilter: searchText"
-             (click)="selectedInsertMethod(null,a)">
-          <span class="">{{a}}</span>
-        </div>
+          <div class="dropdown-item" (click)="selectedInsertMethod(null,'\u03C4')">
+            <span class="font-weight-bold">&#x03C4;</span>
+            <span class="ml-3 text-secondary">invisible activity</span>
+          </div>
+
+          <div class="ml-1 mr-1 mb-1">
+            <input [(ngModel)]="searchText" class="form-control form-control-sm" type="text"
+                   placeholder="type activity name">
+          </div>
+          <div class="dropdown-item" *ngFor="let a of activitiesOccurringInLog | strFilter: searchText"
+               (click)="selectedInsertMethod(null,a)">
+            <span class="">{{a}}</span>
+          </div>
+        </ng-template>
+
+        <ng-template [ngTemplateOutlet]="activityListDropdown"></ng-template>
 
       </div>
     </div>
 
-    <button class="button" (click)="true" [disabled]="deleteSubtreeDisabled()"
+    <button class="button" (click)="true"
+            [disabled]="!selectedRootNode || (selectSubtreeActive && !singleNodeSelected())"
             data-toggle="tooltip" data-placement="top"
             title="change selected node">
       <svg class="bi bi-arrow-bar-down " width="1.5em" height="1.5em" fill="currentColor">
@@ -96,7 +107,7 @@
       </svg>
     </button>
 
-    <button class="button text-warning" (click)="deleteSubtree()" [disabled]="deleteSubtreeDisabled()"
+    <button class="button text-warning" (click)="deleteSubtree()" [disabled]="buttonManipulatingMultipleNodesDisabled()"
             data-toggle="tooltip" data-placement="top"
             title="remove selected node(s)">
       <svg class="bi bi-arrow-bar-down " width="1.5em" height="1.5em" fill="currentColor">
@@ -104,7 +115,7 @@
       </svg>
     </button>
 
-    <button class="button" (click)="shiftSubtreeToLeft()" [disabled]="shiftSubtreeToLeftRightButtonDisabled()"
+    <button class="button" (click)="shiftSubtreeToLeft()" [disabled]="buttonManipulatingMultipleNodesDisabled()"
             data-toggle="tooltip" data-placement="top"
             title="shift selected node(s) to left">
       <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
@@ -112,7 +123,7 @@
       </svg>
     </button>
 
-    <button class="button" (click)="shiftSubtreeToRight()" [disabled]="shiftSubtreeToLeftRightButtonDisabled()"
+    <button class="button" (click)="shiftSubtreeToRight()" [disabled]="buttonManipulatingMultipleNodesDisabled()"
             data-toggle="tooltip" data-placement="top"
             title="shift selected node(s) to right">
       <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">

@@ -22,6 +22,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
   }
 
+  //used in dropdown
   searchText: string;
 
   // TODO implement
@@ -41,7 +42,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   insertNewNodeButtonDisabled(): Boolean {
-    return !this.singleNodeSelected();
+    return !this.selectedRootNode || (this.selectSubtreeActive && !this.singleNodeSelected())
   }
 
   selectNodeActive: boolean = true;
@@ -65,16 +66,28 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     return this.selectedRootNode && this.selectedRootNode.height === 0 ? true : false;
   }
 
+  leafNodeSelected(): Boolean {
+    return this.selectedRootNode && !this.selectedRootNode.children ? true : false;
+  }
+
   rootNodeSelected(): Boolean {
     return this.selectedRootNode && this.selectedRootNode.depth === 0;
   }
 
-  deleteSubtreeDisabled(): Boolean {
-    return !this.selectedRootNode || this.rootNodeSelected();
+  buttonManipulatingMultipleNodesDisabled(): Boolean {
+    return !this.selectedRootNode || this.rootNodeSelected() || this.selectNodeActive && !this.leafNodeSelected();
   }
 
-  shiftSubtreeToLeftRightButtonDisabled(): Boolean {
-    return this.selectedRootNode === null || this.selectedRootNode === undefined || this.selectedRootNode.parent === null
+  insertPositionLeftRightDisabled: Boolean = false;
+
+  addNewNodePreCheck() {
+    if (this.selectedRootNode && !this.selectedRootNode.parent) {
+      //root node selected --> only allow to insert below
+      this.selectedInsertMethod = this.insertNewNodeBelow;
+      this.insertPositionLeftRightDisabled = true;
+    } else {
+      this.insertPositionLeftRightDisabled = false;
+    }
   }
 
   shiftSubtreeToLeft(): void {
@@ -295,7 +308,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     console.log(newNode);
 
     if (this.selectedRootNode.children) {
-      this.selectedRootNode.children.append(newNode);
+      this.selectedRootNode.children.push(newNode);
     } else {
       this.selectedRootNode.children = [newNode];
     }
