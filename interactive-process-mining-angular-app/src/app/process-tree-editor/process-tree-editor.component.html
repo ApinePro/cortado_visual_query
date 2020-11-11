@@ -1,9 +1,15 @@
 <div class="main h-100 d-flex flex-column">
   <div>
 
-    <div class="btn-group align-baseline">
-      <button class="button text-success" [disabled]="insertNewNodeButtonDisabled()"
-              type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <div class="btn-group align-baseline"
+         data-toggle="tooltip" data-placement="top"
+         title="add node">
+      <button class="button text-success" d
+              [disabled]="insertNewNodeButtonDisabled()"
+              type="button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false">
         <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
           <use xlink:href="assets/bootstrap-icons.svg#plus-square-fill"/>
         </svg>
@@ -82,20 +88,33 @@
       </div>
     </div>
 
+    <button class="button" (click)="true" [disabled]="deleteSubtreeDisabled()"
+            data-toggle="tooltip" data-placement="top"
+            title="change selected node">
+      <svg class="bi bi-arrow-bar-down " width="1.5em" height="1.5em" fill="currentColor">
+        <use xlink:href="assets/bootstrap-icons.svg#pencil-square"/>
+      </svg>
+    </button>
 
-    <button class="button text-warning" (click)="deleteSubtree()" [disabled]="deleteSubtreeDisabled()">
+    <button class="button text-warning" (click)="deleteSubtree()" [disabled]="deleteSubtreeDisabled()"
+            data-toggle="tooltip" data-placement="top"
+            title="remove selected node(s)">
       <svg class="bi bi-arrow-bar-down " width="1.5em" height="1.5em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#trash"/>
       </svg>
     </button>
 
-    <button class="button" (click)="shiftSubtreeToLeft()" [disabled]="shiftSubtreeToLeftRightButtonDisabled()">
+    <button class="button" (click)="shiftSubtreeToLeft()" [disabled]="shiftSubtreeToLeftRightButtonDisabled()"
+            data-toggle="tooltip" data-placement="top"
+            title="shift selected node(s) to left">
       <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#chevron-left"/>
       </svg>
     </button>
 
-    <button class="button" (click)="shiftSubtreeToRight()" [disabled]="shiftSubtreeToLeftRightButtonDisabled()">
+    <button class="button" (click)="shiftSubtreeToRight()" [disabled]="shiftSubtreeToLeftRightButtonDisabled()"
+            data-toggle="tooltip" data-placement="top"
+            title="shift selected node(s) to right">
       <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#chevron-right"/>
       </svg>

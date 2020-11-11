@@ -277,7 +277,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
     if (this.selectedRootNode.parent) {
       const idx: number = this.selectedRootNode.parent.children.indexOf(this.selectedRootNode);
-      this.selectedRootNode.parent.children.splice(idx , 0, newNode);
+      this.selectedRootNode.parent.children.splice(idx, 0, newNode);
     }
     this.afterInsertNode();
 
@@ -286,12 +286,32 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   insertNewNodeBelow(operator, label): void {
     console.log("insertNewNodeBelow()");
     const newNode = this.createNode(operator, label);
+    // @ts-ignore
+    newNode.depth = this.selectedRootNode.depth + 1;
+    newNode.children = null;
+    newNode.parent = this.selectedRootNode;
+    // @ts-ignore
+    newNode.height = 0;
+    console.log(newNode);
 
+    if (this.selectedRootNode.children) {
+      this.selectedRootNode.children.append(newNode);
+    } else {
+      this.selectedRootNode.children = [newNode];
+    }
+    this.updateHeightAttributeOfNode(this.selectedRootNode);
+    this.update(this.root);
+  }
+
+  updateHeightAttributeOfNode(node): void {
+    node.height += 1;
+    if (node.parent) {
+      this.updateHeightAttributeOfNode(node.parent);
+    }
   }
 
   insertNewNodeRight(operator, label): void {
     console.log("insertNewNodeRight()");
-
     const newNode = this.createNode(operator, label);
     // @ts-ignore
     newNode.depth = this.selectedRootNode.depth;
@@ -482,10 +502,23 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         id: 7829482323,
         children: [
           {
-            operator: null,
-            label: "very long activity name c long activity name c",
-            id: 7824982323,
-            children: []
+            operator: '\u2794',
+            label: null,
+            id: 7829492323,
+            children: [
+              {
+                operator: null,
+                label: "very long activity name c long activity name c",
+                id: 7004982323,
+                children: []
+              },
+              {
+                operator: null,
+                label: "very long activity name c long activity name cb",
+                id: 7854715323,
+                children: []
+              },
+            ]
           },
           {
             operator: null,

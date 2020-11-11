@@ -52,18 +52,23 @@
   color: #757575 !important;
 }
 
+.button:focus {
+  outline: none;
+}
+
 .crosshair {
   cursor: crosshair;
 }
 
 .dropdown-node-insert {
   font-size: small;
-  max-height: 50vh;
+  max-height: 90vh;
   overflow-x: auto;
   user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   -webkit-user-select: none;
+  overflow-y: scroll ;
 }
 
 .insertion-position-active{
