@@ -25,9 +25,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   //used in dropdown
   searchText: string;
 
-  // TODO implement
-  previousTreeObjects: any[] = [];
-  currentIdxPreviousTreeObjects: number;
 
   resizeTimer;
 
@@ -100,11 +97,13 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         this.selectedRootNode.parent.children[idxInParentChildList] = childToRight;
         this.selectedRootNode.parent.children[idxInParentChildList - 1] = childToLeft;
         this.update(this.root);
+        this.cacheCurrentTree();
       }
     }
   }
 
   shiftSubtreeToRight(): void {
+    this.cacheCurrentTree();
     if (this.selectedRootNode.parent) {
       const idxInParentChildList = this.selectedRootNode.parent.children.indexOf(this.selectedRootNode);
       if (idxInParentChildList < this.selectedRootNode.parent.children.length - 1) {
@@ -113,6 +112,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         this.selectedRootNode.parent.children[idxInParentChildList + 1] = childToRight;
         this.selectedRootNode.parent.children[idxInParentChildList] = childToLeft;
         this.update(this.root);
+        this.cacheCurrentTree();
       }
     }
   }
@@ -120,6 +120,49 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   svg;
   mainSvgGroup;
   nodeEnter;
+
+
+  // TODO implement
+  previousTreeObjects: d3.HierarchyNode<any>[] = [];
+  currentIdxPreviousTreeObjects: number = 0;
+
+  cacheCurrentTree() {
+    console.log("cacheCurrentTree()");
+    this.previousTreeObjects.push(this.root.copy());
+    if (this.currentIdxPreviousTreeObjects) {
+      this.currentIdxPreviousTreeObjects += 1;
+    } else {
+      this.currentIdxPreviousTreeObjects = this.previousTreeObjects.length - 1;
+    }
+    console.warn(this.previousTreeObjects)
+    console.warn(this.currentIdxPreviousTreeObjects)
+  }
+
+  undo() {
+    console.warn(this.previousTreeObjects);
+    console.warn(this.currentIdxPreviousTreeObjects);
+
+    if (this.currentIdxPreviousTreeObjects && this.currentIdxPreviousTreeObjects > 0 && this.previousTreeObjects.length > 1) {
+      this.currentIdxPreviousTreeObjects--;
+      this.update(this.previousTreeObjects[this.currentIdxPreviousTreeObjects]);
+    }
+
+    console.warn(this.previousTreeObjects);
+    console.warn(this.currentIdxPreviousTreeObjects);
+  }
+
+  redo() {
+    console.warn(this.previousTreeObjects);
+    console.warn(this.currentIdxPreviousTreeObjects);
+
+    if (this.currentIdxPreviousTreeObjects < this.previousTreeObjects.length - 1) {
+      this.currentIdxPreviousTreeObjects++;
+      this.update(this.previousTreeObjects[this.currentIdxPreviousTreeObjects]);
+    }
+
+    console.warn(this.previousTreeObjects);
+    console.warn(this.currentIdxPreviousTreeObjects);
+  }
 
 
   horizontallyCenterTree() {
@@ -251,13 +294,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   deleteSubtree() {
     console.log(this.selectedRootNode);
     console.log(this.root)
-    //this.deleteNodeFromTree(this.root,this.selectedRootNode.data.id)
 
-    console.log(this.root);
     this.deleteNodeAndChildren(this.root, this.selectedRootNode)
     console.log(this.root)
     this.update(this.root);
     this.selectedRootNode = undefined;
+    this.cacheCurrentTree();
   }
 
   deleteNodeAndChildren(tree, nodeToDelete) {
@@ -279,7 +321,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   selectedInsertMethod: Function = this.insertNewNodeRight;
 
   insertNewNodeLeft(operator, label): void {
-    console.log("insertNewNodeLeft()");
     const newNode = this.createNode(operator, label);
     // @ts-ignore
     newNode.depth = this.selectedRootNode.depth;
@@ -298,7 +339,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   insertNewNodeBelow(operator, label): void {
-    console.log("insertNewNodeBelow()");
     const newNode = this.createNode(operator, label);
     // @ts-ignore
     newNode.depth = this.selectedRootNode.depth + 1;
@@ -314,7 +354,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       this.selectedRootNode.children = [newNode];
     }
     this.updateHeightAttributeOfNode(this.selectedRootNode);
-    this.update(this.root);
+    this.afterInsertNode();
   }
 
   updateHeightAttributeOfNode(node): void {
@@ -325,7 +365,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   insertNewNodeRight(operator, label): void {
-    console.log("insertNewNodeRight()");
     const newNode = this.createNode(operator, label);
     // @ts-ignore
     newNode.depth = this.selectedRootNode.depth;
@@ -346,6 +385,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     this.update(this.root);
     this.clearSelection();
     this.searchText = undefined;
+    this.cacheCurrentTree();
   }
 
   createNode(operator, label) {
@@ -449,12 +489,13 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     console.log(this.d3ContainerElem.nativeElement.offsetHeight)
     console.log(root)
 
-    this.calculateTreeLayout(root)
-    this.svg = d3.select("#d3-svg")
+    this.calculateTreeLayout(root);
+    this.svg = d3.select("#d3-svg");
     //add svg group for zooming
-    this.mainSvgGroup = this.svg.append("g").attr("id", "zoomGroup")
-    this.update(root)
-    this.horizontallyCenterTree()
+    this.mainSvgGroup = this.svg.append("g").attr("id", "zoomGroup");
+    this.cacheCurrentTree();
+    this.update(root);
+    this.horizontallyCenterTree();
     this.addZoomFunctionality();
   }
 
