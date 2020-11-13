@@ -144,7 +144,9 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
     if (this.currentIdxPreviousTreeObjects && this.currentIdxPreviousTreeObjects > 0 && this.previousTreeObjects.length > 1) {
       this.currentIdxPreviousTreeObjects--;
-      this.update(this.previousTreeObjects[this.currentIdxPreviousTreeObjects]);
+      const treeToLoad = this.previousTreeObjects[this.currentIdxPreviousTreeObjects]
+      this.update(treeToLoad);
+      this.root = treeToLoad;
     }
 
     console.warn(this.previousTreeObjects);
@@ -157,7 +159,9 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
     if (this.currentIdxPreviousTreeObjects < this.previousTreeObjects.length - 1) {
       this.currentIdxPreviousTreeObjects++;
-      this.update(this.previousTreeObjects[this.currentIdxPreviousTreeObjects]);
+      const treeToLoad = this.previousTreeObjects[this.currentIdxPreviousTreeObjects]
+      this.update(treeToLoad);
+      this.root = treeToLoad;
     }
 
     console.warn(this.previousTreeObjects);
