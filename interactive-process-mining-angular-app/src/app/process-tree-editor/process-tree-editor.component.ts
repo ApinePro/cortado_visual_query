@@ -73,11 +73,11 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   selectedRootNode;
 
   singleNodeSelected(): Boolean {
-    return this.selectedRootNode && this.selectedRootNode.height === 0 ? true : false;
+    return this.selectedRootNode && this.selectedRootNode.height === 0;
   }
 
   leafNodeSelected(): Boolean {
-    return this.selectedRootNode && !this.selectedRootNode.children ? true : false;
+    return this.selectedRootNode && !this.selectedRootNode.children;
   }
 
   rootNodeSelected(): Boolean {
