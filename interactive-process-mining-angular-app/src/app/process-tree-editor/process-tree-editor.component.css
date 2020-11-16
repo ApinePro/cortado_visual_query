@@ -3,6 +3,9 @@
 
 }
 
+.tool-bar{
+}
+
 .node {
   rx: 3;
   ry: 3;
@@ -21,25 +24,45 @@
   font-size: 2em;
 }
 
+hr {
+  display: block;
+  margin:0;
+  border-style: inset;
+
+  border-top: 1px solid #515151;
+  width: 100%;
+}
+
+.vl {
+  border-left: 1px solid #515151;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  margin-left: 3px;
+  margin-right: 3px;
+}
+
 .button {
-  color: #ffffff;
+  color: whitesmoke;
   border: none;
-  padding: 3px 20px;
+  padding: 2px 20px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
   cursor: pointer;
-  background-color: #555555;
-  margin-right: 2px;
+  background-color: Transparent;
   user-select: none;
 }
 
-.button-active {
-  background-color: #999999;
+.btn-fixed-width{
+  min-width: 90px;
 }
 
-.button:hover {
+.button-active {
+  background-color: darkgray;
+}
+
+.button:hover:enabled {
   background-color: #676767;
 }
 
@@ -48,7 +71,6 @@
 }
 
 .button:disabled {
-  background-color: #414141;
   color: #757575 !important;
 }
 

@@ -129,8 +129,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     console.log("cacheCurrentTree()");
     if (this.currentIdxPreviousTreeObjects < this.previousTreeObjects.length - 1) {
       //before change, undo was pressed --> remove newer versions since older version of process tree was changed
-      console.log(this.currentIdxPreviousTreeObjects);
-      console.log(this.previousTreeObjects.length);
       this.previousTreeObjects = this.previousTreeObjects.slice(0, this.currentIdxPreviousTreeObjects + 1);
     }
     this.previousTreeObjects.push(this.root.copy());
@@ -139,23 +137,15 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     } else {
       this.currentIdxPreviousTreeObjects = this.previousTreeObjects.length - 1;
     }
-    console.warn(this.previousTreeObjects)
-    console.warn(this.currentIdxPreviousTreeObjects)
   }
 
   undo() {
-    console.warn(this.previousTreeObjects);
-    console.warn(this.currentIdxPreviousTreeObjects);
-
     if (this.currentIdxPreviousTreeObjects && this.currentIdxPreviousTreeObjects > 0 && this.previousTreeObjects.length > 1) {
       this.currentIdxPreviousTreeObjects--;
       const treeToLoad = this.previousTreeObjects[this.currentIdxPreviousTreeObjects]
       this.update(treeToLoad);
       this.root = treeToLoad;
     }
-
-    console.warn(this.previousTreeObjects);
-    console.warn(this.currentIdxPreviousTreeObjects);
   }
 
   redo() {
