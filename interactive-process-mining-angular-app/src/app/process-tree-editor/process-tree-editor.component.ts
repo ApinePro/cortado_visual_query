@@ -122,12 +122,17 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   nodeEnter;
 
 
-  // TODO implement
   previousTreeObjects: d3.HierarchyNode<any>[] = [];
   currentIdxPreviousTreeObjects: number = 0;
 
   cacheCurrentTree() {
     console.log("cacheCurrentTree()");
+    if (this.currentIdxPreviousTreeObjects < this.previousTreeObjects.length - 1) {
+      //before change, undo was pressed --> remove newer versions since older version of process tree was changed
+      console.log(this.currentIdxPreviousTreeObjects);
+      console.log(this.previousTreeObjects.length);
+      this.previousTreeObjects = this.previousTreeObjects.slice(0, this.currentIdxPreviousTreeObjects + 1);
+    }
     this.previousTreeObjects.push(this.root.copy());
     if (this.currentIdxPreviousTreeObjects) {
       this.currentIdxPreviousTreeObjects += 1;
@@ -612,6 +617,10 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     "pay compensation",
     "reject request",
   ]
+
+  closeTooltips() {
+    $('[data-toggle="tooltip"]').tooltip('hide');
+  }
 
   ngAfterViewInit() {
     console.log(d3.hierarchy(this.tree));

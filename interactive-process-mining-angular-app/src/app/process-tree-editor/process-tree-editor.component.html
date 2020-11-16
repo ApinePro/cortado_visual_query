@@ -11,7 +11,7 @@
               data-toggle="dropdown"
               aria-haspopup="true"
               aria-expanded="false">
-        <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
+        <svg class="bi bi-arrow-bar-down" width="1em" height="1em" fill="currentColor">
           <use xlink:href="assets/bootstrap-icons.svg#plus-square-fill"/>
         </svg>
       </button>
@@ -23,7 +23,7 @@
              *ngIf="!insertPositionLeftRightDisabled"
              [ngClass]="selectedInsertMethod===insertNewNodeLeft? 'insertion-position-active':''"
              (click)="selectedInsertMethod=insertNewNodeLeft;">
-          <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
+          <svg class="bi bi-arrow-bar-down" width="1em" height="1em" fill="currentColor">
             <use xlink:href="assets/bootstrap-icons.svg#box-arrow-in-left"/>
           </svg>
           <span class="ml-3">insert left</span>
@@ -32,7 +32,7 @@
         <div class="dropdown-item"
              [ngClass]="selectedInsertMethod===insertNewNodeBelow? 'insertion-position-active':''"
              (click)="selectedInsertMethod=insertNewNodeBelow;">
-          <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
+          <svg class="bi bi-arrow-bar-down" width="1em" height="1em" fill="currentColor">
             <use xlink:href="assets/bootstrap-icons.svg#box-arrow-in-down"/>
           </svg>
           <span class="ml-3">insert below</span>
@@ -42,7 +42,7 @@
              *ngIf="!insertPositionLeftRightDisabled"
              [ngClass]="selectedInsertMethod===insertNewNodeRight? 'insertion-position-active':''"
              (click)="selectedInsertMethod=insertNewNodeRight;">
-          <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
+          <svg class="bi bi-arrow-bar-down" width="1em" height="1em" fill="currentColor">
             <use xlink:href="assets/bootstrap-icons.svg#box-arrow-in-right"/>
           </svg>
           <span class="ml-3">insert right</span>
@@ -102,15 +102,16 @@
             [disabled]="!selectedRootNode || (selectSubtreeActive && !singleNodeSelected())"
             data-toggle="tooltip" data-placement="top" data-trigger="hover"
             title="change selected node">
-      <svg class="bi bi-arrow-bar-down " width="1.5em" height="1.5em" fill="currentColor">
+      <svg class="bi bi-arrow-bar-down " width="1em" height="1em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#pencil-square"/>
       </svg>
     </button>
 
-    <button class="button text-warning" (click)="deleteSubtree()" [disabled]="buttonManipulatingMultipleNodesDisabled()"
+    <button class="button text-warning" (click)="deleteSubtree();closeTooltips();"
+            [disabled]="buttonManipulatingMultipleNodesDisabled()"
             data-toggle="tooltip" data-placement="top" data-trigger="hover"
             title="remove selected node(s)">
-      <svg class="bi bi-arrow-bar-down " width="1.5em" height="1.5em" fill="currentColor">
+      <svg class="bi bi-arrow-bar-down " width="1em" height="1em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#trash"/>
       </svg>
     </button>
@@ -118,7 +119,7 @@
     <button class="button" (click)="shiftSubtreeToLeft()" [disabled]="buttonManipulatingMultipleNodesDisabled()"
             data-toggle="tooltip" data-placement="top" data-trigger="hover"
             title="shift selected node(s) to left">
-      <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
+      <svg class="bi bi-arrow-bar-down" width="1em" height="1em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#chevron-left"/>
       </svg>
     </button>
@@ -126,7 +127,7 @@
     <button class="button" (click)="shiftSubtreeToRight()" [disabled]="buttonManipulatingMultipleNodesDisabled()"
             data-toggle="tooltip" data-placement="top" data-trigger="hover"
             title="shift selected node(s) to right">
-      <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
+      <svg class="bi bi-arrow-bar-down" width="1em" height="1em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#chevron-right"/>
       </svg>
     </button>
@@ -134,40 +135,46 @@
     <span class="ml-3"></span>
 
     <button class="button" (click)="undo()"
-            data-toggle="tooltip" data-placement="top" data-trigger="hover"
-            title="undo">
-      <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
+            [disabled]="!(previousTreeObjects.length-1 > 0 && currentIdxPreviousTreeObjects!==0)">
+      <svg class="bi bi-arrow-bar-down" width="1em" height="1em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#arrow-counterclockwise"/>
       </svg>
+      undo
+      <span *ngIf="previousTreeObjects.length-1 > 0 && currentIdxPreviousTreeObjects!==0">
+        ({{currentIdxPreviousTreeObjects}})
+      </span>
     </button>
 
     <button class="button" (click)="redo()"
-            data-toggle="tooltip" data-placement="top" data-trigger="hover"
-            title="redo">
-      <svg class="bi bi-arrow-bar-down" width="1.5em" height="1.5em" fill="currentColor">
+            [disabled]="!(currentIdxPreviousTreeObjects < previousTreeObjects.length-1)">
+      <svg class="bi bi-arrow-bar-down" width="1em" height="1em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#arrow-clockwise"/>
       </svg>
+      redo
+      <span *ngIf="currentIdxPreviousTreeObjects < previousTreeObjects.length-1">
+        ({{previousTreeObjects.length - 1 - currentIdxPreviousTreeObjects}})
+      </span>
     </button>
 
     <span class="ml-3"></span>
 
     <button class="button" (click)="selectNode()" [class.button-active]="selectNodeActive">
       select node
-      <svg class="bi bi-arrow-bar-down text-danger" width="1.5em" height="1.5em" fill="currentColor">
+      <svg class="bi bi-arrow-bar-down text-danger" width="1em" height="1em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#check2"/>
       </svg>
     </button>
 
     <button class="button" (click)="selectSubtree()" [class.button-active]="selectSubtreeActive">
       select subtree
-      <svg class="bi bi-arrow-bar-down text-danger" width="1.5em" height="1.5em" fill="currentColor">
+      <svg class="bi bi-arrow-bar-down text-danger" width="1em" height="1em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#check2-all"/>
       </svg>
     </button>
 
     <button class="button" (click)="clearSelection()">
       clear selection
-      <svg class="bi bi-arrow-bar-down text-danger" width="1.5em" height="1.5em" fill="currentColor">
+      <svg class="bi bi-arrow-bar-down text-danger" width="1em" height="1em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#x"/>
       </svg>
     </button>
@@ -176,7 +183,7 @@
 
     <button class="button" id="btn-reset-zoom" data-toggle="tooltip" data-placement="top" data-trigger="hover"
             title="reset view">
-      <svg class="bi bi-arrow-bar-down text-light" width="1.5em" height="1.5em" fill="currentColor">
+      <svg class="bi bi-arrow-bar-down text-light" width="1em" height="1em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#arrows-fullscreen"/>
       </svg>
     </button>
@@ -186,7 +193,7 @@
 
     <button class="button" data-toggle="tooltip" data-placement="top"
             title="download process tree as .ptml file">
-      <svg class="bi bi-arrow-bar-down text-light" width="1.5em" height="1.5em" fill="currentColor">
+      <svg class="bi bi-arrow-bar-down text-light" width="1em" height="1em" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#cloud-download"/>
       </svg>
     </button>
