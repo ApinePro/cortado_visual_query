@@ -29,10 +29,13 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   resizeTimer;
 
   addNewNodePreCheck() {
+    if (this.selectedMethod === this.changeSelectedNode) {
+      this.selectedMethod = this.changeSelectedNode;
+    }
     if (this.selectedRootNode) {
       if (!this.selectedRootNode.parent) {
         this.insertPositionLeftRightDisabled = true;
-        this.selectedInsertMethod = this.insertNewNodeBelow;
+        this.lastSelectedInsertMethod = this.insertNewNodeBelow;
       } else {
         this.insertPositionLeftRightDisabled = false;
       }
@@ -103,7 +106,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   shiftSubtreeToRight(): void {
-    this.cacheCurrentTree();
     if (this.selectedRootNode.parent) {
       const idxInParentChildList = this.selectedRootNode.parent.children.indexOf(this.selectedRootNode);
       if (idxInParentChildList < this.selectedRootNode.parent.children.length - 1) {
@@ -137,12 +139,14 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     } else {
       this.currentIdxPreviousTreeObjects = this.previousTreeObjects.length - 1;
     }
+    console.log(this.previousTreeObjects);
   }
 
   undo() {
     if (this.currentIdxPreviousTreeObjects && this.currentIdxPreviousTreeObjects > 0 && this.previousTreeObjects.length > 1) {
       this.currentIdxPreviousTreeObjects--;
       const treeToLoad = this.previousTreeObjects[this.currentIdxPreviousTreeObjects]
+      console.log(treeToLoad);
       this.update(treeToLoad);
       this.root = treeToLoad;
     }
@@ -194,6 +198,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     //add nodes
     this.nodeEnter.append('rect')
       .classed('node', true)
+      .merge(node.select('.node'))
       .classed('node-operator', function (d: any) {
         return d.data.operator !== null
       })
@@ -207,7 +212,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .attr('height', constants.tree_node_height_width)
       .attr('stroke', 'gray')
       .attr('stroke-width', '2')
-      .merge(node.select('rect'))
       .attr('x', function (d: any) {
         return d.x - constants.tree_node_height_width / 2;
       })
@@ -219,6 +223,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .classed('user-select-none', true)
       .attr("fill", "white")
       .classed('node-text', true)
+      .merge(node.select('text'))
       .attr("font-size", (d: any) => {
         if (d.data.operator) return "1.5em";
         return "12px";
@@ -234,13 +239,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
           }
         }
       })
-      .attr('x', function (d: any) {
-        return d.x;
-      })
-      .attr('y', function (d: any) {
-        return d.y + constants.tree_node_height_width / 2 + 3;
-      })
-      .merge(node.select('text'))
       .attr('x', function (d: any) {
         return d.x;
       })
@@ -277,9 +275,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .select(".node-visible-activity")
       .attr('x', function (d) {
         // @ts-ignore
-        console.log(d.x)
-
-        console.log(d.x - Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2)
+        //console.log(d.x)
+        //console.log(d.x - Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2)
         return d.x - Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2;
       }).attr("width", function () {
       // @ts-ignore
@@ -291,11 +288,10 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   deleteSubtree() {
-    console.log(this.selectedRootNode);
-    console.log(this.root)
-
+    //console.log(this.selectedRootNode);
+    //console.log(this.root)
     this.deleteNodeAndChildren(this.root, this.selectedRootNode)
-    console.log(this.root)
+    //console.log(this.root)
     this.update(this.root);
     this.selectedRootNode = undefined;
     this.cacheCurrentTree();
@@ -317,7 +313,23 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
 
   // Inserting node functionality
-  selectedInsertMethod: Function = this.insertNewNodeRight;
+  lastSelectedInsertMethod: Function = this.insertNewNodeRight;
+  selectedMethod: Function = this.insertNewNodeRight;
+
+  changeSelectedNode(operator, label): void {
+    console.log(this.selectedRootNode);
+    console.log(operator, label);
+    if (operator) {
+      console.log("change operator");
+      this.selectedRootNode.data.operator = operator;
+      this.selectedRootNode.data.label = null;
+    } else if (label) {
+      console.log("change label");
+      this.selectedRootNode.data.label = label;
+      this.selectedRootNode.data.operator = null;
+    }
+    this.afterInsertNode();
+  }
 
   insertNewNodeLeft(operator, label): void {
     const newNode = this.createNode(operator, label);
@@ -336,6 +348,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     this.afterInsertNode();
 
   }
+
 
   insertNewNodeBelow(operator, label): void {
     const newNode = this.createNode(operator, label);
