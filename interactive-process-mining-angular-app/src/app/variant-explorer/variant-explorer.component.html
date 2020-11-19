@@ -1,0 +1,10 @@
+<div class="main-variant-explorer">
+  <div class="d-flex">
+    <div class="chart-variant__percentage">
+                        <span *ngFor="let variant of variants">
+                        <small>{{variant['percentage']}}%<br/>
+                        <span>({{variant['count']}})</span></small></span>
+    </div>
+    <div #chart id="chart"></div>
+  </div>
+</div>

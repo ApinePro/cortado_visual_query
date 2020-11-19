@@ -274,12 +274,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       .merge(node)
       .select(".node-visible-activity")
       .attr('x', function (d) {
-        // @ts-ignore
-        //console.log(d.x)
-        //console.log(d.x - Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2)
         return d.x - Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2;
       }).attr("width", function () {
-      // @ts-ignore
       console.log(Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10));
       return Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10);
     })

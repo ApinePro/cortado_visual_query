@@ -7,13 +7,15 @@ import { FooterComponent } from './footer/footer.component';
 import { ProcessTreeEditorComponent } from './process-tree-editor/process-tree-editor.component';
 import { StrFilterPipe } from './str-filter.pipe';
 import {FormsModule} from "@angular/forms";
+import { VariantExplorerComponent } from './variant-explorer/variant-explorer.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     FooterComponent,
     ProcessTreeEditorComponent,
-    StrFilterPipe
+    StrFilterPipe,
+    VariantExplorerComponent
   ],
   imports: [
     BrowserModule,

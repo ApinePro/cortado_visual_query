@@ -7,14 +7,13 @@ main > .container {
 }
 
 main {
-  height: 100vh
+  height: calc(100vh - 19px);
 }
 
 .bootstrap-container {
   background-color: #2e3439;
   color: #f5f5f5;
 }
-
 
 
 code {
