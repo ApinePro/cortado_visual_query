@@ -1,18 +1,20 @@
 .chart-variant__percentage {
+  margin-left: 5px;
   display: inline-flex;
   flex-direction: column;
   width: 50px;
   font-size: .8rem;
-  color: #535353;
+  color: whitesmoke;
   margin-top: 20px;
 }
 
 .chart-variant__percentage span {
-  height: 50px;
+  height: 40px;
   text-align: end;
+  margin-right: 1px;
   vertical-align: middle;
   width: auto;
-  line-height: .8rem
+  line-height: .6rem
 }
 
 .main-variant-explorer {
@@ -20,7 +22,8 @@
   max-height:100%;
 }
 
-.svg-text{
-  font-size: 6px!important;
-  border: whitesmoke;
-}
+
+
+
+
+

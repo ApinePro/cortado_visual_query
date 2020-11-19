@@ -43,11 +43,12 @@ hr {
 .button {
   color: whitesmoke;
   border: none;
-  padding: 3px 20px;
+  padding: 3px 15px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 16px;
+  font-size: 13px;
+  font-size: 13px;
   cursor: pointer;
   background-color: Transparent;
   user-select: none;

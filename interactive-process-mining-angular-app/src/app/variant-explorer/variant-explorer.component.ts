@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import * as d3 from 'd3';
 import * as test from './backend_response.js';
 
@@ -22,38 +22,24 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   originVariants: any[] = test.test.variants;
-  isVisibleLegend: boolean = false;
   isVisibleCaseEventsExplorer: boolean = false;
   colorMap: Map<string, string>;
 
-  /**
-   * Variables for Filtering
-   */
-  isFilterButtonVisible: boolean;
-  filteredVariants: string[];
-  isOnFiltering: boolean;
 
   public colorMapKeys: string[] = [];
   public variantsLoading: boolean;
 
   public polygonFoldingWidth = 25;
   polygonDimensionWidth = 0;
-  polygonDimensionHeight = 30;
+  polygonDimensionHeight = 23;
   polygonDimensionSpacing = 3;
-  polygonDimensionTailWidth = 10;
+  polygonDimensionTailWidth = 6;
 
   variants: any[];
   selectedVariants: string[];
-  currentVariant: string;
-  private prevSelectedVariantIndex: number = null;
 
-  chartWidth: number;
 
   constructor() {
-    this.variantsLoading = false;
-    this.isFilterButtonVisible = false;
-    this.isOnFiltering = false;
-    this.filteredVariants = [];
   }
 
   ngOnChanges(): void {
@@ -91,25 +77,18 @@ export class VariantExplorerComponent implements OnInit {
     });
 
     data = data.map((d, i) => ({value: d, i: i}))
-    this.chartWidth = maxLengthOfEventName + maxCountOfEvents * (this.polygonFoldingWidth);
     console.warn(data);
 
     const chartDiv = d3.select('#chart').append('svg')
-      .attr('width', this.chartWidth)
-      .attr('height', data.length * 50 + 20)
       .attr('id', 'SVGcontainer');
 
     const g = chartDiv.selectAll('g')
       .data(data)
       .enter()
       .append('svg:g')
-      .attr('width', (d => (this.polygonDimensionWidth + this.polygonDimensionTailWidth) * d.value.events.length))
-      .attr('height', 50)
       .attr('num-events', (d) => d.value.events.length)
-      .attr('transform', (d, i) => 'translate(0, ' + (i * 50 + 20) + ')')
+      .attr('transform', (d, i) => 'translate(0, ' + (i * 40 + 20) + ')')
       .on('click', (e, d) => {
-        console.log(d);
-        // @ts-ignore
         // @ts-ignore
         if (this.selectedVariants.includes(d.value.variant)) { // click already selected variants
           // @ts-ignore
@@ -144,12 +123,13 @@ export class VariantExplorerComponent implements OnInit {
       .append('text')
       .classed('svg-text',true)
       .attr('x', 0)
-      .attr('y', 25)
+      .attr('y', 20)
       .attr('dy', '-1.8em')
       .text(d => d['value'])
       .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + this.polygonDimensionSpacing) + ', 0)')
       .attr('visibility', 'hidden')
-      .style('fill', '#d4d4d4');
+
+    this.resizeSVG();
   }
 
   private mouseOverPolygon(e, d) {
@@ -208,6 +188,7 @@ export class VariantExplorerComponent implements OnInit {
       .on('mouseover', this.mouseOverPolygon)
       .on('mouseout', this.mouseOutPolygon);
     prev_g.selectAll('text').remove();
+
     // @ts-ignore
     prev_g.selectAll('text')
       .data(d => {
@@ -224,6 +205,7 @@ export class VariantExplorerComponent implements OnInit {
       .attr('visibility', 'hidden')
       .style('fill', '#ffffff')
       .classed('svg-text',true);
+
     // @ts-ignore
     prev_g.attr('width', (this.polygonDimensionWidth + this.polygonDimensionSpacing) * prev_g.attr('num-events'));
     let max = 0;
@@ -234,7 +216,7 @@ export class VariantExplorerComponent implements OnInit {
         }
       }
     }
-    document.getElementById('SVGcontainer').style.width = (max * 1.2).toString() + 'px';
+    this.resizeSVG();
   }
 
   private expandingTrace(d, i) {
@@ -270,11 +252,6 @@ export class VariantExplorerComponent implements OnInit {
           .attr('transform', 'translate(' + positionX + ', 0)')
       });
     g.attr('width', overall_length);
-    //TODO can be removed?
-    if (overall_length > document.getElementById('SVGcontainer').getBoundingClientRect().width) {
-      // document.getElementById('chart').style.width = (overall_length * 1.2).toString()  + 'px';
-      document.getElementById('SVGcontainer').style.width = (overall_length * 1.2).toString() + 'px';
-    }
 
     positionX = 0;
     // @ts-ignore
@@ -287,9 +264,9 @@ export class VariantExplorerComponent implements OnInit {
       .enter()
       .append('text')
       .attr('x', 10)
-      .attr('y', 15)
-      .attr('dy', '0.35em')
+      .attr('y', 17)
       .text((d) => d)
+      .classed('svg-text',true)
       .each((d, i) => {
         if (i > 0) {
           positionX = positionX + this.polygonDimensionWidth + this.polygonDimensionSpacing
@@ -299,6 +276,7 @@ export class VariantExplorerComponent implements OnInit {
         g.selectAll('text').filter((d, j) => j === i)
           .attr('transform', 'translate(' + positionX + ', 0)');
       })
+    this.resizeSVG();
   }
 
   private setPolygonWidthByLengthOfEvent(event: string) {
@@ -308,9 +286,10 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   private measureStringOnCanvas(str: string): number {
+    // TODO simplify calculation of width
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    ctx.font = '1.2rem Rubik';
+    ctx.font = '1rem Rubik';
     return Math.round(ctx.measureText(str).width);
   }
 
@@ -326,27 +305,15 @@ export class VariantExplorerComponent implements OnInit {
     return maxEvent;
   }
 
-
-  sortedByPercentage(array: string[]): string[] {
-    var sortedArray: string[] = array;
-    sortedArray.sort((a, b) => {
-      const variantA = this.variants.find((variant) => variant['variant'] === a);
-      const variantB = this.variants.find((variant) => variant['variant'] === b);
-      return variantB.percentage - variantA.percentage;
-    });
-    return sortedArray;
+  private resizeSVG() {
+    const  svg = document.getElementById("SVGcontainer");
+    // @ts-ignore
+    var  bbox = svg.getBBox();
+    // Update the width and height using the size of the contents
+    svg.setAttribute("width", bbox.x + bbox.width + bbox.x);
+    svg.setAttribute("height", bbox.y + bbox.height + bbox.y);
   }
 
 
-  adjustChartDivWidth() {
-    let chatBoxDiv = document.getElementById('chartBox');
-    if (!this.isVisibleCaseEventsExplorer) {
-      chatBoxDiv.classList.add('col-lg-12');
-    } else {
-      if (chatBoxDiv.classList.contains('col-lg-12')) {
-        chatBoxDiv.classList.remove('col-lg-12');
-      }
-    }
-  }
 
 }
