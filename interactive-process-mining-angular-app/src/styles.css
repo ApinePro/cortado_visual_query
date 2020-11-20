@@ -9,14 +9,20 @@
   --box-background-color: #2b2b2b;
 }
 
-.svg-text{
+.svg-text {
   fill: whitesmoke;
   font-size: small;
   user-select: none;
 }
-.svg-text-variant-explorer-no-color{
+
+.svg-text-variant-explorer-no-color {
   font-size: small;
   user-select: none;
+}
+
+.btn-bar-text {
+  font-size: 13px;
+  color: whitesmoke;
 }
 
 .button {
@@ -30,7 +36,7 @@
   cursor: pointer;
   background-color: Transparent;
   user-select: none;
-
+  vertical-align: top;
 }
 
 .button-active {
@@ -59,9 +65,9 @@ hr {
 
 .vl {
   border-left: 1px solid var(--line-color);
-  padding-top: 3px;
+  /*padding-top: 3px;
   padding-bottom: 3px;
   margin-left: 3px;
-  margin-right: 3px;
+  margin-right: 3px;*/
 
 }

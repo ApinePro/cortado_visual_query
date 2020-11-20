@@ -36,24 +36,6 @@ export class VariantExplorerComponent implements OnInit {
     }
   }
 
-  originVariants: any[] = test.test.variants;
-  isVisibleCaseEventsExplorer: boolean = false;
-  colorMap: Map<string, string>;
-
-
-  public colorMapKeys: string[] = [];
-  public variantsLoading: boolean;
-
-  public polygonFoldingWidth = 25;
-  polygonDimensionWidth = 0;
-  polygonDimensionHeight = 23;
-  polygonDimensionSpacing = 3;
-  polygonDimensionTailWidth = 6;
-
-  variants: any[];
-  selectedVariants: string[];
-
-
   ngOnChanges(): void {
     /*if (this.colorMap == null) {
       return;
@@ -72,37 +54,66 @@ export class VariantExplorerComponent implements OnInit {
     }*/
   }
 
+
+  originVariants: any[] = test.test.variants;
+  isVisibleCaseEventsExplorer: boolean = false;
+  colorMap: Map<string, string>;
+
+
+  public colorMapKeys: string[] = [];
+  public variantsLoading: boolean;
+
+  public polygonFoldingWidth = 25;
+  polygonDimensionWidth = 0;
+  polygonDimensionHeight = 23;
+  polygonDimensionSpacing = 3;
+  polygonDimensionTailWidth = 6;
+
+  variants: any[];
+  selectedVariants: string[];
+
+  clearSelection() {
+    this.selectedVariants.forEach(d => {
+      this.foldingTrace(d['value'], d['i']);
+    });
+    this.selectedVariants = [];
+
+  }
+
+  d3jsData;
+
   private createChart(): void {
+    console.log("createChart");
     d3.select('#chart').select('svg').remove();
-    let data = this.variants;
-    data.forEach((variant) => {
+    this.d3jsData = this.variants;
+    this.d3jsData.forEach((variant) => {
       console.log(variant);
       variant['events'] = variant.variant.split(',');
       variant['percentage'] = 0;
     });
 
-    data = data.map((d, i) => ({value: d, i: i}))
-    console.warn(data);
+    this.d3jsData = this.d3jsData.map((d, i) => ({value: d, i: i}))
+    console.warn(this.d3jsData);
 
     const chartDiv = d3.select('#chart').append('svg')
       .attr('id', 'SVGcontainer');
 
     const g = chartDiv.selectAll('g')
-      .data(data)
+      .data(this.d3jsData)
       .enter()
       .append('svg:g')
-      .attr('num-events', (d) => d.value.events.length)
+      .attr('num-events', (d) => d['value'].events.length)
       .attr('transform', (d, i) => 'translate(0, ' + (i * 40 + 20) + ')')
       .on('click', (e, d) => {
         // @ts-ignore
-        if (this.selectedVariants.includes(d.value.variant)) { // click already selected variants
+        if (this.selectedVariants.includes(d)) { // click already selected variants
           // @ts-ignore
-          this.selectedVariants = this.selectedVariants.filter(variant => d.value.variant !== variant)
+          this.selectedVariants = this.selectedVariants.filter(variant => d !== variant)
           // @ts-ignore
           this.foldingTrace(d.value, d.i);                // folding trace graph
         } else {
           // @ts-ignore
-          this.selectedVariants.push(d.value.variant);
+          this.selectedVariants.push(d);
           // @ts-ignore
           this.expandingTrace(d.value, d.i);
         }
@@ -110,7 +121,7 @@ export class VariantExplorerComponent implements OnInit {
       .attr('class', 'svg-trace');
 
     g.selectAll('polygon')
-      .data(d => d.value.events.map((d, i) => ({value: d, i: i})))
+      .data(d => d['value'].events.map((d, i) => ({value: d, i: i})))
       .enter()
       .append('svg:polygon')
       .attr('points', (d, i) => this.getTracePoints(i))
@@ -121,7 +132,7 @@ export class VariantExplorerComponent implements OnInit {
 
     // @ts-ignore
     g.selectAll('text')
-      .data(d => d.value.events.map((d, i) => ({value: d, i: i})))
+      .data(d => d['value'].events.map((d, i) => ({value: d, i: i})))
       .enter()
       .append('text')
       .classed('svg-text', true)
@@ -154,6 +165,7 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   private getTracePoints(i) {
+    //calculate chevron
     const points = [];
     points.push('0,0');
     points.push(this.polygonDimensionWidth + ',0');
@@ -167,8 +179,6 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   private foldingTrace(d, i) {
-    console.log(d)
-    console.log(i)
     this.setPolygonDimensionWidth(this.polygonFoldingWidth);
     const prev_g = d3.select('#chart').selectAll('g').filter((d, j) => j === i);
     prev_g.selectAll('polygon').remove();
@@ -246,7 +256,7 @@ export class VariantExplorerComponent implements OnInit {
       .attr('y', 17)
       .text(d => d)
       .classed('svg-text-variant-explorer-no-color', true)
-      .attr('fill',(d:string) => this.isDarkColor(this.colorMap.get(d)) ? 'white' : 'black')
+      .attr('fill', (d: string) => this.isDarkColor(this.colorMap.get(d)) ? 'white' : 'black')
       .each((d, i) => {
         if (i > 0) {
           positionX = positionX + this.polygonDimensionWidth + this.polygonDimensionSpacing
@@ -273,17 +283,6 @@ export class VariantExplorerComponent implements OnInit {
     return Math.round(ctx.measureText(str).width);
   }
 
-  private getEventNameOfMaxLength(events: string[]): string {
-    let max = 0;
-    let maxEvent: string = events[0];
-    events.forEach((event) => {
-      if (event.length > max) {
-        max = event.length;
-        maxEvent = event;
-      }
-    });
-    return maxEvent;
-  }
 
   private resizeSVG() {
     const svg = document.getElementById("SVGcontainer");
@@ -295,9 +294,8 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   private isDarkColor(colorInHex: string): boolean {
-    console.log(colorInHex)
     const res = hexToRgb(colorInHex);
-    if (0.2126 * res['r'] + 0.7152 * res['g'] + 0.0722 * res['b'] >= 128) {
+    if (0.2126 * res['r'] + 0.7152 * res['g'] + 0.0722 * res['b'] >= 130) {
       return false;
     } else {
       return true;

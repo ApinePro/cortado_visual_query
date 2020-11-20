@@ -1,14 +1,41 @@
-
 <div class="d-flex flex-column mh-100 container-variant-explorer">
   <div class="bg-dark">
     <button class="button"
             data-toggle="tooltip" data-placement="top" data-trigger="hover"
-            title="shift selected node(s) to left">
-      <svg class="btn-icon" fill="currentColor">
-        <use xlink:href="assets/bootstrap-icons.svg#chevron-left"/>
+            title="shift selected node(s) to left"
+            [disabled]="selectedVariants.length===0">
+      <svg class="btn-icon" fill="currentColor" [ngClass]="{'text-success':selectedVariants.length!=0}">
+        <use xlink:href="assets/bootstrap-icons.svg#plus"/>
       </svg>
+      add variants to process model
     </button>
+
+    <span class="vl"></span>
+
+    <button class="button"
+            data-toggle="tooltip" data-placement="top" data-trigger="hover"
+            title="shift selected node(s) to left"
+            [disabled]="selectedVariants.length===0">
+      <svg class="btn-icon" fill="currentColor" [ngClass]="{'text-success':selectedVariants.length!=0}">
+        <use xlink:href="assets/bootstrap-icons.svg#diagram-2-fill"/>
+      </svg>
+      discover initial model
+    </button>
+
+    <span class="vl"></span>
+
+
+    <button class="button" (click)="clearSelection()">
+      <svg class="btn-icon text-danger" fill="currentColor">
+        <use xlink:href="assets/bootstrap-icons.svg#x"/>
+      </svg>
+      clear selection
+    </button>
+
+    <div class="float-right d-inline mr-3 btn-bar-text">selected variants: {{this.selectedVariants.length}}</div>
+
   </div>
+
 
   <div class="main-variant-explorer flex-grow-1">
     <div class="d-flex">
