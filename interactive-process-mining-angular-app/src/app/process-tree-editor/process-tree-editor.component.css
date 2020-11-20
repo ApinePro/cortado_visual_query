@@ -24,59 +24,14 @@
   font-size: 2em;
 }
 
-hr {
-  display: block;
-  margin: 0;
-  border-style: inset;
-  border-top: 1px solid var(--line-color);
-  width: 100%;
-}
 
-.vl {
-  border-left: 1px solid var(--line-color);
-  padding-top: 3px;
-  padding-bottom: 3px;
-  margin-left: 3px;
-  margin-right: 3px;
-}
 
-.button {
-  color: whitesmoke;
-  border: none;
-  padding: 3px 15px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 13px;
-  font-size: 13px;
-  cursor: pointer;
-  background-color: Transparent;
-  user-select: none;
-}
 
 .btn-fixed-width {
   min-width: 90px;
 }
 
-.button-active {
-  background-color: darkgray;
-}
 
-.button:hover:enabled {
-  background-color: #676767;
-}
-
-.button:focus {
-
-}
-
-.button:disabled {
-  color: #757575 !important;
-}
-
-.button:focus {
-  outline: none;
-}
 
 .crosshair {
   cursor: crosshair;
