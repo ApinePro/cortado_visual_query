@@ -2,7 +2,7 @@
   margin-left: 4px;
   display: inline-flex;
   flex-direction: column;
-  width: 50px;
+  min-width: 50px;
   font-size: .8rem;
   color: whitesmoke;
   margin-top: 20px;
@@ -26,6 +26,7 @@
   border-right-color: var(--line-color);
   border-right-width: 2px;
   border-right-style: solid;
+  min-height: 100%;
 }
 
 

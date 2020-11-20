@@ -1,6 +1,7 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import * as d3 from 'd3';
 import * as test from './backend_response.js';
+import {ColorMapService} from "../services/colorMapService/color-map.service";
 
 @Component({
   selector: 'app-variant-explorer',
@@ -9,12 +10,26 @@ import * as test from './backend_response.js';
 })
 export class VariantExplorerComponent implements OnInit {
 
+  constructor(private colorMapService: ColorMapService) {
+  }
+
   ngOnInit() {
     console.log(this.originVariants);
     if (this.variants !== this.originVariants) {
       this.variants = this.originVariants;
       console.log(this.variants);
 
+      console.log("calculate colors")
+      //TODO remove as soon as backend is there!
+      const activities = new Set([])
+      console.log(this.originVariants);
+      this.originVariants.forEach(v => {
+        v.variant.split(",").forEach(a => {
+          activities.add(a);
+        })
+      })
+      this.colorMap = this.colorMapService.getColorMap([...activities]);
+      //end -----
       this.selectedVariants = [];
       this.setPolygonDimensionWidth(this.polygonFoldingWidth);
       this.createChart();
@@ -38,9 +53,6 @@ export class VariantExplorerComponent implements OnInit {
   variants: any[];
   selectedVariants: string[];
 
-
-  constructor() {
-  }
 
   ngOnChanges(): void {
     /*if (this.colorMap == null) {
@@ -102,9 +114,7 @@ export class VariantExplorerComponent implements OnInit {
       .enter()
       .append('svg:polygon')
       .attr('points', (d, i) => this.getTracePoints(i))
-      .style('fill', (d, i) => {
-        return "gray";
-      })
+      .style('fill', (d, i) => this.colorMap.get(d['value']))
       .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + this.polygonDimensionSpacing) + ', 0)')
       .on('mouseover', this.mouseOverPolygon)
       .on('mouseout', this.mouseOutPolygon);
@@ -167,9 +177,7 @@ export class VariantExplorerComponent implements OnInit {
       .enter()
       .append('svg:polygon')
       .attr('points', (d, i) => this.getTracePoints(i))
-      .style('fill', (d, i) => {
-        return "gray";
-      })
+      .style('fill', (d, i) => this.colorMap.get(d['value']))
       .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + this.polygonDimensionSpacing) + ', 0)')
       .on('mouseover', this.mouseOverPolygon)
       .on('mouseout', this.mouseOutPolygon);
@@ -212,10 +220,7 @@ export class VariantExplorerComponent implements OnInit {
       })
       .enter()
       .append('svg:polygon')
-      .style('fill', (d, i) => {
-          return "red";
-        }
-      )
+      .style('fill', (d: string, i) => this.colorMap.get(d))
       .each((d, i) => {
         if (i > 0) {
           positionX = positionX + this.polygonDimensionWidth + this.polygonDimensionSpacing
@@ -240,7 +245,8 @@ export class VariantExplorerComponent implements OnInit {
       .attr('x', 10)
       .attr('y', 17)
       .text(d => d)
-      .classed('svg-text', true)
+      .classed('svg-text-variant-explorer-no-color', true)
+      .attr('fill',(d:string) => this.isDarkColor(this.colorMap.get(d)) ? 'white' : 'black')
       .each((d, i) => {
         if (i > 0) {
           positionX = positionX + this.polygonDimensionWidth + this.polygonDimensionSpacing
@@ -254,7 +260,7 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   private setPolygonWidthByLengthOfEvent(d: string) {
-    console.log(d)
+    //console.log(d)
     const width = this.measureStringOnCanvas(d);
     this.setPolygonDimensionWidth(width);
   }
@@ -286,6 +292,25 @@ export class VariantExplorerComponent implements OnInit {
     // Update the width and height using the size of the contents
     svg.setAttribute("width", bbox.x + bbox.width + bbox.x);
     svg.setAttribute("height", bbox.y + bbox.height + bbox.y);
+  }
+
+  private isDarkColor(colorInHex: string): boolean {
+    console.log(colorInHex)
+    const res = hexToRgb(colorInHex);
+    if (0.2126 * res['r'] + 0.7152 * res['g'] + 0.0722 * res['b'] >= 128) {
+      return false;
+    } else {
+      return true;
+    }
+
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    }
   }
 
 
