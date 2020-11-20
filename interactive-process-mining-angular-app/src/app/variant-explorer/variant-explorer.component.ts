@@ -43,7 +43,7 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   ngOnChanges(): void {
-    if (this.colorMap == null) {
+    /*if (this.colorMap == null) {
       return;
     }
     if (!this.originVariants) {
@@ -57,23 +57,16 @@ export class VariantExplorerComponent implements OnInit {
       this.selectedVariants = [];
       this.setPolygonDimensionWidth(this.polygonFoldingWidth);
       this.createChart();
-    }
+    }*/
   }
 
   private createChart(): void {
     d3.select('#chart').select('svg').remove();
     let data = this.variants;
-
-    // set chart width
-    let maxCountOfEvents = 0, maxLengthOfEventName = 0;
     data.forEach((variant) => {
-      console.log(variant)
-      variant['events'] = variant.variant.split(',')
-      variant['percentage'] = 0
-      if (variant.events.length > maxCountOfEvents) {
-        maxCountOfEvents = variant.events.length;
-        maxLengthOfEventName = this.measureStringOnCanvas(this.getEventNameOfMaxLength(variant.events));
-      }
+      console.log(variant);
+      variant['events'] = variant.variant.split(',');
+      variant['percentage'] = 0;
     });
 
     data = data.map((d, i) => ({value: d, i: i}))
@@ -121,10 +114,8 @@ export class VariantExplorerComponent implements OnInit {
       .data(d => d.value.events.map((d, i) => ({value: d, i: i})))
       .enter()
       .append('text')
-      .classed('svg-text',true)
-      .attr('x', 0)
-      .attr('y', 20)
-      .attr('dy', '-1.8em')
+      .classed('svg-text', true)
+      .attr('y', -4)
       .text(d => d['value'])
       .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + this.polygonDimensionSpacing) + ', 0)')
       .attr('visibility', 'hidden')
@@ -166,18 +157,13 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   private foldingTrace(d, i) {
-    // document.getElementById('chart').style.width = '200px';
     console.log(d)
     console.log(i)
     this.setPolygonDimensionWidth(this.polygonFoldingWidth);
     const prev_g = d3.select('#chart').selectAll('g').filter((d, j) => j === i);
     prev_g.selectAll('polygon').remove();
-    // @ts-ignore
     prev_g.selectAll('polygon')
-      .data((d) => {
-        // @ts-ignore
-        return d.value.events;
-      })
+      .data(d => d['value'].events.map((d, i) => ({value: d, i: i})))
       .enter()
       .append('svg:polygon')
       .attr('points', (d, i) => this.getTracePoints(i))
@@ -189,22 +175,15 @@ export class VariantExplorerComponent implements OnInit {
       .on('mouseout', this.mouseOutPolygon);
     prev_g.selectAll('text').remove();
 
-    // @ts-ignore
     prev_g.selectAll('text')
-      .data(d => {
-        // @ts-ignore
-        return d.value.events;
-      })
+      .data(d => d['value'].events.map((d, i) => ({value: d, i: i})))
       .enter()
       .append('text')
-      .attr('x', 0)
-      .attr('y', 15)
-      .attr('dy', '-1.8em')
-      .text((d) => d['value'])
+      .classed('svg-text', true)
+      .attr('y', -4)
+      .text(d => d['value'])
       .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + this.polygonDimensionSpacing) + ', 0)')
       .attr('visibility', 'hidden')
-      .style('fill', '#ffffff')
-      .classed('svg-text',true);
 
     // @ts-ignore
     prev_g.attr('width', (this.polygonDimensionWidth + this.polygonDimensionSpacing) * prev_g.attr('num-events'));
@@ -220,9 +199,6 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   private expandingTrace(d, i) {
-    console.log("expanding trace");
-    console.log(d);
-    console.log(i);
     let positionX = 0;
     const g = d3.select('#chart').selectAll('g').filter((d, j) => j === i);
     g.selectAll('polygon').remove();
@@ -255,18 +231,16 @@ export class VariantExplorerComponent implements OnInit {
 
     positionX = 0;
     // @ts-ignore
-    // @ts-ignore
     g.selectAll('text')
       .data(d => {
-        // @ts-ignore
-        return d.value.events;
+        return d['value'].events;
       })
       .enter()
       .append('text')
       .attr('x', 10)
       .attr('y', 17)
-      .text((d) => d)
-      .classed('svg-text',true)
+      .text(d => d)
+      .classed('svg-text', true)
       .each((d, i) => {
         if (i > 0) {
           positionX = positionX + this.polygonDimensionWidth + this.polygonDimensionSpacing
@@ -275,13 +249,13 @@ export class VariantExplorerComponent implements OnInit {
         this.setPolygonWidthByLengthOfEvent(d);
         g.selectAll('text').filter((d, j) => j === i)
           .attr('transform', 'translate(' + positionX + ', 0)');
-      })
+      });
     this.resizeSVG();
   }
 
-  private setPolygonWidthByLengthOfEvent(event: string) {
-    console.log(event)
-    const width = this.measureStringOnCanvas(event);
+  private setPolygonWidthByLengthOfEvent(d: string) {
+    console.log(d)
+    const width = this.measureStringOnCanvas(d);
     this.setPolygonDimensionWidth(width);
   }
 
@@ -306,14 +280,13 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   private resizeSVG() {
-    const  svg = document.getElementById("SVGcontainer");
+    const svg = document.getElementById("SVGcontainer");
     // @ts-ignore
-    var  bbox = svg.getBBox();
+    var bbox = svg.getBBox();
     // Update the width and height using the size of the contents
     svg.setAttribute("width", bbox.x + bbox.width + bbox.x);
     svg.setAttribute("height", bbox.y + bbox.height + bbox.y);
   }
-
 
 
 }
