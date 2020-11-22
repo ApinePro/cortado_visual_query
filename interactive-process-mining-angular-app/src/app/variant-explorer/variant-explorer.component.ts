@@ -70,20 +70,18 @@ export class VariantExplorerComponent implements OnInit {
   polygonDimensionTailWidth = 6;
 
   variants: any[];
-  selectedVariants: string[];
+  selectedVariants: any[];
 
   clearSelection() {
     this.selectedVariants.forEach(d => {
       this.foldingTrace(d['value'], d['i']);
     });
     this.selectedVariants = [];
-
   }
 
   d3jsData;
 
   private createChart(): void {
-    console.log("createChart");
     d3.select('#chart').select('svg').remove();
     this.d3jsData = this.variants;
     this.d3jsData.forEach((variant) => {
@@ -105,7 +103,6 @@ export class VariantExplorerComponent implements OnInit {
       .attr('num-events', (d) => d['value'].events.length)
       .attr('transform', (d, i) => 'translate(0, ' + (i * 40 + 20) + ')')
       .on('click', (e, d) => {
-        // @ts-ignore
         if (this.selectedVariants.includes(d)) { // click already selected variants
           // @ts-ignore
           this.selectedVariants = this.selectedVariants.filter(variant => d !== variant)
@@ -127,6 +124,7 @@ export class VariantExplorerComponent implements OnInit {
       .attr('points', (d, i) => this.getTracePoints(i))
       .style('fill', (d, i) => this.colorMap.get(d['value']))
       .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + this.polygonDimensionSpacing) + ', 0)')
+      .classed('cursor-pointer',true)
       .on('mouseover', this.mouseOverPolygon)
       .on('mouseout', this.mouseOutPolygon);
 
@@ -189,6 +187,7 @@ export class VariantExplorerComponent implements OnInit {
       .attr('points', (d, i) => this.getTracePoints(i))
       .style('fill', (d, i) => this.colorMap.get(d['value']))
       .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + this.polygonDimensionSpacing) + ', 0)')
+      .classed('cursor-pointer',true)
       .on('mouseover', this.mouseOverPolygon)
       .on('mouseout', this.mouseOutPolygon);
     prev_g.selectAll('text').remove();
@@ -231,6 +230,7 @@ export class VariantExplorerComponent implements OnInit {
       .enter()
       .append('svg:polygon')
       .style('fill', (d: string, i) => this.colorMap.get(d))
+      .classed('cursor-pointer',true)
       .each((d, i) => {
         if (i > 0) {
           positionX = positionX + this.polygonDimensionWidth + this.polygonDimensionSpacing
@@ -255,7 +255,7 @@ export class VariantExplorerComponent implements OnInit {
       .attr('x', 10)
       .attr('y', 17)
       .text(d => d)
-      .classed('svg-text-variant-explorer-no-color', true)
+      .classed('svg-text-variant-explorer-no-color cursor-pointer', true)
       .attr('fill', (d: string) => this.isDarkColor(this.colorMap.get(d)) ? 'white' : 'black')
       .each((d, i) => {
         if (i > 0) {
@@ -295,7 +295,7 @@ export class VariantExplorerComponent implements OnInit {
 
   private isDarkColor(colorInHex: string): boolean {
     const res = hexToRgb(colorInHex);
-    if (0.2126 * res['r'] + 0.7152 * res['g'] + 0.0722 * res['b'] >= 130) {
+    if (0.2126 * res['r'] + 0.7152 * res['g'] + 0.0722 * res['b'] >= 135) {
       return false;
     } else {
       return true;

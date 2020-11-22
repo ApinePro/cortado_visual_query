@@ -2,7 +2,7 @@
   <div class="bg-dark">
     <button class="button"
             data-toggle="tooltip" data-placement="top" data-trigger="hover"
-            title="shift selected node(s) to left"
+            title="add selected variants to model"
             [disabled]="selectedVariants.length===0">
       <svg class="btn-icon" fill="currentColor" [ngClass]="{'text-success':selectedVariants.length!=0}">
         <use xlink:href="assets/bootstrap-icons.svg#plus"/>
@@ -14,7 +14,7 @@
 
     <button class="button"
             data-toggle="tooltip" data-placement="top" data-trigger="hover"
-            title="shift selected node(s) to left"
+            title="overwrite existing model and discover an initial model from the {{selectedVariants}} selected variants"
             [disabled]="selectedVariants.length===0">
       <svg class="btn-icon" fill="currentColor" [ngClass]="{'text-success':selectedVariants.length!=0}">
         <use xlink:href="assets/bootstrap-icons.svg#diagram-2-fill"/>

@@ -162,7 +162,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       this.update(treeToLoad);
       this.root = treeToLoad;
     }
-
     console.warn(this.previousTreeObjects);
     console.warn(this.currentIdxPreviousTreeObjects);
   }
@@ -198,6 +197,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     //add nodes
     this.nodeEnter.append('rect')
       .classed('node', true)
+      .attr('stroke', 'gray')
+      .attr('stroke-width', '2')
       .merge(node.select('.node'))
       .classed('node-operator', function (d: any) {
         return d.data.operator !== null
@@ -210,8 +211,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       })
       .attr('width', constants.tree_node_height_width)
       .attr('height', constants.tree_node_height_width)
-      .attr('stroke', 'gray')
-      .attr('stroke-width', '2')
       .attr('x', function (d: any) {
         return d.x - constants.tree_node_height_width / 2;
       })
