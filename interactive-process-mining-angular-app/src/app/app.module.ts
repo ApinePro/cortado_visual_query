@@ -8,6 +8,7 @@ import { ProcessTreeEditorComponent } from './process-tree-editor/process-tree-e
 import { StrFilterPipe } from './str-filter.pipe';
 import {FormsModule} from "@angular/forms";
 import { VariantExplorerComponent } from './variant-explorer/variant-explorer.component';
+import { SideBarComponent } from './side-bar/side-bar.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { VariantExplorerComponent } from './variant-explorer/variant-explorer.co
     FooterComponent,
     ProcessTreeEditorComponent,
     StrFilterPipe,
-    VariantExplorerComponent
+    VariantExplorerComponent,
+    SideBarComponent
   ],
   imports: [
     BrowserModule,

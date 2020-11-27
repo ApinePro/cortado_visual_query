@@ -8,6 +8,7 @@ main > .container {
 
 main {
   height: calc(100vh - 19px);
+  margin-left: var(--width-sidebar);
 }
 
 .bootstrap-container {

@@ -10,15 +10,21 @@ function createWindow() {
     minWidth: 800,
 
     width: 1280,
-    height: 800
+    height: 800,
+
+    frame: true
 
   })
 
-  win.loadURL(url.format({
+  win.removeMenu();
+
+/*  win.loadURL(url.format({
     pathname: path.join(__dirname, `/dist/index.html`),
     protocol: "file:",
     slashes: true
-  }))
+  }))*/
+
+  win.loadURL('http://localhost:4444')
 
   //win.webContents.openDevTools()
 

@@ -1,7 +1,7 @@
 {
   "name": "interactive-process-mining-angular-app",
   "version": "0.0.0",
-  "main": "main.js",
+  "main": "main-electron.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --port 4444 --open",
@@ -9,7 +9,9 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
+    "input": "main-electron.js",
     "electron": "electron .",
+    "electron-live-reload": "wait-on http://localhost:4444 && electron .",
     "electron-build": "ng build --prod && electron ."
   },
   "private": true,
@@ -38,6 +40,7 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "^12.19.3",
     "codelyzer": "^6.0.0",
+    "concurrently": "^5.3.0",
     "electron": "^10.1.5",
     "jasmine-core": "~3.6.0",
     "jasmine-spec-reporter": "~5.0.0",
@@ -49,6 +52,7 @@
     "protractor": "~7.0.0",
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
-    "typescript": "^4.0.5"
+    "typescript": "^4.0.5",
+    "wait-on": "^5.2.0"
   }
 }
