@@ -1,18 +1,22 @@
 <!-- Side navigation-->
 <div class="sidenav">
 
-  <button class="button align-bottom">
-    <svg class="btn-icon" fill="currentColor">
+  <button class="button align-bottom" (click)="importEventLog()">
+    <svg class="btn-icon" fill="">
       <use xlink:href="assets/bootstrap-icons.svg#folder2-open"/>
     </svg>
-    <span class="hidden-if-collapsed ml-1">Import event log</span>
+    <span class="hidden-if-collapsed">Import event log</span>
   </button>
+
+  <input #fileUploadEventLog type="file" class="d-none" (change)="handleSelectedFile($event)"
+  accept=".xes">
+
 
   <button class="button align-bottom">
     <svg class="btn-icon" fill="currentColor">
       <use xlink:href="assets/bootstrap-icons.svg#file-earmark-arrow-down"/>
     </svg>
-    <span class="hidden-if-collapsed ml-1">Export process tree (.ptml file)</span>
+    <span class="hidden-if-collapsed">Export process tree <span class="text-muted">(.ptml file)</span></span>
   </button>
 
   <hr class="mt-1 mb-1">

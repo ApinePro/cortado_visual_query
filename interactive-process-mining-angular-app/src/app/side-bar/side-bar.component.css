@@ -16,7 +16,7 @@
 
 .sidenav:hover {
   width: 220px;
-  transition: width .2s;
+  transition: width .15s;
   transition-timing-function: ease-out;
   transition-delay: .1s;
   box-shadow: 2px 0px 2px #2d2d2d;
@@ -33,7 +33,7 @@
 
 .sidenav:hover .hidden-if-collapsed{
   transition: opacity .1s ease-out;
-  transition-delay: .3s;
+  transition-delay: .2s;
   opacity: 1;
 }
 
@@ -55,4 +55,7 @@
   text-align: left;
 }
 
+button span {
+  margin-left: 8px;
+}
 

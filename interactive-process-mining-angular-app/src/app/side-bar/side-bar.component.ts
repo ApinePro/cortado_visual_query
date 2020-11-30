@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ElementRef, ViewChild} from '@angular/core';
 
 @Component({
   selector: 'app-side-bar',
@@ -7,9 +7,25 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SideBarComponent implements OnInit {
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit(): void {
+  }
+
+  @ViewChild('fileUploadEventLog') fileUploadEventLog: ElementRef;
+
+  importEventLog() {
+    this.fileUploadEventLog.nativeElement.click();
+  }
+
+  handleSelectedFile(e) {
+    console.log('Change input file')
+    console.log(e)
+    const fileList: FileList = e.target.files;
+    if (fileList.length > 0) {
+      let formData:FormData = new FormData();
+    }
   }
 
 }

@@ -26,7 +26,7 @@ function createWindow() {
 
   win.loadURL('http://localhost:4444')
 
-  //win.webContents.openDevTools()
+  win.webContents.openDevTools()
 
   win.on('closed', function () {
     win = null
