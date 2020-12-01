@@ -1,4 +1,5 @@
 import {Component, OnInit, ElementRef, ViewChild} from '@angular/core';
+import {BackendService} from "../services/backendService/backend.service";
 
 @Component({
   selector: 'app-side-bar',
@@ -7,7 +8,7 @@ import {Component, OnInit, ElementRef, ViewChild} from '@angular/core';
 })
 export class SideBarComponent implements OnInit {
 
-  constructor() {
+  constructor(private backendService: BackendService) {
   }
 
   ngOnInit(): void {
@@ -16,6 +17,7 @@ export class SideBarComponent implements OnInit {
   @ViewChild('fileUploadEventLog') fileUploadEventLog: ElementRef;
 
   importEventLog() {
+    console.log('file upload click');
     this.fileUploadEventLog.nativeElement.click();
   }
 
@@ -24,8 +26,17 @@ export class SideBarComponent implements OnInit {
     console.log(e)
     const fileList: FileList = e.target.files;
     if (fileList.length > 0) {
-      let formData:FormData = new FormData();
+      console.log(fileList[0]);
+      //TODO make it also work with browser by uploading the file instead of just the file path
+      /*this.backendService.uploadEventLog$(fileList[0]).subscribe(() => {
+        console.log('success?');
+      });*/
+      this.backendService.loadEventLogFromFilePath(fileList[0]['path']).subscribe(res => {
+        console.log('success?');
+      })
     }
+    // reset form
+    this.fileUploadEventLog.nativeElement.value = '';
   }
 
 }

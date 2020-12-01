@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {BackgroundTaskInfoService} from "../services/backgroundTaskInfoService/background-task-info.service";
 
 @Component({
   selector: 'app-footer',
@@ -7,9 +8,17 @@ import { Component, OnInit } from '@angular/core';
 })
 export class FooterComponent implements OnInit {
 
-  constructor() { }
+  constructor(private backgroundTaskInfoService: BackgroundTaskInfoService) {
+  }
+
+  currentTask = undefined;
 
   ngOnInit(): void {
+    this.backgroundTaskInfoService.currentBackgroundTask$().subscribe(taskDescription => {
+      this.currentTask = taskDescription;
+    })
   }
+
+
 
 }
