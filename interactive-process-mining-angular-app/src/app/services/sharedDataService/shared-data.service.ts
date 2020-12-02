@@ -18,5 +18,16 @@ export class SharedDataService {
   set loadedEventLog(name: string) {
     this._loadedEventLog.next(name);
   }
+
+
+  private _currentDisplayedProcessTree = new Subject<any>();
+
+  get currentDisplayedProcessTree$(): Observable<string> {
+    return this._currentDisplayedProcessTree.asObservable();
+  }
+
+  set currentDisplayedProcessTree(tree: any) {
+    this._currentDisplayedProcessTree.next(tree);
+  }
 }
 

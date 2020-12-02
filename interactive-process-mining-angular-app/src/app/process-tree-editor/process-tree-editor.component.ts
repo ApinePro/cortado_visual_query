@@ -1,6 +1,7 @@
 import {Component, OnInit, ViewChild, AfterViewInit, ElementRef, ViewEncapsulation, HostListener} from '@angular/core';
 import * as d3 from "d3";
 import * as constants from "./constants_tree_d3";
+import {SharedDataService} from "../services/sharedDataService/shared-data.service";
 //jQuery
 declare var $;
 
@@ -12,7 +13,7 @@ declare var $;
 })
 export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
-  constructor() {
+  constructor(private sharedDataService: SharedDataService) {
   }
 
   @ViewChild("d3svg") svgElem: ElementRef;
@@ -22,11 +23,27 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
   }
 
-  //used in dropdown
+  //used in dropdown search form
   searchText: string;
 
 
   resizeTimer;
+
+  svg;
+  mainSvgGroup;
+  nodeEnter;
+
+  selectNodeActive: boolean = true;
+  selectSubtreeActive: boolean = false;
+
+  selectedRootNode;
+
+
+  previousTreeObjects: d3.HierarchyNode<any>[] = [];
+  currentIdxPreviousTreeObjects: number = 0;
+
+  insertPositionLeftRightDisabled: Boolean = false;
+
 
   addNewNodePreCheck() {
     if (this.selectedMethod === this.changeSelectedNode) {
@@ -42,7 +59,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     }
   }
 
-  insertPositionLeftRightDisabled: Boolean = false;
 
   @HostListener('window:resize', ['$event'])
   onResize() {
@@ -58,8 +74,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     return !this.selectedRootNode || (this.selectSubtreeActive && !this.singleNodeSelected())
   }
 
-  selectNodeActive: boolean = true;
-  selectSubtreeActive: boolean = false;
 
   selectNode() {
     this.clearSelection();
@@ -73,7 +87,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     this.selectSubtreeActive = true;
   }
 
-  selectedRootNode;
 
   singleNodeSelected(): Boolean {
     return this.selectedRootNode && this.selectedRootNode.height === 0;
@@ -119,13 +132,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     }
   }
 
-  svg;
-  mainSvgGroup;
-  nodeEnter;
-
-
-  previousTreeObjects: d3.HierarchyNode<any>[] = [];
-  currentIdxPreviousTreeObjects: number = 0;
 
   cacheCurrentTree() {
     console.log("cacheCurrentTree()");
@@ -155,7 +161,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   redo() {
     console.warn(this.previousTreeObjects);
     console.warn(this.currentIdxPreviousTreeObjects);
-
     if (this.currentIdxPreviousTreeObjects < this.previousTreeObjects.length - 1) {
       this.currentIdxPreviousTreeObjects++;
       const treeToLoad = this.previousTreeObjects[this.currentIdxPreviousTreeObjects]
@@ -175,6 +180,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     console.log(root);
     console.log(root.descendants());
     console.log(root.links());
+
+    this.updateTreeInSharedDataService();
 
     this.calculateTreeLayout(root);
     //add node groups that contain a rectangle and text
@@ -504,6 +511,11 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     this.update(root);
     this.horizontallyCenterTree();
     this.addZoomFunctionality();
+  }
+
+  updateTreeInSharedDataService() {
+    console.log(this.root);
+    this.sharedDataService.currentDisplayedProcessTree = this.root;
   }
 
   root: d3.HierarchyNode<any>;
