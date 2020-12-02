@@ -9,16 +9,25 @@
   </button>
 
   <input #fileUploadEventLog type="file" class="d-none" (change)="handleSelectedFile($event)"
-  accept=".xes">
+         accept=".xes">
 
+  <hr class="mt-1 mb-1">
 
   <button class="button align-bottom">
     <svg class="btn-icon" fill="currentColor">
       <use xlink:href="assets/bootstrap-icons.svg#file-earmark-arrow-down"/>
     </svg>
-    <span class="hidden-if-collapsed">Export process tree <span class="text-muted">(.ptml file)</span></span>
+    <span class="hidden-if-collapsed">Export model as<span class="text-primary font-weight-bold">.ptml file</span></span>
+  </button>
+
+  <button class="button align-bottom">
+    <svg class="btn-icon" fill="currentColor">
+      <use xlink:href="assets/bootstrap-icons.svg#file-earmark-arrow-down"/>
+    </svg>
+    <span class="hidden-if-collapsed">Export model as<span class="text-primary font-weight-bold">.pnml file</span></span>
   </button>
 
   <hr class="mt-1 mb-1">
+
 
 </div>

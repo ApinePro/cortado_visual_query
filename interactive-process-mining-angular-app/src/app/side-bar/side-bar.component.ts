@@ -1,5 +1,6 @@
 import {Component, OnInit, ElementRef, ViewChild} from '@angular/core';
 import {BackendService} from "../services/backendService/backend.service";
+import {BackgroundTaskInfoService} from "../services/backgroundTaskInfoService/background-task-info.service";
 
 @Component({
   selector: 'app-side-bar',
@@ -8,7 +9,7 @@ import {BackendService} from "../services/backendService/backend.service";
 })
 export class SideBarComponent implements OnInit {
 
-  constructor(private backendService: BackendService) {
+  constructor(private backendService: BackendService, private backgroundTaskInfoService:BackgroundTaskInfoService) {
   }
 
   ngOnInit(): void {
@@ -24,6 +25,10 @@ export class SideBarComponent implements OnInit {
   handleSelectedFile(e) {
     console.log('Change input file')
     console.log(e)
+
+    const taskDescription = 'Loading/parsing event log';
+    this.backgroundTaskInfoService.setNewTask(taskDescription)
+
     const fileList: FileList = e.target.files;
     if (fileList.length > 0) {
       console.log(fileList[0]);
@@ -33,6 +38,7 @@ export class SideBarComponent implements OnInit {
       });*/
       this.backendService.loadEventLogFromFilePath(fileList[0]['path']).subscribe(res => {
         console.log('success?');
+        this.backgroundTaskInfoService.removeTask(taskDescription);
       })
     }
     // reset form
