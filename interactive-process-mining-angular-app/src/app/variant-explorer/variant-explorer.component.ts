@@ -5,6 +5,8 @@ import {ColorMapService} from "../services/colorMapService/color-map.service";
 import {SharedDataService} from "../services/sharedDataService/shared-data.service";
 import {BackendService} from "../services/backendService/backend.service";
 
+import * as helperFunctions from "./helper_functions"
+
 @Component({
   selector: 'app-variant-explorer',
   templateUrl: './variant-explorer.component.html',
@@ -71,11 +73,6 @@ export class VariantExplorerComponent implements OnInit {
     this.selectedVariants = [];
     d3.select('#chart').select('svg').remove();
     this.d3jsData = this.variants;
-    /*this.d3jsData.forEach((variant) => {
-      console.log(variant);
-      variant['events'] = variant.variant.split(',');
-      variant['percentage'] = 0;
-    });*/
 
     this.d3jsData = this.d3jsData.map((d, i) => ({value: d, i: i}))
 
@@ -145,6 +142,7 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   private setPolygonDimensionWidth(w): void {
+    console.log("setPolygonDimensionWidth ", w)
     this.polygonDimensionWidth = w;
   }
 
@@ -242,11 +240,14 @@ export class VariantExplorerComponent implements OnInit {
       .attr('y', 17)
       .text(d => d)
       .classed('svg-text-variant-explorer-no-color cursor-pointer', true)
-      .attr('fill', (d: string) => this.isDarkColor(this.colorMap.get(d)) ? 'white' : 'black')
+      .attr('fill', (d: string) => helperFunctions.isDarkColor(this.colorMap.get(d)) ? 'white' : 'black')
       .each((d, i) => {
         if (i > 0) {
           positionX = positionX + this.polygonDimensionWidth + this.polygonDimensionSpacing
         }
+        // @ts-ignore
+        const textLength = g.selectAll('text').filter((d, j) => j === i).node().getComputedTextLength();
+        console.log(textLength);
         // @ts-ignore
         this.setPolygonWidthByLengthOfEvent(d);
         g.selectAll('text').filter((d, j) => j === i)
@@ -256,7 +257,7 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   private setPolygonWidthByLengthOfEvent(d: string) {
-    //console.log(d)
+    console.log(d)
     const width = this.measureStringOnCanvas(d);
     this.setPolygonDimensionWidth(width);
   }
@@ -265,7 +266,7 @@ export class VariantExplorerComponent implements OnInit {
     // TODO simplify calculation of width
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    ctx.font = '1rem Rubik';
+    ctx.font = '1rem Segoe UI';
     return Math.round(ctx.measureText(str).width);
   }
 
@@ -273,29 +274,9 @@ export class VariantExplorerComponent implements OnInit {
   private resizeSVG() {
     const svg = document.getElementById("SVGcontainer");
     // @ts-ignore
-    var bbox = svg.getBBox();
+    const bbox = svg.getBBox();
     // Update the width and height using the size of the contents
     svg.setAttribute("width", bbox.x + bbox.width + bbox.x);
     svg.setAttribute("height", bbox.y + bbox.height + bbox.y);
   }
-
-  private isDarkColor(colorInHex: string): boolean {
-    const res = hexToRgb(colorInHex);
-    if (0.2126 * res['r'] + 0.7152 * res['g'] + 0.0722 * res['b'] >= 135) {
-      return false;
-    } else {
-      return true;
-    }
-
-    function hexToRgb(hex) {
-      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-      } : null;
-    }
-  }
-
-
 }
