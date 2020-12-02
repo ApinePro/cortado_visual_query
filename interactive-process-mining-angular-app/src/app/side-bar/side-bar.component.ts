@@ -1,6 +1,7 @@
 import {Component, OnInit, ElementRef, ViewChild} from '@angular/core';
 import {BackendService} from "../services/backendService/backend.service";
 import {BackgroundTaskInfoService} from "../services/backgroundTaskInfoService/background-task-info.service";
+import {SharedDataService} from "../services/sharedDataService/shared-data.service";
 
 @Component({
   selector: 'app-side-bar',
@@ -9,7 +10,9 @@ import {BackgroundTaskInfoService} from "../services/backgroundTaskInfoService/b
 })
 export class SideBarComponent implements OnInit {
 
-  constructor(private backendService: BackendService, private backgroundTaskInfoService:BackgroundTaskInfoService) {
+  constructor(private backendService: BackendService,
+              private backgroundTaskInfoService: BackgroundTaskInfoService,
+              private sharedDataService: SharedDataService) {
   }
 
   ngOnInit(): void {
@@ -32,13 +35,15 @@ export class SideBarComponent implements OnInit {
     const fileList: FileList = e.target.files;
     if (fileList.length > 0) {
       console.log(fileList[0]);
+      const fileName = fileList[0].name;
       //TODO make it also work with browser by uploading the file instead of just the file path
       /*this.backendService.uploadEventLog$(fileList[0]).subscribe(() => {
         console.log('success?');
       });*/
       this.backendService.loadEventLogFromFilePath(fileList[0]['path']).subscribe(res => {
-        console.log('success?');
+        console.log('Event log ' + fileName + ' loaded');
         this.backgroundTaskInfoService.removeTask(taskDescription);
+        this.sharedDataService.loadedEventLog = fileName;
       })
     }
     // reset form

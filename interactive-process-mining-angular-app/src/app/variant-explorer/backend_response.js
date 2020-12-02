@@ -1,411 +1,890 @@
 export const test = {
-  "number_ancestor_cases": 150370,
-  "number_ancestor_events": 561470,
-  "number_ancestor_variants": 231,
-  "number_self_cases": 150370,
-  "number_self_events": 561470,
-  "number_self_variants": 231,
-  "variants": [{
-    "caseDuration": 59592117.828688785,
+  variants: [{
     "count": 56482,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Send for Credit Collection+complete"
-  }, {
-    "caseDuration": 889691.8936404218,
-    "count": 46371,
-    "variant": "Create Fine+complete,Payment+complete"
-  }, {
-    "caseDuration": 8381124.768211921,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Send for Credit Collection"],
+    "percentage": 37.56
+  }, {"count": 46371, "events": ["Create Fine", "Payment"], "percentage": 30.84}, {
     "count": 20385,
-    "variant": "Create Fine+complete,Send Fine+complete"
+    "events": ["Create Fine", "Send Fine"],
+    "percentage": 13.56
   }, {
-    "caseDuration": 35038655.168067224,
     "count": 9520,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment"],
+    "percentage": 6.33
   }, {
-    "caseDuration": 27488014.88222698,
     "count": 3736,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Payment+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment", "Payment"],
+    "percentage": 2.48
   }, {
-    "caseDuration": 22267831.081490457,
     "count": 3301,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Payment+complete,Add penalty+complete,Payment+complete"
-  }, {
-    "caseDuration": 10148164.292558288,
-    "count": 3131,
-    "variant": "Create Fine+complete,Send Fine+complete,Payment+complete"
-  }, {
-    "caseDuration": 36266242.85142171,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Payment", "Add penalty", "Payment"],
+    "percentage": 2.2
+  }, {"count": 3131, "events": ["Create Fine", "Send Fine", "Payment"], "percentage": 2.08}, {
     "count": 2497,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Add penalty+complete,Send Appeal to Prefecture+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture"],
+    "percentage": 1.66
   }, {
-    "caseDuration": 58289847.92079208,
     "count": 1515,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Payment+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment", "Send for Credit Collection"],
+    "percentage": 1.01
   }, {
-    "caseDuration": 54311910.344827585,
     "count": 522,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Payment+complete,Add penalty+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Payment", "Add penalty", "Send for Credit Collection"],
+    "percentage": 0.35
   }, {
-    "caseDuration": 39952174.26636569,
     "count": 443,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete"
-  }, {
-    "caseDuration": 5545859.6685082875,
-    "count": 362,
-    "variant": "Create Fine+complete,Payment+complete,Send Fine+complete"
-  }, {
-    "caseDuration": 30608909.352517985,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture"],
+    "percentage": 0.29
+  }, {"count": 362, "events": ["Create Fine", "Payment", "Send Fine"], "percentage": 0.24}, {
     "count": 139,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Add penalty+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment"],
+    "percentage": 0.09
   }, {
-    "caseDuration": 55173786.666666664,
     "count": 135,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Appeal to Judge+complete,Add penalty+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Add penalty", "Payment"],
+    "percentage": 0.09
   }, {
-    "caseDuration": 18824314.285714287,
     "count": 126,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture"],
+    "percentage": 0.08
   }, {
-    "caseDuration": 25956252.63157895,
     "count": 114,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Add penalty+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment"],
+    "percentage": 0.08
   }, {
-    "caseDuration": 90716466.66666667,
     "count": 108,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Appeal to Judge+complete,Add penalty+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Add penalty", "Send for Credit Collection"],
+    "percentage": 0.07
   }, {
-    "caseDuration": 24428103.370786518,
     "count": 89,
-    "variant": "Create Fine+complete,Payment+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Payment+complete"
+    "events": ["Create Fine", "Payment", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment"],
+    "percentage": 0.06
   }, {
-    "caseDuration": 76703113.63636364,
     "count": 88,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Add penalty+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Send for Credit Collection"],
+    "percentage": 0.06
   }, {
-    "caseDuration": 67112400.0,
     "count": 81,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Add penalty+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Send for Credit Collection"],
+    "percentage": 0.05
   }, {
-    "caseDuration": 47845669.56521739,
     "count": 69,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Payment+complete,Payment+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment", "Payment", "Payment"],
+    "percentage": 0.05
   }, {
-    "caseDuration": 40764511.475409836,
     "count": 61,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Payment+complete"
-  }, {
-    "caseDuration": 8662593.103448275,
-    "count": 58,
-    "variant": "Create Fine+complete,Payment+complete,Send Fine+complete,Payment+complete"
-  }, {
-    "caseDuration": 20088835.714285713,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment"],
+    "percentage": 0.04
+  }, {"count": 58, "events": ["Create Fine", "Payment", "Send Fine", "Payment"], "percentage": 0.04}, {
     "count": 56,
-    "variant": "Create Fine+complete,Send Fine+complete,Payment+complete,Insert Fine Notification+complete,Add penalty+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Payment", "Insert Fine Notification", "Add penalty", "Payment"],
+    "percentage": 0.04
   }, {
-    "caseDuration": 76229118.36734694,
     "count": 49,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Send for Credit Collection"],
+    "percentage": 0.03
   }, {
-    "caseDuration": 61676960.0,
     "count": 45,
-    "variant": "Create Fine+complete,Payment+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Payment", "Send Fine", "Insert Fine Notification", "Add penalty", "Send for Credit Collection"],
+    "percentage": 0.03
   }, {
-    "caseDuration": 28246200.0,
     "count": 42,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Add penalty+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Appeal to Judge+complete"
-  }, {
-    "caseDuration": 16002529.411764706,
-    "count": 34,
-    "variant": "Create Fine+complete,Send Fine+complete,Payment+complete,Payment+complete"
-  }, {
-    "caseDuration": 17524350.0,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge"],
+    "percentage": 0.03
+  }, {"count": 34, "events": ["Create Fine", "Send Fine", "Payment", "Payment"], "percentage": 0.02}, {
     "count": 32,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Appeal to Judge+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Appeal to Judge"],
+    "percentage": 0.02
   }, {
-    "caseDuration": 21059160.0,
     "count": 30,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Add penalty+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender"],
+    "percentage": 0.02
   }, {
-    "caseDuration": 66126208.69565217,
     "count": 23,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Appeal to Judge+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Appeal to Judge", "Payment"],
+    "percentage": 0.02
   }, {
-    "caseDuration": 15536781.818181818,
     "count": 22,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Add penalty+complete,Receive Result Appeal from Prefecture+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 22853880.0,
     "count": 20,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Payment+complete,Payment+complete,Add penalty+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge", "Payment"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 25541100.0,
     "count": 20,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Add penalty+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Appeal to Judge+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 55002960.0,
     "count": 20,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Add penalty+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Appeal to Judge+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 24460920.0,
     "count": 20,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Payment", "Payment", "Add penalty", "Payment"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 20695831.57894737,
     "count": 19,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Add penalty+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Add penalty", "Payment", "Payment"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 66488968.421052635,
     "count": 19,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Appeal to Judge+complete,Add penalty+complete,Payment+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 36009317.64705882,
     "count": 17,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Add penalty+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Payment"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 98981100.0,
     "count": 16,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Appeal to Judge+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Appeal to Judge", "Send for Credit Collection"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 25252560.0,
     "count": 15,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Add penalty+complete,Notify Result Appeal to Offender+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Add penalty", "Notify Result Appeal to Offender", "Payment"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 26934000.0,
     "count": 15,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Add penalty+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Payment"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 54711257.14285714,
     "count": 14,
-    "variant": "Create Fine+complete,Send Fine+complete,Payment+complete,Insert Fine Notification+complete,Add penalty+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Payment", "Insert Fine Notification", "Add penalty", "Send for Credit Collection"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 26117228.57142857,
     "count": 14,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Payment+complete,Add penalty+complete,Payment+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Payment", "Add penalty", "Payment", "Payment"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 20184923.076923076,
     "count": 13,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Add penalty+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 52812553.84615385,
     "count": 13,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Payment+complete,Payment+complete,Payment+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 24582000.0,
     "count": 12,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Add penalty+complete,Receive Result Appeal from Prefecture+complete,Payment+complete"
-  }, {
-    "caseDuration": 28109100.0,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge"],
+    "percentage": 0.01
+  }, {"count": 12, "events": ["Create Fine", "Payment", "Payment"], "percentage": 0.01}, {
     "count": 12,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Appeal to Judge+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 36331800.0,
     "count": 12,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Insert Date Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Payment"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 12615300.0,
-    "count": 12,
-    "variant": "Create Fine+complete,Payment+complete,Payment+complete"
-  }, {
-    "caseDuration": 82043018.18181819,
     "count": 11,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Add penalty+complete,Notify Result Appeal to Offender+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Add penalty", "Notify Result Appeal to Offender", "Send for Credit Collection"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 77952600.0,
     "count": 10,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Date Appeal to Prefecture+complete,Insert Fine Notification+complete,Add penalty+complete,Send Appeal to Prefecture+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Date Appeal to Prefecture", "Insert Fine Notification", "Add penalty", "Send Appeal to Prefecture"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 53962400.0,
     "count": 9,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Add penalty+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Appeal to Judge+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Payment", "Add penalty", "Send Appeal to Prefecture"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 15852000.0,
     "count": 9,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Payment+complete,Add penalty+complete,Send Appeal to Prefecture+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Payment"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 36288800.0,
     "count": 9,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Add penalty+complete,Payment+complete"
+    "events": ["Create Fine", "Insert Date Appeal to Prefecture", "Send Fine", "Insert Fine Notification", "Add penalty", "Send Appeal to Prefecture"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 131157200.0,
     "count": 9,
-    "variant": "Create Fine+complete,Insert Date Appeal to Prefecture+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Send Appeal to Prefecture+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge", "Payment"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 167575950.0,
     "count": 8,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Add penalty+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Send for Credit Collection+complete,Send Appeal to Prefecture+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Send for Credit Collection", "Send Appeal to Prefecture"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 26892000.0,
     "count": 8,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture"],
+    "percentage": 0.01
   }, {
-    "caseDuration": 29413542.85714286,
     "count": 7,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Add penalty+complete,Payment+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Send for Credit Collection", "Send Appeal to Prefecture"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 33189942.85714286,
     "count": 7,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Add penalty+complete,Send Appeal to Prefecture+complete,Payment+complete"
+    "events": ["Create Fine", "Payment", "Send Fine", "Insert Fine Notification", "Payment", "Add penalty", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 141845657.14285713,
     "count": 7,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Insert Date Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Send for Credit Collection+complete,Send Appeal to Prefecture+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Payment", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 12414857.142857144,
     "count": 7,
-    "variant": "Create Fine+complete,Send Fine+complete,Appeal to Judge+complete"
-  }, {
-    "caseDuration": 23477657.14285714,
-    "count": 7,
-    "variant": "Create Fine+complete,Payment+complete,Send Fine+complete,Insert Fine Notification+complete,Payment+complete,Add penalty+complete,Payment+complete"
-  }, {
-    "caseDuration": 55917000.0,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Payment"],
+    "percentage": 0.0
+  }, {"count": 7, "events": ["Create Fine", "Send Fine", "Appeal to Judge"], "percentage": 0.0}, {
     "count": 6,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Payment+complete,Payment+complete,Add penalty+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 24753600.0,
     "count": 6,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Add penalty+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Add penalty", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 21170400.0,
     "count": 6,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Add penalty+complete,Notify Result Appeal to Offender+complete,Appeal to Judge+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Send Appeal to Prefecture"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 16113600.0,
     "count": 6,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Add penalty+complete,Notify Result Appeal to Offender+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Payment", "Payment", "Add penalty", "Send for Credit Collection"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 95802000.0,
     "count": 6,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Add penalty+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Appeal to Judge+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge", "Send for Credit Collection"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 96899400.0,
     "count": 6,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Add penalty+complete,Receive Result Appeal from Prefecture+complete,Send Appeal to Prefecture+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Add penalty", "Notify Result Appeal to Offender", "Appeal to Judge"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 31191000.0,
     "count": 6,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Add penalty", "Notify Result Appeal to Offender"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 27545760.0,
     "count": 5,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Add penalty+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment", "Payment", "Send for Credit Collection"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 93417120.0,
     "count": 5,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Appeal to Judge+complete,Add penalty+complete,Payment+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 55295280.0,
     "count": 5,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Payment+complete,Payment+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 55815840.0,
     "count": 5,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Payment+complete,Payment+complete,Payment+complete,Payment+complete,Payment+complete,Payment+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Add penalty", "Payment", "Send for Credit Collection"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 37483200.0,
     "count": 5,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Payment+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 15099300.0,
     "count": 4,
-    "variant": "Create Fine+complete,Send Fine+complete,Payment+complete,Insert Fine Notification+complete,Payment+complete,Add penalty+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Add penalty", "Send for Credit Collection"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 27044100.0,
     "count": 4,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Payment+complete,Add penalty+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete"
+    "events": ["Create Fine", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Send Fine"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 53845200.0,
     "count": 4,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Add penalty+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 92708100.0,
     "count": 4,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Add penalty+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Appeal to Judge+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 30498300.0,
     "count": 4,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Appeal to Judge+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Add penalty+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Payment", "Insert Fine Notification", "Payment", "Add penalty", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 42076800.0,
     "count": 4,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Payment+complete,Payment+complete,Payment+complete,Payment+complete,Payment+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 42876900.0,
     "count": 4,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Payment+complete,Payment+complete,Payment+complete,Payment+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge", "Send for Credit Collection"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 121932900.0,
     "count": 4,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Appeal to Judge+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Payment", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 9028800.0,
     "count": 4,
-    "variant": "Create Fine+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Send Fine+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge", "Send for Credit Collection"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 61057200.0,
     "count": 3,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Payment+complete,Add penalty+complete,Payment+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Date Appeal to Prefecture", "Insert Fine Notification", "Add penalty", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 16298400.0,
     "count": 3,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Payment+complete,Add penalty+complete,Payment+complete,Payment+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Payment", "Send Appeal to Prefecture"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 49651200.0,
     "count": 3,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Add penalty+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Payment+complete,Payment+complete,Payment+complete,Payment+complete,Payment+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Payment", "Add penalty", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 30012000.0,
     "count": 3,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Send Appeal to Prefecture+complete,Add penalty+complete,Notify Result Appeal to Offender+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Payment", "Add penalty", "Payment", "Send for Credit Collection"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 31363200.0,
     "count": 3,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Add penalty+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Payment+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Send Appeal to Prefecture", "Add penalty", "Notify Result Appeal to Offender", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 29203200.0,
     "count": 3,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Add penalty+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Appeal to Judge+complete,Notify Result Appeal to Offender+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 15526800.0,
     "count": 3,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Insert Date Appeal to Prefecture+complete,Add penalty+complete,Payment+complete,Send Appeal to Prefecture+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 24193200.0,
     "count": 3,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Appeal to Judge+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Add penalty+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Date Appeal to Prefecture", "Insert Fine Notification", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {"count": 3, "events": ["Create Fine", "Appeal to Judge", "Send Fine"], "percentage": 0.0}, {
+    "count": 3,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 29548800.0,
     "count": 3,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 91642800.0,
     "count": 3,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Fine Notification+complete,Add penalty+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Appeal to Judge+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Appeal to Judge"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 12499200.0,
     "count": 3,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Appeal to Judge", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 8438400.0,
     "count": 3,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete,Appeal to Judge+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Appeal to Judge", "Notify Result Appeal to Offender"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 81304800.0,
     "count": 3,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Date Appeal to Prefecture+complete,Insert Fine Notification+complete,Send Appeal to Prefecture+complete,Add penalty+complete,Receive Result Appeal from Prefecture+complete,Notify Result Appeal to Offender+complete,Send for Credit Collection+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 37269600.0,
     "count": 3,
-    "variant": "Create Fine+complete,Send Fine+complete,Insert Date Appeal to Prefecture+complete,Insert Fine Notification+complete,Add penalty+complete,Payment+complete"
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 9302400.0,
-    "count": 3,
-    "variant": "Create Fine+complete,Send Fine+complete,Appeal to Judge+complete,Insert Date Appeal to Prefecture+complete,Send Appeal to Prefecture+complete"
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment", "Payment"],
+    "percentage": 0.0
   }, {
-    "caseDuration": 12008400.0,
-    "count": 3,
-    "variant": "Create Fine+complete,Appeal to Judge+complete,Send Fine+complete"
-  }]
-}
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Add penalty", "Notify Result Appeal to Offender", "Payment", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Send Appeal to Prefecture", "Notify Result Appeal to Offender", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Date Appeal to Prefecture", "Insert Fine Notification", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Add penalty", "Notify Result Appeal to Offender", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Date Appeal to Prefecture", "Insert Fine Notification", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Send Appeal to Prefecture", "Insert Date Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Appeal to Judge", "Add penalty", "Send Appeal to Prefecture"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge", "Send Appeal to Prefecture"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Add penalty", "Appeal to Judge"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Appeal to Judge", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment", "Payment", "Payment", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Payment", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Insert Date Appeal to Prefecture", "Send Fine", "Send Appeal to Prefecture"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Payment", "Add penalty", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Add penalty", "Notify Result Appeal to Offender", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Add penalty", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Send Appeal to Prefecture", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 2,
+    "events": ["Create Fine", "Send Fine", "Insert Date Appeal to Prefecture", "Insert Fine Notification", "Send Appeal to Prefecture", "Add penalty", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Payment", "Receive Result Appeal from Prefecture", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Notify Result Appeal to Offender", "Receive Result Appeal from Prefecture", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Add penalty", "Notify Result Appeal to Offender", "Appeal to Judge", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Date Appeal to Prefecture", "Insert Fine Notification", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Receive Result Appeal from Prefecture", "Add penalty", "Notify Result Appeal to Offender", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Send Appeal to Prefecture", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Appeal to Judge", "Notify Result Appeal to Offender", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Send Fine", "Insert Fine Notification", "Payment", "Add penalty", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Add penalty", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Add penalty", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Add penalty", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Appeal to Judge", "Receive Result Appeal from Prefecture"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Add penalty", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {"count": 1, "events": ["Create Fine", "Appeal to Judge", "Send Fine", "Payment"], "percentage": 0.0}, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Payment", "Add penalty", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Date Appeal to Prefecture", "Payment", "Send Appeal to Prefecture"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Payment", "Add penalty", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge", "Send Appeal to Prefecture"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Payment", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Send Appeal to Prefecture", "Add penalty", "Notify Result Appeal to Offender", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Insert Date Appeal to Prefecture", "Add penalty", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Send Appeal to Prefecture", "Notify Result Appeal to Offender", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Insert Date Appeal to Prefecture", "Send Fine", "Insert Fine Notification", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Appeal to Judge", "Notify Result Appeal to Offender", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Appeal to Judge", "Notify Result Appeal to Offender"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Payment", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment", "Payment", "Payment", "Payment", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Add penalty", "Payment", "Payment", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Payment", "Notify Result Appeal to Offender", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Appeal to Judge", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Payment", "Send Fine", "Insert Fine Notification", "Payment", "Add penalty", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Payment", "Payment", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Appeal to Judge", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Appeal to Judge", "Send Appeal to Prefecture"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge", "Send for Credit Collection", "Send Appeal to Prefecture"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Send Appeal to Prefecture", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Date Appeal to Prefecture", "Insert Fine Notification", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Insert Date Appeal to Prefecture", "Send Fine", "Insert Fine Notification", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Appeal to Judge", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Appeal to Judge", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment", "Appeal to Judge"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Appeal to Judge", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Payment", "Add penalty", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Insert Date Appeal to Prefecture", "Send Fine", "Insert Fine Notification", "Send Appeal to Prefecture", "Add penalty", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Insert Date Appeal to Prefecture", "Send Fine", "Insert Fine Notification", "Send Appeal to Prefecture", "Add penalty", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Notify Result Appeal to Offender", "Receive Result Appeal from Prefecture"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture"],
+    "percentage": 0.0
+  }, {"count": 1, "events": ["Create Fine", "Payment", "Payment", "Send Fine"], "percentage": 0.0}, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Payment", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Add penalty", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Send Fine", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Send Appeal to Prefecture", "Add penalty", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Add penalty", "Notify Result Appeal to Offender", "Appeal to Judge", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Date Appeal to Prefecture", "Insert Fine Notification", "Appeal to Judge", "Send Appeal to Prefecture", "Add penalty", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Appeal to Judge"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Appeal to Judge", "Notify Result Appeal to Offender", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Appeal to Judge", "Notify Result Appeal to Offender"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment", "Appeal to Judge", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Payment", "Add penalty", "Appeal to Judge"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Appeal to Judge", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Insert Fine Notification", "Add penalty", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Add penalty", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Appeal to Judge", "Notify Result Appeal to Offender", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Appeal to Judge"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment", "Payment", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Appeal to Judge", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Appeal to Judge", "Send Appeal to Prefecture"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Receive Result Appeal from Prefecture", "Add penalty", "Notify Result Appeal to Offender", "Appeal to Judge", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Add penalty", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Payment", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Payment", "Add penalty", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Send Appeal to Prefecture", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Appeal to Judge", "Add penalty", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Receive Result Appeal from Prefecture", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Appeal to Judge", "Add penalty", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Appeal to Judge", "Send Appeal to Prefecture", "Add penalty", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Payment", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Send Appeal to Prefecture", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Add penalty", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Payment", "Send for Credit Collection"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Fine Notification", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Add penalty", "Receive Result Appeal from Prefecture", "Notify Result Appeal to Offender", "Appeal to Judge", "Payment", "Payment", "Payment", "Payment", "Payment", "Payment"],
+    "percentage": 0.0
+  }, {
+    "count": 1,
+    "events": ["Create Fine", "Send Fine", "Insert Date Appeal to Prefecture", "Send Appeal to Prefecture", "Insert Fine Notification", "Appeal to Judge", "Add penalty", "Payment"],
+    "percentage": 0.0
+  }],
+  activities: ["Appeal to Judge", "Create Fine", "Insert Fine Notification", "Notify Result Appeal to Offender", "Receive Result Appeal from Prefecture", "Payment", "Send Appeal to Prefecture", "Insert Date Appeal to Prefecture", "Add penalty", "Send for Credit Collection", "Send Fine"]
+};
 
 

@@ -1,9 +1,22 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
+import {Observable, Subject} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
 })
 export class SharedDataService {
 
-  constructor() { }
+  constructor() {
+  }
+
+  private _loadedEventLog = new Subject<string>();
+
+  get loadedEventLog$(): Observable<string> {
+    return this._loadedEventLog.asObservable();
+  }
+
+  set loadedEventLog(name: string) {
+    this._loadedEventLog.next(name);
+  }
 }
+

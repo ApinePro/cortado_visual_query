@@ -1,7 +1,9 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, isDevMode, OnInit, ViewChild} from '@angular/core';
 import * as d3 from 'd3';
-import * as test from './backend_response.js';
+import * as dummyBackendResponse from './backend_response.js';
 import {ColorMapService} from "../services/colorMapService/color-map.service";
+import {SharedDataService} from "../services/sharedDataService/shared-data.service";
+import {BackendService} from "../services/backendService/backend.service";
 
 @Component({
   selector: 'app-variant-explorer',
@@ -10,52 +12,36 @@ import {ColorMapService} from "../services/colorMapService/color-map.service";
 })
 export class VariantExplorerComponent implements OnInit {
 
-  constructor(private colorMapService: ColorMapService) {
+  constructor(private colorMapService: ColorMapService,
+              private sharedDataService: SharedDataService,
+              private backendService: BackendService) {
   }
 
   ngOnInit() {
-    console.log(this.originVariants);
-    if (this.variants !== this.originVariants) {
-      this.variants = this.originVariants;
-      console.log(this.variants);
+    if (isDevMode()) {
+      console.log("devMode active -> load dummy data");
+      console.log(this.dummyBackendResponse);
+      this.variants = this.dummyBackendResponse['variants'];
+      this.colorMap = this.colorMapService.getColorMap(this.dummyBackendResponse['activities']);
+      this.selectedVariants = [];
+      this.setPolygonDimensionWidth(this.polygonFoldingWidth);
+      this.createChart();
+    }
 
-      console.log("calculate colors")
-      //TODO remove as soon as backend is there!
-      const activities = new Set([])
-      console.log(this.originVariants);
-      this.originVariants.forEach(v => {
-        v.variant.split(",").forEach(a => {
-          activities.add(a);
+    this.sharedDataService.loadedEventLog$.subscribe(eventLog => {
+      if (eventLog) {
+        this.backendService.getVariantsFromEventLog().subscribe(res => {
+          this.colorMap = this.colorMapService.getColorMap(res['activities']);
+          this.variants = res['variants'];
+          this.setPolygonDimensionWidth(this.polygonFoldingWidth);
+          this.createChart();
         })
-      })
-      this.colorMap = this.colorMapService.getColorMap([...activities]);
-      //end -----
-      this.selectedVariants = [];
-      this.setPolygonDimensionWidth(this.polygonFoldingWidth);
-      this.createChart();
-    }
-  }
-
-  ngOnChanges(): void {
-    /*if (this.colorMap == null) {
-      return;
-    }
-    if (!this.originVariants) {
-      return;
-    }
-    console.log(this.originVariants);
-    this.colorMapKeys = Array.from(this.colorMap.keys());
-    if (this.variants !== this.originVariants) {
-      this.variants = this.originVariants;
-      // @ts-ignore
-      this.selectedVariants = [];
-      this.setPolygonDimensionWidth(this.polygonFoldingWidth);
-      this.createChart();
-    }*/
+      }
+    });
   }
 
 
-  originVariants: any[] = test.test.variants;
+  dummyBackendResponse: any[] = dummyBackendResponse.test;
   isVisibleCaseEventsExplorer: boolean = false;
   colorMap: Map<string, string>;
 
@@ -70,7 +56,7 @@ export class VariantExplorerComponent implements OnInit {
   polygonDimensionTailWidth = 6;
 
   variants: any[];
-  selectedVariants: any[];
+  selectedVariants: any[] = [];
 
   clearSelection() {
     this.selectedVariants.forEach(d => {
@@ -82,16 +68,16 @@ export class VariantExplorerComponent implements OnInit {
   d3jsData;
 
   private createChart(): void {
+    this.selectedVariants = [];
     d3.select('#chart').select('svg').remove();
     this.d3jsData = this.variants;
-    this.d3jsData.forEach((variant) => {
+    /*this.d3jsData.forEach((variant) => {
       console.log(variant);
       variant['events'] = variant.variant.split(',');
       variant['percentage'] = 0;
-    });
+    });*/
 
     this.d3jsData = this.d3jsData.map((d, i) => ({value: d, i: i}))
-    console.warn(this.d3jsData);
 
     const chartDiv = d3.select('#chart').append('svg')
       .attr('id', 'SVGcontainer');
@@ -124,7 +110,7 @@ export class VariantExplorerComponent implements OnInit {
       .attr('points', (d, i) => this.getTracePoints(i))
       .style('fill', (d, i) => this.colorMap.get(d['value']))
       .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + this.polygonDimensionSpacing) + ', 0)')
-      .classed('cursor-pointer',true)
+      .classed('cursor-pointer', true)
       .on('mouseover', this.mouseOverPolygon)
       .on('mouseout', this.mouseOutPolygon);
 
@@ -187,7 +173,7 @@ export class VariantExplorerComponent implements OnInit {
       .attr('points', (d, i) => this.getTracePoints(i))
       .style('fill', (d, i) => this.colorMap.get(d['value']))
       .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + this.polygonDimensionSpacing) + ', 0)')
-      .classed('cursor-pointer',true)
+      .classed('cursor-pointer', true)
       .on('mouseover', this.mouseOverPolygon)
       .on('mouseout', this.mouseOutPolygon);
     prev_g.selectAll('text').remove();
@@ -230,7 +216,7 @@ export class VariantExplorerComponent implements OnInit {
       .enter()
       .append('svg:polygon')
       .style('fill', (d: string, i) => this.colorMap.get(d))
-      .classed('cursor-pointer',true)
+      .classed('cursor-pointer', true)
       .each((d, i) => {
         if (i > 0) {
           positionX = positionX + this.polygonDimensionWidth + this.polygonDimensionSpacing
