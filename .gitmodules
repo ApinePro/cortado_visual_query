@@ -1,3 +1,0 @@
-[submodule "backend/pm4py-core"]
-	path = backend/pm4py-core
-	url = https://gitlab.fit.fraunhofer.de/daniel.schuster/pm4py-source.git
