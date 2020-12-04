@@ -9,6 +9,7 @@ export class SharedDataService {
   constructor() {
   }
 
+  // tslint:disable-next-line:variable-name
   private _loadedEventLog = new Subject<string>();
 
   get loadedEventLog$(): Observable<string> {
@@ -20,6 +21,7 @@ export class SharedDataService {
   }
 
 
+  // tslint:disable-next-line:variable-name
   private _currentDisplayedProcessTree = new Subject<any>();
 
   get currentDisplayedProcessTree$(): Observable<string> {
