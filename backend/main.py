@@ -1,10 +1,15 @@
-from typing import Optional
+from typing import Optional, Any, List
 import uvicorn
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pm4py.objects.log.importer.xes.importer import apply as xes_import
 from pydantic import BaseModel
 from pm4py.algo.filtering.log.variants import variants_filter
+from pm4py.objects.log.log import EventLog, Trace, Event
+from pm4py.objects.process_tree.process_tree import ProcessTree
+from pm4py.algo.discovery.inductive.algorithm import apply_tree as inductive_miner
+
+from backend_utilities.process_tree_to_dict import process_tree_to_dict
 
 app = FastAPI()
 origins = [
@@ -51,6 +56,27 @@ def load_event_log_from_file_path(d: InputLoadEventLogFromFilePath):
     global event_log
     event_log = xes_import(d.file_path)
     return
+
+
+class InputDiscoverProcessModelFromVariants(BaseModel):
+    variants: List[Any]
+
+
+@app.post("/discoverProcessModelFromVariants")
+def load_process_tree(d: InputDiscoverProcessModelFromVariants):
+    log = EventLog()
+    for v in d.variants:
+        t = Trace()
+        for e in v["value"]["events"]:
+            assert type(e) == str
+            event = Event()
+            event["concept:name"] = e
+            t.append(event)
+        log.append(t)
+    pt: ProcessTree = inductive_miner(log)
+    print(pt)
+    res = process_tree_to_dict(pt)
+    return res
 
 
 @app.get("/variants")
