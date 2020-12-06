@@ -21,6 +21,14 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
 
   ngOnInit(): void {
+    this.sharedDataService.currentDisplayedProcessTree$.subscribe(res => {
+      this.root = d3.hierarchy(res, (d) => {
+        // @ts-ignore
+        return d.children;
+      })
+      this.svg.selectAll("*").remove();
+      this.plot(this.root);
+    })
   }
 
   //used in dropdown search form
@@ -515,7 +523,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
   updateTreeInSharedDataService() {
     console.log(this.root);
-    this.sharedDataService.currentDisplayedProcessTree = this.root;
+    //this.sharedDataService.currentDisplayedProcessTree = this.root;
   }
 
   root: d3.HierarchyNode<any>;

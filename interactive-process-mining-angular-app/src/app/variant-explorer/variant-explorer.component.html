@@ -15,7 +15,8 @@
     <button class="button"
             data-toggle="tooltip" data-placement="top" data-trigger="hover"
             title="overwrite existing model and discover an initial model from the {{selectedVariants}} selected variants"
-            [disabled]="selectedVariants.length===0">
+            [disabled]="selectedVariants.length===0"
+            (click)="discover_initial_model()">
       <svg class="btn-icon" fill="currentColor" [ngClass]="{'text-success':selectedVariants.length!=0}">
         <use xlink:href="assets/bootstrap-icons.svg#diagram-2-fill"/>
       </svg>

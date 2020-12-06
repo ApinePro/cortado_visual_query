@@ -2,13 +2,14 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {BackgroundTaskInfoService} from "../backgroundTaskInfoService/background-task-info.service";
+import {SharedDataService} from "../sharedDataService/shared-data.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class BackendService {
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private httpClient: HttpClient, private sharedDataService: SharedDataService) {
   }
 
   backendUrl = 'http://127.0.0.1:8000/'
@@ -24,11 +25,17 @@ export class BackendService {
 
   loadEventLogFromFilePath(filePath: string): Observable<any> {
     return this.httpClient.post(this.backendUrl + 'loadEventLogFromFilePath',
-      {'file_path': filePath}, {headers: {}});
+      {'file_path': filePath});
   }
 
   getVariantsFromEventLog(): Observable<any> {
     return this.httpClient.get(this.backendUrl + 'variants');
+  }
+
+  discoverProcessModelFromVariants(variants: any[]) {
+    this.httpClient.post(this.backendUrl + 'discoverProcessModelFromVariants', {'variants': variants}).subscribe(res => {
+      this.sharedDataService.currentDisplayedProcessTree = res;
+    });
   }
 
 }

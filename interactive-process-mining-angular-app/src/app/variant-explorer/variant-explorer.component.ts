@@ -19,6 +19,23 @@ export class VariantExplorerComponent implements OnInit {
               private backendService: BackendService) {
   }
 
+
+  dummyBackendResponse: any[] = dummyBackendResponse.test;
+  colorMap: Map<string, string>;
+
+  public variantsLoading: boolean;
+
+  polygonFoldingWidth = 25;
+  polygonDimensionWidth = 0;
+  polygonDimensionHeight = 23;
+  polygonDimensionSpacing = 3;
+  polygonDimensionTailWidth = 6;
+
+  variants: any[];
+  selectedVariants: any[] = [];
+
+  d3jsData;
+
   ngOnInit() {
     if (isDevMode()) {
       console.log("devMode active -> load dummy data");
@@ -37,28 +54,16 @@ export class VariantExplorerComponent implements OnInit {
           this.variants = res['variants'];
           this.setPolygonDimensionWidth(this.polygonFoldingWidth);
           this.createChart();
-        })
+        });
       }
     });
   }
 
 
-  dummyBackendResponse: any[] = dummyBackendResponse.test;
-  isVisibleCaseEventsExplorer: boolean = false;
-  colorMap: Map<string, string>;
-
-
-  public colorMapKeys: string[] = [];
-  public variantsLoading: boolean;
-
-  public polygonFoldingWidth = 25;
-  polygonDimensionWidth = 0;
-  polygonDimensionHeight = 23;
-  polygonDimensionSpacing = 3;
-  polygonDimensionTailWidth = 6;
-
-  variants: any[];
-  selectedVariants: any[] = [];
+  discover_initial_model() {
+    console.log(this.selectedVariants);
+    this.backendService.discoverProcessModelFromVariants(this.selectedVariants);
+  }
 
   clearSelection() {
     this.selectedVariants.forEach(d => {
@@ -66,8 +71,6 @@ export class VariantExplorerComponent implements OnInit {
     });
     this.selectedVariants = [];
   }
-
-  d3jsData;
 
   private createChart(): void {
     this.selectedVariants = [];
