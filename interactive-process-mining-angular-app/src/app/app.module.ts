@@ -10,6 +10,7 @@ import { StrFilterPipe } from './str-filter.pipe';
 import {FormsModule} from "@angular/forms";
 import { VariantExplorerComponent } from './variant-explorer/variant-explorer.component';
 import { SideBarComponent } from './side-bar/side-bar.component';
+import { ActivityOverviewComponent } from './activity-overview/activity-overview.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { SideBarComponent } from './side-bar/side-bar.component';
     ProcessTreeEditorComponent,
     StrFilterPipe,
     VariantExplorerComponent,
-    SideBarComponent
+    SideBarComponent,
+    ActivityOverviewComponent
   ],
   imports: [
     BrowserModule,

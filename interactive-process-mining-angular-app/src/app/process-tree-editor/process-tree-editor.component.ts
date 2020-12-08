@@ -41,8 +41,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   mainSvgGroup;
   nodeEnter;
 
-  selectNodeActive: boolean = true;
-  selectSubtreeActive: boolean = false;
+  selectNodeActive: boolean = false;
+  selectSubtreeActive: boolean = true;
 
   selectedRootNode;
 

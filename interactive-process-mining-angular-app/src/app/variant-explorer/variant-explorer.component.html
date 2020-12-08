@@ -1,5 +1,5 @@
-<div class="d-flex flex-column mh-100 container-variant-explorer">
-  <div class="bg-dark">
+<div class="d-flex flex-column h-100 container-variant-explorer">
+  <div class="bg-dark btn-tool-bar">
     <button class="button"
             data-toggle="tooltip" data-placement="top" data-trigger="hover"
             title="add selected variants to model"
@@ -13,8 +13,8 @@
     <span class="vl"></span>
 
     <button class="button"
-            data-toggle="tooltip" data-placement="top" data-trigger="hover"
-            title="overwrite existing model and discover an initial model from the {{selectedVariants}} selected variants"
+            data-toggle="tooltip" data-placement="top" data-trigger="hover" data-html="true"
+            title="discover an initial model from the selected variants using the standard <em>Inductive Miner</em> algorithm<br><b><u>Note:</u> overwrites the existing model</b>"
             [disabled]="selectedVariants.length===0"
             (click)="discover_initial_model()">
       <svg class="btn-icon" fill="currentColor" [ngClass]="{'text-success':selectedVariants.length!=0}">
@@ -33,7 +33,9 @@
       clear selection
     </button>
 
-    <div class="float-right d-inline mr-3 btn-bar-text">selected variants: {{this.selectedVariants.length}}</div>
+    <div class="mr-3 secondary-text ml-auto">
+      <em>selected variants: {{this.selectedVariants.length}}</em>
+    </div>
 
   </div>
 
@@ -43,7 +45,7 @@
       <div class="chart-variant__percentage">
                         <span *ngFor="let variant of variants">
                         <small>{{variant['percentage']}}%<br/>
-                        <span>({{variant['count']}})</span></small></span>
+                        <span>({{variant['count'] | number}})</span></small></span>
       </div>
       <div #chart id="chart"></div>
     </div>

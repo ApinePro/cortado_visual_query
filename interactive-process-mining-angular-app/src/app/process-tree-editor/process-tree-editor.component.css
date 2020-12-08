@@ -3,9 +3,6 @@
   max-height: 100%;
 }
 
-.tool-bar {
-}
-
 .node {
   rx: 3;
   ry: 3;
@@ -23,8 +20,6 @@
   fill: #181818;
   font-size: 2em;
 }
-
-
 
 
 .btn-fixed-width {

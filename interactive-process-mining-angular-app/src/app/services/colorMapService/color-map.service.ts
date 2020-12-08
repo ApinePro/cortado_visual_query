@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Observable} from "rxjs";
+import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {tap} from "rxjs/operators";
 import * as constants from "./predefinedColors";
 
@@ -35,8 +35,18 @@ export class ColorMapService {
     activities.forEach((a, i) => {
       colorMap.set(a, this.get_color(i));
     });
+    this._colorMap.next(colorMap);
     return colorMap;
   }
+
+
+  // tslint:disable-next-line:variable-name
+  private _colorMap = new Subject<Map<string, string>>();
+
+  get colorMap$(): Observable<Map<string, string>> {
+    return this._colorMap.asObservable();
+  }
+
 
   private get_color(activityNameCount): string {
     let color = '';
