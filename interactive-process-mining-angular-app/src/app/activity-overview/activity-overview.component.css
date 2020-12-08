@@ -1,0 +1,41 @@
+.activityOverviewContainer {
+  border-top: 1px solid var(--thin-border-color);
+  border-left: 1px solid var(--thin-border-color);
+  background-color: var(--box-background-color);
+}
+
+.table-font {
+  color: var(--text-secondary);
+  font-size: small;
+}
+
+.table-container {
+  overflow-y: auto;
+  overflow-x: auto;
+  background-color: var(--box-background-color);
+}
+
+.header {
+  position: sticky;
+  top: 0;
+}
+
+thead tr:nth-child(1) th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--box-background-color);
+}
+
+tbody tr {
+  padding-bottom: .25rem;
+  padding-top: .25rem;
+}
+
+thead th {
+  vertical-align: top;
+}
+
+/*th {
+  font-weight: normal;
+}*/

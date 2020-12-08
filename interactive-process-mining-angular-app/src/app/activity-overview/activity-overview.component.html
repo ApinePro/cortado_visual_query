@@ -1,0 +1,27 @@
+<div class="d-flex flex-column mh-100 h-100 activityOverviewContainer">
+  <div class="bg-dark">
+
+  </div>
+  <div class="table-container flex-grow-1">
+    <table class="table table-sm table-font table-hover table-striped table-borderless table-dark mb-0">
+      <thead>
+      <tr style="background-color: #2d2d2d">
+        <th scope="col" class="bg-dark">&nbsp;</th>
+        <th scope="col" class="bg-dark">Activity name</th>
+        <th scope="col" class="bg-dark">Contained in model</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let a of activityColorMap | keyvalue">
+        <th [ngStyle]="{'background-color': a.value}">&nbsp;</th>
+        <td>{{a.key}}</td>
+        <td>
+          <svg class="btn-icon" fill="currentColor">
+            <use xlink:href="assets/bootstrap-icons.svg#check2"/>
+          </svg>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
