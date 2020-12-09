@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ColorMapService} from "../services/colorMapService/color-map.service";
+import {SharedDataService} from "../services/sharedDataService/shared-data.service";
 
 @Component({
   selector: 'app-activity-overview',
@@ -8,16 +9,21 @@ import {ColorMapService} from "../services/colorMapService/color-map.service";
 })
 export class ActivityOverviewComponent implements OnInit {
 
-  constructor(private colorMapService: ColorMapService) {
+  constructor(private colorMapService: ColorMapService, private sharedDataService: SharedDataService) {
   }
 
   ngOnInit(): void {
     this.colorMapService.colorMap$.subscribe(colorMap => {
       this.activityColorMap = colorMap;
       console.log(colorMap);
+    });
+
+    this.sharedDataService.activitiesInCurrentTree$.subscribe(activitiesInTree => {
+      this.activitiesInTree = activitiesInTree;
     })
   }
 
   activityColorMap: Map<string, string>;
+  activitiesInTree: Set<string> = new Set();
 
 }

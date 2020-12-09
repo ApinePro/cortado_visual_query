@@ -3,20 +3,21 @@
 
   </div>
   <div class="table-container flex-grow-1">
-    <table class="table table-sm table-font table-hover table-striped table-borderless table-dark mb-0">
+    <table class="table table-sm table-font table-hover table-striped table-borderless table-dark mb-0"
+           *ngIf="activityColorMap">
       <thead>
       <tr style="background-color: #2d2d2d">
         <th scope="col" class="bg-dark">&nbsp;</th>
-        <th scope="col" class="bg-dark">Activity name</th>
-        <th scope="col" class="bg-dark">Contained in model</th>
+        <th scope="col" class="bg-dark"><em>Activity name</em></th>
+        <th scope="col" class="bg-dark"><em>Contained in model</em></th>
       </tr>
       </thead>
       <tbody>
       <tr *ngFor="let a of activityColorMap | keyvalue">
-        <th [ngStyle]="{'background-color': a.value}">&nbsp;</th>
+        <th class="user-select-none" [ngStyle]="{'background-color': a.value}">&nbsp;</th>
         <td>{{a.key}}</td>
         <td>
-          <svg class="btn-icon" fill="currentColor">
+          <svg fill="currentColor" width="15" height="15" *ngIf="activitiesInTree.has(a.key)">
             <use xlink:href="assets/bootstrap-icons.svg#check2"/>
           </svg>
         </td>

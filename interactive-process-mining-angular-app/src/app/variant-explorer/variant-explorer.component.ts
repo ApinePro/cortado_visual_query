@@ -145,7 +145,7 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   private setPolygonDimensionWidth(w): void {
-    console.log("setPolygonDimensionWidth ", w)
+    //console.log("setPolygonDimensionWidth ", w)
     this.polygonDimensionWidth = w;
   }
 
