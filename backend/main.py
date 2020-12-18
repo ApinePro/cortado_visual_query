@@ -1,15 +1,22 @@
 from typing import Optional, Any, List
 import uvicorn
+
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
+
 from pm4py.objects.log.importer.xes.importer import apply as xes_import
 from pydantic import BaseModel
 from pm4py.algo.filtering.log.variants import variants_filter
 from pm4py.objects.log.log import EventLog, Trace, Event
 from pm4py.objects.process_tree.process_tree import ProcessTree
 from pm4py.algo.discovery.inductive.algorithm import apply_tree as inductive_miner
-
-from backend_utilities.process_tree_to_dict import process_tree_to_dict
+import pm4py.visualization.process_tree.visualizer as pt_vis
+from pm4py.objects.process_tree.exporter.variants.ptml import export_tree_as_string as generate_ptml_xml
+from pm4py.objects.conversion.process_tree.converter import apply as convert_pt_to_petri_net
+from pm4py.objects.petri.exporter.variants.pnml import export_petri_as_string as generate_pnml_xml
+from backend_utilities.process_tree_conversion import process_tree_to_dict
+from backend_utilities.process_tree_conversion import dict_to_process_tree
 
 app = FastAPI()
 origins = [
@@ -95,6 +102,23 @@ def get_variants_from_event_log():
 
     res['variants'] = sorted(res['variants'], key=lambda variant: variant['count'], reverse=True)
     return res
+
+
+class ConvertPtToX(BaseModel):
+    pt: dict
+
+
+@app.post("/convertPtToPTML")
+def download_test(d: ConvertPtToX):
+    pt: ProcessTree = dict_to_process_tree(d.pt)
+    return Response(content=generate_ptml_xml(pt), media_type="application/xml")
+
+
+@app.post("/convertPtToPNML")
+def download_test(d: ConvertPtToX):
+    pt: ProcessTree = dict_to_process_tree(d.pt)
+    net, im, fm = convert_pt_to_petri_net(pt)
+    return Response(content=generate_pnml_xml(net, im, fm), media_type="application/xml")
 
 
 if __name__ == "__main__":

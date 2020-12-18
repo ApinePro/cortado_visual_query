@@ -17,21 +17,26 @@
     <svg class="btn-icon" fill="currentColor">
       <use xlink:href="assets/bootstrap-icons.svg#file-earmark-arrow-up-fill"/>
     </svg>
-    <span class="hidden-if-collapsed">Import model as<span class="text-primary font-weight-bold">.ptml file</span></span>
+    <span class="hidden-if-collapsed">Import model as <samp
+      class="text-primary font-weight-bold">.ptml</samp> file</span>
   </button>
 
-  <button class="button align-bottom">
+  <button class="button align-bottom"
+          (click)="exportTreeAsPTML()">
     <svg class="btn-icon" fill="currentColor">
       <use xlink:href="assets/bootstrap-icons.svg#file-earmark-arrow-down"/>
     </svg>
-    <span class="hidden-if-collapsed">Export model as<span class="text-primary font-weight-bold">.ptml file</span></span>
+    <span class="hidden-if-collapsed">Export model as <samp
+      class="text-primary font-weight-bold">.ptml</samp> file</span>
   </button>
 
-  <button class="button align-bottom">
+  <button class="button align-bottom"
+          (click)="exportTreeAsPNML()">
     <svg class="btn-icon" fill="currentColor">
       <use xlink:href="assets/bootstrap-icons.svg#file-earmark-arrow-down"/>
     </svg>
-    <span class="hidden-if-collapsed">Export model as<span class="text-primary font-weight-bold">.pnml file</span></span>
+    <span class="hidden-if-collapsed">Export model as <samp
+      class="text-primary font-weight-bold">.pnml</samp> file</span>
   </button>
 
   <hr class="mt-1 mb-1">

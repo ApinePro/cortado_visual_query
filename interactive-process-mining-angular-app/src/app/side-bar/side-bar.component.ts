@@ -50,4 +50,11 @@ export class SideBarComponent implements OnInit {
     this.fileUploadEventLog.nativeElement.value = '';
   }
 
+  exportTreeAsPTML() {
+    this.backendService.downloadCurrentTreeAsPTML();
+  }
+
+  exportTreeAsPNML() {
+    this.backendService.downloadCurrentTreeAsPNML();
+  }
 }

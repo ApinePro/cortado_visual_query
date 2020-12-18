@@ -1,0 +1,73 @@
+from pm4py.objects.process_tree.process_tree import ProcessTree
+from pm4py.objects.process_tree.pt_operator import Operator
+
+SEQUENCE_CHAR = "\u2794"
+CHOICE_CHAR = "\u2715"
+LOOP_CHAR = "\u21BA"
+PARALLELISM_CHAR = "\u2227"
+TAU_CHAR = "\u03C4"
+
+
+def process_tree_to_dict(pt: ProcessTree) -> dict:
+    res = {"operator": __get_root_operator_string_for_frontend(pt), "label": __get_root_node_label(pt), "id": id(pt),
+           "children": []}
+    for c in pt.children:
+        res["children"].append(process_tree_to_dict(c))
+    return res
+
+
+def __get_root_operator_string_for_frontend(pt: ProcessTree) -> str:
+    if pt.operator == Operator.XOR:
+        return CHOICE_CHAR
+    if pt.operator == Operator.SEQUENCE:
+        return SEQUENCE_CHAR
+    if pt.operator == Operator.LOOP:
+        return LOOP_CHAR
+    if pt.operator == Operator.PARALLEL:
+        return PARALLELISM_CHAR
+    return None
+
+
+def __convert_operator_string_from_frontend_for_pm4py_core(operator: str) -> str:
+    if operator == CHOICE_CHAR:
+        return Operator.XOR
+    if operator == SEQUENCE_CHAR:
+        return Operator.SEQUENCE
+    if operator == LOOP_CHAR:
+        return Operator.LOOP
+    if operator == PARALLELISM_CHAR:
+        return Operator.PARALLEL
+    return None
+
+
+def __convert_label_string_from_frontend_for_pm4py_core(label: str) -> str:
+    if label == TAU_CHAR:
+        return None
+    else:
+        return label
+
+
+def __get_root_node_label(pt: ProcessTree) -> str:
+    if not pt.label and not pt.operator:
+        return TAU_CHAR
+    else:
+        return pt.label
+
+
+def dict_to_process_tree(pt: dict, res=None) -> ProcessTree:
+    print(pt)
+    print(type(pt))
+    print(pt.keys())
+    print(pt['operator'])
+    if not res:
+        res = ProcessTree(operator=__convert_operator_string_from_frontend_for_pm4py_core(pt['operator']),
+                          label=__convert_label_string_from_frontend_for_pm4py_core(pt['label']))
+    else:
+        subtree = ProcessTree(operator=__convert_operator_string_from_frontend_for_pm4py_core(pt['operator']),
+                              label=__convert_label_string_from_frontend_for_pm4py_core(pt['label']), parent=res)
+        res.children.append(subtree)
+        res = subtree
+    if pt['children']:
+        for c in pt['children']:
+            dict_to_process_tree(c, res)
+    return res

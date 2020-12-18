@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Observable, Subject} from "rxjs";
+import {BehaviorSubject, Observable, Subject} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +22,7 @@ export class SharedDataService {
 
 
   // tslint:disable-next-line:variable-name
-  private _currentDisplayedProcessTree = new Subject<any>();
+  private _currentDisplayedProcessTree = new BehaviorSubject<any>(null);
 
   get currentDisplayedProcessTree$(): Observable<string> {
     return this._currentDisplayedProcessTree.asObservable();

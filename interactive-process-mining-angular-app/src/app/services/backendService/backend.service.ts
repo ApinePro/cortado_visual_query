@@ -1,8 +1,9 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
-import {BackgroundTaskInfoService} from "../backgroundTaskInfoService/background-task-info.service";
 import {SharedDataService} from "../sharedDataService/shared-data.service";
+import * as FileSaver from 'file-saver';
+import {take} from 'rxjs/operators'
 
 @Injectable({
   providedIn: 'root'
@@ -35,6 +36,24 @@ export class BackendService {
   discoverProcessModelFromVariants(variants: any[]) {
     this.httpClient.post(this.backendUrl + 'discoverProcessModelFromVariants', {'variants': variants}).subscribe(res => {
       this.sharedDataService.currentDisplayedProcessTree = res;
+    });
+  }
+
+  downloadCurrentTreeAsPTML() {
+    this.sharedDataService.currentDisplayedProcessTree$.pipe(take(1)).subscribe(tree => {
+      this.httpClient.post(this.backendUrl + 'convertPtToPTML', {pt: tree}, {responseType: 'blob'})
+        .subscribe(blob => {
+          FileSaver.saveAs(blob, 'process_tree.ptml');
+        });
+    });
+  }
+
+  downloadCurrentTreeAsPNML() {
+    this.sharedDataService.currentDisplayedProcessTree$.pipe(take(1)).subscribe(tree => {
+      this.httpClient.post(this.backendUrl + 'convertPtToPNML', {pt: tree}, {responseType: 'blob'})
+        .subscribe(blob => {
+          FileSaver.saveAs(blob, 'petri_net.pnml');
+        });
     });
   }
 
