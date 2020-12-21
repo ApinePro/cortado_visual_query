@@ -8,12 +8,16 @@
     <span class="hidden-if-collapsed">Import event log</span>
   </button>
 
-  <input #fileUploadEventLog type="file" class="d-none" (change)="handleSelectedFile($event)"
+  <input #fileUploadEventLog type="file" class="d-none" (change)="handleSelectedEventLogFile($event)"
          accept=".xes">
+
+  <input #fileUploadProcessTree type="file" class="d-none" (change)="handleSelectedProcessTreeFile($event)"
+         accept=".ptml">
 
   <hr class="mt-1 mb-1">
 
-  <button class="button align-bottom">
+  <button class="button align-bottom"
+          (click)="importTreeFromPTML()">
     <svg class="btn-icon" fill="currentColor">
       <use xlink:href="assets/bootstrap-icons.svg#file-earmark-arrow-up-fill"/>
     </svg>

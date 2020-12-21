@@ -29,14 +29,22 @@ export class BackendService {
       {'file_path': filePath});
   }
 
+  loadProcessTreeFromFilePath(filePath: string): void {
+    this.httpClient.post(this.backendUrl + 'loadProcessTreeFromPtmlFile', {'file_path': filePath})
+      .subscribe(tree => {
+        this.sharedDataService.currentDisplayedProcessTree = tree;
+      });
+  }
+
   getVariantsFromEventLog(): Observable<any> {
     return this.httpClient.get(this.backendUrl + 'variants');
   }
 
   discoverProcessModelFromVariants(variants: any[]) {
-    this.httpClient.post(this.backendUrl + 'discoverProcessModelFromVariants', {'variants': variants}).subscribe(res => {
-      this.sharedDataService.currentDisplayedProcessTree = res;
-    });
+    this.httpClient.post(this.backendUrl + 'discoverProcessModelFromVariants', {'variants': variants})
+      .subscribe(tree => {
+        this.sharedDataService.currentDisplayedProcessTree = tree;
+      });
   }
 
   downloadCurrentTreeAsPTML() {

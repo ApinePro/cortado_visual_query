@@ -15,8 +15,11 @@ import pm4py.visualization.process_tree.visualizer as pt_vis
 from pm4py.objects.process_tree.exporter.variants.ptml import export_tree_as_string as generate_ptml_xml
 from pm4py.objects.conversion.process_tree.converter import apply as convert_pt_to_petri_net
 from pm4py.objects.petri.exporter.variants.pnml import export_petri_as_string as generate_pnml_xml
+from pm4py.objects.process_tree.importer.importer import apply as import_pt_from_ptml
+
 from backend_utilities.process_tree_conversion import process_tree_to_dict
 from backend_utilities.process_tree_conversion import dict_to_process_tree
+
 
 app = FastAPI()
 origins = [
@@ -53,16 +56,24 @@ async def create_upload_file(file: UploadFile = File(...)):
     return {"filename": file.filename}
 
 
-class InputLoadEventLogFromFilePath(BaseModel):
+class filePathInput(BaseModel):
     file_path: str
 
 
 @app.post("/loadEventLogFromFilePath")
-def load_event_log_from_file_path(d: InputLoadEventLogFromFilePath):
+def load_event_log_from_file_path(d: filePathInput):
     print(d)
     global event_log
     event_log = xes_import(d.file_path)
     return
+
+
+@app.post("/loadProcessTreeFromPtmlFile")
+def load_process_tree_from_file_path(d: filePathInput):
+    print(d)
+    pt = import_pt_from_ptml(d.file_path)
+    res = process_tree_to_dict(pt)
+    return res
 
 
 class InputDiscoverProcessModelFromVariants(BaseModel):

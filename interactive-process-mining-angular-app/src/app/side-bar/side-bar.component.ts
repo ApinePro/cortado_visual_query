@@ -19,14 +19,14 @@ export class SideBarComponent implements OnInit {
   }
 
   @ViewChild('fileUploadEventLog') fileUploadEventLog: ElementRef;
+  @ViewChild('fileUploadProcessTree') fileUploadProcessTree: ElementRef;
 
   importEventLog() {
     console.log('file upload click');
     this.fileUploadEventLog.nativeElement.click();
   }
 
-  handleSelectedFile(e) {
-    console.log('Change input file')
+  handleSelectedEventLogFile(e) {
     console.log(e)
 
     const taskDescription = 'Loading/parsing event log';
@@ -50,11 +50,28 @@ export class SideBarComponent implements OnInit {
     this.fileUploadEventLog.nativeElement.value = '';
   }
 
+  handleSelectedProcessTreeFile(e) {
+    const fileList: FileList = e.target.files;
+    if (fileList.length > 0) {
+      console.log(fileList[0]);
+      const fileName = fileList[0].name;
+      this.backendService.loadEventLogFromFilePath(fileList[0]['path']).subscribe(res => {
+        console.log('Event log ' + fileName + ' loaded');
+        //this.sharedDataService.loadedEventLog = fileName;
+        this.backendService.loadProcessTreeFromFilePath(fileList[0]['path']);
+      })
+    }
+  }
+
   exportTreeAsPTML() {
     this.backendService.downloadCurrentTreeAsPTML();
   }
 
   exportTreeAsPNML() {
     this.backendService.downloadCurrentTreeAsPNML();
+  }
+
+  importTreeFromPTML() {
+    this.fileUploadProcessTree.nativeElement.click();
   }
 }
