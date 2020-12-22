@@ -167,6 +167,8 @@ export class VariantExplorerComponent implements OnInit {
     this.setPolygonDimensionWidth(this.polygonFoldingWidth);
     const prev_g = d3.select('#chart').selectAll('g').filter((d, j) => j === i);
     prev_g.selectAll('polygon').remove();
+    // remove dashed selection box
+    prev_g.selectAll('rect').remove();
     prev_g.selectAll('polygon')
       .data(d => d['value'].events.map((d, i) => ({value: d, i: i})))
       .enter()
@@ -203,10 +205,12 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   private expandingTrace(d, i) {
-    let positionX = 0;
+    let positionX = 4; //4 because of dashed rectangle, otherwise 0
     const g = d3.select('#chart').selectAll('g').filter((d, j) => j === i);
     g.selectAll('polygon').remove();
     g.selectAll('text').remove();
+    // remove dashed selection box
+    g.selectAll('rect').remove();
     let overall_length = 0;
     // @ts-ignore
     g.selectAll('polygon')
@@ -231,7 +235,7 @@ export class VariantExplorerComponent implements OnInit {
       });
     g.attr('width', overall_length);
 
-    positionX = 0;
+    positionX = 4;//4 because of dashed rectangle, otherwise 0
     // @ts-ignore
     g.selectAll('text')
       .data(d => {
@@ -250,17 +254,29 @@ export class VariantExplorerComponent implements OnInit {
         }
         // @ts-ignore
         const textLength = g.selectAll('text').filter((d, j) => j === i).node().getComputedTextLength();
-        console.log(textLength);
+        //console.log(textLength);
         // @ts-ignore
         this.setPolygonWidthByLengthOfEvent(d);
         g.selectAll('text').filter((d, j) => j === i)
           .attr('transform', 'translate(' + positionX + ', 0)');
       });
+    // add blue selection box around selected variant
+    // @ts-ignore
+    const bbox = g.node().getBBox();
+    g.append("rect")
+      .attr("width", bbox.width + 4)
+      .attr("height", bbox.height + 4)
+      .attr("x", bbox.x - 2)
+      .attr("y", bbox.y - 2)
+      .style("fill", "transparent")
+      .style("stroke", "rgb(0,141,255)")
+      .style("stroke-width", "2px")
+      .style("stroke-dasharray", '2')
     this.resizeSVG();
   }
 
   private setPolygonWidthByLengthOfEvent(d: string) {
-    console.log(d)
+    //console.log(d)
     const width = this.measureStringOnCanvas(d);
     this.setPolygonDimensionWidth(width);
   }
@@ -279,7 +295,7 @@ export class VariantExplorerComponent implements OnInit {
     // @ts-ignore
     const bbox = svg.getBBox();
     // Update the width and height using the size of the contents
-    svg.setAttribute("width", bbox.x + bbox.width + bbox.x);
-    svg.setAttribute("height", bbox.y + bbox.height + bbox.y);
+    svg.setAttribute("width", bbox.x + bbox.width + bbox.x + 4);
+    svg.setAttribute("height", bbox.y + bbox.height + bbox.y + 4);
   }
 }

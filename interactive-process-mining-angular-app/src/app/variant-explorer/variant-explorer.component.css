@@ -2,14 +2,16 @@
   margin-left: 4px;
   display: inline-flex;
   flex-direction: column;
+  /*
   min-width: 50px;
+  */
   font-size: .8rem;
   color: whitesmoke;
   margin-top: 20px;
   color: var(--text-secondary);
 }
 
-.chart-variant__percentage span {
+.chart-variant__percentage div {
   height: 40px;
   text-align: end;
   margin-right: 1px;
@@ -26,6 +28,8 @@
 .container-variant-explorer {
   min-height: 100%;
 }
+
+
 
 
 
