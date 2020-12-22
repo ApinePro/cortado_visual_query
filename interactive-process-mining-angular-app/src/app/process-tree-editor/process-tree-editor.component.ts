@@ -2,8 +2,8 @@ import {Component, OnInit, ViewChild, AfterViewInit, ElementRef, ViewEncapsulati
 import * as d3 from "d3";
 import * as constants from "./constants_tree_d3";
 import {SharedDataService} from "../services/sharedDataService/shared-data.service";
-//jQuery
-declare var $;
+import {ActivateTooltipsService} from "../services/activateTooltipsService/activate-tooltips.service";
+
 
 @Component({
   selector: 'app-process-tree-editor',
@@ -13,7 +13,7 @@ declare var $;
 })
 export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
-  constructor(private sharedDataService: SharedDataService) {
+  constructor(private sharedDataService: SharedDataService, private activateTooltipsService: ActivateTooltipsService) {
   }
 
   @ViewChild("d3svg") svgElem: ElementRef;
@@ -639,6 +639,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   ]
 
   closeTooltips() {
+    // @ts-ignore
     $('[data-toggle="tooltip"]').tooltip('hide');
   }
 
@@ -648,14 +649,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       return d.children;
     })
     this.plot(this.root);
-
-    //activate tooltips
-    $(function () {
-      $('[data-toggle="tooltip"]').tooltip({
-        container: "body",
-        placement: "top",
-        delay: {show: 240, hide: 60}
-      })
-    })
+    this.activateTooltipsService.activate();
   }
 }

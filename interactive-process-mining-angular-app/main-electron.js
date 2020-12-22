@@ -14,7 +14,7 @@ function createWindow() {
 
     frame: true,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: false
     }
 
   })

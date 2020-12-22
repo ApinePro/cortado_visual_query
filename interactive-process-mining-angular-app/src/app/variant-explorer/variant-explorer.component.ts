@@ -1,4 +1,4 @@
-import {Component, ElementRef, isDevMode, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, isDevMode, OnInit, ViewChild} from '@angular/core';
 import * as d3 from 'd3';
 import * as dummyBackendResponse from './backend_response.js';
 import {ColorMapService} from "../services/colorMapService/color-map.service";
@@ -269,7 +269,7 @@ export class VariantExplorerComponent implements OnInit {
       .attr("x", bbox.x - 2)
       .attr("y", bbox.y - 2)
       .style("fill", "transparent")
-      .style("stroke", "rgb(0,141,255)")
+      .style("stroke", "var(--text-secondary)")
       .style("stroke-width", "2px")
       .style("stroke-dasharray", '2')
     this.resizeSVG();

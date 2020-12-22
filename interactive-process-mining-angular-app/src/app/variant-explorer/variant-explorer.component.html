@@ -33,7 +33,7 @@
       clear selection
     </button>
 
-    <div class="mr-3 secondary-text ml-auto text-primary">
+    <div class="mr-3 secondary-text ml-auto">
       <em>selected variants: {{this.selectedVariants.length}}</em>
     </div>
 
@@ -43,13 +43,17 @@
   <div class="main-variant-explorer flex-grow-1">
     <div class="d-flex">
       <div class="chart-variant__percentage">
-                        <div *ngFor="let variant of variants" class="d-flex flex-row">
-                          <!--<span class="mr-1">test</span>-->
-                          <small class="float-right">
-                            {{variant['percentage']}}%<br/>
-                            ({{variant['count'] | number}})
-                          </small>
-                        </div>
+        <div *ngFor="let variant of variants" class="d-flex flex-row"
+             data-toggle="tooltip"
+             data-placement="right"
+             data-container="body"
+             title="Tooltip on right">
+          <!--<span class="mr-1">test</span>-->
+          <small class="float-right">
+            {{variant['percentage']}}%<br/>
+            ({{variant['count'] | number}})
+          </small>
+        </div>
       </div>
       <div #chart id="chart"></div>
     </div>
