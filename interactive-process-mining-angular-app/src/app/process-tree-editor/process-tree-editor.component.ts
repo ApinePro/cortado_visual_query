@@ -295,8 +295,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       console.log(Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10));
       return Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10);
     })
-
     this.addSelectionFunctionality();
+    this.activateTooltipsService.activate();
   }
 
   deleteSubtree() {
@@ -649,6 +649,5 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       return d.children;
     })
     this.plot(this.root);
-    this.activateTooltipsService.activate();
   }
 }
