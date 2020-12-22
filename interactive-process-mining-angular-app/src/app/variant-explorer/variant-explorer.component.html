@@ -47,7 +47,9 @@
              data-toggle="tooltip"
              data-placement="right"
              data-container="body"
-             title="variant describes ~{{variant['percentage']}}% of the traces in the event log">
+             data-html="true"
+             title="variant describes ~{{variant['percentage']}}% of all traces in the event log<br>
+             <span class='text-secondary'>variant occurred {{variant['count']| number}} time(s) in total</span>">
           <!--<span class="mr-1">test</span>-->
           <small class="float-right">
             {{variant['percentage']}}%<br/>
