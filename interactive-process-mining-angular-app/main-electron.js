@@ -7,22 +7,25 @@ let win;
 function createWindow() {
   win = new BrowserWindow({
     minHeight: 600,
-    minWidth: 800,
+    minWidth: 1000,
 
     width: 1280,
     height: 800,
 
-    frame: true
+    frame: true,
+    webPreferences: {
+      nodeIntegration: true
+    }
 
   })
 
   win.removeMenu();
 
-/*  win.loadURL(url.format({
-    pathname: path.join(__dirname, `/dist/index.html`),
-    protocol: "file:",
-    slashes: true
-  }))*/
+  /*  win.loadURL(url.format({
+      pathname: path.join(__dirname, `/dist/index.html`),
+      protocol: "file:",
+      slashes: true
+    }))*/
 
   win.loadURL('http://localhost:4444')
 
