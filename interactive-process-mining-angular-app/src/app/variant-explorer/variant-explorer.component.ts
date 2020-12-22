@@ -6,6 +6,7 @@ import {SharedDataService} from "../services/sharedDataService/shared-data.servi
 import {BackendService} from "../services/backendService/backend.service";
 
 import * as helperFunctions from "./helper_functions"
+import {ActivateTooltipsService} from "../services/activateTooltipsService/activate-tooltips.service";
 
 @Component({
   selector: 'app-variant-explorer',
@@ -16,7 +17,8 @@ export class VariantExplorerComponent implements OnInit {
 
   constructor(private colorMapService: ColorMapService,
               private sharedDataService: SharedDataService,
-              private backendService: BackendService) {
+              private backendService: BackendService,
+              private tooltipActivationService: ActivateTooltipsService) {
   }
 
 
@@ -36,6 +38,7 @@ export class VariantExplorerComponent implements OnInit {
 
   d3jsData;
 
+  // TODO move dummy response to service
   ngOnInit() {
     if (isDevMode()) {
       console.log("devMode active -> load dummy data");
@@ -45,6 +48,7 @@ export class VariantExplorerComponent implements OnInit {
       this.selectedVariants = [];
       this.setPolygonDimensionWidth(this.polygonFoldingWidth);
       this.createChart();
+      this.tooltipActivationService.activate();
     }
 
     this.sharedDataService.loadedEventLog$.subscribe(eventLog => {
@@ -54,6 +58,7 @@ export class VariantExplorerComponent implements OnInit {
           this.variants = res['variants'];
           this.setPolygonDimensionWidth(this.polygonFoldingWidth);
           this.createChart();
+          this.tooltipActivationService.activate();
         });
       }
     });

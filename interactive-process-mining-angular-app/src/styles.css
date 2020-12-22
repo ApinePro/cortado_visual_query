@@ -40,7 +40,7 @@
   cursor: pointer;
   background-color: Transparent;
   user-select: none;
-  height:100%;
+  height: 100%;
   /*
   vertical-align: top;
   */
@@ -63,7 +63,7 @@
   outline: none;
 }
 
-.btn-tool-bar{
+.btn-tool-bar {
   min-height: 28px;
   border-top: 1px solid var(--thin-border-color);
   display: flex;
@@ -94,6 +94,10 @@ hr {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+.cursor-help {
+  cursor: help;
 }
 
 /*style scroll bars*/
