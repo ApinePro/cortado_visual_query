@@ -13,15 +13,17 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let a of activityColorMap | keyvalue">
-        <th class="user-select-none" [ngStyle]="{'background-color': a.value}">&nbsp;</th>
-        <td>{{a.key}}</td>
-        <td>
-          <svg fill="currentColor" width="15" height="15" *ngIf="activitiesInTree.has(a.key)">
-            <use xlink:href="assets/bootstrap-icons.svg#check2"/>
-          </svg>
-        </td>
-      </tr>
+      <ng-container *ngIf="activitiesInTree && activityColorMap">
+        <tr *ngFor="let a of activityColorMap | keyvalue">
+          <th class="user-select-none" [ngStyle]="{'background-color': a.value}">&nbsp;</th>
+          <td>{{a.key}}</td>
+          <td>
+            <svg fill="currentColor" width="15" height="15" *ngIf="activitiesInTree.has(a.key)">
+              <use xlink:href="assets/bootstrap-icons.svg#check2"/>
+            </svg>
+          </td>
+        </tr>
+      </ng-container>
       </tbody>
     </table>
   </div>

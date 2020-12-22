@@ -14,18 +14,16 @@ export class ActivityOverviewComponent implements OnInit {
 
   ngOnInit(): void {
     this.colorMapService.colorMap$.subscribe(colorMap => {
-      console.log(colorMap);
       this.activityColorMap = colorMap;
     });
 
     this.sharedDataService.activitiesInCurrentTree$.subscribe(activitiesInTree => {
-      console.log(activitiesInTree)
       this.activitiesInTree = activitiesInTree;
     })
   }
 
 
   activityColorMap: Map<string, string>;
-  activitiesInTree: Set<string>;
+  activitiesInTree: Set<string> = new Set<string>();
 
 }
