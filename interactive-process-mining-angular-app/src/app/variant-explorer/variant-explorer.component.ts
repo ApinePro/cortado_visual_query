@@ -76,9 +76,7 @@ export class VariantExplorerComponent implements OnInit {
     this.selectedVariants = [];
     d3.select('#chart').select('svg').remove();
     this.d3jsData = this.variants;
-
     this.d3jsData = this.d3jsData.map((d, i) => ({value: d, i: i}))
-
     const chartDiv = d3.select('#chart').append('svg')
       .attr('id', 'SVGcontainer');
 
@@ -124,7 +122,6 @@ export class VariantExplorerComponent implements OnInit {
       .text(d => d['value'])
       .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + this.polygonDimensionSpacing) + ', 0)')
       .attr('visibility', 'hidden')
-
     this.resizeSVG();
   }
 
@@ -288,7 +285,6 @@ export class VariantExplorerComponent implements OnInit {
     ctx.font = '1rem Segoe UI';
     return Math.round(ctx.measureText(str).width);
   }
-
 
   private resizeSVG() {
     const svg = document.getElementById("SVGcontainer");
