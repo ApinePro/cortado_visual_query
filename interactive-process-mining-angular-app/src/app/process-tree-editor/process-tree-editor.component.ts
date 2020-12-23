@@ -27,8 +27,10 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
           // @ts-ignore
           return d.children;
         })
-        this.svg.selectAll("*").remove();
-        this.plot(this.root);
+        // this.svg.selectAll("*").remove();
+        // this.plot(this.root);
+        this.cacheCurrentTree();
+        this.update(this.root);
       }
     })
   }
@@ -187,15 +189,14 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   update(root) {
-    console.log(root);
-    console.log(root.descendants());
-    console.log(root.links());
+    //console.log(root);
+    //console.log(root.descendants());
+    //console.log(root.links());
 
     this.updateTreeInSharedDataService();
-
     this.calculateTreeLayout(root);
     //add node groups that contain a rectangle and text
-    let node = this.mainSvgGroup.selectAll('g').data(root.descendants(), function (d) {
+    const node = this.mainSvgGroup.selectAll('g').data(root.descendants(), function (d) {
       return d.data.id;
     })
     //remove nodes
@@ -351,14 +352,13 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     // @ts-ignore
     newNode.height = this.selectedRootNode.height;
     newNode.children = null;
-    console.log(newNode);
+    //console.log(newNode);
 
     if (this.selectedRootNode.parent) {
       const idx: number = this.selectedRootNode.parent.children.indexOf(this.selectedRootNode);
       this.selectedRootNode.parent.children.splice(idx, 0, newNode);
     }
     this.afterInsertNode();
-
   }
 
 
@@ -370,7 +370,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     newNode.parent = this.selectedRootNode;
     // @ts-ignore
     newNode.height = 0;
-    console.log(newNode);
+    //console.log(newNode);
 
     if (this.selectedRootNode.children) {
       this.selectedRootNode.children.push(newNode);
@@ -431,7 +431,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     treeLayout.size([this.d3ContainerElem.nativeElement.offsetWidth,
       this.d3ContainerElem.nativeElement.offsetHeight - constants.tree_node_height_width]);
     //if nodeSize is used you cannot use fixed tree size and the root node is drawn at (0,0)
-    treeLayout.nodeSize([123, 60])
+    treeLayout.nodeSize([130, 60])
     // calculate layout
     treeLayout(root);
   }
@@ -508,10 +508,10 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   plot(root) {
-    console.log("plot")
-    console.log(this.d3ContainerElem.nativeElement.offsetWidth)
-    console.log(this.d3ContainerElem.nativeElement.offsetHeight)
-    console.log(root)
+    //console.log("plot")
+    //console.log(this.d3ContainerElem.nativeElement.offsetWidth)
+    //console.log(this.d3ContainerElem.nativeElement.offsetHeight)
+    //console.log(root)
 
     this.calculateTreeLayout(root);
     this.svg = d3.select("#d3-svg");
@@ -644,7 +644,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    console.log(d3.hierarchy(this.tree));
+    //console.log(d3.hierarchy(this.tree));
     this.root = d3.hierarchy(this.tree, (d) => {
       return d.children;
     })
