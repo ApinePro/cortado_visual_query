@@ -61,11 +61,17 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   updateAlignments() {
-    console.log(this.variants);
-    this.backendService.calculateAlignment(this.variants[0]).subscribe(res => {
-      console.log(res);
+    //console.log(this.variants);
+    this.variants.forEach(v => {
+      v['calculationInProgress'] = true;
+      this.backendService.calculateAlignment(v).subscribe(res => {
+        //console.log(res);
+        v['calculationInProgress'] = false;
+        v['alignment'] = res['alignment'];
+        v['deviation'] = res['deviation'];
+      });
+    })
 
-    });
   }
 
 
