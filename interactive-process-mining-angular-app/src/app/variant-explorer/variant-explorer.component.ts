@@ -1,12 +1,13 @@
 import {AfterViewInit, Component, ElementRef, isDevMode, OnInit, ViewChild} from '@angular/core';
 import * as d3 from 'd3';
-import * as dummyBackendResponse from './backend_response.js';
+import * as dummyBackendResponse from './dummy_backend_data.js';
 import {ColorMapService} from "../services/colorMapService/color-map.service";
 import {SharedDataService} from "../services/sharedDataService/shared-data.service";
 import {BackendService} from "../services/backendService/backend.service";
 
 import * as helperFunctions from "./helper_functions"
 import {ActivateTooltipsService} from "../services/activateTooltipsService/activate-tooltips.service";
+import * as constants from "./constants";
 
 @Component({
   selector: 'app-variant-explorer',
@@ -27,18 +28,13 @@ export class VariantExplorerComponent implements OnInit {
 
   public variantsLoading: boolean;
 
-  polygonFoldingWidth = 25;
-  polygonDimensionWidth = 0;
-  polygonDimensionHeight = 23;
-  polygonDimensionSpacing = 3;
-  polygonDimensionTailWidth = 6;
+  private polygonDimensionWidth = 0;
 
   variants: any[];
   selectedVariants: any[] = [];
 
   d3jsData;
 
-  // TODO move dummy response to service
   ngOnInit() {
     if (isDevMode()) {
       console.log("devMode active -> load dummy data");
@@ -46,7 +42,7 @@ export class VariantExplorerComponent implements OnInit {
       this.variants = this.dummyBackendResponse['variants'];
       this.colorMap = this.colorMapService.getColorMap(this.dummyBackendResponse['activities']);
       this.selectedVariants = [];
-      this.setPolygonDimensionWidth(this.polygonFoldingWidth);
+      this.setPolygonDimensionWidth(constants.polygonFoldingWidth);
       this.createChart();
       this.tooltipActivationService.activate();
     }
@@ -56,7 +52,7 @@ export class VariantExplorerComponent implements OnInit {
         this.backendService.getVariantsFromEventLog().subscribe(res => {
           this.colorMap = this.colorMapService.getColorMap(res['activities']);
           this.variants = res['variants'];
-          this.setPolygonDimensionWidth(this.polygonFoldingWidth);
+          this.setPolygonDimensionWidth(constants.polygonFoldingWidth);
           this.createChart();
           this.tooltipActivationService.activate();
         });
@@ -64,9 +60,16 @@ export class VariantExplorerComponent implements OnInit {
     });
   }
 
+  updateAlignments() {
+    console.log(this.variants);
+    this.backendService.calculateAlignment(this.variants[0]).subscribe(res => {
+      console.log(res);
+
+    });
+  }
+
 
   discover_initial_model() {
-    console.log(this.selectedVariants);
     this.backendService.discoverProcessModelFromVariants(this.selectedVariants);
   }
 
@@ -112,7 +115,7 @@ export class VariantExplorerComponent implements OnInit {
       .append('svg:polygon')
       .attr('points', (d, i) => this.getTracePoints(i))
       .style('fill', (d, i) => this.colorMap.get(d['value']))
-      .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + this.polygonDimensionSpacing) + ', 0)')
+      .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + constants.polygonDimensionSpacing) + ', 0)')
       .classed('cursor-pointer', true)
       .on('mouseover', this.mouseOverPolygon)
       .on('mouseout', this.mouseOutPolygon);
@@ -125,7 +128,7 @@ export class VariantExplorerComponent implements OnInit {
       .classed('svg-text', true)
       .attr('y', -4)
       .text(d => d['value'])
-      .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + this.polygonDimensionSpacing) + ', 0)')
+      .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + constants.polygonDimensionSpacing) + ', 0)')
       .attr('visibility', 'hidden')
     this.resizeSVG();
   }
@@ -156,17 +159,17 @@ export class VariantExplorerComponent implements OnInit {
     const points = [];
     points.push('0,0');
     points.push(this.polygonDimensionWidth + ',0');
-    points.push(this.polygonDimensionWidth + this.polygonDimensionTailWidth + ',' + (this.polygonDimensionHeight / 2));
-    points.push(this.polygonDimensionWidth + ',' + this.polygonDimensionHeight);
-    points.push('0,' + this.polygonDimensionHeight);
+    points.push(this.polygonDimensionWidth + constants.polygonDimensionTailWidth + ',' + (constants.polygonDimensionHeight / 2));
+    points.push(this.polygonDimensionWidth + ',' + constants.polygonDimensionHeight);
+    points.push('0,' + constants.polygonDimensionHeight);
     if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
-      points.push(this.polygonDimensionTailWidth + ',' + (this.polygonDimensionHeight / 2));
+      points.push(constants.polygonDimensionTailWidth + ',' + (constants.polygonDimensionHeight / 2));
     }
     return points.join(' ');
   }
 
   private foldingTrace(d, i) {
-    this.setPolygonDimensionWidth(this.polygonFoldingWidth);
+    this.setPolygonDimensionWidth(constants.polygonFoldingWidth);
     const prev_g = d3.select('#chart').selectAll('g').filter((d, j) => j === i);
     prev_g.selectAll('polygon').remove();
     // remove dashed selection box
@@ -177,7 +180,7 @@ export class VariantExplorerComponent implements OnInit {
       .append('svg:polygon')
       .attr('points', (d, i) => this.getTracePoints(i))
       .style('fill', (d, i) => this.colorMap.get(d['value']))
-      .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + this.polygonDimensionSpacing) + ', 0)')
+      .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + constants.polygonDimensionSpacing) + ', 0)')
       .classed('cursor-pointer', true)
       .on('mouseover', this.mouseOverPolygon)
       .on('mouseout', this.mouseOutPolygon);
@@ -190,11 +193,11 @@ export class VariantExplorerComponent implements OnInit {
       .classed('svg-text', true)
       .attr('y', -4)
       .text(d => d['value'])
-      .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + this.polygonDimensionSpacing) + ', 0)')
+      .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + constants.polygonDimensionSpacing) + ', 0)')
       .attr('visibility', 'hidden')
 
     // @ts-ignore
-    prev_g.attr('width', (this.polygonDimensionWidth + this.polygonDimensionSpacing) * prev_g.attr('num-events'));
+    prev_g.attr('width', (this.polygonDimensionWidth + constants.polygonDimensionSpacing) * prev_g.attr('num-events'));
     let max = 0;
     for (let el in document.getElementsByClassName('svg-trace')) {
       if (typeof (document.getElementsByClassName('svg-trace')[el]) === 'object') {
@@ -226,11 +229,11 @@ export class VariantExplorerComponent implements OnInit {
       .classed('cursor-pointer', true)
       .each((d, i) => {
         if (i > 0) {
-          positionX = positionX + this.polygonDimensionWidth + this.polygonDimensionSpacing
+          positionX = positionX + this.polygonDimensionWidth + constants.polygonDimensionSpacing
         }
         // @ts-ignore
         this.setPolygonWidthByLengthOfEvent(d);
-        overall_length = overall_length + this.polygonDimensionWidth + this.polygonDimensionSpacing;
+        overall_length = overall_length + this.polygonDimensionWidth + constants.polygonDimensionSpacing;
         g.selectAll('polygon').filter((d, j) => j === i)
           .attr('points', this.getTracePoints(i))
           .attr('transform', 'translate(' + positionX + ', 0)')
@@ -252,7 +255,7 @@ export class VariantExplorerComponent implements OnInit {
       .attr('fill', (d: string) => helperFunctions.isDarkColor(this.colorMap.get(d)) ? 'white' : 'black')
       .each((d, i) => {
         if (i > 0) {
-          positionX = positionX + this.polygonDimensionWidth + this.polygonDimensionSpacing
+          positionX = positionX + this.polygonDimensionWidth + constants.polygonDimensionSpacing
         }
         // @ts-ignore
         const textLength = g.selectAll('text').filter((d, j) => j === i).node().getComputedTextLength();

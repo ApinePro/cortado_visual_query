@@ -2,12 +2,22 @@
   <div class="bg-dark btn-tool-bar">
     <button class="button"
             data-toggle="tooltip" data-placement="top" data-trigger="hover"
+            title="update alignments"
+            (click)="updateAlignments()">
+      <svg class="btn-icon" fill="currentColor">
+        <use xlink:href="assets/bootstrap-icons.svg#layers-fill"/>
+      </svg>
+      update alignments
+    </button>
+
+    <button class="button"
+            data-toggle="tooltip" data-placement="top" data-trigger="hover"
             title="add selected variants to model"
             [disabled]="selectedVariants.length===0">
       <svg class="btn-icon" fill="currentColor" [ngClass]="{'text-success':selectedVariants.length!=0}">
         <use xlink:href="assets/bootstrap-icons.svg#plus"/>
       </svg>
-      add variants to process model
+      add variants to model
     </button>
 
     <span class="vl"></span>
@@ -49,9 +59,24 @@
              data-container="body"
              data-html="true"
              title="variant describes ~{{variant['percentage']}}% of all traces in the event log<br>
-             <span class='text-secondary'>variant occurred {{variant['count']| number}} time(s) in total</span>">
-          <!--<span class="mr-1">test</span>-->
-          <small class="float-right cursor-help">
+             <span class='text-secondary'>variant occurred {{variant['count']| number}} time(s) in total</span><br>
+             <span class='text-primary'>variant fits the process model: unknown</span>">
+
+          <svg class="btn-icon text-secondary" *ngIf="false">
+            <use xlink:href="assets/bootstrap-icons.svg#hourglass-split"/>
+          </svg>
+          <svg class="btn-icon text-success" *ngIf="false">
+            <use xlink:href="assets/bootstrap-icons.svg#check-square"/>
+          </svg>
+          <svg class="btn-icon text-warning" *ngIf="false">
+            <use xlink:href="assets/bootstrap-icons.svg#x-square"/>
+          </svg>
+          <svg class="btn-icon text-secondary">
+            <use xlink:href="assets/bootstrap-icons.svg#question-square"/>
+          </svg>
+
+
+          <small class="ml-1 float-right cursor-help">
             {{variant['percentage']}}%<br/>
             ({{variant['count'] | number}})
           </small>

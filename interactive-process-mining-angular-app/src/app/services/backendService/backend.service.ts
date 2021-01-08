@@ -65,5 +65,10 @@ export class BackendService {
     });
   }
 
+  calculateAlignment(variant): Observable<any> {
+    const body = {pt: this.sharedDataService.currentDisplayedProcessTree, variant: variant};
+    return this.httpClient.post(this.backendUrl + 'calculateAlignment', body)
+  }
+
 }
 

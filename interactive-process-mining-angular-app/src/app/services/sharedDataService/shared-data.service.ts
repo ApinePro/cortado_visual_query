@@ -24,8 +24,12 @@ export class SharedDataService {
   // tslint:disable-next-line:variable-name
   private _currentDisplayedProcessTree = new BehaviorSubject<any>(null);
 
-  get currentDisplayedProcessTree$(): Observable<string> {
+  get currentDisplayedProcessTree$(): Observable<any> {
     return this._currentDisplayedProcessTree.asObservable();
+  }
+
+  get currentDisplayedProcessTree(): any {
+    return this._currentDisplayedProcessTree.getValue();
   }
 
   set currentDisplayedProcessTree(tree: any) {
