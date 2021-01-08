@@ -16,10 +16,12 @@ from pm4py.objects.process_tree.exporter.variants.ptml import export_tree_as_str
 from pm4py.objects.conversion.process_tree.converter import apply as convert_pt_to_petri_net
 from pm4py.objects.petri.exporter.variants.pnml import export_petri_as_string as generate_pnml_xml
 from pm4py.objects.process_tree.importer.importer import apply as import_pt_from_ptml
+from pm4py.algo.conformance.alignments.algorithm import apply
 
 from backend_utilities.process_tree_conversion import process_tree_to_dict
 from backend_utilities.process_tree_conversion import dict_to_process_tree
 
+from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 
 app = FastAPI()
 origins = [
@@ -39,11 +41,6 @@ app.add_middleware(
 event_log = None
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: Optional[str] = None):
     print("test")
@@ -56,12 +53,12 @@ async def create_upload_file(file: UploadFile = File(...)):
     return {"filename": file.filename}
 
 
-class filePathInput(BaseModel):
+class FilePathInput(BaseModel):
     file_path: str
 
 
 @app.post("/loadEventLogFromFilePath")
-def load_event_log_from_file_path(d: filePathInput):
+async def load_event_log_from_file_path(d: FilePathInput):
     print(d)
     global event_log
     event_log = xes_import(d.file_path)
@@ -69,7 +66,7 @@ def load_event_log_from_file_path(d: filePathInput):
 
 
 @app.post("/loadProcessTreeFromPtmlFile")
-def load_process_tree_from_file_path(d: filePathInput):
+async def load_process_tree_from_file_path(d: FilePathInput):
     print(d)
     pt = import_pt_from_ptml(d.file_path)
     res = process_tree_to_dict(pt)
@@ -81,7 +78,7 @@ class InputDiscoverProcessModelFromVariants(BaseModel):
 
 
 @app.post("/discoverProcessModelFromVariants")
-def load_process_tree(d: InputDiscoverProcessModelFromVariants):
+async def load_process_tree(d: InputDiscoverProcessModelFromVariants):
     log = EventLog()
     for v in d.variants:
         t = Trace()
@@ -92,13 +89,12 @@ def load_process_tree(d: InputDiscoverProcessModelFromVariants):
             t.append(event)
         log.append(t)
     pt: ProcessTree = inductive_miner(log)
-    print(pt)
     res = process_tree_to_dict(pt)
     return res
 
 
 @app.get("/variants")
-def get_variants_from_event_log():
+async def get_variants_from_event_log():
     variants = variants_filter.get_variants(event_log)
     total_traces = len(event_log)
     res = {"variants": [], "activities": set()}
@@ -120,16 +116,26 @@ class ConvertPtToX(BaseModel):
 
 
 @app.post("/convertPtToPTML")
-def download_test(d: ConvertPtToX):
+async def download_test(d: ConvertPtToX):
     pt: ProcessTree = dict_to_process_tree(d.pt)
     return Response(content=generate_ptml_xml(pt), media_type="application/xml")
 
 
 @app.post("/convertPtToPNML")
-def download_test(d: ConvertPtToX):
+async def download_test(d: ConvertPtToX):
     pt: ProcessTree = dict_to_process_tree(d.pt)
     net, im, fm = convert_pt_to_petri_net(pt)
     return Response(content=generate_pnml_xml(net, im, fm), media_type="application/xml")
+
+
+class InputCalculateAlignment(BaseModel):
+    pt: dict
+    variant: dict
+
+
+@app.post("/calculateAlignment")
+async def calculate_alignment(d: InputCalculateAlignment):
+    return calculate_alignment_endpoint(d.variant, d.pt)
 
 
 if __name__ == "__main__":
