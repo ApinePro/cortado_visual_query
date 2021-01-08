@@ -1,9 +1,12 @@
-import {Component, OnInit, ViewChild, AfterViewInit, ElementRef, ViewEncapsulation, HostListener} from '@angular/core';
-import * as d3 from "d3";
+import {
+  Component, OnInit, ViewChild, AfterViewInit, ElementRef, ViewEncapsulation, HostListener, isDevMode
+} from '@angular/core';
+import * as d3 from 'd3';
 import * as constants from "./constants_tree_d3";
 import {SharedDataService} from "../services/sharedDataService/shared-data.service";
 import {ActivateTooltipsService} from "../services/activateTooltipsService/activate-tooltips.service";
 
+import * as dummyBackendResponse from './dummy_backend_data.js';
 
 @Component({
   selector: 'app-process-tree-editor',
@@ -22,17 +25,24 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.sharedDataService.currentDisplayedProcessTree$.subscribe(res => {
+      console.log("new tree received in processTreeEditor")
+      console.log(res);
       if (res) {
         this.root = d3.hierarchy(res, (d) => {
           // @ts-ignore
           return d.children;
         })
-        // this.svg.selectAll("*").remove();
-        // this.plot(this.root);
         this.cacheCurrentTree();
         this.update(this.root);
       }
     })
+  }
+
+  ngAfterViewInit() {
+    this.initializeSvg();
+    if (isDevMode()) {
+      this.sharedDataService.currentDisplayedProcessTree = dummyBackendResponse.tree;
+    }
   }
 
   //used in dropdown search form
@@ -193,7 +203,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     //console.log(root.descendants());
     //console.log(root.links());
 
-    this.updateTreeInSharedDataService();
     this.calculateTreeLayout(root);
     //add node groups that contain a rectangle and text
     const node = this.mainSvgGroup.selectAll('g').data(root.descendants(), function (d) {
@@ -347,10 +356,10 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   insertNewNodeLeft(operator, label): void {
     const newNode = this.createNode(operator, label);
     // @ts-ignore
-    newNode.depth = this.selectedRootNode.depth;
+    newNode["depth"] = this.selectedRootNode.depth;
     newNode.parent = this.selectedRootNode.parent;
     // @ts-ignore
-    newNode.height = this.selectedRootNode.height;
+    newNode["height"] = this.selectedRootNode.height;
     newNode.children = null;
     //console.log(newNode);
 
@@ -363,13 +372,13 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
 
   insertNewNodeBelow(operator, label): void {
-    const newNode = this.createNode(operator, label);
+    let newNode = this.createNode(operator, label);
     // @ts-ignore
-    newNode.depth = this.selectedRootNode.depth + 1;
+    newNode["depth"] = this.selectedRootNode.depth + 1;
     newNode.children = null;
     newNode.parent = this.selectedRootNode;
     // @ts-ignore
-    newNode.height = 0;
+    newNode["height"] = 0;
     //console.log(newNode);
 
     if (this.selectedRootNode.children) {
@@ -389,12 +398,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   insertNewNodeRight(operator, label): void {
-    const newNode = this.createNode(operator, label);
+    let newNode = this.createNode(operator, label);
     // @ts-ignore
-    newNode.depth = this.selectedRootNode.depth;
-    newNode.parent = this.selectedRootNode.parent;
+    newNode["depth"] = this.selectedRootNode.depth;
+    newNode["parent"] = this.selectedRootNode.parent;
     // @ts-ignore
-    newNode.height = this.selectedRootNode.height;
+    newNode["height"] = this.selectedRootNode.height;
     newNode.children = null;
     console.log(newNode);
 
@@ -486,8 +495,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       //add red stroke around sub-nodes if select subtree is selected
       if (d.children && this.selectSubtreeActive) {
         d.children.forEach(c => {
-            console.log(c)
-            console.log(this.mainSvgGroup.select('[id="' + c.data.id + '"]').node())
+            //console.log(c)
+            //console.log(this.mainSvgGroup.select('[id="' + c.data.id + '"]').node())
             selectSubtree(this.mainSvgGroup.select('[id="' + c.data.id + '"]').node(), c);
           }
         )
@@ -507,126 +516,25 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     this.mainSvgGroup.selectAll('rect').attr('stroke', constants.nonSelectedTreeNodeStrokeColor);
   }
 
-  plot(root) {
+  initializeSvg() {
     //console.log("plot")
     //console.log(this.d3ContainerElem.nativeElement.offsetWidth)
     //console.log(this.d3ContainerElem.nativeElement.offsetHeight)
     //console.log(root)
 
-    this.calculateTreeLayout(root);
     this.svg = d3.select("#d3-svg");
     //add svg group for zooming
     this.mainSvgGroup = this.svg.append("g").attr("id", "zoomGroup");
-    this.cacheCurrentTree();
-    this.update(root);
+    //this.cacheCurrentTree();
+    //this.update(root);
     this.horizontallyCenterTree();
     this.addZoomFunctionality();
   }
 
-  updateTreeInSharedDataService() {
-    console.log(this.root);
-    //this.sharedDataService.currentDisplayedProcessTree = this.root;
-  }
 
   root: d3.HierarchyNode<any>;
-  tree = {
-    operator: '\u2715',
-    label: null,
-    id: 7823782323,
-    children: [
-      {
-        operator: '\u21BA',
-        label: null,
-        id: 7823342323,
-        children: [{
-          operator: null,
-          label: "\u03C4",
-          id: 7822782323,
-          children: []
-        },
-          {
-            operator: null,
-            label: "very long activity label",
-            id: 7823782399,
-            children: []
-          }]
-      }, {
-        operator: '\u2227',
-        label: null,
-        id: 1123782323,
-        children: [
-          {
-            operator: null,
-            label: "a",
-            id: 7823782823,
-            children: []
-          },
-          {
-            operator: null,
-            label: "b",
-            id: 7823782023,
-            children: []
-          },
-          {
-            operator: null,
-            label: "long activity name c",
-            id: 7824782323,
-            children: []
-          },
-          {
-            operator: null,
-            label: "long activity name c",
-            id: 7124782321,
-            children: []
-          }
-        ]
-      }, {
-        operator: '\u2794',
-        label: null,
-        id: 7829482323,
-        children: [
-          {
-            operator: '\u2794',
-            label: null,
-            id: 7829492323,
-            children: [
-              {
-                operator: null,
-                label: "very long activity name c long activity name c",
-                id: 7004982323,
-                children: []
-              },
-              {
-                operator: null,
-                label: "very long activity name c long activity name cb",
-                id: 7854715323,
-                children: []
-              },
-            ]
-          },
-          {
-            operator: null,
-            label: "very long activity name c long activity name cb",
-            id: 7854782323,
-            children: []
-          },
-          {
-            operator: null,
-            label: "very long activity name c long activity name c",
-            id: 7899782323,
-            children: []
-          },
-          {
-            operator: null,
-            label: "very long activity name c long activity name c",
-            id: 3339782323,
-            children: []
-          }
-        ]
-      }
-    ]
-  };
 
+  //TODO
   activitiesOccurringInLog = [
     "register request",
     "examine thoroughly",
@@ -641,13 +549,5 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   closeTooltips() {
     // @ts-ignore
     $('[data-toggle="tooltip"]').tooltip('hide');
-  }
-
-  ngAfterViewInit() {
-    //console.log(d3.hierarchy(this.tree));
-    this.root = d3.hierarchy(this.tree, (d) => {
-      return d.children;
-    })
-    this.plot(this.root);
   }
 }
