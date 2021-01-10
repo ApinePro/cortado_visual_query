@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Injectable, isDevMode} from '@angular/core';
 import {BehaviorSubject, Observable, Subject} from "rxjs";
 
 @Injectable({
@@ -7,6 +7,19 @@ import {BehaviorSubject, Observable, Subject} from "rxjs";
 export class SharedDataService {
 
   constructor() {
+    if (isDevMode()) {
+      console.log("load dummy data to activity list")
+      this._activitiesInEventLog.next(new Set([
+        "register request",
+        "examine thoroughly",
+        "examine casually",
+        "check ticket",
+        "decide",
+        "reinitiate request",
+        "pay compensation",
+        "reject request",
+      ]));
+    }
   }
 
   private _loadedEventLog = new Subject<string>();
@@ -53,7 +66,7 @@ export class SharedDataService {
     return this._activitiesInCurrentTree.asObservable();
   }
 
-  private _activitiesInEventLog = new Subject<Set<string>>();
+  private _activitiesInEventLog = new BehaviorSubject<Set<string>>(undefined);
 
   get activitiesInEventLog$(): Observable<Set<string>> {
     return this._activitiesInEventLog.asObservable();

@@ -71,7 +71,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   //used in dropdown search form
   searchText: string;
 
-
   resizeTimer;
 
   svg;
@@ -83,12 +82,13 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
   selectedRootNode;
 
-
   previousTreeObjects: d3.HierarchyNode<any>[] = [];
   currentIdxPreviousTreeObjects: number = 0;
 
   insertPositionLeftRightDisabled: Boolean = false;
 
+  root: d3.HierarchyNode<any>;
+  activitiesOccurringInLog: string[] = [];
 
   addNewNodePreCheck() {
     if (this.selectedMethod === this.changeSelectedNode) {
@@ -556,20 +556,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     this.addZoomFunctionality();
   }
 
-
-  root: d3.HierarchyNode<any>;
-
-  //TODO move out of this file
-  activitiesOccurringInLog = [
-    "register request",
-    "examine thoroughly",
-    "examine casually",
-    "check ticket",
-    "decide",
-    "reinitiate request",
-    "pay compensation",
-    "reject request",
-  ];
 
   closeTooltips() {
     // @ts-ignore
