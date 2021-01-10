@@ -2,7 +2,13 @@
   <div class="bg-dark btn-tool-bar">
     <button class="button"
             data-toggle="tooltip" data-placement="top" data-trigger="hover" data-html="true"
-            title='calculate conformance checking statistics'
+            title='calculate conformance checking statistics
+            <br><i class="bi bi-question-square text-secondary"> unknown</i>
+            <br><i class="bi bi-hourglass-split text-secondary"> being calculated</i>
+            <br><i class="bi bi-check-square text-success"> variant fits model</i>
+            <br><i class="bi bi-x-square text-danger"> variant does not fit model</i>
+            <br><i class="bi bi-check-square text-warning"></i>
+            <i class="bi bi-x-square text-warning"> outdated results (model has changed)</i>'
             (click)="updateAlignments()">
       <svg class="btn-icon" fill="currentColor">
         <use xlink:href="assets/bootstrap-icons.svg#layers-fill"/>
@@ -26,7 +32,7 @@
 
     <button class="button"
             data-toggle="tooltip" data-placement="top" data-trigger="hover" data-html="true"
-            title="discover an initial model from the selected variants using the standard <em>Inductive Miner</em> algorithm<br><b><u>Note:</u> overwrites the existing model</b>"
+            title="discover an initial model from the selected variants using the standard <em>Inductive Miner</em> algorithm<br><b><i class='bi bi-exclamation-triangle'></i> overwrites the existing model</b>"
             [disabled]="selectedVariants.length===0"
             (click)="discover_initial_model()">
       <svg class="btn-icon" fill="currentColor" [ngClass]="{'text-success':selectedVariants.length!=0}">
@@ -64,11 +70,13 @@
           </i>
 
           <!-- check-square icon-->
-          <i class="bi bi-check-square text-success"
+          <i class="bi bi-check-square"
+             [ngClass]="usedTreeForConformanceChecking==currentlyDisplayedProcessTree? 'text-success' : 'text-warning'"
              *ngIf="variant.hasOwnProperty('deviation') && !variant['deviation'] && !variant['calculationInProgress']"> </i>
 
           <!-- x-square icon-->
-          <i class="bi bi-x-square text-danger"
+          <i class="bi bi-x-square"
+             [ngClass]="usedTreeForConformanceChecking==currentlyDisplayedProcessTree? 'text-danger' : 'text-warning'"
              *ngIf="variant.hasOwnProperty('deviation') && variant['deviation'] && !variant['calculationInProgress']">
           </i>
 

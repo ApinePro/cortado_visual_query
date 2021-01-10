@@ -8,6 +8,8 @@ import {BackendService} from "../services/backendService/backend.service";
 import * as helperFunctions from "./helper_functions"
 import {ActivateTooltipsService} from "../services/activateTooltipsService/activate-tooltips.service";
 import * as constants from "./constants";
+import {Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
 
 @Component({
   selector: 'app-variant-explorer',
@@ -22,25 +24,21 @@ export class VariantExplorerComponent implements OnInit {
               private tooltipActivationService: ActivateTooltipsService) {
   }
 
-
-  dummyBackendResponse: any[] = dummyBackendResponse.test;
   colorMap: Map<string, string>;
-
-  public variantsLoading: boolean;
-
+  variantsLoading: boolean;
   private polygonDimensionWidth = 0;
-
   variants: any[];
   selectedVariants: any[] = [];
-
   d3jsData;
+  currentlyDisplayedProcessTree;
+  usedTreeForConformanceChecking;
 
   ngOnInit() {
     if (isDevMode()) {
-      console.log("devMode active -> load dummy data");
-      console.log(this.dummyBackendResponse);
-      this.variants = this.dummyBackendResponse['variants'];
-      this.colorMap = this.colorMapService.getColorMap(this.dummyBackendResponse['activities']);
+      //console.log("devMode active -> load dummy data");
+      //console.log(dummyBackendResponse.test);
+      this.variants = dummyBackendResponse.test['variants'];
+      this.colorMap = this.colorMapService.getColorMap(dummyBackendResponse.test['activities']);
       this.selectedVariants = [];
       this.setPolygonDimensionWidth(constants.polygonFoldingWidth);
       this.createChart();
@@ -58,20 +56,37 @@ export class VariantExplorerComponent implements OnInit {
         });
       }
     });
+
+    this.sharedDataService.currentDisplayedProcessTree$.subscribe(tree => {
+      this.currentlyDisplayedProcessTree = tree;
+      console.log(this.currentlyDisplayedProcessTree);
+      console.log(this.usedTreeForConformanceChecking);
+    });
+  }
+
+  protected unsubscribe: Subject<void> = new Subject<void>();
+
+  updateAlignmentsStop() {
+    this.unsubscribe.next();
+    //this.cancelAlignmentCalculation.complete();
+    this.variants.forEach(v => {
+      v['calculationInProgress'] = false;
+      v['alignment'] = undefined;
+      v['deviation'] = undefined;
+    });
   }
 
   updateAlignments() {
-    //console.log(this.variants);
+    this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
     this.variants.forEach(v => {
       v['calculationInProgress'] = true;
-      this.backendService.calculateAlignment(v).subscribe(res => {
+      this.backendService.calculateAlignment(v).pipe(takeUntil(this.unsubscribe)).subscribe(res => {
         //console.log(res);
         v['calculationInProgress'] = false;
         v['alignment'] = res['alignment'];
         v['deviation'] = res['deviation'];
       });
-    })
-
+    });
   }
 
 
