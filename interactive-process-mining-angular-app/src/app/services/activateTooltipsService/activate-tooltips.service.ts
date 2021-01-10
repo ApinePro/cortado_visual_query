@@ -21,6 +21,10 @@ export class ActivateTooltipsService {
     });
   }
 
+  public close() {
+    $('[data-toggle="tooltip"]').tooltip('hide');
+  }
+
   public disable() {
     //activate tooltips
     // @ts-ignore

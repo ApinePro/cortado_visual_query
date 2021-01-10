@@ -2,7 +2,7 @@
 
   <div class="bg-dark btn-tool-bar">
 
-    <div class="btn-group align-baseline"
+    <div class="btn-group align-baseline dropDownParent"
          data-toggle="tooltip" data-placement="top" data-trigger="hover"
          title="add node">
       <button class="button text-success"
@@ -99,12 +99,12 @@
       </div>
     </div>
 
-    <div class="btn-group align-baseline"
+    <div class="btn-group align-baseline dropDownParent"
          data-toggle="tooltip" data-placement="top" data-trigger="hover"
          title="change selected node">
       <button class="button"
               [disabled]="!selectedRootNode || (selectSubtreeActive && !singleNodeSelected())"
-              (click)="selectedMethod=changeSelectedNode;closeTooltips();"
+              (click)="selectedMethod=changeSelectedNode;"
               type="button"
               data-toggle="dropdown"
               aria-haspopup="true"
@@ -119,7 +119,7 @@
       </div>
     </div>
 
-    <button class="button text-warning" (click)="deleteSubtree();closeTooltips();"
+    <button class="button text-warning" (click)="deleteSubtree();"
             [disabled]="buttonManipulatingMultipleNodesDisabled()"
             data-toggle="tooltip" data-placement="top" data-trigger="hover"
             title="remove selected node(s)">

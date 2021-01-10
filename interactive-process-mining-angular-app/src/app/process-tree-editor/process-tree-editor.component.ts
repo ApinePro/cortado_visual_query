@@ -7,6 +7,7 @@ import {SharedDataService} from "../services/sharedDataService/shared-data.servi
 import {ActivateTooltipsService} from "../services/activateTooltipsService/activate-tooltips.service";
 import {BackendService} from "../services/backendService/backend.service";
 
+declare var $
 import * as dummyBackendResponse from './dummy_backend_data.js';
 
 @Component({
@@ -52,6 +53,15 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     if (isDevMode()) {
       this.sharedDataService.currentDisplayedProcessTree = dummyBackendResponse.tree;
     }
+    // TODO find a global solution to this problem - close/disable tooltips when a dropdown is open
+    //enable/disable+close all tooltips on closing/opening a dropdown
+    $('.dropDownParent').on('show.bs.dropdown', function () {
+      this.activateTooltipsService.close();
+      this.activateTooltipsService.disable();
+    }.bind(this))
+    $('.dropDownParent').on('hide.bs.dropdown', function () {
+      this.activateTooltipsService.enable();
+    }.bind(this))
   }
 
   saveTreeInSharedDataService() {
@@ -550,9 +560,4 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     this.addZoomFunctionality();
   }
 
-
-  closeTooltips() {
-    // @ts-ignore
-    $('[data-toggle="tooltip"]').tooltip('hide');
-  }
 }
