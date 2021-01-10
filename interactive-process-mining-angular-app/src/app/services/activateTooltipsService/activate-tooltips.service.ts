@@ -10,7 +10,7 @@ export class ActivateTooltipsService {
   constructor() {
   }
 
-  public activate() {
+  public initialize() {
     //activate tooltips
     // @ts-ignore
     $('[data-toggle="tooltip"]').tooltip({
@@ -19,5 +19,17 @@ export class ActivateTooltipsService {
       boundary: 'window',
       delay: {show: 200, hide: 60}
     });
+  }
+
+  public disable() {
+    //activate tooltips
+    // @ts-ignore
+    $('[data-toggle="tooltip"]').tooltip('disable');
+  }
+
+  public enable() {
+    //activate tooltips
+    // @ts-ignore
+    $('[data-toggle="tooltip"]').tooltip('enable');
   }
 }

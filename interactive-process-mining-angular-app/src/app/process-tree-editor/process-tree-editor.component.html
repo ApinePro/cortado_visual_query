@@ -23,7 +23,7 @@
         <div class="dropdown-item"
              *ngIf="!insertPositionLeftRightDisabled"
              [ngClass]="lastSelectedInsertMethod===insertNewNodeLeft? 'insertion-position-active':''"
-             (click)="selectedMethod=insertNewNodeLeft;">
+             (click)="selectedMethod=insertNewNodeLeft;lastSelectedInsertMethod=insertNewNodeLeft;">
           <svg class="bi bi-arrow-bar-down btn-icon" fill="currentColor">
             <use xlink:href="assets/bootstrap-icons.svg#box-arrow-in-left"/>
           </svg>
@@ -32,7 +32,7 @@
 
         <div class="dropdown-item"
              [ngClass]="lastSelectedInsertMethod===insertNewNodeBelow? 'insertion-position-active':''"
-             (click)="selectedMethod=insertNewNodeBelow;dropdownNewNode.classList.add('show');">
+             (click)="selectedMethod=insertNewNodeBelow;lastSelectedInsertMethod=insertNewNodeBelow;">
           <svg class="bi bi-arrow-bar-down btn-icon" fill="currentColor">
             <use xlink:href="assets/bootstrap-icons.svg#box-arrow-in-down"/>
           </svg>
@@ -41,8 +41,8 @@
 
         <div class="dropdown-item"
              *ngIf="!insertPositionLeftRightDisabled"
-             [ngClass]="selectedMethod===insertNewNodeRight? 'insertion-position-active':''"
-             (click)="selectedMethod=insertNewNodeRight;">
+             [ngClass]="lastSelectedInsertMethod===insertNewNodeRight? 'insertion-position-active':''"
+             (click)="selectedMethod=insertNewNodeRight;lastSelectedInsertMethod=insertNewNodeRight;">
           <svg class="bi bi-arrow-bar-down btn-icon" fill="currentColor">
             <use xlink:href="assets/bootstrap-icons.svg#box-arrow-in-right"/>
           </svg>

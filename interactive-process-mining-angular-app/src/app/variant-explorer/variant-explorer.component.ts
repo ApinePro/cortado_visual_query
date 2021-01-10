@@ -42,7 +42,7 @@ export class VariantExplorerComponent implements OnInit {
       this.selectedVariants = [];
       this.setPolygonDimensionWidth(constants.polygonFoldingWidth);
       this.createChart();
-      this.tooltipActivationService.activate();
+      this.tooltipActivationService.initialize();
     }
 
     this.sharedDataService.loadedEventLog$.subscribe(eventLog => {
@@ -53,7 +53,7 @@ export class VariantExplorerComponent implements OnInit {
           this.variants = res['variants'];
           this.setPolygonDimensionWidth(constants.polygonFoldingWidth);
           this.createChart();
-          this.tooltipActivationService.activate();
+          this.tooltipActivationService.initialize();
         });
       }
     });

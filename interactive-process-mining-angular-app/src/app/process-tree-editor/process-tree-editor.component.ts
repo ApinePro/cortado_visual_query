@@ -91,13 +91,10 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   activitiesOccurringInLog: string[] = [];
 
   addNewNodePreCheck() {
-    if (this.selectedMethod === this.changeSelectedNode) {
-      this.selectedMethod = this.changeSelectedNode;
-    }
+    this.selectedMethod = this.lastSelectedInsertMethod;
     if (this.selectedRootNode) {
       if (!this.selectedRootNode.parent) {
         this.insertPositionLeftRightDisabled = true;
-        this.lastSelectedInsertMethod = this.insertNewNodeBelow;
       } else {
         this.insertPositionLeftRightDisabled = false;
       }
@@ -331,12 +328,11 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       return Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10);
     })
     this.addSelectionFunctionality();
-    this.activateTooltipsService.activate();
+    this.activateTooltipsService.initialize();
   }
 
   deleteSubtree() {
     //console.log(this.selectedRootNode);
-    //console.log(this.root)
     this.deleteNodeAndChildren(this.root, this.selectedRootNode)
     //console.log(this.root)
     this.update(this.root);
@@ -358,10 +354,9 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     }
   }
 
-
   // Inserting node functionality
-  lastSelectedInsertMethod: Function = this.insertNewNodeRight;
   selectedMethod: Function = this.insertNewNodeRight;
+  lastSelectedInsertMethod: Function = this.insertNewNodeRight;
 
   changeSelectedNode(operator, label): void {
     console.log(this.selectedRootNode);
@@ -447,7 +442,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   createNode(operator, label) {
-    //TODO make sure that IDs are unique
+    //TODO make sure that IDs are unique!!!
     const nodeData = {
       operator: operator,
       label: label,
@@ -495,9 +490,9 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   addSelectionFunctionality() {
     this.nodeEnter.on("click",
       function (event, d) {
-        console.log(this)
-        console.log(event);
-        console.log(d);
+        //console.log(this)
+        //console.log(event);
+        //console.log(d);
         unselectAllNodes()
         setSelectedRootNode(d);
         selectSubtree(this, d);
@@ -536,7 +531,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   clearSelection(): void {
-    console.log("clear selection")
+    //console.log("clear selection")
     this.selectedRootNode = null;
     this.mainSvgGroup.selectAll('rect').attr('stroke', constants.nonSelectedTreeNodeStrokeColor);
   }
@@ -546,7 +541,6 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     //console.log(this.d3ContainerElem.nativeElement.offsetWidth)
     //console.log(this.d3ContainerElem.nativeElement.offsetHeight)
     //console.log(root)
-
     this.svg = d3.select("#d3-svg");
     //add svg group for zooming
     this.mainSvgGroup = this.svg.append("g").attr("id", "zoomGroup");
