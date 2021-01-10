@@ -32,7 +32,8 @@
 
     <button class="button"
             data-toggle="tooltip" data-placement="top" data-trigger="hover" data-html="true"
-            title="discover an initial model from the selected variants using the standard <em>Inductive Miner</em> algorithm<br><b><i class='bi bi-exclamation-triangle'></i> overwrites the existing model</b>"
+            title="discover an initial model from the selected variants using the standard <em>Inductive Miner</em>
+            algorithm<br><b><i class='bi bi-exclamation-triangle text-warning'></i> overwrites the existing model</b>"
             [disabled]="selectedVariants.length===0"
             (click)="discover_initial_model()">
       <svg class="btn-icon" fill="currentColor" [ngClass]="{'text-success':selectedVariants.length!=0}">
