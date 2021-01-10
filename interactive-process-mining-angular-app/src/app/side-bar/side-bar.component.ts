@@ -51,16 +51,14 @@ export class SideBarComponent implements OnInit {
   }
 
   handleSelectedProcessTreeFile(e) {
+    console.log(e);
     const fileList: FileList = e.target.files;
     if (fileList.length > 0) {
       console.log(fileList[0]);
-      const fileName = fileList[0].name;
-      this.backendService.loadEventLogFromFilePath(fileList[0]['path']).subscribe(res => {
-        console.log('Event log ' + fileName + ' loaded');
-        //this.sharedDataService.loadedEventLog = fileName;
-        this.backendService.loadProcessTreeFromFilePath(fileList[0]['path']);
-      })
+      //const fileName = fileList[0].name;
+      this.backendService.loadProcessTreeFromFilePath(fileList[0]['path']);
     }
+    this.fileUploadProcessTree.nativeElement.value = '';
   }
 
   exportTreeAsPTML() {
