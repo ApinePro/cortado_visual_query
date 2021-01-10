@@ -49,6 +49,7 @@ export class VariantExplorerComponent implements OnInit {
       if (eventLog) {
         this.backendService.getVariantsFromEventLog().subscribe(res => {
           this.colorMap = this.colorMapService.getColorMap(res['activities']);
+          this.sharedDataService.activitiesInEventLog = res['activities'];
           this.variants = res['variants'];
           this.setPolygonDimensionWidth(constants.polygonFoldingWidth);
           this.createChart();

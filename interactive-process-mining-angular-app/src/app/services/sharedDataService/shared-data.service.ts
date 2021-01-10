@@ -9,7 +9,6 @@ export class SharedDataService {
   constructor() {
   }
 
-  // tslint:disable-next-line:variable-name
   private _loadedEventLog = new Subject<string>();
 
   get loadedEventLog$(): Observable<string> {
@@ -20,8 +19,6 @@ export class SharedDataService {
     this._loadedEventLog.next(name);
   }
 
-
-  // tslint:disable-next-line:variable-name
   private _currentDisplayedProcessTree = new BehaviorSubject<any>(null);
 
   get currentDisplayedProcessTree$(): Observable<any> {
@@ -35,14 +32,14 @@ export class SharedDataService {
   set currentDisplayedProcessTree(tree: any) {
     console.log("currentDisplayedProcessTree is SHARED_DATA_SERVICE has changed");
     this._currentDisplayedProcessTree.next(tree);
-    this._activitiesInCurrentTree.next(this.getListOfActivities(tree));
+    this._activitiesInCurrentTree.next(this.getSetOfActivities(tree));
   }
 
-  getListOfActivities(tree: any): Set<string> {
+  private getSetOfActivities(tree: any): Set<string> {
     let res: Set<string> = new Set();
     if (tree.children && tree.children.length > 0) {
       tree.children.forEach(c => {
-        res = new Set([...res, ...this.getListOfActivities(c)])
+        res = new Set([...res, ...this.getSetOfActivities(c)])
       });
     } else if (tree.label) {
       res.add(tree.label);
@@ -56,12 +53,20 @@ export class SharedDataService {
     return this._activitiesInCurrentTree.asObservable();
   }
 
+  private _activitiesInEventLog = new Subject<Set<string>>();
+
+  get activitiesInEventLog$(): Observable<Set<string>> {
+    return this._activitiesInEventLog.asObservable();
+  }
+
+  set activitiesInEventLog(activities: Set<string>) {
+    this._activitiesInEventLog.next(activities);
+  }
+
   private _eventLogVariants = new Subject<any>();
 
   get eventLogVariants(): Observable<any> {
     return this._eventLogVariants.asObservable();
   }
-
-
 }
 

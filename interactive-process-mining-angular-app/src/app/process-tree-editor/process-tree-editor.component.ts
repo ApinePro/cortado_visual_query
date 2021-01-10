@@ -5,6 +5,7 @@ import * as d3 from 'd3';
 import * as constants from "./constants_tree_d3";
 import {SharedDataService} from "../services/sharedDataService/shared-data.service";
 import {ActivateTooltipsService} from "../services/activateTooltipsService/activate-tooltips.service";
+import {BackendService} from "../services/backendService/backend.service";
 
 import * as dummyBackendResponse from './dummy_backend_data.js';
 
@@ -16,18 +17,23 @@ import * as dummyBackendResponse from './dummy_backend_data.js';
 })
 export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
-  constructor(private sharedDataService: SharedDataService, private activateTooltipsService: ActivateTooltipsService) {
+  constructor(private sharedDataService: SharedDataService,
+              private activateTooltipsService: ActivateTooltipsService,
+              private backendService: BackendService) {
   }
 
   @ViewChild("d3svg") svgElem: ElementRef;
   @ViewChild("d3container") d3ContainerElem: ElementRef;
 
+  currentlyDisplayedTreeInEditor;
 
   ngOnInit(): void {
     this.sharedDataService.currentDisplayedProcessTree$.subscribe(res => {
       console.log("new tree received in processTreeEditor")
-      console.log(res);
-      if (res) {
+      //console.log(res);
+      //console.log(this.currentlyDisplayedTreeInEditor);
+      //console.log(res != this.currentlyDisplayedTreeInEditor);
+      if (res && this.root != res && this.currentlyDisplayedTreeInEditor != res) {
         this.root = d3.hierarchy(res, (d) => {
           // @ts-ignore
           return d.children;
@@ -35,7 +41,10 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         this.cacheCurrentTree();
         this.update(this.root);
       }
-    })
+    });
+    this.sharedDataService.activitiesInEventLog$.subscribe(activities => {
+      this.activitiesOccurringInLog = Array.from(activities);
+    });
   }
 
   ngAfterViewInit() {
@@ -43,6 +52,20 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     if (isDevMode()) {
       this.sharedDataService.currentDisplayedProcessTree = dummyBackendResponse.tree;
     }
+  }
+
+  saveTreeInSharedDataService() {
+    this.sharedDataService.currentDisplayedProcessTree = this.currentlyDisplayedTreeInEditor;
+  }
+
+  getProcessTreeObject(d3Node: d3.HierarchyNode<any>) {
+    let tree = {label: d3Node.data.label, operator: d3Node.data.operator, children: []};
+    if (d3Node.children) {
+      d3Node.children.forEach(c => {
+        tree.children.push(this.getProcessTreeObject(c));
+      })
+    }
+    return tree;
   }
 
   //used in dropdown search form
@@ -199,6 +222,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   update(root) {
+    this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(root);
+    this.saveTreeInSharedDataService();
     //console.log(root);
     //console.log(root.descendants());
     //console.log(root.links());
@@ -534,7 +559,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
   root: d3.HierarchyNode<any>;
 
-  //TODO
+  //TODO move out of this file
   activitiesOccurringInLog = [
     "register request",
     "examine thoroughly",
@@ -544,7 +569,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     "reinitiate request",
     "pay compensation",
     "reject request",
-  ]
+  ];
 
   closeTooltips() {
     // @ts-ignore

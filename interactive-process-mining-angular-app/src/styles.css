@@ -125,3 +125,8 @@ hr {
   background: #555;
 }
 
+.dropdown-menu{
+  border-radius: 0;
+  background-color: lightgray;
+}
+
