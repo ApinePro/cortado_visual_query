@@ -4,25 +4,28 @@ import {Observable} from "rxjs";
 import {SharedDataService} from "../sharedDataService/shared-data.service";
 import * as FileSaver from 'file-saver';
 import {take} from 'rxjs/operators'
+import {BackgroundTaskInfoService} from "../backgroundTaskInfoService/background-task-info.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class BackendService {
 
-  constructor(private httpClient: HttpClient, private sharedDataService: SharedDataService) {
+  constructor(private httpClient: HttpClient,
+              private sharedDataService: SharedDataService,
+              private backgroundTaskInfoService: BackgroundTaskInfoService) {
   }
 
   backendUrl = 'http://127.0.0.1:8000/'
 
-  uploadEventLogFilePath$(file: File): Observable<boolean> {
-    console.log('uploadEventLog()');
-    const formData: FormData = new FormData();
-    formData.append('file', file, file.name);
-    // @ts-ignore
-    return this.httpClient
-      .post(this.backendUrl + 'uploadfile', formData, {headers: {}})
-  }
+  /*  uploadEventLogFilePath$(file: File): Observable<boolean> {
+      console.log('uploadEventLog()');
+      const formData: FormData = new FormData();
+      formData.append('file', file, file.name);
+      // @ts-ignore
+      return this.httpClient
+        .post(this.backendUrl + 'uploadfile', formData, {headers: {}})
+    }*/
 
   loadEventLogFromFilePath(filePath: string): Observable<any> {
     return this.httpClient.post(this.backendUrl + 'loadEventLogFromFilePath',
@@ -71,6 +74,7 @@ export class BackendService {
   }
 
   addVariantsToModel(variants_to_add: any[], explicitly_added_variants: any[]): void {
+    this.backgroundTaskInfoService.setNewTask('Apply incremental process discovery');
     const body = {
       pt: this.sharedDataService.currentDisplayedProcessTree,
       variants_to_add: variants_to_add,
@@ -78,6 +82,7 @@ export class BackendService {
     }
     this.httpClient.post(this.backendUrl + 'addVariantsToProcessModel', body).subscribe(res => {
       this.sharedDataService.currentDisplayedProcessTree = res;
+      this.backgroundTaskInfoService.removeTask('Apply incremental process discovery');
     })
   }
 
