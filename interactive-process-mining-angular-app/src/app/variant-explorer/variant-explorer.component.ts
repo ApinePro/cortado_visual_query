@@ -108,6 +108,7 @@ export class VariantExplorerComponent implements OnInit {
     });
     console.warn(this.explicitlyAddedVariants);
     this.backendService.discoverProcessModelFromVariants(this.selectedVariants);
+    this.clearSelection();
   }
 
   removeExplicitlyAddedVariant(i: number) {
@@ -134,18 +135,21 @@ export class VariantExplorerComponent implements OnInit {
     console.log(this.explicitlyAddedVariants);
     console.log(this.variants);
 
-    const variants_to_add = [];
-    this.selectedVariants.forEach(v => {
-      variants_to_add.push(v['value']);
-    });
     const explicitly_added_variants = [];
     this.explicitlyAddedVariants.forEach(i => {
       explicitly_added_variants.push(this.variants[i]);
     });
 
+    const variants_to_add = [];
+    this.selectedVariants.forEach(v => {
+      variants_to_add.push(v['value']);
+      // update explicitly added variants TODO: do not before new tree has arrived at frontend
+      this.explicitlyAddedVariants.push(v['i']);
+    });
     console.log(variants_to_add);
     console.log(explicitly_added_variants);
     this.backendService.addVariantsToModel(variants_to_add, explicitly_added_variants);
+    this.clearSelection();
   }
 
   clearSelection() {
