@@ -48,7 +48,6 @@ event_log = None
 
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
-    print("test")
     return {"filename": file.filename}
 
 
@@ -58,7 +57,6 @@ class FilePathInput(BaseModel):
 
 @app.post("/loadEventLogFromFilePath")
 async def load_event_log_from_file_path(d: FilePathInput):
-    print(d)
     global event_log
     event_log = xes_import(d.file_path)
     return
@@ -66,7 +64,6 @@ async def load_event_log_from_file_path(d: FilePathInput):
 
 @app.post("/loadProcessTreeFromPtmlFile")
 async def load_process_tree_from_file_path(d: FilePathInput):
-    print(d)
     pt = import_pt_from_ptml(d.file_path)
     res = process_tree_to_dict(pt)
     return res

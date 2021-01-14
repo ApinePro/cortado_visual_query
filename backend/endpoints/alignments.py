@@ -18,9 +18,9 @@ def calculate_alignment(variant, pt):
         e = Event()
         e["concept:name"] = a
         trace.append(e)
-    print(trace)
+    # print(trace)
     align = get_alignment(trace, net, im, fm)
-    print(align)
+    # print(align)
     # remove non essential information
     res = {k: align[k] for k in ['alignment', 'cost']}
     res['deviation'] = res['cost'] >= STD_MODEL_LOG_MOVE_COST
