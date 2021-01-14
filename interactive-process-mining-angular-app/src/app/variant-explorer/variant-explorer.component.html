@@ -71,9 +71,10 @@
           </i>
 
           <!-- check-square icon-->
-          <i class="bi  font-large
+          <i class="bi bi-check-square font-large"
              [ngClass]="usedTreeForConformanceChecking==currentlyDisplayedProcessTree? 'text-success' : 'text-warning'"
-             *ngIf="variant.hasOwnProperty('deviation') && !variant['deviation'] && !variant['calculationInProgress']"> </i>
+             *ngIf="variant.hasOwnProperty('deviation') && !variant['deviation'] &&
+          !variant['calculationInProgress']"> </i>
 
           <!-- x-square icon-->
           <i class="bi bi-x-square font-large"
@@ -83,6 +84,7 @@
 
           <!-- question mark icon-->
           <i class="bi bi-question-square text-secondary align-middle font-large"
+
              *ngIf="!variant.hasOwnProperty('deviation') && ! variant['calculationInProgress'] && !variant['calculationInProgress']">
           </i>
 
