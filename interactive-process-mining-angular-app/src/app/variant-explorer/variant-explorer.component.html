@@ -40,7 +40,8 @@
     <button class="button"
             data-toggle="tooltip" data-placement="top" data-trigger="hover"
             title="add selected variants to model"
-            [disabled]="selectedVariants.length===0">
+            [disabled]="selectedVariants.length===0"
+            (click)="addSelectedVariantsToModel()">
       <svg class="btn-icon" fill="currentColor" [ngClass]="{'text-success':selectedVariants.length!=0}">
         <use xlink:href="assets/bootstrap-icons.svg#plus"/>
       </svg>

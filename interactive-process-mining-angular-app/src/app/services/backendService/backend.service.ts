@@ -70,5 +70,16 @@ export class BackendService {
     return this.httpClient.post(this.backendUrl + 'calculateAlignment', body)
   }
 
+  addVariantsToModel(variants_to_add: any[], explicitly_added_variants: any[]): void {
+    const body = {
+      pt: this.sharedDataService.currentDisplayedProcessTree,
+      variants_to_add: variants_to_add,
+      explicitly_added_variants: explicitly_added_variants
+    }
+    this.httpClient.post(this.backendUrl + 'addVariantsToProcessModel', body).subscribe(res => {
+      this.sharedDataService.currentDisplayedProcessTree = res;
+    })
+  }
+
 }
 

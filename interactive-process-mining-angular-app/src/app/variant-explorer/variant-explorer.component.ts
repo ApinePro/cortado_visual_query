@@ -94,6 +94,7 @@ export class VariantExplorerComponent implements OnInit {
     this.outdatedConformanceStatistics = false;
   }
 
+
   showAlert(msg: string) {
     this.alertMessage = undefined;
     this.alertMessage = msg;
@@ -105,6 +106,7 @@ export class VariantExplorerComponent implements OnInit {
     this.selectedVariants.forEach(v => {
       this.explicitlyAddedVariants.push(v['i']);
     });
+    console.warn(this.explicitlyAddedVariants);
     this.backendService.discoverProcessModelFromVariants(this.selectedVariants);
   }
 
@@ -125,6 +127,25 @@ export class VariantExplorerComponent implements OnInit {
       this.showAlert(null);
       this.explicitlyAddedVariants.push(i);
     }
+  }
+
+  addSelectedVariantsToModel() {
+    console.log(this.selectedVariants);
+    console.log(this.explicitlyAddedVariants);
+    console.log(this.variants);
+
+    const variants_to_add = [];
+    this.selectedVariants.forEach(v => {
+      variants_to_add.push(v['value']);
+    });
+    const explicitly_added_variants = [];
+    this.explicitlyAddedVariants.forEach(i => {
+      explicitly_added_variants.push(this.variants[i]);
+    });
+
+    console.log(variants_to_add);
+    console.log(explicitly_added_variants);
+    this.backendService.addVariantsToModel(variants_to_add, explicitly_added_variants);
   }
 
   clearSelection() {

@@ -20,8 +20,13 @@ from pm4py.algo.conformance.alignments.algorithm import apply
 
 from backend_utilities.process_tree_conversion import process_tree_to_dict
 from backend_utilities.process_tree_conversion import dict_to_process_tree
-
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
+
+import sys
+
+sys.path.append("interactive_process_mining_core")
+
+from interactive_process_mining_core.lca_approach import add_trace_to_pt_language
 
 app = FastAPI()
 origins = [
@@ -39,12 +44,6 @@ app.add_middleware(
 )
 
 event_log = None
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Optional[str] = None):
-    print("test")
-    return {"item_id": item_id, "q": q}
 
 
 @app.post("/uploadfile")
@@ -78,7 +77,7 @@ class InputDiscoverProcessModelFromVariants(BaseModel):
 
 
 @app.post("/discoverProcessModelFromVariants")
-async def load_process_tree(d: InputDiscoverProcessModelFromVariants):
+async def discover_process_model(d: InputDiscoverProcessModelFromVariants):
     log = EventLog()
     for v in d.variants:
         t = Trace()
@@ -89,6 +88,42 @@ async def load_process_tree(d: InputDiscoverProcessModelFromVariants):
             t.append(event)
         log.append(t)
     pt: ProcessTree = inductive_miner(log)
+    res = process_tree_to_dict(pt)
+    return res
+
+
+class InputAddVariantsToProcessModel(BaseModel):
+    variants_to_add: List[Any]
+    pt: dict
+    explicitly_added_variants: List[Any]
+
+
+@app.post("/addVariantsToProcessModel")
+async def add_variants_to_process_model(d: InputAddVariantsToProcessModel):
+    pt: ProcessTree = dict_to_process_tree(d.pt)
+    explicitly_added_variants: EventLog = EventLog()
+    for v in d.explicitly_added_variants:
+        t = Trace()
+        for e in v["events"]:
+            assert type(e) == str
+            event = Event()
+            event["concept:name"] = e
+            t.append(event)
+        explicitly_added_variants.append(t)
+
+    traces_to_be_added: List[Trace] = []
+    for v in d.variants_to_add:
+        t = Trace()
+        for e in v["events"]:
+            assert type(e) == str
+            event = Event()
+            event["concept:name"] = e
+            t.append(event)
+        traces_to_be_added.append(t)
+
+    for t in traces_to_be_added:
+        pt = add_trace_to_pt_language(pt, explicitly_added_variants, t, try_pulling_lca_down=True)
+        explicitly_added_variants.append(t)
     res = process_tree_to_dict(pt)
     return res
 
@@ -116,13 +151,13 @@ class ConvertPtToX(BaseModel):
 
 
 @app.post("/convertPtToPTML")
-async def download_test(d: ConvertPtToX):
+async def download_ptml(d: ConvertPtToX):
     pt: ProcessTree = dict_to_process_tree(d.pt)
     return Response(content=generate_ptml_xml(pt), media_type="application/xml")
 
 
 @app.post("/convertPtToPNML")
-async def download_test(d: ConvertPtToX):
+async def download_pnml(d: ConvertPtToX):
     pt: ProcessTree = dict_to_process_tree(d.pt)
     net, im, fm = convert_pt_to_petri_net(pt)
     return Response(content=generate_pnml_xml(net, im, fm), media_type="application/xml")
