@@ -66,23 +66,23 @@
 
 
           <!-- hourglass-split icon-->
-          <i class="bi bi-hourglass-split text-secondary"
+          <i class="bi bi-hourglass-split text-secondary font-large"
              *ngIf="variant['calculationInProgress']">
           </i>
 
           <!-- check-square icon-->
-          <i class="bi bi-check-square"
+          <i class="bi  font-large
              [ngClass]="usedTreeForConformanceChecking==currentlyDisplayedProcessTree? 'text-success' : 'text-warning'"
              *ngIf="variant.hasOwnProperty('deviation') && !variant['deviation'] && !variant['calculationInProgress']"> </i>
 
           <!-- x-square icon-->
-          <i class="bi bi-x-square"
+          <i class="bi bi-x-square font-large"
              [ngClass]="usedTreeForConformanceChecking==currentlyDisplayedProcessTree? 'text-danger' : 'text-warning'"
              *ngIf="variant.hasOwnProperty('deviation') && variant['deviation'] && !variant['calculationInProgress']">
           </i>
 
           <!-- question mark icon-->
-          <i class="bi bi-question-square text-secondary align-middle"
+          <i class="bi bi-question-square text-secondary align-middle font-large"
              *ngIf="!variant.hasOwnProperty('deviation') && ! variant['calculationInProgress'] && !variant['calculationInProgress']">
           </i>
 
