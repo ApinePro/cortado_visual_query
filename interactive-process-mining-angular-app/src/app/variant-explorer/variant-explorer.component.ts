@@ -29,9 +29,12 @@ export class VariantExplorerComponent implements OnInit {
   private polygonDimensionWidth = 0;
   variants: any[];
   selectedVariants: any[] = [];
+  explicitlyAddedVariants: number[] = []
   d3jsData;
   currentlyDisplayedProcessTree;
   usedTreeForConformanceChecking;
+  alertMessage: string;
+  outdatedConformanceStatistics: boolean = false;
 
   ngOnInit() {
     if (isDevMode()) {
@@ -39,7 +42,6 @@ export class VariantExplorerComponent implements OnInit {
       //console.log(dummyBackendResponse.test);
       this.variants = dummyBackendResponse.test['variants'];
       this.colorMap = this.colorMapService.getColorMap(dummyBackendResponse.test['activities']);
-      this.selectedVariants = [];
       this.setPolygonDimensionWidth(constants.polygonFoldingWidth);
       this.createChart();
       this.tooltipActivationService.initialize();
@@ -60,6 +62,7 @@ export class VariantExplorerComponent implements OnInit {
 
     this.sharedDataService.currentDisplayedProcessTree$.subscribe(tree => {
       this.currentlyDisplayedProcessTree = tree;
+      this.outdatedConformanceStatistics = this.usedTreeForConformanceChecking != this.currentlyDisplayedProcessTree;
       console.log(this.currentlyDisplayedProcessTree);
       console.log(this.usedTreeForConformanceChecking);
     });
@@ -88,11 +91,40 @@ export class VariantExplorerComponent implements OnInit {
         v['deviation'] = res['deviation'];
       });
     });
+    this.outdatedConformanceStatistics = false;
+  }
+
+  showAlert(msg: string) {
+    this.alertMessage = undefined;
+    this.alertMessage = msg;
   }
 
 
   discover_initial_model() {
+    this.explicitlyAddedVariants = [];
+    this.selectedVariants.forEach(v => {
+      this.explicitlyAddedVariants.push(v['i']);
+    });
     this.backendService.discoverProcessModelFromVariants(this.selectedVariants);
+  }
+
+  removeExplicitlyAddedVariant(i: number) {
+    this.explicitlyAddedVariants = this.explicitlyAddedVariants.filter(v => {
+      return v !== i;
+    });
+  }
+
+  addExplicitlyAddedVariant(i: number) {
+    if (this.variants[i]['calculationInProgress']) {
+      this.showAlert('Cannot explicitly add the variant - conformance statistics being calculated');
+    } else if (this.outdatedConformanceStatistics) {
+      this.showAlert('Cannot explicitly add the variant - outdated or no conformance statistics');
+    } else if (this.variants[i]['deviation']) {
+      this.showAlert('Cannot explicitly add the variant - variant does not fit the model');
+    } else {
+      this.showAlert(null);
+      this.explicitlyAddedVariants.push(i);
+    }
   }
 
   clearSelection() {

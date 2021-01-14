@@ -29,7 +29,12 @@
   min-height: 100%;
 }
 
-
+.variant-explorer-alert{
+  z-index: 1;
+  position: absolute;
+  bottom: 10px;
+  margin: auto;
+}
 
 
 
