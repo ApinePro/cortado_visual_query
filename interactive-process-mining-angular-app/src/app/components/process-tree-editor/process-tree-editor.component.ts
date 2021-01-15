@@ -3,9 +3,9 @@ import {
 } from '@angular/core';
 import * as d3 from 'd3';
 import * as constants from "./constants_tree_d3";
-import {SharedDataService} from "../services/sharedDataService/shared-data.service";
-import {ActivateTooltipsService} from "../services/activateTooltipsService/activate-tooltips.service";
-import {BackendService} from "../services/backendService/backend.service";
+import {SharedDataService} from "../../services/sharedDataService/shared-data.service";
+import {ActivateTooltipsService} from "../../services/activateTooltipsService/activate-tooltips.service";
+import {BackendService} from "../../services/backendService/backend.service";
 
 declare var $
 import * as dummyBackendResponse from './dummy_backend_data.js';

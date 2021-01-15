@@ -1,12 +1,12 @@
 import {AfterViewInit, Component, ElementRef, isDevMode, OnInit, ViewChild} from '@angular/core';
 import * as d3 from 'd3';
 import * as dummyBackendResponse from './dummy_backend_data.js';
-import {ColorMapService} from "../services/colorMapService/color-map.service";
-import {SharedDataService} from "../services/sharedDataService/shared-data.service";
-import {BackendService} from "../services/backendService/backend.service";
+import {ColorMapService} from "../../services/colorMapService/color-map.service";
+import {SharedDataService} from "../../services/sharedDataService/shared-data.service";
+import {BackendService} from "../../services/backendService/backend.service";
 
 import * as helperFunctions from "./helper_functions"
-import {ActivateTooltipsService} from "../services/activateTooltipsService/activate-tooltips.service";
+import {ActivateTooltipsService} from "../../services/activateTooltipsService/activate-tooltips.service";
 import * as constants from "./constants";
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";

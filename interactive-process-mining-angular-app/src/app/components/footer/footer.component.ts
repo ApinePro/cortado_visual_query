@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {BackgroundTaskInfoService} from "../services/backgroundTaskInfoService/background-task-info.service";
+import {BackgroundTaskInfoService} from "../../services/backgroundTaskInfoService/background-task-info.service";
 
 @Component({
   selector: 'app-footer',

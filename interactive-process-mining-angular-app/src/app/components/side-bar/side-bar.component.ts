@@ -1,7 +1,7 @@
 import {Component, OnInit, ElementRef, ViewChild} from '@angular/core';
-import {BackendService} from "../services/backendService/backend.service";
-import {BackgroundTaskInfoService} from "../services/backgroundTaskInfoService/background-task-info.service";
-import {SharedDataService} from "../services/sharedDataService/shared-data.service";
+import {BackendService} from "../../services/backendService/backend.service";
+import {BackgroundTaskInfoService} from "../../services/backgroundTaskInfoService/background-task-info.service";
+import {SharedDataService} from "../../services/sharedDataService/shared-data.service";
 
 @Component({
   selector: 'app-side-bar',

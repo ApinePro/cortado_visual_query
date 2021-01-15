@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import {ColorMapService} from "../services/colorMapService/color-map.service";
-import {SharedDataService} from "../services/sharedDataService/shared-data.service";
+import {ColorMapService} from "../../services/colorMapService/color-map.service";
+import {SharedDataService} from "../../services/sharedDataService/shared-data.service";
 
 @Component({
   selector: 'app-activity-overview',
