@@ -136,6 +136,11 @@ export class VariantExplorerComponent implements OnInit {
     // console.log(this.variants);
     this.tooltipActivationService.close();
 
+    if (this.outdatedConformanceStatistics) {
+      this.showAlert("cannot add variants - please run conformance check first");
+      return;
+    }
+
     const explicitly_added_variants = [];
     this.explicitlyAddedVariants.forEach(i => {
       explicitly_added_variants.push(this.variants[i]);

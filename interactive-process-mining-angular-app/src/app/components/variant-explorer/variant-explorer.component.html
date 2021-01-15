@@ -1,6 +1,6 @@
 <div class="alert alert-dark alert-dismissible fade show variant-explorer-alert" role="alert"
      *ngIf="alertMessage">
-  {{alertMessage}}
+  <i class="bi bi-exclamation-triangle text-danger"></i>&nbsp;{{alertMessage}}
   <button type="button" class="close" data-dismiss="alert" aria-label="Close" (click)="alertMessage=undefined;">
     <span aria-hidden="true">&times;</span>
   </button>
