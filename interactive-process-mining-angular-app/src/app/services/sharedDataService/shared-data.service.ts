@@ -10,14 +10,16 @@ export class SharedDataService {
     if (isDevMode()) {
       console.log("load dummy data to activity list")
       this._activitiesInEventLog.next(new Set([
-        "register request",
-        "examine thoroughly",
-        "examine casually",
-        "check ticket",
-        "decide",
-        "reinitiate request",
-        "pay compensation",
-        "reject request",
+        "Add penalty",
+        "Appeal to Judge",
+        "Insert Data Appeal to Prefecture",
+        "Insert Fine Notification",
+        "Notify Result Appeal to Offender",
+        "Payment",
+        "Receive Result Appeal from Prefecture",
+        "Send Appeal to Prefecture",
+        "Send Fine",
+        "Send for Credit Collection"
       ]));
     }
   }
