@@ -22,7 +22,6 @@ export class ActivityOverviewComponent implements OnInit {
     })
   }
 
-
   activityColorMap: Map<string, string>;
   activitiesInTree: Set<string> = new Set<string>();
 

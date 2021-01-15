@@ -22,7 +22,7 @@ export class ColorMapService {
   }
 
   // tslint:disable-next-line:variable-name
-  private _colorMap = new Subject<Map<string, string>>();
+  private _colorMap = new BehaviorSubject<Map<string, string>>(null);
 
   get colorMap$(): Observable<Map<string, string>> {
     return this._colorMap.asObservable();
