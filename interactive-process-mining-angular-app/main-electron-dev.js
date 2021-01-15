@@ -21,13 +21,7 @@ function createWindow() {
 
   win.removeMenu();
 
-  win.loadURL(url.format({
-    pathname: path.join(__dirname, `/dist/index.html`),
-    protocol: "file:",
-    slashes: true
-  }))
-
-  //win.loadURL('http://localhost:4444')
+  win.loadURL('http://localhost:4444')
 
   win.webContents.openDevTools()
 
