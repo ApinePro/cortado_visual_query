@@ -6,7 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { ProcessTreeEditorComponent } from './components/process-tree-editor/process-tree-editor.component';
-import { StrFilterPipe } from './str-filter.pipe';
+import { StrFilterPipe } from './pipes/str-filter.pipe';
 import {FormsModule} from "@angular/forms";
 import { VariantExplorerComponent } from './components/variant-explorer/variant-explorer.component';
 import { SideBarComponent } from './components/side-bar/side-bar.component';
