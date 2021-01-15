@@ -60,7 +60,7 @@ export class SharedDataService {
     return res;
   }
 
-  private _activitiesInCurrentTree = new Subject<Set<string>>();
+  private _activitiesInCurrentTree = new BehaviorSubject<Set<string>>(undefined);
 
   get activitiesInCurrentTree$(): Observable<Set<string>> {
     return this._activitiesInCurrentTree.asObservable();
@@ -80,6 +80,28 @@ export class SharedDataService {
 
   get eventLogVariants(): Observable<any> {
     return this._eventLogVariants.asObservable();
+  }
+
+  // TODO move somewhere else
+  processTreesEqual(pt1, pt2): boolean {
+    if (!pt1 || !pt2) {
+      return false;
+    }
+    if (pt1['operator'] === pt2['operator'] &&
+      pt1['label'] === pt2['label'] &&
+      pt1['children'].length === pt2['children'].length) {
+      if (pt1['children'].length === 0) {
+        return true;
+      } else {
+        let res = true;
+        for (let i = 0; i < pt1['children'].length; i++) {
+          res = res && this.processTreesEqual(pt1['children'][i], pt2['children'][i]);
+        }
+        return res;
+      }
+    } else {
+      return false;
+    }
   }
 }
 

@@ -62,9 +62,8 @@ export class VariantExplorerComponent implements OnInit {
 
     this.sharedDataService.currentDisplayedProcessTree$.subscribe(tree => {
       this.currentlyDisplayedProcessTree = tree;
-      this.outdatedConformanceStatistics = this.usedTreeForConformanceChecking != this.currentlyDisplayedProcessTree;
-      console.log(this.currentlyDisplayedProcessTree);
-      console.log(this.usedTreeForConformanceChecking);
+      this.outdatedConformanceStatistics = !this.sharedDataService.processTreesEqual(this.usedTreeForConformanceChecking,
+        this.currentlyDisplayedProcessTree);
     });
   }
 
@@ -102,6 +101,7 @@ export class VariantExplorerComponent implements OnInit {
 
 
   discover_initial_model() {
+    this.tooltipActivationService.close();
     this.explicitlyAddedVariants = [];
     this.selectedVariants.forEach(v => {
       this.explicitlyAddedVariants.push(v['i']);
@@ -131,9 +131,10 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   addSelectedVariantsToModel() {
-    console.log(this.selectedVariants);
-    console.log(this.explicitlyAddedVariants);
-    console.log(this.variants);
+    // console.log(this.selectedVariants);
+    // console.log(this.explicitlyAddedVariants);
+    // console.log(this.variants);
+    this.tooltipActivationService.close();
 
     const explicitly_added_variants = [];
     this.explicitlyAddedVariants.forEach(i => {
@@ -146,8 +147,8 @@ export class VariantExplorerComponent implements OnInit {
       // update explicitly added variants TODO: do not before new tree has arrived at frontend
       this.explicitlyAddedVariants.push(v['i']);
     });
-    console.log(variants_to_add);
-    console.log(explicitly_added_variants);
+    // console.log(variants_to_add);
+    // console.log(explicitly_added_variants);
     this.backendService.addVariantsToModel(variants_to_add, explicitly_added_variants);
     this.clearSelection();
   }
