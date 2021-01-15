@@ -343,6 +343,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
   deleteSubtree() {
     //console.log(this.selectedRootNode);
+    this.activateTooltipsService.close();
     this.deleteNodeAndChildren(this.root, this.selectedRootNode)
     //console.log(this.root)
     this.update(this.root);
