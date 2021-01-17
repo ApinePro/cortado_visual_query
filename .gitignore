@@ -1,5 +1,9 @@
 ./idea
 /.idea/
+
 interactive-process-mining-angular-app/debug.log
 interactive-process-mining-angular-app/dist/
 interactive-process-mining-angular-app/node_modules/
+interactive-process-mining-angular-app/'coanda'-win32-x64/
+
+backend/build
