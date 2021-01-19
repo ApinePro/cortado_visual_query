@@ -9,6 +9,7 @@ import {BackendService} from "../../services/backendService/backend.service";
 
 declare var $
 import * as dummyBackendResponse from './dummy_backend_data.js';
+import {ProcessTree} from "../../objects/ProcessTree";
 
 @Component({
   selector: 'app-process-tree-editor',
@@ -68,7 +69,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     this.sharedDataService.currentDisplayedProcessTree = this.currentlyDisplayedTreeInEditor;
   }
 
-  getProcessTreeObject(d3Node: d3.HierarchyNode<any>) {
+  getProcessTreeObject(d3Node: d3.HierarchyNode<any>): ProcessTree {
     let tree = {label: d3Node.data.label, operator: d3Node.data.operator, children: []};
     if (d3Node.children) {
       d3Node.children.forEach(c => {

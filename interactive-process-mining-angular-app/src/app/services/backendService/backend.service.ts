@@ -5,6 +5,7 @@ import {SharedDataService} from "../sharedDataService/shared-data.service";
 import * as FileSaver from 'file-saver';
 import {take} from 'rxjs/operators'
 import {BackgroundTaskInfoService} from "../backgroundTaskInfoService/background-task-info.service";
+import {ActivateTooltipsService} from "../activateTooltipsService/activate-tooltips.service";
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,8 @@ export class BackendService {
 
   constructor(private httpClient: HttpClient,
               private sharedDataService: SharedDataService,
-              private backgroundTaskInfoService: BackgroundTaskInfoService) {
+              private backgroundTaskInfoService: BackgroundTaskInfoService,
+              private activateTooltipsService:ActivateTooltipsService) {
   }
 
   backendUrl = 'http://127.0.0.1:8000/'
@@ -83,6 +85,7 @@ export class BackendService {
     this.httpClient.post(this.backendUrl + 'addVariantsToProcessModel', body).subscribe(res => {
       this.sharedDataService.currentDisplayedProcessTree = res;
       this.backgroundTaskInfoService.removeTask('Apply incremental process discovery');
+      this.activateTooltipsService.initialize();
     })
   }
 

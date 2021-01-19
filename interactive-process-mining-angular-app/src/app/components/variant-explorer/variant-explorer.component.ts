@@ -88,6 +88,11 @@ export class VariantExplorerComponent implements OnInit {
         v['calculationInProgress'] = false;
         v['alignment'] = res['alignment'];
         v['deviation'] = res['deviation'];
+        // remove explicitlyAddedDeviation if they do not fit anymore
+        if (res['deviation']) {
+          const idx_explicitly_added_variant_with_deviation = this.variants.findIndex(element => v === element);
+          this.explicitlyAddedVariants = this.explicitlyAddedVariants.filter(i => i !== idx_explicitly_added_variant_with_deviation);
+        }
       });
     });
     this.outdatedConformanceStatistics = false;
