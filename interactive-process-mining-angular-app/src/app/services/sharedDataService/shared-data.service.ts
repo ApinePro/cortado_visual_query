@@ -51,24 +51,28 @@ export class SharedDataService {
   }
 
   private getSetOfActivities(tree: any): Set<string> {
-    let res: Set<string> = new Set();
-    if (tree.children && tree.children.length > 0) {
-      tree.children.forEach(c => {
-        res = new Set([...res, ...this.getSetOfActivities(c)])
-      });
-    } else if (tree.label) {
-      res.add(tree.label);
+    if (tree) {
+      let res: Set<string> = new Set();
+      if (tree.children && tree.children.length > 0) {
+        tree.children.forEach(c => {
+          res = new Set([...res, ...this.getSetOfActivities(c)])
+        });
+      } else if (tree.label) {
+        res.add(tree.label);
+      }
+      return res;
+    } else {
+      return new Set();
     }
-    return res;
   }
 
-  private _activitiesInCurrentTree = new BehaviorSubject<Set<string>>(undefined);
+  private _activitiesInCurrentTree = new BehaviorSubject<Set<string>>(new Set());
 
   get activitiesInCurrentTree$(): Observable<Set<string>> {
     return this._activitiesInCurrentTree.asObservable();
   }
 
-  private _activitiesInEventLog = new BehaviorSubject<Set<string>>(undefined);
+  private _activitiesInEventLog = new BehaviorSubject<Set<string>>(new Set());
 
   get activitiesInEventLog$(): Observable<Set<string>> {
     return this._activitiesInEventLog.asObservable();

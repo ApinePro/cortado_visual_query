@@ -27,7 +27,6 @@
 }
 
 
-
 .crosshair {
   cursor: crosshair;
 }
@@ -50,6 +49,20 @@
 .node-text {
   text-anchor: middle;
   dominant-baseline: middle;
+}
+
+.syntax-info {
+  background-color: rgba(0, 0, 0, 0.4);
+  position: absolute;
+  font-size: small;
+  bottom: 0;
+  left: 0;
+  text-align: left;
+  cursor: auto;
+}
+
+.syntax-info ul {
+  margin-bottom: 0;
 }
 
 

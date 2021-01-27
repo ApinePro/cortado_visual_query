@@ -214,6 +214,32 @@
 
   <div #d3container id="d3-container" class="m-1 flex-grow-1 crosshair">
 
+    <div class="syntax-info p-1" *ngIf="processTreeSyntaxInfo">
+      <div class="text-success" *ngIf="processTreeSyntaxInfo.correctSyntax">
+        syntax correct
+      </div>
+      <div class="text-danger" *ngIf="!processTreeSyntaxInfo.correctSyntax">
+        <b>
+          <i class="bi bi-exclamation-triangle"></i>
+          syntax incorrect
+        </b>
+      </div>
+
+      <div class="text-danger" *ngIf="processTreeSyntaxInfo.errors.length>0">
+        syntax errors:
+        <ul>
+          <li *ngFor="let err of processTreeSyntaxInfo.errors">{{err}}</li>
+        </ul>
+      </div>
+
+      <div class="text-warning" *ngIf="processTreeSyntaxInfo.warnings.length>0">
+        syntax warnings:
+        <ul>
+          <li *ngFor="let war of processTreeSyntaxInfo.warnings">{{war}}</li>
+        </ul>
+      </div>
+    </div>
+
     <svg #d3svg id="d3-svg" width="100%" height="100%"></svg>
 
   </div>

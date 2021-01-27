@@ -37,7 +37,8 @@ export class VariantExplorerComponent implements OnInit {
   outdatedConformanceStatistics: boolean = false;
 
   ngOnInit() {
-    if (isDevMode()) {
+    // preload road traffic fine management process
+    if (isDevMode() || true) {
       //console.log("devMode active -> load dummy data");
       //console.log(dummyBackendResponse.test);
       this.variants = dummyBackendResponse.test['variants'];

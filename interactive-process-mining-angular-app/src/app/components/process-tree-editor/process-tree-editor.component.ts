@@ -9,7 +9,7 @@ import {BackendService} from "../../services/backendService/backend.service";
 
 declare var $
 import * as dummyBackendResponse from './dummy_backend_data.js';
-import {ProcessTree} from "../../objects/ProcessTree";
+import {ProcessTree, ProcessTreeSyntaxInfo, checkSyntax} from "../../objects/ProcessTree";
 
 @Component({
   selector: 'app-process-tree-editor',
@@ -70,17 +70,23 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   getProcessTreeObject(d3Node: d3.HierarchyNode<any>): ProcessTree {
-    let tree = {label: d3Node.data.label, operator: d3Node.data.operator, children: []};
-    if (d3Node.children) {
-      d3Node.children.forEach(c => {
-        tree.children.push(this.getProcessTreeObject(c));
-      })
+    if (d3Node && 'data' in d3Node) {
+      let tree = {label: d3Node.data.label, operator: d3Node.data.operator, children: []};
+      if (d3Node.children) {
+        d3Node.children.forEach(c => {
+          tree.children.push(this.getProcessTreeObject(c));
+        })
+      }
+      return tree;
+    } else {
+      return null;
     }
-    return tree;
   }
 
   //used in dropdown search form
   searchText: string;
+
+  processTreeSyntaxInfo: ProcessTreeSyntaxInfo = undefined;
 
   resizeTimer;
 
@@ -230,116 +236,120 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   update(root) {
-    this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(root);
-    this.saveTreeInSharedDataService();
-    //console.log(root);
-    //console.log(root.descendants());
-    //console.log(root.links());
+    if (root) {
+      this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(root);
+      this.processTreeSyntaxInfo = checkSyntax(this.getProcessTreeObject(root));
+      console.log(this.processTreeSyntaxInfo);
+      this.saveTreeInSharedDataService();
+      //console.log(root);
+      //console.log(root.descendants());
+      //console.log(root.links());
 
-    this.calculateTreeLayout(root);
-    //add node groups that contain a rectangle and text
-    const node = this.mainSvgGroup.selectAll('g').data(root.descendants(), function (d) {
-      return d.data.id;
-    })
-    //remove nodes
-    node.exit().transition().duration(50).remove()
-    //add node groups
-    this.nodeEnter = node.enter().append("g")
-      .attr("id", function (d) {
-        // @ts-ignore
-        return d.data.id
+      this.calculateTreeLayout(root);
+      //add node groups that contain a rectangle and text
+      const node = this.mainSvgGroup.selectAll('g').data(root.descendants(), function (d) {
+        return d.data.id;
       })
-      .attr("data-toggle", "tooltip")
-      .attr("data-placement", "top")
-      .attr("title", (d: any) => {
-        return d.data.label
-      })
-    //add nodes
-    this.nodeEnter.append('rect')
-      .classed('node', true)
-      .attr('stroke', 'gray')
-      .attr('stroke-width', '2')
-      .merge(node.select('.node'))
-      .classed('node-operator', function (d: any) {
-        return d.data.operator !== null
-      })
-      .classed('node-visible-activity', function (d: any) {
-        return d.data.label !== null && d.data.label !== "\u03C4"
-      })
-      .classed('node-invisible-activity', (d: any) => {
-        return d.data.label === "\u03C4"
-      })
-      .attr('width', constants.tree_node_height_width)
-      .attr('height', constants.tree_node_height_width)
-      .attr('x', function (d: any) {
-        return d.x - constants.tree_node_height_width / 2;
-      })
-      .attr('y', function (d: any) {
-        return d.y;
-      })
-    //add node text
-    this.nodeEnter.append("text")
-      .classed('user-select-none', true)
-      .attr("fill", "white")
-      .classed('node-text', true)
-      .merge(node.select('text'))
-      .attr("font-size", (d: any) => {
-        if (d.data.operator) return "1.5em";
-        return "12px";
-      })
-      .text(function (d: any) {
-        if (d.data.operator) return d.data.operator;
-        if (d.data.label) {
-          //shorten text if it is too long
-          if (d.data.label.length <= 20) {
-            return d.data.label;
-          } else {
-            return d.data.label.substring(0, 20) + "...";
+      //remove nodes
+      node.exit().transition().duration(50).remove()
+      //add node groups
+      this.nodeEnter = node.enter().append("g")
+        .attr("id", function (d) {
+          // @ts-ignore
+          return d.data.id
+        })
+        .attr("data-toggle", "tooltip")
+        .attr("data-placement", "top")
+        .attr("title", (d: any) => {
+          return d.data.label
+        })
+      //add nodes
+      this.nodeEnter.append('rect')
+        .classed('node', true)
+        .attr('stroke', 'gray')
+        .attr('stroke-width', '2')
+        .merge(node.select('.node'))
+        .classed('node-operator', function (d: any) {
+          return d.data.operator !== null
+        })
+        .classed('node-visible-activity', function (d: any) {
+          return d.data.label !== null && d.data.label !== "\u03C4"
+        })
+        .classed('node-invisible-activity', (d: any) => {
+          return d.data.label === "\u03C4"
+        })
+        .attr('width', constants.tree_node_height_width)
+        .attr('height', constants.tree_node_height_width)
+        .attr('x', function (d: any) {
+          return d.x - constants.tree_node_height_width / 2;
+        })
+        .attr('y', function (d: any) {
+          return d.y;
+        })
+      //add node text
+      this.nodeEnter.append("text")
+        .classed('user-select-none', true)
+        .attr("fill", "white")
+        .classed('node-text', true)
+        .merge(node.select('text'))
+        .attr("font-size", (d: any) => {
+          if (d.data.operator) return "1.5em";
+          return "12px";
+        })
+        .text(function (d: any) {
+          if (d.data.operator) return d.data.operator;
+          if (d.data.label) {
+            //shorten text if it is too long
+            if (d.data.label.length <= 20) {
+              return d.data.label;
+            } else {
+              return d.data.label.substring(0, 20) + "...";
+            }
           }
-        }
-      })
-      .attr('x', function (d: any) {
-        return d.x;
-      })
-      .attr('y', function (d: any) {
-        return d.y + constants.tree_node_height_width / 2 + 3;
-      })
+        })
+        .attr('x', function (d: any) {
+          return d.x;
+        })
+        .attr('y', function (d: any) {
+          return d.y + constants.tree_node_height_width / 2 + 3;
+        })
 
-    const edges = this.mainSvgGroup.selectAll('line')
-      .data(root.links())
-    // remove old edges
-    edges.exit().remove()
-    // add edges
-    edges.enter()
-      .append('line').attr('class', 'link')
-      .merge(edges)
-      //.transition()
-      .attr('x1', function (d: any) {
-        return d.source.x
-      })
-      .attr('y1', function (d: any) {
-        return d.source.y + constants.tree_node_height_width
-      })
-      .attr('x2', function (d: any) {
-        return d.target.x
-      })
-      .attr('y2', function (d: any) {
-        return d.target.y
-      })
-      .attr('stroke', 'gray');
+      const edges = this.mainSvgGroup.selectAll('line')
+        .data(root.links())
+      // remove old edges
+      edges.exit().remove()
+      // add edges
+      edges.enter()
+        .append('line').attr('class', 'link')
+        .merge(edges)
+        //.transition()
+        .attr('x1', function (d: any) {
+          return d.source.x
+        })
+        .attr('y1', function (d: any) {
+          return d.source.y + constants.tree_node_height_width
+        })
+        .attr('x2', function (d: any) {
+          return d.target.x
+        })
+        .attr('y2', function (d: any) {
+          return d.target.y
+        })
+        .attr('stroke', 'gray');
 
-    // resize leaf nodes if text is too long
-    this.nodeEnter
-      .merge(node)
-      .select(".node-visible-activity")
-      .attr('x', function (d) {
-        return d.x - Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2;
-      }).attr("width", function () {
-      console.log(Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10));
-      return Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10);
-    })
-    this.addSelectionFunctionality();
-    this.activateTooltipsService.initialize();
+      // resize leaf nodes if text is too long
+      this.nodeEnter
+        .merge(node)
+        .select(".node-visible-activity")
+        .attr('x', function (d) {
+          return d.x - Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2;
+        }).attr("width", function () {
+        console.log(Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10));
+        return Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10);
+      })
+      this.addSelectionFunctionality();
+      this.activateTooltipsService.initialize();
+    }
   }
 
   deleteSubtree() {
@@ -468,13 +478,15 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
 
   calculateTreeLayout(root): void {
-    const treeLayout = d3.tree();
-    treeLayout.size([this.d3ContainerElem.nativeElement.offsetWidth,
-      this.d3ContainerElem.nativeElement.offsetHeight - constants.tree_node_height_width]);
-    //if nodeSize is used you cannot use fixed tree size and the root node is drawn at (0,0)
-    treeLayout.nodeSize([130, 60])
-    // calculate layout
-    treeLayout(root);
+    if (root) {
+      const treeLayout = d3.tree();
+      treeLayout.size([this.d3ContainerElem.nativeElement.offsetWidth,
+        this.d3ContainerElem.nativeElement.offsetHeight - constants.tree_node_height_width]);
+      //if nodeSize is used you cannot use fixed tree size and the root node is drawn at (0,0)
+      treeLayout.nodeSize([130, 60])
+      // calculate layout
+      treeLayout(root);
+    }
   }
 
   addZoomFunctionality(): void {
