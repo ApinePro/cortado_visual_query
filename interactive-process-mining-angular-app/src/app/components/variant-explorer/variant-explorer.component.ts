@@ -54,6 +54,7 @@ export class VariantExplorerComponent implements OnInit {
           this.colorMap = this.colorMapService.getColorMap(res['activities']);
           this.sharedDataService.activitiesInEventLog = res['activities'];
           this.variants = res['variants'];
+          this.explicitlyAddedVariants = [];
           this.setPolygonDimensionWidth(constants.polygonFoldingWidth);
           this.createChart();
           this.tooltipActivationService.initialize();
