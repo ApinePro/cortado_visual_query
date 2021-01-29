@@ -13,7 +13,7 @@
     "electron": "electron .",
     "electron-live-reload": "wait-on http://localhost:4444 && electron ./main-electron-dev.js",
     "electron-build": "ng build --prod && electron ./main-electron-dev.js",
-    "electron-package-app": "electron-packager . 'coanda' --platform='win32' --arch='x64' --overwrite"
+    "electron-package-app-production": "ng build --prod && electron-packager . cortado --platform='win32' --arch='x64' --overwrite"
   },
   "private": true,
   "dependencies": {
