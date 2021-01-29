@@ -11,22 +11,27 @@ from pm4py.algo.filtering.log.variants import variants_filter
 from pm4py.objects.log.log import EventLog, Trace, Event
 from pm4py.objects.process_tree.process_tree import ProcessTree
 from pm4py.algo.discovery.inductive.algorithm import apply_tree as inductive_miner
-import pm4py.visualization.process_tree.visualizer as pt_vis
+# import pm4py.visualization.process_tree.visualizer as pt_vis
 from pm4py.objects.process_tree.exporter.variants.ptml import export_tree_as_string as generate_ptml_xml
 from pm4py.objects.conversion.process_tree.converter import apply as convert_pt_to_petri_net
 from pm4py.objects.petri.exporter.variants.pnml import export_petri_as_string as generate_pnml_xml
 from pm4py.objects.process_tree.importer.importer import apply as import_pt_from_ptml
-from pm4py.algo.conformance.alignments.algorithm import apply
+# from pm4py.algo.conformance.alignments.algorithm import apply
+from pm4py.util.lp.solver import DEFAULT_LP_SOLVER_VARIANT
 
 from backend_utilities.process_tree_conversion import process_tree_to_dict
 from backend_utilities.process_tree_conversion import dict_to_process_tree
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 
-import sys
-
-sys.path.append("interactive_process_mining_core")
+import cvxopt
+# import multiprocessing
 
 from interactive_process_mining_core.lca_approach import add_trace_to_pt_language
+import sys
+
+sys.setrecursionlimit(10000)
+
+print(DEFAULT_LP_SOLVER_VARIANT)
 
 app = FastAPI()
 origins = [
@@ -171,5 +176,9 @@ async def calculate_alignment(d: InputCalculateAlignment):
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
-    # TODO use max number of workers if reload False -> https://www.uvicorn.org/deployment/
+    # uvicorn.run("main:app", host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # uvicorn.run("main.app", host="0.0.0.0", port=8000, workers=multiprocessing.cpu_count())
+
+    # dev mode
+    # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
