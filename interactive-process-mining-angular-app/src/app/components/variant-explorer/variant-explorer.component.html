@@ -82,9 +82,10 @@
     <button class="button"
             data-toggle="tooltip" data-placement="top" data-trigger="hover"
             title="add selected variant(s) to current process model"
-            [disabled]="selectedVariants.length===0"
+            [disabled]="selectedVariants.length===0 || !currentlyDisplayedProcessTree"
             (click)="addSelectedVariantsToModel()">
-      <svg class="btn-icon" fill="currentColor" [ngClass]="{'text-success':selectedVariants.length!=0}">
+      <svg class="btn-icon" fill="currentColor"
+           [ngClass]="{'text-success':!(selectedVariants.length===0 || !currentlyDisplayedProcessTree)}">
         <use xlink:href="assets/bootstrap-icons.svg#plus"/>
       </svg>
       add variant(s) to model
