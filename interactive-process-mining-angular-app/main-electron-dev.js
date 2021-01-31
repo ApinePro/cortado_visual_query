@@ -8,15 +8,13 @@ function createWindow() {
   win = new BrowserWindow({
     minHeight: 600,
     minWidth: 1280,
-
     width: 1280,
     height: 800,
-
     frame: true,
     webPreferences: {
       nodeIntegration: false
-    }
-
+    },
+    icon: "./icon/cortado_icon_colorful_transparent.png"
   })
 
   win.removeMenu();

@@ -18,15 +18,13 @@ function createWindow() {
   win = new BrowserWindow({
     minHeight: 600,
     minWidth: 1280,
-
     width: 1280,
     height: 800,
-
     frame: true,
     webPreferences: {
       nodeIntegration: false
-    }
-
+    },
+    icon: "./icon/cortado_icon_colorful_transparent.png"
   });
 
   win.removeMenu();
@@ -36,11 +34,6 @@ function createWindow() {
     protocol: "file:",
     slashes: true
   }));
-
-
-  //win.loadURL('http://localhost:4444')
-
-  win.webContents.openDevTools()
 
   win.on('closed', function () {
     win = null
