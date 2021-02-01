@@ -9,9 +9,11 @@ const indexForFileNameStart = executablePath.lastIndexOf("\\");
 const backendExecutablePath = executablePath.substring(0, indexForFileNameStart) + "\\cortado-backend\\main\\main.exe";
 
 let win;
+let cortadoBackendProcess;
+
 
 function startBackend() {
-  child(backendExecutablePath);
+  cortadoBackendProcess = child(backendExecutablePath, {shell: true, detached: true, windowsHide: false});
 }
 
 function createWindow() {
@@ -28,6 +30,8 @@ function createWindow() {
   });
 
   win.removeMenu();
+  //win.webContents.openDevTools()
+
   //win.loadURL('data:text/html;charset=utf-8,' + backendExecutablePath);
   win.loadURL(url.format({
     pathname: path.join(__dirname, `/dist/index.html`),
@@ -37,6 +41,7 @@ function createWindow() {
 
   win.on('closed', function () {
     win = null
+    cortadoBackendProcess.kill();
   })
 }
 
