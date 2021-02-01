@@ -7,8 +7,8 @@ import {BehaviorSubject, Observable, Subject} from "rxjs";
 export class SharedDataService {
 
   constructor() {
-    if (isDevMode()) {
-      console.log("load dummy data to activity list")
+    if (isDevMode() || true) {
+      // console.log("load dummy data to activity list")
       this._activitiesInEventLog.next(new Set([
         "Add penalty",
         "Appeal to Judge",
