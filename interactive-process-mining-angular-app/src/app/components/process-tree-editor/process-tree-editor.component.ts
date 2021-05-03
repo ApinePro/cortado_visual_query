@@ -63,6 +63,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     $('.dropDownParent').on('hide.bs.dropdown', function () {
       this.activateTooltipsService.enable();
     }.bind(this))
+
+    // do not close the insert new node dropdown menu
+    $(document).on('click', '#dropdownNewNode', function (e) {
+      console.log(e)
+      e.stopPropagation();
+    });
   }
 
   saveTreeInSharedDataService() {
