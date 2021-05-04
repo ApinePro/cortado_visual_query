@@ -14,7 +14,7 @@
     "electron": "electron .",
     "electron-live-reload": "wait-on http://localhost:4444 && electron ./main-electron-dev.js",
     "electron-build": "ng build --prod && electron ./main-electron-dev.js",
-    "electron-package-app-production": "ng build --prod && electron-packager . cortado --platform='win32' --arch='x64' --overwrite --ignore=^/src --ignore=^/node_modules --ignore=^/e2e --ignore=^/icon --icon=./icon/cortado_icon_colorful_transparent.ico"
+    "electron-package-app-production": "ng build --prod && electron-packager . cortado --platform='win32' --arch='x64' --overwrite --ignore=^/src --ignore=^/node_modules --ignore=^/e2e --icon=./icon/cortado_icon_colorful_transparent.ico"
   },
   "private": true,
   "dependencies": {
