@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from pm4py.algo.filtering.log.variants import variants_filter
 from pm4py.objects.log.log import EventLog, Trace, Event
 from pm4py.objects.process_tree.process_tree import ProcessTree
-from pm4py.algo.discovery.inductive.algorithm import apply_tree as inductive_miner
+from pm4py.algo.discovery.inductive.variants.im_clean.algorithm import apply_tree as inductive_miner
 # import pm4py.visualization.process_tree.visualizer as pt_vis
 from pm4py.objects.process_tree.exporter.variants.ptml import export_tree_as_string as generate_ptml_xml
 from pm4py.objects.conversion.process_tree.converter import apply as convert_pt_to_petri_net
