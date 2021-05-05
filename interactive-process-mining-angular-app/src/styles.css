@@ -1,7 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 .btn-icon {
-  width: 1.2em;
-  height: 1.2em;
+  font-size: var(--standard-font-size);
 }
 
 :root {
@@ -10,7 +9,7 @@
   --width-sidebar: 30px;
   --text-secondary: #b7b7b7;
   --thin-border-color: #1a1a1a;
-  --standard-font-size: 13px;
+  --standard-font-size: 14px;
 }
 
 .svg-text {

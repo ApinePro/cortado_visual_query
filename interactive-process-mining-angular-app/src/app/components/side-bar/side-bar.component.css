@@ -15,7 +15,7 @@
 
 
 .sidenav:hover {
-  width: 220px;
+  width: 270px;
   transition: width .15s;
   transition-timing-function: ease-out;
   transition-delay: .1s;

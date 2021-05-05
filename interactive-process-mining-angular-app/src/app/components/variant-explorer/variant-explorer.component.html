@@ -10,7 +10,6 @@
   <div class="bg-dark btn-tool-bar">
 
 
-
     <i class="bi bi-question-circle-fill font-large ml-1 align-middle secondary-text"
        data-toggle="tooltip" data-placement="top" data-trigger="hover" data-html="true"
        title="variants marked with <i class='bi bi-check2-circle'></i> have been explicitly added to the process
@@ -31,9 +30,7 @@
             <br><i class="bi bi-check-square text-warning"></i>
             <i class="bi bi-x-square text-warning"> outdated results (model has changed)</i>'
             (click)="updateAlignments()">
-      <svg class="btn-icon" fill="currentColor">
-        <use xlink:href="assets/bootstrap-icons.svg#layers-fill"/>
-      </svg>
+      <i class="bi bi-layers-fill btn-icon"></i>
       conformance check
     </button>
 
@@ -44,10 +41,8 @@
             title="add selected variant(s) to current process model"
             [disabled]="selectedVariants.length===0 || !currentlyDisplayedProcessTree"
             (click)="addSelectedVariantsToModel()">
-      <svg class="btn-icon" fill="currentColor"
-           [ngClass]="{'text-success':!(selectedVariants.length===0 || !currentlyDisplayedProcessTree)}">
-        <use xlink:href="assets/bootstrap-icons.svg#plus"/>
-      </svg>
+      <i class="bi bi-plus btn-icon"
+         [ngClass]="{'text-success':!(selectedVariants.length===0 || !currentlyDisplayedProcessTree)}"></i>
       add variant(s) to model
     </button>
 
@@ -59,9 +54,7 @@
             algorithm<br><b><i class='bi bi-exclamation-triangle text-warning'></i> overwrites the existing model</b>"
             [disabled]="selectedVariants.length===0"
             (click)="discover_initial_model()">
-      <svg class="btn-icon" fill="currentColor" [ngClass]="{'text-success':selectedVariants.length!=0}">
-        <use xlink:href="assets/bootstrap-icons.svg#diagram-2-fill"/>
-      </svg>
+      <i class="bi bi-diagram-2-fill btn-icon" [ngClass]="{'text-success':selectedVariants.length!=0}"></i>
       discover initial model
     </button>
 
@@ -69,9 +62,7 @@
 
 
     <button class="button" (click)="clearSelection()">
-      <svg class="btn-icon text-danger" fill="currentColor">
-        <use xlink:href="assets/bootstrap-icons.svg#x"/>
-      </svg>
+      <i class="bi bi-x text-danger btn-icon"></i>
       clear selection
     </button>
 

@@ -2,14 +2,14 @@ import {
   Component, OnInit, ViewChild, AfterViewInit, ElementRef, ViewEncapsulation, HostListener, isDevMode
 } from '@angular/core';
 import * as d3 from 'd3';
-import * as constants from "./constants_tree_d3";
-import {SharedDataService} from "../../services/sharedDataService/shared-data.service";
-import {ActivateTooltipsService} from "../../services/activateTooltipsService/activate-tooltips.service";
-import {BackendService} from "../../services/backendService/backend.service";
+import * as constants from './constants_tree_d3';
+import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
+import {ActivateTooltipsService} from '../../services/activateTooltipsService/activate-tooltips.service';
+import {BackendService} from '../../services/backendService/backend.service';
 
-declare var $
+declare var $;
 import * as dummyBackendResponse from './dummy_backend_data.js';
-import {ProcessTree, ProcessTreeSyntaxInfo, checkSyntax} from "../../objects/ProcessTree";
+import {ProcessTree, ProcessTreeSyntaxInfo, checkSyntax} from '../../objects/ProcessTree';
 
 @Component({
   selector: 'app-process-tree-editor',
@@ -24,72 +24,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
               private backendService: BackendService) {
   }
 
-  @ViewChild("d3svg") svgElem: ElementRef;
-  @ViewChild("d3container") d3ContainerElem: ElementRef;
+  @ViewChild('d3svg') svgElem: ElementRef;
+  @ViewChild('d3container') d3ContainerElem: ElementRef;
 
   currentlyDisplayedTreeInEditor;
 
-  ngOnInit(): void {
-    this.sharedDataService.currentDisplayedProcessTree$.subscribe(res => {
-      console.log("new tree received in processTreeEditor")
-      //console.log(res);
-      //console.log(this.currentlyDisplayedTreeInEditor);
-      //console.log(res != this.currentlyDisplayedTreeInEditor);
-      if (res && this.root != res && this.currentlyDisplayedTreeInEditor != res) {
-        this.root = d3.hierarchy(res, (d) => {
-          // @ts-ignore
-          return d.children;
-        })
-        this.cacheCurrentTree();
-        this.update(this.root);
-      }
-    });
-    this.sharedDataService.activitiesInEventLog$.subscribe(activities => {
-      this.activitiesOccurringInLog = Array.from(activities);
-    });
-  }
-
-  ngAfterViewInit() {
-    this.initializeSvg();
-    if (isDevMode()) {
-      this.sharedDataService.currentDisplayedProcessTree = dummyBackendResponse.tree;
-    }
-    // TODO find a global solution to this problem - close/disable tooltips when a dropdown is open
-    //enable/disable+close all tooltips on closing/opening a dropdown
-    $('.dropDownParent').on('show.bs.dropdown', function () {
-      this.activateTooltipsService.close();
-      this.activateTooltipsService.disable();
-    }.bind(this))
-    $('.dropDownParent').on('hide.bs.dropdown', function () {
-      this.activateTooltipsService.enable();
-    }.bind(this))
-
-    // do not close the insert new node dropdown menu
-    $(document).on('click', '#dropdownNewNode', function (e) {
-      console.log(e)
-      e.stopPropagation();
-    });
-  }
-
-  saveTreeInSharedDataService() {
-    this.sharedDataService.currentDisplayedProcessTree = this.currentlyDisplayedTreeInEditor;
-  }
-
-  getProcessTreeObject(d3Node: d3.HierarchyNode<any>): ProcessTree {
-    if (d3Node && 'data' in d3Node) {
-      let tree = {label: d3Node.data.label, operator: d3Node.data.operator, children: []};
-      if (d3Node.children) {
-        d3Node.children.forEach(c => {
-          tree.children.push(this.getProcessTreeObject(c));
-        })
-      }
-      return tree;
-    } else {
-      return null;
-    }
-  }
-
-  //used in dropdown search form
+  // used in dropdown search form
   searchText: string;
 
   processTreeSyntaxInfo: ProcessTreeSyntaxInfo = undefined;
@@ -100,20 +40,84 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   mainSvgGroup;
   nodeEnter;
 
-  selectNodeActive: boolean = false;
-  selectSubtreeActive: boolean = true;
+  selectNodeActive = false;
+  selectSubtreeActive = true;
 
   selectedRootNode;
 
   previousTreeObjects: d3.HierarchyNode<any>[] = [];
-  currentIdxPreviousTreeObjects: number = 0;
+  currentIdxPreviousTreeObjects = 0;
 
-  insertPositionLeftRightDisabled: Boolean = false;
+  insertPositionLeftRightDisabled: boolean = false;
 
   root: d3.HierarchyNode<any>;
   activitiesOccurringInLog: string[] = [];
 
-  addNewNodePreCheck() {
+  // Inserting node functionality
+  selectedMethod: Function = this.insertNewNodeRight;
+  lastSelectedInsertMethod: Function = this.insertNewNodeRight;
+
+  ngOnInit(): void {
+    this.sharedDataService.currentDisplayedProcessTree$.subscribe(res => {
+      console.log('new tree received in processTreeEditor');
+      // console.log(res);
+      // console.log(this.currentlyDisplayedTreeInEditor);
+      // console.log(res != this.currentlyDisplayedTreeInEditor);
+      if (res && this.root != res && this.currentlyDisplayedTreeInEditor != res) {
+        this.root = d3.hierarchy(res, (d) => {
+          // @ts-ignore
+          return d.children;
+        });
+        this.cacheCurrentTree();
+        this.update(this.root);
+      }
+    });
+    this.sharedDataService.activitiesInEventLog$.subscribe(activities => {
+      this.activitiesOccurringInLog = Array.from(activities);
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.initializeSvg();
+    if (isDevMode()) {
+      this.sharedDataService.currentDisplayedProcessTree = dummyBackendResponse.tree;
+    }
+    // TODO find a global solution to this problem - close/disable tooltips when a dropdown is open
+    // enable/disable+close all tooltips on closing/opening a dropdown
+    $('.dropDownParent').on('show.bs.dropdown', function () {
+      this.activateTooltipsService.close();
+      this.activateTooltipsService.disable();
+    }.bind(this));
+    $('.dropDownParent').on('hide.bs.dropdown', function () {
+      this.activateTooltipsService.enable();
+    }.bind(this));
+
+    // do not close the insert new node dropdown menu
+    $(document).on('click', '#dropdownNewNode', function (e) {
+      console.log(e);
+      e.stopPropagation();
+    });
+  }
+
+  saveTreeInSharedDataService(): void {
+    this.sharedDataService.currentDisplayedProcessTree = this.currentlyDisplayedTreeInEditor;
+  }
+
+  getProcessTreeObject(d3Node: d3.HierarchyNode<any>): ProcessTree {
+    if (d3Node && 'data' in d3Node) {
+      const tree = {label: d3Node.data.label, operator: d3Node.data.operator, children: []};
+      if (d3Node.children) {
+        d3Node.children.forEach(c => {
+          tree.children.push(this.getProcessTreeObject(c));
+        });
+      }
+      return tree;
+    } else {
+      return null;
+    }
+  }
+
+  addNewNodePreCheck(): void {
     this.selectedMethod = this.lastSelectedInsertMethod;
     if (this.selectedRootNode) {
       if (!this.selectedRootNode.parent) {
@@ -126,46 +130,46 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
 
   @HostListener('window:resize', ['$event'])
-  onResize() {
+  onResize(): void {
     clearTimeout(this.resizeTimer);
     this.resizeTimer = setTimeout(function () {
-      console.log("replot svg");
-      //resizing has potentially "stopped", i.e., user has not resized window since last 250ms
+      console.log('replot svg');
+      // resizing has potentially "stopped", i.e., user has not resized window since last 250ms
       this.update(this.root);
     }.bind(this), 250);
   }
 
-  insertNewNodeButtonDisabled(): Boolean {
-    return !this.selectedRootNode || (this.selectSubtreeActive && !this.singleNodeSelected())
+  insertNewNodeButtonDisabled(): boolean {
+    return !this.selectedRootNode || (this.selectSubtreeActive && !this.singleNodeSelected());
   }
 
 
-  selectNode() {
+  selectNode(): void {
     this.clearSelection();
     this.selectNodeActive = true;
     this.selectSubtreeActive = false;
   }
 
-  selectSubtree() {
+  selectSubtree(): void {
     this.clearSelection();
     this.selectNodeActive = false;
     this.selectSubtreeActive = true;
   }
 
 
-  singleNodeSelected(): Boolean {
+  singleNodeSelected(): boolean {
     return this.selectedRootNode && this.selectedRootNode.height === 0;
   }
 
-  leafNodeSelected(): Boolean {
+  leafNodeSelected(): boolean {
     return this.selectedRootNode && !this.selectedRootNode.children;
   }
 
-  rootNodeSelected(): Boolean {
+  rootNodeSelected(): boolean {
     return this.selectedRootNode && this.selectedRootNode.depth === 0;
   }
 
-  buttonManipulatingMultipleNodesDisabled(): Boolean {
+  buttonManipulatingMultipleNodesDisabled(): boolean {
     return !this.selectedRootNode || this.rootNodeSelected() || this.selectNodeActive && !this.leafNodeSelected();
   }
 
@@ -173,8 +177,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     if (this.selectedRootNode.parent) {
       const idxInParentChildList = this.selectedRootNode.parent.children.indexOf(this.selectedRootNode);
       if (idxInParentChildList > 0) {
-        const childToRight = this.selectedRootNode.parent.children[idxInParentChildList - 1]
-        const childToLeft = this.selectedRootNode.parent.children[idxInParentChildList]
+        const childToRight = this.selectedRootNode.parent.children[idxInParentChildList - 1];
+        const childToLeft = this.selectedRootNode.parent.children[idxInParentChildList];
         this.selectedRootNode.parent.children[idxInParentChildList] = childToRight;
         this.selectedRootNode.parent.children[idxInParentChildList - 1] = childToLeft;
         this.update(this.root);
@@ -187,8 +191,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     if (this.selectedRootNode.parent) {
       const idxInParentChildList = this.selectedRootNode.parent.children.indexOf(this.selectedRootNode);
       if (idxInParentChildList < this.selectedRootNode.parent.children.length - 1) {
-        const childToRight = this.selectedRootNode.parent.children[idxInParentChildList]
-        const childToLeft = this.selectedRootNode.parent.children[idxInParentChildList + 1]
+        const childToRight = this.selectedRootNode.parent.children[idxInParentChildList];
+        const childToLeft = this.selectedRootNode.parent.children[idxInParentChildList + 1];
         this.selectedRootNode.parent.children[idxInParentChildList + 1] = childToRight;
         this.selectedRootNode.parent.children[idxInParentChildList] = childToLeft;
         this.update(this.root);
@@ -198,10 +202,10 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
 
-  cacheCurrentTree() {
-    console.log("cacheCurrentTree()");
+  cacheCurrentTree(): void {
+    console.log('cacheCurrentTree()');
     if (this.currentIdxPreviousTreeObjects < this.previousTreeObjects.length - 1) {
-      //before change, undo was pressed --> remove newer versions since older version of process tree was changed
+      // before change, undo was pressed --> remove newer versions since older version of process tree was changed
       this.previousTreeObjects = this.previousTreeObjects.slice(0, this.currentIdxPreviousTreeObjects + 1);
     }
     this.previousTreeObjects.push(this.root.copy());
@@ -213,22 +217,22 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     console.log(this.previousTreeObjects);
   }
 
-  undo() {
+  undo(): void {
     if (this.currentIdxPreviousTreeObjects && this.currentIdxPreviousTreeObjects > 0 && this.previousTreeObjects.length > 1) {
       this.currentIdxPreviousTreeObjects--;
-      const treeToLoad = this.previousTreeObjects[this.currentIdxPreviousTreeObjects]
+      const treeToLoad = this.previousTreeObjects[this.currentIdxPreviousTreeObjects];
       console.log(treeToLoad);
       this.update(treeToLoad);
       this.root = treeToLoad;
     }
   }
 
-  redo() {
+  redo(): void {
     console.warn(this.previousTreeObjects);
     console.warn(this.currentIdxPreviousTreeObjects);
     if (this.currentIdxPreviousTreeObjects < this.previousTreeObjects.length - 1) {
       this.currentIdxPreviousTreeObjects++;
-      const treeToLoad = this.previousTreeObjects[this.currentIdxPreviousTreeObjects]
+      const treeToLoad = this.previousTreeObjects[this.currentIdxPreviousTreeObjects];
       this.update(treeToLoad);
       this.root = treeToLoad;
     }
@@ -237,52 +241,52 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
 
-  horizontallyCenterTree() {
+  horizontallyCenterTree(): void {
     this.mainSvgGroup.attr('transform', 'translate(' + (this.d3ContainerElem.nativeElement.offsetWidth / 2) + ',0)');
   }
 
-  update(root) {
+  update(root): void {
     if (root) {
       this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(root);
       this.processTreeSyntaxInfo = checkSyntax(this.getProcessTreeObject(root));
       console.log(this.processTreeSyntaxInfo);
       this.saveTreeInSharedDataService();
-      //console.log(root);
-      //console.log(root.descendants());
-      //console.log(root.links());
+      // console.log(root);
+      // console.log(root.descendants());
+      // console.log(root.links());
 
       this.calculateTreeLayout(root);
-      //add node groups that contain a rectangle and text
+      // add node groups that contain a rectangle and text
       const node = this.mainSvgGroup.selectAll('g').data(root.descendants(), function (d) {
         return d.data.id;
-      })
-      //remove nodes
-      node.exit().transition().duration(50).remove()
-      //add node groups
-      this.nodeEnter = node.enter().append("g")
-        .attr("id", function (d) {
+      });
+      // remove nodes
+      node.exit().transition().duration(50).remove();
+      // add node groups
+      this.nodeEnter = node.enter().append('g')
+        .attr('id', function (d) {
           // @ts-ignore
-          return d.data.id
+          return d.data.id;
         })
-        .attr("data-toggle", "tooltip")
-        .attr("data-placement", "top")
-        .attr("title", (d: any) => {
-          return d.data.label
-        })
-      //add nodes
+        .attr('data-toggle', 'tooltip')
+        .attr('data-placement', 'top')
+        .attr('title', (d: any) => {
+          return d.data.label;
+        });
+      // add nodes
       this.nodeEnter.append('rect')
         .classed('node', true)
         .attr('stroke', 'gray')
         .attr('stroke-width', '2')
         .merge(node.select('.node'))
         .classed('node-operator', function (d: any) {
-          return d.data.operator !== null
+          return d.data.operator !== null;
         })
         .classed('node-visible-activity', function (d: any) {
-          return d.data.label !== null && d.data.label !== "\u03C4"
+          return d.data.label !== null && d.data.label !== '\u03C4';
         })
         .classed('node-invisible-activity', (d: any) => {
-          return d.data.label === "\u03C4"
+          return d.data.label === '\u03C4';
         })
         .attr('width', constants.tree_node_height_width)
         .attr('height', constants.tree_node_height_width)
@@ -291,25 +295,29 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         })
         .attr('y', function (d: any) {
           return d.y;
-        })
-      //add node text
-      this.nodeEnter.append("text")
+        });
+      // add node text
+      this.nodeEnter.append('text')
         .classed('user-select-none', true)
-        .attr("fill", "white")
+        .attr('fill', 'white')
         .classed('node-text', true)
         .merge(node.select('text'))
-        .attr("font-size", (d: any) => {
-          if (d.data.operator) return "1.5em";
-          return "12px";
+        .attr('font-size', (d: any) => {
+          if (d.data.operator) {
+            return '1.5em';
+          }
+          return '12px';
         })
         .text(function (d: any) {
-          if (d.data.operator) return d.data.operator;
+          if (d.data.operator) {
+            return d.data.operator;
+          }
           if (d.data.label) {
-            //shorten text if it is too long
+            // shorten text if it is too long
             if (d.data.label.length <= 20) {
               return d.data.label;
             } else {
-              return d.data.label.substring(0, 20) + "...";
+              return d.data.label.substring(0, 20) + '...';
             }
           }
         })
@@ -318,83 +326,79 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         })
         .attr('y', function (d: any) {
           return d.y + constants.tree_node_height_width / 2 + 3;
-        })
+        });
 
       const edges = this.mainSvgGroup.selectAll('line')
-        .data(root.links())
+        .data(root.links());
       // remove old edges
-      edges.exit().remove()
+      edges.exit().remove();
       // add edges
       edges.enter()
         .append('line').attr('class', 'link')
         .merge(edges)
-        //.transition()
+        // .transition()
         .attr('x1', function (d: any) {
-          return d.source.x
+          return d.source.x;
         })
         .attr('y1', function (d: any) {
-          return d.source.y + constants.tree_node_height_width
+          return d.source.y + constants.tree_node_height_width;
         })
         .attr('x2', function (d: any) {
-          return d.target.x
+          return d.target.x;
         })
         .attr('y2', function (d: any) {
-          return d.target.y
+          return d.target.y;
         })
         .attr('stroke', 'gray');
 
       // resize leaf nodes if text is too long
       this.nodeEnter
         .merge(node)
-        .select(".node-visible-activity")
+        .select('.node-visible-activity')
         .attr('x', function (d) {
           return d.x - Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2;
-        }).attr("width", function () {
+        }).attr('width', function () {
         console.log(Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10));
         return Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10);
-      })
+      });
       this.addSelectionFunctionality();
       this.activateTooltipsService.initialize();
     }
   }
 
-  deleteSubtree() {
-    //console.log(this.selectedRootNode);
+  deleteSubtree(): void {
+    // console.log(this.selectedRootNode);
     this.activateTooltipsService.close();
-    this.deleteNodeAndChildren(this.root, this.selectedRootNode)
-    //console.log(this.root)
+    this.deleteNodeAndChildren(this.root, this.selectedRootNode);
+    // console.log(this.root)
     this.update(this.root);
     this.selectedRootNode = undefined;
     this.cacheCurrentTree();
   }
 
-  deleteNodeAndChildren(tree, nodeToDelete) {
+  deleteNodeAndChildren(tree, nodeToDelete): void {
     if (tree.children) {
-      tree.children = tree.children.filter(c => c != nodeToDelete)
+      tree.children = tree.children.filter(c => c != nodeToDelete);
       if (tree.children.length === 0) {
         tree.children = null;
       }
       if (tree.children) {
         tree.children.forEach(function (c) {
           this.deleteNodeAndChildren(c, nodeToDelete);
-        }.bind(this))
+        }.bind(this));
       }
     }
   }
-
-  // Inserting node functionality
-  selectedMethod: Function = this.insertNewNodeRight;
-  lastSelectedInsertMethod: Function = this.insertNewNodeRight;
 
   changeSelectedNode(operator, label): void {
     console.log(this.selectedRootNode);
     console.log(operator, label);
     if (operator) {
-      console.log("change operator");
+      console.log('change operator');
       this.selectedRootNode.data.operator = operator;
       this.selectedRootNode.data.label = null;
     } else if (label) {
-      console.log("change label");
+      console.log('change label');
       this.selectedRootNode.data.label = label;
       this.selectedRootNode.data.operator = null;
     }
@@ -404,12 +408,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   insertNewNodeLeft(operator, label): void {
     const newNode = this.createNode(operator, label);
     // @ts-ignore
-    newNode["depth"] = this.selectedRootNode.depth;
+    newNode.depth = this.selectedRootNode.depth;
     newNode.parent = this.selectedRootNode.parent;
     // @ts-ignore
-    newNode["height"] = this.selectedRootNode.height;
+    newNode.height = this.selectedRootNode.height;
     newNode.children = null;
-    //console.log(newNode);
+    // console.log(newNode);
 
     if (this.selectedRootNode.parent) {
       const idx: number = this.selectedRootNode.parent.children.indexOf(this.selectedRootNode);
@@ -420,14 +424,14 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
 
   insertNewNodeBelow(operator, label): void {
-    let newNode = this.createNode(operator, label);
+    const newNode = this.createNode(operator, label);
     // @ts-ignore
-    newNode["depth"] = this.selectedRootNode.depth + 1;
+    newNode.depth = this.selectedRootNode.depth + 1;
     newNode.children = null;
     newNode.parent = this.selectedRootNode;
     // @ts-ignore
-    newNode["height"] = 0;
-    //console.log(newNode);
+    newNode.height = 0;
+    // console.log(newNode);
 
     if (this.selectedRootNode.children) {
       this.selectedRootNode.children.push(newNode);
@@ -446,12 +450,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   insertNewNodeRight(operator, label): void {
-    let newNode = this.createNode(operator, label);
+    const newNode = this.createNode(operator, label);
     // @ts-ignore
-    newNode["depth"] = this.selectedRootNode.depth;
-    newNode["parent"] = this.selectedRootNode.parent;
+    newNode.depth = this.selectedRootNode.depth;
+    newNode.parent = this.selectedRootNode.parent;
     // @ts-ignore
-    newNode["height"] = this.selectedRootNode.height;
+    newNode.height = this.selectedRootNode.height;
     newNode.children = null;
     console.log(newNode);
 
@@ -462,21 +466,21 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     this.afterInsertNode();
   }
 
-  afterInsertNode() {
+  afterInsertNode(): void {
     this.update(this.root);
     this.clearSelection();
     this.searchText = undefined;
     this.cacheCurrentTree();
   }
 
-  createNode(operator, label) {
-    //TODO make sure that IDs are unique!!!
+  createNode(operator, label): d3.HierarchyNode<any> {
+    // TODO make sure that IDs are unique!!!
     const nodeData = {
-      operator: operator,
-      label: label,
+      operator,
+      label,
       id: Math.floor(1000000000 + Math.random() * 900000000),
       children: []
-    }
+    };
     return d3.hierarchy(nodeData);
   }
 
@@ -488,8 +492,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       const treeLayout = d3.tree();
       treeLayout.size([this.d3ContainerElem.nativeElement.offsetWidth,
         this.d3ContainerElem.nativeElement.offsetHeight - constants.tree_node_height_width]);
-      //if nodeSize is used you cannot use fixed tree size and the root node is drawn at (0,0)
-      treeLayout.nodeSize([130, 60])
+      // if nodeSize is used you cannot use fixed tree size and the root node is drawn at (0,0)
+      treeLayout.nodeSize([130, 60]);
       // calculate layout
       treeLayout(root);
     }
@@ -500,16 +504,16 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     const zooming = function (event) {
       // .translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0) is needed to center the tree
       // otherwise center is at (0,0)
-      //console.log(event)
-      this.mainSvgGroup.attr("transform",
+      // console.log(event)
+      this.mainSvgGroup.attr('transform',
         event.transform.translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0));
     }.bind(this);
 
-    const zoom: any = d3.zoom().scaleExtent([0.1, 3]).on("zoom", zooming)
-    this.svg.call(zoom).on("dblclick.zoom", null);
+    const zoom: any = d3.zoom().scaleExtent([0.1, 3]).on('zoom', zooming);
+    this.svg.call(zoom).on('dblclick.zoom', null);
 
-    //reset zoom
-    d3.select("#btn-reset-zoom").on("click", function () {
+    // reset zoom
+    d3.select('#btn-reset-zoom').on('click', function () {
       this.svg.transition()
         .duration(250)
         .ease(d3.easeExpInOut)
@@ -517,13 +521,13 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     }.bind(this));
   }
 
-  addSelectionFunctionality() {
-    this.nodeEnter.on("click",
+  addSelectionFunctionality(): void {
+    this.nodeEnter.on('click',
       function (event, d) {
-        //console.log(this)
-        //console.log(event);
-        //console.log(d);
-        unselectAllNodes()
+        // console.log(this)
+        // console.log(event);
+        // console.log(d);
+        unselectAllNodes();
         setSelectedRootNode(d);
         selectSubtree(this, d);
       }
@@ -531,51 +535,51 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
     const setSelectedRootNode = function (d) {
       this.selectedRootNode = d;
-    }.bind(this)
+    }.bind(this);
 
     const selectSubtree = function (svgGroup, d) {
-      d3.select(svgGroup).select(".node").attr('stroke', () => {
-        //add red stroke around activity nodes
-        if (d3.select(svgGroup).select(".node").attr('stroke') == constants.selectedTreeNodeStrokeColor) {
+      d3.select(svgGroup).select('.node').attr('stroke', () => {
+        // add red stroke around activity nodes
+        if (d3.select(svgGroup).select('.node').attr('stroke') == constants.selectedTreeNodeStrokeColor) {
           return constants.nonSelectedTreeNodeStrokeColor;
         } else {
           return constants.selectedTreeNodeStrokeColor;
         }
-      })
-      //add red stroke around sub-nodes if select subtree is selected
+      });
+      // add red stroke around sub-nodes if select subtree is selected
       if (d.children && this.selectSubtreeActive) {
         d.children.forEach(c => {
-            //console.log(c)
-            //console.log(this.mainSvgGroup.select('[id="' + c.data.id + '"]').node())
+            // console.log(c)
+            // console.log(this.mainSvgGroup.select('[id="' + c.data.id + '"]').node())
             selectSubtree(this.mainSvgGroup.select('[id="' + c.data.id + '"]').node(), c);
           }
-        )
+        );
       }
-      //console.log(this.selectedRootNode);
-      //console.log(this.singleNodeSelected());
-    }.bind(this)
+      // console.log(this.selectedRootNode);
+      // console.log(this.singleNodeSelected());
+    }.bind(this);
 
     const unselectAllNodes = function () {
       this.clearSelection();
-    }.bind(this)
+    }.bind(this);
   }
 
   clearSelection(): void {
-    //console.log("clear selection")
+    // console.log("clear selection")
     this.selectedRootNode = null;
     this.mainSvgGroup.selectAll('rect').attr('stroke', constants.nonSelectedTreeNodeStrokeColor);
   }
 
-  initializeSvg() {
-    //console.log("plot")
-    //console.log(this.d3ContainerElem.nativeElement.offsetWidth)
-    //console.log(this.d3ContainerElem.nativeElement.offsetHeight)
-    //console.log(root)
-    this.svg = d3.select("#d3-svg");
-    //add svg group for zooming
-    this.mainSvgGroup = this.svg.append("g").attr("id", "zoomGroup");
-    //this.cacheCurrentTree();
-    //this.update(root);
+  initializeSvg(): void {
+    // console.log("plot")
+    // console.log(this.d3ContainerElem.nativeElement.offsetWidth)
+    // console.log(this.d3ContainerElem.nativeElement.offsetHeight)
+    // console.log(root)
+    this.svg = d3.select('#d3-svg');
+    // add svg group for zooming
+    this.mainSvgGroup = this.svg.append('g').attr('id', 'zoomGroup');
+    // this.cacheCurrentTree();
+    // this.update(root);
     this.horizontallyCenterTree();
     this.addZoomFunctionality();
   }
