@@ -1,11 +1,11 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
-import {Observable} from "rxjs";
-import {SharedDataService} from "../sharedDataService/shared-data.service";
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {SharedDataService} from '../sharedDataService/shared-data.service';
 import * as FileSaver from 'file-saver';
-import {take} from 'rxjs/operators'
-import {BackgroundTaskInfoService} from "../backgroundTaskInfoService/background-task-info.service";
-import {ActivateTooltipsService} from "../activateTooltipsService/activate-tooltips.service";
+import {take} from 'rxjs/operators';
+import {BackgroundTaskInfoService} from '../backgroundTaskInfoService/background-task-info.service';
+import {ActivateTooltipsService} from '../activateTooltipsService/activate-tooltips.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,27 +15,19 @@ export class BackendService {
   constructor(private httpClient: HttpClient,
               private sharedDataService: SharedDataService,
               private backgroundTaskInfoService: BackgroundTaskInfoService,
-              private activateTooltipsService:ActivateTooltipsService) {
+              private activateTooltipsService: ActivateTooltipsService) {
   }
 
-  backendUrl = 'http://127.0.0.1:8000/'
+  backendUrl = 'http://127.0.0.1:8000/';
 
-  /*  uploadEventLogFilePath$(file: File): Observable<boolean> {
-      console.log('uploadEventLog()');
-      const formData: FormData = new FormData();
-      formData.append('file', file, file.name);
-      // @ts-ignore
-      return this.httpClient
-        .post(this.backendUrl + 'uploadfile', formData, {headers: {}})
-    }*/
 
   loadEventLogFromFilePath(filePath: string): Observable<any> {
     return this.httpClient.post(this.backendUrl + 'loadEventLogFromFilePath',
-      {'file_path': filePath});
+      {file_path: filePath});
   }
 
   loadProcessTreeFromFilePath(filePath: string): void {
-    this.httpClient.post(this.backendUrl + 'loadProcessTreeFromPtmlFile', {'file_path': filePath})
+    this.httpClient.post(this.backendUrl + 'loadProcessTreeFromPtmlFile', {file_path: filePath})
       .subscribe(tree => {
         this.sharedDataService.currentDisplayedProcessTree = tree;
       });
@@ -45,14 +37,22 @@ export class BackendService {
     return this.httpClient.get(this.backendUrl + 'variants');
   }
 
-  discoverProcessModelFromVariants(variants: any[]) {
-    this.httpClient.post(this.backendUrl + 'discoverProcessModelFromVariants', {'variants': variants})
+  getStartActivitiesFromEventLog(): Observable<any> {
+    return this.httpClient.get(this.backendUrl + 'startActivities');
+  }
+
+  getEndActivitiesFromEventLog(): Observable<any> {
+    return this.httpClient.get(this.backendUrl + 'endActivities');
+  }
+
+  discoverProcessModelFromVariants(variants: any[]): void {
+    this.httpClient.post(this.backendUrl + 'discoverProcessModelFromVariants', {variants: variants})
       .subscribe(tree => {
         this.sharedDataService.currentDisplayedProcessTree = tree;
       });
   }
 
-  downloadCurrentTreeAsPTML() {
+  downloadCurrentTreeAsPTML(): void {
     this.sharedDataService.currentDisplayedProcessTree$.pipe(take(1)).subscribe(tree => {
       this.httpClient.post(this.backendUrl + 'convertPtToPTML', {pt: tree}, {responseType: 'blob'})
         .subscribe(blob => {
@@ -61,7 +61,7 @@ export class BackendService {
     });
   }
 
-  downloadCurrentTreeAsPNML() {
+  downloadCurrentTreeAsPNML(): void {
     this.sharedDataService.currentDisplayedProcessTree$.pipe(take(1)).subscribe(tree => {
       this.httpClient.post(this.backendUrl + 'convertPtToPNML', {pt: tree}, {responseType: 'blob'})
         .subscribe(blob => {
@@ -71,22 +71,22 @@ export class BackendService {
   }
 
   calculateAlignment(variant): Observable<any> {
-    const body = {pt: this.sharedDataService.currentDisplayedProcessTree, variant: variant};
-    return this.httpClient.post(this.backendUrl + 'calculateAlignment', body)
+    const body = {pt: this.sharedDataService.currentDisplayedProcessTree, variant};
+    return this.httpClient.post(this.backendUrl + 'calculateAlignment', body);
   }
 
-  addVariantsToModel(variants_to_add: any[], explicitly_added_variants: any[]): void {
+  addVariantsToModel(variantsToAdd: any[], explicitlyAddedVariants: any[]): void {
     this.backgroundTaskInfoService.setNewTask('Apply incremental process discovery');
     const body = {
       pt: this.sharedDataService.currentDisplayedProcessTree,
-      variants_to_add: variants_to_add,
-      explicitly_added_variants: explicitly_added_variants
-    }
+      variants_to_add: variantsToAdd,
+      explicitly_added_variants: explicitlyAddedVariants
+    };
     this.httpClient.post(this.backendUrl + 'addVariantsToProcessModel', body).subscribe(res => {
       this.sharedDataService.currentDisplayedProcessTree = res;
       this.backgroundTaskInfoService.removeTask('Apply incremental process discovery');
       this.activateTooltipsService.initialize();
-    })
+    });
   }
 
 }

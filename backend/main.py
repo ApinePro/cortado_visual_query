@@ -18,6 +18,8 @@ from pm4py.objects.petri.exporter.variants.pnml import export_petri_as_string as
 from pm4py.objects.process_tree.importer.importer import apply as import_pt_from_ptml
 # from pm4py.algo.conformance.alignments.algorithm import apply
 from pm4py.util.lp.solver import DEFAULT_LP_SOLVER_VARIANT
+from pm4py.algo.filtering.log.start_activities import start_activities_filter
+from pm4py.algo.filtering.log.end_activities import end_activities_filter
 
 from backend_utilities.process_tree_conversion import process_tree_to_dict
 from backend_utilities.process_tree_conversion import dict_to_process_tree
@@ -146,6 +148,16 @@ async def get_variants_from_event_log():
 
     res['variants'] = sorted(res['variants'], key=lambda variant: variant['count'], reverse=True)
     return res
+
+
+@app.get("/startActivities")
+async def get_start_activities_from_log():
+    return start_activities_filter.get_start_activities(event_log)
+
+
+@app.get("/endActivities")
+async def get_end_activities_from_log():
+    return end_activities_filter.get_end_activities(event_log)
 
 
 class ConvertPtToX(BaseModel):

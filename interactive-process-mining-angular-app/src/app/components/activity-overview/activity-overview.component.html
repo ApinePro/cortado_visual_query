@@ -9,18 +9,39 @@
       <tr style="background-color: #2d2d2d">
         <th scope="col" class="bg-dark">&nbsp;</th>
         <th scope="col" class="bg-dark"><em>Activity name</em></th>
-        <th scope="col" class="bg-dark"><em>Contained in model</em></th>
+        <th scope="col" class="bg-dark"><em>in model</em></th>
+        <th scope="col" class="bg-dark">
+          <div data-toggle="tooltip" data-placement="bottom" data-html="true"
+               title="activity is a <b>start-activity</b> (there exists at least one case in the event data where the given activity is the first one recorded)">
+            <i class="bi bi-chevron-right text-white"></i>
+            <i class="bi bi-chevron-double-right" style="margin-left: -8px;"></i>
+            <i class="bi bi-chevron-double-right" style="margin-left: -6px;"></i>
+          </div>
+        </th>
+        <th scope="col" class="bg-dark">
+          <div data-toggle="tooltip" data-placement="bottom" data-html="true"
+               title="activity is an <b>end-activity</b> (there exists at least one case in the event data where the given activity is the last one recorded)">
+            <i class="bi bi-chevron-double-right"></i>
+            <i class="bi bi-chevron-double-right" style="margin-left: -6px;"></i>
+            <i class="bi bi-chevron-right text-white" style="margin-left: -7px;"></i>
+          </div>
+        </th>
       </tr>
       </thead>
+
       <tbody>
       <ng-container *ngIf="activitiesInTree && activityColorMap">
         <tr *ngFor="let a of activityColorMap | keyvalue">
           <th class="user-select-none" [ngStyle]="{'background-color': a.value}">&nbsp;</th>
           <td>{{a.key}}</td>
           <td>
-            <svg fill="currentColor" width="15" height="15" *ngIf="activitiesInTree.has(a.key)">
-              <use xlink:href="assets/bootstrap-icons.svg#check2"/>
-            </svg>
+            <i class="bi bi-check2" *ngIf="activitiesInTree.has(a.key)"></i>
+          </td>
+          <td>
+            <i class="bi bi-check2" *ngIf="startActivities.has(a.key)"></i>
+          </td>
+          <td>
+            <i class="bi bi-check2" *ngIf="endActivities.has(a.key)"></i>
           </td>
         </tr>
       </ng-container>
