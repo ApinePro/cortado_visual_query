@@ -19,7 +19,7 @@ export class ActivityOverviewComponent implements OnInit {
   activitiesInTree: Set<string> = new Set<string>();
   startActivities: Set<string> = new Set<string>();
   endActivities: Set<string> = new Set<string>();
-
+  activitiesInLog: any = {};
 
   ngOnInit(): void {
     this.colorMapService.colorMap$.subscribe(colorMap => {
@@ -36,6 +36,9 @@ export class ActivityOverviewComponent implements OnInit {
       });
       this.backendService.getEndActivitiesFromEventLog().subscribe(res => {
         this.endActivities = new Set(Object.keys(res));
+      });
+      this.backendService.getActivitiesFromEventLog().subscribe(res => {
+        this.activitiesInLog = res;
       });
     });
   }
