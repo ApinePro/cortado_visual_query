@@ -20,6 +20,7 @@ from pm4py.objects.process_tree.importer.importer import apply as import_pt_from
 from pm4py.util.lp.solver import DEFAULT_LP_SOLVER_VARIANT
 from pm4py.algo.filtering.log.start_activities import start_activities_filter
 from pm4py.algo.filtering.log.end_activities import end_activities_filter
+from pm4py.algo.filtering.log.attributes import attributes_filter
 
 from backend_utilities.process_tree_conversion import process_tree_to_dict
 from backend_utilities.process_tree_conversion import dict_to_process_tree
@@ -158,6 +159,11 @@ async def get_start_activities_from_log():
 @app.get("/endActivities")
 async def get_end_activities_from_log():
     return end_activities_filter.get_end_activities(event_log)
+
+
+@app.get("/activities")
+async def get_activities():
+    return attributes_filter.get_attribute_values(event_log, "concept:name")
 
 
 class ConvertPtToX(BaseModel):
