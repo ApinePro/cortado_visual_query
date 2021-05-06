@@ -29,13 +29,21 @@
   min-height: 100%;
 }
 
-.variant-explorer-alert{
+.variant-explorer-alert {
   z-index: 1;
   position: absolute;
   bottom: 10px;
   margin: auto;
 }
 
+.info-bar {
+  /*background-color: var(--box-background-color);*/
+  font-size: var(--standard-font-size);
+  color: var(--text-secondary);
+  padding-left: 1em;
+  width: 100%;
+  text-align: right;
+}
 
 
 

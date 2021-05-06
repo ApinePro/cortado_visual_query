@@ -66,9 +66,9 @@
       clear selection
     </button>
 
-    <div class="mr-3 secondary-text ml-auto">
-      <em>selected variants: {{this.selectedVariants.length}}</em>
-    </div>
+    <!--    <div class="mr-3 secondary-text ml-auto">-->
+    <!--      <em>selected variants: {{this.selectedVariants.length}}</em>-->
+    <!--    </div>-->
 
   </div>
 
@@ -128,4 +128,28 @@
       <div #chart id="chart"></div>
     </div>
   </div>
+
+  <div class="bg-dark info-bar pl-2 pr-2">
+
+    <span class="float-left" *ngIf="numberFittingTraces && totalNumberTraces">
+      fitting traces:
+      <span [ngClass]="!outdatedConformanceStatistics? '' : 'text-warning'">
+        {{numberFittingTraces|number}}&nbsp;/&nbsp;{{totalNumberTraces|number}}
+        ({{numberFittingTraces / totalNumberTraces| percent:'.1'}})</span>
+    </span>
+
+    <span class="float-left ml-4" *ngIf="numberFittingVariants && totalNumberVariants">
+      fitting variants:
+      <span [ngClass]="!outdatedConformanceStatistics? '' : 'text-warning'">
+      {{numberFittingVariants|number}}&nbsp;/&nbsp;{{totalNumberVariants|number}}
+        ({{numberFittingVariants / totalNumberVariants| percent:'.1'}})
+      </span>
+    </span>
+
+    <span class="float-right">
+      selected variants: {{selectedVariants.length|number}}
+    </span>
+  </div>
+
+
 </div>

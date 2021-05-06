@@ -29,12 +29,17 @@ export class VariantExplorerComponent implements OnInit {
   private polygonDimensionWidth = 0;
   variants: any[];
   selectedVariants: any[] = [];
-  explicitlyAddedVariants: number[] = []
+  explicitlyAddedVariants: number[] = [];
   d3jsData;
   currentlyDisplayedProcessTree;
   usedTreeForConformanceChecking;
   alertMessage: string;
-  outdatedConformanceStatistics: boolean = false;
+  outdatedConformanceStatistics = false;
+  numberFittingTraces: number = undefined;
+  numberFittingVariants: number = undefined;
+  totalNumberTraces: number = undefined;
+  totalNumberVariants: number = undefined;
+
 
   ngOnInit() {
     // preload road traffic fine management process
@@ -87,7 +92,7 @@ export class VariantExplorerComponent implements OnInit {
       v['calculationInProgress'] = true;
       this.backendService.calculateAlignment(v).pipe(takeUntil(this.unsubscribe)).subscribe(res => {
         //console.log(res);
-        v['calculationInProgress'] = false;
+        v.calculationInProgress = false;
         v['alignment'] = res['alignment'];
         v['deviation'] = res['deviation'];
         // remove explicitlyAddedDeviation if they do not fit anymore
@@ -95,13 +100,34 @@ export class VariantExplorerComponent implements OnInit {
           const idx_explicitly_added_variant_with_deviation = this.variants.findIndex(element => v === element);
           this.explicitlyAddedVariants = this.explicitlyAddedVariants.filter(i => i !== idx_explicitly_added_variant_with_deviation);
         }
+        this.updateAlignmentStatistics();
       });
     });
     this.outdatedConformanceStatistics = false;
   }
 
+  updateAlignmentStatistics(): void {
+    let numberFittingVariants = 0;
+    let numberFittingTraces = 0;
+    let numberTraces = 0;
+    let numberVariants = 0;
 
-  showAlert(msg: string) {
+    this.variants.forEach(v => {
+      if (!v['deviation']) {
+        numberFittingVariants++;
+        numberFittingTraces += v['count'];
+      }
+      numberTraces += v['count'];
+      numberVariants++;
+    });
+    this.totalNumberVariants = numberVariants;
+    this.totalNumberTraces = numberTraces;
+    this.numberFittingTraces = numberFittingTraces;
+    this.numberFittingVariants = numberFittingVariants;
+  }
+
+
+  showAlert(msg: string): void {
     this.alertMessage = undefined;
     this.alertMessage = msg;
   }

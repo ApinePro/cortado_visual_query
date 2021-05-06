@@ -37,6 +37,10 @@ export class BackendService {
     return this.httpClient.get(this.backendUrl + 'variants');
   }
 
+  getActivitiesFromEventLog(): Observable<any> {
+    return this.httpClient.get(this.backendUrl + 'activities');
+  }
+
   getStartActivitiesFromEventLog(): Observable<any> {
     return this.httpClient.get(this.backendUrl + 'startActivities');
   }
