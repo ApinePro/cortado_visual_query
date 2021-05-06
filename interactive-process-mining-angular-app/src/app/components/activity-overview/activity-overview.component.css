@@ -31,6 +31,10 @@ thead th {
   vertical-align: top;
 }
 
+.border-color {
+  border-color: var(--line-color)!important;
+}
+
 /*th {
   font-weight: normal;
 }*/
