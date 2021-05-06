@@ -48,7 +48,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   previousTreeObjects: d3.HierarchyNode<any>[] = [];
   currentIdxPreviousTreeObjects = 0;
 
-  insertPositionLeftRightDisabled: boolean = false;
+  insertPositionLeftRightDisabled = false;
 
   root: d3.HierarchyNode<any>;
   activitiesOccurringInLog: string[] = [];
@@ -68,8 +68,9 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
           // @ts-ignore
           return d.children;
         });
-        this.cacheCurrentTree();
-        this.update(this.root);
+        // this.cacheCurrentTree();
+        console.warn('update tree triggered by service');
+        this.update(this.root, true);
       }
     });
     this.sharedDataService.activitiesInEventLog$.subscribe(activities => {
@@ -181,8 +182,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         const childToLeft = this.selectedRootNode.parent.children[idxInParentChildList];
         this.selectedRootNode.parent.children[idxInParentChildList] = childToRight;
         this.selectedRootNode.parent.children[idxInParentChildList - 1] = childToLeft;
-        this.update(this.root);
-        this.cacheCurrentTree();
+        this.update(this.root, true);
+        // this.cacheCurrentTree();
       }
     }
   }
@@ -195,15 +196,15 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         const childToLeft = this.selectedRootNode.parent.children[idxInParentChildList + 1];
         this.selectedRootNode.parent.children[idxInParentChildList + 1] = childToRight;
         this.selectedRootNode.parent.children[idxInParentChildList] = childToLeft;
-        this.update(this.root);
-        this.cacheCurrentTree();
+        this.update(this.root, true);
+        // this.cacheCurrentTree();
       }
     }
   }
 
 
   cacheCurrentTree(): void {
-    console.log('cacheCurrentTree()');
+    // console.log('cacheCurrentTree()');
     if (this.currentIdxPreviousTreeObjects < this.previousTreeObjects.length - 1) {
       // before change, undo was pressed --> remove newer versions since older version of process tree was changed
       this.previousTreeObjects = this.previousTreeObjects.slice(0, this.currentIdxPreviousTreeObjects + 1);
@@ -214,30 +215,39 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     } else {
       this.currentIdxPreviousTreeObjects = this.previousTreeObjects.length - 1;
     }
-    console.log(this.previousTreeObjects);
+    // console.log(this.previousTreeObjects);
+    this.root.each(node => {
+      node.data = JSON.parse(JSON.stringify(node.data));
+    });
   }
 
   undo(): void {
     if (this.currentIdxPreviousTreeObjects && this.currentIdxPreviousTreeObjects > 0 && this.previousTreeObjects.length > 1) {
       this.currentIdxPreviousTreeObjects--;
-      const treeToLoad = this.previousTreeObjects[this.currentIdxPreviousTreeObjects];
-      console.log(treeToLoad);
-      this.update(treeToLoad);
+      let treeToLoad = this.previousTreeObjects[this.currentIdxPreviousTreeObjects];
+      // console.log(treeToLoad);
+      treeToLoad = treeToLoad.copy();
+      treeToLoad.each(node => {
+        node.data = JSON.parse(JSON.stringify(node.data));
+      });
       this.root = treeToLoad;
+      this.update(this.root);
     }
   }
 
   redo(): void {
-    console.warn(this.previousTreeObjects);
-    console.warn(this.currentIdxPreviousTreeObjects);
+    // console.warn(this.previousTreeObjects);
+    // console.warn(this.currentIdxPreviousTreeObjects);
     if (this.currentIdxPreviousTreeObjects < this.previousTreeObjects.length - 1) {
       this.currentIdxPreviousTreeObjects++;
-      const treeToLoad = this.previousTreeObjects[this.currentIdxPreviousTreeObjects];
-      this.update(treeToLoad);
+      let treeToLoad = this.previousTreeObjects[this.currentIdxPreviousTreeObjects];
+      treeToLoad = treeToLoad.copy();
+      treeToLoad.each(node => {
+        node.data = JSON.parse(JSON.stringify(node.data));
+      });
       this.root = treeToLoad;
+      this.update(this.root);
     }
-    console.warn(this.previousTreeObjects);
-    console.warn(this.currentIdxPreviousTreeObjects);
   }
 
 
@@ -245,11 +255,15 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     this.mainSvgGroup.attr('transform', 'translate(' + (this.d3ContainerElem.nativeElement.offsetWidth / 2) + ',0)');
   }
 
-  update(root): void {
+  update(root, cacheTree: boolean = false): void {
+    // console.log('update()');
+    if (cacheTree) {
+      this.cacheCurrentTree();
+    }
     if (root) {
       this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(root);
       this.processTreeSyntaxInfo = checkSyntax(this.getProcessTreeObject(root));
-      console.log(this.processTreeSyntaxInfo);
+      // console.log(this.processTreeSyntaxInfo);
       this.saveTreeInSharedDataService();
       // console.log(root);
       // console.log(root.descendants());
@@ -358,7 +372,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         .attr('x', function (d) {
           return d.x - Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10) / 2;
         }).attr('width', function () {
-        console.log(Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10));
+        // console.log(Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10));
         return Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10);
       });
       this.addSelectionFunctionality();
@@ -370,31 +384,31 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     // console.log(this.selectedRootNode);
     this.activateTooltipsService.close();
     this.deleteNodeAndChildren(this.root, this.selectedRootNode);
+    // this.cacheCurrentTree();
     // console.log(this.root)
-    this.update(this.root);
+    this.update(this.root, true);
     this.selectedRootNode = undefined;
-    this.cacheCurrentTree();
   }
 
   deleteNodeAndChildren(tree, nodeToDelete): void {
     if (tree.children) {
-      tree.children = tree.children.filter(c => c != nodeToDelete);
+      tree.children = tree.children.filter(c => c !== nodeToDelete);
       if (tree.children.length === 0) {
-        tree.children = null;
+        delete tree.children;
       }
       if (tree.children) {
-        tree.children.forEach(function (c) {
+        tree.children.forEach(c => {
           this.deleteNodeAndChildren(c, nodeToDelete);
-        }.bind(this));
+        });
       }
     }
   }
 
   changeSelectedNode(operator, label): void {
-    console.log(this.selectedRootNode);
-    console.log(operator, label);
+    // console.log(this.selectedRootNode);
+    // console.log(operator, label);
     if (operator) {
-      console.log('change operator');
+      // console.log('change operator');
       this.selectedRootNode.data.operator = operator;
       this.selectedRootNode.data.label = null;
     } else if (label) {
@@ -467,10 +481,10 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   afterInsertNode(): void {
-    this.update(this.root);
+    this.update(this.root, true);
     this.clearSelection();
     this.searchText = undefined;
-    this.cacheCurrentTree();
+    // this.cacheCurrentTree();
   }
 
   createNode(operator, label): d3.HierarchyNode<any> {
