@@ -110,26 +110,31 @@ hr {
 }
 
 /* Track */
-::-webkit-scrollbar-track {
+::-webkit-scrollbar-track:hover {
+  background: var(--box-background-color);
+}
+
+/* Track */
+::-webkit-scrollbar-track:hover {
   background: #444;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: #555;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #888;
 }
 
-.dropdown-menu{
+.dropdown-menu {
   border-radius: 0;
   background-color: lightgray;
 }
 
-.font-large{
+.font-large {
   font-size: large;
 }
 
@@ -141,5 +146,5 @@ hr {
   left: 0;
   text-align: left;
   cursor: auto;
-  padding:.25rem;
+  padding: .25rem;
 }
