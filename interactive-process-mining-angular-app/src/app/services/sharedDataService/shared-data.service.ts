@@ -12,6 +12,7 @@ export class SharedDataService {
       this._activitiesInEventLog.next(new Set([
         "Add penalty",
         "Appeal to Judge",
+        "Create Fine",
         "Insert Data Appeal to Prefecture",
         "Insert Fine Notification",
         "Notify Result Appeal to Offender",
@@ -31,6 +32,7 @@ export class SharedDataService {
   }
 
   set loadedEventLog(name: string) {
+    console.log("set loadedEventLog:" + name);
     this._loadedEventLog.next(name);
   }
 
