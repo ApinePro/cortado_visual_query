@@ -131,14 +131,16 @@
 
   <div class="bg-dark info-bar pl-2 pr-2">
 
-    <span class="float-left" *ngIf="numberFittingTraces && totalNumberTraces">
+    <span class="float-left"
+          *ngIf="(numberFittingTraces || numberFittingTraces>=0) && (totalNumberTraces || totalNumberTraces>0)">
       fitting traces:
       <span [ngClass]="!outdatedConformanceStatistics? '' : 'text-warning'">
         {{numberFittingTraces|number}}&nbsp;/&nbsp;{{totalNumberTraces|number}}
         ({{numberFittingTraces / totalNumberTraces| percent:'.1'}})</span>
     </span>
 
-    <span class="float-left ml-4" *ngIf="numberFittingVariants && totalNumberVariants">
+    <span class="float-left ml-4"
+          *ngIf="(numberFittingVariants || numberFittingVariants>=0) && (totalNumberVariants || totalNumberVariants>0)">
       fitting variants:
       <span [ngClass]="!outdatedConformanceStatistics? '' : 'text-warning'">
       {{numberFittingVariants|number}}&nbsp;/&nbsp;{{totalNumberVariants|number}}
