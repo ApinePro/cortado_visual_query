@@ -55,6 +55,10 @@ export class VariantExplorerComponent implements OnInit {
 
     this.sharedDataService.loadedEventLog$.subscribe(eventLog => {
       if (eventLog) {
+        this.numberFittingVariants = undefined;
+        this.numberFittingVariants = undefined;
+        this.totalNumberTraces = undefined;
+        this.totalNumberVariants = undefined;
         this.backendService.getVariantsFromEventLog().subscribe(res => {
           this.colorMap = this.colorMapService.getColorMap(res['activities']);
           this.sharedDataService.activitiesInEventLog = res['activities'];
