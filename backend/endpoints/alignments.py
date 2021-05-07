@@ -7,6 +7,7 @@ from pm4py.objects.process_tree.process_tree import ProcessTree
 from backend.backend_utilities.process_tree_conversion import dict_to_process_tree
 from pm4py.objects.petri.align_utils import STD_MODEL_LOG_MOVE_COST, SKIP
 # from pm4py.algo.conformance.alignments.process_tree.algorithm import apply as tree_alignment
+import pm4py.visualization.process_tree.visualizer as tree_vis
 
 
 # @lru_cache(maxsize=None)
@@ -20,6 +21,7 @@ def calculate_alignment(variant, pt):
         trace.append(e)
     # print(trace)
     align = get_alignment(trace, net, im, fm)
+    # align = tree_alignment(trace, pt)
     # print(align)
     # remove non essential information
     res = {k: align[k] for k in ['alignment', 'cost']}
