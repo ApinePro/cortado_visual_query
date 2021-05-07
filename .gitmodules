@@ -1,4 +1,0 @@
-[submodule "backend/interactive_process_mining_core"]
-	path = backend/interactive_process_mining_core
-	url = https://gitlab.fit.fraunhofer.de/daniel.schuster/interactive_process_mining_core.git
-	branch = master_cortado
