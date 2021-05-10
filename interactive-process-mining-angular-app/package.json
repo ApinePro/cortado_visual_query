@@ -1,6 +1,7 @@
 {
   "name": "interactive-process-mining-angular-app",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "author": "Daniel Schuster (Fraunhofer FIT)",
   "main": "main-electron.js",
   "scripts": {
     "ng": "ng",
@@ -14,7 +15,8 @@
     "electron": "electron .",
     "electron-live-reload": "wait-on http://localhost:4444 && electron ./main-electron-dev.js",
     "electron-build": "ng build --prod && electron ./main-electron-dev.js",
-    "electron-package-app-production": "ng build --prod && electron-packager . cortado --platform='win32' --arch='x64' --overwrite --ignore=^/src --ignore=^/node_modules --ignore=^/e2e --icon=./icon/cortado_icon_colorful_transparent.ico"
+    "electron-package-app-production-windows": "ng build --prod && electron-packager . cortado --platform=win32 --arch=x64 --overwrite --ignore=^/src --ignore=^/node_modules --ignore=^/e2e --icon=./icon/cortado_icon_colorful_transparent.ico",
+    "electron-package-app-production-linux-ubuntu": "ng build --prod && electron-packager . cortado --platform=linux --arch=x64 --asar=true --category=Science --overwrite --ignore=^/src --ignore=^/node_modules --ignore=^/e2e --icon=./icon/512x512.png"
   },
   "private": true,
   "dependencies": {
@@ -48,7 +50,7 @@
     "@types/node": "^12.19.12",
     "codelyzer": "^6.0.2",
     "concurrently": "^5.3.0",
-    "electron": "^11.1.1",
+    "electron": "^12.0.7",
     "electron-packager": "^15.2.0",
     "jasmine-core": "~3.6.0",
     "jasmine-spec-reporter": "~5.0.0",
@@ -61,6 +63,6 @@
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
     "typescript": "4.0.5",
-    "wait-on": "^5.2.0"
+    "wait-on": "^5.3.0"
   }
 }
