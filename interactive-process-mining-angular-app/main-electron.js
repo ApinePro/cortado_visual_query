@@ -26,7 +26,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false
     },
-    icon: "./icon/cortado_icon_colorful_transparent.png",
+    iconUrl: "./icon/cortado_icon_colorful_transparent.png",
     darkTheme: true
   });
 
