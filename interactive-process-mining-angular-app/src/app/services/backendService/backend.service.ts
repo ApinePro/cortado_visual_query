@@ -4,7 +4,6 @@ import {Observable} from 'rxjs';
 import {SharedDataService} from '../sharedDataService/shared-data.service';
 import * as FileSaver from 'file-saver';
 import {take} from 'rxjs/operators';
-import {BackgroundTaskInfoService} from '../backgroundTaskInfoService/background-task-info.service';
 import {ActivateTooltipsService} from '../activateTooltipsService/activate-tooltips.service';
 
 @Injectable({
@@ -14,7 +13,6 @@ export class BackendService {
 
   constructor(private httpClient: HttpClient,
               private sharedDataService: SharedDataService,
-              private backgroundTaskInfoService: BackgroundTaskInfoService,
               private activateTooltipsService: ActivateTooltipsService) {
   }
 
@@ -22,7 +20,7 @@ export class BackendService {
 
 
   loadEventLogFromFilePath(filePath: string): Observable<any> {
-    return this.httpClient.post(this.backendUrl + 'loadEventLogFromFilePath',
+    return this.httpClient.post(this.backendUrl + 'loadEventLog',
       {file_path: filePath});
   }
 
@@ -80,7 +78,6 @@ export class BackendService {
   }
 
   addVariantsToModel(variantsToAdd: any[], explicitlyAddedVariants: any[]): void {
-    this.backgroundTaskInfoService.setNewTask('Apply incremental process discovery');
     const body = {
       pt: this.sharedDataService.currentDisplayedProcessTree,
       variants_to_add: variantsToAdd,
@@ -88,7 +85,6 @@ export class BackendService {
     };
     this.httpClient.post(this.backendUrl + 'addVariantsToProcessModel', body).subscribe(res => {
       this.sharedDataService.currentDisplayedProcessTree = res;
-      this.backgroundTaskInfoService.removeTask('Apply incremental process discovery');
       this.activateTooltipsService.initialize();
     });
   }

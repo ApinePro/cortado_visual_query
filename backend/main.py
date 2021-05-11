@@ -63,7 +63,7 @@ class FilePathInput(BaseModel):
     file_path: str
 
 
-@app.post("/loadEventLogFromFilePath")
+@app.post("/loadEventLog")
 async def load_event_log_from_file_path(d: FilePathInput):
     global event_log
     event_log = xes_import(d.file_path)

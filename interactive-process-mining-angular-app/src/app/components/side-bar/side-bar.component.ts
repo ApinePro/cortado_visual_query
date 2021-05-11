@@ -27,7 +27,6 @@ export class SideBarComponent implements OnInit {
 
   handleSelectedEventLogFile(e): void {
     const taskDescription = 'Loading/parsing event log';
-    this.backgroundTaskInfoService.setNewTask(taskDescription);
 
     const fileList: FileList = e.target.files;
     if (fileList.length > 0) {
@@ -39,7 +38,6 @@ export class SideBarComponent implements OnInit {
       });*/
       this.backendService.loadEventLogFromFilePath(fileList[0]['path']).subscribe(res => {
         // console.log('Event log ' + fileName + ' loaded');
-        this.backgroundTaskInfoService.removeTask(taskDescription);
         this.sharedDataService.loadedEventLog = fileName;
       });
     }

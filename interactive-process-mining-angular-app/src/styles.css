@@ -148,3 +148,15 @@ hr {
   cursor: auto;
   padding: .25rem;
 }
+
+code {
+  color: var(--text-secondary);
+}
+
+.swal2-modal {
+  background-color: var(--box-background-color) !important;
+}
+
+.swal2-html-container {
+  text-align: left !important;
+}

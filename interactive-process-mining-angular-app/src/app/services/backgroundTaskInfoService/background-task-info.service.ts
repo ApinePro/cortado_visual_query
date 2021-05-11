@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, Observable} from "rxjs";
+import {BehaviorSubject, Observable} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -9,20 +9,20 @@ export class BackgroundTaskInfoService {
   constructor() {
   }
 
-  private currentBackgroundTask = new BehaviorSubject<string>(undefined)
+  activeRequests = new Map();
 
-  public setNewTask(description: string) {
-    this.currentBackgroundTask.next(description);
+  private currentBackgroundTask = new BehaviorSubject<string>(undefined);
+
+  public setRequest(description: string): number {
+    const id = Math.random();
+    this.activeRequests.set(id, description);
+    this.currentBackgroundTask.next(this.activeRequests.values().next().value);
+    return id;
   }
 
-  removeTask(description: string) {
-    if (this.getCurrentTask() === description) {
-      this.currentBackgroundTask.next(undefined);
-    }
-  }
-
-  private getCurrentTask(): string {
-    return this.currentBackgroundTask.getValue();
+  public removeRequest(id: number): void {
+    this.activeRequests.delete(id);
+    this.currentBackgroundTask.next(this.activeRequests.values().next().value);
   }
 
   public currentBackgroundTask$(): Observable<string> {
