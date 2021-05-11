@@ -4,7 +4,7 @@ import sys ; sys.setrecursionlimit(sys.getrecursionlimit() * 5)
 block_cipher = None
 
 
-a = Analysis(['main.py'],
+a = Analysis(['cortado-backend.py'],
              pathex=['C:\\Users\\dschuste\\Documents\\git_repos\\fraunhofer_git\\interactive-process-mining\\backend'],
              binaries=[('C:/Users/dschuste/Documents/git_repos/fraunhofer_git/interactive-process-mining_venv/Lib/site-packages/cvxopt','cvxopt')],
              datas=[('C:/Users/dschuste/Documents/git_repos/fraunhofer_git/interactive-process-mining_venv/Lib/site-packages/pulp/*','.'),
@@ -34,12 +34,12 @@ exe = EXE(pyz,
           a.scripts,
           [],
           exclude_binaries=True,
-          name='main',
+          name='cortado-backend',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          console=True )
+          console=True)
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
@@ -47,4 +47,4 @@ coll = COLLECT(exe,
                strip=False,
                upx=True,
                upx_exclude=[],
-               name='main')
+               name='cortado-backend')
