@@ -6,17 +6,20 @@ const ChildProcess = require('child_process');
 const abspath = app.getPath('exe');
 const executablePath = abspath;
 const indexForFileNameStart = executablePath.lastIndexOf("\\");
-const backendExecutablePath = executablePath.substring(0, indexForFileNameStart) + "\\cortado-backend\\main\\main.exe";
+const backendExecutablePath = executablePath.substring(0, indexForFileNameStart) + "\\cortado-backend\\cortado-backend.exe";
+//const ipc = require('electron').ipcRenderer;
 
 let mainCortadoWin;
 let backendProcess;
+let licenseAccepted = false;
 
+//ipc.on('licenseAccepted', decision => licenseAccepted = decision);
 
 function startBackend() {
   return ChildProcess.spawn(backendExecutablePath, {shell: false, detached: false, windowsHide: false});
 }
 
-function createWindow() {
+function createMainApplicationWindow() {
   mainCortadoWin = new BrowserWindow({
     minHeight: 600,
     minWidth: 1280,
@@ -29,17 +32,14 @@ function createWindow() {
     iconUrl: "./icon/cortado_icon_colorful_transparent.png",
     darkTheme: true
   });
-
   mainCortadoWin.removeMenu();
   //mainCortadoWin.webContents.openDevTools()
-
   //mainCortadoWin.loadURL('data:text/html;charset=utf-8,' + backendExecutablePath);
   mainCortadoWin.loadURL(url.format({
     pathname: path.join(__dirname, `/dist/index.html`),
     protocol: "file:",
     slashes: true
   }));
-
   mainCortadoWin.on('closed', function () {
     mainCortadoWin = null;
     app.quit();
@@ -51,8 +51,9 @@ app.whenReady().then(function () {
   const appIcon = nativeImage.createFromPath(path.join(__dirname, '/icon/cortado_icon_colorful_transparent.ico'))
   const promiseLicense = dialog.showMessageBox(null, {
     title: "End User License Agreement (EULA) - Cortado",
-    buttons: ["Agree", "Cancel"],
+    buttons: ["I accept the terms in the End User License Agreement (EULA)", "Cancel"],
     defaultId: 0,
+    message: 'You must accept the End User License Agreement (EULA) before continuing.',
     detail: licenseText,
     icon: appIcon,
     type: "question"
@@ -60,8 +61,8 @@ app.whenReady().then(function () {
   promiseLicense.then(function (decision) {
     if (decision.response === 0) {
       //license has been accepted by the user
-      createWindow();
       backendProcess = startBackend();
+      createMainApplicationWindow();
     } else {
       app.quit();
     }
@@ -83,7 +84,7 @@ app.on('window-all-closed', function () {
 app.on('activate', function () {
     //macOS specific
     if (mainCortadoWin === null) {
-      createWindow();
+      createMainApplicationWindow();
     }
   }
 );
