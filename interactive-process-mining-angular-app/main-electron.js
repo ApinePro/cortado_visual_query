@@ -16,7 +16,7 @@ let licenseAccepted = false;
 //ipc.on('licenseAccepted', decision => licenseAccepted = decision);
 
 function startBackend() {
-  return ChildProcess.spawn(backendExecutablePath, {shell: false, detached: false, windowsHide: false});
+  return ChildProcess.spawn(backendExecutablePath, {shell: true, detached: true, windowsHide: false});
 }
 
 function createMainApplicationWindow() {
@@ -62,7 +62,9 @@ app.whenReady().then(function () {
     if (decision.response === 0) {
       //license has been accepted by the user
       backendProcess = startBackend();
-      createMainApplicationWindow();
+      setTimeout(function () {
+        createMainApplicationWindow();
+      }, 1000);
     } else {
       app.quit();
     }

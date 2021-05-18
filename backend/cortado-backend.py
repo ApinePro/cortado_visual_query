@@ -1,6 +1,8 @@
+import multiprocessing
+import struct
 from typing import Optional, Any, List
 import uvicorn
-
+import threading
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
@@ -25,14 +27,11 @@ from pm4py.algo.filtering.log.attributes import attributes_filter
 from backend_utilities.process_tree_conversion import process_tree_to_dict
 from backend_utilities.process_tree_conversion import dict_to_process_tree
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
+from interactive_process_mining_core.lca_approach import add_trace_to_pt_language
 
 import cvxopt
+
 # import multiprocessing
-
-from interactive_process_mining_core.lca_approach import add_trace_to_pt_language
-import sys
-
-sys.setrecursionlimit(10000)
 
 print(DEFAULT_LP_SOLVER_VARIANT)
 
@@ -194,9 +193,11 @@ async def calculate_alignment(d: InputCalculateAlignment):
 
 
 if __name__ == "__main__":
+    # multiprocessing.freeze_support()
     # uvicorn.run("main:app", host="0.0.0.0", port=8000)
     uvicorn.run(app, host="0.0.0.0", port=8000)
-    # uvicorn.run("main.app", host="0.0.0.0", port=8000, workers=multiprocessing.cpu_count())
+    # num_workers = max(1, multiprocessing.cpu_count() - 2)
+    # uvicorn.run("cortado-backend:app", host="0.0.0.0", port=8000, workers=num_workers)
 
     # dev mode
     # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

@@ -1,15 +1,15 @@
 import {AfterViewInit, Component, ElementRef, isDevMode, OnInit, ViewChild} from '@angular/core';
 import * as d3 from 'd3';
 import * as dummyBackendResponse from './dummy_backend_data.js';
-import {ColorMapService} from "../../services/colorMapService/color-map.service";
-import {SharedDataService} from "../../services/sharedDataService/shared-data.service";
-import {BackendService} from "../../services/backendService/backend.service";
+import {ColorMapService} from '../../services/colorMapService/color-map.service';
+import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
+import {BackendService} from '../../services/backendService/backend.service';
 
-import * as helperFunctions from "./helper_functions"
-import {ActivateTooltipsService} from "../../services/activateTooltipsService/activate-tooltips.service";
-import * as constants from "./constants";
-import {Subject} from "rxjs";
-import {takeUntil} from "rxjs/operators";
+import * as helperFunctions from './helper_functions';
+import {ActivateTooltipsService} from '../../services/activateTooltipsService/activate-tooltips.service';
+import * as constants from './constants';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -25,7 +25,6 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   colorMap: Map<string, string>;
-  variantsLoading: boolean;
   private polygonDimensionWidth = 0;
   variants: any[];
   selectedVariants: any[] = [];
@@ -38,16 +37,20 @@ export class VariantExplorerComponent implements OnInit {
   numberFittingTraces: number = undefined;
   numberFittingVariants: number = undefined;
   totalNumberTraces: number = undefined;
-  totalNumberVariants: number = undefined;
+  totalNumberVariants: number = 231;
+  calculatedAlignments = 0;
+  alignmentsToBeCalculated: number = 0;
+
+  protected unsubscribe: Subject<void> = new Subject<void>();
 
 
-  ngOnInit() {
+  ngOnInit(): void {
     // preload road traffic fine management process
     if (isDevMode() || true) {
-      //console.log("devMode active -> load dummy data");
-      //console.log(dummyBackendResponse.test);
-      this.variants = dummyBackendResponse.test['variants'];
-      this.colorMap = this.colorMapService.getColorMap(dummyBackendResponse.test['activities']);
+      // console.log("devMode active -> load dummy data");
+      // console.log(dummyBackendResponse.test);
+      this.variants = dummyBackendResponse.test.variants;
+      this.colorMap = this.colorMapService.getColorMap(dummyBackendResponse.test.activities);
       this.setPolygonDimensionWidth(constants.polygonFoldingWidth);
       this.createChart();
       this.tooltipActivationService.initialize();
@@ -60,9 +63,9 @@ export class VariantExplorerComponent implements OnInit {
         this.totalNumberTraces = undefined;
         this.totalNumberVariants = undefined;
         this.backendService.getVariantsFromEventLog().subscribe(res => {
-          this.colorMap = this.colorMapService.getColorMap(res['activities']);
-          this.sharedDataService.activitiesInEventLog = res['activities'];
-          this.variants = res['variants'];
+          this.colorMap = this.colorMapService.getColorMap(res.activities);
+          this.sharedDataService.activitiesInEventLog = res.activities;
+          this.variants = res.variants;
           this.explicitlyAddedVariants = [];
           this.setPolygonDimensionWidth(constants.polygonFoldingWidth);
           this.createChart();
@@ -78,33 +81,35 @@ export class VariantExplorerComponent implements OnInit {
     });
   }
 
-  protected unsubscribe: Subject<void> = new Subject<void>();
-
   updateAlignmentsStop() {
     this.unsubscribe.next();
-    //this.cancelAlignmentCalculation.complete();
+    // this.cancelAlignmentCalculation.complete();
     this.variants.forEach(v => {
-      v['calculationInProgress'] = false;
-      v['alignment'] = undefined;
-      v['deviation'] = undefined;
+      v.calculationInProgress = false;
+      v.alignment = undefined;
+      v.deviation = undefined;
     });
   }
 
   updateAlignments() {
+    this.alignmentsToBeCalculated = this.totalNumberVariants;
+    this.calculatedAlignments = 0;
+    this.tooltipActivationService.close();
     this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
     this.variants.forEach(v => {
-      v['calculationInProgress'] = true;
+      v.calculationInProgress = true;
       this.backendService.calculateAlignment(v).pipe(takeUntil(this.unsubscribe)).subscribe(res => {
-        //console.log(res);
+        // console.log(res);
         v.calculationInProgress = false;
-        v['alignment'] = res['alignment'];
-        v['deviation'] = res['deviation'];
+        v.alignment = res.alignment;
+        v.deviation = res.deviation;
         // remove explicitlyAddedDeviation if they do not fit anymore
-        if (res['deviation']) {
+        if (res.deviation) {
           const idx_explicitly_added_variant_with_deviation = this.variants.findIndex(element => v === element);
           this.explicitlyAddedVariants = this.explicitlyAddedVariants.filter(i => i !== idx_explicitly_added_variant_with_deviation);
         }
         this.updateAlignmentStatistics();
+        this.calculatedAlignments++;
       });
     });
     this.outdatedConformanceStatistics = false;
@@ -117,11 +122,11 @@ export class VariantExplorerComponent implements OnInit {
     let numberVariants = 0;
 
     this.variants.forEach(v => {
-      if (!v['deviation']) {
+      if (!v.deviation) {
         numberFittingVariants++;
-        numberFittingTraces += v['count'];
+        numberFittingTraces += v.count;
       }
-      numberTraces += v['count'];
+      numberTraces += v.count;
       numberVariants++;
     });
     this.totalNumberVariants = numberVariants;
@@ -141,7 +146,7 @@ export class VariantExplorerComponent implements OnInit {
     this.tooltipActivationService.close();
     this.explicitlyAddedVariants = [];
     this.selectedVariants.forEach(v => {
-      this.explicitlyAddedVariants.push(v['i']);
+      this.explicitlyAddedVariants.push(v.i);
     });
     console.warn(this.explicitlyAddedVariants);
     this.backendService.discoverProcessModelFromVariants(this.selectedVariants);
@@ -155,11 +160,11 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   addExplicitlyAddedVariant(i: number) {
-    if (this.variants[i]['calculationInProgress']) {
+    if (this.variants[i].calculationInProgress) {
       this.showAlert('Cannot explicitly add the variant - conformance statistics being calculated');
     } else if (this.outdatedConformanceStatistics) {
       this.showAlert('Cannot explicitly add the variant - outdated or no conformance statistics');
-    } else if (this.variants[i]['deviation']) {
+    } else if (this.variants[i].deviation) {
       this.showAlert('Cannot explicitly add the variant - variant does not fit the model');
     } else {
       this.showAlert(null);
@@ -174,7 +179,7 @@ export class VariantExplorerComponent implements OnInit {
     this.tooltipActivationService.close();
 
     if (this.outdatedConformanceStatistics) {
-      this.showAlert("cannot add variants - please run conformance check first");
+      this.showAlert('cannot add variants - please run conformance check first');
       return;
     }
 
@@ -185,9 +190,9 @@ export class VariantExplorerComponent implements OnInit {
 
     const variants_to_add = [];
     this.selectedVariants.forEach(v => {
-      variants_to_add.push(v['value']);
+      variants_to_add.push(v.value);
       // update explicitly added variants TODO: do not before new tree has arrived at frontend
-      this.explicitlyAddedVariants.push(v['i']);
+      this.explicitlyAddedVariants.push(v.i);
     });
     // console.log(variants_to_add);
     // console.log(explicitly_added_variants);
@@ -251,11 +256,11 @@ export class VariantExplorerComponent implements OnInit {
       .attr('y', -4)
       .text(d => d['value'])
       .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + constants.polygonDimensionSpacing) + ', 0)')
-      .attr('visibility', 'hidden')
+      .attr('visibility', 'hidden');
     this.resizeSVG();
   }
 
-  private mouseOverPolygon(e, d) {
+  private mouseOverPolygon(e, d): void {
     const index = d.i;
     // @ts-ignore
     const parentNode = d3.select(this).node().parentNode;
@@ -263,7 +268,7 @@ export class VariantExplorerComponent implements OnInit {
       .attr('visibility', 'visible');
   }
 
-  private mouseOutPolygon(e, d) {
+  private mouseOutPolygon(e, d): void {
     const index = d.i;
     // @ts-ignore
     const parentNode = d3.select(this).node().parentNode;
@@ -272,12 +277,12 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   private setPolygonDimensionWidth(w): void {
-    //console.log("setPolygonDimensionWidth ", w)
+    // console.log("setPolygonDimensionWidth ", w)
     this.polygonDimensionWidth = w;
   }
 
-  private getTracePoints(i) {
-    //calculate chevron
+  private getTracePoints(i): any {
+    // calculate chevron
     const points = [];
     points.push('0,0');
     points.push(this.polygonDimensionWidth + ',0');
@@ -316,12 +321,12 @@ export class VariantExplorerComponent implements OnInit {
       .attr('y', -4)
       .text(d => d['value'])
       .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + constants.polygonDimensionSpacing) + ', 0)')
-      .attr('visibility', 'hidden')
+      .attr('visibility', 'hidden');
 
     // @ts-ignore
     prev_g.attr('width', (this.polygonDimensionWidth + constants.polygonDimensionSpacing) * prev_g.attr('num-events'));
     let max = 0;
-    for (let el in document.getElementsByClassName('svg-trace')) {
+    for (const el in document.getElementsByClassName('svg-trace')) {
       if (typeof (document.getElementsByClassName('svg-trace')[el]) === 'object') {
         if (max < document.getElementsByClassName('svg-trace')[el].getBoundingClientRect().width) {
           max = document.getElementsByClassName('svg-trace')[el].getBoundingClientRect().width;
@@ -332,7 +337,7 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   private expandingTrace(d, i) {
-    let positionX = 4; //4 because of dashed rectangle, otherwise 0
+    let positionX = 4; // 4 because of dashed rectangle, otherwise 0
     const g = d3.select('#chart').selectAll('g').filter((d, j) => j === i);
     g.selectAll('polygon').remove();
     g.selectAll('text').remove();
@@ -351,18 +356,18 @@ export class VariantExplorerComponent implements OnInit {
       .classed('cursor-pointer', true)
       .each((d, i) => {
         if (i > 0) {
-          positionX = positionX + this.polygonDimensionWidth + constants.polygonDimensionSpacing
+          positionX = positionX + this.polygonDimensionWidth + constants.polygonDimensionSpacing;
         }
         // @ts-ignore
         this.setPolygonWidthByLengthOfEvent(d);
         overall_length = overall_length + this.polygonDimensionWidth + constants.polygonDimensionSpacing;
         g.selectAll('polygon').filter((d, j) => j === i)
           .attr('points', this.getTracePoints(i))
-          .attr('transform', 'translate(' + positionX + ', 0)')
+          .attr('transform', 'translate(' + positionX + ', 0)');
       });
     g.attr('width', overall_length);
 
-    positionX = 4;//4 because of dashed rectangle, otherwise 0
+    positionX = 4; // 4 because of dashed rectangle, otherwise 0
     // @ts-ignore
     g.selectAll('text')
       .data(d => {
@@ -377,11 +382,11 @@ export class VariantExplorerComponent implements OnInit {
       .attr('fill', (d: string) => helperFunctions.isDarkColor(this.colorMap.get(d)) ? 'white' : 'black')
       .each((d, i) => {
         if (i > 0) {
-          positionX = positionX + this.polygonDimensionWidth + constants.polygonDimensionSpacing
+          positionX = positionX + this.polygonDimensionWidth + constants.polygonDimensionSpacing;
         }
         // @ts-ignore
         const textLength = g.selectAll('text').filter((d, j) => j === i).node().getComputedTextLength();
-        //console.log(textLength);
+        // console.log(textLength);
         // @ts-ignore
         this.setPolygonWidthByLengthOfEvent(d);
         g.selectAll('text').filter((d, j) => j === i)
@@ -390,20 +395,20 @@ export class VariantExplorerComponent implements OnInit {
     // add blue selection box around selected variant
     // @ts-ignore
     const bbox = g.node().getBBox();
-    g.append("rect")
-      .attr("width", bbox.width + 4)
-      .attr("height", bbox.height + 4)
-      .attr("x", bbox.x - 2)
-      .attr("y", bbox.y - 2)
-      .style("fill", "transparent")
-      .style("stroke", "var(--text-secondary)")
-      .style("stroke-width", "2px")
-      .style("stroke-dasharray", '2')
+    g.append('rect')
+      .attr('width', bbox.width + 4)
+      .attr('height', bbox.height + 4)
+      .attr('x', bbox.x - 2)
+      .attr('y', bbox.y - 2)
+      .style('fill', 'transparent')
+      .style('stroke', 'var(--text-secondary)')
+      .style('stroke-width', '2px')
+      .style('stroke-dasharray', '2');
     this.resizeSVG();
   }
 
   private setPolygonWidthByLengthOfEvent(d: string) {
-    //console.log(d)
+    // console.log(d)
     const width = this.measureStringOnCanvas(d);
     this.setPolygonDimensionWidth(width);
   }
@@ -417,11 +422,11 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   private resizeSVG() {
-    const svg = document.getElementById("SVGcontainer");
+    const svg = document.getElementById('SVGcontainer');
     // @ts-ignore
     const bbox = svg.getBBox();
     // Update the width and height using the size of the contents
-    svg.setAttribute("width", bbox.x + bbox.width + bbox.x + 4);
-    svg.setAttribute("height", bbox.y + bbox.height + bbox.y + 4);
+    svg.setAttribute('width', bbox.x + bbox.width + bbox.x + 4);
+    svg.setAttribute('height', bbox.y + bbox.height + bbox.y + 4);
   }
 }

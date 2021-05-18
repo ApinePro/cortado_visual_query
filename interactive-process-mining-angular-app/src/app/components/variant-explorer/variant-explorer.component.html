@@ -29,7 +29,8 @@
             <br><i class="bi bi-x-square text-danger"> variant does not fit model</i>
             <br><i class="bi bi-check-square text-warning"></i>
             <i class="bi bi-x-square text-warning"> outdated results (model has changed)</i>'
-            (click)="updateAlignments()">
+            (click)="updateAlignments()"
+            [disabled]="!currentlyDisplayedProcessTree || calculatedAlignments<alignmentsToBeCalculated">
       <i class="bi bi-layers-fill btn-icon"></i>
       conformance check
     </button>

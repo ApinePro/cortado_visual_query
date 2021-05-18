@@ -1,5 +1,5 @@
 # pm4py==2.2.7.1
-git+https://gitlab.fit.fraunhofer.de/pm4py/pm4py-core.git@release_cortado_backend#egg=pm4py
+git+https://gitlab.fit.fraunhofer.de/pm4py/pm4py-core.git@release#egg=pm4py
 fastapi
 uvicorn
 python-multipart
