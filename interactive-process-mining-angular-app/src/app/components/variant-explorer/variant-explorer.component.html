@@ -30,7 +30,7 @@
             <br><i class="bi bi-check-square text-warning"></i>
             <i class="bi bi-x-square text-warning"> outdated results (model has changed)</i>'
             (click)="updateAlignments()"
-            [disabled]="!currentlyDisplayedProcessTree || calculatedAlignments<alignmentsToBeCalculated">
+            [disabled]="!currentlyDisplayedProcessTree || calculatedAlignments<alignmentsToBeCalculated || !correctTreeSyntax">
       <i class="bi bi-layers-fill btn-icon"></i>
       conformance check
     </button>
@@ -62,8 +62,8 @@
     <span class="vl"></span>
 
 
-    <button class="button" (click)="clearSelection()">
-      <i class="bi bi-x text-danger btn-icon"></i>
+    <button class="button" (click)="clearSelection()" [disabled]="selectedVariants.length===0">
+      <i class="bi bi-x btn-icon" [ngClass]="{'text-danger':selectedVariants.length!=0}"></i>
       clear selection
     </button>
 

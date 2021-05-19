@@ -74,7 +74,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       }
     });
     this.sharedDataService.activitiesInEventLog$.subscribe(activities => {
-      this.activitiesOccurringInLog = Array.from(activities);
+      console.log(activities);
+      this.activitiesOccurringInLog = Array.from(Object.keys(activities));
     });
   }
 
@@ -263,6 +264,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     if (root) {
       this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(root);
       this.processTreeSyntaxInfo = checkSyntax(this.getProcessTreeObject(root));
+      this.sharedDataService.correctTreeSyntax = this.processTreeSyntaxInfo.correctSyntax;
       // console.log(this.processTreeSyntaxInfo);
       this.saveTreeInSharedDataService();
       // console.log(root);

@@ -37,9 +37,10 @@ export class VariantExplorerComponent implements OnInit {
   numberFittingTraces: number = undefined;
   numberFittingVariants: number = undefined;
   totalNumberTraces: number = undefined;
-  totalNumberVariants: number = 231;
+  totalNumberVariants = 231;
   calculatedAlignments = 0;
-  alignmentsToBeCalculated: number = 0;
+  alignmentsToBeCalculated = 0;
+  correctTreeSyntax = false;
 
   protected unsubscribe: Subject<void> = new Subject<void>();
 
@@ -62,16 +63,17 @@ export class VariantExplorerComponent implements OnInit {
         this.numberFittingVariants = undefined;
         this.totalNumberTraces = undefined;
         this.totalNumberVariants = undefined;
-        this.backendService.getVariantsFromEventLog().subscribe(res => {
-          this.colorMap = this.colorMapService.getColorMap(res.activities);
-          this.sharedDataService.activitiesInEventLog = res.activities;
-          this.variants = res.variants;
-          this.explicitlyAddedVariants = [];
-          this.setPolygonDimensionWidth(constants.polygonFoldingWidth);
-          this.createChart();
-          this.tooltipActivationService.initialize();
-        });
+        this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
+        this.variants = this.sharedDataService.variants;
+        this.explicitlyAddedVariants = [];
+        this.setPolygonDimensionWidth(constants.polygonFoldingWidth);
+        this.createChart();
+        this.tooltipActivationService.initialize();
       }
+    });
+
+    this.sharedDataService.correctTreeSyntax$.subscribe(res => {
+      this.correctTreeSyntax = res;
     });
 
     this.sharedDataService.currentDisplayedProcessTree$.subscribe(tree => {

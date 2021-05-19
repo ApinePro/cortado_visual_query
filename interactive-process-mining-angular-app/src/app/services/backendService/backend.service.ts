@@ -19,9 +19,17 @@ export class BackendService {
   backendUrl = 'http://127.0.0.1:8000/';
 
 
-  loadEventLogFromFilePath(filePath: string): Observable<any> {
-    return this.httpClient.post(this.backendUrl + 'loadEventLog',
-      {file_path: filePath});
+  loadEventLogFromFilePath(filePath: string): void {
+    this.httpClient.post(this.backendUrl + 'loadEventLog',
+      {file_path: filePath}).subscribe(res => {
+      // console.log('Event log ' + fileName + ' loaded');
+      this.sharedDataService.activitiesInEventLog = res['activities'];
+      this.sharedDataService.startActivitiesInEventLog = new Set(Object.keys(res['startActivities']));
+      this.sharedDataService.endActivitiesInEventLog = new Set(Object.keys(res['endActivities']));
+      this.sharedDataService.variants = res['variants'];
+      this.sharedDataService.loadedEventLog = filePath;
+    });
+
   }
 
   loadProcessTreeFromFilePath(filePath: string): void {
@@ -29,22 +37,6 @@ export class BackendService {
       .subscribe(tree => {
         this.sharedDataService.currentDisplayedProcessTree = tree;
       });
-  }
-
-  getVariantsFromEventLog(): Observable<any> {
-    return this.httpClient.get(this.backendUrl + 'variants');
-  }
-
-  getActivitiesFromEventLog(): Observable<any> {
-    return this.httpClient.get(this.backendUrl + 'activities');
-  }
-
-  getStartActivitiesFromEventLog(): Observable<any> {
-    return this.httpClient.get(this.backendUrl + 'startActivities');
-  }
-
-  getEndActivitiesFromEventLog(): Observable<any> {
-    return this.httpClient.get(this.backendUrl + 'endActivities');
   }
 
   discoverProcessModelFromVariants(variants: any[]): void {

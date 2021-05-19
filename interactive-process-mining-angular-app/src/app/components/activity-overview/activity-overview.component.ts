@@ -33,18 +33,10 @@ export class ActivityOverviewComponent implements OnInit {
 
     this.sharedDataService.loadedEventLog$.subscribe(eventLogName => {
       console.log('new loadedEventLog$ in activity-overview.component:' + eventLogName);
-      this.backendService.getStartActivitiesFromEventLog().subscribe(res => {
-        this.startActivities = new Set(Object.keys(res));
-        console.log(this.startActivities);
-      });
-      this.backendService.getEndActivitiesFromEventLog().subscribe(res => {
-        this.endActivities = new Set(Object.keys(res));
-        console.log(this.endActivities);
-      });
-      this.backendService.getActivitiesFromEventLog().subscribe(res => {
-        this.activitiesInLog = res;
-        console.log(this.activitiesInLog);
-      });
+      this.startActivities = this.sharedDataService.startActivitiesInEventLog;
+      this.endActivities = this.sharedDataService.endActivitiesInEventLog;
+      this.activitiesInLog = this.sharedDataService.activitiesInEventLog;
+      console.log(this.activitiesInLog);
     });
   }
 

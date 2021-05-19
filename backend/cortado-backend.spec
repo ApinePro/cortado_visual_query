@@ -4,7 +4,7 @@ import sys ; sys.setrecursionlimit(sys.getrecursionlimit() * 5)
 block_cipher = None
 
 
-a = Analysis(['cortado-backend.py'],
+a = Analysis(['main.py'],
              pathex=['C:\\Users\\dschuste\\Documents\\git_repos\\fraunhofer_git\\interactive-process-mining\\backend'],
              binaries=[('C:/Users/dschuste/Documents/git_repos/fraunhofer_git/interactive-process-mining_venv/Lib/site-packages/cvxopt','cvxopt')],
              datas=[('C:/Users/dschuste/Documents/git_repos/fraunhofer_git/interactive-process-mining_venv/Lib/site-packages/pulp/*','.'),
@@ -20,7 +20,8 @@ a = Analysis(['cortado-backend.py'],
                             'uvicorn.lifespan',
                             'uvicorn.lifespan.on',
                             'pulp',
-                            'OpenBLAS'],
+                            'OpenBLAS',
+                            'main'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],

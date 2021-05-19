@@ -14,6 +14,7 @@ export class ColorMapService {
   getColorMap(activities: string[]): Map<string, string> {
     //TODO: ensure activities are ordered based on frequency
     const colorMap: Map<string, string> = new Map();
+    activities.sort();
     activities.forEach((a, i) => {
       colorMap.set(a, this.get_color(i));
     });

@@ -36,10 +36,7 @@ export class SideBarComponent implements OnInit {
       /*this.backendService.uploadEventLog$(fileList[0]).subscribe(() => {
         console.log('success?');
       });*/
-      this.backendService.loadEventLogFromFilePath(fileList[0]['path']).subscribe(res => {
-        // console.log('Event log ' + fileName + ' loaded');
-        this.sharedDataService.loadedEventLog = fileName;
-      });
+      this.backendService.loadEventLogFromFilePath(fileList[0]['path']);
     }
     // reset form
     this.fileUploadEventLog.nativeElement.value = '';

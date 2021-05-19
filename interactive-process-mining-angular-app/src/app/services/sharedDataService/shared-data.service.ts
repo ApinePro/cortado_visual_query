@@ -9,19 +9,19 @@ export class SharedDataService {
   constructor() {
     if (isDevMode() || true) {
       // console.log("load dummy data to activity list")
-      this._activitiesInEventLog.next(new Set([
-        "Add penalty",
-        "Appeal to Judge",
-        "Create Fine",
-        "Insert Data Appeal to Prefecture",
-        "Insert Fine Notification",
-        "Notify Result Appeal to Offender",
-        "Payment",
+      /*this._activitiesInEventLog.next(new Map([
+        "Add penalty":12,
+        "Appeal to Judge":12,
+        "Create Fine":1,
+        "Insert Data Appeal to Prefecture":1,
+        "Insert Fine Notification":1,
+        "Notify Result Appeal to Offender":1,
+        "Payment":1,
         "Receive Result Appeal from Prefecture",
         "Send Appeal to Prefecture",
         "Send Fine",
         "Send for Credit Collection"
-      ]));
+      ]));*/
     }
   }
 
@@ -74,21 +74,76 @@ export class SharedDataService {
     return this._activitiesInCurrentTree.asObservable();
   }
 
-  private _activitiesInEventLog = new BehaviorSubject<Set<string>>(new Set());
+  private _activitiesInEventLog = new BehaviorSubject<any>(new Map());
 
-  get activitiesInEventLog$(): Observable<Set<string>> {
+  get activitiesInEventLog$(): Observable<any> {
     return this._activitiesInEventLog.asObservable();
   }
 
-  set activitiesInEventLog(activities: Set<string>) {
+  set activitiesInEventLog(activities: any) {
     this._activitiesInEventLog.next(activities);
   }
 
-  private _eventLogVariants = new Subject<any>();
-
-  get eventLogVariants(): Observable<any> {
-    return this._eventLogVariants.asObservable();
+  get activitiesInEventLog(): any {
+    return this._activitiesInEventLog.getValue();
   }
+
+  private _startActivitiesInEventLog = new BehaviorSubject<Set<string>>(new Set());
+
+  get startActivitiesInEventLog$(): Observable<Set<string>> {
+    return this._startActivitiesInEventLog.asObservable();
+  }
+
+  set startActivitiesInEventLog(activities: Set<string>) {
+    this._startActivitiesInEventLog.next(activities);
+  }
+
+  get startActivitiesInEventLog(): Set<string> {
+    return this._startActivitiesInEventLog.getValue();
+  }
+
+  private _endActivitiesInEventLog = new BehaviorSubject<Set<string>>(new Set());
+
+  get endActivitiesInEventLog$(): Observable<Set<string>> {
+    return this._endActivitiesInEventLog.asObservable();
+  }
+
+  set endActivitiesInEventLog(activities: Set<string>) {
+    this._endActivitiesInEventLog.next(activities);
+  }
+
+  get endActivitiesInEventLog(): Set<string> {
+    return this._endActivitiesInEventLog.getValue();
+  }
+
+  private _variants = new BehaviorSubject<any[]>([]);
+
+  get variants$(): Observable<any[]> {
+    return this._variants.asObservable();
+  }
+
+  set variants(activities: any[]) {
+    this._variants.next(activities);
+  }
+
+  get variants(): any[] {
+    return this._variants.getValue();
+  }
+
+  private _correctTreeSyntax = new BehaviorSubject<boolean>(false);
+
+  get correctTreeSyntax$(): Observable<boolean> {
+    return this._correctTreeSyntax.asObservable();
+  }
+
+  set correctTreeSyntax(flag: boolean) {
+    this._correctTreeSyntax.next(flag);
+  }
+
+  get correctTreeSyntax(): boolean {
+    return this._correctTreeSyntax.getValue();
+  }
+
 
   // TODO move somewhere else
   processTreesEqual(pt1, pt2): boolean {

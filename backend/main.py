@@ -1,8 +1,7 @@
-import multiprocessing
-import struct
-from typing import Optional, Any, List
+from multiprocessing import freeze_support, cpu_count
+import pm4pycvxopt
+from typing import Any, List
 import uvicorn
-import threading
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
@@ -13,27 +12,16 @@ from pm4py.algo.filtering.log.variants import variants_filter
 from pm4py.objects.log.log import EventLog, Trace, Event
 from pm4py.objects.process_tree.process_tree import ProcessTree
 from pm4py.algo.discovery.inductive.variants.im_clean.algorithm import apply_tree as inductive_miner
-# import pm4py.visualization.process_tree.visualizer as pt_vis
 from pm4py.objects.process_tree.exporter.variants.ptml import export_tree_as_string as generate_ptml_xml
 from pm4py.objects.conversion.process_tree.converter import apply as convert_pt_to_petri_net
 from pm4py.objects.petri.exporter.variants.pnml import export_petri_as_string as generate_pnml_xml
 from pm4py.objects.process_tree.importer.importer import apply as import_pt_from_ptml
-# from pm4py.algo.conformance.alignments.algorithm import apply
-from pm4py.util.lp.solver import DEFAULT_LP_SOLVER_VARIANT
-from pm4py.algo.filtering.log.start_activities import start_activities_filter
-from pm4py.algo.filtering.log.end_activities import end_activities_filter
-from pm4py.algo.filtering.log.attributes import attributes_filter
 
 from backend_utilities.process_tree_conversion import process_tree_to_dict
 from backend_utilities.process_tree_conversion import dict_to_process_tree
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
+from endpoints.load_event_log import calculate_event_log_properties
 from interactive_process_mining_core.lca_approach import add_trace_to_pt_language
-
-import cvxopt
-
-# import multiprocessing
-
-print(DEFAULT_LP_SOLVER_VARIANT)
 
 app = FastAPI()
 origins = [
@@ -50,8 +38,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-event_log = None
-
 
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
@@ -64,9 +50,8 @@ class FilePathInput(BaseModel):
 
 @app.post("/loadEventLog")
 async def load_event_log_from_file_path(d: FilePathInput):
-    global event_log
     event_log = xes_import(d.file_path)
-    return
+    return calculate_event_log_properties(event_log)
 
 
 @app.post("/loadProcessTreeFromPtmlFile")
@@ -134,8 +119,9 @@ async def add_variants_to_process_model(d: InputAddVariantsToProcessModel):
 
 @app.get("/variants")
 async def get_variants_from_event_log():
-    variants = variants_filter.get_variants(event_log)
-    total_traces = len(event_log)
+    log = await meta.get_event_log()
+    variants = variants_filter.get_variants(log)
+    total_traces = len(log)
     res = {"variants": [], "activities": set()}
     for v in variants:
         res["variants"].append({
@@ -148,21 +134,6 @@ async def get_variants_from_event_log():
 
     res['variants'] = sorted(res['variants'], key=lambda variant: variant['count'], reverse=True)
     return res
-
-
-@app.get("/startActivities")
-async def get_start_activities_from_log():
-    return start_activities_filter.get_start_activities(event_log)
-
-
-@app.get("/endActivities")
-async def get_end_activities_from_log():
-    return end_activities_filter.get_end_activities(event_log)
-
-
-@app.get("/activities")
-async def get_activities():
-    return attributes_filter.get_attribute_values(event_log, "concept:name")
 
 
 class ConvertPtToX(BaseModel):
@@ -193,11 +164,9 @@ async def calculate_alignment(d: InputCalculateAlignment):
 
 
 if __name__ == "__main__":
-    # multiprocessing.freeze_support()
-    # uvicorn.run("main:app", host="0.0.0.0", port=8000)
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-    # num_workers = max(1, multiprocessing.cpu_count() - 2)
-    # uvicorn.run("cortado-backend:app", host="0.0.0.0", port=8000, workers=num_workers)
+    freeze_support()
+    num_workers = max(1, cpu_count() - 2)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers)
 
     # dev mode
     # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

@@ -8,13 +8,16 @@
       <span class="font-weight-light">
       {{currentTask|lowercase}}
     </span>
+      <span class="font-weight-light" *ngIf="numberTasks>1">
+      (remaining tasks: {{numberTasks|number}})
+    </span>
     </ng-container>
 
     <span class="float-right text-secondary">
       <a href="mailto:cortado@fit.fraunhofer.de"><i class="bi bi-question-circle"></i> contact</a>
 
       <span class="vl ml-2 mr-2"></span>
-      version 1.0.0
+      version {{version}}
 
       <span class="vl ml-2 mr-2"></span>
       powered by
