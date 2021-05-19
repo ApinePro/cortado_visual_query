@@ -110,9 +110,10 @@
     </div>
 
     <button class="button text-warning" (click)="deleteSubtree();"
-            [disabled]="buttonManipulatingMultipleNodesDisabled()"
+            [disabled]="buttonDeleteSubtreeDisabled()"
             data-toggle="tooltip" data-placement="top" data-trigger="hover"
             title="remove selected node(s)">
+
       <i class="bi bi-trash btn-icon"></i>
     </button>
 

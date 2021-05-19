@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-//jQuery
+// jQuery
 declare var $;
 
 @Injectable({
@@ -10,29 +10,29 @@ export class ActivateTooltipsService {
   constructor() {
   }
 
-  public initialize() {
-    //activate tooltips
+  public initialize(): void {
+    // activate tooltips
     // @ts-ignore
     $('[data-toggle="tooltip"]').tooltip({
-      container: "body",
-      placement: "top",
+      container: 'body',
+      placement: 'top',
       boundary: 'window',
       delay: {show: 200, hide: 60}
     });
   }
 
-  public close() {
+  public close(): void {
     $('[data-toggle="tooltip"]').tooltip('hide');
   }
 
-  public disable() {
-    //activate tooltips
+  public disable(): void {
+    // activate tooltips
     // @ts-ignore
     $('[data-toggle="tooltip"]').tooltip('disable');
   }
 
-  public enable() {
-    //activate tooltips
+  public enable(): void {
+    // activate tooltips
     // @ts-ignore
     $('[data-toggle="tooltip"]').tooltip('enable');
   }
