@@ -70,6 +70,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
           return d.children;
         });
         console.warn('update tree triggered by service');
+        this.selectedRootNode = null;
+        this.selectedRootNodeOnly = false;
         this.update(this.root, true);
       }
     });
