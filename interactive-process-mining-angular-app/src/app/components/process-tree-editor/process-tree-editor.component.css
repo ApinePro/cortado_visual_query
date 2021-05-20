@@ -43,7 +43,8 @@
 }
 
 .insertion-position-active {
-  background-color: #a6cf82;
+  background-color: var(--primary);
+  color: white;
 }
 
 .node-text {

@@ -41,7 +41,6 @@ export class VariantExplorerComponent implements OnInit {
   calculatedAlignments = 0;
   alignmentsToBeCalculated = 0;
   correctTreeSyntax = false;
-
   protected unsubscribe: Subject<void> = new Subject<void>();
 
 

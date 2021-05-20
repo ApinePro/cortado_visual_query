@@ -1,5 +1,6 @@
 import {Injectable, isDevMode} from '@angular/core';
-import {BehaviorSubject, Observable, Subject} from "rxjs";
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import * as dummy_backend_response from './dummy_backend_response.js';
 
 @Injectable({
   providedIn: 'root'
@@ -74,7 +75,7 @@ export class SharedDataService {
     return this._activitiesInCurrentTree.asObservable();
   }
 
-  private _activitiesInEventLog = new BehaviorSubject<any>(new Map());
+  private _activitiesInEventLog = new BehaviorSubject<any>(dummy_backend_response.activitiesInLog);
 
   get activitiesInEventLog$(): Observable<any> {
     return this._activitiesInEventLog.asObservable();

@@ -36,7 +36,6 @@ export class ActivityOverviewComponent implements OnInit {
       this.startActivities = this.sharedDataService.startActivitiesInEventLog;
       this.endActivities = this.sharedDataService.endActivitiesInEventLog;
       this.activitiesInLog = this.sharedDataService.activitiesInEventLog;
-      console.log(this.activitiesInLog);
     });
   }
 

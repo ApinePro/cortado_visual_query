@@ -6,18 +6,20 @@
 
 ### Changed
 
-* Changed alignment calculation algorithm [Backend]
-* Improved user feedback on ongoing background tasks in the footer [Frontend]
+* changed alignment calculation algorithm [Backend]
+* improved user feedback on ongoing background tasks in the footer [Frontend]
 
 ### Added
 
-* Multiprocessing support [Backend]
-* Ability to remove the entire tree [Frontend]
-* Allow deleting entire process tree [Frontend]
+* multiprocessing support [Backend]
+* ability to remove the entire tree [Frontend]
+* allow deleting entire process tree [Frontend]
+* option to extend the process tree above its root node in the tree editor [Frontend]
+* link to the website in the footer [Frontend] 
 
 ### Fixed
 
-* Fixed a bug that could lead to a disabled *conformance check* button [Frontend]
+* fixed a bug that could lead to a disabled *conformance check* button [Frontend]
 
 ---
 

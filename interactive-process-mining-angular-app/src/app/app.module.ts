@@ -27,7 +27,7 @@ import {HttpRequestInterceptor} from './interceptors/http-request.interceptor';
     BrowserModule,
     // AppRoutingModule,
     FormsModule,
-    HttpClientModule,
+    HttpClientModule
   ],
   providers: [
     {

@@ -16,51 +16,60 @@
       </button>
       <div class="dropdown-menu dropdown-node-insert" id="dropdownNewNode">
 
-        <div class="font-italic font-weight-bold pl-2 text-center">Position</div>
+        <div id="positionMethodSelection" *ngIf="root!==null && root!==undefined">
 
-        <div class="dropdown-item"
-             *ngIf="!insertPositionLeftRightDisabled"
-             [ngClass]="lastSelectedInsertMethod===insertNewNodeLeft? 'insertion-position-active':''"
-             (click)="selectedMethod=insertNewNodeLeft;lastSelectedInsertMethod=insertNewNodeLeft;">
-          <i class="bi bi-box-arrow-in-left btn-icon"></i>
-          <span class="ml-3">insert left</span>
+          <div class="font-italic font-weight-bold pl-2 text-center">Position</div>
+          <div class="dropdown-item"
+               *ngIf="!insertPositionAboveDisabled"
+               [ngClass]="lastSelectedInsertMethod===insertNewNodeAbove? 'insertion-position-active':''"
+               (click)="selectedMethod=insertNewNodeAbove;lastSelectedInsertMethod=insertNewNodeAbove;">
+            <i class="bi bi-box-arrow-in-up btn-icon"></i>
+            <span class="ml-3">insert above</span>
+          </div>
+
+          <div class="dropdown-item"
+               *ngIf="!insertPositionLeftRightDisabled"
+               [ngClass]="lastSelectedInsertMethod===insertNewNodeLeft? 'insertion-position-active':''"
+               (click)="selectedMethod=insertNewNodeLeft;lastSelectedInsertMethod=insertNewNodeLeft;">
+            <i class="bi bi-box-arrow-in-left btn-icon"></i>
+            <span class="ml-3">insert left</span>
+          </div>
+
+          <div class="dropdown-item"
+               [ngClass]="lastSelectedInsertMethod===insertNewNodeBelow? 'insertion-position-active':''"
+               (click)="selectedMethod=insertNewNodeBelow;lastSelectedInsertMethod=insertNewNodeBelow;">
+            <i class="bi bi-box-arrow-in-down btn-icon"></i>
+            <span class="ml-3">insert below</span>
+          </div>
+
+          <div class="dropdown-item"
+               *ngIf="!insertPositionLeftRightDisabled"
+               [ngClass]="lastSelectedInsertMethod===insertNewNodeRight? 'insertion-position-active':''"
+               (click)="selectedMethod=insertNewNodeRight;lastSelectedInsertMethod=insertNewNodeRight;">
+            <i class="bi bi-box-arrow-in-right btn-icon"></i>
+            <span class="ml-3">insert right</span>
+          </div>
+          <div class="dropdown-divider"></div>
         </div>
-
-        <div class="dropdown-item"
-             [ngClass]="lastSelectedInsertMethod===insertNewNodeBelow? 'insertion-position-active':''"
-             (click)="selectedMethod=insertNewNodeBelow;lastSelectedInsertMethod=insertNewNodeBelow;">
-          <i class="bi bi-box-arrow-in-down btn-icon"></i>
-          <span class="ml-3">insert below</span>
-        </div>
-
-        <div class="dropdown-item"
-             *ngIf="!insertPositionLeftRightDisabled"
-             [ngClass]="lastSelectedInsertMethod===insertNewNodeRight? 'insertion-position-active':''"
-             (click)="selectedMethod=insertNewNodeRight;lastSelectedInsertMethod=insertNewNodeRight;">
-          <i class="bi bi-box-arrow-in-right btn-icon"></i>
-          <span class="ml-3">insert right</span>
-        </div>
-
-        <div class="dropdown-divider"></div>
 
         <div class="font-italic font-weight-bold pl-2 text-center">Node</div>
 
         <ng-template #operatorListDropdown>
           <div class="font-italic pl-2 text-primary">Operator</div>
 
-          <div class="dropdown-item" (click)="selectedMethod('\u2715',null)">
+          <div class="dropdown-item" (click)="insertNewNode('\u2715',null)">
             <span class="font-weight-bold">&#x2715;</span>
             <span class="ml-3 text-secondary">choice</span>
           </div>
-          <div class="dropdown-item" (click)="selectedMethod('\u2794',null)">
+          <div class="dropdown-item" (click)="insertNewNode('\u2794',null)">
             <span class="font-weight-bold">&#x2794;</span>
             <span class="ml-3 text-secondary">sequence</span>
           </div>
-          <div class="dropdown-item" (click)="selectedMethod('\u21BA',null)">
+          <div class="dropdown-item" (click)="insertNewNode('\u21BA',null)">
             <span class="font-weight-bold">&#x21BA;</span>
             <span class="ml-3 text-secondary">loop</span>
           </div>
-          <div class="dropdown-item" (click)="selectedMethod('\u2227',null)">
+          <div class="dropdown-item" (click)="insertNewNode('\u2227',null)">
             <span class="font-weight-bold">&#x2227;</span>
             <span class="ml-3 text-secondary">parallel</span>
           </div>
@@ -71,7 +80,7 @@
         <ng-template #activityListDropdown>
           <div class="font-italic pl-2 text-primary">Activity</div>
 
-          <div class="dropdown-item" (click)="selectedMethod(null,'\u03C4')">
+          <div class="dropdown-item" (click)="insertNewNode(null,'\u03C4')">
             <span class="font-weight-bold">&#x03C4;</span>
             <span class="ml-3 text-secondary">invisible activity</span>
           </div>
@@ -81,7 +90,7 @@
                    placeholder="type activity name">
           </div>
           <div class="dropdown-item" *ngFor="let a of activitiesOccurringInLog | strFilter: searchText"
-               (click)="selectedMethod(null,a)">
+               (click)="insertNewNode(null,a)">
             <span class="">{{a}}</span>
           </div>
         </ng-template>
