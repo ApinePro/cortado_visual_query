@@ -15,7 +15,6 @@
 * ability to remove the entire tree [Frontend]
 * allow deleting entire process tree [Frontend]
 * option to extend the process tree above its root node in the tree editor [Frontend]
-* link to the website in the footer [Frontend] 
 
 ### Fixed
 
