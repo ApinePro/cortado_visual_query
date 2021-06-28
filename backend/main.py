@@ -7,6 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
 from pm4py.objects.log.importer.xes.importer import apply as xes_import
+import pm4py.objects.log.importer.xes.importer as xes_importer 
+
 from pydantic import BaseModel
 from pm4py.algo.filtering.log.variants import variants_filter
 from pm4py.objects.log.log import EventLog, Trace, Event
@@ -41,7 +43,9 @@ app.add_middleware(
 
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
-    return {"filename": file.filename}
+    content = "".join([line.decode("UTF-8") for line in file.file])
+    event_log = xes_importer.deserialize(content)
+    return calculate_event_log_properties(event_log)
 
 
 class FilePathInput(BaseModel):

@@ -4,7 +4,7 @@ from pm4py.algo.conformance.alignments.algorithm import apply_trace as get_align
 from pm4py.objects.conversion.process_tree.converter import apply as convert_pt_to_petri_net
 from pm4py.objects.log.obj import Trace, Event
 from pm4py.objects.process_tree.process_tree import ProcessTree
-from backend.backend_utilities.process_tree_conversion import dict_to_process_tree
+from backend_utilities.process_tree_conversion import dict_to_process_tree
 from pm4py.objects.petri.align_utils import STD_MODEL_LOG_MOVE_COST, SKIP
 from pm4py.algo.conformance.alignments.process_tree.variants import search_graph_pt as tree_alignment
 import pm4py.visualization.process_tree.visualizer as tree_vis

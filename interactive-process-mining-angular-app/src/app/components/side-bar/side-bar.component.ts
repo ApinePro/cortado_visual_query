@@ -33,10 +33,8 @@ export class SideBarComponent implements OnInit {
       console.log(fileList[0]);
       const fileName = fileList[0].name;
       // TODO make it also work with browser by uploading the file instead of just the file path
-      /*this.backendService.uploadEventLog$(fileList[0]).subscribe(() => {
-        console.log('success?');
-      });*/
-      this.backendService.loadEventLogFromFilePath(fileList[0]['path']);
+      this.backendService.uploadEventLog(fileList[0]);
+      // this.backendService.loadEventLogFromFilePath(fileList[0]['path']);
     }
     // reset form
     this.fileUploadEventLog.nativeElement.value = '';

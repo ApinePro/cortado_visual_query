@@ -29,7 +29,20 @@ export class BackendService {
       this.sharedDataService.variants = res['variants'];
       this.sharedDataService.loadedEventLog = filePath;
     });
+  }
 
+  uploadEventLog(file: File) {
+    let formData = new FormData();
+    formData.append("file", file);
+
+    this.httpClient.post(this.backendUrl + 'uploadfile', formData).subscribe(res => {
+        console.log('Event log ' + file.name + ' loaded');
+        this.sharedDataService.activitiesInEventLog = res['activities'];
+        this.sharedDataService.startActivitiesInEventLog = new Set(Object.keys(res['startActivities']));
+        this.sharedDataService.endActivitiesInEventLog = new Set(Object.keys(res['endActivities']));
+        this.sharedDataService.variants = res['variants'];
+        this.sharedDataService.loadedEventLog = file.name;
+    });
   }
 
   loadProcessTreeFromFilePath(filePath: string): void {
