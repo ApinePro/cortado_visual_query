@@ -3,16 +3,16 @@ from pm4py.algo.filtering.log.start_activities import start_activities_filter
 from pm4py.algo.filtering.log.end_activities import end_activities_filter
 from pm4py.algo.filtering.log.attributes import attributes_filter
 from pm4py.algo.filtering.log.variants import variants_filter
-
+from pm4py.statistics.variants.log.get import get_concurrency_variants
 
 def calculate_event_log_properties(event_log: EventLog):
-    variants = variants_filter.get_variants(event_log)
+    variants = get_concurrency_variants(event_log)
     total_traces = len(event_log)
     res_variants = []
     for v in variants:
         res_variants.append({
             'count': len(variants[v]),
-            'events': v.split(','),
+            'variant': [vv.serialize() for vv in v],
             'percentage': round(len(variants[v]) / total_traces * 100, 2)
         })
     res_variants = sorted(res_variants, key=lambda variant: variant['count'], reverse=True)

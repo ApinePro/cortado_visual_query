@@ -1,7 +1,7 @@
 import { AfterViewInit, ElementRef } from '@angular/core';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
-import { Selection } from 'd3';
+import { Selection, thresholdFreedmanDiaconis } from 'd3';
 import { Constants, LeafNode, ParallelGroup, SequenceGroup, VariantElement } from '../model';
 
 @Component({
@@ -49,11 +49,13 @@ export class VariantFragmentComponent implements AfterViewInit {
     let width = this.content.getWidth();
     let height = this.content.getHeight();
 
+    this.content.updateWidth();
+
     this.svgSelection = d3.select(this.svgHtmlElement.nativeElement)
                 .attr('width', width)
-                .attr('height', height + 15)
+                .attr('height', height)
                 .append('g')
-                .attr("transform", "translate(0 15)")
+                // .attr("transform", "translate(0 15)")
                 .on('click', () => {
                   this.content.setExpanded(!this.content.expanded);
                   this.redraw();
@@ -62,12 +64,13 @@ export class VariantFragmentComponent implements AfterViewInit {
   }
 
   redraw() {
-    let width = this.content.getWidth();
-    let height = this.content.getHeight();
+    let height = this.content.recalculateHeight();
+    let width = this.content.recalculateWidth();
+    this.content.updateWidth();
 
     d3.select(this.svgHtmlElement.nativeElement)
       .attr('width', width)
-      .attr('height', height + 15);
+      .attr('height', height);
 
     this.svgSelection.selectAll("*").remove();
 
@@ -98,7 +101,9 @@ export class VariantFragmentComponent implements AfterViewInit {
     parent.append('polygon')
           .attr('points', polygonPoints)
           .style('fill', color)
-          .style('stroke', 'black');
+          .style('stroke', 'black')
+          .classed('variant-group-element', true)
+          .classed('variant-sequence-group', true);
 
     let x = Constants.MARGIN_X;
 
@@ -124,7 +129,9 @@ export class VariantFragmentComponent implements AfterViewInit {
     parent.append('polygon')
           .attr('points', polygonPoints)
           .style('fill', color)
-          .style('stroke', 'black');
+          .style('stroke', 'black')
+          .classed('variant-group-element', true)
+          .classed('variant-parallel-group', true);
 
     let y = Constants.MARGIN_Y;
     for(let child of element.elements) {
@@ -161,12 +168,12 @@ export class VariantFragmentComponent implements AfterViewInit {
           .attr('points', polygonPoints)
           .style('fill', color)
           .style('stroke', 'black')
-          .on('mouseover', () => {
-            hoverText.attr('visibility', 'visible')
-          })
-          .on('mouseout', () => {
-            hoverText.attr('visibility', 'hidden')
-          });
+          // .on('mouseover', () => {
+          //   hoverText.attr('visibility', 'visible')
+          // })
+          // .on('mouseout', () => {
+          //   hoverText.attr('visibility', 'hidden')
+          // });
     
     let text = element.activity;
     if(!element.expanded) {
@@ -198,7 +205,8 @@ export class VariantFragmentComponent implements AfterViewInit {
 
 
   getColor(element: VariantElement) {
-    return '#2b2b2b'
+    // return '#2b2b2b'
+    return 'lightgrey'
   }
 
   colors = d3.scaleOrdinal().domain(this.getActivities(this.content)).range(d3.schemeAccent)

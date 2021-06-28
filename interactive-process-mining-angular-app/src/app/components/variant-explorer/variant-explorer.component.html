@@ -77,58 +77,74 @@
   <div class="main-variant-explorer flex-grow-1">
     <div class="d-flex">
       <div class="chart-variant__percentage">
-        <div *ngFor="let variant of variants; let i = index" class="d-flex flex-row">
-
-          <i class="bi bi-circle font-large mr-2 text-muted"
-             *ngIf="!explicitlyAddedVariants.includes(i)"
-             (click)="addExplicitlyAddedVariant(i)">
-          </i>
-          <i class="bi bi-check2-circle font-large mr-2 text-light cursor-pointer"
-             *ngIf="explicitlyAddedVariants.includes(i)"
-             (click)="removeExplicitlyAddedVariant(i)">
-          </i>
-          <!--<i class="bi bi-check2-circle font-large mr-2"
-             [ngClass]=" explicitlyAddedVariants.includes(i)? 'text-light cursor-pointer': 'text-muted'">
-          </i>-->
-
-          <!-- hourglass-split icon-->
-          <i class="bi bi-hourglass-split text-secondary font-large"
-             *ngIf="variant['calculationInProgress']">
-          </i>
-
-          <!-- check-square icon-->
-          <i class="bi bi-check-square font-large"
-             [ngClass]="!outdatedConformanceStatistics? 'text-success' : 'text-warning'"
-             *ngIf="variant.hasOwnProperty('deviation') && !variant['deviation'] &&
-          !variant['calculationInProgress']"> </i>
-
-          <!-- x-square icon-->
-          <i class="bi bi-x-square font-large"
-             [ngClass]="!outdatedConformanceStatistics? 'text-danger' : 'text-warning'"
-             *ngIf="variant.hasOwnProperty('deviation') && variant['deviation'] && !variant['calculationInProgress']">
-          </i>
-
-          <!-- question mark icon-->
-          <i class="bi bi-question-square text-secondary align-middle font-large"
-             *ngIf="!variant.hasOwnProperty('deviation') && ! variant['calculationInProgress'] && !variant['calculationInProgress']">
-          </i>
-
-
-          <small class="ml-1 float-right cursor-help"
-                 data-toggle="tooltip"
-                 data-placement="right"
-                 data-container="body"
-                 data-html="true"
-                 title="variant describes ~{{variant['percentage']}}% of all traces in the event log<br>
-             <span class='text-secondary'>variant occurs {{variant['count']| number}} time(s) in total</span>">
-            {{variant['percentage']}}%<br/>
-            ({{variant['count'] | number}})
-          </small>
-
-          <app-variant [variant]="variantsObjects[i]" [colorMap]="colorMap" (selectVariant)="toggleSelect(i)"></app-variant>
-        </div>
+        <table>
+          <tr>
+            <th>
+              Info
+            </th>
+            <th>
+              Variant
+            </th>
+          </tr>
+          <tr *ngFor="let variant of variants; let i = index">
+            <td>
+              <div class="variant-info-cell">
+                <i class="bi bi-circle font-large mr-2 text-muted"
+                *ngIf="!explicitlyAddedVariants.includes(i)"
+                (click)="addExplicitlyAddedVariant(i)">
+                </i>
+                <i class="bi bi-check2-circle font-large mr-2 text-light cursor-pointer"
+                    *ngIf="explicitlyAddedVariants.includes(i)"
+                    (click)="removeExplicitlyAddedVariant(i)">
+                </i>
+                <!--<i class="bi bi-check2-circle font-large mr-2"
+                    [ngClass]=" explicitlyAddedVariants.includes(i)? 'text-light cursor-pointer': 'text-muted'">
+                </i>-->
+      
+                <!-- hourglass-split icon-->
+                <i class="bi bi-hourglass-split text-secondary font-large"
+                    *ngIf="variant['calculationInProgress']">
+                </i>
+      
+                <!-- check-square icon-->
+                <i class="bi bi-check-square font-large"
+                    [ngClass]="!outdatedConformanceStatistics? 'text-success' : 'text-warning'"
+                    *ngIf="variant.hasOwnProperty('deviation') && !variant['deviation'] &&
+                !variant['calculationInProgress']"> </i>
+      
+                <!-- x-square icon-->
+                <i class="bi bi-x-square font-large"
+                    [ngClass]="!outdatedConformanceStatistics? 'text-danger' : 'text-warning'"
+                    *ngIf="variant.hasOwnProperty('deviation') && variant['deviation'] && !variant['calculationInProgress']">
+                </i>
+      
+                <!-- question mark icon-->
+                <i class="bi bi-question-square text-secondary align-middle font-large"
+                    *ngIf="!variant.hasOwnProperty('deviation') && ! variant['calculationInProgress'] && !variant['calculationInProgress']">
+                </i>
+      
+      
+                <small class="ml-1 float-right cursor-help"
+                        data-toggle="tooltip"
+                        data-placement="right"
+                        data-container="body"
+                        data-html="true"
+                        title="variant describes ~{{variant['percentage']}}% of all traces in the event log<br>
+                    <span class='text-secondary'>variant occurs {{variant['count']| number}} time(s) in total</span>">
+                  {{variant['percentage']}}%<br/>
+                  ({{variant['count'] | number}})
+                </small>
+              </div>
+            </td>
+            <td class="variant-cell">
+              <div class="variant" [ngStyle]="{ 'border': selectedVariants.includes(i) ? 'dashed' : 'none' }">
+                <app-variant [id]="'variant' + i" [variant]="variant['variant']" [colorMap]="colorMap" (selectVariant)="toggleSelect(i)"></app-variant>
+              </div>
+            </td>
+            <div class="spacer"></div>
+          </tr>
+        </table>
       </div>
-      <div #chart id="chart"></div>
     </div>
   </div>
 

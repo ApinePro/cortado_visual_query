@@ -7,17 +7,27 @@
   */
   font-size: .8rem;
   color: whitesmoke;
-  margin-top: 20px;
   color: var(--text-secondary);
 }
 
-.chart-variant__percentage div {
-  height: 40px;
-  text-align: end;
-  margin-right: 1px;
-  vertical-align: middle;
-  width: auto;
-  line-height: .6rem;
+.variant-info-cell {
+  align-items: center;
+  display: flex;
+}
+
+.variant-cell {
+  padding: 5px;
+  width: 100%;
+}
+
+.variant {
+  border-width: 1px !important;
+  padding: 5px;
+  width: fit-content;
+}
+
+.spacer {
+  height: 5px;
 }
 
 .main-variant-explorer {

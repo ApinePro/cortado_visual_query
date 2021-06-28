@@ -7,7 +7,16 @@
     font-weight: 800;
 }
 
-:host {
+/* :host {
     position: relative;
     bottom: 20px;
+} */
+
+::ng-deep .variant-group-element {
+        stroke-width: 2px;
+}
+
+
+::ng-deep .variant-sequence-element {
+    stroke-dasharray: 1px;
 }
