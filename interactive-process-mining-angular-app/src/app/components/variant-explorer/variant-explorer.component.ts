@@ -10,6 +10,7 @@ import {ActivateTooltipsService} from '../../services/activateTooltipsService/ac
 import * as constants from './constants';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
+import { LeafNode, SequenceGroup, VariantElement } from './model';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -43,6 +44,7 @@ export class VariantExplorerComponent implements OnInit {
   correctTreeSyntax = false;
   protected unsubscribe: Subject<void> = new Subject<void>();
 
+  variantsObjects: VariantElement[][];
 
   ngOnInit(): void {
     // preload road traffic fine management process
@@ -80,6 +82,8 @@ export class VariantExplorerComponent implements OnInit {
       this.outdatedConformanceStatistics = !this.sharedDataService.processTreesEqual(this.usedTreeForConformanceChecking,
         this.currentlyDisplayedProcessTree);
     });
+
+    this.variantsObjects = this.variants.map(v => v['events']).map(v => [new SequenceGroup(v.map(e => new LeafNode(e)))])
   }
 
   updateAlignmentsStop() {
@@ -147,10 +151,13 @@ export class VariantExplorerComponent implements OnInit {
     this.tooltipActivationService.close();
     this.explicitlyAddedVariants = [];
     this.selectedVariants.forEach(v => {
-      this.explicitlyAddedVariants.push(v.i);
+      this.explicitlyAddedVariants.push(v);
     });
     console.warn(this.explicitlyAddedVariants);
-    this.backendService.discoverProcessModelFromVariants(this.selectedVariants);
+    let variants = this.selectedVariants.map(i => {
+      return {value: this.variants[i], i};
+    })
+    this.backendService.discoverProcessModelFromVariants(variants);
     this.clearSelection();
   }
 
@@ -191,7 +198,7 @@ export class VariantExplorerComponent implements OnInit {
 
     const variants_to_add = [];
     this.selectedVariants.forEach(v => {
-      variants_to_add.push(v.value);
+      variants_to_add.push(this.variants[v]);
       // update explicitly added variants TODO: do not before new tree has arrived at frontend
       this.explicitlyAddedVariants.push(v.i);
     });
@@ -203,7 +210,7 @@ export class VariantExplorerComponent implements OnInit {
 
   clearSelection() {
     this.selectedVariants.forEach(d => {
-      this.foldingTrace(d['value'], d['i']);
+      this.foldingTrace(this.variants[d], d);
     });
     this.selectedVariants = [];
   }
@@ -222,15 +229,15 @@ export class VariantExplorerComponent implements OnInit {
       .append('svg:g')
       .attr('num-events', (d) => d['value'].events.length)
       .attr('transform', (d, i) => 'translate(0, ' + (i * 40 + 20) + ')')
-      .on('click', (e, d) => {
-        if (this.selectedVariants.includes(d)) { // click already selected variants
+      .on('click', (e, d: any) => {
+        if (this.selectedVariants.includes(d.i)) { // click already selected variants
           // @ts-ignore
-          this.selectedVariants = this.selectedVariants.filter(variant => d !== variant)
+          this.selectedVariants = this.selectedVariants.filter(variant => d.i !== variant)
           // @ts-ignore
           this.foldingTrace(d.value, d.i);                // folding trace graph
         } else {
           // @ts-ignore
-          this.selectedVariants.push(d);
+          this.selectedVariants.push(d.i);
           // @ts-ignore
           this.expandingTrace(d.value, d.i);
         }
@@ -259,6 +266,20 @@ export class VariantExplorerComponent implements OnInit {
       .attr('transform', (d, i) => 'translate(' + i * (this.polygonDimensionWidth + constants.polygonDimensionSpacing) + ', 0)')
       .attr('visibility', 'hidden');
     this.resizeSVG();
+  }
+
+  public toggleSelect(index) {
+    if (this.selectedVariants.includes(index)) { // click already selected variants
+      // @ts-ignore
+      this.selectedVariants = this.selectedVariants.filter(i => index !== i)
+      // @ts-ignore
+      this.foldingTrace(this.variants[index], index);                // folding trace graph
+    } else {
+      // @ts-ignore
+      this.selectedVariants.push(index);
+      // @ts-ignore
+      this.expandingTrace(this.variants[index], index); 
+    }
   }
 
   private mouseOverPolygon(e, d): void {

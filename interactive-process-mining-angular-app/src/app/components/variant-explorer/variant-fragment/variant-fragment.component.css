@@ -1,0 +1,13 @@
+::ng-deep .svg-text {
+    paint-order: stroke;
+    stroke: #000000;
+    stroke-width: 4px;
+    stroke-linecap: butt;
+    stroke-linejoin: bevel;
+    font-weight: 800;
+}
+
+:host {
+    position: relative;
+    bottom: 20px;
+}

@@ -124,6 +124,8 @@
             {{variant['percentage']}}%<br/>
             ({{variant['count'] | number}})
           </small>
+
+          <app-variant [variant]="variantsObjects[i]" [colorMap]="colorMap" (selectVariant)="toggleSelect(i)"></app-variant>
         </div>
       </div>
       <div #chart id="chart"></div>

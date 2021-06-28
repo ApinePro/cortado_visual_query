@@ -12,6 +12,9 @@ import {VariantExplorerComponent} from './components/variant-explorer/variant-ex
 import {SideBarComponent} from './components/side-bar/side-bar.component';
 import {ActivityOverviewComponent} from './components/activity-overview/activity-overview.component';
 import {HttpRequestInterceptor} from './interceptors/http-request.interceptor';
+import { VariantComponent } from './components/variant-explorer/variant/variant.component';
+import { VariantFragmentComponent } from './components/variant-explorer/variant-fragment/variant-fragment.component';
+import { VariantElement } from './components/variant-explorer/model';
 
 @NgModule({
   declarations: [
@@ -21,7 +24,9 @@ import {HttpRequestInterceptor} from './interceptors/http-request.interceptor';
     StrFilterPipe,
     VariantExplorerComponent,
     SideBarComponent,
-    ActivityOverviewComponent
+    ActivityOverviewComponent,
+    VariantComponent,
+    VariantFragmentComponent,
   ],
   imports: [
     BrowserModule,
