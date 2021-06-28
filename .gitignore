@@ -15,3 +15,6 @@ backend/interactive_process_mining_core
 backend/__pycache__/
 backend/backend_utilities/__pycache__/
 backend/endpoints/__pycache__/
+.venv
+build
+dist
