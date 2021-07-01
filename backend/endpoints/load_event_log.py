@@ -3,18 +3,30 @@ from pm4py.algo.filtering.log.start_activities import start_activities_filter
 from pm4py.algo.filtering.log.end_activities import end_activities_filter
 from pm4py.algo.filtering.log.attributes import attributes_filter
 from pm4py.algo.filtering.log.variants import variants_filter
-from pm4py.statistics.variants.log.get import get_concurrency_variants
+from interactive_process_mining_core.utils.variants import get_concurrency_variants, get_variant_variants
 
 def calculate_event_log_properties(event_log: EventLog):
     variants = get_concurrency_variants(event_log)
     total_traces = len(event_log)
     res_variants = []
     for v in variants:
-        res_variants.append({
+        variant = {
             'count': len(variants[v]),
             'variant': [vv.serialize() for vv in v],
-            'percentage': round(len(variants[v]) / total_traces * 100, 2)
+            'percentage': round(len(variants[v]) / total_traces * 100, 2),
+            'sub_variants': []}
+        sub_variants = get_variant_variants(variants[v])
+        total_sub_traces = sum(len(sub_variants[v]) for v in sub_variants)
+
+        for sub_v in sub_variants:
+            variant['sub_variants'].append({
+                    'variant': [sub_vv.serialize() for sub_vv in sub_v],
+                    'count': len(sub_variants[sub_v]),
+                    'percentage': round(len(sub_variants[sub_v]) / total_sub_traces * 100, 2)
         })
+        variant['sub_variants'] = sorted(variant['sub_variants'], key=lambda x: x['count'], reverse=True)
+        res_variants.append(variant)
+
     res_variants = sorted(res_variants, key=lambda variant: variant['count'], reverse=True)
 
     res = {
