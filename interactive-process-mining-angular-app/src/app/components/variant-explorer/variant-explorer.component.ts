@@ -9,6 +9,8 @@ import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import { LeafNode, ParallelGroup, SequenceGroup, VariantElement } from './model';
 import { VariantComponent } from './variant/variant.component';
+import { select } from 'd3';
+import { ThrowStmt } from '@angular/compiler';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -24,9 +26,26 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   colorMap: Map<string, string>;
-  variants: any[];
-  selectedVariants: any[] = [];
-  explicitlyAddedVariants: number[] = [];
+
+  variants: {
+    count: number,
+    variant: VariantElement[],
+    percentage: number,
+    calculationInProgress: boolean | undefined,
+    alignment: any | undefined,
+    deviation: any | undefined
+    sub_variants: {
+      count: number,
+      variant: VariantElement[],
+      percentage: number,
+      calculationInProgress: boolean | undefined,
+      alignment: any | undefined,
+      deviation: any | undefined
+    }[]
+  }[];
+
+  selectedVariants = new Map<number, Set<number>>();
+  explicitlyAddedVariants = new Map<number, Set<number>>();
   d3jsData;
   currentlyDisplayedProcessTree;
   usedTreeForConformanceChecking;
@@ -44,6 +63,8 @@ export class VariantExplorerComponent implements OnInit {
   @ViewChildren(VariantComponent)
   variantsComponents: QueryList<VariantComponent>;
 
+  public expandVariant = {};
+
   ngOnInit(): void {
     // preload road traffic fine management process
     if (isDevMode() || true) {
@@ -53,7 +74,52 @@ export class VariantExplorerComponent implements OnInit {
       this.variants = [{
         count: 5,
         variant: [new ParallelGroup([new SequenceGroup([new LeafNode("aaaaaaaaaa"), new LeafNode("b"), new LeafNode("c")]), new ParallelGroup([new LeafNode("aaaaaaaaaa"), new LeafNode("b")])])],
-        percentage: 100
+        percentage: 100,
+        alignment: undefined,
+        calculationInProgress: false,
+        deviation: undefined,
+        sub_variants: [
+          { variant: [new LeafNode("c"), new LeafNode("b")], count: 1, percentage: 10, 
+            alignment: undefined,
+            calculationInProgress: false,
+            deviation: undefined 
+          },
+          { variant: [new LeafNode("c"), new LeafNode("b")], count: 1, percentage: 10, 
+            alignment: undefined,
+            calculationInProgress: false,
+            deviation: undefined  
+          },
+          { variant: [new LeafNode("c"), new LeafNode("b")], count: 1, percentage: 10 , 
+            alignment: undefined,
+            calculationInProgress: false,
+            deviation: undefined 
+          },
+        ]
+      },
+      {
+        count: 5,
+        variant: [new ParallelGroup([new SequenceGroup([new LeafNode("aaaaaaaaaa"), new LeafNode("b"), new LeafNode("c")]), new ParallelGroup([new LeafNode("aaaaaaaaaa"), new LeafNode("b")])])],
+        percentage: 100,
+        alignment: undefined,
+        calculationInProgress: false,
+        deviation: undefined,
+        sub_variants: [
+          { variant: [new LeafNode("c"), new LeafNode("b")], count: 1, percentage: 10, 
+            alignment: undefined,
+            calculationInProgress: false,
+            deviation: undefined 
+          },
+          { variant: [new LeafNode("c"), new LeafNode("b")], count: 1, percentage: 10, 
+            alignment: undefined,
+            calculationInProgress: false,
+            deviation: undefined  
+          },
+          { variant: [new LeafNode("c"), new LeafNode("b")], count: 1, percentage: 10 , 
+            alignment: undefined,
+            calculationInProgress: false,
+            deviation: undefined 
+          },
+        ]
       }];
 
       // this.variants = dummyBackendResponse.test.variants;
@@ -78,12 +144,20 @@ export class VariantExplorerComponent implements OnInit {
         this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
         this.variants = this.sharedDataService.variants;
         this.variants.forEach(variant => {
-          variant['variant'] = variant['variant'].map(v => this.deserialize(v));
+          variant['variant'] = [new SequenceGroup(variant['variant'].map(v => this.deserialize(v)))];
+          variant['sub_variants'].forEach(subvariant => {
+            subvariant['variant'] = [new SequenceGroup(subvariant['variant'].map(v => this.deserialize(v)))];
+          });
         });
 
-        this.explicitlyAddedVariants = [];
+        this.explicitlyAddedVariants = new Map<number, Set<number>>();
         this.tooltipActivationService.initialize();
-        this.selectedVariants = [];
+        this.selectedVariants = new Map<number, Set<number>>();
+        this.calculatedAlignments = 0;
+        this.expandVariant = {};
+
+        this.calculatedAlignments = 0;
+        this.alignmentsToBeCalculated = 0;
       }
     });
 
@@ -93,8 +167,7 @@ export class VariantExplorerComponent implements OnInit {
 
     this.sharedDataService.currentDisplayedProcessTree$.subscribe(tree => {
       this.currentlyDisplayedProcessTree = tree;
-      this.outdatedConformanceStatistics = !this.sharedDataService.processTreesEqual(this.usedTreeForConformanceChecking,
-        this.currentlyDisplayedProcessTree);
+      this.outdatedConformanceStatistics = !this.sharedDataService.processTreesEqual(this.usedTreeForConformanceChecking, this.currentlyDisplayedProcessTree);
     });
   }
 
@@ -123,22 +196,34 @@ export class VariantExplorerComponent implements OnInit {
     this.calculatedAlignments = 0;
     this.tooltipActivationService.close();
     this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
-    this.variants.forEach(v => {
+    this.variants.forEach((v, i) => {
       v.calculationInProgress = true;
-      this.backendService.calculateAlignment(v).pipe(takeUntil(this.unsubscribe)).subscribe(res => {
-        // console.log(res);
-        v.calculationInProgress = false;
-        v.alignment = res.alignment;
-        v.deviation = res.deviation;
-        // remove explicitlyAddedDeviation if they do not fit anymore
-        if (res.deviation) {
-          const idx_explicitly_added_variant_with_deviation = this.variants.findIndex(element => v === element);
-          this.explicitlyAddedVariants = this.explicitlyAddedVariants.filter(i => i !== idx_explicitly_added_variant_with_deviation);
-        }
-        this.updateAlignmentStatistics();
-        this.calculatedAlignments++;
+      v.deviation = false;
+      let numberCalculatedVariant = 0;
+      v.sub_variants.forEach((sub_v, ii) => {
+        let variant = this.mapVariantToEventList(sub_v.variant);
+        this.backendService.calculateAlignment(variant).pipe(takeUntil(this.unsubscribe)).subscribe(res => {
+          // console.log(res);
+            sub_v.calculationInProgress = false;
+            sub_v.alignment = res.alignment;
+            sub_v.deviation = res.deviation;
+
+            v.deviation |= res.deviation;
+            // remove explicitlyAddedDeviation if they do not fit anymore
+            if (res.deviation) {
+              this.setExplicitlyAdded(i, ii, false);
+            }
+            numberCalculatedVariant++;
+            this.calculatedAlignments++;
+
+            if(numberCalculatedVariant == v.sub_variants.length) {
+              v.calculationInProgress = false;
+              this.updateAlignmentStatistics();
+            }
+        });
       });
     });
+
     this.outdatedConformanceStatistics = false;
   }
 
@@ -171,35 +256,56 @@ export class VariantExplorerComponent implements OnInit {
 
   discover_initial_model() {
     this.tooltipActivationService.close();
-    this.explicitlyAddedVariants = [];
-    this.selectedVariants.forEach(v => {
-      this.explicitlyAddedVariants.push(v);
+    this.explicitlyAddedVariants = new Map<number, Set<number>>();
+    this.selectedVariants.forEach((v, k) => {
+      this.explicitlyAddedVariants.set(k, new Set(v));
     });
+
     console.warn(this.explicitlyAddedVariants);
-    let variants = this.selectedVariants.map(i => {
-      return {value: this.variants[i], i};
-    })
+    let variants = this.mapSelectionToVariants().map((v, i) => { return {value: v, i}})
+
     this.backendService.discoverProcessModelFromVariants(variants);
     this.clearSelection();
   }
 
-  removeExplicitlyAddedVariant(i: number) {
-    this.explicitlyAddedVariants = this.explicitlyAddedVariants.filter(v => {
-      return v !== i;
+  mapSelectionToVariants() {
+    let variants: { events: string[]}[] = [];
+    this.selectedVariants.forEach((selected, variantIndex) => {
+      selected.forEach(subVariantIndex => variants.push(this.mapVariantIndexToVariant(variantIndex, subVariantIndex)))
     });
+    return variants;
   }
 
-  addExplicitlyAddedVariant(i: number) {
-    if (this.variants[i].calculationInProgress) {
+  mapVariantIndexToVariant(variantIndex, subVariantIndex) {
+    let v = this.variants[variantIndex].sub_variants[subVariantIndex].variant;
+    return this.mapVariantToEventList(v);
+  }
+
+  mapVariantToEventList(variant) {
+    if(variant[0] instanceof SequenceGroup) {
+      return {events: variant[0].asSequenceGroup().elements.map(e => e.asLeafNode().activity)};
+    } 
+    return {events: variant.map(e => e.asLeafNode().activity)};  }
+
+  addExplicitlyAddedVariant(variantIndex) {
+    if (this.variants[variantIndex].calculationInProgress) {
       this.showAlert('Cannot explicitly add the variant - conformance statistics being calculated');
     } else if (this.outdatedConformanceStatistics) {
       this.showAlert('Cannot explicitly add the variant - outdated or no conformance statistics');
-    } else if (this.variants[i].deviation) {
+    } else if (this.variants[variantIndex].deviation) {
       this.showAlert('Cannot explicitly add the variant - variant does not fit the model');
     } else {
       this.showAlert(null);
-      this.explicitlyAddedVariants.push(i);
+      this.variants[variantIndex].sub_variants.forEach((sub, i) => {
+        this.setExplicitlyAdded(variantIndex, i, true);
+      })
     }
+  }
+
+  removeExplicitlyAddedVariant(variantIndex) {
+    this.variants[variantIndex].sub_variants.forEach((sub, i) => {
+      this.setExplicitlyAdded(variantIndex, i, false);
+    })
   }
 
   addSelectedVariantsToModel() {
@@ -214,39 +320,113 @@ export class VariantExplorerComponent implements OnInit {
     }
 
     const explicitly_added_variants = [];
-    this.explicitlyAddedVariants.forEach(i => {
-      explicitly_added_variants.push(this.variants[i]);
+    this.explicitlyAddedVariants.forEach((selectedSubVariants, variantIndex) => {
+      selectedSubVariants.forEach(subVariantIndex => {
+        explicitly_added_variants.push(this.mapVariantIndexToVariant(variantIndex, subVariantIndex));
+      })
     });
 
     const variants_to_add = [];
-    this.selectedVariants.forEach(v => {
-      variants_to_add.push(this.variants[v]);
-      // update explicitly added variants TODO: do not before new tree has arrived at frontend
-      this.explicitlyAddedVariants.push(v.i);
+    this.selectedVariants.forEach((selected, index) => {
+      selected.forEach(ii => {
+        let v = this.mapVariantIndexToVariant(index, ii);
+        variants_to_add.push(v);
+        this.setExplicitlyAdded(index, ii, true);
+      })
     });
     this.backendService.addVariantsToModel(variants_to_add, explicitly_added_variants);
     this.clearSelection();
   }
 
   clearSelection() {
-    let selectedVariantsVariants = this.selectedVariants.map(i => this.variants[i]['variant']);
+    let selectedVariantsVariants: VariantElement[][] = [];
+
+    this.selectedVariants.forEach((selectedSubVariants, variantIndex) => {
+      selectedSubVariants.forEach(subVariantIndex => {
+        selectedVariantsVariants.push(this.variants[variantIndex].sub_variants[subVariantIndex].variant);
+      })
+    })
+
     this.variantsComponents.filter(c => selectedVariantsVariants.includes(c.variant))
                             .forEach(c => c.setSelected(false));
-    this.selectedVariants = [];
+
+    this.selectedVariants = new Map<number, Set<number>>();
+
+    this.expandVariant = {};
+    this.explicitlyAddedVariants.forEach((v, k) => {
+      if(v.size > 0) {
+        this.expandVariant[k] = true;
+      }
+    })
   }
 
   public toggleSelect(index) {
-    let variant = this.variants[index];
-    let component = this.variantsComponents.find(c => c.variant === this.variants[index]['variant']);
+    let variant = this.variants[index]['variant'];
+    let component = this.variantsComponents.find(c => c.variant === variant);
 
-    if (this.selectedVariants.includes(index)) {
-      this.selectedVariants = this.selectedVariants.filter(i => index !== i)
-      variant['variant'].forEach(v => v.setExpanded(false))
+    if (this.expandVariant[index]) {
+      variant.forEach(v => v.setExpanded(false))
       component.setSelected(false);
     } else {
-      this.selectedVariants.push(index);
-      variant['variant'].forEach(v => v.setExpanded(true))
+      variant.forEach(v => v.setExpanded(true))
       component.setSelected(true);
     }
+
+    this.expandVariant[index] = !this.expandVariant[index];
+  }
+
+  public toggleSelectSubVariant(indexVariant: number, indexSubVariant: number) {
+    let variant = this.variants[indexVariant]['sub_variants'][indexSubVariant]['variant'];
+    let component = this.variantsComponents.find(c => c.variant === variant);
+    
+    if (this.isSelected(indexVariant, indexSubVariant)) {
+      this.setSelected(indexVariant, indexSubVariant, false);
+      variant.forEach(v => v.setExpanded(false))
+      component.setSelected(false);
+    } else {
+      this.setSelected(indexVariant, indexSubVariant, true);
+      variant.forEach(v => v.setExpanded(true))
+      component.setSelected(true);
+    }
+  }
+
+  setSelected(indexVariant, indexSubVariant, selected: boolean) {
+    let selection = this.selectedVariants.get(indexVariant) || new Set<number>();
+    if(selected) {
+      selection.add(indexSubVariant);
+    } else {
+      selection.delete(indexSubVariant);
+    }
+    this.selectedVariants.set(indexVariant, selection);
+  }
+
+  setExplicitlyAdded(indexVariant, indexSubVariant, selected: boolean) {
+    let selection = this.explicitlyAddedVariants.get(indexVariant) || new Set<number>();
+    if(selected) {
+      selection.add(indexSubVariant);
+    } else {
+      selection.delete(indexSubVariant);
+    }
+    this.explicitlyAddedVariants.set(indexVariant, selection);
+  }
+
+  isSelected(indexVariant, indexSubVariant) {
+    return this.selectedVariants.get(indexVariant)?.has(indexSubVariant) || false;
+  }
+
+  isExplicitlyAdded(index, indexSubVariant) {
+    return this.explicitlyAddedVariants.get(index)?.has(indexSubVariant) || false;
+  }
+
+  isVariantExplicitlyAdded(index) {
+    let l1 = this.explicitlyAddedVariants.get(index)?.size || 0;
+    let l2 = this.variants[index].sub_variants.length;
+    return l1 === l2;
+  }
+
+  isSomeSelected() {
+    let someSelected = false;
+    this.selectedVariants.forEach(v => someSelected ||= v.size > 0);
+    return someSelected;
   }
 }

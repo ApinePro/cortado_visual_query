@@ -46,21 +46,15 @@ export class VariantFragmentComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    let width = this.content.getWidth();
-    let height = this.content.getHeight();
-
-    this.content.updateWidth();
-
     this.svgSelection = d3.select(this.svgHtmlElement.nativeElement)
-                .attr('width', width)
-                .attr('height', height)
                 .append('g')
                 // .attr("transform", "translate(0 15)")
                 .on('click', () => {
                   this.content.setExpanded(!this.content.expanded);
                   this.redraw();
                 });
-    this.draw(this.content, this.svgSelection)
+    
+    this.redraw();
   }
 
   redraw() {
@@ -77,8 +71,12 @@ export class VariantFragmentComponent implements AfterViewInit {
     let svg = this.svgSelection
                 .attr('width', width)
                 .attr('height', height);
-
+    
     this.draw(this.content, svg);
+
+    if(this.content instanceof SequenceGroup) {
+      this.svgSelection.select('polygon').remove();
+    }
   }
 
   draw(element: VariantElement, svgElement: any) {

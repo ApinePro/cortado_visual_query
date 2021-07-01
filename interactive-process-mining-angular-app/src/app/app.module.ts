@@ -14,7 +14,6 @@ import {ActivityOverviewComponent} from './components/activity-overview/activity
 import {HttpRequestInterceptor} from './interceptors/http-request.interceptor';
 import { VariantComponent } from './components/variant-explorer/variant/variant.component';
 import { VariantFragmentComponent } from './components/variant-explorer/variant-fragment/variant-fragment.component';
-import { VariantElement } from './components/variant-explorer/model';
 
 @NgModule({
   declarations: [
@@ -26,7 +25,7 @@ import { VariantElement } from './components/variant-explorer/model';
     SideBarComponent,
     ActivityOverviewComponent,
     VariantComponent,
-    VariantFragmentComponent,
+    VariantFragmentComponent
   ],
   imports: [
     BrowserModule,
