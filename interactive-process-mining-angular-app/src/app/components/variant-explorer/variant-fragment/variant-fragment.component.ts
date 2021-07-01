@@ -105,8 +105,7 @@ export class VariantFragmentComponent implements AfterViewInit {
           .classed('variant-group-element', true)
           .classed('variant-sequence-group', true);
 
-    let x = Constants.MARGIN_X;
-
+    let x = element.getHeadLength() + Constants.MARGIN_X - element.elements[0].getHeadLength();
     for(let child of element.elements) {
       let width = child.getWidth();
       let childHeight = child.getHeight();
@@ -157,13 +156,6 @@ export class VariantFragmentComponent implements AfterViewInit {
     if(this.colorMap) {
       color = this.colorMap.get(element.activity);
     }
-
-    let hoverText = parent.append('text')
-                          .classed('svg-text', true)
-                          .attr('y', -4)
-                          .text(element.activity)
-                          .attr('visibility', 'hidden');
-
     parent.append('polygon')
           .attr('points', polygonPoints)
           .style('fill', color)
@@ -174,14 +166,6 @@ export class VariantFragmentComponent implements AfterViewInit {
           // .on('mouseout', () => {
           //   hoverText.attr('visibility', 'hidden')
           // });
-    
-    let text = element.activity;
-    if(!element.expanded) {
-      text = element.activity.slice(0, 5);
-      if(element.activity.length > 5) {
-        text += "...";
-      }
-    }    
 
     let activityText = parent.append("text")
           .text(element.activity)
@@ -191,18 +175,21 @@ export class VariantFragmentComponent implements AfterViewInit {
           .attr('dominant-baseline', 'middle')
           .attr('font-size', Constants.FONT_SIZE)
 
+    this.wrapInnerLabelText(activityText, element.activity, width - 2 * Constants.MARGIN_X);
+
     let l = activityText.node().getComputedTextLength();
-    if(element.expanded) {
-      activityText.text(text);
-    } else {
-      activityText.remove();
-    }
-
     element.textLength = l;
-
-    hoverText.raise()
   }
 
+  private wrapInnerLabelText(textSelection: any, text: string, maxWidth: number) {
+    var textLength = textSelection.node().getComputedTextLength();
+
+    while (textLength > maxWidth && text.length > 0) {
+        text = text.slice(0, -1);
+        textSelection.text(text + "...");
+        textLength = textSelection.node().getComputedTextLength();
+    }
+  }
 
   getColor(element: VariantElement) {
     // return '#2b2b2b'

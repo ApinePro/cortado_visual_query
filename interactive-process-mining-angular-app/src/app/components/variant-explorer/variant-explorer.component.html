@@ -137,7 +137,7 @@
               </div>
             </td>
             <td class="variant-cell">
-              <div class="variant" [ngStyle]="{ 'border': selectedVariants.includes(i) ? 'dashed' : 'none' }">
+              <div class="variant" [ngStyle]="{ 'border-color': selectedVariants.includes(i) ? 'unset' : 'transparent' }">
                 <app-variant [id]="'variant' + i" [variant]="variant['variant']" [colorMap]="colorMap" (selectVariant)="toggleSelect(i)"></app-variant>
               </div>
             </td>

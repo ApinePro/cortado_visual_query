@@ -2,7 +2,7 @@ import { Observable } from "rxjs";
 
 export class Constants {
   public static LEAF_WIDTH = 40;
-  public static LEAF_WIDTH_EXPANDED = 200;
+  public static LEAF_WIDTH_EXPANDED = 80;
   public static LEAF_HEIGHT = 23;
   public static MARGIN_X = 8;
   public static MARGIN_Y = 5;
@@ -92,7 +92,7 @@ export class SequenceGroup extends VariantElement {
   public recalculateWidth(): number {
     this.elements.forEach(el => el.width = undefined);
     this.width = this.elements.map((el: VariantElement) => el.getWidth())
-                              .reduce((a: number, b: number) => a + b) + 2 * Constants.MARGIN_X;
+                              .reduce((a: number, b: number) => a + b) + 2 * Constants.MARGIN_X + this.getHeadLength() - this.elements[0].getHeadLength();
     return this.width;  
   }
 }
@@ -168,7 +168,7 @@ export class LeafNode extends VariantElement {
       return this.width;
     }
     if(this.expanded) {
-      this.width = Math.max(Constants.LEAF_WIDTH, this.textLength + 10);
+      this.width = Constants.LEAF_WIDTH_EXPANDED
     } else {
       this.width = Constants.LEAF_WIDTH;
     }
@@ -185,7 +185,7 @@ export class LeafNode extends VariantElement {
 
   public recalculateWidth(): number {
     if(this.expanded) {
-      this.width = Math.max(Constants.LEAF_WIDTH, this.textLength + 10);
+      this.width = Constants.LEAF_WIDTH_EXPANDED
     } else {
       this.width = Constants.LEAF_WIDTH;
     }

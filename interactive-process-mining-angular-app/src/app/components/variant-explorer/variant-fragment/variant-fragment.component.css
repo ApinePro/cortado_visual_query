@@ -14,9 +14,5 @@
 
 ::ng-deep .variant-group-element {
         stroke-width: 2px;
-}
-
-
-::ng-deep .variant-sequence-element {
-    stroke-dasharray: 1px;
+        opacity: 50%;
 }

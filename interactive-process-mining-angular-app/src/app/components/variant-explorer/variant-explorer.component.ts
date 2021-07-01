@@ -83,6 +83,7 @@ export class VariantExplorerComponent implements OnInit {
 
         this.explicitlyAddedVariants = [];
         this.tooltipActivationService.initialize();
+        this.selectedVariants = [];
       }
     });
 
@@ -95,7 +96,6 @@ export class VariantExplorerComponent implements OnInit {
       this.outdatedConformanceStatistics = !this.sharedDataService.processTreesEqual(this.usedTreeForConformanceChecking,
         this.currentlyDisplayedProcessTree);
     });
-
   }
 
   deserialize(obj: any): VariantElement {

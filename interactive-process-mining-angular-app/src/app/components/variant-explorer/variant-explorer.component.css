@@ -24,6 +24,7 @@
   border-width: 1px !important;
   padding: 5px;
   width: fit-content;
+  border: dashed;
 }
 
 .spacer {
