@@ -2,6 +2,7 @@ import { AfterViewInit, ElementRef } from '@angular/core';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import { Selection, thresholdFreedmanDiaconis } from 'd3';
+import { getPolygonPoints } from '../helper_functions';
 import { Constants, LeafNode, ParallelGroup, SequenceGroup, VariantElement } from '../model';
 
 @Component({
@@ -72,7 +73,9 @@ export class VariantFragmentComponent implements AfterViewInit {
                 .attr('width', width)
                 .attr('height', height);
     
+    console.time("draw");
     this.draw(this.content, svg);
+    console.timeEnd("draw");
 
     if(this.content instanceof SequenceGroup) {
       this.svgSelection.select('polygon').remove();
@@ -85,7 +88,7 @@ export class VariantFragmentComponent implements AfterViewInit {
     } else if(element instanceof SequenceGroup) {
       this.drawSequenceGroup(element.asSequenceGroup(), svgElement);
     } else if(element instanceof LeafNode) {
-      this.drawLeafNode(element.asLeafNode(), svgElement);
+      VariantFragmentComponent.drawLeafNode(element.asLeafNode(), svgElement, this.colorMap);
     }
   }
 
@@ -93,7 +96,7 @@ export class VariantFragmentComponent implements AfterViewInit {
     let width = element.getWidth();
     let height = element.getHeight();
 
-    let polygonPoints = this.getPolygonPoints(width, height);
+    let polygonPoints = getPolygonPoints(width, height);
 
     let color = this.getColor(element);
     parent.append('polygon')
@@ -119,9 +122,9 @@ export class VariantFragmentComponent implements AfterViewInit {
   drawParallelGroup(element: ParallelGroup, parent: any) {
     let width = element.getWidth();
     let height = element.getHeight();
-
-    let polygonPoints = this.getPolygonPoints(width, height);
-
+    
+    let polygonPoints = getPolygonPoints(width, height);
+    
     let color = this.getColor(element);
     parent.append('polygon')
           .attr('points', polygonPoints)
@@ -144,16 +147,13 @@ export class VariantFragmentComponent implements AfterViewInit {
     } 
   }
 
-  drawLeafNode(element: LeafNode, parent: any) {
+  public static drawLeafNode(element: LeafNode, parent: any, colorMap: Map<string, string>) {
     let width = element.getWidth();
     let height = element.getHeight();
 
-    let polygonPoints = this.getPolygonPoints(width, height);
+    let polygonPoints = getPolygonPoints(width, height);
 
-    let color = this.getActivityColor(element.activity);
-    if(this.colorMap) {
-      color = this.colorMap.get(element.activity);
-    }
+    let color = colorMap.get(element.activity);
     parent.append('polygon')
           .attr('points', polygonPoints)
           .style('fill', color)
@@ -173,13 +173,13 @@ export class VariantFragmentComponent implements AfterViewInit {
           .attr('dominant-baseline', 'middle')
           .attr('font-size', Constants.FONT_SIZE)
 
-    this.wrapInnerLabelText(activityText, element.activity, width - 2 * Constants.MARGIN_X);
+    VariantFragmentComponent.wrapInnerLabelText(activityText, element.activity, width - 2 * Constants.MARGIN_X);
 
     let l = activityText.node().getComputedTextLength();
     element.textLength = l;
   }
 
-  private wrapInnerLabelText(textSelection: any, text: string, maxWidth: number) {
+  private static wrapInnerLabelText(textSelection: any, text: string, maxWidth: number) {
     var textLength = textSelection.node().getComputedTextLength();
 
     while (textLength > maxWidth && text.length > 0) {
@@ -208,21 +208,5 @@ export class VariantFragmentComponent implements AfterViewInit {
     } else {
       return [element.asLeafNode().activity];
     }
-  }
-
-  getPolygonPoints(width: number, height: number): string {
-    let x = 0, y = 0;
-    let headLength = Math.tan(Constants.ARROW_HEAD_ANGLE / 360 * Math.PI * 2) * (height / 2);
-
-    width -= headLength;
-
-    let points = [];
-    points.push(`${x},${y}`); // Top left
-    points.push(`${x + width},${y}`); // Top right 
-    points.push(`${x + width + headLength},${y + height / 2}`); // Arrow Head
-    points.push(`${x + width},${y + height}`); // Bottom right
-    points.push(`${x},${y + height}`); // Bottom left
-    points.push(`${x + headLength},${y + height / 2}`); // Arrow feather
-    return points.join(" ");
   }
 }

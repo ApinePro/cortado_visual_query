@@ -9,8 +9,7 @@ import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import { LeafNode, ParallelGroup, SequenceGroup, VariantElement } from './model';
 import { VariantComponent } from './variant/variant.component';
-import { select } from 'd3';
-import { ThrowStmt } from '@angular/compiler';
+import { DetailledVariantComponent } from './detailled-variant/detailled-variant.component';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -36,7 +35,7 @@ export class VariantExplorerComponent implements OnInit {
     deviation: any | undefined
     sub_variants: {
       count: number,
-      variant: VariantElement[],
+      variant: [string, string][],
       percentage: number,
       calculationInProgress: boolean | undefined,
       alignment: any | undefined,
@@ -61,7 +60,10 @@ export class VariantExplorerComponent implements OnInit {
   protected unsubscribe: Subject<void> = new Subject<void>();
 
   @ViewChildren(VariantComponent)
-  variantsComponents: QueryList<VariantComponent>;
+  variantComponents: QueryList<VariantComponent>;
+
+  @ViewChildren(DetailledVariantComponent)
+  detailledVariantComponents: QueryList<DetailledVariantComponent>;
 
   public expandVariant = {};
 
@@ -73,23 +75,23 @@ export class VariantExplorerComponent implements OnInit {
 
       this.variants = [{
         count: 5,
-        variant: [new ParallelGroup([new SequenceGroup([new LeafNode("aaaaaaaaaa"), new LeafNode("b"), new LeafNode("c")]), new ParallelGroup([new LeafNode("aaaaaaaaaa"), new LeafNode("b")])])],
+        variant: [new ParallelGroup([new SequenceGroup([new LeafNode("a"), new LeafNode("b"), new LeafNode("c")]), new ParallelGroup([new LeafNode("a"), new LeafNode("b")])])],
         percentage: 100,
         alignment: undefined,
         calculationInProgress: false,
         deviation: undefined,
         sub_variants: [
-          { variant: [new LeafNode("c"), new LeafNode("b")], count: 1, percentage: 10, 
+          { variant: [["c", "start"], ["b", "start"], ["c", "complete"], ["a", "start"], ["b", "complete"], ["a", "complete"]], count: 1, percentage: 10, 
             alignment: undefined,
             calculationInProgress: false,
             deviation: undefined 
           },
-          { variant: [new LeafNode("c"), new LeafNode("b")], count: 1, percentage: 10, 
+          { variant: [["a", "start"], ["b", "start"], ["c", "start"], ["a", "complete"], ["e", "start"], ["b", "complete"], ["e", "complete"], ["c", "complete"]], count: 1, percentage: 10, 
             alignment: undefined,
             calculationInProgress: false,
             deviation: undefined  
           },
-          { variant: [new LeafNode("c"), new LeafNode("b")], count: 1, percentage: 10 , 
+          { variant: [["c", "start"], ["b", "start"], ["c", "complete"], ["b", "complete"]], count: 1, percentage: 10 , 
             alignment: undefined,
             calculationInProgress: false,
             deviation: undefined 
@@ -104,17 +106,17 @@ export class VariantExplorerComponent implements OnInit {
         calculationInProgress: false,
         deviation: undefined,
         sub_variants: [
-          { variant: [new LeafNode("c"), new LeafNode("b")], count: 1, percentage: 10, 
+          { variant: [["c", "start"], ["b", "start"], ["c", "complete"], ["b", "complete"]], count: 1, percentage: 10, 
             alignment: undefined,
             calculationInProgress: false,
             deviation: undefined 
           },
-          { variant: [new LeafNode("c"), new LeafNode("b")], count: 1, percentage: 10, 
+          { variant: [["c", "start"], ["b", "start"], ["c", "complete"], ["b", "complete"]], count: 1, percentage: 10, 
             alignment: undefined,
             calculationInProgress: false,
             deviation: undefined  
           },
-          { variant: [new LeafNode("c"), new LeafNode("b")], count: 1, percentage: 10 , 
+          { variant: [["c", "start"], ["b", "start"], ["c", "complete"], ["b", "complete"]], count: 1, percentage: 10 , 
             alignment: undefined,
             calculationInProgress: false,
             deviation: undefined 
@@ -129,6 +131,7 @@ export class VariantExplorerComponent implements OnInit {
 
       this.colorMap = this.colorMapService.getColorMap(dummyBackendResponse.test.activities);
       this.colorMap.set('aaaaaaaaaa', 'red');
+      this.colorMap.set('a', 'red');
       this.colorMap.set('b', 'blue');
       this.colorMap.set('c', 'green');
 
@@ -146,7 +149,7 @@ export class VariantExplorerComponent implements OnInit {
         this.variants.forEach(variant => {
           variant['variant'] = [new SequenceGroup(variant['variant'].map(v => this.deserialize(v)))];
           variant['sub_variants'].forEach(subvariant => {
-            subvariant['variant'] = [new SequenceGroup(subvariant['variant'].map(v => this.deserialize(v)))];
+            // subvariant['variant'] = [new SequenceGroup(subvariant['variant'].map(v => this.deserialize(v)))];
           });
         });
 
@@ -282,10 +285,10 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   mapVariantToEventList(variant) {
-    if(variant[0] instanceof SequenceGroup) {
-      return {events: variant[0].asSequenceGroup().elements.map(e => e.asLeafNode().activity)};
-    } 
-    return {events: variant.map(e => e.asLeafNode().activity)};  }
+    return { events: variant
+                        .filter(v => v[1] == 'complete')
+                        .map(v => `${v[0]} - ${v[1]}`) };
+  }
 
   addExplicitlyAddedVariant(variantIndex) {
     if (this.variants[variantIndex].calculationInProgress) {
@@ -339,7 +342,7 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   clearSelection() {
-    let selectedVariantsVariants: VariantElement[][] = [];
+    let selectedVariantsVariants: [string, string][][] = [];
 
     this.selectedVariants.forEach((selectedSubVariants, variantIndex) => {
       selectedSubVariants.forEach(subVariantIndex => {
@@ -347,7 +350,7 @@ export class VariantExplorerComponent implements OnInit {
       })
     })
 
-    this.variantsComponents.filter(c => selectedVariantsVariants.includes(c.variant))
+    this.detailledVariantComponents.filter(c => selectedVariantsVariants.includes(c.variant))
                             .forEach(c => c.setSelected(false));
 
     this.selectedVariants = new Map<number, Set<number>>();
@@ -362,7 +365,7 @@ export class VariantExplorerComponent implements OnInit {
 
   public toggleSelect(index) {
     let variant = this.variants[index]['variant'];
-    let component = this.variantsComponents.find(c => c.variant === variant);
+    let component = this.variantComponents.find(c => c.variant === variant);
 
     if (this.expandVariant[index]) {
       variant.forEach(v => v.setExpanded(false))
@@ -377,15 +380,13 @@ export class VariantExplorerComponent implements OnInit {
 
   public toggleSelectSubVariant(indexVariant: number, indexSubVariant: number) {
     let variant = this.variants[indexVariant]['sub_variants'][indexSubVariant]['variant'];
-    let component = this.variantsComponents.find(c => c.variant === variant);
+    let component = this.detailledVariantComponents.find(c => c.variant === variant);
     
     if (this.isSelected(indexVariant, indexSubVariant)) {
       this.setSelected(indexVariant, indexSubVariant, false);
-      variant.forEach(v => v.setExpanded(false))
       component.setSelected(false);
     } else {
       this.setSelected(indexVariant, indexSubVariant, true);
-      variant.forEach(v => v.setExpanded(true))
       component.setSelected(true);
     }
   }

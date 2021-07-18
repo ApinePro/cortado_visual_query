@@ -1,5 +1,3 @@
-import { Observable } from "rxjs";
-
 export class Constants {
   public static LEAF_WIDTH = 40;
   public static LEAF_WIDTH_EXPANDED = 80;

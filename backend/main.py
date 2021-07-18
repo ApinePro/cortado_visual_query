@@ -45,18 +45,21 @@ app.add_middleware(
 async def create_upload_file(file: UploadFile = File(...)):
     content = "".join([line.decode("UTF-8") for line in file.file])
     event_log = xes_importer.deserialize(content)
-    return calculate_event_log_properties(event_log)
+    t1 = time()
+    info = calculate_event_log_properties(event_log)
+    print(time() - t1)
+    return info
 
 
 class FilePathInput(BaseModel):
     file_path: str
 
-
+from time import time
 @app.post("/loadEventLog")
 async def load_event_log_from_file_path(d: FilePathInput):
     event_log = xes_import(d.file_path)
-    return calculate_event_log_properties(event_log)
-
+    info = calculate_event_log_properties(event_log)
+    return info
 
 @app.post("/loadProcessTreeFromPtmlFile")
 async def load_process_tree_from_file_path(d: FilePathInput):
@@ -170,7 +173,7 @@ async def calculate_alignment(d: InputCalculateAlignment):
 if __name__ == "__main__":
     freeze_support()
     num_workers = max(1, cpu_count() - 2)
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=True)
 
     # dev mode
     # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

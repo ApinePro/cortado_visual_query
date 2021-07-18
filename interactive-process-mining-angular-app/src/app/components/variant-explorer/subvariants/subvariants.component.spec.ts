@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { VariantComponent } from './variant.component';
+import { SubvariantsComponent } from './subvariants.component';
 
-describe('VariantComponent', () => {
-  let component: VariantComponent;
-  let fixture: ComponentFixture<VariantComponent>;
+describe('SubvariantsComponent', () => {
+  let component: SubvariantsComponent;
+  let fixture: ComponentFixture<SubvariantsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ VariantComponent ]
+      declarations: [ SubvariantsComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(VariantComponent);
+    fixture = TestBed.createComponent(SubvariantsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

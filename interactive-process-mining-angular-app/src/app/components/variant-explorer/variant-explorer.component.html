@@ -203,7 +203,8 @@
                       </td>
                       <td style="width: 100%; padding-left: 10px;">
                         <div class="variant" [ngStyle]="{ 'border-color': isSelected(i, ii) ? 'unset' : 'transparent' }">
-                            <app-variant [id]="'variant' + i + '_' + ii" [variant]="subvariant['variant']" [colorMap]="colorMap" (selectVariant)="toggleSelectSubVariant(i, ii)"></app-variant>
+                            <!-- <app-variant [id]="'variant' + i + '_' + ii" [variant]="subvariant['variant']" [colorMap]="colorMap" (selectVariant)="toggleSelectSubVariant(i, ii)"></app-variant> -->
+                            <app-detailled-variant [variant]="subvariant['variant']" [colorMap]="colorMap" (selectVariant)="toggleSelectSubVariant(i, ii)"></app-detailled-variant>
                         </div>
                       </td>
                     </tr>
