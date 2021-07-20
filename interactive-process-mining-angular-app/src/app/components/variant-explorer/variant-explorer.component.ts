@@ -35,7 +35,7 @@ export class VariantExplorerComponent implements OnInit {
     deviation: any | undefined
     sub_variants: {
       count: number,
-      variant: [string, string][],
+      variant: [string, string][][],
       percentage: number,
       calculationInProgress: boolean | undefined,
       alignment: any | undefined,
@@ -81,21 +81,35 @@ export class VariantExplorerComponent implements OnInit {
         calculationInProgress: false,
         deviation: undefined,
         sub_variants: [
-          { variant: [["c", "start"], ["b", "start"], ["c", "complete"], ["a", "start"], ["b", "complete"], ["a", "complete"]], count: 1, percentage: 10, 
+          { variant: [[["c", "start"], ["b", "start"], ['c', 'start']], 
+                      [["c", "complete"]], 
+                      [["a", "start"]], 
+                      [["b", "complete"], ["c", "complete"], ["d", "start"]],
+                      [['d', "complete"], ["a", "complete"]] 
+                    ], count: 1, percentage: 10, 
             alignment: undefined,
             calculationInProgress: false,
             deviation: undefined 
           },
-          { variant: [["a", "start"], ["b", "start"], ["c", "start"], ["a", "complete"], ["e", "start"], ["b", "complete"], ["e", "complete"], ["c", "complete"]], count: 1, percentage: 10, 
-            alignment: undefined,
-            calculationInProgress: false,
-            deviation: undefined  
-          },
-          { variant: [["c", "start"], ["b", "start"], ["c", "complete"], ["b", "complete"]], count: 1, percentage: 10 , 
+          { variant: [[["a", "start"]], 
+                      [["b", "start"]], 
+                      [["a", "complete"]], 
+                      [["b", "complete"]],
+                    ], count: 1, percentage: 10, 
             alignment: undefined,
             calculationInProgress: false,
             deviation: undefined 
           },
+          // { variant: [[["a", "start"]], [["b", "start"]], [["c", "start"]], [["a", "complete"]], [["e", "start"]], [["b", "complete"]], [["e", "complete"]], [["c", "complete"]]], count: 1, percentage: 10, 
+          //   alignment: undefined,
+          //   calculationInProgress: false,
+          //   deviation: undefined  
+          // },
+          // { variant: [[["c", "start"]], [["b", "start"]], [["c", "complete"]], [["b", "complete"]]], count: 1, percentage: 10 , 
+          //   alignment: undefined,
+          //   calculationInProgress: false,
+          //   deviation: undefined 
+          // },
         ]
       },
       {
@@ -106,17 +120,17 @@ export class VariantExplorerComponent implements OnInit {
         calculationInProgress: false,
         deviation: undefined,
         sub_variants: [
-          { variant: [["c", "start"], ["b", "start"], ["c", "complete"], ["b", "complete"]], count: 1, percentage: 10, 
+          { variant: [[["c", "start"]], [["b", "start"]], [["c", "complete"]], [["b", "complete"]]], count: 1, percentage: 10, 
             alignment: undefined,
             calculationInProgress: false,
             deviation: undefined 
           },
-          { variant: [["c", "start"], ["b", "start"], ["c", "complete"], ["b", "complete"]], count: 1, percentage: 10, 
+          { variant: [[["c", "start"]], [["b", "start"]], [["c", "complete"]], [["b", "complete"]]], count: 1, percentage: 10, 
             alignment: undefined,
             calculationInProgress: false,
             deviation: undefined  
           },
-          { variant: [["c", "start"], ["b", "start"], ["c", "complete"], ["b", "complete"]], count: 1, percentage: 10 , 
+          { variant: [[["c", "start"]], [["b", "start"]], [["c", "complete"]], [["b", "complete"]]], count: 1, percentage: 10 , 
             alignment: undefined,
             calculationInProgress: false,
             deviation: undefined 
@@ -286,8 +300,9 @@ export class VariantExplorerComponent implements OnInit {
 
   mapVariantToEventList(variant) {
     return { events: variant
+                        .flat()
                         .filter(v => v[1] == 'complete')
-                        .map(v => `${v[0]} - ${v[1]}`) };
+                        .map(v => `${v[0]}`) };
   }
 
   addExplicitlyAddedVariant(variantIndex) {
@@ -342,7 +357,7 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   clearSelection() {
-    let selectedVariantsVariants: [string, string][][] = [];
+    let selectedVariantsVariants: [string, string][][][] = [];
 
     this.selectedVariants.forEach((selectedSubVariants, variantIndex) => {
       selectedSubVariants.forEach(subVariantIndex => {

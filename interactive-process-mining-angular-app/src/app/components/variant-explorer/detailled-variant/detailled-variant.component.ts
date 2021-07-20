@@ -18,10 +18,10 @@ export class DetailledVariantComponent implements AfterViewInit {
   colorMap: Map<string, string>;
 
   @Input()
-  variant: [[string, string]][];
+  variant: [string, string][][];
 
   @Output() 
-  selectVariant = new EventEmitter<[string, string][]>();
+  selectVariant = new EventEmitter<[string, string][][]>();
 
   svg: Selection<any, any, any, any>;
 
@@ -34,64 +34,89 @@ export class DetailledVariantComponent implements AfterViewInit {
   private expanded = false;
 
   draw() {
-    let x = 0;
-    let y = 0;
-
     this.svg = d3.select(this.svgElement.nativeElement);
 
     let nodes = new Map<string, ActivityInstance[]>();
     this.variant.forEach(v => v.forEach(e => nodes.set(e[0], [])));
 
-    let height = Constants.LEAF_HEIGHT;
+    let xIndex = 0;
+  
+    let maxX = 0;
+    let maxY = 0;
 
-    for(let [activity, lifecycle] of this.variant) {
-      if(lifecycle == "start") {
-        let [newX, newY, node] = this.createStart(x, y, activity);
-        x = newX;
-        y = newY;
-        nodes.get(activity).push(node);
-      } else {
-        if(nodes.get(activity).length == 0) {
-          let [newX, newY, node] = this.createStart(x, y, activity);
-          x = newX;
-          y = newY;
-          nodes.get(activity).push(node);
-          height = Math.max(height, y);
-        }
-        let start = nodes.get(activity).shift();
+    let leafWidth = this.expanded ? Constants.LEAF_WIDTH_EXPANDED : Constants.LEAF_WIDTH;
 
-        if(this.expanded) {
-          x += Constants.LEAF_WIDTH_EXPANDED / 2;
+    let prepend = [];
+    let starts = new Map<string, number>();
+    for(let i = 0; i < this.variant.length; i++) {
+      for(let [activity, lifecycle] of this.variant[i]) {
+        if(lifecycle == 'start') {
+          starts.set(activity, starts.get(activity) || 0 + 1);
         } else {
-          x += Constants.LEAF_WIDTH / 2;
+          if((starts.get(activity) || 0) == 0) {
+            if(i == 0) {
+              prepend.push([activity, lifecycle]);
+            } else {
+              this.variant[i - 1].push([activity, lifecycle]);
+            }
+          }
         }
-        y = Math.min(start.y, y);
-
-        let width = x - start.x;
-        start.node.width = width;
-        VariantFragmentComponent.drawLeafNode(start.node, start.parent, this.colorMap);
       }
-
-      height = Math.max(height, y);
     }
+    if(prepend.length > 0) {
+      this.variant.unshift([]);
+      prepend.forEach(x => this.variant[0].push(x));
+    }
+    
+    let yIndices: boolean[] = [];
+    
+    for(let grp of this.variant) {
+      grp.sort((a, b) => {
+        if(a[1] === b[1]) {
+          return 0;
+        } else if(a[1] == "start") {
+          return 1;
+        }
 
-    this.svg.attr("height", height - Constants.MARGIN_Y);
-    this.svg.attr("width", x);
-  }
+        return -1;
+      });
+      let xInc = 0;
 
-  createStart(x: number, y: number, activity: string): [number, number, ActivityInstance] {
-    let g = this.svg.append('g')
+      if(grp.filter(([a, l]) => l == 'complete').length > 0) {
+        xIndex += 0.5;
+      }
+      for(let [activity, lifecycle] of grp) {
+        if(lifecycle == "start") {
+          let x = leafWidth * xIndex;
+
+          let yIndex = 0;
+          while(yIndices[yIndex]) {
+            yIndex++;
+          }
+          yIndices[yIndex] = true;
+          maxY = Math.max(maxY, yIndex);
+
+          let y = (Constants.LEAF_HEIGHT + Constants.MARGIN_Y) * yIndex;
+          let g = this.svg.append('g')
                 .attr('transform', `translate(${x}, ${y})`);
-    let node = new ActivityInstance(new LeafNode(activity), g, x, y);
-
-    if(this.expanded) {
-      x += Constants.LEAF_WIDTH_EXPANDED / 2;
-    } else {
-      x += Constants.LEAF_WIDTH / 2;
+          let node = new ActivityInstance(new LeafNode(activity), g, xIndex, yIndex);
+          nodes.get(activity).push(node);
+          
+          xInc = 0.5;
+        } else {
+          let node = nodes.get(activity).shift();
+          let width = Math.max((xIndex - node.x) * leafWidth, leafWidth);
+          node.node.width = width;
+          VariantFragmentComponent.drawLeafNode(node.node, node.parent, this.colorMap);
+          yIndices[node.y] = false;
+        }
+      }
+      xIndex += xInc;
+      maxX = Math.max(xIndex, maxX);
     }
-    y += Constants.LEAF_HEIGHT + Constants.MARGIN_Y;
 
-    return [x, y, node];
+    this.svg.attr("height", (maxY + 1) * (Constants.LEAF_HEIGHT + Constants.MARGIN_Y));
+    this.svg.attr("width", maxX * (leafWidth));
   }
 
   onClick() {

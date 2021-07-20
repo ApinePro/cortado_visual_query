@@ -1,6 +1,6 @@
 export class Constants {
   public static LEAF_WIDTH = 40;
-  public static LEAF_WIDTH_EXPANDED = 80;
+  public static LEAF_WIDTH_EXPANDED = 120;
   public static LEAF_HEIGHT = 23;
   public static MARGIN_X = 8;
   public static MARGIN_Y = 5;
