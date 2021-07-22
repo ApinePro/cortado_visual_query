@@ -135,8 +135,8 @@ export class ParallelGroup extends VariantElement {
 
   public recalculateHeight(): number {
     this.elements.forEach(el => el.height = undefined);
-    this.height = this.elements.map((el: VariantElement) => el.getHeight() + Constants.MARGIN_Y * 2)
-                      .reduce((a: number, b: number) => a + b) - Constants.MARGIN_Y
+    this.height = this.elements.map((el: VariantElement) => el.getHeight() + Constants.MARGIN_Y)
+                      .reduce((a: number, b: number) => a + b) + Constants.MARGIN_Y
     return this.height;
   }
 

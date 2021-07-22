@@ -34,42 +34,18 @@ export class DetailledVariantComponent implements AfterViewInit {
   private expanded = false;
 
   draw() {
+    this.fixVariant();
+
+    let leafWidth = this.expanded ? Constants.LEAF_WIDTH_EXPANDED : Constants.LEAF_WIDTH;
+
     this.svg = d3.select(this.svgElement.nativeElement);
 
     let nodes = new Map<string, ActivityInstance[]>();
     this.variant.forEach(v => v.forEach(e => nodes.set(e[0], [])));
 
     let xIndex = 0;
-  
-    let maxX = 0;
-    let maxY = 0;
-
-    let leafWidth = this.expanded ? Constants.LEAF_WIDTH_EXPANDED : Constants.LEAF_WIDTH;
-
-    let prepend = [];
-    let starts = new Map<string, number>();
-    for(let i = 0; i < this.variant.length; i++) {
-      for(let [activity, lifecycle] of this.variant[i]) {
-        if(lifecycle == 'start') {
-          starts.set(activity, starts.get(activity) || 0 + 1);
-        } else {
-          if((starts.get(activity) || 0) == 0) {
-            if(i == 0) {
-              prepend.push([activity, lifecycle]);
-            } else {
-              this.variant[i - 1].push([activity, lifecycle]);
-            }
-          }
-        }
-      }
-    }
-    if(prepend.length > 0) {
-      this.variant.unshift([]);
-      prepend.forEach(x => this.variant[0].push(x));
-    }
-    
     let yIndices: boolean[] = [];
-    
+
     for(let grp of this.variant) {
       grp.sort((a, b) => {
         if(a[1] === b[1]) {
@@ -94,7 +70,6 @@ export class DetailledVariantComponent implements AfterViewInit {
             yIndex++;
           }
           yIndices[yIndex] = true;
-          maxY = Math.max(maxY, yIndex);
 
           let y = (Constants.LEAF_HEIGHT + Constants.MARGIN_Y) * yIndex;
           let g = this.svg.append('g')
@@ -112,11 +87,34 @@ export class DetailledVariantComponent implements AfterViewInit {
         }
       }
       xIndex += xInc;
-      maxX = Math.max(xIndex, maxX);
     }
 
-    this.svg.attr("height", (maxY + 1) * (Constants.LEAF_HEIGHT + Constants.MARGIN_Y));
-    this.svg.attr("width", maxX * (leafWidth));
+    this.svg.attr("height", yIndices.length * (Constants.LEAF_HEIGHT + Constants.MARGIN_Y));
+    this.svg.attr("width", xIndex * leafWidth);
+  }
+
+  fixVariant() {
+    let prepend = [];
+    let starts = new Map<string, number>();
+    for(let i = 0; i < this.variant.length; i++) {
+      for(let [activity, lifecycle] of this.variant[i]) {
+        if(lifecycle == 'start') {
+          starts.set(activity, starts.get(activity) || 0 + 1);
+        } else {
+          if((starts.get(activity) || 0) == 0) {
+            if(i == 0) {
+              prepend.push([activity, "start"]);
+            } else {
+              this.variant[i - 1].push([activity, "start"]);
+            }
+          }
+        }
+      }
+    }
+    if(prepend.length > 0) {
+      this.variant.unshift([]);
+      prepend.forEach(x => this.variant[0].push(x));
+    }
   }
 
   onClick() {
