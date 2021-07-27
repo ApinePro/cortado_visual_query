@@ -19,7 +19,7 @@ def calculate_event_log_properties(event_log: EventLog):
     for v in variants:
         variant = {
             'count': len(variants[v]),
-            'variant': [vv.serialize() for vv in v],
+            'variant': v.serialize(),
             'percentage': round(len(variants[v]) / total_traces * 100, 2),
             'sub_variants': []}
         sub_variants = get_detailled_variants(variants[v])
@@ -35,7 +35,7 @@ def calculate_event_log_properties(event_log: EventLog):
         res_variants.append(variant)
 
     res_variants = sorted(res_variants, key=lambda variant: variant['count'], reverse=True)
-    res_variants = res_variants[:20]
+    res_variants = res_variants[:10]
     res = {
         "startActivities": start_activities_filter.get_start_activities(event_log),
         "endActivities": end_activities_filter.get_end_activities(event_log),
