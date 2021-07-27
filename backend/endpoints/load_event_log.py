@@ -3,17 +3,17 @@ from pm4py.algo.filtering.log.start_activities import start_activities_filter
 from pm4py.algo.filtering.log.end_activities import end_activities_filter
 from pm4py.algo.filtering.log.attributes import attributes_filter
 from pm4py.algo.filtering.log.variants import variants_filter
-from interactive_process_mining_core.utils.variants import get_concurrency_variants, get_concurrency_variants_opt, get_detailled_variants, get_variant_variants
+from interactive_process_mining_core.utils.variants import get_concurrency_variants_opt, get_detailled_variants, get_variant_variants
 
 def calculate_event_log_properties(event_log: EventLog):
     event_log = attributes_filter.apply_events(event_log, ["Job"],
                                           parameters={attributes_filter.Parameters.ATTRIBUTE_KEY: "concept:name", attributes_filter.Parameters.POSITIVE: False})
-    # event_log = EventLog(event_log[:1])
+    # event_log = EventLog(event_log[:1000])
 
     # t = min(event_log, key=lambda x: len(x))
     # event_log = EventLog([t])
 
-    variants, names = get_concurrency_variants_opt(event_log)
+    variants = get_concurrency_variants_opt(event_log)
     total_traces = len(event_log)
     res_variants = []
     for v in variants:
@@ -22,7 +22,7 @@ def calculate_event_log_properties(event_log: EventLog):
             'variant': [vv.serialize() for vv in v],
             'percentage': round(len(variants[v]) / total_traces * 100, 2),
             'sub_variants': []}
-        sub_variants = get_detailled_variants(variants[v], names)
+        sub_variants = get_detailled_variants(variants[v])
         total_sub_traces = sum(len(sub_variants[v]) for v in sub_variants)
 
         for sub_v in sub_variants:
