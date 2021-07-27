@@ -91,9 +91,8 @@ export class VariantExplorerComponent implements OnInit {
             calculationInProgress: false,
             deviation: undefined 
           },
-          { variant: [[["a", "start"]], 
+          { variant: [[["a", "start"], ['a', 'complete']], 
                       [["b", "start"]], 
-                      [["a", "complete"]], 
                       [["b", "complete"]],
                     ], count: 1, percentage: 10, 
             alignment: undefined,
@@ -161,7 +160,7 @@ export class VariantExplorerComponent implements OnInit {
         this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
         this.variants = this.sharedDataService.variants;
         this.variants.forEach(variant => {
-          variant['variant'] = [new SequenceGroup(variant['variant'].map(v => this.deserialize(v)))];
+          variant['variant'] = [this.deserialize(variant.variant)];
           variant['sub_variants'].forEach(subvariant => {
             // subvariant['variant'] = [new SequenceGroup(subvariant['variant'].map(v => this.deserialize(v)))];
           });
