@@ -3,7 +3,7 @@ from pm4py.algo.filtering.log.start_activities import start_activities_filter
 from pm4py.algo.filtering.log.end_activities import end_activities_filter
 from pm4py.algo.filtering.log.attributes import attributes_filter
 from pm4py.algo.filtering.log.variants import variants_filter
-from interactive_process_mining_core.utils.variants import get_concurrency_variants_opt, get_detailled_variants, get_variant_variants
+from interactive_process_mining_core.utils.variants import get_concurrency_variants_opt, get_detailled_variants
 
 def calculate_event_log_properties(event_log: EventLog):
     event_log = attributes_filter.apply_events(event_log, ["Job"],

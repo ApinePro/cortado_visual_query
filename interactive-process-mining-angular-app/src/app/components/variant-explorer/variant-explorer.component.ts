@@ -75,7 +75,7 @@ export class VariantExplorerComponent implements OnInit {
 
       this.variants = [{
         count: 5,
-        variant: [new ParallelGroup([new SequenceGroup([new LeafNode("a"), new LeafNode("b"), new LeafNode("c")]), new ParallelGroup([new LeafNode("a"), new LeafNode("b")])])],
+        variant: [new ParallelGroup([new SequenceGroup([new LeafNode(["a"]), new LeafNode(["b"]), new LeafNode(["c"])]), new ParallelGroup([new LeafNode(["a"]), new LeafNode(["b"])])])],
         percentage: 100,
         alignment: undefined,
         calculationInProgress: false,
@@ -113,7 +113,7 @@ export class VariantExplorerComponent implements OnInit {
       },
       {
         count: 5,
-        variant: [new ParallelGroup([new LeafNode('a'), new LeafNode('a'), new LeafNode('a'), new LeafNode('a'), new LeafNode('a'), new LeafNode('a')])],
+        variant: [new ParallelGroup([new LeafNode(['a']), new LeafNode(['a']), new LeafNode(['a']), new LeafNode(['a']), new LeafNode(['a']), new LeafNode(['a'])])],
         percentage: 100,
         alignment: undefined,
         calculationInProgress: false,

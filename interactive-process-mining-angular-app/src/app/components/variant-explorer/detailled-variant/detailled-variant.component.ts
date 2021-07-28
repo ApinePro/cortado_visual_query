@@ -92,7 +92,7 @@ export class DetailledVariantComponent implements AfterViewInit {
         let y = (Constants.LEAF_HEIGHT + Constants.MARGIN_Y) * yIndex;
         let g = this.svg.append('g')
               .attr('transform', `translate(${x}, ${y})`);
-        let node = new ActivityInstance(new LeafNode(activity), g, xIndex, yIndex);
+        let node = new ActivityInstance(new LeafNode([activity]), g, xIndex, yIndex);
         nodes.get(activity).push(node);
       }
       if(starting.length > 0) {

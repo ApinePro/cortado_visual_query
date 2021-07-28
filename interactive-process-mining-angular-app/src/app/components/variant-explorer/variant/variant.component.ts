@@ -10,11 +10,8 @@ import { VariantFragmentComponent } from '../variant-fragment/variant-fragment.c
 })
 export class VariantComponent implements OnInit {
 
-  content1 = new SequenceGroup([new LeafNode("a"), new LeafNode("b"), new LeafNode("c")]);
-  content2 = new LeafNode("a");
-
   @Input()
-  variant = [this.content1, this.content2];
+  variant;
 
   @Input()
   colorMap: Map<string, string>;

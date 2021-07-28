@@ -21,7 +21,11 @@ export class VariantFragmentComponent implements AfterViewInit {
   svgHtmlElement!: ElementRef;
 
   @Input()
-  content: VariantElement = new ParallelGroup([new SequenceGroup([new LeafNode("a"), new LeafNode("b"), new LeafNode("c")]), new ParallelGroup([new LeafNode("a"), new LeafNode("b")])]);
+  content: VariantElement = new ParallelGroup([new SequenceGroup([new LeafNode(["a"]), 
+                                                                  new LeafNode(["b"]), 
+                                                                  new LeafNode(["c"])]), 
+                                              new ParallelGroup([new LeafNode(["a"]), 
+                                                                  new LeafNode(["b"])])]);
 
   @Input()
   colorMap: Map<string, string>;
@@ -153,7 +157,7 @@ export class VariantFragmentComponent implements AfterViewInit {
 
     let polygonPoints = getPolygonPoints(width, height);
 
-    let color = colorMap.get(element.activity);
+    let color = colorMap.get(element.activity[0]);
     parent.append('polygon')
           .attr('points', polygonPoints)
           .style('fill', color)
@@ -166,14 +170,14 @@ export class VariantFragmentComponent implements AfterViewInit {
           // });
 
     let activityText = parent.append("text")
-          .text(element.activity)
+          .text(element.activity[0])
           .attr('x', width / 2)
           .attr('y', height / 2)
           .attr('text-anchor', 'middle')
           .attr('dominant-baseline', 'middle')
           .attr('font-size', Constants.FONT_SIZE)
 
-    VariantFragmentComponent.wrapInnerLabelText(activityText, element.activity, width - 2 * Constants.MARGIN_X);
+    VariantFragmentComponent.wrapInnerLabelText(activityText, element.activity[0], width - 2 * Constants.MARGIN_X);
 
     let l = activityText.node().getComputedTextLength();
     element.textLength = l;
@@ -206,7 +210,7 @@ export class VariantFragmentComponent implements AfterViewInit {
     } else if(element instanceof SequenceGroup) {
       return element.asSequenceGroup().elements.flatMap(e => this.getActivities(e));
     } else {
-      return [element.asLeafNode().activity];
+      return [element.asLeafNode().activity[0]];
     }
   }
 }

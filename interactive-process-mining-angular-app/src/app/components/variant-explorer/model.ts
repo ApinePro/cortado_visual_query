@@ -152,7 +152,7 @@ export class LeafNode extends VariantElement {
 
   public textLength: number = 10;
 
-  constructor(public activity: string) {
+  constructor(public activity: string[]) {
     super();
   }
 
