@@ -1,7 +1,9 @@
 import { AfterViewInit, ElementRef } from '@angular/core';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
-import { Selection, thresholdFreedmanDiaconis } from 'd3';
+import { Selection } from 'd3';
+import { connectableObservableDescriptor } from 'rxjs/internal/observable/ConnectableObservable';
+import { StatsService } from 'src/app/stats.service';
 import { getPolygonPoints } from '../helper_functions';
 import { Constants, LeafNode, ParallelGroup, SequenceGroup, VariantElement } from '../model';
 
@@ -12,9 +14,11 @@ import { Constants, LeafNode, ParallelGroup, SequenceGroup, VariantElement } fro
 })
 export class VariantFragmentComponent implements AfterViewInit {
 
+  public static n = 0;
+
   constants = Constants;
 
-  constructor() { 
+  constructor(private statsService: StatsService) { 
   }
 
   @ViewChild("svg")
@@ -33,8 +37,6 @@ export class VariantFragmentComponent implements AfterViewInit {
   svgSelection!: Selection<any, any, any, any>;
 
   contentJSON = '{"parallel": [{"leaf": "F"}, {"follows": [{"parallel": [{"leaf": "A"}, {"follows": [{"leaf": "B"}, {"leaf": "C"}]}]}, {"leaf": "D"}]}]}';
-  // contentJSON = '{"follows": [{"leaf": "B"}, {"leaf": "C"}]}';
-  // contentJSON = '{"parallel": [{"leaf": "B"}, {"leaf": "C"}]}';
 
   deserializeJSON(json: string) {
     this.content = this.deserialize(JSON.parse(json));
@@ -59,7 +61,10 @@ export class VariantFragmentComponent implements AfterViewInit {
                   this.redraw();
                 });
     
+    var start = new Date().getTime();
     this.redraw();
+    var end = new Date().getTime();
+    this.statsService.addTime(this.content, end - start);
   }
 
   redraw() {
@@ -77,9 +82,7 @@ export class VariantFragmentComponent implements AfterViewInit {
                 .attr('width', width)
                 .attr('height', height);
     
-    console.time("draw");
     this.draw(this.content, svg);
-    console.timeEnd("draw");
 
     if(this.content instanceof SequenceGroup) {
       this.svgSelection.select('polygon').remove();

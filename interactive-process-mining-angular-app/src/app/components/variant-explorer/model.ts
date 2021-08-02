@@ -190,4 +190,16 @@ export class LeafNode extends VariantElement {
     this.width += Constants.MARGIN_X; 
     return this.width;
   }
+
+  
+}
+
+export function deserialize(obj: any): VariantElement {
+  if('follows' in obj) {
+    return new SequenceGroup(obj['follows'].map((e: any) => deserialize(e)))
+  } else if('parallel' in obj) {
+    return new ParallelGroup(obj['parallel'].map((e: any) => deserialize(e)))
+  } else {
+    return new LeafNode(obj['leaf']);
+  }
 }

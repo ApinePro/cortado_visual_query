@@ -1,15 +1,18 @@
-import { Component, isDevMode, OnInit, QueryList, ViewChildren} from '@angular/core';
+import { Component, isDevMode, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import * as dummyBackendResponse from './dummy_backend_data.js';
 import {ColorMapService} from '../../services/colorMapService/color-map.service';
 import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
 import {BackendService} from '../../services/backendService/backend.service';
 
 import {ActivateTooltipsService} from '../../services/activateTooltipsService/activate-tooltips.service';
-import {Subject} from 'rxjs';
+import { Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import { LeafNode, ParallelGroup, SequenceGroup, VariantElement } from './model';
 import { VariantComponent } from './variant/variant.component';
 import { DetailledVariantComponent } from './detailled-variant/detailled-variant.component';
+import { StatsService } from 'src/app/stats.service';
+import { VariantFragmentComponent } from './variant-fragment/variant-fragment.component';
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -21,7 +24,8 @@ export class VariantExplorerComponent implements OnInit {
   constructor(private colorMapService: ColorMapService,
               private sharedDataService: SharedDataService,
               private backendService: BackendService,
-              private tooltipActivationService: ActivateTooltipsService) {
+              private tooltipActivationService: ActivateTooltipsService,
+              private statsService: StatsService) {
   }
 
   colorMap: Map<string, string>;
@@ -64,6 +68,9 @@ export class VariantExplorerComponent implements OnInit {
 
   @ViewChildren(DetailledVariantComponent)
   detailledVariantComponents: QueryList<DetailledVariantComponent>;
+
+  @ViewChild(CdkVirtualScrollViewport) 
+  viewPort: CdkVirtualScrollViewport;
 
   public expandVariant = {};
 
@@ -158,13 +165,9 @@ export class VariantExplorerComponent implements OnInit {
         this.totalNumberTraces = undefined;
         this.totalNumberVariants = undefined;
         this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
-        this.variants = this.sharedDataService.variants;
-        this.variants.forEach(variant => {
-          variant['variant'] = [this.deserialize(variant.variant)];
-          variant['sub_variants'].forEach(subvariant => {
-            // subvariant['variant'] = [new SequenceGroup(subvariant['variant'].map(v => this.deserialize(v)))];
-          });
-        });
+
+        this.variants = [...this.sharedDataService.variants];
+        VariantFragmentComponent.n = 0;
 
         this.explicitlyAddedVariants = new Map<number, Set<number>>();
         this.tooltipActivationService.initialize();
@@ -174,6 +177,8 @@ export class VariantExplorerComponent implements OnInit {
 
         this.calculatedAlignments = 0;
         this.alignmentsToBeCalculated = 0;
+
+        this.statsService.reset(this.variants.length);
       }
     });
 
@@ -187,15 +192,7 @@ export class VariantExplorerComponent implements OnInit {
     });
   }
 
-  deserialize(obj: any): VariantElement {
-    if('follows' in obj) {
-      return new SequenceGroup(obj['follows'].map((e: any) => this.deserialize(e)))
-    } else if('parallel' in obj) {
-      return new ParallelGroup(obj['parallel'].map((e: any) => this.deserialize(e)))
-    } else {
-      return new LeafNode(obj['leaf']);
-    }
-  }
+  
 
   updateAlignmentsStop() {
     this.unsubscribe.next();

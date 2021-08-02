@@ -5,6 +5,7 @@ import {SharedDataService} from '../sharedDataService/shared-data.service';
 import * as FileSaver from 'file-saver';
 import {take} from 'rxjs/operators';
 import {ActivateTooltipsService} from '../activateTooltipsService/activate-tooltips.service';
+import { deserialize } from 'src/app/components/variant-explorer/model';
 
 @Injectable({
   providedIn: 'root'
@@ -40,7 +41,10 @@ export class BackendService {
         this.sharedDataService.activitiesInEventLog = res['activities'];
         this.sharedDataService.startActivitiesInEventLog = new Set(Object.keys(res['startActivities']));
         this.sharedDataService.endActivitiesInEventLog = new Set(Object.keys(res['endActivities']));
-        this.sharedDataService.variants = res['variants'];
+        this.sharedDataService.variants = res['variants']
+        this.sharedDataService.variants.forEach(variant => {
+          variant['variant'] = [deserialize(variant.variant)];
+        });
         this.sharedDataService.loadedEventLog = file.name;
     });
   }

@@ -16,6 +16,7 @@ import { VariantComponent } from './components/variant-explorer/variant/variant.
 import { VariantFragmentComponent } from './components/variant-explorer/variant-fragment/variant-fragment.component';
 import { DetailledVariantComponent } from './components/variant-explorer/detailled-variant/detailled-variant.component';
 import { SubvariantsComponent } from './components/variant-explorer/subvariants/subvariants.component';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import { SubvariantsComponent } from './components/variant-explorer/subvariants/
     BrowserModule,
     // AppRoutingModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    ScrollingModule
   ],
   providers: [
     {
