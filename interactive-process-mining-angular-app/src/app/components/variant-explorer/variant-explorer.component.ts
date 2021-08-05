@@ -8,7 +8,6 @@ import { ActivateTooltipsService } from '../../services/activateTooltipsService/
 import { Subject} from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { LeafNode, ParallelGroup, SequenceGroup, VariantElement } from './model';
-import { VariantComponent } from './variant/variant.component';
 import { DetailledVariantComponent } from './detailled-variant/detailled-variant.component';
 import { StatsService } from 'src/app/stats.service';
 import { VariantFragmentComponent } from './variant-fragment/variant-fragment.component';
@@ -52,8 +51,8 @@ export class VariantExplorerComponent implements OnInit, AfterViewChecked {
   correctTreeSyntax = false;
   protected unsubscribe: Subject<void> = new Subject<void>();
 
-  @ViewChildren(VariantComponent)
-  variantComponents: QueryList<VariantComponent>;
+  @ViewChildren(VariantFragmentComponent)
+  variantComponents: QueryList<VariantFragmentComponent>;
 
   @ViewChildren(DetailledVariantComponent)
   detailledVariantComponents: QueryList<DetailledVariantComponent>;
@@ -372,8 +371,7 @@ export class VariantExplorerComponent implements OnInit, AfterViewChecked {
     })
   }
 
-  public toggleSelect(index) {
-    let variant = this.variants[index]['variant'];
+  public toggleSelect(index, variant) {
     let component = this.variantComponents.find(c => c.variant === variant);
 
     if (this.expandVariant[index]) {
@@ -451,6 +449,22 @@ export class VariantExplorerComponent implements OnInit, AfterViewChecked {
 
     if(scrollHeight - (h + scrollTop) <= 500) {
       this.visibleVariants = this.variants.slice(0, this.visibleVariants.length + this.nVariantsInc);
+    }
+  }
+
+  isComplexVariant(variant: VariantElement) {
+    if(variant instanceof ParallelGroup) {
+      return true;
+    } else if(variant instanceof SequenceGroup) {
+      for(let e of variant.asSequenceGroup().elements) {
+        let complex = this.isComplexVariant(e)
+        if(complex) {
+          return true;
+        }
+      }
+      return false;
+    } else {
+      return false;
     }
   }
 }

@@ -1,4 +1,4 @@
-import { AfterViewInit, ElementRef } from '@angular/core';
+import { AfterViewInit, ElementRef, EventEmitter, Output } from '@angular/core';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
@@ -17,15 +17,13 @@ export class VariantFragmentComponent implements AfterViewInit, OnInit {
 
   constants = Constants;
 
-  constructor(private statsService: StatsService,
-              private polygonService: PolygonGeneratorService) { 
-  }
+  constructor(private polygonService: PolygonGeneratorService) {}
 
   @ViewChild("svg")
   svgHtmlElement!: ElementRef;
 
   @Input()
-  content: VariantElement = new ParallelGroup([new SequenceGroup([new LeafNode(["a"]), 
+  variant: VariantElement = new ParallelGroup([new SequenceGroup([new LeafNode(["a"]), 
                                                                   new LeafNode(["b"]), 
                                                                   new LeafNode(["c"])]), 
                                               new ParallelGroup([new LeafNode(["a"]), 
@@ -34,13 +32,13 @@ export class VariantFragmentComponent implements AfterViewInit, OnInit {
   @Input()
   colorMap: Map<string, string>;
 
+
+  @Output() 
+  selectVariant = new EventEmitter<VariantElement>();
+
   svgSelection!: Selection<any, any, any, any>;
 
-  contentJSON = '{"parallel": [{"leaf": "F"}, {"follows": [{"parallel": [{"leaf": "A"}, {"follows": [{"leaf": "B"}, {"leaf": "C"}]}]}, {"leaf": "D"}]}]}';
-
-  deserializeJSON(json: string) {
-    this.content = this.deserialize(JSON.parse(json));
-  }
+  private rendered: boolean = false;
 
   deserialize(obj: any): VariantElement {
     if('follows' in obj) {
@@ -59,22 +57,18 @@ export class VariantFragmentComponent implements AfterViewInit, OnInit {
   ngAfterViewInit(): void {
     this.svgSelection = d3.select(this.svgHtmlElement.nativeElement)
                 .append('g')
-                // .attr("transform", "translate(0 15)")
                 .on('click', () => {
-                  this.content.setExpanded(!this.content.expanded);
+                  this.variant.setExpanded(!this.variant.expanded);
                   this.redraw();
                 });
     
-    var start = new Date().getTime();
     this.redraw();
-    var end = new Date().getTime();
-    this.statsService.addTime(this.content, end - start);
   }
 
   redraw() {
-    let height = this.content.recalculateHeight();
-    let width = this.content.recalculateWidth();
-    this.content.updateWidth();
+    let height = this.variant.recalculateHeight();
+    let width = this.variant.recalculateWidth();
+    this.variant.updateWidth();
 
     d3.select(this.svgHtmlElement.nativeElement)
       .attr('width', width)
@@ -86,11 +80,13 @@ export class VariantFragmentComponent implements AfterViewInit, OnInit {
                 .attr('width', width)
                 .attr('height', height);
     
-    this.draw(this.content, svg);
+    this.draw(this.variant, svg);
 
-    if(this.content instanceof SequenceGroup) {
+    if(this.variant instanceof SequenceGroup) {
       this.svgSelection.select('polygon').remove();
     }
+    
+    this.rendered = true;
   }
 
   draw(element: VariantElement, svgElement: any) {
@@ -109,7 +105,7 @@ export class VariantFragmentComponent implements AfterViewInit, OnInit {
 
     let polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
-    let color = this.getColor(element);
+    let color = 'lightgrey';
     parent.append('polygon')
           .attr('points', polygonPoints)
           .style('fill', color)
@@ -136,7 +132,7 @@ export class VariantFragmentComponent implements AfterViewInit, OnInit {
     
     let polygonPoints = this.polygonService.getPolygonPoints(width, height);
     
-    let color = this.getColor(element);
+    let color = 'lightgrey';
     parent.append('polygon')
           .attr('points', polygonPoints)
           .style('fill', color)
@@ -156,6 +152,15 @@ export class VariantFragmentComponent implements AfterViewInit, OnInit {
       this.draw(child, g);
       y += height + Constants.MARGIN_Y;
     } 
+  }
+
+  onClick() {
+    this.selectVariant.emit(this.variant);
+  }
+
+  setSelected(selected: boolean) {
+    this.variant.setExpanded(selected);
+    this.redraw();
   }
 
   public static drawLeafNode(element: LeafNode, parent: any, colorMap: Map<string, string>, polygonService: PolygonGeneratorService) {
@@ -190,9 +195,5 @@ export class VariantFragmentComponent implements AfterViewInit, OnInit {
         text = text.slice(0, i);
         textSelection.text(text + "..");
     }
-  }
-
-  getColor(element: VariantElement) {
-    return 'lightgrey'
   }
 }

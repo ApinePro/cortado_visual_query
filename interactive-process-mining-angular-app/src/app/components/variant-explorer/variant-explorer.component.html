@@ -137,11 +137,11 @@
               </td>
               <td class="variant-cell" >
                 <div class="variant" [ngStyle]="{ 'border-color': isSelected(i) ? 'unset' : 'transparent' }">
-                  <app-variant [id]="'variant' + i" [variant]="variant['variant']" [colorMap]="colorMap" (selectVariant)="toggleSelect(i)"></app-variant>
+                  <app-variant-fragment [variant]="variant['variant']" [colorMap]="colorMap" (selectVariant)="toggleSelect(i, $event)"></app-variant-fragment>
                 </div>
               </td>
             </tr>
-            <ng-container *ngIf="expandVariant[i] && variant['sub_variants'] !== undefined">
+            <ng-container *ngIf="expandVariant[i] && variant['sub_variants'] !== undefined && (isComplexVariant(variant.variant) || variant.sub_variants.length > 0)">
               <tr>
                 <td></td>
                 <td>
@@ -203,7 +203,6 @@
                       </td>
                       <td style="width: 100%; padding-left: 10px;">
                         <div class="variant" [ngStyle]="{ 'border-color': isSelected(i, ii) ? 'unset' : 'transparent' }">
-                            <!-- <app-variant [id]="'variant' + i + '_' + ii" [variant]="subvariant['variant']" [colorMap]="colorMap" (selectVariant)="toggleSelectSubVariant(i, ii)"></app-variant> -->
                             <app-detailled-variant [variant]="subvariant['variant']" [colorMap]="colorMap" (selectVariant)="toggleSelectSubVariant(i, ii)"></app-detailled-variant>
                         </div>
                       </td>

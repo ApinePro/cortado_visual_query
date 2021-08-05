@@ -12,7 +12,6 @@ import {VariantExplorerComponent} from './components/variant-explorer/variant-ex
 import {SideBarComponent} from './components/side-bar/side-bar.component';
 import {ActivityOverviewComponent} from './components/activity-overview/activity-overview.component';
 import {HttpRequestInterceptor} from './interceptors/http-request.interceptor';
-import { VariantComponent } from './components/variant-explorer/variant/variant.component';
 import { VariantFragmentComponent } from './components/variant-explorer/variant-fragment/variant-fragment.component';
 import { DetailledVariantComponent } from './components/variant-explorer/detailled-variant/detailled-variant.component';
 import { SubvariantsComponent } from './components/variant-explorer/subvariants/subvariants.component';
@@ -27,7 +26,6 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     VariantExplorerComponent,
     SideBarComponent,
     ActivityOverviewComponent,
-    VariantComponent,
     VariantFragmentComponent,
     DetailledVariantComponent,
     SubvariantsComponent
