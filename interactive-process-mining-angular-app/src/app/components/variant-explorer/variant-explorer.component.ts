@@ -1,12 +1,12 @@
-import { Component, isDevMode, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, isDevMode, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import * as dummyBackendResponse from './dummy_backend_data.js';
-import {ColorMapService} from '../../services/colorMapService/color-map.service';
-import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
-import {BackendService} from '../../services/backendService/backend.service';
+import { ColorMapService } from '../../services/colorMapService/color-map.service';
+import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
+import { BackendService } from '../../services/backendService/backend.service';
 
-import {ActivateTooltipsService} from '../../services/activateTooltipsService/activate-tooltips.service';
+import { ActivateTooltipsService } from '../../services/activateTooltipsService/activate-tooltips.service';
 import { Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { LeafNode, ParallelGroup, SequenceGroup, VariantElement } from './model';
 import { VariantComponent } from './variant/variant.component';
 import { DetailledVariantComponent } from './detailled-variant/detailled-variant.component';
@@ -19,7 +19,9 @@ import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
   templateUrl: './variant-explorer.component.html',
   styleUrls: ['./variant-explorer.component.css']
 })
-export class VariantExplorerComponent implements OnInit {
+export class VariantExplorerComponent implements OnInit, AfterViewChecked {
+
+  nVariantsInc = 10;
 
   constructor(private colorMapService: ColorMapService,
               private sharedDataService: SharedDataService,
@@ -32,7 +34,7 @@ export class VariantExplorerComponent implements OnInit {
 
   variants: {
     count: number,
-    variant: VariantElement[],
+    variant: VariantElement,
     percentage: number,
     calculationInProgress: boolean | undefined,
     alignment: any | undefined,
@@ -44,8 +46,10 @@ export class VariantExplorerComponent implements OnInit {
       calculationInProgress: boolean | undefined,
       alignment: any | undefined,
       deviation: any | undefined
-    }[]
+    }[],
   }[];
+
+  visibleVariants;
 
   selectedVariants = new Map<number, Set<number>>();
   explicitlyAddedVariants = new Map<number, Set<number>>();
@@ -72,17 +76,17 @@ export class VariantExplorerComponent implements OnInit {
   @ViewChild(CdkVirtualScrollViewport) 
   viewPort: CdkVirtualScrollViewport;
 
+  @ViewChild('variantExplorer')
+  variantExplorerDiv: ElementRef<HTMLDivElement>;
+
   public expandVariant = {};
 
   ngOnInit(): void {
     // preload road traffic fine management process
     if (isDevMode() || true) {
-      // console.log("devMode active -> load dummy data");
-      // console.log(dummyBackendResponse.test);
-
       this.variants = [{
         count: 5,
-        variant: [new ParallelGroup([new SequenceGroup([new LeafNode(["a"]), new LeafNode(["b"]), new LeafNode(["c"])]), new ParallelGroup([new LeafNode(["a"]), new LeafNode(["b"])])])],
+        variant: new ParallelGroup([new SequenceGroup([new LeafNode(["a"]), new LeafNode(["b"]), new LeafNode(["c"])]), new ParallelGroup([new LeafNode(["a"]), new LeafNode(["b"])])]),
         percentage: 100,
         alignment: undefined,
         calculationInProgress: false,
@@ -120,7 +124,7 @@ export class VariantExplorerComponent implements OnInit {
       },
       {
         count: 5,
-        variant: [new ParallelGroup([new LeafNode(['a']), new LeafNode(['a']), new LeafNode(['a']), new LeafNode(['a']), new LeafNode(['a']), new LeafNode(['a'])])],
+        variant: new ParallelGroup([new LeafNode(['a']), new LeafNode(['a']), new LeafNode(['a']), new LeafNode(['a']), new LeafNode(['a']), new LeafNode(['a'])]),
         percentage: 100,
         alignment: undefined,
         calculationInProgress: false,
@@ -179,8 +183,19 @@ export class VariantExplorerComponent implements OnInit {
         this.alignmentsToBeCalculated = 0;
 
         this.statsService.reset(this.variants.length);
+
+        let divHeight = this.variantExplorerDiv.nativeElement.clientHeight;
+        
+        let h = 0;
+        let i = 0;
+        while(h < divHeight && i < this.variants.length) {
+          h += this.variants[i].variant.getHeight();
+          i++;
+        }
+        this.visibleVariants = this.variants.slice(0, i + this.nVariantsInc);
       }
     });
+    this.visibleVariants = this.variants.slice(0, this.nVariantsInc);
 
     this.sharedDataService.correctTreeSyntax$.subscribe(res => {
       this.correctTreeSyntax = res;
@@ -192,7 +207,9 @@ export class VariantExplorerComponent implements OnInit {
     });
   }
 
-  
+  ngAfterViewChecked() {
+    // this.drawVisible(0);
+  }
 
   updateAlignmentsStop() {
     this.unsubscribe.next();
@@ -216,7 +233,6 @@ export class VariantExplorerComponent implements OnInit {
       v.sub_variants.forEach((sub_v, ii) => {
         let variant = this.mapVariantToEventList(sub_v.variant);
         this.backendService.calculateAlignment(variant).pipe(takeUntil(this.unsubscribe)).subscribe(res => {
-          // console.log(res);
             sub_v.calculationInProgress = false;
             sub_v.alignment = res.alignment;
             sub_v.deviation = res.deviation;
@@ -297,7 +313,7 @@ export class VariantExplorerComponent implements OnInit {
   mapVariantToEventList(variant) {
     return { events: variant
                         .flat()
-                        .filter(v => v[1] == 'complete')
+                        .filter(v => v[1].toLowerCase() == 'complete')
                         .map(v => `${v[0]}`) };
   }
 
@@ -323,9 +339,6 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   addSelectedVariantsToModel() {
-    // console.log(this.selectedVariants);
-    // console.log(this.explicitlyAddedVariants);
-    // console.log(this.variants);
     this.tooltipActivationService.close();
 
     if (this.outdatedConformanceStatistics) {
@@ -379,10 +392,10 @@ export class VariantExplorerComponent implements OnInit {
     let component = this.variantComponents.find(c => c.variant === variant);
 
     if (this.expandVariant[index]) {
-      variant.forEach(v => v.setExpanded(false))
+      variant.setExpanded(false);
       component.setSelected(false);
     } else {
-      variant.forEach(v => v.setExpanded(true))
+      variant.setExpanded(true);
       component.setSelected(true);
     }
 
@@ -440,5 +453,19 @@ export class VariantExplorerComponent implements OnInit {
     let someSelected = false;
     this.selectedVariants.forEach(v => someSelected ||= v.size > 0);
     return someSelected;
+  }
+
+  onScroll(event) {
+    let scrollTop = event.target.scrollTop;
+    let scrollHeight = event.target.scrollHeight;
+    this.updateVisible(scrollTop, scrollHeight);
+  }
+
+  updateVisible(scrollTop, scrollHeight) {
+    let h = this.variantExplorerDiv.nativeElement.clientHeight;
+
+    if(scrollHeight - (h + scrollTop) <= 500) {
+      this.visibleVariants = this.variants.slice(0, this.visibleVariants.length + this.nVariantsInc);
+    }
   }
 }

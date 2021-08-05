@@ -1,9 +1,8 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { constants } from 'buffer';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
-import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
-import { Constants, LeafNode, VariantElement } from '../model';
+import { PolygonGeneratorService } from 'src/app/services/polygon-generator.service';
+import { Constants, LeafNode } from '../model';
 import { VariantFragmentComponent } from '../variant-fragment/variant-fragment.component';
 
 @Component({
@@ -27,7 +26,7 @@ export class DetailledVariantComponent implements AfterViewInit {
 
   svg: Selection<any, any, any, any>;
 
-  constructor() { }
+  constructor(private polygonService: PolygonGeneratorService) { }
 
   ngAfterViewInit(): void {
     this.draw();
@@ -36,19 +35,19 @@ export class DetailledVariantComponent implements AfterViewInit {
   private expanded = false;
 
   draw() {
-    this.fixVariant();
+    let variant = this.fixVariant();
 
     let leafWidth = this.expanded ? Constants.LEAF_WIDTH_EXPANDED : Constants.LEAF_WIDTH;
 
     this.svg = d3.select(this.svgElement.nativeElement);
 
     let nodes = new Map<string, ActivityInstance[]>();
-    this.variant.forEach(v => v.forEach(e => nodes.set(e[0], [])));
+    variant.forEach(v => v.forEach(e => nodes.set(e[0], [])));
 
     let xIndex = 0;
     let yIndices: boolean[] = [];
 
-    for(let grp of this.variant) {
+    for(let grp of variant) {
       // let completing = grp.filter(([a, l]) => l == 'complete' && (nodes.get(a) || []).length > 0)
 
       let completing = [];
@@ -66,7 +65,7 @@ export class DetailledVariantComponent implements AfterViewInit {
         let node = nodes.get(activity).shift();
         let width = (xIndex - node.x) * leafWidth;
         node.node.width = width;
-        VariantFragmentComponent.drawLeafNode(node.node, node.parent, this.colorMap);
+        VariantFragmentComponent.drawLeafNode(node.node, node.parent, this.colorMap, this.polygonService);
         yIndices[node.y] = false;
       }
 
@@ -106,7 +105,7 @@ export class DetailledVariantComponent implements AfterViewInit {
         let node = nodes.get(activity).shift();
         let width = (xIndex - node.x) * leafWidth;
         node.node.width = width;
-        VariantFragmentComponent.drawLeafNode(node.node, node.parent, this.colorMap);
+        VariantFragmentComponent.drawLeafNode(node.node, node.parent, this.colorMap, this.polygonService);
         yIndices[node.y] = false;
       }
     }
@@ -116,10 +115,11 @@ export class DetailledVariantComponent implements AfterViewInit {
   }
 
   fixVariant() {
+    let variant = this.variant.map(g => g.map(([a, b]) => [a, b.toLowerCase()]));
     let prepend = [];
     let starts = new Map<string, number>();
-    for(let i = 0; i < this.variant.length; i++) {
-      for(let [activity, lifecycle] of this.variant[i]) {
+    for(let i = 0; i < variant.length; i++) {
+      for(let [activity, lifecycle] of variant[i]) {
         if(lifecycle == 'start') {
           starts.set(activity, (starts.get(activity) || 0) + 1);
         } else {
@@ -128,7 +128,7 @@ export class DetailledVariantComponent implements AfterViewInit {
             if(i == 0) {
               prepend.push([activity, "start"]);
             } else {
-              this.variant[i - 1].push([activity, "start"]);
+              variant[i - 1].push([activity, "start"]);
             }
           } else {
             starts.set(activity, nStarts - 1);
@@ -137,9 +137,11 @@ export class DetailledVariantComponent implements AfterViewInit {
       }
     }
     if(prepend.length > 0) {
-      this.variant.unshift([]);
-      prepend.forEach(x => this.variant[0].push(x));
+      variant.unshift([]);
+      prepend.forEach(x => variant[0].push(x));
     }
+
+    return variant;
   }
 
   onClick() {

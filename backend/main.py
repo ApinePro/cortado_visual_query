@@ -1,5 +1,4 @@
 from multiprocessing import freeze_support, cpu_count
-import pm4pycvxopt
 from typing import Any, List
 import uvicorn
 from fastapi import FastAPI, File, UploadFile
@@ -24,6 +23,7 @@ from backend_utilities.process_tree_conversion import dict_to_process_tree
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 from endpoints.load_event_log import calculate_event_log_properties
 from interactive_process_mining_core.lca_approach import add_trace_to_pt_language
+import cache as cache
 
 app = FastAPI()
 origins = [
@@ -40,13 +40,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
     content = "".join([line.decode("UTF-8") for line in file.file])
-    event_log = xes_importer.deserialize(content)
+    # params = {'max_traces': 1000}
+    params = {}
+
     t1 = time()
-    info = calculate_event_log_properties(event_log)
+    info = cache.get(file.filename + str(len(content)), lambda: calculate_event_log_properties(xes_importer.deserialize(content, params)))
     print(time() - t1)
     return info
 

@@ -2,9 +2,8 @@ import { AfterViewInit, ElementRef } from '@angular/core';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
-import { connectableObservableDescriptor } from 'rxjs/internal/observable/ConnectableObservable';
+import { PolygonGeneratorService } from 'src/app/services/polygon-generator.service';
 import { StatsService } from 'src/app/stats.service';
-import { getPolygonPoints } from '../helper_functions';
 import { Constants, LeafNode, ParallelGroup, SequenceGroup, VariantElement } from '../model';
 
 @Component({
@@ -12,13 +11,14 @@ import { Constants, LeafNode, ParallelGroup, SequenceGroup, VariantElement } fro
   templateUrl: './variant-fragment.component.html',
   styleUrls: ['./variant-fragment.component.css']
 })
-export class VariantFragmentComponent implements AfterViewInit {
+export class VariantFragmentComponent implements AfterViewInit, OnInit {
 
   public static n = 0;
 
   constants = Constants;
 
-  constructor(private statsService: StatsService) { 
+  constructor(private statsService: StatsService,
+              private polygonService: PolygonGeneratorService) { 
   }
 
   @ViewChild("svg")
@@ -51,6 +51,10 @@ export class VariantFragmentComponent implements AfterViewInit {
       return new LeafNode(obj['leaf']);
     }
   }
+
+  ngOnInit() {
+  }
+
 
   ngAfterViewInit(): void {
     this.svgSelection = d3.select(this.svgHtmlElement.nativeElement)
@@ -95,7 +99,7 @@ export class VariantFragmentComponent implements AfterViewInit {
     } else if(element instanceof SequenceGroup) {
       this.drawSequenceGroup(element.asSequenceGroup(), svgElement);
     } else if(element instanceof LeafNode) {
-      VariantFragmentComponent.drawLeafNode(element.asLeafNode(), svgElement, this.colorMap);
+      VariantFragmentComponent.drawLeafNode(element.asLeafNode(), svgElement, this.colorMap, this.polygonService);
     }
   }
 
@@ -103,7 +107,7 @@ export class VariantFragmentComponent implements AfterViewInit {
     let width = element.getWidth();
     let height = element.getHeight();
 
-    let polygonPoints = getPolygonPoints(width, height);
+    let polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
     let color = this.getColor(element);
     parent.append('polygon')
@@ -130,7 +134,7 @@ export class VariantFragmentComponent implements AfterViewInit {
     let width = element.getWidth();
     let height = element.getHeight();
     
-    let polygonPoints = getPolygonPoints(width, height);
+    let polygonPoints = this.polygonService.getPolygonPoints(width, height);
     
     let color = this.getColor(element);
     parent.append('polygon')
@@ -154,11 +158,11 @@ export class VariantFragmentComponent implements AfterViewInit {
     } 
   }
 
-  public static drawLeafNode(element: LeafNode, parent: any, colorMap: Map<string, string>) {
+  public static drawLeafNode(element: LeafNode, parent: any, colorMap: Map<string, string>, polygonService: PolygonGeneratorService) {
     let width = element.getWidth();
     let height = element.getHeight();
 
-    let polygonPoints = getPolygonPoints(width, height);
+    let polygonPoints = polygonService.getPolygonPoints(width, height);
 
     let color = colorMap.get(element.activity[0]);
     parent.append('polygon')
@@ -181,17 +185,17 @@ export class VariantFragmentComponent implements AfterViewInit {
           .attr('font-size', Constants.FONT_SIZE)
 
     VariantFragmentComponent.wrapInnerLabelText(activityText, element.activity[0], width - 2 * Constants.MARGIN_X);
-
-    let l = activityText.node().getComputedTextLength();
-    element.textLength = l;
   }
 
   private static wrapInnerLabelText(textSelection: any, text: string, maxWidth: number) {
     var textLength = textSelection.node().getComputedTextLength();
 
     while (textLength > maxWidth && text.length > 0) {
-        text = text.slice(0, -1);
-        textSelection.text(text + "...");
+        let factor = textLength / maxWidth;
+        let i = Math.min(text.length - 1, Math.round(text.length / factor));
+
+        text = text.slice(0, i);
+        textSelection.text(text + "..");
         textLength = textSelection.node().getComputedTextLength();
     }
   }

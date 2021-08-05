@@ -20,7 +20,7 @@ export class StatsService {
   public addTime(variant: VariantElement, time: number) {
     this.drawTimes.set(variant, time);
 
-    if(this.drawTimes.size == this.nVariants) {
+    if(this.drawTimes.size == this.nVariants || this.drawTimes.size % 50 == 0) {
       let res = {}
 
       let totalTime = 0;
@@ -40,16 +40,17 @@ export class StatsService {
         });
       })
 
-      console.log(res);
+      console.log(totalTime / this.drawTimes.size);
+      console.log(res)
     }
   }
 
   private countLeafNodes(variant: VariantElement): number {
     let n = 0
     if(variant instanceof SequenceGroup) {
-      n = variant.asSequenceGroup().elements.map(e => this.countLeafNodes(e)).reduce((a, b) => a + b);
+      n = variant.asSequenceGroup().elements.map(e => this.countLeafNodes(e)).reduce((a, b) => a + b) + 1;
     } else if (variant instanceof ParallelGroup) {
-      n = variant.asParallelGroup().elements.map(e => this.countLeafNodes(e)).reduce((a, b) => a + b);
+      n = variant.asParallelGroup().elements.map(e => this.countLeafNodes(e)).reduce((a, b) => a + b) + 1;
     } else {
       return 1;
     }
