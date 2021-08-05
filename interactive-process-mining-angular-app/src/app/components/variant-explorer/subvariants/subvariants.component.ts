@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-subvariants',
@@ -7,13 +7,33 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class SubvariantsComponent implements OnInit {
 
-  // constructor(@MAT_DIALOG_DATA data) { }
+  @Input()
+  public subvariants;
 
   @Input()
-  public variant;
+  public outdatedConformanceStatistics: boolean;
+
+  @Input()
+  public isExplicitlyAdded: (i: number, ii: number) => boolean;
+
+  @Input()
+  public isSelected: (i: number, ii: number) => boolean;
+
+  @Input()
+  public colorMap: Map<string, string>;
+
+  @Output()
+  public addExplicitlyAddedVariant = new EventEmitter<[number, number]>();
+
+  @Output()
+  public setExplicitlyAdded = new EventEmitter<[number, number, boolean]>();
+
+  @Output()
+  public toggleSelectSubVariant = new EventEmitter<[number, number]>();
+
 
   ngOnInit(): void {
+    console.log("")
   }
 
-  
 }

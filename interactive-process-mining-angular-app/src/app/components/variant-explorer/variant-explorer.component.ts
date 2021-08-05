@@ -45,7 +45,7 @@ export class VariantExplorerComponent implements OnInit, AfterViewChecked {
   numberFittingTraces: number = undefined;
   numberFittingVariants: number = undefined;
   totalNumberTraces: number = undefined;
-  totalNumberVariants = 231;
+  totalNumberVariants = 5;
   calculatedAlignments = 0;
   alignmentsToBeCalculated = 0;
   correctTreeSyntax = false;
@@ -222,10 +222,6 @@ export class VariantExplorerComponent implements OnInit, AfterViewChecked {
             sub_v.deviation = res.deviation;
 
             v.deviation |= res.deviation;
-            // remove explicitlyAddedDeviation if they do not fit anymore
-            if (res.deviation) {
-              this.setExplicitlyAdded(i, ii, false);
-            }
             numberCalculatedVariant++;
             this.calculatedAlignments++;
 
@@ -340,6 +336,7 @@ export class VariantExplorerComponent implements OnInit, AfterViewChecked {
     const variants_to_add = [];
     this.selectedVariants.forEach((selected, index) => {
       selected.forEach(ii => {
+        this.variants[index].sub_variants[ii].deviation = false;
         let v = this.mapVariantIndexToVariant(index, ii);
         variants_to_add.push(v);
         this.setExplicitlyAdded(index, ii, true);
@@ -409,13 +406,22 @@ export class VariantExplorerComponent implements OnInit, AfterViewChecked {
   }
 
   setExplicitlyAdded(indexVariant, indexSubVariant, selected: boolean) {
-    let selection = this.explicitlyAddedVariants.get(indexVariant) || new Set<number>();
-    if(selected) {
-      selection.add(indexSubVariant);
+    let variant = this.variants[indexVariant].sub_variants[indexSubVariant];
+    if (variant.calculationInProgress) {
+      this.showAlert('Cannot explicitly add the variant - conformance statistics being calculated');
+    } else if (this.outdatedConformanceStatistics) {
+      this.showAlert('Cannot explicitly add the variant - outdated or no conformance statistics');
+    } else if (variant.deviation) {
+      this.showAlert('Cannot explicitly add the variant - variant does not fit the model');
     } else {
-      selection.delete(indexSubVariant);
+      let selection = this.explicitlyAddedVariants.get(indexVariant) || new Set<number>();
+      if(selected) {
+        selection.add(indexSubVariant);
+      } else {
+        selection.delete(indexSubVariant);
+      }
+      this.explicitlyAddedVariants.set(indexVariant, selection);
     }
-    this.explicitlyAddedVariants.set(indexVariant, selection);
   }
 
   isSelected(indexVariant, indexSubVariant) {

@@ -89,51 +89,12 @@
           <ng-container *ngFor="let variant of visibleVariants let i = index">
             <tr>
               <td>
-                <div class="variant-info-cell">
-                  <i class="bi bi-circle font-large mr-2 text-muted"
-                    *ngIf="!isVariantExplicitlyAdded(i)"
-                    (click)="addExplicitlyAddedVariant(i)">
-                  </i>
-                  <i class="bi bi-check2-circle font-large mr-2 text-light cursor-pointer"
-                      *ngIf="isVariantExplicitlyAdded(i)"
-                      (click)="removeExplicitlyAddedVariant(i)">
-                  </i>
-                  <!--<i class="bi bi-check2-circle font-large mr-2"
-                      [ngClass]=" explicitlyAddedVariants.includes(i)? 'text-light cursor-pointer': 'text-muted'">
-                  </i>-->
-        
-                  <!-- hourglass-split icon-->
-                  <i class="bi bi-hourglass-split text-secondary font-large"
-                      *ngIf="variant['calculationInProgress']">
-                  </i>
-        
-                  <!-- check-square icon-->
-                  <i class="bi bi-check-square font-large"
-                      [ngClass]="!outdatedConformanceStatistics? 'text-success' : 'text-warning'"
-                      *ngIf="variant['deviation'] == false && variant['calculationInProgress'] == false "> </i>
-        
-                  <!-- x-square icon-->
-                  <i class="bi bi-x-square font-large"
-                      [ngClass]="!outdatedConformanceStatistics? 'text-danger' : 'text-warning'"
-                      *ngIf="variant['deviation'] && variant['calculationInProgress'] == false">
-                  </i>
-        
-                  <!-- question mark icon-->
-                  <i class="bi bi-question-square text-secondary align-middle font-large"
-                      *ngIf="variant['calculationInProgress'] == false && variant['deviation'] == undefined">
-                  </i>
-        
-                  <small class="ml-1 float-right cursor-help"
-                          data-toggle="tooltip"
-                          data-placement="right"
-                          data-container="body"
-                          data-html="true"
-                          title="variant describes ~{{variant['percentage']}}% of all traces in the event log<br>
-                      <span class='text-secondary'>variant occurs {{variant['count']| number}} time(s) in total</span>">
-                    {{variant['percentage']}}%<br/>
-                    ({{variant['count'] | number}})
-                  </small>
-                </div>
+                <app-variant-info [variant]="variant" 
+                                  [outdatedConformanceStatistics]="outdatedConformanceStatistics"
+                                  [isExplicitlyAdded]="isVariantExplicitlyAdded(i)"
+                                  (addExplicitlyAddedVariant)="addExplicitlyAddedVariant(i)"
+                                  (removeExplicitlyAdded)="removeExplicitlyAddedVariant(i)">
+                </app-variant-info>
               </td>
               <td class="variant-cell" >
                 <div class="variant" [ngStyle]="{ 'border-color': isSelected(i) ? 'unset' : 'transparent' }">
@@ -154,52 +115,12 @@
                   <table>
                     <tr>
                       <td>
-                        <div class="variant-info-cell">
-                          <i class="bi bi-circle font-large mr-2 text-muted"
-                            *ngIf="!isExplicitlyAdded(i, ii)"
-                            (click)="addExplicitlyAddedVariant(i, ii)">
-                          </i>
-                          <i class="bi bi-check2-circle font-large mr-2 text-light cursor-pointer"
-                              *ngIf="isExplicitlyAdded(i, ii)"
-                              (click)="setExplicitlyAdded(i, ii, false)">
-                          </i>
-                          <!--<i class="bi bi-check2-circle font-large mr-2"
-                              [ngClass]=" explicitlyAddedVariants.includes(i)? 'text-light cursor-pointer': 'text-muted'">
-                          </i>-->
-                
-                          <!-- hourglass-split icon-->
-                          <i class="bi bi-hourglass-split text-secondary font-large"
-                              *ngIf="variant['calculationInProgress']">
-                          </i>
-                
-                          <!-- check-square icon-->
-                          <i class="bi bi-check-square font-large"
-                              [ngClass]="!outdatedConformanceStatistics? 'text-success' : 'text-warning'"
-                              *ngIf="subvariant['deviation'] == false && subvariant['calculationInProgress'] == false"> </i>
-                
-                          <!-- x-square icon-->
-                          <i class="bi bi-x-square font-large"
-                              [ngClass]="!outdatedConformanceStatistics? 'text-danger' : 'text-warning'"
-                              *ngIf="subvariant['deviation'] && subvariant['calculationInProgress'] == false">
-                          </i>
-                
-                          <!-- question mark icon-->
-                          <i class="bi bi-question-square text-secondary align-middle font-large"
-                              *ngIf="subvariant['deviation'] == undefined && subvariant['calculationInProgress'] == false">
-                          </i>
-                
-                
-                          <small class="ml-1 float-right cursor-help"
-                                  data-toggle="tooltip"
-                                  data-placement="right"
-                                  data-container="body"
-                                  data-html="true"
-                                  title="variant describes ~{{variant['percentage']}}% of all traces in the event log<br>
-                              <span class='text-secondary'>variant occurs {{subvariant['count']| number}} time(s) in total</span>">
-                            {{subvariant['percentage']}}%<br/>
-                            ({{subvariant['count'] | number}})
-                          </small>
-                        </div>
+                        <app-variant-info [variant]="subvariant" 
+                                  [outdatedConformanceStatistics]="outdatedConformanceStatistics"
+                                  [isExplicitlyAdded]="isExplicitlyAdded(i, ii)"
+                                  (addExplicitlyAddedVariant)="setExplicitlyAdded(i, ii, true)"
+                                  (removeExplicitlyAdded)="setExplicitlyAdded(i, ii, false)">
+                        </app-variant-info>
                       </td>
                       <td style="width: 100%; padding-left: 10px;">
                         <div class="variant" [ngStyle]="{ 'border-color': isSelected(i, ii) ? 'unset' : 'transparent' }">
