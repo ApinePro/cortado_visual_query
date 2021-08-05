@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, QueryList, ViewChildren } from '@angular/core';
-import { select } from 'd3';
-import { LeafNode, SequenceGroup, VariantElement } from '../model';
+import { VariantElement } from '../model';
 import { VariantFragmentComponent } from '../variant-fragment/variant-fragment.component';
 
 @Component({
@@ -32,7 +31,16 @@ export class VariantComponent implements OnInit {
   }
 
   public setSelected(selected: boolean) {
-    this.variant.forEach(v => v.setExpanded(selected));
+    this.variant.setExpanded(selected);
     this.variantFragments.forEach(c => c.redraw())
+  }
+
+  private rendered: boolean = false;
+
+  public draw() {
+    if(!this.rendered) {
+      this.variantFragments.forEach(v => v.redraw())
+    }
+    this.rendered = true;
   }
 }

@@ -43,7 +43,7 @@ export class BackendService {
         this.sharedDataService.endActivitiesInEventLog = new Set(Object.keys(res['endActivities']));
         this.sharedDataService.variants = res['variants']
         this.sharedDataService.variants.forEach(variant => {
-          variant['variant'] = [deserialize(variant.variant)];
+          variant['variant'] = deserialize(variant.variant);
         });
         this.sharedDataService.loadedEventLog = file.name;
     });

@@ -4,6 +4,7 @@ from pm4py.algo.filtering.log.end_activities import end_activities_filter
 from pm4py.algo.filtering.log.attributes import attributes_filter
 from pm4py.algo.filtering.log.variants import variants_filter
 from interactive_process_mining_core.utils.variants import get_concurrency_variants_opt, get_detailled_variants
+from pm4py.objects.log.exporter.xes import exporter as xes_exporter
 
 def calculate_event_log_properties(event_log: EventLog):
     event_log = attributes_filter.apply_events(event_log, ["Job"],
@@ -35,7 +36,7 @@ def calculate_event_log_properties(event_log: EventLog):
         res_variants.append(variant)
 
     res_variants = sorted(res_variants, key=lambda variant: variant['count'], reverse=True)
-    res_variants = res_variants[:10]
+    # res_variants = res_variants[:100]
     res = {
         "startActivities": start_activities_filter.get_start_activities(event_log),
         "endActivities": end_activities_filter.get_end_activities(event_log),
