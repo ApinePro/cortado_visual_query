@@ -1,5 +1,4 @@
 from multiprocessing import freeze_support, cpu_count
-import pm4pycvxopt
 from typing import Any, List
 import uvicorn
 from fastapi import FastAPI, File, UploadFile

@@ -1,10 +1,9 @@
 # pm4py==2.2.7.1
-git+https://gitlab.fit.fraunhofer.de/pm4py/pm4py-core.git@62f83c60b90d494112e45a572356d0b080ea8e31#egg=pm4py
+# git+https://gitlab.fit.fraunhofer.de/pm4py/pm4py-core.git@62f83c60b90d494112e45a572356d0b080ea8e31#egg=pm4py
 fastapi
 uvicorn
 python-multipart
 
-pm4pycvxopt~=0.0.10
 matplotlib~=3.3.3
 numpy~=1.19.3
 cycler~=0.10.0
