@@ -5,11 +5,8 @@ from pm4py.objects.conversion.process_tree.converter import apply as convert_pt_
 from pm4py.objects.log.obj import Trace, Event
 from pm4py.objects.process_tree.process_tree import ProcessTree
 from backend_utilities.process_tree_conversion import dict_to_process_tree
-from pm4py.objects.petri.align_utils import STD_MODEL_LOG_MOVE_COST, SKIP
+from pm4py.objects.petri.align_utils import STD_MODEL_LOG_MOVE_COST
 from pm4py.algo.conformance.alignments.process_tree.variants import search_graph_pt as tree_alignment
-import pm4py.visualization.process_tree.visualizer as tree_vis
-from pm4py.algo.conformance.alignments.process_tree.variants.search_graph_pt import apply_multiprocessing
-
 
 # @lru_cache(maxsize=None)
 def _calculate_alignment(variant, pt):

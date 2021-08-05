@@ -43,11 +43,8 @@ app.add_middleware(
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
     content = "".join([line.decode("UTF-8") for line in file.file])
-    # params = {'max_traces': 1000}
-    params = {}
-
     t1 = time()
-    info = cache.get(file.filename + str(len(content)), lambda: calculate_event_log_properties(xes_importer.deserialize(content, params)))
+    info = cache.get(file.filename + str(len(content)), lambda: calculate_event_log_properties(xes_importer.deserialize(content)))
     print(time() - t1)
     return info
 
@@ -67,7 +64,6 @@ async def load_process_tree_from_file_path(d: FilePathInput):
     pt = import_pt_from_ptml(d.file_path)
     res = process_tree_to_dict(pt)
     return res
-
 
 class InputDiscoverProcessModelFromVariants(BaseModel):
     variants: List[Any]
