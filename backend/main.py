@@ -23,7 +23,6 @@ from backend_utilities.process_tree_conversion import dict_to_process_tree
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 from endpoints.load_event_log import calculate_event_log_properties
 from interactive_process_mining_core.lca_approach import add_trace_to_pt_language
-import cache as cache
 
 app = FastAPI()
 origins = [
@@ -44,7 +43,7 @@ app.add_middleware(
 async def create_upload_file(file: UploadFile = File(...)):
     content = "".join([line.decode("UTF-8") for line in file.file])
     t1 = time()
-    info = cache.get(file.filename + str(len(content)), lambda: calculate_event_log_properties(xes_importer.deserialize(content)))
+    info = calculate_event_log_properties(xes_importer.deserialize(content))
     print(time() - t1)
     return info
 

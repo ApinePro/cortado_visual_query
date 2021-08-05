@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, QueryList, ViewChildren } from '@angular/core';
 import { VariantElement } from '../model';
+import { Variant } from '../variant-explorer.component';
 import { VariantFragmentComponent } from '../variant-fragment/variant-fragment.component';
 
 @Component({
@@ -10,13 +11,13 @@ import { VariantFragmentComponent } from '../variant-fragment/variant-fragment.c
 export class VariantComponent implements OnInit {
 
   @Input()
-  variant;
+  variant: VariantElement;
 
   @Input()
   colorMap: Map<string, string>;
 
   @Output() 
-  selectVariant = new EventEmitter<VariantElement[]>();
+  selectVariant = new EventEmitter<VariantElement>();
 
   @ViewChildren(VariantFragmentComponent)
   variantFragments: QueryList<VariantFragmentComponent>;

@@ -169,12 +169,6 @@ export class VariantFragmentComponent implements AfterViewInit, OnInit {
           .attr('points', polygonPoints)
           .style('fill', color)
           .style('stroke', 'black')
-          // .on('mouseover', () => {
-          //   hoverText.attr('visibility', 'visible')
-          // })
-          // .on('mouseout', () => {
-          //   hoverText.attr('visibility', 'hidden')
-          // });
 
     let activityText = parent.append("text")
           .text(element.activity[0])
@@ -189,35 +183,16 @@ export class VariantFragmentComponent implements AfterViewInit, OnInit {
 
   private static wrapInnerLabelText(textSelection: any, text: string, maxWidth: number) {
     var textLength = textSelection.node().getComputedTextLength();
-
-    while (textLength > maxWidth && text.length > 0) {
+    if (textLength > maxWidth) {
         let factor = textLength / maxWidth;
-        let i = Math.min(text.length - 1, Math.round(text.length / factor));
+        let i = Math.min(text.length - 1, Math.floor(text.length / factor) - 1);
 
         text = text.slice(0, i);
         textSelection.text(text + "..");
-        textLength = textSelection.node().getComputedTextLength();
     }
   }
 
   getColor(element: VariantElement) {
-    // return '#2b2b2b'
     return 'lightgrey'
-  }
-
-  colors = d3.scaleOrdinal().domain(this.getActivities(this.content)).range(d3.schemeAccent)
-
-  getActivityColor(activity: string) {
-    return this.colors(activity);
-  }
-
-  getActivities(element: VariantElement): string[] {
-    if (element instanceof ParallelGroup) {
-      return element.asParallelGroup().elements.flatMap(e => this.getActivities(e));
-    } else if(element instanceof SequenceGroup) {
-      return element.asSequenceGroup().elements.flatMap(e => this.getActivities(e));
-    } else {
-      return [element.asLeafNode().activity[0]];
-    }
   }
 }

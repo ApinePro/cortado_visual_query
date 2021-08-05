@@ -48,8 +48,6 @@ export class DetailledVariantComponent implements AfterViewInit {
     let yIndices: boolean[] = [];
 
     for(let grp of variant) {
-      // let completing = grp.filter(([a, l]) => l == 'complete' && (nodes.get(a) || []).length > 0)
-
       let completing = [];
       grp.filter(([_, l]) => l == 'complete').forEach(([a, _]) => {
         let nACompleting = completing.filter(ac => ac == a).length;
@@ -82,7 +80,36 @@ export class DetailledVariantComponent implements AfterViewInit {
         }
       });
 
+      let atomicStarting = starting.filter(a => atomicCompleting.includes(a));
       let x = xIndex * leafWidth;
+      for(let activity of atomicStarting) {
+        let yIndex = 0;
+        while(yIndices[yIndex]) yIndex++;
+        yIndices[yIndex] = true;
+
+        let y = (Constants.LEAF_HEIGHT + Constants.MARGIN_Y) * yIndex;
+        let g = this.svg.append('g')
+              .attr('transform', `translate(${x}, ${y})`);
+        let node = new ActivityInstance(new LeafNode([activity]), g, xIndex, yIndex);
+        nodes.get(activity).push(node);
+      }
+      if(atomicStarting.length > 0) {
+        xIndex += 0.5
+      }
+
+      if(atomicCompleting.length > 0) {
+        xIndex += 0.5;
+      }
+      for(let activity of atomicCompleting) {
+        let node = nodes.get(activity).shift();
+        let width = (xIndex - node.x) * leafWidth;
+        node.node.width = width;
+        VariantFragmentComponent.drawLeafNode(node.node, node.parent, this.colorMap, this.polygonService);
+        yIndices[node.y] = false;
+      }
+
+      starting = starting.filter(a => !atomicCompleting.includes(a))
+      x = xIndex * leafWidth;
       for(let activity of starting) {
         let yIndex = 0;
         while(yIndices[yIndex]) yIndex++;
@@ -96,17 +123,6 @@ export class DetailledVariantComponent implements AfterViewInit {
       }
       if(starting.length > 0) {
         xIndex += 0.5
-      }
-
-      if(atomicCompleting.length > 0) {
-        xIndex += 0.5;
-      }
-      for(let activity of atomicCompleting) {
-        let node = nodes.get(activity).shift();
-        let width = (xIndex - node.x) * leafWidth;
-        node.node.width = width;
-        VariantFragmentComponent.drawLeafNode(node.node, node.parent, this.colorMap, this.polygonService);
-        yIndices[node.y] = false;
       }
     }
 

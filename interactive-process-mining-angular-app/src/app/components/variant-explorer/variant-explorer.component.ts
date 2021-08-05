@@ -32,22 +32,7 @@ export class VariantExplorerComponent implements OnInit, AfterViewChecked {
 
   colorMap: Map<string, string>;
 
-  variants: {
-    count: number,
-    variant: VariantElement,
-    percentage: number,
-    calculationInProgress: boolean | undefined,
-    alignment: any | undefined,
-    deviation: any | undefined
-    sub_variants: {
-      count: number,
-      variant: [string, string][][],
-      percentage: number,
-      calculationInProgress: boolean | undefined,
-      alignment: any | undefined,
-      deviation: any | undefined
-    }[],
-  }[];
+  variants: Variant[];
 
   visibleVariants;
 
@@ -468,4 +453,21 @@ export class VariantExplorerComponent implements OnInit, AfterViewChecked {
       this.visibleVariants = this.variants.slice(0, this.visibleVariants.length + this.nVariantsInc);
     }
   }
+}
+
+export class Variant {
+  count: number;
+  variant: VariantElement;
+  percentage: number;
+  calculationInProgress: boolean | undefined;
+  alignment: any | undefined;
+  deviation: any | undefined;
+  sub_variants: {
+    count: number
+    variant: [string, string][][],
+    percentage: number,
+    calculationInProgress: boolean | undefined,
+    alignment: any | undefined,
+    deviation: any | undefined
+  }[] | undefined
 }
