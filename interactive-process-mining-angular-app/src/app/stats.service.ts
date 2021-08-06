@@ -32,7 +32,7 @@ export class StatsService {
 
       res['times'] = [];
       this.drawTimes.forEach((v, k) => {
-        let n = this.countLeafNodes(k);
+        let n = this.countChevrons(k);
         
         res['times'].push({
           'nLeafs': n,
@@ -45,12 +45,12 @@ export class StatsService {
     }
   }
 
-  private countLeafNodes(variant: VariantElement): number {
+  private countChevrons(variant: VariantElement): number {
     let n = 0
     if(variant instanceof SequenceGroup) {
-      n = variant.asSequenceGroup().elements.map(e => this.countLeafNodes(e)).reduce((a, b) => a + b) + 1;
+      n = variant.asSequenceGroup().elements.map(e => this.countChevrons(e)).reduce((a, b) => a + b) + 1;
     } else if (variant instanceof ParallelGroup) {
-      n = variant.asParallelGroup().elements.map(e => this.countLeafNodes(e)).reduce((a, b) => a + b) + 1;
+      n = variant.asParallelGroup().elements.map(e => this.countChevrons(e)).reduce((a, b) => a + b) + 1;
     } else {
       return 1;
     }
