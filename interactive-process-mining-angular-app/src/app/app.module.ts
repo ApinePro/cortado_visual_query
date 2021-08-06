@@ -14,7 +14,6 @@ import {ActivityOverviewComponent} from './components/activity-overview/activity
 import {HttpRequestInterceptor} from './interceptors/http-request.interceptor';
 import { VariantFragmentComponent } from './components/variant-explorer/variant-fragment/variant-fragment.component';
 import { DetailledVariantComponent } from './components/variant-explorer/detailled-variant/detailled-variant.component';
-import { SubvariantsComponent } from './components/variant-explorer/subvariants/subvariants.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { VariantInfoComponent } from './components/variant-explorer/variant-info/variant-info.component';
 
@@ -29,7 +28,6 @@ import { VariantInfoComponent } from './components/variant-explorer/variant-info
     ActivityOverviewComponent,
     VariantFragmentComponent,
     DetailledVariantComponent,
-    SubvariantsComponent,
     VariantInfoComponent
   ],
   imports: [
