@@ -5,7 +5,8 @@ import {SharedDataService} from '../sharedDataService/shared-data.service';
 import * as FileSaver from 'file-saver';
 import {take} from 'rxjs/operators';
 import {ActivateTooltipsService} from '../activateTooltipsService/activate-tooltips.service';
-import { deserialize } from 'src/app/components/variant-explorer/model';
+import { deserialize, VariantElement } from 'src/app/components/variant-explorer/model';
+import { Variant } from 'src/app/components/variant-explorer/variant-explorer.component';
 
 @Injectable({
   providedIn: 'root'
@@ -58,6 +59,14 @@ export class BackendService {
 
   discoverProcessModelFromVariants(variants: any[]): void {
     this.httpClient.post(this.backendUrl + 'discoverProcessModelFromVariants', {variants: variants})
+      .subscribe(tree => {
+        this.sharedDataService.currentDisplayedProcessTree = tree;
+      });
+  }
+
+  discoverProcessModelFromConcurrencyVariants(variants: VariantElement[]): void {
+    let variantsSerialized = variants.map(v => v.serialize());
+    this.httpClient.post(this.backendUrl + 'discoverProcessModelFromConcurrencyVariants', {variants: variantsSerialized})
       .subscribe(tree => {
         this.sharedDataService.currentDisplayedProcessTree = tree;
       });

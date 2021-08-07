@@ -39,6 +39,7 @@ export abstract class VariantElement {
     return Math.tan(Constants.ARROW_HEAD_ANGLE / 360 * Math.PI * 2) * (this.getHeight() / 2)
   }
 
+
   public abstract getHeight(): number;
   public abstract getWidth(): number;
 
@@ -46,6 +47,8 @@ export abstract class VariantElement {
   public abstract recalculateHeight(): number;
 
   public abstract updateWidth();
+
+  public abstract serialize(): Object;
 }
 
 export class SequenceGroup extends VariantElement {
@@ -92,6 +95,10 @@ export class SequenceGroup extends VariantElement {
     this.width = this.elements.map((el: VariantElement) => el.getWidth())
                               .reduce((a: number, b: number) => a + b) + 2 * Constants.MARGIN_X + this.getHeadLength() - this.elements[0].getHeadLength();
     return this.width;  
+  }
+
+  public serialize() {
+    return {'follows': this.elements.map(e => e.serialize()) };
   }
 }
 
@@ -146,6 +153,10 @@ export class ParallelGroup extends VariantElement {
     this.width = Math.max(...this.elements.map((el: VariantElement) => el.getWidth())) + Constants.MARGIN_X + 2 * headLength;
     return this.width;
   }
+
+  public serialize() {
+    return {'parallel': this.elements.map(e => e.serialize()) };
+  }
 }
 
 export class LeafNode extends VariantElement {
@@ -191,7 +202,9 @@ export class LeafNode extends VariantElement {
     return this.width;
   }
 
-  
+  public serialize() {
+    return {'leaf': this.activity };
+  }
 }
 
 export function deserialize(obj: any): VariantElement {

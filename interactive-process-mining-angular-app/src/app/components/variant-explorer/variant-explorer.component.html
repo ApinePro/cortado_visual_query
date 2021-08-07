@@ -40,10 +40,10 @@
     <button class="button"
             data-toggle="tooltip" data-placement="top" data-trigger="hover"
             title="add selected variant(s) to current process model"
-            [disabled]="!isSomeSelected() || !currentlyDisplayedProcessTree"
+            [disabled]="selectedVariants.length == 0 || !currentlyDisplayedProcessTree"
             (click)="addSelectedVariantsToModel()">
       <i class="bi bi-plus btn-icon"
-         [ngClass]="{'text-success': !(!isSomeSelected() || !currentlyDisplayedProcessTree)}"></i>
+         [ngClass]="{'text-success': !(selectedVariants.length == 0 || !currentlyDisplayedProcessTree)}"></i>
       add variant(s) to model
     </button>
 
@@ -53,24 +53,19 @@
             data-toggle="tooltip" data-placement="top" data-trigger="hover" data-html="true"
             title="discover an initial model from the selected variants using the standard <em>Inductive Miner</em>
             algorithm<br><b><i class='bi bi-exclamation-triangle text-warning'></i> overwrites the existing model</b>"
-            [disabled]="!isSomeSelected()"
+            [disabled]="selectedVariants.length == 0"
             (click)="discover_initial_model()">
-      <i class="bi bi-diagram-2-fill btn-icon" [ngClass]="{'text-success':selectedVariants.size!=0}"></i>
+      <i class="bi bi-diagram-2-fill btn-icon" [ngClass]="{'text-success': selectedVariants.length != 0}"></i>
       discover initial model
     </button>
 
     <span class="vl"></span>
 
 
-    <button class="button" (click)="clearSelection()" [disabled]="!isSomeSelected()">
-      <i class="bi bi-x btn-icon" [ngClass]="{'text-danger':selectedVariants.size!=0}"></i>
+    <button class="button" (click)="clearSelection()" [disabled]="selectedVariants.length == 0">
+      <i class="bi bi-x btn-icon" [ngClass]="{'text-danger': selectedVariants.length != 0}"></i>
       clear selection
     </button>
-
-    <!--    <div class="mr-3 secondary-text ml-auto">-->
-    <!--      <em>selected variants: {{this.selectedVariants.length}}</em>-->
-    <!--    </div>-->
-
   </div>
 
 
@@ -91,48 +86,17 @@
               <td>
                 <app-variant-info [variant]="variant" 
                                   [outdatedConformanceStatistics]="outdatedConformanceStatistics"
-                                  [isExplicitlyAdded]="isVariantExplicitlyAdded(i)"
+                                  [isExplicitlyAdded]="explicitlyAddedVariants.includes(i)"
                                   (addExplicitlyAddedVariant)="addExplicitlyAddedVariant(i)"
                                   (removeExplicitlyAdded)="removeExplicitlyAddedVariant(i)">
                 </app-variant-info>
               </td>
               <td class="variant-cell" >
-                <div class="variant" [ngStyle]="{ 'border-color': isSelected(i) ? 'unset' : 'transparent' }">
+                <div class="variant" [ngStyle]="{ 'border-color': selectedVariants.includes(i) ? 'unset' : 'transparent' }">
                   <app-variant-fragment [variant]="variant['variant']" [colorMap]="colorMap" (selectVariant)="toggleSelect(i, $event)"></app-variant-fragment>
                 </div>
               </td>
             </tr>
-            <ng-container *ngIf="expandVariant[i] && variant['sub_variants'] !== undefined && (isComplexVariant(variant.variant) || variant.sub_variants.length > 0)">
-              <tr>
-                <td></td>
-                <td>
-                  Subvariants:
-                </td>
-              </tr>
-              <tr *ngFor="let subvariant of variant['sub_variants'] let ii = index">
-                <td></td>
-                <td>
-                  <table>
-                    <tr>
-                      <td>
-                        <app-variant-info [variant]="subvariant" 
-                                  [outdatedConformanceStatistics]="outdatedConformanceStatistics"
-                                  [isExplicitlyAdded]="isExplicitlyAdded(i, ii)"
-                                  (addExplicitlyAddedVariant)="setExplicitlyAdded(i, ii, true)"
-                                  (removeExplicitlyAdded)="setExplicitlyAdded(i, ii, false)">
-                        </app-variant-info>
-                      </td>
-                      <td style="width: 100%; padding-left: 10px;">
-                        <div class="variant" [ngStyle]="{ 'border-color': isSelected(i, ii) ? 'unset' : 'transparent' }">
-                            <app-detailled-variant [variant]="subvariant['variant']" [colorMap]="colorMap" (selectVariant)="toggleSelectSubVariant(i, ii)"></app-detailled-variant>
-                        </div>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-              
-            </ng-container>
           </ng-container>
           <tr *ngIf="variants.length > visibleVariants.length">
             <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
@@ -163,7 +127,7 @@
     </span>
 
     <span class="float-right">
-      selected variants: {{selectedVariants.size|number}}
+      selected variants: {{selectedVariants.length|number}}
     </span>
   </div>
 

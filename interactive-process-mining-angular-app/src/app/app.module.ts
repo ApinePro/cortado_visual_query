@@ -13,7 +13,6 @@ import {SideBarComponent} from './components/side-bar/side-bar.component';
 import {ActivityOverviewComponent} from './components/activity-overview/activity-overview.component';
 import {HttpRequestInterceptor} from './interceptors/http-request.interceptor';
 import { VariantFragmentComponent } from './components/variant-explorer/variant-fragment/variant-fragment.component';
-import { DetailledVariantComponent } from './components/variant-explorer/detailled-variant/detailled-variant.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { VariantInfoComponent } from './components/variant-explorer/variant-info/variant-info.component';
 
@@ -27,7 +26,6 @@ import { VariantInfoComponent } from './components/variant-explorer/variant-info
     SideBarComponent,
     ActivityOverviewComponent,
     VariantFragmentComponent,
-    DetailledVariantComponent,
     VariantInfoComponent
   ],
   imports: [
