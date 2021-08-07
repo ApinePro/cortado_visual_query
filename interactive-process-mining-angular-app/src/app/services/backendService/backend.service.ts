@@ -3,7 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {SharedDataService} from '../sharedDataService/shared-data.service';
 import * as FileSaver from 'file-saver';
-import {take} from 'rxjs/operators';
+import {take, tap} from 'rxjs/operators';
 import {ActivateTooltipsService} from '../activateTooltipsService/activate-tooltips.service';
 import { deserialize, VariantElement } from 'src/app/components/variant-explorer/model';
 import { Variant } from 'src/app/components/variant-explorer/variant-explorer.component';
@@ -107,5 +107,16 @@ export class BackendService {
     });
   }
 
+  addConcurrencyVariantsToProcessModel(variantsToAdd: VariantElement[], explicitlyAddedVariants: VariantElement[]): Observable<any> {
+    const body = {
+      pt: this.sharedDataService.currentDisplayedProcessTree,
+      variants_to_add: variantsToAdd.map(v => v.serialize()),
+      explicitly_added_variants: explicitlyAddedVariants.map(v => v.serialize())
+    };
+    return this.httpClient.post(this.backendUrl + 'addConcurrencyVariantsToProcessModel', body).pipe(tap(res => {
+      this.sharedDataService.currentDisplayedProcessTree = res;
+      this.activateTooltipsService.initialize();
+    }));
+  }
 }
 

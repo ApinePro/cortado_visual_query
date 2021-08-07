@@ -1,4 +1,4 @@
-pm4py==2.2.*
+pm4py>=2.2.11
 fastapi
 uvicorn
 python-multipart

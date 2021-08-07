@@ -99,23 +99,22 @@ class InputAddVariantsToProcessModel(BaseModel):
     explicitly_added_variants: List[Any]
 
 
-@app.post("/addVariantsToProcessModel")
-async def add_variants_to_process_model(d: InputAddVariantsToProcessModel):
-    pt: ProcessTree = dict_to_process_tree(d.pt)
-    explicitly_added_variants: EventLog = EventLog()
-    for v in d.explicitly_added_variants:
+def add_variants_to_process_model(pt_dict: ProcessTree, explicitly_added_variants, variants_to_add):
+    pt: ProcessTree = dict_to_process_tree(pt_dict)
+    explicitly_added_log: EventLog = EventLog()
+    for v in explicitly_added_variants:
         t = Trace()
-        for e in v["events"]:
+        for e in v:
             assert type(e) == str
             event = Event()
             event["concept:name"] = e
             t.append(event)
-        explicitly_added_variants.append(t)
+        explicitly_added_log.append(t)
 
     traces_to_be_added: List[Trace] = []
-    for v in d.variants_to_add:
+    for v in variants_to_add:
         t = Trace()
-        for e in v["events"]:
+        for e in v:
             assert type(e) == str
             event = Event()
             event["concept:name"] = e
@@ -123,10 +122,24 @@ async def add_variants_to_process_model(d: InputAddVariantsToProcessModel):
         traces_to_be_added.append(t)
 
     for t in traces_to_be_added:
-        pt = add_trace_to_pt_language(pt, explicitly_added_variants, t, try_pulling_lca_down=True)
-        explicitly_added_variants.append(t)
+        pt = add_trace_to_pt_language(pt, explicitly_added_log, t, try_pulling_lca_down=True)
+        explicitly_added_log.append(t)
     res = process_tree_to_dict(pt)
     return res
+
+
+@app.post("/addVariantsToProcessModel")
+async def add_simple_variants_to_process_model(d: InputAddVariantsToProcessModel):
+    explicitly_added = [v['events'] for v in d.explicitly_added_variants]
+    to_add = [v['events'] for v in d.variants_to_add]
+    return add_variants_to_process_model(d.pt, explicitly_added, to_add)
+
+
+@app.post("/addConcurrencyVariantsToProcessModel")
+async def add_cvariants_to_process_model(d: InputAddVariantsToProcessModel):
+    explicitly_added = set([tuple(variant) for cvariant in d.explicitly_added_variants for variant in generate_variants(cvariant)])
+    to_add = set([tuple(variant) for cvariant in d.variants_to_add for variant in generate_variants(cvariant)])
+    return add_variants_to_process_model(d.pt, explicitly_added, to_add)
 
 
 @app.get("/variants")

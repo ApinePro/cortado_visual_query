@@ -237,18 +237,20 @@ export class VariantExplorerComponent implements OnInit {
       return;
     }
 
-    let explicitlyAddedVariants = this.explicitlyAddedVariants.map(i => this.variants[i]);
+    let explicitlyAddedVariants = this.explicitlyAddedVariants.map(i => this.variants[i].variant);
 
-    const variantsToAdd = [];
-
+    const variantsToAdd: VariantElement[] = [];
     this.selectedVariants.forEach(i => {
-      this.variants[i].deviation = false;
-      variantsToAdd.push(this.variants[i]);
-      this.addExplicitlyAddedVariant(i);
-    })
+      variantsToAdd.push(this.variants[i].variant);
+    });
 
-    this.backendService.addVariantsToModel(variantsToAdd, explicitlyAddedVariants);
-    this.clearSelection();
+    this.backendService.addConcurrencyVariantsToProcessModel(variantsToAdd, explicitlyAddedVariants).subscribe(res => {
+      this.selectedVariants.forEach(i => {
+        this.variants[i].deviation = false;
+        this.explicitlyAddedVariants.push(i);
+      });
+      this.clearSelection();
+    });
   }
 
   clearSelection() {
