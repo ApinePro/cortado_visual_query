@@ -12,8 +12,7 @@ import * as dummy_backend_response from './dummy_backend_response.js';
 export class ActivityOverviewComponent implements OnInit {
 
   constructor(private colorMapService: ColorMapService,
-              private sharedDataService: SharedDataService,
-              private backendService: BackendService) {
+              private sharedDataService: SharedDataService) {
   }
 
   activityColorMap: Map<string, string>;

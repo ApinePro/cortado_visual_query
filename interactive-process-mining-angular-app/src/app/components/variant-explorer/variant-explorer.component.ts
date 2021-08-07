@@ -7,7 +7,7 @@ import { BackendService } from '../../services/backendService/backend.service';
 import { ActivateTooltipsService } from '../../services/activateTooltipsService/activate-tooltips.service';
 import { Subject} from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { LeafNode, ParallelGroup, SequenceGroup, VariantElement } from './model';
+import { deserialize, LeafNode, ParallelGroup, SequenceGroup, VariantElement } from './model';
 import { DetailledVariantComponent } from './detailled-variant/detailled-variant.component';
 import { StatsService } from 'src/app/stats.service';
 import { VariantFragmentComponent } from './variant-fragment/variant-fragment.component';
@@ -37,7 +37,6 @@ export class VariantExplorerComponent implements OnInit, AfterViewChecked {
 
   selectedVariants = new Map<number, Set<number>>();
   explicitlyAddedVariants = new Map<number, Set<number>>();
-  d3jsData;
   currentlyDisplayedProcessTree;
   usedTreeForConformanceChecking;
   alertMessage: string;
@@ -68,81 +67,11 @@ export class VariantExplorerComponent implements OnInit, AfterViewChecked {
   ngOnInit(): void {
     // preload road traffic fine management process
     if (isDevMode() || true) {
-      this.variants = [{
-        count: 5,
-        variant: new ParallelGroup([new SequenceGroup([new LeafNode(["a"]), new LeafNode(["b"]), new LeafNode(["c"])]), new ParallelGroup([new LeafNode(["a"]), new LeafNode(["b"])])]),
-        percentage: 100,
-        alignment: undefined,
-        calculationInProgress: false,
-        deviation: undefined,
-        sub_variants: [
-          { variant: [[["c", "start"], ["b", "start"], ['c', 'start']], 
-                      [["c", "complete"]], 
-                      [["a", "start"]], 
-                      [["b", "complete"], ["c", "complete"], ["d", "start"]],
-                      [['d', "complete"], ["a", "complete"]] 
-                    ], count: 1, percentage: 10, 
-            alignment: undefined,
-            calculationInProgress: false,
-            deviation: undefined 
-          },
-          { variant: [[["a", "start"], ['a', 'complete']], 
-                      [["b", "start"]], 
-                      [["b", "complete"]],
-                    ], count: 1, percentage: 10, 
-            alignment: undefined,
-            calculationInProgress: false,
-            deviation: undefined 
-          },
-          // { variant: [[["a", "start"]], [["b", "start"]], [["c", "start"]], [["a", "complete"]], [["e", "start"]], [["b", "complete"]], [["e", "complete"]], [["c", "complete"]]], count: 1, percentage: 10, 
-          //   alignment: undefined,
-          //   calculationInProgress: false,
-          //   deviation: undefined  
-          // },
-          // { variant: [[["c", "start"]], [["b", "start"]], [["c", "complete"]], [["b", "complete"]]], count: 1, percentage: 10 , 
-          //   alignment: undefined,
-          //   calculationInProgress: false,
-          //   deviation: undefined 
-          // },
-        ]
-      },
-      {
-        count: 5,
-        variant: new ParallelGroup([new LeafNode(['a']), new LeafNode(['a']), new LeafNode(['a']), new LeafNode(['a']), new LeafNode(['a']), new LeafNode(['a'])]),
-        percentage: 100,
-        alignment: undefined,
-        calculationInProgress: false,
-        deviation: undefined,
-        sub_variants: [
-          { variant: [[["c", "start"]], [["b", "start"]], [["c", "complete"]], [["b", "complete"]]], count: 1, percentage: 10, 
-            alignment: undefined,
-            calculationInProgress: false,
-            deviation: undefined 
-          },
-          { variant: [[["c", "start"]], [["b", "start"]], [["c", "complete"]], [["b", "complete"]]], count: 1, percentage: 10, 
-            alignment: undefined,
-            calculationInProgress: false,
-            deviation: undefined  
-          },
-          { variant: [[["c", "start"]], [["b", "start"]], [["c", "complete"]], [["b", "complete"]]], count: 1, percentage: 10 , 
-            alignment: undefined,
-            calculationInProgress: false,
-            deviation: undefined 
-          },
-        ]
-      }];
-
-      // this.variants = dummyBackendResponse.test.variants;
-      // this.variants.forEach(variant => {
-      //   variant['variant'] = [new SequenceGroup(variant['events'].map(e => new LeafNode(e)))];
-      // });
-
-      this.colorMap = this.colorMapService.getColorMap(dummyBackendResponse.test.activities);
-      this.colorMap.set('aaaaaaaaaa', 'red');
-      this.colorMap.set('a', 'red');
-      this.colorMap.set('b', 'blue');
-      this.colorMap.set('c', 'green');
-
+      this.variants = dummyBackendResponse.test.variants;
+      this.variants.forEach(v => {
+        v.variant = deserialize(v.variant);
+      })
+      this.colorMap = this.colorMapService.getColorMap(Object.keys(dummyBackendResponse.test.activities));
       this.tooltipActivationService.initialize();
     }
 
@@ -191,13 +120,10 @@ export class VariantExplorerComponent implements OnInit, AfterViewChecked {
     });
   }
 
-  ngAfterViewChecked() {
-    // this.drawVisible(0);
-  }
+  ngAfterViewChecked() {}
 
   updateAlignmentsStop() {
     this.unsubscribe.next();
-    // this.cancelAlignmentCalculation.complete();
     this.variants.forEach(v => {
       v.calculationInProgress = false;
       v.alignment = undefined;

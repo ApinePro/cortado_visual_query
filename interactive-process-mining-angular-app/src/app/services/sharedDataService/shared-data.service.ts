@@ -1,30 +1,13 @@
-import {Injectable, isDevMode} from '@angular/core';
-import {BehaviorSubject, Observable, Subject} from 'rxjs';
-import * as dummy_backend_response from './dummy_backend_response.js';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import * as dummyBackendResponse from './dummy_backend_response.js';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SharedDataService {
 
-  constructor() {
-    if (isDevMode() || true) {
-      // console.log("load dummy data to activity list")
-      /*this._activitiesInEventLog.next(new Map([
-        "Add penalty":12,
-        "Appeal to Judge":12,
-        "Create Fine":1,
-        "Insert Data Appeal to Prefecture":1,
-        "Insert Fine Notification":1,
-        "Notify Result Appeal to Offender":1,
-        "Payment":1,
-        "Receive Result Appeal from Prefecture",
-        "Send Appeal to Prefecture",
-        "Send Fine",
-        "Send for Credit Collection"
-      ]));*/
-    }
-  }
+  constructor() {}
 
   private _loadedEventLog = new Subject<string>();
 
@@ -75,7 +58,7 @@ export class SharedDataService {
     return this._activitiesInCurrentTree.asObservable();
   }
 
-  private _activitiesInEventLog = new BehaviorSubject<any>(dummy_backend_response.activitiesInLog);
+  private _activitiesInEventLog = new BehaviorSubject<any>(dummyBackendResponse.activitiesInLog);
 
   get activitiesInEventLog$(): Observable<any> {
     return this._activitiesInEventLog.asObservable();
