@@ -1,4 +1,4 @@
-import itertools
+from backend_utilities.concurrency_variants import generate_variants
 from multiprocessing import freeze_support, cpu_count
 from typing import Any, List
 import uvicorn
@@ -71,10 +71,14 @@ class InputDiscoverProcessModelFromVariants(BaseModel):
 
 @app.post("/discoverProcessModelFromVariants")
 async def discover_process_model(d: InputDiscoverProcessModelFromVariants):
+    variants = [v['value']['events'] for v in d.variants]
+    return discover_process_model_from_variants(variants)
+
+def discover_process_model_from_variants(variants):
     log = EventLog()
-    for v in d.variants:
+    for v in variants:
         t = Trace()
-        for e in v["value"]["events"]:
+        for e in v:
             assert type(e) == str
             event = Event()
             event["concept:name"] = e
@@ -84,36 +88,10 @@ async def discover_process_model(d: InputDiscoverProcessModelFromVariants):
     res = process_tree_to_dict(pt)
     return res
 
-class InputDiscoverProcessModelFromVariants(BaseModel):
-    variants: List[Any]
-
-from itertools import permutations
-
-def generate_variants(variant):
-    if 'follows' in variant:
-        lst = list(itertools.product(*[generate_variants(v) for v in variant['follows']]))
-        return [[a for g in vv for a in g] for vv in lst]
-    elif 'parallel' in variant:
-        activities = get_all_activities(variant)
-        return permutations(activities)
-    else:
-        return permutations(variant['leaf'])
-
-def get_all_activities(variant, activities=set()):
-    if 'leaf' in variant:
-        activities.update(variant['leaf'])
-    elif 'follows' in variant:
-        for v in variant['follows']:
-            get_all_activities(v, activities)
-    elif 'parallel' in variant:
-        for v in variant['parallel']:
-            get_all_activities(v, activities)
-    return activities
-
-app.post("/discoverProcessModelFromConcurrencyVariants")
-async def discover_process_model(d: InputDiscoverProcessModelFromVariants):
-    all_variants = generate_variants(d.variant)
-    return discover_process_model({ 'variants': all_variants })
+@app.post("/discoverProcessModelFromConcurrencyVariants")
+async def discover_process_model_from_cvariants(d: InputDiscoverProcessModelFromVariants):
+    all_variants = set([tuple(variant) for cvariant in d.variants for variant in generate_variants(cvariant)])
+    return discover_process_model_from_variants(all_variants)
 
 class InputAddVariantsToProcessModel(BaseModel):
     variants_to_add: List[Any]
@@ -204,3 +182,9 @@ if __name__ == "__main__":
 
     # dev mode
     # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
+# Using FastAPI instance
+@app.get("/url-list")
+def get_all_urls():
+    url_list = [{"path": route.path, "name": route.name} for route in app.routes]
+    return url_list
