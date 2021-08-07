@@ -1,3 +1,4 @@
+import itertools
 from multiprocessing import freeze_support, cpu_count
 from typing import Any, List
 import uvicorn
@@ -10,12 +11,12 @@ import pm4py.objects.log.importer.xes.importer as xes_importer
 
 from pydantic import BaseModel
 from pm4py.algo.filtering.log.variants import variants_filter
-from pm4py.objects.log.log import EventLog, Trace, Event
-from pm4py.objects.process_tree.process_tree import ProcessTree
+from pm4py.objects.log.obj import EventLog, Trace, Event
+from pm4py.objects.process_tree.obj import ProcessTree
 from pm4py.algo.discovery.inductive.variants.im_clean.algorithm import apply_tree as inductive_miner
 from pm4py.objects.process_tree.exporter.variants.ptml import export_tree_as_string as generate_ptml_xml
 from pm4py.objects.conversion.process_tree.converter import apply as convert_pt_to_petri_net
-from pm4py.objects.petri.exporter.variants.pnml import export_petri_as_string as generate_pnml_xml
+from pm4py.objects.petri_net.exporter.variants.pnml import export_petri_as_string as generate_pnml_xml
 from pm4py.objects.process_tree.importer.importer import apply as import_pt_from_ptml
 
 from backend_utilities.process_tree_conversion import process_tree_to_dict
@@ -68,7 +69,6 @@ async def load_process_tree_from_file_path(d: FilePathInput):
 class InputDiscoverProcessModelFromVariants(BaseModel):
     variants: List[Any]
 
-
 @app.post("/discoverProcessModelFromVariants")
 async def discover_process_model(d: InputDiscoverProcessModelFromVariants):
     log = EventLog()
@@ -84,6 +84,36 @@ async def discover_process_model(d: InputDiscoverProcessModelFromVariants):
     res = process_tree_to_dict(pt)
     return res
 
+class InputDiscoverProcessModelFromVariants(BaseModel):
+    variants: List[Any]
+
+from itertools import permutations
+
+def generate_variants(variant):
+    if 'follows' in variant:
+        lst = list(itertools.product(*[generate_variants(v) for v in variant['follows']]))
+        return [[a for g in vv for a in g] for vv in lst]
+    elif 'parallel' in variant:
+        activities = get_all_activities(variant)
+        return permutations(activities)
+    else:
+        return permutations(variant['leaf'])
+
+def get_all_activities(variant, activities=set()):
+    if 'leaf' in variant:
+        activities.update(variant['leaf'])
+    elif 'follows' in variant:
+        for v in variant['follows']:
+            get_all_activities(v, activities)
+    elif 'parallel' in variant:
+        for v in variant['parallel']:
+            get_all_activities(v, activities)
+    return activities
+
+app.post("/discoverProcessModelFromConcurrencyVariants")
+async def discover_process_model(d: InputDiscoverProcessModelFromVariants):
+    all_variants = generate_variants(d.variant)
+    return discover_process_model({ 'variants': all_variants })
 
 class InputAddVariantsToProcessModel(BaseModel):
     variants_to_add: List[Any]
