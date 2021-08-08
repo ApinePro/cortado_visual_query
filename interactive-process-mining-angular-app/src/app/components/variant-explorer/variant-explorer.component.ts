@@ -40,7 +40,6 @@ export class VariantExplorerComponent implements OnInit {
   
   public correctTreeSyntax = false;
 
-
   public selectedVariants: number[] = [];
   public explicitlyAddedVariants: number[] = [];
 
@@ -48,8 +47,9 @@ export class VariantExplorerComponent implements OnInit {
   public numberFittingVariants: number = undefined;
   public totalNumberTraces: number = undefined;
   public totalNumberVariants = 5;
-  public calculatedAlignments = 0;
   public alignmentsToBeCalculated = 0;
+
+  public alignmentCalculationInProgress = false;
 
   @ViewChildren(VariantFragmentComponent)
   variantComponents: QueryList<VariantFragmentComponent>;
@@ -70,22 +70,20 @@ export class VariantExplorerComponent implements OnInit {
       this.colorMap = this.colorMapService.getColorMap(Object.keys(dummyBackendResponse.test.activities));
       this.tooltipActivationService.initialize();
       this.initializeVisibleVariants();
+
+      let total = this.variants.map(v => v.count).reduce((a, b) => a + b);
+      this.variants.forEach(v => {
+        v.percentage = Number.parseFloat((v.count / total * 100).toFixed(2));
+      });
+
+      this.numberFittingVariants = undefined;
+      this.totalNumberTraces = total;
+      this.totalNumberVariants = this.variants.length;
     }
 
     this.sharedDataService.loadedEventLog$.subscribe(eventLog => {
       if (eventLog) {
-        this.numberFittingVariants = undefined;
-        this.totalNumberTraces = undefined;
-        this.totalNumberVariants = undefined;
-        this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
-
-        this.variants = this.sharedDataService.variants;
-        this.initializeVisibleVariants();
-
-        this.tooltipActivationService.initialize();
-
-        this.calculatedAlignments = 0;
-        this.alignmentsToBeCalculated = 0;
+        this.eventLogChanged(eventLog);
       }
     });
 
@@ -97,6 +95,27 @@ export class VariantExplorerComponent implements OnInit {
       this.currentlyDisplayedProcessTree = tree;
       this.outdatedConformanceStatistics = !this.sharedDataService.processTreesEqual(this.usedTreeForConformanceChecking, this.currentlyDisplayedProcessTree);
     });
+  }
+
+
+  private eventLogChanged(eventLog) {
+    this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
+
+    this.variants = this.sharedDataService.variants;
+    this.initializeVisibleVariants();
+
+    this.tooltipActivationService.initialize();
+
+    this.alignmentsToBeCalculated = 0;
+
+    this.explicitlyAddedVariants = [];
+    this.selectedVariants = [];
+
+    this.numberFittingVariants = undefined;
+    this.numberFittingTraces = undefined;
+
+    this.totalNumberTraces = this.variants.map(v => v.count).reduce((a, b) => a + b);
+    this.totalNumberVariants = this.variants.length;
   }
 
   initializeVisibleVariants() {
@@ -121,29 +140,30 @@ export class VariantExplorerComponent implements OnInit {
 
   updateAlignments() {
     this.alignmentsToBeCalculated = this.totalNumberVariants;
-    this.calculatedAlignments = 0;
+    let calculatedAlignments = 0;
     this.tooltipActivationService.close();
-    this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
-    this.variants.forEach((v, i) => {
+    this.alignmentCalculationInProgress = true;
+
+    this.variants.forEach(v => {
       v.calculationInProgress = true;
-      v.deviation = false;
-      let numberCalculatedVariant = 0;
-      v.sub_variants.forEach((sub_v, ii) => {
-        let variant = this.mapVariantToEventList(sub_v.variant);
-        this.backendService.calculateAlignment(variant).pipe(takeUntil(this.unsubscribe)).subscribe(res => {
-            sub_v.calculationInProgress = false;
-            sub_v.alignment = res.alignment;
-            sub_v.deviation = res.deviation;
+      v.deviation = undefined;
 
-            v.deviation |= res.deviation;
-            numberCalculatedVariant++;
-            this.calculatedAlignments++;
+      this.backendService.calculateAlignmentsCVariant(v.variant).pipe(takeUntil(this.unsubscribe)).subscribe(res => {
+        v.calculationInProgress = false;
+        v.alignment = res.alignment;
+        v.deviation = res.deviation;
 
-            if(numberCalculatedVariant == v.sub_variants.length) {
-              v.calculationInProgress = false;
-              this.updateAlignmentStatistics();
-            }
-        });
+        v.deviation = res.deviation;
+        calculatedAlignments++;
+        this.updateAlignmentStatistics();
+
+        if(calculatedAlignments == this.variants.length) {
+          this.alignmentCalculationInProgress = false;
+          this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
+        }
+      }, _ => {
+        this.alignmentCalculationInProgress = false;
+        this.updateAlignmentsStop();
       });
     });
 
@@ -153,19 +173,13 @@ export class VariantExplorerComponent implements OnInit {
   updateAlignmentStatistics(): void {
     let numberFittingVariants = 0;
     let numberFittingTraces = 0;
-    let numberTraces = 0;
-    let numberVariants = 0;
 
     this.variants.forEach(v => {
-      if (!v.deviation) {
+      if (v.deviation !== undefined && !v.deviation) {
         numberFittingVariants++;
         numberFittingTraces += v.count;
       }
-      numberTraces += v.count;
-      numberVariants++;
     });
-    this.totalNumberVariants = numberVariants;
-    this.totalNumberTraces = numberTraces;
     this.numberFittingTraces = numberFittingTraces;
     this.numberFittingVariants = numberFittingVariants;
   }

@@ -1,4 +1,4 @@
-from interactive_process_mining_core.utils.split_graph import LeafGroup, ParallelGroup
+from interactive_process_mining_core.utils.split_graph import LeafGroup, ParallelGroup, SequenceGroup
 from pm4py.objects.log.obj import EventLog
 from pm4py.algo.filtering.log.start_activities import start_activities_filter
 from pm4py.algo.filtering.log.end_activities import end_activities_filter
@@ -29,7 +29,7 @@ def get_simple_variants(event_log: EventLog):
     res_variants = []
     for v in variants:
         events = v.split(',')
-        variant = ParallelGroup([LeafGroup([e]) for e in events])
+        variant = SequenceGroup([LeafGroup([e]) for e in events])
         res_variants.append({
             'count': len(variants[v]),
             'events': events,
