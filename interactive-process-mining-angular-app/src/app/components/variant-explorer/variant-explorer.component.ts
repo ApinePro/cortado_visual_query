@@ -1,4 +1,4 @@
-import { AfterViewChecked, Component, ElementRef, isDevMode, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import { Component, ElementRef, isDevMode, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import * as dummyBackendResponse from './dummy_backend_data.js';
 import { ColorMapService } from '../../services/colorMapService/color-map.service';
 import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
@@ -9,7 +9,6 @@ import { Subject} from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { deserialize, ParallelGroup, SequenceGroup, VariantElement } from './model';
 import { VariantFragmentComponent } from './variant-fragment/variant-fragment.component';
-import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -18,7 +17,7 @@ import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 })
 export class VariantExplorerComponent implements OnInit {
 
-  private readonly nVariantsInc = 10;
+  private readonly nVariantsInc = 20;
 
   constructor(private colorMapService: ColorMapService,
               private sharedDataService: SharedDataService,
@@ -53,9 +52,6 @@ export class VariantExplorerComponent implements OnInit {
 
   @ViewChildren(VariantFragmentComponent)
   variantComponents: QueryList<VariantFragmentComponent>;
-
-  @ViewChild(CdkVirtualScrollViewport) 
-  viewPort: CdkVirtualScrollViewport;
 
   @ViewChild('variantExplorer', { static: true })
   variantExplorerDiv: ElementRef<HTMLDivElement>;

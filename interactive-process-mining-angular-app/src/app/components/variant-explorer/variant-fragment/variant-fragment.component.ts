@@ -2,8 +2,8 @@ import { AfterViewInit, ElementRef, EventEmitter, Output } from '@angular/core';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
+import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import { PolygonGeneratorService } from 'src/app/services/polygon-generator.service';
-import { StatsService } from 'src/app/stats.service';
 import { Constants, LeafNode, ParallelGroup, SequenceGroup, VariantElement } from '../model';
 
 @Component({
@@ -13,32 +13,24 @@ import { Constants, LeafNode, ParallelGroup, SequenceGroup, VariantElement } fro
 })
 export class VariantFragmentComponent implements AfterViewInit, OnInit {
 
-  public static n = 0;
-
   constants = Constants;
 
-  constructor(private polygonService: PolygonGeneratorService) {}
+  constructor(private polygonService: PolygonGeneratorService,
+              private polygonDrawingService: PolygonDrawingService) {}
 
   @ViewChild("svg")
   svgHtmlElement!: ElementRef;
 
   @Input()
-  variant: VariantElement = new ParallelGroup([new SequenceGroup([new LeafNode(["a"]), 
-                                                                  new LeafNode(["b"]), 
-                                                                  new LeafNode(["c"])]), 
-                                              new ParallelGroup([new LeafNode(["a"]), 
-                                                                  new LeafNode(["b"])])]);
+  variant: VariantElement;
 
   @Input()
   colorMap: Map<string, string>;
-
 
   @Output() 
   selectVariant = new EventEmitter<VariantElement>();
 
   svgSelection!: Selection<any, any, any, any>;
-
-  private rendered: boolean = false;
 
   deserialize(obj: any): VariantElement {
     if('follows' in obj) {
@@ -85,21 +77,19 @@ export class VariantFragmentComponent implements AfterViewInit, OnInit {
     if(this.variant instanceof SequenceGroup) {
       this.svgSelection.select('polygon').remove();
     }
-    
-    this.rendered = true;
   }
 
-  draw(element: VariantElement, svgElement: any) {
+  draw(element: VariantElement, svgElement: Selection<any, any, any, any>) {
     if (element instanceof ParallelGroup) {
       this.drawParallelGroup(element.asParallelGroup(), svgElement);
     } else if(element instanceof SequenceGroup) {
       this.drawSequenceGroup(element.asSequenceGroup(), svgElement);
     } else if(element instanceof LeafNode) {
-      VariantFragmentComponent.drawLeafNode(element.asLeafNode(), svgElement, this.colorMap, this.polygonService);
+      this.polygonDrawingService.drawLeafNode(element.asLeafNode(), svgElement, this.colorMap);
     }
   }
 
-  drawSequenceGroup(element: SequenceGroup, parent: any) {
+  drawSequenceGroup(element: SequenceGroup, parent: Selection<any, any, any, any>) {
     let width = element.getWidth();
     let height = element.getHeight();
 
@@ -126,7 +116,7 @@ export class VariantFragmentComponent implements AfterViewInit, OnInit {
     } 
   }
 
-  drawParallelGroup(element: ParallelGroup, parent: any) {
+  drawParallelGroup(element: ParallelGroup, parent: Selection<any, any, any, any>) {
     let width = element.getWidth();
     let height = element.getHeight();
     
@@ -161,39 +151,5 @@ export class VariantFragmentComponent implements AfterViewInit, OnInit {
   setSelected(selected: boolean) {
     this.variant.setExpanded(selected);
     this.redraw();
-  }
-
-  public static drawLeafNode(element: LeafNode, parent: any, colorMap: Map<string, string>, polygonService: PolygonGeneratorService) {
-    let width = element.getWidth();
-    let height = element.getHeight();
-
-    let polygonPoints = polygonService.getPolygonPoints(width, height);
-
-    let color = colorMap.get(element.activity[0]);
-    parent.append('polygon')
-          .attr('points', polygonPoints)
-          .style('fill', color)
-          .style('stroke', 'black')
-
-    let activityText = parent.append("text")
-          .text(element.activity[0])
-          .attr('x', width / 2)
-          .attr('y', height / 2)
-          .attr('text-anchor', 'middle')
-          .attr('dominant-baseline', 'middle')
-          .attr('font-size', Constants.FONT_SIZE)
-
-    VariantFragmentComponent.wrapInnerLabelText(activityText, element.activity[0], width - 2 * Constants.MARGIN_X);
-  }
-
-  private static wrapInnerLabelText(textSelection: any, text: string, maxWidth: number) {
-    var textLength = textSelection.node().getComputedTextLength();
-    if (textLength > maxWidth) {
-        let factor = textLength / maxWidth;
-        let i = Math.min(text.length - 1, Math.floor(text.length / factor) - 1);
-
-        text = text.slice(0, i);
-        textSelection.text(text + "..");
-    }
   }
 }
