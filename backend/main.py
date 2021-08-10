@@ -1,5 +1,5 @@
 from pm4py.statistics.attributes.log.get import get_kde_numeric_attribute
-from backend_utilities.concurrency_variants import generate_variants
+from backend_utilities.concurrency_variants import generate_variants, generate_variants_naive
 from multiprocessing import freeze_support, cpu_count
 from typing import Any, List
 import uvicorn
@@ -87,7 +87,11 @@ def discover_process_model_from_variants(variants):
 
 @app.post("/discoverProcessModelFromConcurrencyVariants")
 async def discover_process_model_from_cvariants(d: InputDiscoverProcessModelFromVariants):
+    all_variants_naive = set([tuple(variant) for cvariant in d.variants for variant in generate_variants_naive(cvariant)])
     all_variants = set([tuple(variant) for cvariant in d.variants for variant in generate_variants(cvariant)])
+    print(f"nVariants naive: {len(all_variants_naive)}")
+    print(f"nVariants: {len(all_variants)}")
+
     return discover_process_model_from_variants(all_variants)
 
 class InputAddVariantsToProcessModel(BaseModel):
@@ -191,9 +195,8 @@ class InputCalculateAlignmentCVariant(BaseModel):
 
 @app.post("/calculateAlignmentsCVariant")
 async def calculate_alignment(d: InputCalculateAlignmentCVariant):
-    variants = generate_variants(d.variant)
-    
-    for variant in variants:
+    all_variants = generate_variants(d.variant)
+    for variant in all_variants:
         alignment = calculate_alignment_endpoint(variant, d.pt)
         if alignment['deviation']:
             return {'cost': alignment['cost'],
