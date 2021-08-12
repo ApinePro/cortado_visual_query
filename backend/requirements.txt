@@ -1,7 +1,5 @@
 pm4py~=2.2.11
 fastapi
 uvicorn
-python-multipart
-numpy~=1.21.1
 cycler~=0.10.0
 networkx
