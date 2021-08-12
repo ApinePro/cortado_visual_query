@@ -1,5 +1,4 @@
 from pm4py.statistics.attributes.log.get import get_kde_numeric_attribute
-from backend_utilities.concurrency_variants import generate_variants, generate_variants_naive
 from multiprocessing import freeze_support, cpu_count
 from typing import Any, List
 import uvicorn

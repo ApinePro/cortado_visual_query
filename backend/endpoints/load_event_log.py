@@ -1,12 +1,11 @@
-from interactive_process_mining_core.utils.split_graph import LeafGroup, ParallelGroup, SequenceGroup
+from interactive_process_mining_core.utils.split_graph import LeafGroup, SequenceGroup
+from interactive_process_mining_core.utils.cvariants import get_concurrency_variants, get_detailled_variants
 from pm4py.objects.log.obj import EventLog
 from pm4py.algo.filtering.log.start_activities import start_activities_filter
 from pm4py.algo.filtering.log.end_activities import end_activities_filter
 from pm4py.algo.filtering.log.attributes import attributes_filter
 from pm4py.algo.filtering.log.variants import variants_filter
-
-from interactive_process_mining_core.utils.variants import get_concurrency_variants, get_detailled_variants
-from pm4py.util.xes_constants import DEFAULT_START_TIMESTAMP_KEY, DEFAULT_TIMESTAMP_KEY, DEFAULT_TRANSITION_KEY
+from pm4py.util.xes_constants import DEFAULT_START_TIMESTAMP_KEY, DEFAULT_TRANSITION_KEY
 
 def calculate_event_log_properties(event_log: EventLog):
     if not DEFAULT_TRANSITION_KEY in event_log[0][0] \
