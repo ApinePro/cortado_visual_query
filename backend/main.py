@@ -1,4 +1,4 @@
-from pm4py.statistics.attributes.log.get import get_kde_numeric_attribute
+from interactive_process_mining_core.utils.cvariants import generate_variants
 from multiprocessing import freeze_support, cpu_count
 from typing import Any, List
 import uvicorn
@@ -86,9 +86,7 @@ def discover_process_model_from_variants(variants):
 
 @app.post("/discoverProcessModelFromConcurrencyVariants")
 async def discover_process_model_from_cvariants(d: InputDiscoverProcessModelFromVariants):
-    all_variants_naive = set([tuple(variant) for cvariant in d.variants for variant in generate_variants_naive(cvariant)])
     all_variants = set([tuple(variant) for cvariant in d.variants for variant in generate_variants(cvariant)])
-    print(f"nVariants naive: {len(all_variants_naive)}")
     print(f"nVariants: {len(all_variants)}")
 
     return discover_process_model_from_variants(all_variants)

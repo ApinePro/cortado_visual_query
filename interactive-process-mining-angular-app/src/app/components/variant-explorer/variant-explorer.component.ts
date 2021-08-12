@@ -46,7 +46,6 @@ export class VariantExplorerComponent implements OnInit {
   public numberFittingVariants: number = undefined;
   public totalNumberTraces: number = undefined;
   public totalNumberVariants = 5;
-  public alignmentsToBeCalculated = 0;
 
   public alignmentCalculationInProgress = false;
 
@@ -102,8 +101,6 @@ export class VariantExplorerComponent implements OnInit {
 
     this.tooltipActivationService.initialize();
 
-    this.alignmentsToBeCalculated = 0;
-
     this.explicitlyAddedVariants = [];
     this.selectedVariants = [];
 
@@ -135,12 +132,22 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   updateAlignments() {
-    this.alignmentsToBeCalculated = this.totalNumberVariants;
+    let alignmentsToBeCalculated = this.totalNumberVariants - this.explicitlyAddedVariants.length;
     let calculatedAlignments = 0;
     this.tooltipActivationService.close();
     this.alignmentCalculationInProgress = true;
 
-    this.variants.forEach(v => {
+    this.explicitlyAddedVariants.map(idx => this.variants[idx]).forEach(v => {
+      v.deviation = false;
+      v.calculationInProgress = false;
+    });
+    this.updateAlignmentStatistics();
+    if(alignmentsToBeCalculated == 0) {
+      this.alignmentCalculationInProgress = false;
+      this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
+    }
+
+    this.variants.filter((_, i) => !this.explicitlyAddedVariants.includes(i)).forEach(v => {
       v.calculationInProgress = true;
       v.deviation = undefined;
 
@@ -153,7 +160,7 @@ export class VariantExplorerComponent implements OnInit {
         calculatedAlignments++;
         this.updateAlignmentStatistics();
 
-        if(calculatedAlignments == this.variants.length) {
+        if(calculatedAlignments == alignmentsToBeCalculated) {
           this.alignmentCalculationInProgress = false;
           this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
         }
@@ -265,6 +272,7 @@ export class VariantExplorerComponent implements OnInit {
 
   clearSelection() {
     this.selectedVariants = [];
+    this.variantComponents.forEach(c => c.setSelected(false));
   }
 
   public toggleSelect(index, variant) {
