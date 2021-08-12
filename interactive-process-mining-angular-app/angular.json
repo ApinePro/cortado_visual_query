@@ -60,6 +60,14 @@
                   "maximumError": "10kb"
                 }
               ]
+            },
+            "browser": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.browser.ts"
+                }
+              ]
             }
           }
         },
@@ -71,6 +79,9 @@
           "configurations": {
             "production": {
               "browserTarget": "interactive-process-mining-angular-app:build:production"
+            },
+            "browser": {
+              "browserTarget": "interactive-process-mining-angular-app:build:browser"
             }
           }
         },

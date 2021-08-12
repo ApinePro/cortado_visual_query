@@ -5,7 +5,7 @@
   "main": "main-electron.js",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --port 4444",
+    "start": "ng serve --port 4444 --configuration=browser",
     "start-prod": "ng serve --prod --port 4444 --open",
     "build": "ng build",
     "test": "ng test",
@@ -13,7 +13,7 @@
     "e2e": "ng e2e",
     "input": "main-electron.js",
     "electron": "electron .",
-    "electron-live-reload": "electron ./main-electron-dev.js",
+    "electron-live-reload": "wait-on http://localhost:4444 && electron ./main-electron-dev.js",
     "electron-build": "ng build --prod && electron ./main-electron-dev.js",
     "electron-package-app-production-windows": "ng build --prod && electron-packager . cortado --platform=win32 --arch=x64 --overwrite --ignore=^/src --ignore=^/node_modules --ignore=^/e2e --icon=./icon/cortado_icon_colorful_transparent.ico",
     "electron-package-app-production-linux-ubuntu": "ng build --prod && electron-packager . cortado --platform=linux --arch=x64 --asar=true --category=Science --overwrite --ignore=^/src --ignore=^/node_modules --ignore=^/e2e --icon=./icon/512x512.png"
