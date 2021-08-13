@@ -57,6 +57,24 @@
   text-align: right;
 }
 
+.variant-activity-tooltip {
+  position: absolute;
+  display: none;
+  background-color: white;
+  border: 2px solid;
+  border-radius: 5px;
+  padding: 5px;
+}
 
+.tooltip {
+  display: none;
+  opacity: 1;
+  position: absolute;
+  white-space: nowrap;
+  font-size: 15px;
 
-
+  .tooltip-inner {
+    text-align: left !important;
+    max-width: 300px !important;
+  }
+}

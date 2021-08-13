@@ -1,5 +1,5 @@
 import { AfterViewInit, ElementRef, EventEmitter, Output } from '@angular/core';
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
@@ -11,15 +11,13 @@ import { Constants, LeafNode, ParallelGroup, SequenceGroup, VariantElement } fro
   templateUrl: './variant-fragment.component.html',
   styleUrls: ['./variant-fragment.component.css']
 })
-export class VariantFragmentComponent implements AfterViewInit, OnInit {
-
-  constants = Constants;
+export class VariantFragmentComponent implements AfterViewInit {
 
   constructor(private polygonService: PolygonGeneratorService,
               private polygonDrawingService: PolygonDrawingService) {}
 
   @ViewChild("svg")
-  svgHtmlElement!: ElementRef;
+  svgHtmlElement: ElementRef;
 
   @Input()
   variant: VariantElement;
@@ -41,10 +39,6 @@ export class VariantFragmentComponent implements AfterViewInit, OnInit {
       return new LeafNode(obj['leaf']);
     }
   }
-
-  ngOnInit() {
-  }
-
 
   ngAfterViewInit(): void {
     this.svgSelection = d3.select(this.svgHtmlElement.nativeElement)
@@ -134,7 +128,7 @@ export class VariantFragmentComponent implements AfterViewInit, OnInit {
     for(let child of element.elements) {
       let height = child.getHeight();
 
-      let x = element.getHeadLength() + 0.5 * this.constants.MARGIN_X
+      let x = element.getHeadLength() + 0.5 * Constants.MARGIN_X
 
       let g = parent.append("g")
                       .attr("transform", `translate(${x}, ${y})`)

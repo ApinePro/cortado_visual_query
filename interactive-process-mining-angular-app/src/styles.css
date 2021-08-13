@@ -14,17 +14,6 @@
   --standard-font-size: 14px;
 }
 
-.svg-text {
-  fill: whitesmoke;
-  font-size: small;
-  user-select: none;
-}
-
-.svg-text-variant-explorer-no-color {
-  font-size: small;
-  user-select: none;
-}
-
 .btn-bar-text {
   font-size: 13px;
   color: whitesmoke;

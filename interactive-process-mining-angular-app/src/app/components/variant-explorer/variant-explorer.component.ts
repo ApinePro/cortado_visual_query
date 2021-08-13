@@ -13,7 +13,7 @@ import { VariantFragmentComponent } from './variant-fragment/variant-fragment.co
 @Component({
   selector: 'app-variant-explorer',
   templateUrl: './variant-explorer.component.html',
-  styleUrls: ['./variant-explorer.component.css']
+  styleUrls: ['./variant-explorer.component.scss']
 })
 export class VariantExplorerComponent implements OnInit {
 
