@@ -26,20 +26,42 @@ export class PolygonDrawingService {
     let polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
     let color = colorMap.get(element.activity[0]);
+    if(element.activity.length > 1) {
+      color = 'lightgrey';
+    }
     let polygon = parent.append('polygon')
           .attr('points', polygonPoints)
           .style('fill', color)
           .style('stroke', 'black')
 
+
     let activityText = parent.append("text")
-          .text(element.activity.join('\n'))
           .attr('x', width / 2)
           .attr('y', height / 2)
           .attr('text-anchor', 'middle')
           .attr('dominant-baseline', 'middle')
           .attr('font-size', Constants.FONT_SIZE)
 
-    let truncated = this.wrapInnerLabelText(activityText, element.activity[0], width - 2 * Constants.MARGIN_X);
+    let y = height / 2;
+    if(element.activity.length > 1) {
+      y = height / 2 - ((element.activity.length - 1) / 2) * (Constants.FONT_SIZE + Constants.MARGIN_Y);
+    }
+
+    let truncated = false;
+    let dy = 0;
+    element.activity.forEach((a, i) => {
+      let tspan = activityText.append('tspan')
+                  .attr('x', width / 2)
+                  .attr('y', y + dy)
+                  .text(a)
+
+      dy += Constants.FONT_SIZE + Constants.MARGIN_Y;
+      tspan.attr('height', Constants.FONT_SIZE + Constants.MARGIN_Y);
+
+      let maxWidth = element.getWidth() - element.getHeadLength() * 2 - Constants.MARGIN_X;
+      let tr = this.wrapInnerLabelText(tspan, a, maxWidth);
+      truncated ||= tr;
+    });
 
     if(truncated) {
       polygon.on('mouseover', this.showTooltip(element.activity.join('<br>')));

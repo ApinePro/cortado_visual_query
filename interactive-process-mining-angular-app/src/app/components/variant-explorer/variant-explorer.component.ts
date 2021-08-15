@@ -17,7 +17,7 @@ import { VariantFragmentComponent } from './variant-fragment/variant-fragment.co
 })
 export class VariantExplorerComponent implements OnInit {
 
-  private readonly nVariantsInc = 20;
+  private readonly nVariantsInc = 50;
 
   constructor(private colorMapService: ColorMapService,
               private sharedDataService: SharedDataService,

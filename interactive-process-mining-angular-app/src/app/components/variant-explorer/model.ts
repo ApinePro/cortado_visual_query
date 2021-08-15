@@ -168,7 +168,7 @@ export class LeafNode extends VariantElement {
   }
 
   public getHeight(): number {
-    this.height = Constants.LEAF_HEIGHT;
+    this.height = this.activity.length * (Constants.FONT_SIZE + 2 * Constants.MARGIN_Y);
     return this.height;
   }
 
@@ -181,7 +181,11 @@ export class LeafNode extends VariantElement {
     } else {
       this.width = Constants.LEAF_WIDTH;
     }
-    this.width += Constants.MARGIN_X; 
+    this.width += Constants.MARGIN_X;
+
+    this.width = Math.max(this.width * 0.75 + this.getHeadLength() * 2, 
+                          this.width - this.getHeadLength() * 2)
+
     return this.width;
   }
 
