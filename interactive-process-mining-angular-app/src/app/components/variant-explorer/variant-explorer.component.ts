@@ -17,7 +17,7 @@ import { VariantFragmentComponent } from './variant-fragment/variant-fragment.co
 })
 export class VariantExplorerComponent implements OnInit {
 
-  private readonly nVariantsInc = 20;
+  private readonly nVariantsInc = 10;
 
   constructor(private colorMapService: ColorMapService,
               private sharedDataService: SharedDataService,
@@ -27,6 +27,8 @@ export class VariantExplorerComponent implements OnInit {
 
   public variants: Variant[] = [];
   public visibleVariants: Variant[] = [];
+  public dummyVariants: Variant[] = [];
+  public invisibleVariantsHeight = 50;
 
   public colorMap: Map<string, string>;
 
@@ -120,6 +122,11 @@ export class VariantExplorerComponent implements OnInit {
       i++;
     }
     this.visibleVariants = this.variants.slice(0, i + this.nVariantsInc);
+    this.dummyVariants = this.variants.slice(this.visibleVariants.length, this.variants.length + 1);
+    this.invisibleVariantsHeight = this.dummyVariants.map(v => v.variant.getHeight())
+                                                    .reduce((a, b) => a + b) / this.dummyVariants.length;
+    this.visibleVariantsHeight = this.visibleVariants.map(v => v.variant.getHeight())
+                                                     .reduce((a, b) => a + b);
   }
 
   updateAlignmentsStop() {
@@ -294,14 +301,21 @@ export class VariantExplorerComponent implements OnInit {
   onScroll(event) {
     let scrollTop = event.target.scrollTop;
     let scrollHeight = event.target.scrollHeight;
-    this.updateVisible(scrollTop, scrollHeight);
+    this.updateVisible(scrollTop);
   }
 
-  updateVisible(scrollTop, scrollHeight) {
+  public visibleVariantsHeight = 1000;
+  updateVisible(scrollTop) {
     let h = this.variantExplorerDiv.nativeElement.clientHeight;
-
-    if(scrollHeight - (h + scrollTop) <= 500) {
-      this.visibleVariants = this.variants.slice(0, this.visibleVariants.length + this.nVariantsInc);
+    if(this.visibleVariantsHeight - (h + scrollTop) <= 50) {
+      
+      while(this.visibleVariantsHeight < (h + scrollTop) && this.visibleVariants.length < this.variants.length) {
+        let v = this.dummyVariants.pop();
+        this.visibleVariantsHeight += v.variant.getHeight();
+        this.visibleVariants.push(v);
+      }
+      this.invisibleVariantsHeight = this.dummyVariants.map(v => v.variant.getHeight())
+                                                       .reduce((a, b) => a + b, 0) / this.dummyVariants.length;
     }
   }
 
