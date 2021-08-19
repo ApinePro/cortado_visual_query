@@ -98,10 +98,17 @@
               </td>
             </tr>
           </ng-container>
-          <tr *ngIf="variants.length > visibleVariants.length">
-            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-            Loading...
-          </tr>
+          <tr *ngFor="let variant of dummyVariants">
+            <td></td>
+            <td>
+              <div class="variant-spacer" [ngStyle]="{ 'height': invisibleVariantsHeight + 'px' }">
+                <div class="spinner-border spinner-border-sm text-primary" 
+                      style="margin-right: 20px; margin-left: 20px;" 
+                      role="status"></div>
+                Loading...
+              </div>
+            </td>
+           </tr>
         </table>
       </div>
     </div>

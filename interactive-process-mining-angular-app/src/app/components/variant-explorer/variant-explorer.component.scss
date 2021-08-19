@@ -78,3 +78,9 @@
     max-width: 300px !important;
   }
 }
+
+.variant-spacer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
