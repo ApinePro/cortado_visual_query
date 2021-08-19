@@ -124,9 +124,9 @@ export class VariantExplorerComponent implements OnInit {
     this.visibleVariants = this.variants.slice(0, i + this.nVariantsInc);
     this.dummyVariants = this.variants.slice(this.visibleVariants.length, this.variants.length + 1);
     this.invisibleVariantsHeight = this.dummyVariants.map(v => v.variant.getHeight())
-                                                    .reduce((a, b) => a + b) / this.dummyVariants.length;
+                                                    .reduce((a, b) => a + b, 0) / this.dummyVariants.length;
     this.visibleVariantsHeight = this.visibleVariants.map(v => v.variant.getHeight())
-                                                     .reduce((a, b) => a + b);
+                                                     .reduce((a, b) => a + b, 0);
   }
 
   updateAlignmentsStop() {
@@ -201,7 +201,7 @@ export class VariantExplorerComponent implements OnInit {
   }
 
 
-  discover_initial_model() {
+  discoverInitialModel() {
     this.tooltipActivationService.close();
     this.explicitlyAddedVariants = [...this.selectedVariants];
     console.warn(this.explicitlyAddedVariants);

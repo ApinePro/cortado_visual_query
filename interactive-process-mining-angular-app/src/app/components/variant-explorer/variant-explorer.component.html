@@ -54,7 +54,7 @@
             title="discover an initial model from the selected variants using the standard <em>Inductive Miner</em>
             algorithm<br><b><i class='bi bi-exclamation-triangle text-warning'></i> overwrites the existing model</b>"
             [disabled]="selectedVariants.length == 0"
-            (click)="discover_initial_model()">
+            (click)="discoverInitialModel()">
       <i class="bi bi-diagram-2-fill btn-icon" [ngClass]="{'text-success': selectedVariants.length != 0}"></i>
       discover initial model
     </button>
