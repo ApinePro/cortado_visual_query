@@ -17,6 +17,13 @@ for package, files in packages_datas:
     print(proot)
     datas.extend((os.path.join(proot, source), os.path.join(package, target)) for (source, target) in files)
 
+packages_binaries = ['cvxopt']
+binaries = []
+for package in packages_binaries:
+    proot = os.path.dirname(importlib.import_module(package).__file__)
+    print(proot)
+    binaries.append((proot, package))
+
 cwd = os.getcwd()
 a = Analysis(['main.py'],
              pathex=[cwd],
@@ -33,7 +40,7 @@ a = Analysis(['main.py'],
                             'pulp',
                             'OpenBLAS',
                             'main'],
-             binaries=[],
+             binaries=binaries,
              datas=datas,
              hookspath=[],
              runtime_hooks=[],
