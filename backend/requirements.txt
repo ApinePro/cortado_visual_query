@@ -3,3 +3,4 @@ fastapi
 uvicorn
 cycler~=0.10.0
 networkx
+python-multipart
