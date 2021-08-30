@@ -1,5 +1,5 @@
+from interactive_process_mining_core.utils.cvariants import generate_variants
 from multiprocessing import freeze_support, cpu_count
-import pm4pycvxopt
 from typing import Any, List
 import uvicorn
 from fastapi import FastAPI, File, UploadFile
@@ -7,14 +7,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
 from pm4py.objects.log.importer.xes.importer import apply as xes_import
+import pm4py.objects.log.importer.xes.importer as xes_importer 
+
 from pydantic import BaseModel
 from pm4py.algo.filtering.log.variants import variants_filter
-from pm4py.objects.log.log import EventLog, Trace, Event
-from pm4py.objects.process_tree.process_tree import ProcessTree
+from pm4py.objects.log.obj import EventLog, Trace, Event
+from pm4py.objects.process_tree.obj import ProcessTree
 from pm4py.algo.discovery.inductive.variants.im_clean.algorithm import apply_tree as inductive_miner
 from pm4py.objects.process_tree.exporter.variants.ptml import export_tree_as_string as generate_ptml_xml
 from pm4py.objects.conversion.process_tree.converter import apply as convert_pt_to_petri_net
-from pm4py.objects.petri.exporter.variants.pnml import export_petri_as_string as generate_pnml_xml
+from pm4py.objects.petri_net.exporter.variants.pnml import export_petri_as_string as generate_pnml_xml
 from pm4py.objects.process_tree.importer.importer import apply as import_pt_from_ptml
 
 from backend_utilities.process_tree_conversion import process_tree_to_dict
@@ -38,21 +40,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
-    return {"filename": file.filename}
+    content = "".join([line.decode("UTF-8") for line in file.file])
+    info = calculate_event_log_properties(xes_importer.deserialize(content))
+    return info
 
 
 class FilePathInput(BaseModel):
     file_path: str
 
-
 @app.post("/loadEventLog")
 async def load_event_log_from_file_path(d: FilePathInput):
-    event_log = xes_import(d.file_path)
-    return calculate_event_log_properties(event_log)
-
+    info = calculate_event_log_properties(xes_import(d.file_path))
+    return info
 
 @app.post("/loadProcessTreeFromPtmlFile")
 async def load_process_tree_from_file_path(d: FilePathInput):
@@ -60,17 +61,19 @@ async def load_process_tree_from_file_path(d: FilePathInput):
     res = process_tree_to_dict(pt)
     return res
 
-
 class InputDiscoverProcessModelFromVariants(BaseModel):
     variants: List[Any]
 
-
 @app.post("/discoverProcessModelFromVariants")
 async def discover_process_model(d: InputDiscoverProcessModelFromVariants):
+    variants = [v['value']['events'] for v in d.variants]
+    return discover_process_model_from_variants(variants)
+
+def discover_process_model_from_variants(variants):
     log = EventLog()
-    for v in d.variants:
+    for v in variants:
         t = Trace()
-        for e in v["value"]["events"]:
+        for e in v:
             assert type(e) == str
             event = Event()
             event["concept:name"] = e
@@ -80,6 +83,12 @@ async def discover_process_model(d: InputDiscoverProcessModelFromVariants):
     res = process_tree_to_dict(pt)
     return res
 
+@app.post("/discoverProcessModelFromConcurrencyVariants")
+async def discover_process_model_from_cvariants(d: InputDiscoverProcessModelFromVariants):
+    all_variants = set([tuple(variant) for cvariant in d.variants for variant in generate_variants(cvariant)])
+    print(f"nVariants: {len(all_variants)}")
+
+    return discover_process_model_from_variants(all_variants)
 
 class InputAddVariantsToProcessModel(BaseModel):
     variants_to_add: List[Any]
@@ -87,23 +96,22 @@ class InputAddVariantsToProcessModel(BaseModel):
     explicitly_added_variants: List[Any]
 
 
-@app.post("/addVariantsToProcessModel")
-async def add_variants_to_process_model(d: InputAddVariantsToProcessModel):
-    pt: ProcessTree = dict_to_process_tree(d.pt)
-    explicitly_added_variants: EventLog = EventLog()
-    for v in d.explicitly_added_variants:
+def add_variants_to_process_model(pt_dict: ProcessTree, explicitly_added_variants, variants_to_add):
+    pt: ProcessTree = dict_to_process_tree(pt_dict)
+    explicitly_added_log: EventLog = EventLog()
+    for v in explicitly_added_variants:
         t = Trace()
-        for e in v["events"]:
+        for e in v:
             assert type(e) == str
             event = Event()
             event["concept:name"] = e
             t.append(event)
-        explicitly_added_variants.append(t)
+        explicitly_added_log.append(t)
 
     traces_to_be_added: List[Trace] = []
-    for v in d.variants_to_add:
+    for v in variants_to_add:
         t = Trace()
-        for e in v["events"]:
+        for e in v:
             assert type(e) == str
             event = Event()
             event["concept:name"] = e
@@ -111,10 +119,24 @@ async def add_variants_to_process_model(d: InputAddVariantsToProcessModel):
         traces_to_be_added.append(t)
 
     for t in traces_to_be_added:
-        pt = add_trace_to_pt_language(pt, explicitly_added_variants, t, try_pulling_lca_down=True)
-        explicitly_added_variants.append(t)
+        pt = add_trace_to_pt_language(pt, explicitly_added_log, t, try_pulling_lca_down=True)
+        explicitly_added_log.append(t)
     res = process_tree_to_dict(pt)
     return res
+
+
+@app.post("/addVariantsToProcessModel")
+async def add_simple_variants_to_process_model(d: InputAddVariantsToProcessModel):
+    explicitly_added = [v['events'] for v in d.explicitly_added_variants]
+    to_add = [v['events'] for v in d.variants_to_add]
+    return add_variants_to_process_model(d.pt, explicitly_added, to_add)
+
+
+@app.post("/addConcurrencyVariantsToProcessModel")
+async def add_cvariants_to_process_model(d: InputAddVariantsToProcessModel):
+    explicitly_added = set([tuple(variant) for cvariant in d.explicitly_added_variants for variant in generate_variants(cvariant)])
+    to_add = set([tuple(variant) for cvariant in d.variants_to_add for variant in generate_variants(cvariant)])
+    return add_variants_to_process_model(d.pt, explicitly_added, to_add)
 
 
 @app.get("/variants")
@@ -160,13 +182,35 @@ class InputCalculateAlignment(BaseModel):
 
 @app.post("/calculateAlignment")
 async def calculate_alignment(d: InputCalculateAlignment):
-    return calculate_alignment_endpoint(d.variant, d.pt)
+    variant = d.variant['events']
+    return calculate_alignment_endpoint(variant, d.pt)
 
+class InputCalculateAlignmentCVariant(BaseModel):
+    pt: dict
+    variant: dict
+
+@app.post("/calculateAlignmentsCVariant")
+async def calculate_alignment(d: InputCalculateAlignmentCVariant):
+    all_variants = generate_variants(d.variant)
+    for variant in all_variants:
+        alignment = calculate_alignment_endpoint(variant, d.pt)
+        if alignment['deviation']:
+            return {'cost': alignment['cost'],
+                    'deviation': alignment['deviation']}
+
+    return {'cost': 0,
+            'deviation': False}
 
 if __name__ == "__main__":
     freeze_support()
     num_workers = max(1, cpu_count() - 2)
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=True)
 
     # dev mode
     # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
+# Using FastAPI instance
+@app.get("/url-list")
+def get_all_urls():
+    url_list = [{"path": route.path, "name": route.name} for route in app.routes]
+    return url_list

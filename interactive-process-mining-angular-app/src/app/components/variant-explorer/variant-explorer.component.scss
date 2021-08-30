@@ -1,0 +1,86 @@
+.chart-variant__percentage {
+  margin-left: 4px;
+  display: inline-flex;
+  flex-direction: column;
+  /*
+  min-width: 50px;
+  */
+  font-size: .8rem;
+  color: whitesmoke;
+  color: var(--text-secondary);
+}
+
+.variant-info-cell {
+  align-items: center;
+  display: flex;
+}
+
+.variant-cell {
+  padding: 5px;
+  width: 100%;
+}
+
+.variant {
+  border-width: 1px !important;
+  padding: 5px;
+  width: fit-content;
+  border: dashed;
+  cursor: pointer;
+}
+
+.spacer {
+  height: 5px;
+}
+
+.main-variant-explorer {
+  overflow: auto;
+  background-color: var(--box-background-color);
+}
+
+.container-variant-explorer {
+  min-height: 100%;
+}
+
+.variant-explorer-alert {
+  z-index: 1;
+  position: absolute;
+  bottom: 10px;
+  margin: auto;
+}
+
+.info-bar {
+  /*background-color: var(--box-background-color);*/
+  font-size: var(--standard-font-size);
+  color: var(--text-secondary);
+  padding-left: 1em;
+  width: 100%;
+  text-align: right;
+}
+
+.variant-activity-tooltip {
+  position: absolute;
+  display: none;
+  background-color: white;
+  border: 2px solid;
+  border-radius: 5px;
+  padding: 5px;
+}
+
+.tooltip {
+  display: none;
+  opacity: 1;
+  position: absolute;
+  white-space: nowrap;
+  font-size: 15px;
+
+  .tooltip-inner {
+    text-align: left !important;
+    max-width: 300px !important;
+  }
+}
+
+.variant-spacer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}

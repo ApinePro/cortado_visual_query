@@ -1,4 +1,5 @@
 import {Component, OnInit, ElementRef, ViewChild} from '@angular/core';
+import { environment } from '../../../environments/environment';
 import {BackendService} from "../../services/backendService/backend.service";
 import {BackgroundTaskInfoService} from "../../services/backgroundTaskInfoService/background-task-info.service";
 import {SharedDataService} from "../../services/sharedDataService/shared-data.service";
@@ -32,11 +33,11 @@ export class SideBarComponent implements OnInit {
     if (fileList.length > 0) {
       console.log(fileList[0]);
       const fileName = fileList[0].name;
-      // TODO make it also work with browser by uploading the file instead of just the file path
-      /*this.backendService.uploadEventLog$(fileList[0]).subscribe(() => {
-        console.log('success?');
-      });*/
-      this.backendService.loadEventLogFromFilePath(fileList[0]['path']);
+      if(!environment.electron) {
+        this.backendService.uploadEventLog(fileList[0]);
+      } else {
+        this.backendService.loadEventLogFromFilePath(fileList[0]['path']);
+      }
     }
     // reset form
     this.fileUploadEventLog.nativeElement.value = '';

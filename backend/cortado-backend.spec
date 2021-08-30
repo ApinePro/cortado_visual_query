@@ -1,14 +1,32 @@
 # -*- mode: python ; coding: utf-8 -*-
-import sys ; sys.setrecursionlimit(sys.getrecursionlimit() * 5)
-
 block_cipher = None
 
+import sys 
+sys.setrecursionlimit(sys.getrecursionlimit() * 5)
 
+# https://stackoverflow.com/a/48068640
+import importlib
+packages_datas = [
+    ['pulp', [('*', '.')]],
+    ['cvxopt', [('*', '.')]]
+]
+
+datas = []
+for package, files in packages_datas:
+    proot = os.path.dirname(importlib.import_module(package).__file__)
+    print(proot)
+    datas.extend((os.path.join(proot, source), os.path.join(package, target)) for (source, target) in files)
+
+packages_binaries = ['cvxopt']
+binaries = []
+for package in packages_binaries:
+    proot = os.path.dirname(importlib.import_module(package).__file__)
+    print(proot)
+    binaries.append((proot, package))
+
+cwd = os.getcwd()
 a = Analysis(['main.py'],
-             pathex=['C:\\Users\\dschuste\\Documents\\git_repos\\fraunhofer_git\\interactive-process-mining\\backend'],
-             binaries=[('C:/Users/dschuste/Documents/git_repos/fraunhofer_git/interactive-process-mining_venv/Lib/site-packages/cvxopt','cvxopt')],
-             datas=[('C:/Users/dschuste/Documents/git_repos/fraunhofer_git/interactive-process-mining_venv/Lib/site-packages/pulp/*','.'),
-             ('C:/Users/dschuste/Documents/git_repos/fraunhofer_git/interactive-process-mining_venv/Lib/site-packages/cvxopt/*','.')],
+             pathex=[cwd],
              hiddenimports=['uvicorn.logging',
                             'uvicorn.loops',
                             'uvicorn.loops.auto',
@@ -22,6 +40,8 @@ a = Analysis(['main.py'],
                             'pulp',
                             'OpenBLAS',
                             'main'],
+             binaries=binaries,
+             datas=datas,
              hookspath=[],
              runtime_hooks=[],
              excludes=[],

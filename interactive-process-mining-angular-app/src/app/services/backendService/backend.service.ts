@@ -3,8 +3,9 @@ import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {SharedDataService} from '../sharedDataService/shared-data.service';
 import * as FileSaver from 'file-saver';
-import {take} from 'rxjs/operators';
+import {take, tap} from 'rxjs/operators';
 import {ActivateTooltipsService} from '../activateTooltipsService/activate-tooltips.service';
+import { deserialize, VariantElement } from 'src/app/components/variant-explorer/model';
 
 @Injectable({
   providedIn: 'root'
@@ -20,16 +21,32 @@ export class BackendService {
 
 
   loadEventLogFromFilePath(filePath: string): void {
-    this.httpClient.post(this.backendUrl + 'loadEventLog',
-      {file_path: filePath}).subscribe(res => {
-      // console.log('Event log ' + fileName + ' loaded');
-      this.sharedDataService.activitiesInEventLog = res['activities'];
+    this.httpClient.post(this.backendUrl + 'loadEventLog', {file_path: filePath})
+                    .subscribe(res => {
+      this.processEventLog(res, filePath);
+    });
+  }
+
+  uploadEventLog(file: File) {
+    let formData = new FormData();
+    formData.append("file", file);
+
+    this.httpClient.post(this.backendUrl + 'uploadfile', formData)
+                    .subscribe(res => {
+      console.log('Event log ' + file.name + ' loaded');
+      this.processEventLog(res, file.name);
+    });
+  }
+
+  private processEventLog(res, filePath) {
+    this.sharedDataService.activitiesInEventLog = res['activities'];
       this.sharedDataService.startActivitiesInEventLog = new Set(Object.keys(res['startActivities']));
       this.sharedDataService.endActivitiesInEventLog = new Set(Object.keys(res['endActivities']));
       this.sharedDataService.variants = res['variants'];
+      this.sharedDataService.variants.forEach(variant => {
+        variant['variant'] = deserialize(variant.variant);
+      });
       this.sharedDataService.loadedEventLog = filePath;
-    });
-
   }
 
   loadProcessTreeFromFilePath(filePath: string): void {
@@ -41,6 +58,14 @@ export class BackendService {
 
   discoverProcessModelFromVariants(variants: any[]): void {
     this.httpClient.post(this.backendUrl + 'discoverProcessModelFromVariants', {variants: variants})
+      .subscribe(tree => {
+        this.sharedDataService.currentDisplayedProcessTree = tree;
+      });
+  }
+
+  discoverProcessModelFromConcurrencyVariants(variants: VariantElement[]): void {
+    let variantsSerialized = variants.map(v => v.serialize());
+    this.httpClient.post(this.backendUrl + 'discoverProcessModelFromConcurrencyVariants', {variants: variantsSerialized})
       .subscribe(tree => {
         this.sharedDataService.currentDisplayedProcessTree = tree;
       });
@@ -69,6 +94,12 @@ export class BackendService {
     return this.httpClient.post(this.backendUrl + 'calculateAlignment', body);
   }
 
+  calculateAlignmentsCVariant(variant: VariantElement): Observable<any> {
+    const body = {pt: this.sharedDataService.currentDisplayedProcessTree, 
+                  variant: variant.serialize()};
+    return this.httpClient.post(this.backendUrl + 'calculateAlignmentsCVariant', body);
+  }
+
   addVariantsToModel(variantsToAdd: any[], explicitlyAddedVariants: any[]): void {
     const body = {
       pt: this.sharedDataService.currentDisplayedProcessTree,
@@ -81,5 +112,16 @@ export class BackendService {
     });
   }
 
+  addConcurrencyVariantsToProcessModel(variantsToAdd: VariantElement[], explicitlyAddedVariants: VariantElement[]): Observable<any> {
+    const body = {
+      pt: this.sharedDataService.currentDisplayedProcessTree,
+      variants_to_add: variantsToAdd.map(v => v.serialize()),
+      explicitly_added_variants: explicitlyAddedVariants.map(v => v.serialize())
+    };
+    return this.httpClient.post(this.backendUrl + 'addConcurrencyVariantsToProcessModel', body).pipe(tap(res => {
+      this.sharedDataService.currentDisplayedProcessTree = res;
+      this.activateTooltipsService.initialize();
+    }));
+  }
 }
 

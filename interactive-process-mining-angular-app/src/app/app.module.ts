@@ -2,7 +2,6 @@ import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
 
-// import { AppRoutingModule } from './app-routing.module';
 import {AppComponent} from './app.component';
 import {FooterComponent} from './components/footer/footer.component';
 import {ProcessTreeEditorComponent} from './components/process-tree-editor/process-tree-editor.component';
@@ -12,6 +11,8 @@ import {VariantExplorerComponent} from './components/variant-explorer/variant-ex
 import {SideBarComponent} from './components/side-bar/side-bar.component';
 import {ActivityOverviewComponent} from './components/activity-overview/activity-overview.component';
 import {HttpRequestInterceptor} from './interceptors/http-request.interceptor';
+import { VariantFragmentComponent } from './components/variant-explorer/variant-fragment/variant-fragment.component';
+import { VariantInfoComponent } from './components/variant-explorer/variant-info/variant-info.component';
 
 @NgModule({
   declarations: [
@@ -21,11 +22,12 @@ import {HttpRequestInterceptor} from './interceptors/http-request.interceptor';
     StrFilterPipe,
     VariantExplorerComponent,
     SideBarComponent,
-    ActivityOverviewComponent
+    ActivityOverviewComponent,
+    VariantFragmentComponent,
+    VariantInfoComponent
   ],
   imports: [
     BrowserModule,
-    // AppRoutingModule,
     FormsModule,
     HttpClientModule
   ],

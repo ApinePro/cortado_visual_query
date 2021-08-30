@@ -6,7 +6,7 @@
   </button>
 </div>
 
-<div class="d-flex flex-column h-100 container-variant-explorer">
+<div class="d-flex flex-column h-100 container-variant-explorer" id="variant-explorer-container">
   <div class="bg-dark btn-tool-bar">
 
 
@@ -30,7 +30,7 @@
             <br><i class="bi bi-check-square text-warning"></i>
             <i class="bi bi-x-square text-warning"> outdated results (model has changed)</i>'
             (click)="updateAlignments()"
-            [disabled]="!currentlyDisplayedProcessTree || calculatedAlignments<alignmentsToBeCalculated || !correctTreeSyntax">
+            [disabled]="!currentlyDisplayedProcessTree || alignmentCalculationInProgress || !correctTreeSyntax">
       <i class="bi bi-layers-fill btn-icon"></i>
       conformance check
     </button>
@@ -40,10 +40,10 @@
     <button class="button"
             data-toggle="tooltip" data-placement="top" data-trigger="hover"
             title="add selected variant(s) to current process model"
-            [disabled]="selectedVariants.length===0 || !currentlyDisplayedProcessTree"
+            [disabled]="selectedVariants.length == 0 || !currentlyDisplayedProcessTree"
             (click)="addSelectedVariantsToModel()">
       <i class="bi bi-plus btn-icon"
-         [ngClass]="{'text-success':!(selectedVariants.length===0 || !currentlyDisplayedProcessTree)}"></i>
+         [ngClass]="{'text-success': !(selectedVariants.length == 0 || !currentlyDisplayedProcessTree)}"></i>
       add variant(s) to model
     </button>
 
@@ -53,80 +53,64 @@
             data-toggle="tooltip" data-placement="top" data-trigger="hover" data-html="true"
             title="discover an initial model from the selected variants using the standard <em>Inductive Miner</em>
             algorithm<br><b><i class='bi bi-exclamation-triangle text-warning'></i> overwrites the existing model</b>"
-            [disabled]="selectedVariants.length===0"
-            (click)="discover_initial_model()">
-      <i class="bi bi-diagram-2-fill btn-icon" [ngClass]="{'text-success':selectedVariants.length!=0}"></i>
+            [disabled]="selectedVariants.length == 0"
+            (click)="discoverInitialModel()">
+      <i class="bi bi-diagram-2-fill btn-icon" [ngClass]="{'text-success': selectedVariants.length != 0}"></i>
       discover initial model
     </button>
 
     <span class="vl"></span>
 
 
-    <button class="button" (click)="clearSelection()" [disabled]="selectedVariants.length===0">
-      <i class="bi bi-x btn-icon" [ngClass]="{'text-danger':selectedVariants.length!=0}"></i>
+    <button class="button" (click)="clearSelection()" [disabled]="selectedVariants.length == 0">
+      <i class="bi bi-x btn-icon" [ngClass]="{'text-danger': selectedVariants.length != 0}"></i>
       clear selection
     </button>
-
-    <!--    <div class="mr-3 secondary-text ml-auto">-->
-    <!--      <em>selected variants: {{this.selectedVariants.length}}</em>-->
-    <!--    </div>-->
-
   </div>
 
 
-  <div class="main-variant-explorer flex-grow-1">
+  <div class="main-variant-explorer flex-grow-1" (scroll)="onScroll($event)" #variantExplorer>
     <div class="d-flex">
       <div class="chart-variant__percentage">
-        <div *ngFor="let variant of variants; let i = index" class="d-flex flex-row">
-
-          <i class="bi bi-circle font-large mr-2 text-muted"
-             *ngIf="!explicitlyAddedVariants.includes(i)"
-             (click)="addExplicitlyAddedVariant(i)">
-          </i>
-          <i class="bi bi-check2-circle font-large mr-2 text-light cursor-pointer"
-             *ngIf="explicitlyAddedVariants.includes(i)"
-             (click)="removeExplicitlyAddedVariant(i)">
-          </i>
-          <!--<i class="bi bi-check2-circle font-large mr-2"
-             [ngClass]=" explicitlyAddedVariants.includes(i)? 'text-light cursor-pointer': 'text-muted'">
-          </i>-->
-
-          <!-- hourglass-split icon-->
-          <i class="bi bi-hourglass-split text-secondary font-large"
-             *ngIf="variant['calculationInProgress']">
-          </i>
-
-          <!-- check-square icon-->
-          <i class="bi bi-check-square font-large"
-             [ngClass]="!outdatedConformanceStatistics? 'text-success' : 'text-warning'"
-             *ngIf="variant.hasOwnProperty('deviation') && !variant['deviation'] &&
-          !variant['calculationInProgress']"> </i>
-
-          <!-- x-square icon-->
-          <i class="bi bi-x-square font-large"
-             [ngClass]="!outdatedConformanceStatistics? 'text-danger' : 'text-warning'"
-             *ngIf="variant.hasOwnProperty('deviation') && variant['deviation'] && !variant['calculationInProgress']">
-          </i>
-
-          <!-- question mark icon-->
-          <i class="bi bi-question-square text-secondary align-middle font-large"
-             *ngIf="!variant.hasOwnProperty('deviation') && ! variant['calculationInProgress'] && !variant['calculationInProgress']">
-          </i>
-
-
-          <small class="ml-1 float-right cursor-help"
-                 data-toggle="tooltip"
-                 data-placement="right"
-                 data-container="body"
-                 data-html="true"
-                 title="variant describes ~{{variant['percentage']}}% of all traces in the event log<br>
-             <span class='text-secondary'>variant occurs {{variant['count']| number}} time(s) in total</span>">
-            {{variant['percentage']}}%<br/>
-            ({{variant['count'] | number}})
-          </small>
-        </div>
+        <table>
+          <tr>
+            <th>
+              Info
+            </th>
+            <th>
+              Variant
+            </th>
+          </tr>
+          <ng-container *ngFor="let variant of visibleVariants let i = index">
+            <tr>
+              <td>
+                <app-variant-info [variant]="variant" 
+                                  [outdatedConformanceStatistics]="outdatedConformanceStatistics"
+                                  [isExplicitlyAdded]="explicitlyAddedVariants.includes(i)"
+                                  (addExplicitlyAddedVariant)="addExplicitlyAddedVariant(i)"
+                                  (removeExplicitlyAdded)="removeExplicitlyAddedVariant(i)">
+                </app-variant-info>
+              </td>
+              <td class="variant-cell" >
+                <div class="variant" [ngStyle]="{ 'border-color': selectedVariants.includes(i) ? 'unset' : 'transparent' }">
+                  <app-variant-fragment [variant]="variant['variant']" [colorMap]="colorMap" (selectVariant)="toggleSelect(i, $event)"></app-variant-fragment>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+          <tr *ngFor="let variant of dummyVariants">
+            <td></td>
+            <td>
+              <div class="variant-spacer" [ngStyle]="{ 'height': invisibleVariantsHeight + 'px' }">
+                <div class="spinner-border spinner-border-sm text-primary" 
+                      style="margin-right: 20px; margin-left: 20px;" 
+                      role="status"></div>
+                Loading...
+              </div>
+            </td>
+           </tr>
+        </table>
       </div>
-      <div #chart id="chart"></div>
     </div>
   </div>
 
@@ -154,5 +138,7 @@
     </span>
   </div>
 
-
+  <div  class="tooltip" role="tooltip" id="tooltip-container">
+    <div id="tooltip-inner" class="tooltip-inner"></div>
+  </div>
 </div>

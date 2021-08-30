@@ -1,3 +1,5 @@
+@import "~bootstrap-icons/font/bootstrap-icons.css";
+
 /* You can add global styles to this file, and also import other style files */
 .btn-icon {
   font-size: var(--standard-font-size);
@@ -10,17 +12,6 @@
   --text-secondary: #a0a0a0;
   --thin-border-color: #1a1a1a;
   --standard-font-size: 14px;
-}
-
-.svg-text {
-  fill: whitesmoke;
-  font-size: small;
-  user-select: none;
-}
-
-.svg-text-variant-explorer-no-color {
-  font-size: small;
-  user-select: none;
 }
 
 .btn-bar-text {
