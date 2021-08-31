@@ -2,6 +2,11 @@
 
 ---
 
+## [1.2.0] - 2021-08-31
+### Changed
+
+* Variant explorer supports start- and complete-timestamps (partially ordered event data)
+
 ## [1.1.0] - 2021-05-20
 
 ### Changed
@@ -12,7 +17,6 @@
 ### Added
 
 * multiprocessing support [Backend]
-* ability to remove the entire tree [Frontend]
 * allow deleting entire process tree [Frontend]
 * option to extend the process tree above its root node in the tree editor [Frontend]
 
