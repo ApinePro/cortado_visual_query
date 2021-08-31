@@ -5,7 +5,7 @@
 ## [1.2.0] - 2021-08-31
 ### Changed
 
-* Variant explorer supports start- and complete-timestamps (partially ordered event data)
+* Variant explorer supports start- and complete-timestamps (partially ordered event data) [Frontend + Backend]
 
 ## [1.1.0] - 2021-05-20
 
