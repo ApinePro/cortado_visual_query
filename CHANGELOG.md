@@ -11,7 +11,7 @@
 
 ### Changed
 
-* changed alignment calculation algorithm [Backend]
+* changed algorithm for alignment calculation [Backend]
 * improved user feedback on ongoing background tasks in the footer [Frontend]
 
 ### Added
