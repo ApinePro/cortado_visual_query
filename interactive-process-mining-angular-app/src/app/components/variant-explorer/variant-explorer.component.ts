@@ -1,14 +1,14 @@
-import { Component, ElementRef, isDevMode, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import {Component, ElementRef, isDevMode, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import * as dummyBackendResponse from './dummy_backend_data.js';
-import { ColorMapService } from '../../services/colorMapService/color-map.service';
-import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
-import { BackendService } from '../../services/backendService/backend.service';
+import {ColorMapService} from '../../services/colorMapService/color-map.service';
+import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
+import {BackendService} from '../../services/backendService/backend.service';
 
-import { ActivateTooltipsService } from '../../services/activateTooltipsService/activate-tooltips.service';
-import { Subject} from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { deserialize, ParallelGroup, SequenceGroup, VariantElement } from './model';
-import { VariantFragmentComponent } from './variant-fragment/variant-fragment.component';
+import {ActivateTooltipsService} from '../../services/activateTooltipsService/activate-tooltips.service';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
+import {deserialize, ParallelGroup, SequenceGroup, VariantElement} from './model';
+import {VariantFragmentComponent} from './variant-fragment/variant-fragment.component';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -17,13 +17,13 @@ import { VariantFragmentComponent } from './variant-fragment/variant-fragment.co
 })
 export class VariantExplorerComponent implements OnInit {
 
-  private readonly nVariantsInc = 50;
-
   constructor(private colorMapService: ColorMapService,
               private sharedDataService: SharedDataService,
               private backendService: BackendService,
               private tooltipActivationService: ActivateTooltipsService) {
   }
+
+  private readonly nVariantsInc = 50;
 
   public variants: Variant[] = [];
   public visibleVariants: Variant[] = [];
@@ -38,7 +38,7 @@ export class VariantExplorerComponent implements OnInit {
   public outdatedConformanceStatistics = false;
 
   protected unsubscribe: Subject<void> = new Subject<void>();
-  
+
   public correctTreeSyntax = false;
 
   public selectedVariants: number[] = [];
@@ -54,8 +54,10 @@ export class VariantExplorerComponent implements OnInit {
   @ViewChildren(VariantFragmentComponent)
   variantComponents: QueryList<VariantFragmentComponent>;
 
-  @ViewChild('variantExplorer', { static: true })
+  @ViewChild('variantExplorer', {static: true})
   variantExplorerDiv: ElementRef<HTMLDivElement>;
+
+  public visibleVariantsHeight = 1000;
 
   ngOnInit(): void {
     // preload road traffic fine management process
@@ -63,12 +65,12 @@ export class VariantExplorerComponent implements OnInit {
       this.variants = dummyBackendResponse.test.variants;
       this.variants.forEach(v => {
         v.variant = deserialize(v.variant);
-      })
+      });
       this.colorMap = this.colorMapService.getColorMap(Object.keys(dummyBackendResponse.test.activities));
       this.tooltipActivationService.initialize();
       this.initializeVisibleVariants();
 
-      let total = this.variants.map(v => v.count).reduce((a, b) => a + b);
+      const total = this.variants.map(v => v.count).reduce((a, b) => a + b);
       this.variants.forEach(v => {
         v.percentage = Number.parseFloat((v.count / total * 100).toFixed(2));
       });
@@ -90,12 +92,13 @@ export class VariantExplorerComponent implements OnInit {
 
     this.sharedDataService.currentDisplayedProcessTree$.subscribe(tree => {
       this.currentlyDisplayedProcessTree = tree;
-      this.outdatedConformanceStatistics = !this.sharedDataService.processTreesEqual(this.usedTreeForConformanceChecking, this.currentlyDisplayedProcessTree);
+      this.outdatedConformanceStatistics = !this.sharedDataService.processTreesEqual(this.usedTreeForConformanceChecking,
+        this.currentlyDisplayedProcessTree);
     });
   }
 
 
-  private eventLogChanged(eventLog) {
+  private eventLogChanged(eventLog): void {
     this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
 
     this.variants = this.sharedDataService.variants;
@@ -113,23 +116,23 @@ export class VariantExplorerComponent implements OnInit {
     this.totalNumberVariants = this.variants.length;
   }
 
-  initializeVisibleVariants() {
-    let divHeight = this.variantExplorerDiv.nativeElement.clientHeight;
+  initializeVisibleVariants(): void {
+    const divHeight = this.variantExplorerDiv.nativeElement.clientHeight;
     let h = 0;
     let i = 0;
-    while(h < divHeight && i < this.variants.length) {
+    while (h < divHeight && i < this.variants.length) {
       h += this.variants[i].variant.getHeight();
       i++;
     }
     this.visibleVariants = this.variants.slice(0, i + this.nVariantsInc);
     this.dummyVariants = this.variants.slice(this.visibleVariants.length, this.variants.length + 1);
     this.invisibleVariantsHeight = this.dummyVariants.map(v => v.variant.getHeight())
-                                                    .reduce((a, b) => a + b, 0) / this.dummyVariants.length;
+      .reduce((a, b) => a + b, 0) / this.dummyVariants.length;
     this.visibleVariantsHeight = this.visibleVariants.map(v => v.variant.getHeight())
-                                                     .reduce((a, b) => a + b, 0);
+      .reduce((a, b) => a + b, 0);
   }
 
-  updateAlignmentsStop() {
+  updateAlignmentsStop(): void {
     this.unsubscribe.next();
     this.variants.forEach(v => {
       v.calculationInProgress = false;
@@ -138,8 +141,8 @@ export class VariantExplorerComponent implements OnInit {
     });
   }
 
-  updateAlignments() {
-    let alignmentsToBeCalculated = this.totalNumberVariants - this.explicitlyAddedVariants.length;
+  updateAlignments(): void {
+    const alignmentsToBeCalculated = this.totalNumberVariants - this.explicitlyAddedVariants.length;
     let calculatedAlignments = 0;
     this.tooltipActivationService.close();
     this.alignmentCalculationInProgress = true;
@@ -149,7 +152,7 @@ export class VariantExplorerComponent implements OnInit {
       v.calculationInProgress = false;
     });
     this.updateAlignmentStatistics();
-    if(alignmentsToBeCalculated == 0) {
+    if (alignmentsToBeCalculated === 0) {
       this.alignmentCalculationInProgress = false;
       this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
     }
@@ -167,7 +170,7 @@ export class VariantExplorerComponent implements OnInit {
         calculatedAlignments++;
         this.updateAlignmentStatistics();
 
-        if(calculatedAlignments == alignmentsToBeCalculated) {
+        if (calculatedAlignments === alignmentsToBeCalculated) {
           this.alignmentCalculationInProgress = false;
           this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
         }
@@ -201,12 +204,12 @@ export class VariantExplorerComponent implements OnInit {
   }
 
 
-  discoverInitialModel() {
+  discoverInitialModel(): void {
     this.tooltipActivationService.close();
     this.explicitlyAddedVariants = [...this.selectedVariants];
     console.warn(this.explicitlyAddedVariants);
 
-    let variants = this.selectedVariants.map(i => this.variants[i].variant);
+    const variants = this.selectedVariants.map(i => this.variants[i].variant);
 
     this.backendService.discoverProcessModelFromConcurrencyVariants(variants);
     this.clearSelection();
@@ -214,25 +217,27 @@ export class VariantExplorerComponent implements OnInit {
 
 
   genSimpleVariants(variant: VariantElement) {
-    if(variant instanceof SequenceGroup) {
+    if (variant instanceof SequenceGroup) {
       return variant.elements;
-    } else if(variant instanceof ParallelGroup) {
-      
+    } else if (variant instanceof ParallelGroup) {
+
     } else {
       return [variant.asLeafNode().activity];
     }
   }
 
   mapVariantIndexToVariant(variantIndex, subVariantIndex) {
-    let v = this.variants[variantIndex].sub_variants[subVariantIndex].variant;
+    const v = this.variants[variantIndex].sub_variants[subVariantIndex].variant;
     return this.mapVariantToEventList(v);
   }
 
   mapVariantToEventList(variant) {
-    return { events: variant
-                        .flat()
-                        .filter(v => v[1].toLowerCase() == 'complete')
-                        .map(v => `${v[0]}`) };
+    return {
+      events: variant
+        .flat()
+        .filter(v => v[1].toLowerCase() == 'complete')
+        .map(v => `${v[0]}`)
+    };
   }
 
   addExplicitlyAddedVariant(variantIndex) {
@@ -249,7 +254,7 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   removeExplicitlyAddedVariant(variantIndex) {
-    let i = this.explicitlyAddedVariants.indexOf(variantIndex);
+    const i = this.explicitlyAddedVariants.indexOf(variantIndex);
     this.explicitlyAddedVariants.splice(i, 1);
   }
 
@@ -261,7 +266,7 @@ export class VariantExplorerComponent implements OnInit {
       return;
     }
 
-    let explicitlyAddedVariants = this.explicitlyAddedVariants.map(i => this.variants[i].variant);
+    const explicitlyAddedVariants = this.explicitlyAddedVariants.map(i => this.variants[i].variant);
 
     const variantsToAdd: VariantElement[] = [];
     this.selectedVariants.forEach(i => {
@@ -283,13 +288,13 @@ export class VariantExplorerComponent implements OnInit {
   }
 
   public toggleSelect(index, variant) {
-    let component = this.variantComponents.find(c => c.variant === variant);
+    const component = this.variantComponents.find(c => c.variant === variant);
 
     if (this.selectedVariants.includes(index)) {
       variant.setExpanded(false);
       component.setSelected(false);
 
-      let i = this.selectedVariants.indexOf(index);
+      const i = this.selectedVariants.indexOf(index);
       this.selectedVariants.splice(i, 1);
     } else {
       variant.setExpanded(true);
@@ -298,34 +303,33 @@ export class VariantExplorerComponent implements OnInit {
     }
   }
 
-  onScroll(event) {
-    let scrollTop = event.target.scrollTop;
-    let scrollHeight = event.target.scrollHeight;
+  onScroll(event): void {
+    const scrollTop = event.target.scrollTop;
+    const scrollHeight = event.target.scrollHeight;
     this.updateVisible(scrollTop);
   }
 
-  public visibleVariantsHeight = 1000;
-  updateVisible(scrollTop) {
-    let h = this.variantExplorerDiv.nativeElement.clientHeight;
-    if(this.visibleVariantsHeight - (h + scrollTop) <= 50) {
-      
-      while(this.visibleVariantsHeight < (h + scrollTop) && this.visibleVariants.length < this.variants.length) {
-        let v = this.dummyVariants.pop();
+  updateVisible(scrollTop): void {
+    const h = this.variantExplorerDiv.nativeElement.clientHeight;
+    if (this.visibleVariantsHeight - (h + scrollTop) <= 50) {
+
+      while (this.visibleVariantsHeight < (h + scrollTop) && this.visibleVariants.length < this.variants.length) {
+        const v = this.dummyVariants.pop();
         this.visibleVariantsHeight += v.variant.getHeight();
         this.visibleVariants.push(v);
       }
       this.invisibleVariantsHeight = this.dummyVariants.map(v => v.variant.getHeight())
-                                                       .reduce((a, b) => a + b, 0) / this.dummyVariants.length;
+        .reduce((a, b) => a + b, 0) / this.dummyVariants.length;
     }
   }
 
   isComplexVariant(variant: VariantElement) {
-    if(variant instanceof ParallelGroup) {
+    if (variant instanceof ParallelGroup) {
       return true;
-    } else if(variant instanceof SequenceGroup) {
-      for(let e of variant.asSequenceGroup().elements) {
-        let complex = this.isComplexVariant(e)
-        if(complex) {
+    } else if (variant instanceof SequenceGroup) {
+      for (const e of variant.asSequenceGroup().elements) {
+        const complex = this.isComplexVariant(e);
+        if (complex) {
           return true;
         }
       }
@@ -350,5 +354,5 @@ export class Variant {
     calculationInProgress: boolean | undefined,
     alignment: any | undefined,
     deviation: any | undefined
-  }[] | undefined
+  }[] | undefined;
 }
