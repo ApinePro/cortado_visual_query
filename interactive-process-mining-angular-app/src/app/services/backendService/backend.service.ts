@@ -5,7 +5,7 @@ import {SharedDataService} from '../sharedDataService/shared-data.service';
 import * as FileSaver from 'file-saver';
 import {take, tap} from 'rxjs/operators';
 import {ActivateTooltipsService} from '../activateTooltipsService/activate-tooltips.service';
-import { deserialize, VariantElement } from 'src/app/components/variant-explorer/model';
+import {deserialize, VariantElement} from 'src/app/components/variant-explorer/model';
 
 @Injectable({
   providedIn: 'root'
@@ -22,9 +22,9 @@ export class BackendService {
 
   loadEventLogFromFilePath(filePath: string): void {
     this.httpClient.post(this.backendUrl + 'loadEventLog', {file_path: filePath})
-                    .subscribe(res => {
-      this.processEventLog(res, filePath);
-    });
+      .subscribe(res => {
+        this.processEventLog(res, filePath);
+      });
   }
 
   uploadEventLog(file: File) {
@@ -32,21 +32,21 @@ export class BackendService {
     formData.append("file", file);
 
     this.httpClient.post(this.backendUrl + 'uploadfile', formData)
-                    .subscribe(res => {
-      console.log('Event log ' + file.name + ' loaded');
-      this.processEventLog(res, file.name);
-    });
+      .subscribe(res => {
+        console.log('Event log ' + file.name + ' loaded');
+        this.processEventLog(res, file.name);
+      });
   }
 
   private processEventLog(res, filePath) {
     this.sharedDataService.activitiesInEventLog = res['activities'];
-      this.sharedDataService.startActivitiesInEventLog = new Set(Object.keys(res['startActivities']));
-      this.sharedDataService.endActivitiesInEventLog = new Set(Object.keys(res['endActivities']));
-      this.sharedDataService.variants = res['variants'];
-      this.sharedDataService.variants.forEach(variant => {
-        variant['variant'] = deserialize(variant.variant);
-      });
-      this.sharedDataService.loadedEventLog = filePath;
+    this.sharedDataService.startActivitiesInEventLog = new Set(Object.keys(res['startActivities']));
+    this.sharedDataService.endActivitiesInEventLog = new Set(Object.keys(res['endActivities']));
+    this.sharedDataService.variants = res['variants'];
+    this.sharedDataService.variants.forEach(variant => {
+      variant['variant'] = deserialize(variant.variant);
+    });
+    this.sharedDataService.loadedEventLog = filePath;
   }
 
   loadProcessTreeFromFilePath(filePath: string): void {
@@ -95,8 +95,10 @@ export class BackendService {
   }
 
   calculateAlignmentsCVariant(variant: VariantElement): Observable<any> {
-    const body = {pt: this.sharedDataService.currentDisplayedProcessTree, 
-                  variant: variant.serialize()};
+    const body = {
+      pt: this.sharedDataService.currentDisplayedProcessTree,
+      variant: variant.serialize()
+    };
     return this.httpClient.post(this.backendUrl + 'calculateAlignmentsCVariant', body);
   }
 

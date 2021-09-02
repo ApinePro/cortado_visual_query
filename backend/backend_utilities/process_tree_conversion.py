@@ -62,11 +62,13 @@ def __get_root_node_label(pt: ProcessTree) -> str:
         return pt.label
 
 
-def dict_to_process_tree(pt: dict, res=None, frozen_subtrees=[]) -> Tuple[ProcessTree, List[ProcessTree]]:
+def dict_to_process_tree(pt: dict, res=None, frozen_subtrees=None) -> Tuple[ProcessTree, List[ProcessTree]]:
     # print(pt)
     # print(type(pt))
     # print(pt.keys())
     # print(pt['operator'])
+    if frozen_subtrees is None:
+        frozen_subtrees = []
     if not res:
         res = ProcessTree(operator=__convert_operator_string_from_frontend_for_pm4py_core(pt['operator']),
                           label=__convert_label_string_from_frontend_for_pm4py_core(pt['label']))

@@ -110,7 +110,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
   getProcessTreeObject(d3Node: d3.HierarchyNode<any>): ProcessTree {
     if (d3Node && 'data' in d3Node) {
-      let currentNodeFrozen = false
+      let currentNodeFrozen = false;
       if (d3Node.data.frozen && d3Node.data.frozen === true) {
         currentNodeFrozen = true;
       }

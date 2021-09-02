@@ -157,7 +157,7 @@ export class VariantExplorerComponent implements OnInit {
       this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
     }
 
-    this.variants.filter((_, i) => !this.explicitlyAddedVariants.includes(i)).forEach(v => {
+    this.variants.forEach(v => {
       v.calculationInProgress = true;
       v.deviation = undefined;
 
@@ -165,10 +165,13 @@ export class VariantExplorerComponent implements OnInit {
         v.calculationInProgress = false;
         v.alignment = res.alignment;
         v.deviation = res.deviation;
-
         v.deviation = res.deviation;
         calculatedAlignments++;
         this.updateAlignmentStatistics();
+        if (res.deviation) {
+          const indexNonFittingVariant = this.variants.findIndex(element => v === element);
+          this.explicitlyAddedVariants = this.explicitlyAddedVariants.filter(i => i !== indexNonFittingVariant);
+        }
 
         if (calculatedAlignments === alignmentsToBeCalculated) {
           this.alignmentCalculationInProgress = false;
@@ -216,7 +219,7 @@ export class VariantExplorerComponent implements OnInit {
   }
 
 
-  genSimpleVariants(variant: VariantElement) {
+  genSimpleVariants(variant: VariantElement): any {
     if (variant instanceof SequenceGroup) {
       return variant.elements;
     } else if (variant instanceof ParallelGroup) {
@@ -226,21 +229,21 @@ export class VariantExplorerComponent implements OnInit {
     }
   }
 
-  mapVariantIndexToVariant(variantIndex, subVariantIndex) {
+  mapVariantIndexToVariant(variantIndex, subVariantIndex): any {
     const v = this.variants[variantIndex].sub_variants[subVariantIndex].variant;
     return this.mapVariantToEventList(v);
   }
 
-  mapVariantToEventList(variant) {
+  mapVariantToEventList(variant): any {
     return {
       events: variant
         .flat()
-        .filter(v => v[1].toLowerCase() == 'complete')
+        .filter(v => v[1].toLowerCase() === 'complete')
         .map(v => `${v[0]}`)
     };
   }
 
-  addExplicitlyAddedVariant(variantIndex) {
+  addExplicitlyAddedVariant(variantIndex): void {
     if (this.variants[variantIndex].calculationInProgress) {
       this.showAlert('Cannot explicitly add the variant - conformance statistics being calculated');
     } else if (this.outdatedConformanceStatistics) {
@@ -253,12 +256,12 @@ export class VariantExplorerComponent implements OnInit {
     }
   }
 
-  removeExplicitlyAddedVariant(variantIndex) {
+  removeExplicitlyAddedVariant(variantIndex): void {
     const i = this.explicitlyAddedVariants.indexOf(variantIndex);
     this.explicitlyAddedVariants.splice(i, 1);
   }
 
-  addSelectedVariantsToModel() {
+  addSelectedVariantsToModel(): void {
     this.tooltipActivationService.close();
 
     if (this.outdatedConformanceStatistics) {
@@ -282,12 +285,12 @@ export class VariantExplorerComponent implements OnInit {
     });
   }
 
-  clearSelection() {
+  clearSelection(): void {
     this.selectedVariants = [];
     this.variantComponents.forEach(c => c.setSelected(false));
   }
 
-  public toggleSelect(index, variant) {
+  public toggleSelect(index, variant): void {
     const component = this.variantComponents.find(c => c.variant === variant);
 
     if (this.selectedVariants.includes(index)) {
