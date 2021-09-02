@@ -12,11 +12,15 @@ PARALLELISM_CHAR = "\u2227"
 TAU_CHAR = "\u03C4"
 
 
-def process_tree_to_dict(pt: ProcessTree) -> dict:
+def process_tree_to_dict(pt: ProcessTree, frozen_subtrees: List[ProcessTree] = []) -> dict:
+    pt_frozen = False
+    for frozen_subtree in frozen_subtrees:
+        if subtree_is_part_of_tree_based_on_obj_id(pt, frozen_subtree):
+            pt_frozen = True
     res = {"operator": __get_root_operator_string_for_frontend(pt), "label": __get_root_node_label(pt), "id": id(pt),
-           "children": []}
+           "children": [], "frozen": pt_frozen}
     for c in pt.children:
-        res["children"].append(process_tree_to_dict(c))
+        res["children"].append(process_tree_to_dict(c, frozen_subtrees))
     return res
 
 

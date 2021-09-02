@@ -45,5 +45,5 @@ def add_variants_to_process_model(pt_dict: ProcessTree, explicitly_added_variant
             pt, frozen_subtrees = add_trace_to_pt_language_with_freezing(pt, frozen_subtrees, explicitly_added_log, t,
                                                                          try_pulling_lca_down=True)
         explicitly_added_log.append(t)
-    res = process_tree_to_dict(pt)
+    res = process_tree_to_dict(pt, frozen_subtrees)
     return res
