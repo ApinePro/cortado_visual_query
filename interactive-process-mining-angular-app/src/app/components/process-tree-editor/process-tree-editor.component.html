@@ -174,6 +174,15 @@
 
     <span class="vl"></span>
 
+    <button class="button" (click)="freezeSubtree()" [disabled]="buttonFreezeSubtreeDisabled()"
+            data-toggle="tooltip" data-placement="top" data-trigger="hover" data-html="true"
+            title="(un)freeze <em>entire</em> subtree to prevent them from being changed when adding variants">
+      <i class="bi bi-snow btn-icon text-primary"></i>
+      (un)freeze subtrees
+    </button>
+
+    <span class="vl"></span>
+
     <button class="button ml-auto" id="btn-reset-zoom" data-toggle="tooltip" data-placement="top"
             data-trigger="hover"
             title="reset view">

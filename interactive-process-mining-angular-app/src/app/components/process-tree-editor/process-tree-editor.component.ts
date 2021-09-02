@@ -104,12 +104,17 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   }
 
   saveTreeInSharedDataService(): void {
+    console.warn(this.currentlyDisplayedTreeInEditor);
     this.sharedDataService.currentDisplayedProcessTree = this.currentlyDisplayedTreeInEditor;
   }
 
   getProcessTreeObject(d3Node: d3.HierarchyNode<any>): ProcessTree {
     if (d3Node && 'data' in d3Node) {
-      const tree = {label: d3Node.data.label, operator: d3Node.data.operator, children: []};
+      let currentNodeFrozen = false
+      if (d3Node.data.frozen && d3Node.data.frozen === true) {
+        currentNodeFrozen = true;
+      }
+      const tree = {label: d3Node.data.label, operator: d3Node.data.operator, children: [], frozen: currentNodeFrozen};
       if (d3Node.children) {
         d3Node.children.forEach(c => {
           tree.children.push(this.getProcessTreeObject(c));
@@ -165,6 +170,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     this.selectSubtreeActive = true;
   }
 
+
   singleNodeSelected(): boolean {
     return this.selectedRootNode && this.selectedRootNodeOnly;
   }
@@ -183,6 +189,10 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
   buttonDeleteSubtreeDisabled(): boolean {
     return !this.selectedRootNode || this.selectNodeActive && !this.leafNodeSelected();
+  }
+
+  buttonFreezeSubtreeDisabled(): boolean {
+    return !this.selectedRootNode || this.leafNodeSelected();
   }
 
   shiftSubtreeToLeft(): void {
@@ -316,11 +326,20 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         .classed('node-operator', function (d: any) {
           return d.data.operator !== null;
         })
+        .classed('frozen-node-operator', function (d: any) {
+          return d.data.operator !== null && d.data.frozen === true;
+        })
         .classed('node-visible-activity', function (d: any) {
           return d.data.label !== null && d.data.label !== '\u03C4';
         })
+        .classed('frozen-node-visible-activity', function (d: any) {
+          return d.data.label !== null && d.data.label !== '\u03C4' && d.data.frozen === true;
+        })
         .classed('node-invisible-activity', (d: any) => {
           return d.data.label === '\u03C4';
+        })
+        .classed('frozen-node-invisible-activity', (d: any) => {
+          return d.data.label === '\u03C4' && d.data.frozen === true;
         })
         .attr('width', constants.tree_node_height_width)
         .attr('height', constants.tree_node_height_width)
@@ -652,6 +671,39 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     const unselectAllNodes = function () {
       this.clearSelection();
     }.bind(this);
+  }
+
+
+  freezeSubtree(): void {
+    const markNodeAsFrozen = (node) => {
+      node.data.frozen = true;
+      if (node.children) {
+        node.children.forEach(child => {
+          markNodeAsFrozen(child);
+        });
+      }
+    };
+    const markNodeAsNonFrozen = (node) => {
+      node.data.frozen = false;
+      if (node.parent && node.parent.data.frozen) {
+        markNodeAsNonFrozen(node.parent);
+        return;
+      }
+      if (node.children) {
+        node.children.forEach(child => {
+          markNodeAsNonFrozen(child);
+        });
+      }
+    };
+    if (!this.selectedRootNode.data.frozen) {
+      markNodeAsFrozen(this.selectedRootNode);
+    } else {
+      markNodeAsNonFrozen(this.selectedRootNode);
+    }
+
+    this.clearSelection();
+    this.activateTooltipsService.close();
+    this.update(this.root, false);
   }
 
   clearSelection(): void {

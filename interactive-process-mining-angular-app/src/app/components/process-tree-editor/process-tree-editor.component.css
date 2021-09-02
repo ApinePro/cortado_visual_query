@@ -12,12 +12,25 @@
   fill: #404040;
 }
 
+.frozen-node-operator {
+  fill: #25306a;
+}
+
 .node-visible-activity {
   fill: #8f8f8f;
 }
 
+.frozen-node-visible-activity {
+  fill: #425bbf;
+}
+
 .node-invisible-activity {
   fill: #181818;
+  font-size: 2em;
+}
+
+.frozen-node-invisible-activity {
+  fill: #161e40;
   font-size: 2em;
 }
 
