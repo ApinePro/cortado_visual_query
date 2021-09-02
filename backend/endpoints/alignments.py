@@ -8,6 +8,7 @@ from pm4py.objects.process_tree.obj import ProcessTree
 from backend_utilities.process_tree_conversion import dict_to_process_tree
 from pm4py.algo.conformance.alignments.process_tree.variants import search_graph_pt as tree_alignment
 
+
 # @lru_cache(maxsize=None)
 def _calculate_alignment(variant, pt):
     # this function uses the standard alignment calculation (a star based search)
@@ -28,7 +29,9 @@ def _calculate_alignment(variant, pt):
 # @lru_cache(maxsize=None)
 def calculate_alignment(variant, pt):
     # this function uses the specific tree alignment calculation
-    pt: ProcessTree = dict_to_process_tree(pt)
+    pt: ProcessTree
+    frozen_subtree: List[ProcessTree]
+    pt, frozen_subtrees = dict_to_process_tree(pt)
     trace = Trace()
     for a in variant:
         e = Event()

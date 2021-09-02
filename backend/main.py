@@ -1,3 +1,4 @@
+from backend.endpoints.add_variants_to_process_model import add_variants_to_process_model
 from interactive_process_mining_core.utils.cvariants import generate_variants
 from multiprocessing import freeze_support, cpu_count
 from typing import Any, List
@@ -23,7 +24,6 @@ from backend_utilities.process_tree_conversion import process_tree_to_dict
 from backend_utilities.process_tree_conversion import dict_to_process_tree
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 from endpoints.load_event_log import calculate_event_log_properties
-from interactive_process_mining_core.lca_approach import add_trace_to_pt_language
 
 app = FastAPI()
 origins = [
@@ -104,35 +104,6 @@ class InputAddVariantsToProcessModel(BaseModel):
     explicitly_added_variants: List[Any]
 
 
-def add_variants_to_process_model(pt_dict: ProcessTree, explicitly_added_variants, variants_to_add):
-    pt: ProcessTree = dict_to_process_tree(pt_dict)
-    explicitly_added_log: EventLog = EventLog()
-    for v in explicitly_added_variants:
-        t = Trace()
-        for e in v:
-            assert type(e) == str
-            event = Event()
-            event["concept:name"] = e
-            t.append(event)
-        explicitly_added_log.append(t)
-
-    traces_to_be_added: List[Trace] = []
-    for v in variants_to_add:
-        t = Trace()
-        for e in v:
-            assert type(e) == str
-            event = Event()
-            event["concept:name"] = e
-            t.append(event)
-        traces_to_be_added.append(t)
-
-    for t in traces_to_be_added:
-        pt = add_trace_to_pt_language(pt, explicitly_added_log, t, try_pulling_lca_down=True)
-        explicitly_added_log.append(t)
-    res = process_tree_to_dict(pt)
-    return res
-
-
 @app.post("/addVariantsToProcessModel")
 async def add_simple_variants_to_process_model(d: InputAddVariantsToProcessModel):
     explicitly_added = [v['events'] for v in d.explicitly_added_variants]
@@ -173,13 +144,17 @@ class ConvertPtToX(BaseModel):
 
 @app.post("/convertPtToPTML")
 async def download_ptml(d: ConvertPtToX):
-    pt: ProcessTree = dict_to_process_tree(d.pt)
+    pt: ProcessTree
+    frozen_subtree: List[ProcessTree]
+    pt, frozen_subtrees = dict_to_process_tree(d.pt)
     return Response(content=generate_ptml_xml(pt), media_type="application/xml")
 
 
 @app.post("/convertPtToPNML")
 async def download_pnml(d: ConvertPtToX):
-    pt: ProcessTree = dict_to_process_tree(d.pt)
+    pt: ProcessTree
+    frozen_subtree: List[ProcessTree]
+    pt, frozen_subtrees = dict_to_process_tree(d.pt)
     net, im, fm = convert_pt_to_petri_net(pt)
     return Response(content=generate_pnml_xml(net, im, fm), media_type="application/xml")
 

@@ -1,6 +1,6 @@
 {
   "name": "interactive-process-mining-angular-app",
-  "version": "1.2.0",
+  "version": "1.3.0-beta",
   "author": "Daniel Schuster (Fraunhofer FIT)",
   "main": "main-electron.js",
   "scripts": {

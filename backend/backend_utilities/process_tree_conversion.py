@@ -1,4 +1,9 @@
+from typing import Tuple, List
+
 from pm4py.objects.process_tree.obj import ProcessTree, Operator
+
+from backend.interactive_process_mining_core.process_tree_utils.miscellaneous import \
+    subtree_is_part_of_tree_based_on_obj_id
 
 SEQUENCE_CHAR = "\u2794"
 CHOICE_CHAR = "\u2715"
@@ -53,7 +58,7 @@ def __get_root_node_label(pt: ProcessTree) -> str:
         return pt.label
 
 
-def dict_to_process_tree(pt: dict, res=None) -> ProcessTree:
+def dict_to_process_tree(pt: dict, res=None, frozen_subtrees=[]) -> Tuple[ProcessTree, List[ProcessTree]]:
     # print(pt)
     # print(type(pt))
     # print(pt.keys())
@@ -66,7 +71,35 @@ def dict_to_process_tree(pt: dict, res=None) -> ProcessTree:
                               label=__convert_label_string_from_frontend_for_pm4py_core(pt['label']), parent=res)
         res.children.append(subtree)
         res = subtree
+        if pt['frozen']:
+            current_node_already_considered = False
+            for frozen_tree in frozen_subtrees:
+                if subtree_is_part_of_tree_based_on_obj_id(subtree, frozen_tree):
+                    current_node_already_considered = True
+                    break
+            if not current_node_already_considered:
+                frozen_subtrees.append(subtree)
     if pt['children']:
         for c in pt['children']:
-            dict_to_process_tree(c, res)
-    return res
+            dict_to_process_tree(c, res, frozen_subtrees)
+    return res, frozen_subtrees
+
+
+if __name__ == "__main__":
+    test = {'label': None, 'operator': '➔', 'children': [
+        {'label': 'A_SUBMITTED', 'operator': None, 'children': [], 'frozen': False},
+        {'label': 'A_PARTLYSUBMITTED', 'operator': None, 'children': [], 'frozen': False},
+        {'label': None, 'operator': '✕', 'children': [
+            {'label': 'τ', 'operator': None, 'children': [], 'frozen': True},
+            {'label': 'A_Completeren aanvraag', 'operator': None, 'children': [], 'frozen': True}
+        ], 'frozen': True},
+        {'label': None, 'operator': '✕', 'children': [
+            {'label': 'τ', 'operator': None, 'children': [], 'frozen': True},
+            {'label': 'W_Completeren aanvraag', 'operator': None, 'children': [], 'frozen': True}
+        ], 'frozen': True}
+    ], 'frozen': False}
+
+    res_tree, res_frozen_subtrees = dict_to_process_tree(test)
+    print("RESULT:")
+    print(res_tree)
+    print(res_frozen_subtrees)
