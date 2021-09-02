@@ -7,7 +7,7 @@ let win;
 function createWindow() {
   win = new BrowserWindow({
     minHeight: 600,
-    minWidth: 1280,
+    minWidth: 800,
     width: 1280,
     height: 800,
     frame: true,
@@ -26,6 +26,12 @@ function createWindow() {
   win.on('closed', function () {
     win = null
   })
+
+  // prevent external links from being opened in an electron window
+  win.webContents.on('new-window', function (e, url) {
+    e.preventDefault();
+    require('electron').shell.openExternal(url);
+  });
 }
 
 app.on('ready', createWindow)

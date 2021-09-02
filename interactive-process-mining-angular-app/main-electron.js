@@ -44,6 +44,12 @@ function createMainApplicationWindow() {
     mainCortadoWin = null;
     app.quit();
   });
+
+  // prevent external links from being opened in an electron window
+  mainCortadoWin.webContents.on('new-window', function (e, url) {
+    e.preventDefault();
+    require('electron').shell.openExternal(url);
+  });
 }
 
 //app.on('ready', createWindow);

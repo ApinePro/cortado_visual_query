@@ -79,5 +79,10 @@
   margin-bottom: 0;
 }
 
+.grid {
+  background-image: radial-gradient(var(--line-color) 1px, transparent 0px);
+  background-size: 20px 20px;
+}
+
 
 

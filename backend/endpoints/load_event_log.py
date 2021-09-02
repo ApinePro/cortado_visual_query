@@ -7,6 +7,7 @@ from pm4py.algo.filtering.log.attributes import attributes_filter
 from pm4py.algo.filtering.log.variants import variants_filter
 from pm4py.util.xes_constants import DEFAULT_START_TIMESTAMP_KEY, DEFAULT_TRANSITION_KEY
 
+
 def calculate_event_log_properties(event_log: EventLog):
     if not DEFAULT_TRANSITION_KEY in event_log[0][0] \
             and not DEFAULT_START_TIMESTAMP_KEY in event_log[0][0]:
@@ -21,6 +22,7 @@ def calculate_event_log_properties(event_log: EventLog):
         "variants": res_variants
     }
     return res
+
 
 def get_simple_variants(event_log: EventLog):
     variants = variants_filter.get_variants(event_log)
@@ -37,6 +39,7 @@ def get_simple_variants(event_log: EventLog):
         })
     return sorted(res_variants, key=lambda variant: variant['count'], reverse=True)
 
+
 def get_c_variants(event_log: EventLog):
     variants = get_concurrency_variants(event_log)
     total_traces = len(event_log)
@@ -52,10 +55,10 @@ def get_c_variants(event_log: EventLog):
 
         for sub_v in sub_variants:
             variant['sub_variants'].append({
-                    'variant': sub_v,
-                    'count': len(sub_variants[sub_v]),
-                    'percentage': round(len(sub_variants[sub_v]) / total_sub_traces * 100, 2)
-        })
+                'variant': sub_v,
+                'count': len(sub_variants[sub_v]),
+                'percentage': round(len(sub_variants[sub_v]) / total_sub_traces * 100, 2)
+            })
         variant['sub_variants'] = sorted(variant['sub_variants'], key=lambda x: x['count'], reverse=True)
         res_variants.append(variant)
     return sorted(res_variants, key=lambda variant: variant['count'], reverse=True)
