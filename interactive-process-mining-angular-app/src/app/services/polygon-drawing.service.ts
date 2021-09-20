@@ -28,7 +28,7 @@ export class PolygonDrawingService {
 
     let color = colorMap.get(element.activity[0]);
     if (element.activity.length > 1) {
-      color = 'lightgrey';
+      color = '#d3d3d3'; // lightgrey
     }
     const polygon = parent.append('polygon')
       .attr('points', polygonPoints)
