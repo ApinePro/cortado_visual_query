@@ -4,8 +4,8 @@ from pm4py.objects.log.obj import EventLog, Trace, Event
 from pm4py.objects.process_tree.obj import ProcessTree
 
 from backend.backend_utilities.process_tree_conversion import dict_to_process_tree, process_tree_to_dict
-from backend.interactive_process_mining_core.freezing.apply import add_trace_to_pt_language_with_freezing
-from backend.interactive_process_mining_core.lca_approach import add_trace_to_pt_language
+from cortado_core.freezing.apply import add_trace_to_pt_language_with_freezing
+from cortado_core.lca_approach import add_trace_to_pt_language
 
 
 def add_variants_to_process_model(pt_dict: ProcessTree, explicitly_added_variants, variants_to_add):

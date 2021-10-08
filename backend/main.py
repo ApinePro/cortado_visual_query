@@ -1,5 +1,5 @@
 from backend.endpoints.add_variants_to_process_model import add_variants_to_process_model
-from interactive_process_mining_core.utils.cvariants import generate_variants
+from cortado_core.utils.cvariants import generate_variants
 from multiprocessing import freeze_support, cpu_count
 from typing import Any, List
 import uvicorn
