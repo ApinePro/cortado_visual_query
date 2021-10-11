@@ -2,8 +2,7 @@ from typing import Tuple, List
 
 from pm4py.objects.process_tree.obj import ProcessTree, Operator
 
-from backend.interactive_process_mining_core.process_tree_utils.miscellaneous import \
-    subtree_is_part_of_tree_based_on_obj_id
+from cortado_core.process_tree_utils.miscellaneous import subtree_is_part_of_tree_based_on_obj_id
 
 SEQUENCE_CHAR = "\u2794"
 CHOICE_CHAR = "\u2715"
