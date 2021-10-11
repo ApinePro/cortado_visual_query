@@ -1,11 +1,12 @@
-from interactive_process_mining_core.utils.split_graph import LeafGroup, SequenceGroup
-from interactive_process_mining_core.utils.cvariants import get_concurrency_variants, get_detailled_variants
 from pm4py.objects.log.obj import EventLog
 from pm4py.algo.filtering.log.start_activities import start_activities_filter
 from pm4py.algo.filtering.log.end_activities import end_activities_filter
 from pm4py.algo.filtering.log.attributes import attributes_filter
 from pm4py.algo.filtering.log.variants import variants_filter
 from pm4py.util.xes_constants import DEFAULT_START_TIMESTAMP_KEY, DEFAULT_TRANSITION_KEY
+
+from cortado_core.utils.split_graph import LeafGroup, SequenceGroup
+from cortado_core.utils.cvariants import get_concurrency_variants, get_detailled_variants
 
 
 def calculate_event_log_properties(event_log: EventLog):
