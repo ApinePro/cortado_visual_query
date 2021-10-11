@@ -3,10 +3,12 @@ const nativeImage = require('electron').nativeImage
 const url = require("url");
 const path = require("path");
 const ChildProcess = require('child_process');
-const abspath = app.getPath('exe');
-const executablePath = abspath;
-const indexForFileNameStart = executablePath.lastIndexOf("\\");
-const backendExecutablePath = executablePath.substring(0, indexForFileNameStart) + "\\cortado-backend\\cortado-backend.exe";
+const executablePath = app.getPath('exe');
+const backendExecutablePathWindows = executablePath.substring(0, executablePath.lastIndexOf("\\")) +
+  "\\cortado-backend\\cortado-backend.exe";
+const backendExecutablePathLinux = executablePath.substring(0, executablePath.lastIndexOf("/")) +
+  "/cortado-backend/cortado-backend";
+
 //const ipc = require('electron').ipcRenderer;
 
 let mainCortadoWin;
@@ -16,7 +18,14 @@ let licenseAccepted = false;
 //ipc.on('licenseAccepted', decision => licenseAccepted = decision);
 
 function startBackend() {
-  return ChildProcess.spawn(backendExecutablePath, {shell: true, detached: true, windowsHide: false});
+  switch (process.platform) {
+    case 'linux':
+      return ChildProcess.spawn(backendExecutablePathLinux, {shell: true, detached: true, windowsHide: false});
+    case 'win32':
+      return ChildProcess.spawn(backendExecutablePathWindows, {shell: true, detached: true, windowsHide: false});
+    default:
+      return;
+  }
 }
 
 function createMainApplicationWindow() {
@@ -34,7 +43,7 @@ function createMainApplicationWindow() {
   });
   mainCortadoWin.removeMenu();
   //mainCortadoWin.webContents.openDevTools()
-  //mainCortadoWin.loadURL('data:text/html;charset=utf-8,' + backendExecutablePath);
+  //mainCortadoWin.loadURL('data:text/html;charset=utf-8,' + backendExecutablePathWindows);
   mainCortadoWin.loadURL(url.format({
     pathname: path.join(__dirname, `/dist/index.html`),
     protocol: "file:",
