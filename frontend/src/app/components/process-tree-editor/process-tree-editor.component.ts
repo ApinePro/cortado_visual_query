@@ -5,9 +5,11 @@ import * as d3 from 'd3';
 import * as constants from './constants_tree_d3';
 import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
 import {ActivateTooltipsService} from '../../services/activateTooltipsService/activate-tooltips.service';
+import {ColorMapService} from '../../services/colorMapService/color-map.service';
 
 declare var $;
 import {ProcessTree, ProcessTreeSyntaxInfo, checkSyntax} from '../../objects/ProcessTree';
+import {textColorForBackgroundColor} from '../variant-explorer/helper_functions';
 
 @Component({
   selector: 'app-process-tree-editor',
@@ -18,7 +20,8 @@ import {ProcessTree, ProcessTreeSyntaxInfo, checkSyntax} from '../../objects/Pro
 export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
   constructor(private sharedDataService: SharedDataService,
-              private activateTooltipsService: ActivateTooltipsService) {
+              private activateTooltipsService: ActivateTooltipsService,
+              private colorMapService: ColorMapService) {
   }
 
   @ViewChild('d3svg') svgElem: ElementRef;
@@ -57,8 +60,14 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   selectedMethod: Function = this.insertNewNodeBelow;
   lastSelectedInsertMethod: Function = this.insertNewNodeBelow;
 
+  activityColorMap: Map<string, string>;
+
 
   ngOnInit(): void {
+    this.colorMapService.colorMap$.subscribe(colorMap => {
+      this.activityColorMap = colorMap;
+    });
+
     this.sharedDataService.currentDisplayedProcessTree$.subscribe(res => {
       console.log('new tree received in processTreeEditor');
       // console.log(res);
@@ -301,6 +310,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
 
       this.calculateTreeLayout(root);
       // add node groups that contain a rectangle and text
+      const activityColorMap = this.activityColorMap;
       const node = this.mainSvgGroup.selectAll('g').data(root.descendants(), function (d) {
         return d.data.id;
       });
@@ -335,6 +345,10 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         .classed('frozen-node-visible-activity', function (d: any) {
           return d.data.label !== null && d.data.label !== '\u03C4' && d.data.frozen === true;
         })
+        .attr('fill', function (d: any) {
+          const isVisibleActivity = d.data.label !== null && d.data.label !== '\u03C4';
+          return isVisibleActivity ? activityColorMap.get(d.data.label) : null;
+        })
         .classed('node-invisible-activity', (d: any) => {
           return d.data.label === '\u03C4';
         })
@@ -352,9 +366,15 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
       // add node text
       this.nodeEnter.append('text')
         .classed('user-select-none', true)
-        .attr('fill', 'white')
         .classed('node-text', true)
         .merge(node.select('text'))
+        .attr('fill', (d) => {
+          if (d.data.frozen){
+            return 'white';
+          }
+          const isVisibleActivity = d.data.label !== null && d.data.label !== '\u03C4';
+          return isVisibleActivity ? textColorForBackgroundColor(activityColorMap.get(d.data.label)) : 'white';
+        })
         .attr('font-size', (d: any) => {
           if (d.data.operator) {
             return '1.5em';
@@ -402,7 +422,12 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         .attr('y2', function (d: any) {
           return d.target.y;
         })
-        .attr('stroke', 'gray');
+        .attr('stroke', (d) => {
+          if (d.source.data.frozen) {
+            return constants.frozenEdgeColor;
+          }
+          return d.source.data.selected ? constants.selectedTreeNodeStrokeColor : constants.nonSelectedTreeNodeStrokeColor;
+        });
 
       // resize leaf nodes if text is too long
       this.nodeEnter
@@ -635,9 +660,10 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
         // console.log(this)
         // console.log(event);
         // console.log(d);
-        unselectAllNodes();
+        unselectAll();
         setSelectedRootNode(d);
         selectSubtree(this, d);
+        selectEdges();
       }
     );
 
@@ -655,20 +681,36 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
           return constants.selectedTreeNodeStrokeColor;
         }
       });
-      // add red stroke around sub-nodes if select subtree is selected
-      if (d.children && this.selectSubtreeActive) {
-        d.children.forEach(c => {
-            // console.log(c)
-            // console.log(this.mainSvgGroup.select('[id="' + c.data.id + '"]').node())
-            selectSubtree(this.mainSvgGroup.select('[id="' + c.data.id + '"]').node(), c);
-          }
-        );
+      d.data.selected = true;
+      if (!this.selectSubtreeActive || !d.children) {
+        return;
       }
+
+      // add red stroke around sub-nodes if select subtree is selected
+      d.children.forEach(c => {
+          // console.log(c)
+          // console.log(this.mainSvgGroup.select('[id="' + c.data.id + '"]').node())
+          selectSubtree(this.mainSvgGroup.select('[id="' + c.data.id + '"]').node(), c);
+        }
+      );
       // console.log(this.selectedRootNode);
       // console.log(this.singleNodeSelected());
     }.bind(this);
 
-    const unselectAllNodes = function () {
+    const selectEdges = function () {
+      if (!this.selectSubtreeActive) {
+        return;
+      }
+      this.mainSvgGroup.selectAll('line').attr('stroke', (e) => {
+        if (e.source.data.selected) {
+          return constants.selectedTreeNodeStrokeColor;
+        }
+
+        return e.source.data.frozen ? constants.frozenEdgeColor : constants.nonSelectedTreeNodeStrokeColor;
+      });
+    }.bind(this);
+
+    const unselectAll = function () {
       this.clearSelection();
     }.bind(this);
   }
@@ -710,6 +752,15 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     // console.log("clear selection")
     this.selectedRootNode = null;
     this.mainSvgGroup.selectAll('rect').attr('stroke', constants.nonSelectedTreeNodeStrokeColor);
+    this.mainSvgGroup.selectAll('rect').each((d) => {
+      d.data.selected = false;
+    });
+    this.mainSvgGroup.selectAll('line').attr('stroke', (d) => {
+      if (d.source.data.frozen && d.source.data.frozen === true) {
+        return constants.frozenEdgeColor;
+      }
+      return constants.nonSelectedTreeNodeStrokeColor;
+    });
   }
 
   initializeSvg(): void {
