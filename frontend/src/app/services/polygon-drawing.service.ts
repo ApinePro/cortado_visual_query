@@ -3,7 +3,7 @@ import {Selection} from 'd3';
 import {Constants, LeafNode} from '../components/variant-explorer/model';
 import {PolygonGeneratorService} from './polygon-generator.service';
 import * as d3 from 'd3';
-import {isDarkColor} from '../components/variant-explorer/helper_functions';
+import {textColorForBackgroundColor} from '../components/variant-explorer/helper_functions';
 
 @Injectable({
   providedIn: 'root'
@@ -42,7 +42,7 @@ export class PolygonDrawingService {
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
       .attr('font-size', Constants.FONT_SIZE)
-      .attr('fill', isDarkColor(color) ? 'white' : 'black');
+      .attr('fill', textColorForBackgroundColor(color));
 
     let y = height / 2;
     if (element.activity.length > 1) {
