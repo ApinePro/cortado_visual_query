@@ -13,6 +13,10 @@ import {ActivityOverviewComponent} from './components/activity-overview/activity
 import {HttpRequestInterceptor} from './interceptors/http-request.interceptor';
 import { VariantFragmentComponent } from './components/variant-explorer/variant-fragment/variant-fragment.component';
 import { VariantInfoComponent } from './components/variant-explorer/variant-info/variant-info.component';
+import { LayoutChangeDirective } from './directives/layout-change.directive';
+import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
+import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
+
 
 @NgModule({
   declarations: [
@@ -24,7 +28,8 @@ import { VariantInfoComponent } from './components/variant-explorer/variant-info
     SideBarComponent,
     ActivityOverviewComponent,
     VariantFragmentComponent,
-    VariantInfoComponent
+    VariantInfoComponent,
+    GoldenLayoutHostComponent
   ],
   imports: [
     BrowserModule,
@@ -36,7 +41,8 @@ import { VariantInfoComponent } from './components/variant-explorer/variant-info
       provide: HTTP_INTERCEPTORS,
       useClass: HttpRequestInterceptor,
       multi: true
-    }
+    },
+    GoldenLayoutComponentService,
   ],
   bootstrap: [AppComponent]
 })

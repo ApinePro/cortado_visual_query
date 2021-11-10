@@ -10,6 +10,11 @@
   color: var(--text-secondary);
 }
 
+:host {
+  position: absolute;
+  overflow: hidden;
+}
+
 .variant-info-cell {
   align-items: center;
   display: flex;

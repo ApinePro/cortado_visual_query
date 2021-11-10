@@ -1,18 +1,26 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ElementRef, Inject} from '@angular/core';
+import {ComponentContainer} from 'golden-layout';
 import {ColorMapService} from '../../services/colorMapService/color-map.service';
 import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
 import {BackendService} from '../../services/backendService/backend.service';
 import * as dummy_backend_response from './dummy_backend_response.js';
+import {LayoutChangeDirective} from '../../directives/layout-change.directive';
+
 
 @Component({
   selector: 'app-activity-overview',
   templateUrl: './activity-overview.component.html',
   styleUrls: ['./activity-overview.component.css']
 })
-export class ActivityOverviewComponent implements OnInit {
+export class ActivityOverviewComponent extends LayoutChangeDirective implements OnInit {
 
   constructor(private colorMapService: ColorMapService,
-              private sharedDataService: SharedDataService) {
+              private sharedDataService: SharedDataService,
+              @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer,
+              elRef: ElementRef) {
+
+    super(elRef.nativeElement);
+    const state = this.container.initialState;     
   }
 
   activityColorMap: Map<string, string>;

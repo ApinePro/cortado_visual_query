@@ -1,10 +1,13 @@
 import {
-  Component, OnInit, ViewChild, AfterViewInit, ElementRef, ViewEncapsulation, HostListener, isDevMode
+  Component, OnInit, ViewChild, AfterViewInit, ElementRef, ViewEncapsulation, HostListener, isDevMode, Inject
 } from '@angular/core';
+import {ComponentContainer} from 'golden-layout';
 import * as d3 from 'd3';
 import * as constants from './constants_tree_d3';
 import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
 import {ActivateTooltipsService} from '../../services/activateTooltipsService/activate-tooltips.service';
+import { LayoutChangeDirective } from '../../directives/layout-change.directive';
+
 
 declare var $;
 import {ProcessTree, ProcessTreeSyntaxInfo, checkSyntax} from '../../objects/ProcessTree';
@@ -15,10 +18,15 @@ import {ProcessTree, ProcessTreeSyntaxInfo, checkSyntax} from '../../objects/Pro
   templateUrl: './process-tree-editor.component.html',
   styleUrls: ['./process-tree-editor.component.css']
 })
-export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
+export class ProcessTreeEditorComponent extends LayoutChangeDirective implements OnInit, AfterViewInit  {
 
   constructor(private sharedDataService: SharedDataService,
-              private activateTooltipsService: ActivateTooltipsService) {
+              private activateTooltipsService: ActivateTooltipsService,
+              @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer,
+              elRef: ElementRef) {
+
+    super(elRef.nativeElement);
+    const state = this.container.initialState;
   }
 
   @ViewChild('d3svg') svgElem: ElementRef;
