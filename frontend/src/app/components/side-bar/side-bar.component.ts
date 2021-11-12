@@ -13,7 +13,8 @@ export class SideBarComponent implements OnInit {
 
   constructor(private backendService: BackendService,
               private backgroundTaskInfoService: BackgroundTaskInfoService,
-              private sharedDataService: SharedDataService) {
+              private sharedDataService: SharedDataService,
+              private _elRef: ElementRef<HTMLElement>) {
   }
 
   ngOnInit(): void {
@@ -24,6 +25,10 @@ export class SideBarComponent implements OnInit {
 
   importEventLog(): void {
     this.fileUploadEventLog.nativeElement.click();
+  }
+
+  get element(){
+    return this._elRef.nativeElement;
   }
 
   handleSelectedEventLogFile(e): void {

@@ -1,4 +1,5 @@
-import {Component, OnInit} from '@angular/core';
+import { element } from 'protractor';
+import {Component, OnInit, ElementRef} from '@angular/core';
 import {BackgroundTaskInfoService} from '../../services/backgroundTaskInfoService/background-task-info.service';
 import {version} from '../../../../package.json';
 
@@ -9,7 +10,9 @@ import {version} from '../../../../package.json';
 })
 export class FooterComponent implements OnInit {
 
-  constructor(private backgroundTaskInfoService: BackgroundTaskInfoService) {
+  constructor(private backgroundTaskInfoService: BackgroundTaskInfoService,
+              private _elRef: ElementRef<HTMLElement>
+    ) {
   }
 
   currentTask = undefined;
@@ -24,6 +27,12 @@ export class FooterComponent implements OnInit {
     this.backgroundTaskInfoService.numberBackgroundTasks$().subscribe(res => {
       this.numberTasks = res;
     });
+  }
+
+  get element(){
+
+    return this._elRef.nativeElement
+
   }
 
 

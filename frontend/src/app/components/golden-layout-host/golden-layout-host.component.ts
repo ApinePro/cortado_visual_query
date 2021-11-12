@@ -35,6 +35,9 @@ export class GoldenLayoutHostComponent implements OnDestroy {
   get goldenLayout() { return this._goldenLayout; }
 
   layout: LayoutConfig = {
+    dimensions : {
+      borderWidth: 1.5,
+    },
     root: {
         type: ItemType.column,
         content: [
@@ -75,7 +78,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
             ]},
         ],
     },
-}; 
+};
 
 
   constructor(private _appRef: ApplicationRef,
@@ -124,7 +127,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     container.virtualVisibilityChangeRequiredEvent = (container, visible) => this.handleContainerVisibilityChangeRequiredEvent(container, visible);
     container.virtualZIndexChangeRequiredEvent = (container, logicalZIndex, defaultZIndex) => this.handleContainerVirtualZIndexChangeRequiredEvent(container, logicalZIndex, defaultZIndex);
     this._componentViewContainerRef.insert(componentRef.hostView);
-    
+
     return {
       component,
       virtual: true,

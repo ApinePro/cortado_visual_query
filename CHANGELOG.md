@@ -2,6 +2,12 @@
 
 ---
 
+
+## [1.3.0] - 
+### Changed
+
+* Added size-adjustable user interface components
+
 ## [1.2.0] - 2021-08-31
 ### Changed
 
@@ -11,7 +17,7 @@
 
 ### Changed
 
-* changed algorithm for alignment calculation [Backend]
+* changed the algorithm for alignment calculation [Backend]
 * improved user feedback on ongoing background tasks in the footer [Frontend]
 
 ### Added

@@ -22,14 +22,14 @@ import { GoldenLayoutHostComponent } from './components/golden-layout-host/golde
   declarations: [
     AppComponent,
     FooterComponent,
-    ProcessTreeEditorComponent,
     StrFilterPipe,
-    VariantExplorerComponent,
     SideBarComponent,
-    ActivityOverviewComponent,
+    GoldenLayoutHostComponent,
+    VariantExplorerComponent,
     VariantFragmentComponent,
-    VariantInfoComponent,
-    GoldenLayoutHostComponent
+    ActivityOverviewComponent,
+    ProcessTreeEditorComponent,
+    VariantInfoComponent
   ],
   imports: [
     BrowserModule,
@@ -43,6 +43,13 @@ import { GoldenLayoutHostComponent } from './components/golden-layout-host/golde
       multi: true
     },
     GoldenLayoutComponentService,
+  ],
+  entryComponents: [
+    VariantExplorerComponent,
+    VariantFragmentComponent,
+    ActivityOverviewComponent,
+    ProcessTreeEditorComponent,
+    VariantInfoComponent
   ],
   bootstrap: [AppComponent]
 })
