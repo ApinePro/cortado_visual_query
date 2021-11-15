@@ -6,6 +6,8 @@ import { ActivityOverviewComponent } from "../../activity-overview/activity-over
 export const baseLayout: LayoutConfig = {
   dimensions : {
     borderWidth: 1.5,
+    minItemHeight: 300,
+    minItemWidth: 600,
   },
   root: {
       type: ItemType.column,

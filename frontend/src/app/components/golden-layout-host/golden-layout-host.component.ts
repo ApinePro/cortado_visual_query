@@ -1,9 +1,8 @@
-import { ApplicationRef, Component, ComponentRef, ElementRef, EmbeddedViewRef, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
+import { ApplicationRef, Component, ComponentRef, ElementRef, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
 import {
   ComponentContainer, GoldenLayout,
   LogicalZIndex,
   ResolvedComponentItemConfig,
-  LayoutConfig, ItemType, ComponentItemConfig
 } from "golden-layout";
 
 import {baseLayout} from './LayoutTemplates/golden-layout-cortado-base'
@@ -34,14 +33,14 @@ export class GoldenLayoutHostComponent implements OnDestroy {
 
   get goldenLayout() { return this._goldenLayout; }
 
-  constructor(private _appRef: ApplicationRef,
+  constructor(
     private _elRef: ElementRef<HTMLElement>,
     private goldenLayoutComponentService: GoldenLayoutComponentService
   ) {
     // Get the Layout Host Component
     this._goldenLayoutElement = this._elRef.nativeElement;
 
-    // Specify the new Golden Laout Instance
+    // Specify the new Golden Layout Instance
     this._goldenLayout = new GoldenLayout(
       this._goldenLayoutElement,
       this._goldenLayoutBindComponentEventListener,
