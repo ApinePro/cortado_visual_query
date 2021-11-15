@@ -6,7 +6,7 @@ import {
   LayoutConfig, ItemType, ComponentItemConfig
 } from "golden-layout";
 
-
+import {baseLayout} from './LayoutTemplates/golden-layout-cortado-base'
 import {LayoutChangeDirective} from '../../directives/layout-change.directive';
 import {ProcessTreeEditorComponent} from '../process-tree-editor/process-tree-editor.component';
 import {VariantExplorerComponent} from '../variant-explorer/variant-explorer.component';
@@ -34,74 +34,31 @@ export class GoldenLayoutHostComponent implements OnDestroy {
 
   get goldenLayout() { return this._goldenLayout; }
 
-  layout: LayoutConfig = {
-    dimensions : {
-      borderWidth: 1.5,
-    },
-    root: {
-        type: ItemType.column,
-        content: [
-            {
-                type: "component",
-                header: {
-                  show: false,
-                },
-                title: "Process Tree Visualizer",
-                isClosable: true,
-                componentType: ProcessTreeEditorComponent.name,
-            } as ComponentItemConfig,
-            {
-              type: ItemType.row,
-              content : [
-                {
-                  type: "component",
-                  header: {
-                      show: false,
-                  },
-                  width: 61.803,
-                  title: "Variant Explorer",
-                  isClosable: false,
-                  componentType: VariantExplorerComponent.name,
-              } as ComponentItemConfig,
-              {
-                type: "component",
-                header: {
-                    show: false,
-                },
-                width: 38.197,
-                isClosable: false,
-                title: "Activity Explorer",
-                componentType: ActivityOverviewComponent.name,
-            } as ComponentItemConfig,
-
-
-            ]},
-        ],
-    },
-};
-
-
   constructor(private _appRef: ApplicationRef,
     private _elRef: ElementRef<HTMLElement>,
     private goldenLayoutComponentService: GoldenLayoutComponentService
   ) {
+    // Get the Layout Host Component
     this._goldenLayoutElement = this._elRef.nativeElement;
+
+    // Specify the new Golden Laout Instance
     this._goldenLayout = new GoldenLayout(
       this._goldenLayoutElement,
       this._goldenLayoutBindComponentEventListener,
       this._goldenLayoutUnbindComponentEventListener,
     );
 
-
     this._goldenLayout.beforeVirtualRectingEvent = (count) => this.handleBeforeVirtualRectingEvent(count);
 
-    this.goldenLayoutComponentService.registerComponentType(ProcessTreeEditorComponent.name, ProcessTreeEditorComponent);
-    this.goldenLayoutComponentService.registerComponentType(VariantExplorerComponent.name, VariantExplorerComponent);
-    this.goldenLayoutComponentService.registerComponentType(ActivityOverviewComponent.name, ActivityOverviewComponent);
+    // Register Components to the Layout Template Host
+    this.goldenLayoutComponentService.registerComponentType("ProcessTreeEditorComponent", ProcessTreeEditorComponent);
+    this.goldenLayoutComponentService.registerComponentType("ActivityOverviewComponent", ActivityOverviewComponent);
+    this.goldenLayoutComponentService.registerComponentType("VariantExplorerComponent", VariantExplorerComponent);
   }
 
   ngOnInit(){
-    this.goldenLayout.loadLayout(this.layout);
+    // Start rendering the Template
+    this.goldenLayout.loadLayout(baseLayout);
   }
 
   ngOnDestroy() {

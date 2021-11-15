@@ -1,3 +1,4 @@
+
 import {Component, OnInit, ElementRef, Inject} from '@angular/core';
 import {ComponentContainer} from 'golden-layout';
 import {ColorMapService} from '../../services/colorMapService/color-map.service';
@@ -20,7 +21,7 @@ export class ActivityOverviewComponent extends LayoutChangeDirective implements 
               elRef: ElementRef) {
 
     super(elRef.nativeElement);
-    const state = this.container.initialState;     
+    const state = this.container.initialState;
   }
 
   activityColorMap: Map<string, string>;

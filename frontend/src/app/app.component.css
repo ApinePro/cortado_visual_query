@@ -2,14 +2,10 @@
 -------------------------------------------------- */
 /* Not required for template or sticky footer method. */
 
-main > .container {
-  padding: 60px 15px 0;
-}
-
 
 :host {
   height: calc(100vh - 19px);
-  width: calc(100vw - var(--width-sidebar));
+  width: 100vw;
   display: flex;
   flex-direction: row;
 }

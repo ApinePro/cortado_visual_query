@@ -4,21 +4,22 @@ import {
 import {ComponentContainer} from 'golden-layout';
 import * as d3 from 'd3';
 import * as constants from './constants_tree_d3';
+import {tree} from './dummy_backend_data.js';
 import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
 import {ActivateTooltipsService} from '../../services/activateTooltipsService/activate-tooltips.service';
 import {LayoutChangeDirective} from '../../directives/layout-change.directive';
-
 
 declare var $;
 import {ProcessTree, ProcessTreeSyntaxInfo, checkSyntax} from '../../objects/ProcessTree';
 
 @Component({
   selector: 'app-process-tree-editor',
-
   templateUrl: './process-tree-editor.component.html',
   styleUrls: ['./process-tree-editor.component.css']
 })
 export class ProcessTreeEditorComponent extends LayoutChangeDirective implements OnInit, AfterViewInit  {
+
+
 
   constructor(private sharedDataService: SharedDataService,
               private activateTooltipsService: ActivateTooltipsService,
@@ -92,7 +93,7 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
   ngAfterViewInit(): void {
     this.initializeSvg();
     if (isDevMode()) {
-      // this.sharedDataService.currentDisplayedProcessTree = dummyBackendResponse.tree;
+      this.sharedDataService.currentDisplayedProcessTree = tree;
     }
     // TODO find a global solution to this problem - close/disable tooltips when a dropdown is open
     // enable/disable+close all tooltips on closing/opening a dropdown

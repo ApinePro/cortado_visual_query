@@ -2,7 +2,7 @@ import { Directive, InjectionToken } from '@angular/core';
 import {
     ComponentContainer
 } from "golden-layout";
-  
+
 @Directive()
 export abstract class LayoutChangeDirective {
     constructor(public rootHtmlElement: HTMLElement) {
@@ -14,7 +14,7 @@ export abstract class LayoutChangeDirective {
         this.rootHtmlElement.style.top = this.numberToPixels(top);
         this.rootHtmlElement.style.width = this.numberToPixels(width);
         this.rootHtmlElement.style.height = this.numberToPixels(height);
-    } 
+    }
 
     setVisibility(visible: boolean) {
         if (visible) {
@@ -34,7 +34,7 @@ export abstract class LayoutChangeDirective {
 }
 
 export namespace LayoutChangeDirective {
-    const GoldenLayoutContainerTokenName = 'GoldenLayoutContainer'; 
+    const GoldenLayoutContainerTokenName = 'GoldenLayoutContainer';
     export const GoldenLayoutContainerInjectionToken = new InjectionToken<ComponentContainer>(GoldenLayoutContainerTokenName);
 }
 

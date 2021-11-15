@@ -6,7 +6,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --port 4444 --configuration=browser",
-    "start-prod": "ng serve --prod --port 4444 --open",
+    "start-prod": "ng serve --prod --port 4444 --source-map",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
