@@ -1,4 +1,4 @@
-import { ApplicationRef, Component, ComponentRef, ElementRef, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, ComponentRef, ElementRef, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
 import {
   ComponentContainer, GoldenLayout,
   LogicalZIndex,
@@ -11,7 +11,6 @@ import {ProcessTreeEditorComponent} from '../process-tree-editor/process-tree-ed
 import {VariantExplorerComponent} from '../variant-explorer/variant-explorer.component';
 import {ActivityOverviewComponent} from '../activity-overview/activity-overview.component';
 import {GoldenLayoutComponentService} from '../../services/goldenLayoutService/golden-layout-component.service';
-
 
 @Component({
   selector: 'app-golden-layout-host',
@@ -50,9 +49,9 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     this._goldenLayout.beforeVirtualRectingEvent = (count) => this.handleBeforeVirtualRectingEvent(count);
 
     // Register Components to the Layout Template Host
-    this.goldenLayoutComponentService.registerComponentType("ProcessTreeEditorComponent", ProcessTreeEditorComponent);
-    this.goldenLayoutComponentService.registerComponentType("ActivityOverviewComponent", ActivityOverviewComponent);
-    this.goldenLayoutComponentService.registerComponentType("VariantExplorerComponent", VariantExplorerComponent);
+    this.goldenLayoutComponentService.registerComponentType(ProcessTreeEditorComponent.componentName, ProcessTreeEditorComponent);
+    this.goldenLayoutComponentService.registerComponentType(ActivityOverviewComponent.componentName, ActivityOverviewComponent);
+    this.goldenLayoutComponentService.registerComponentType(VariantExplorerComponent.componentName, VariantExplorerComponent);
   }
 
   ngOnInit(){

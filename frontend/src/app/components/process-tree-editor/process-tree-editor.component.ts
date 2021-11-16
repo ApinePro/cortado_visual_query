@@ -1,5 +1,5 @@
 import {
-  Component, OnInit, ViewChild, AfterViewInit, ElementRef, ViewEncapsulation, HostListener, isDevMode, Inject
+  Component, OnInit, ViewChild, AfterViewInit, ElementRef, HostListener, isDevMode, Inject
 } from '@angular/core';
 import {ComponentContainer} from 'golden-layout';
 import * as d3 from 'd3';
@@ -734,4 +734,8 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
     this.addZoomFunctionality();
   }
 
+}
+
+export namespace ProcessTreeEditorComponent{
+  export const componentName = "ProcessTreeEditorComponent";
 }

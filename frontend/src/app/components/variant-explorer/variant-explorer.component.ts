@@ -367,3 +367,7 @@ export class Variant {
     deviation: any | undefined
   }[] | undefined;
 }
+
+export namespace VariantExplorerComponent{
+  export const componentName = "VariantExplorerComponent";
+}

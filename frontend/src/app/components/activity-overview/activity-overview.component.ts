@@ -48,3 +48,7 @@ export class ActivityOverviewComponent extends LayoutChangeDirective implements 
   }
 
 }
+
+export namespace ActivityOverviewComponent{
+  export const componentName = "ActivityOverviewComponent";
+}

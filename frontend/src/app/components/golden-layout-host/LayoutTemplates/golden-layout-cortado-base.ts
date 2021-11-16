@@ -1,7 +1,7 @@
 import {LayoutConfig, ItemType, ComponentItemConfig} from "golden-layout";
 import {ProcessTreeEditorComponent} from "../../process-tree-editor/process-tree-editor.component";
 import {VariantExplorerComponent} from "../../variant-explorer/variant-explorer.component";
-import { ActivityOverviewComponent } from "../../activity-overview/activity-overview.component";
+import {ActivityOverviewComponent} from "../../activity-overview/activity-overview.component";
 
 export const baseLayout: LayoutConfig = {
   dimensions : {
@@ -19,7 +19,7 @@ export const baseLayout: LayoutConfig = {
               },
               title: "Process Tree Visualizer",
               isClosable: true,
-              componentType: "ProcessTreeEditorComponent",
+              componentType: ProcessTreeEditorComponent.componentName,
           } as ComponentItemConfig,
           {
             type: ItemType.row,
@@ -32,7 +32,7 @@ export const baseLayout: LayoutConfig = {
                 width: 61.803,
                 title: "Variant Explorer",
                 isClosable: false,
-                componentType: "VariantExplorerComponent",
+                componentType: VariantExplorerComponent.componentName,
             } as ComponentItemConfig,
             {
               type: "component",
@@ -42,7 +42,7 @@ export const baseLayout: LayoutConfig = {
               width: 38.197,
               isClosable: false,
               title: "Activity Explorer",
-              componentType: "ActivityOverviewComponent",
+              componentType: ActivityOverviewComponent.componentName,
           } as ComponentItemConfig,
 
 
