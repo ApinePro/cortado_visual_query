@@ -3,17 +3,18 @@ const nativeImage = require('electron').nativeImage
 const url = require("url");
 const path = require("path");
 const ChildProcess = require('child_process');
+const Store = require('electron-store');
 const executablePath = app.getPath('exe');
 const backendExecutablePathWindows = executablePath.substring(0, executablePath.lastIndexOf("\\")) +
   "\\cortado-backend\\cortado-backend.exe";
 const backendExecutablePathLinux = executablePath.substring(0, executablePath.lastIndexOf("/")) +
   "/cortado-backend/cortado-backend";
+const lastAcceptedVersionKey = "lastAcceptedVersion";
 
 //const ipc = require('electron').ipcRenderer;
 
 let mainCortadoWin;
 let backendProcess;
-let licenseAccepted = false;
 
 //ipc.on('licenseAccepted', decision => licenseAccepted = decision);
 
@@ -61,8 +62,23 @@ function createMainApplicationWindow() {
   });
 }
 
+function startApplication() {
+  backendProcess = startBackend();
+  setTimeout(function () {
+    createMainApplicationWindow();
+  }, 1000);
+}
+
 //app.on('ready', createWindow);
 app.whenReady().then(function () {
+  const store = new Store();
+
+  const lastAcceptedVersion = store.get(lastAcceptedVersionKey);
+  if (lastAcceptedVersion === app.getVersion()) {
+    startApplication();
+    return;
+  }
+
   const appIcon = nativeImage.createFromPath(path.join(__dirname, '/icon/cortado_icon_colorful_transparent.ico'))
   const promiseLicense = dialog.showMessageBox(null, {
     title: "End User License Agreement (EULA) - Cortado",
@@ -76,10 +92,8 @@ app.whenReady().then(function () {
   promiseLicense.then(function (decision) {
     if (decision.response === 0) {
       //license has been accepted by the user
-      backendProcess = startBackend();
-      setTimeout(function () {
-        createMainApplicationWindow();
-      }, 1000);
+      store.set(lastAcceptedVersionKey, app.getVersion());
+      startApplication();
     } else {
       app.quit();
     }
