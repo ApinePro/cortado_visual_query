@@ -1,4 +1,4 @@
-const {app, BrowserWindow, dialog} = require('electron')
+const {app, BrowserWindow, dialog, ipcMain} = require('electron')
 const nativeImage = require('electron').nativeImage
 const url = require("url");
 const path = require("path");
@@ -13,6 +13,7 @@ const backendExecutablePathLinux = executablePath.substring(0, executablePath.la
 
 let mainCortadoWin;
 let backendProcess;
+let licenseDialog;
 let licenseAccepted = false;
 
 //ipc.on('licenseAccepted', decision => licenseAccepted = decision);
@@ -27,6 +28,32 @@ function startBackend() {
       return;
   }
 }
+
+function createLicenseDialog(){
+  licenseDialog = new BrowserWindow({
+    parent: mainCortadoWin,
+    modal: true,
+    width: 800,
+    height: 600,
+    frame: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  })
+  licenseDialog.removeMenu();
+  licenseDialog.loadFile("license-dialog.html");
+}
+
+ipcMain.on('license-dialog', (event, arg) => {
+  if (arg === 'accepted'){
+    createMainApplicationWindow();
+    licenseDialog.close();
+    ipcMain.removeAllListeners('license-dialog');
+  } else if (arg === 'denied') {
+    app.quit()
+  }
+})
 
 function createMainApplicationWindow() {
   mainCortadoWin = new BrowserWindow({
@@ -63,28 +90,31 @@ function createMainApplicationWindow() {
 
 //app.on('ready', createWindow);
 app.whenReady().then(function () {
-  const appIcon = nativeImage.createFromPath(path.join(__dirname, '/icon/cortado_icon_colorful_transparent.ico'))
-  const promiseLicense = dialog.showMessageBox(null, {
-    title: "End User License Agreement (EULA) - Cortado",
-    buttons: ["I accept the terms in the End User License Agreement (EULA)", "Cancel"],
-    defaultId: 0,
-    message: 'You must accept the End User License Agreement (EULA) before continuing.',
-    detail: licenseText,
-    icon: appIcon,
-    type: "question"
-  });
-  promiseLicense.then(function (decision) {
-    if (decision.response === 0) {
-      //license has been accepted by the user
-      backendProcess = startBackend();
-      setTimeout(function () {
-        createMainApplicationWindow();
-      }, 1000);
-    } else {
-      app.quit();
-    }
-  });
-
+  if(process.platform === 'win32'){
+    const appIcon = nativeImage.createFromPath(path.join(__dirname, '/icon/cortado_icon_colorful_transparent.ico'))
+    const promiseLicense = dialog.showMessageBox(null, {
+      title: "End User License Agreement (EULA) - Cortado",
+      buttons: ["I accept the terms in the End User License Agreement (EULA)", "Cancel"],
+      defaultId: 0,
+      message: 'You must accept the End User License Agreement (EULA) before continuing.',
+      detail: licenseText,
+      icon: appIcon,
+      type: "question"
+    });
+    promiseLicense.then(function (decision) {
+      if (decision.response === 0) {
+        //license has been accepted by the user
+        backendProcess = startBackend();
+        setTimeout(function () {
+          createMainApplicationWindow();
+        }, 1000);
+      } else {
+        app.quit();
+      }
+    });
+  } else { // linux 
+    createLicenseDialog();
+  }
 });
 
 app.on("quit", function () {
