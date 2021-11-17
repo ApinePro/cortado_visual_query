@@ -1,0 +1,21 @@
+stages:
+  - test
+
+
+test-angular-app-build:
+  stage: test
+  image: node:12.13.0
+  rules:
+    - when: on_success
+  before_script:
+    - npm install -g @angular/cli
+    - cd frontend
+    - npm ci
+  script:
+    - node node_modules/@angular/cli/bin/ng build --prod=true
+  #  artifacts:
+  #    expire_in: 7 day
+  #    paths:
+  #      - dist/
+  tags:
+    - container
