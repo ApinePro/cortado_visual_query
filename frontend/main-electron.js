@@ -31,11 +31,10 @@ function startBackend() {
 
 function createLicenseDialog(){
   licenseDialog = new BrowserWindow({
-    parent: mainCortadoWin,
+    //parent: mainCortadoWin,
     modal: true,
-    width: 800,
-    height: 600,
-    frame: false,
+    width: 1100,
+    height: 700,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
@@ -46,7 +45,8 @@ function createLicenseDialog(){
 }
 
 ipcMain.on('license-dialog', (event, arg) => {
-  if (arg === 'accepted'){
+  if (arg === 'accepted'){ // Refer to license-dialog.js
+    backendProcess = startBackend();
     createMainApplicationWindow();
     licenseDialog.close();
     ipcMain.removeAllListeners('license-dialog');
@@ -113,7 +113,7 @@ app.whenReady().then(function () {
       }
     });
   } else { // linux 
-    createLicenseDialog();
+    createLicenseDialog(); // ipcMain handles opening the frontend and backend
   }
 });
 
@@ -175,7 +175,7 @@ const licenseText = "TERMS AND CONDITIONS FOR USE, COPYING, DISTRIBUTION AND MOD
   "agreement or otherwise) that contradict the conditions of this License, they do not excuse you from " +
   "the conditions of this License.\n" +
   "\n" +
-  "If any portion of this section is held invalid or unenforceable under any particular circumstance, the " +
+  "§6. If any portion of this section is held invalid or unenforceable under any particular circumstance, the " +
   "balance of the section is intended to apply, and the section as a whole is intended to apply in other " +
   "circumstances.\n" +
   "\n" +
