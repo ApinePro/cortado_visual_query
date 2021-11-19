@@ -1,6 +1,6 @@
 const { ipcRenderer } = require('electron');
 acceptButton = document.getElementById("acceptButton");
-enyButton = document.getElementById("denyButton");
+denyButton = document.getElementById("denyButton");
 acceptButton.addEventListener('click', () => {
   ipcRenderer.send('license-dialog', 'accepted');
 });
