@@ -3,10 +3,12 @@
   <head>
     <link rel="stylesheet" href="license-dialog.css"></link>
     <title>Cortado End-user License Agreement</title>
-    <h1 id="title"><center>End-user license agreement (EULA)</center></h1>
-    <div><center>To continue using Cortado, please scroll down to read and accept the EULA.</center></div>
+    <div id="main-head">
+      <h1 id="title"><center>End-user license agreement (EULA)</center></h1>
+      <div><center>To continue using Cortado, please scroll down to read and accept the EULA.</center></div>
+    </div>
   </head>
-  <body>
+  <body id="body">
     <div id="root">
       <div id="license">
         <p>TERMS AND CONDITIONS FOR USE, COPYING, DISTRIBUTION AND MODIFICATION</p>
@@ -83,8 +85,13 @@
         <p>END OF TERMS AND CONDITIONS.</p>
       </div>
       <center>
-      <button id="acceptButton" class="button">I accept the terms in the End User License Agreement (EULA)</button>
-      <button id="denyButton" class="button">I do not accept the terms in the End User License Agreement (EULA)</button>
+        <button id="acceptButton" class="button">I accept the terms in the EULA</button>
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        <button id="denyButton" class="button">I do not accept the terms in the EULA</button>
       </center>
     </div>
     <script src="license-dialog.js">

@@ -33,8 +33,8 @@ function createLicenseDialog(){
   licenseDialog = new BrowserWindow({
     //parent: mainCortadoWin,
     modal: true,
-    width: 1100,
-    height: 700,
+    width: 800,
+    height: 600,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
