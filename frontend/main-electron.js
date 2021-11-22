@@ -4,7 +4,7 @@ const url = require("url");
 const path = require("path");
 const kill = require("tree-kill")
 const ChildProcess = require('child_process');
-const store = require('electron-store');
+const Store = require('electron-store');
 const executablePath = app.getPath('exe');
 const backendExecutablePathWindows = executablePath.substring(0, executablePath.lastIndexOf("\\")) +
   "\\cortado-backend\\cortado-backend.exe";
@@ -46,6 +46,7 @@ function createLicenseDialog(){
 
 ipcMain.on('license-dialog', (event, arg) => {
   if (arg === 'accepted'){ // Refer to license-dialog.js
+    const store = new Store();
     store.set(lastAcceptedVersionKey, app.getVersion());
     backendProcess = startBackend();
     createMainApplicationWindow();
@@ -91,6 +92,7 @@ function createMainApplicationWindow() {
 
 //app.on('ready', createWindow);
 app.whenReady().then(function () {
+  const store = new Store();
   const lastAcceptedVersion = store.get(lastAcceptedVersionKey);
   if (lastAcceptedVersion === app.getVersion()) {
     backendProcess = startBackend();
