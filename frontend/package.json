@@ -16,8 +16,8 @@
     "electron": "electron .",
     "electron-live-reload": "wait-on http://localhost:4444 && electron ./main-electron-dev.js",
     "electron-build": "ng build --prod && electron ./main-electron-dev.js",
-    "electron-package-app-production-windows": "ng build --prod && electron-packager . cortado --platform=win32 --arch=x64 --overwrite --ignore=^/src --ignore=^/node_modules --ignore=^/e2e --icon=./icon/cortado_icon_colorful_transparent.ico",
-    "electron-package-app-production-linux-ubuntu": "ng build --prod && electron-packager . cortado --platform=linux --arch=x64 --asar=true --category=Science --overwrite --ignore=^/src --ignore=^/node_modules --ignore=^/e2e --icon=./icon/512x512.png"
+    "electron-package-app-production-windows": "ng build --prod && electron-packager . cortado --platform=win32 --arch=x64 --overwrite --ignore=^/src --ignore=^/node_modules/(?!tree-kill) --ignore=^/e2e --icon=./icon/cortado_icon_colorful_transparent.ico",
+    "electron-package-app-production-linux-ubuntu": "ng build --prod && electron-packager . cortado --platform=linux --arch=x64 --asar=true --category=Science --overwrite --ignore=^/src --ignore='node_modules/(?!tree-kill)'  --ignore=^/e2e --icon=./icon/512x512.png"
   },
   "private": true,
   "dependencies": {
@@ -37,6 +37,7 @@
     "jquery": "^3.6.0",
     "rxjs": "~6.6.0",
     "sweetalert2": "^10.16.7",
+    "tree-kill": "^1.2.2",
     "tslib": "^2.1.0",
     "zone.js": "~0.10.2"
   },

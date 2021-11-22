@@ -2,6 +2,7 @@ const {app, BrowserWindow, dialog, ipcMain} = require('electron')
 const nativeImage = require('electron').nativeImage
 const url = require("url");
 const path = require("path");
+const kill = require("tree-kill")
 const ChildProcess = require('child_process');
 const executablePath = app.getPath('exe');
 const backendExecutablePathWindows = executablePath.substring(0, executablePath.lastIndexOf("\\")) +
@@ -94,7 +95,13 @@ app.whenReady().then(function () {
 });
 
 app.on("quit", function () {
-  backendProcess.kill('SIGINT');
+  if (backendProcess){
+    if (process.platform !== 'linux'){
+      kill(backendProcess.pid);
+    } else {
+      ChildProcess.execSync("pkill cortado-backend", {shell: '/bin/sh'});
+    }
+  }
 });
 
 app.on('window-all-closed', function () {
