@@ -1,11 +1,13 @@
-import { Constants } from "./model";
+export function textColorForBackgroundColor(backgroundColorInHex: string): string {
+  return isDarkColor(backgroundColorInHex) ? 'white' : 'black';
 
-export function isDarkColor(colorInHex: string): boolean {
-  const res = hexToRgb(colorInHex);
-  if (0.2126 * res['r'] + 0.7152 * res['g'] + 0.0722 * res['b'] >= 135) {
-    return false;
-  } else {
-    return true;
+  function isDarkColor(colorInHex: string): boolean {
+    const res = hexToRgb(colorInHex);
+    if (0.2126 * res['r'] + 0.7152 * res['g'] + 0.0722 * res['b'] >= 135) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   function hexToRgb(hex) {
