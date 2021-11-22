@@ -4,7 +4,7 @@ const url = require("url");
 const path = require("path");
 const kill = require("tree-kill")
 const ChildProcess = require('child_process');
-const Store = require('electron-store');
+const store = require('electron-store');
 const executablePath = app.getPath('exe');
 const backendExecutablePathWindows = executablePath.substring(0, executablePath.lastIndexOf("\\")) +
   "\\cortado-backend\\cortado-backend.exe";
@@ -17,9 +17,6 @@ const lastAcceptedVersionKey = "lastAcceptedVersion";
 let mainCortadoWin;
 let backendProcess;
 let licenseDialog;
-let licenseAccepted = false;
-
-//ipc.on('licenseAccepted', decision => licenseAccepted = decision);
 
 function startBackend() {
   switch (process.platform) {
