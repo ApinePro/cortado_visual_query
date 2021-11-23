@@ -1,5 +1,4 @@
-import {Component, ElementRef, isDevMode, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
-import * as dummyBackendResponse from './dummy_backend_data.js';
+import {Component, ElementRef, Inject, isDevMode, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import {ColorMapService} from '../../services/colorMapService/color-map.service';
 import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
 import {BackendService} from '../../services/backendService/backend.service';
@@ -9,6 +8,7 @@ import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import {deserialize, ParallelGroup, SequenceGroup, VariantElement} from './model';
 import {VariantFragmentComponent} from './variant-fragment/variant-fragment.component';
+
 
 @Component({
   selector: 'app-variant-explorer',
@@ -20,7 +20,9 @@ export class VariantExplorerComponent implements OnInit {
   constructor(private colorMapService: ColorMapService,
               private sharedDataService: SharedDataService,
               private backendService: BackendService,
-              private tooltipActivationService: ActivateTooltipsService) {
+              private tooltipActivationService: ActivateTooltipsService,
+              elRef: ElementRef
+              ){
   }
 
   private readonly nVariantsInc = 50;
@@ -61,12 +63,13 @@ export class VariantExplorerComponent implements OnInit {
 
   ngOnInit(): void {
     // preload road traffic fine management process
-    if (isDevMode() || true) {
-      this.variants = dummyBackendResponse.test.variants;
+      this.variants = this.sharedDataService.variants;
+
       this.variants.forEach(v => {
         v.variant = deserialize(v.variant);
       });
-      this.colorMap = this.colorMapService.getColorMap(Object.keys(dummyBackendResponse.test.activities));
+
+      this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
       this.tooltipActivationService.initialize();
       this.initializeVisibleVariants();
 
@@ -78,7 +81,7 @@ export class VariantExplorerComponent implements OnInit {
       this.numberFittingVariants = undefined;
       this.totalNumberTraces = total;
       this.totalNumberVariants = this.variants.length;
-    }
+
 
     this.sharedDataService.loadedEventLog$.subscribe(eventLog => {
       if (eventLog) {
@@ -358,4 +361,8 @@ export class Variant {
     alignment: any | undefined,
     deviation: any | undefined
   }[] | undefined;
+}
+
+export namespace VariantExplorerComponent{
+  export const componentName = "VariantExplorerComponent";
 }

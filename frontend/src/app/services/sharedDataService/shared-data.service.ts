@@ -72,7 +72,7 @@ export class SharedDataService {
     return this._activitiesInEventLog.getValue();
   }
 
-  private _startActivitiesInEventLog = new BehaviorSubject<Set<string>>(new Set());
+  private _startActivitiesInEventLog = new BehaviorSubject<Set<string>>(dummyBackendResponse.startActivities);
 
   get startActivitiesInEventLog$(): Observable<Set<string>> {
     return this._startActivitiesInEventLog.asObservable();
@@ -86,7 +86,7 @@ export class SharedDataService {
     return this._startActivitiesInEventLog.getValue();
   }
 
-  private _endActivitiesInEventLog = new BehaviorSubject<Set<string>>(new Set());
+  private _endActivitiesInEventLog = new BehaviorSubject<Set<string>>(dummyBackendResponse.endActivities);
 
   get endActivitiesInEventLog$(): Observable<Set<string>> {
     return this._endActivitiesInEventLog.asObservable();
@@ -100,7 +100,7 @@ export class SharedDataService {
     return this._endActivitiesInEventLog.getValue();
   }
 
-  private _variants = new BehaviorSubject<any[]>([]);
+  private _variants = new BehaviorSubject<any[]>(dummyBackendResponse.variant);
 
   get variants$(): Observable<any[]> {
     return this._variants.asObservable();
