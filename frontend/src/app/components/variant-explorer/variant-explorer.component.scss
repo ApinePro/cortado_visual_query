@@ -20,6 +20,13 @@
   display: flex;
 }
 
+.btn-tool-bar{
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  border-top: 0px;
+}
+
 .variant-cell {
   padding: 5px;
   width: 100%;

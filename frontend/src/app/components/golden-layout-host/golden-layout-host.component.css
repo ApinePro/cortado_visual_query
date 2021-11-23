@@ -1,7 +1,6 @@
 :host {
     height: 100%;
-    width: 100%;
+    width: calc(100vw - var(--width-sidebar));
     position: relative;
-    overflow: hidden;
-    padding-left: var(--width-sidebar);
+    margin-left: var(--width-sidebar);
 }

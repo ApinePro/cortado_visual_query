@@ -5,9 +5,9 @@ import {ActivityOverviewComponent} from "../../activity-overview/activity-overvi
 
 export const baseLayout: LayoutConfig = {
   dimensions : {
-    borderWidth: 1.5,
+    borderWidth: 0.5,
     minItemHeight: 300,
-    minItemWidth: 600,
+    minItemWidth: 350,
   },
   root: {
       type: ItemType.column,
@@ -19,10 +19,12 @@ export const baseLayout: LayoutConfig = {
               },
               title: "Process Tree Visualizer",
               isClosable: true,
+              height : 61.803,
               componentType: ProcessTreeEditorComponent.componentName,
           } as ComponentItemConfig,
           {
             type: ItemType.row,
+            height : 38.197,
             content : [
               {
                 type: "component",

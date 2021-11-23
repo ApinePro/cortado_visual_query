@@ -104,7 +104,7 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
   ngAfterViewInit(): void {
     this.initializeSvg();
     if (isDevMode()) {
-      this.sharedDataService.currentDisplayedProcessTree = tree;
+      //this.sharedDataService.currentDisplayedProcessTree = tree;
     }
     // TODO find a global solution to this problem - close/disable tooltips when a dropdown is open
     // enable/disable+close all tooltips on closing/opening a dropdown

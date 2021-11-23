@@ -35,10 +35,13 @@ export class GoldenLayoutHostComponent implements OnDestroy {
   constructor(
     private _elRef: ElementRef<HTMLElement>,
     private goldenLayoutComponentService: GoldenLayoutComponentService
-  ) {
+  ){
     // Get the Layout Host Component
     this._goldenLayoutElement = this._elRef.nativeElement;
-
+    console.log(this._elRef);
+    console.log(this._goldenLayoutElement);
+    console.log(this._goldenLayoutElement.getClientRects());
+    console.log(this._goldenLayoutElement.getBoundingClientRect());
     // Specify the new Golden Layout Instance
     this._goldenLayout = new GoldenLayout(
       this._goldenLayoutElement,
@@ -46,7 +49,17 @@ export class GoldenLayoutHostComponent implements OnDestroy {
       this._goldenLayoutUnbindComponentEventListener,
     );
 
+    console.log(this._goldenLayout.rootItem);
+
     this._goldenLayout.beforeVirtualRectingEvent = (count) => this.handleBeforeVirtualRectingEvent(count);
+
+    console.log(document.body.offsetHeight);
+    console.log(document.body.offsetWidth);
+    this._goldenLayout.setSize(document.body.offsetWidth - 30, document.body.offsetHeight - 20);
+    console.log(this._goldenLayoutElement);
+    console.log(this._goldenLayoutElement.getClientRects());
+    console.log(this._goldenLayoutElement.getBoundingClientRect());
+
 
     // Register Components to the Layout Template Host
     this.goldenLayoutComponentService.registerComponentType(ProcessTreeEditorComponent.componentName, ProcessTreeEditorComponent);
@@ -56,7 +69,11 @@ export class GoldenLayoutHostComponent implements OnDestroy {
 
   ngOnInit(){
     // Start rendering the Template
+    console.log("Load Layout");
     this.goldenLayout.loadLayout(baseLayout);
+
+    console.log(this._goldenLayout.rootItem);
+    this._goldenLayout.setSize(document.body.offsetWidth - 30, document.body.offsetHeight - 20);
   }
 
   ngOnDestroy() {
