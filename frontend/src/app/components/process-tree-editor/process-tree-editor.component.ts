@@ -54,7 +54,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   insertPositionAboveDisabled = false;
 
   root: d3.HierarchyNode<any>;
-  activitiesOccurringInLog: string[] = ['Add penalty'];
+  activitiesOccurringInLog: string[];
 
   // Inserting node functionality
   selectedMethod: Function = this.insertNewNodeBelow;
