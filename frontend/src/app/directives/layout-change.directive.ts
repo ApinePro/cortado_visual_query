@@ -1,31 +1,30 @@
-import { Directive, InjectionToken } from '@angular/core';
+import { Directive, InjectionToken, Renderer2, Inject } from '@angular/core';
 import {
     ComponentContainer
 } from "golden-layout";
 
 @Directive()
 export abstract class LayoutChangeDirective {
-    constructor(public rootHtmlElement: HTMLElement) {
-
+    constructor(public rootHtmlElement: HTMLElement, private renderer2 : Renderer2) {
     }
 
     setPositionAndSize(left: number, top: number, width: number, height: number) {
-        this.rootHtmlElement.style.left = this.numberToPixels(left);
-        this.rootHtmlElement.style.top = this.numberToPixels(top);
-        this.rootHtmlElement.style.width = this.numberToPixels(width);
-        this.rootHtmlElement.style.height = this.numberToPixels(height);
+        this.renderer2.setStyle(this.rootHtmlElement, "left", this.numberToPixels(left));
+        this.renderer2.setStyle(this.rootHtmlElement, "top", this.numberToPixels(top));
+        this.renderer2.setStyle(this.rootHtmlElement, "width", this.numberToPixels(width));
+        this.renderer2.setStyle(this.rootHtmlElement, "height", this.numberToPixels(height));
     }
 
     setVisibility(visible: boolean) {
         if (visible) {
-            this.rootHtmlElement.style.display = '';
+          this.renderer2.setStyle(this.rootHtmlElement,"display", '');
         } else {
-            this.rootHtmlElement.style.display = 'none';
+          this.renderer2.setStyle(this.rootHtmlElement,"display", 'none');
         }
     }
 
     setZIndex(value: string) {
-        this.rootHtmlElement.style.zIndex = value;
+      this.renderer2.setStyle(this.rootHtmlElement, "zIndex" , value);
     }
 
     private numberToPixels(value: number): string {

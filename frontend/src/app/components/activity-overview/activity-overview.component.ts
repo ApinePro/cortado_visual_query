@@ -1,5 +1,5 @@
 
-import {Component, OnInit, ElementRef, Inject} from '@angular/core';
+import {Component, OnInit, ElementRef, Inject, Renderer2} from '@angular/core';
 import {ComponentContainer} from 'golden-layout';
 import {ColorMapService} from '../../services/colorMapService/color-map.service';
 import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
@@ -18,9 +18,10 @@ export class ActivityOverviewComponent extends LayoutChangeDirective implements 
   constructor(private colorMapService: ColorMapService,
               private sharedDataService: SharedDataService,
               @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer,
-              elRef: ElementRef) {
+              elRef: ElementRef,
+              renderer : Renderer2) {
 
-    super(elRef.nativeElement);
+    super(elRef.nativeElement, renderer);
     const state = this.container.initialState;
   }
 

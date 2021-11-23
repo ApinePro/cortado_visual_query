@@ -1,4 +1,4 @@
-import {Component, ElementRef, Inject, isDevMode, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import { Component, ElementRef, Inject, isDevMode, OnInit, QueryList, ViewChild, ViewChildren, Renderer2 } from '@angular/core';
 import {ComponentContainer} from 'golden-layout';
 import * as dummyBackendResponse from './dummy_backend_data.js';
 import {ColorMapService} from '../../services/colorMapService/color-map.service';
@@ -25,10 +25,13 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
               private backendService: BackendService,
               private tooltipActivationService: ActivateTooltipsService,
               @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer,
-              elRef: ElementRef
+              elRef: ElementRef,
+              renderer : Renderer2
               ){
-    super(elRef.nativeElement);
+
+    super(elRef.nativeElement, renderer);
     const state = this.container.initialState;
+
   }
 
   private readonly nVariantsInc = 50;

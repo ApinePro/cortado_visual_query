@@ -14,12 +14,12 @@ export const baseLayout: LayoutConfig = {
       content: [
           {
               type: "component",
-              header: {
-                show: false,
-              },
               title: "Process Tree Visualizer",
               isClosable: true,
               height : 61.803,
+              header: {
+                show: false,
+              },
               componentType: ProcessTreeEditorComponent.componentName,
           } as ComponentItemConfig,
           {

@@ -36,44 +36,30 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     private _elRef: ElementRef<HTMLElement>,
     private goldenLayoutComponentService: GoldenLayoutComponentService
   ){
-    // Get the Layout Host Component
-    this._goldenLayoutElement = this._elRef.nativeElement;
-    console.log(this._elRef);
-    console.log(this._goldenLayoutElement);
-    console.log(this._goldenLayoutElement.getClientRects());
-    console.log(this._goldenLayoutElement.getBoundingClientRect());
-    // Specify the new Golden Layout Instance
-    this._goldenLayout = new GoldenLayout(
-      this._goldenLayoutElement,
-      this._goldenLayoutBindComponentEventListener,
-      this._goldenLayoutUnbindComponentEventListener,
-    );
+  // Get the Layout Host Component
+  this._goldenLayoutElement = this._elRef.nativeElement;
 
-    console.log(this._goldenLayout.rootItem);
+  // Register Components to the Layout Template Host
+  this.goldenLayoutComponentService.registerComponentType(ProcessTreeEditorComponent.componentName, ProcessTreeEditorComponent);
+  this.goldenLayoutComponentService.registerComponentType(ActivityOverviewComponent.componentName, ActivityOverviewComponent);
+  this.goldenLayoutComponentService.registerComponentType(VariantExplorerComponent.componentName, VariantExplorerComponent);
 
-    this._goldenLayout.beforeVirtualRectingEvent = (count) => this.handleBeforeVirtualRectingEvent(count);
+  this._goldenLayout = new GoldenLayout(
+    this._goldenLayoutElement,
+    this._goldenLayoutBindComponentEventListener,
+    this._goldenLayoutUnbindComponentEventListener,
+  );
 
-    console.log(document.body.offsetHeight);
-    console.log(document.body.offsetWidth);
-    this._goldenLayout.setSize(document.body.offsetWidth - 30, document.body.offsetHeight - 20);
-    console.log(this._goldenLayoutElement);
-    console.log(this._goldenLayoutElement.getClientRects());
-    console.log(this._goldenLayoutElement.getBoundingClientRect());
-
-
-    // Register Components to the Layout Template Host
-    this.goldenLayoutComponentService.registerComponentType(ProcessTreeEditorComponent.componentName, ProcessTreeEditorComponent);
-    this.goldenLayoutComponentService.registerComponentType(ActivityOverviewComponent.componentName, ActivityOverviewComponent);
-    this.goldenLayoutComponentService.registerComponentType(VariantExplorerComponent.componentName, VariantExplorerComponent);
+  this._goldenLayout.beforeVirtualRectingEvent = (count) => this.handleBeforeVirtualRectingEvent(count);
   }
 
   ngOnInit(){
-    // Start rendering the Template
-    console.log("Load Layout");
-    this.goldenLayout.loadLayout(baseLayout);
 
-    console.log(this._goldenLayout.rootItem);
-    this._goldenLayout.setSize(document.body.offsetWidth - 30, document.body.offsetHeight - 20);
+  }
+
+  initializeLayout(){
+    // Start rendering the Template
+    this.goldenLayout.loadLayout(baseLayout);
   }
 
   ngOnDestroy() {
@@ -98,6 +84,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     container.virtualRectingRequiredEvent = (container, width, height) => this.handleContainerVirtualRectingRequiredEvent(container, width, height);
     container.virtualVisibilityChangeRequiredEvent = (container, visible) => this.handleContainerVisibilityChangeRequiredEvent(container, visible);
     container.virtualZIndexChangeRequiredEvent = (container, logicalZIndex, defaultZIndex) => this.handleContainerVirtualZIndexChangeRequiredEvent(container, logicalZIndex, defaultZIndex);
+
     this._componentViewContainerRef.insert(componentRef.hostView);
 
     return {
@@ -137,6 +124,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
         throw new Error('handleContainerVirtualRectingRequiredEvent: ComponentRef not found');
     }
     const component = componentRef.instance;
+
     component.setPositionAndSize(left, top, width, height);
   }
 

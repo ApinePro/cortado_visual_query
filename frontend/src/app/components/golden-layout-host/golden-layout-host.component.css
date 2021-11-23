@@ -1,6 +1,6 @@
 :host {
     height: 100%;
-    width: calc(100vw - var(--width-sidebar));
+    width: 100%;
     position: relative;
     margin-left: var(--width-sidebar);
 }

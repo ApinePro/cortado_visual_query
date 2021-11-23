@@ -1,5 +1,5 @@
 import {
-  Component, OnInit, ViewChild, AfterViewInit, ElementRef, HostListener, isDevMode, Inject
+  Component, OnInit, ViewChild, AfterViewInit, ElementRef, HostListener, isDevMode, Inject, Renderer2
 } from '@angular/core';
 import {ComponentContainer} from 'golden-layout';
 import * as d3 from 'd3';
@@ -28,9 +28,10 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
               private activateTooltipsService: ActivateTooltipsService,
               private colorMapService: ColorMapService,
               @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer,
-              elRef: ElementRef) {
+              elRef: ElementRef,
+              renderer : Renderer2) {
 
-    super(elRef.nativeElement);
+    super(elRef.nativeElement, renderer);
     const state = this.container.initialState;
 
   }
