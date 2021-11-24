@@ -3,8 +3,6 @@ import {Component, OnInit, ElementRef, Inject, Renderer2} from '@angular/core';
 import {ComponentContainer} from 'golden-layout';
 import {ColorMapService} from '../../services/colorMapService/color-map.service';
 import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
-import {BackendService} from '../../services/backendService/backend.service';
-import * as dummy_backend_response from './dummy_backend_response.js';
 import {LayoutChangeDirective} from '../../directives/layout-change.directive';
 
 
@@ -27,9 +25,9 @@ export class ActivityOverviewComponent extends LayoutChangeDirective implements 
 
   activityColorMap: Map<string, string>;
   activitiesInTree: Set<string> = new Set<string>();
-  startActivities: Set<string> = dummy_backend_response.startActivities;
-  endActivities: Set<string> = dummy_backend_response.endActivities;
-  activitiesInLog: any = dummy_backend_response.activitiesInLog;
+  startActivities: Set<string>;
+  endActivities: Set<string>;
+  activitiesInLog: any;
 
   ngOnInit(): void {
     this.colorMapService.colorMap$.subscribe(colorMap => {
@@ -39,6 +37,10 @@ export class ActivityOverviewComponent extends LayoutChangeDirective implements 
     this.sharedDataService.activitiesInCurrentTree$.subscribe(activitiesInTree => {
       this.activitiesInTree = activitiesInTree;
     });
+
+    this.activitiesInLog = this.sharedDataService.activitiesInEventLog;
+    this.startActivities = this.sharedDataService.startActivitiesInEventLog;
+    this.endActivities = this.sharedDataService.endActivitiesInEventLog;
 
     this.sharedDataService.loadedEventLog$.subscribe(eventLogName => {
       console.log('new loadedEventLog$ in activity-overview.component:' + eventLogName);

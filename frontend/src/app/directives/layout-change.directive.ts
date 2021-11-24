@@ -1,4 +1,4 @@
-import { Directive, InjectionToken, Renderer2, Inject } from '@angular/core';
+import { Directive, InjectionToken, Renderer2 } from '@angular/core';
 import {
     ComponentContainer
 } from "golden-layout";
