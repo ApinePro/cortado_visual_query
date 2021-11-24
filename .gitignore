@@ -19,3 +19,5 @@ backend/endpoints/__pycache__/
 build
 dist
 .vscode
+
+app-dist
