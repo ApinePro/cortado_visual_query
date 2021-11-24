@@ -8,7 +8,7 @@
     "app": "app"
   },
   "build": {
-    "appId": "Cortado",
+    "productName": "Cortado",
     "files": [
       "node_modules/tree-kill",
       "dist",
@@ -24,13 +24,13 @@
     "linux": {
       "target": "dir",
       "icon": "icon/512x512.png",
-      "executableName": "Cortado",
+      "executableName": "cortado",
       "category": "Science"
     }
   },
   "scripts": {
-    "build-app-production-windows": "electron-builder build -w",
-    "build-app-production-linux": "electron-builder build -l"
+    "build-app-production-windows": "npm run --prefix ./app build-prod && electron-builder build -w",
+    "build-app-production-linux": "npm run --prefix ./app build-prod && electron-builder build -l"
   },
   "devDependencies": {
     "electron-builder": "^22.14.5",
