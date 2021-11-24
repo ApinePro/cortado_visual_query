@@ -1,27 +1,23 @@
-# InteractiveProcessMiningAngularApp
+# Frontend
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.1.6.
+This folder includes the frontend of Cortado. 
 
-## Development server
+## Getting started
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Install [Node.js](https://nodejs.org/en/) and run the following commands afterwards:
 
-## Code scaffolding
+```
+npm install
+npm run start
+```
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+You should now be able to see the frontend of Cortado at http://localhost:4444.
 
-## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+## Managing dependencies
 
-## Running unit tests
+The frontend uses two different frameworks - [Angular](https://angular.io/) and [Electron](https://www.electronjs.org/). Angular is the web application framework. The web application is wrapped into a desktop application using Electron. Both frameworks allow the usage of external dependencies using the Node.js package manager `npm`. These dependencies are stored in a single configuration file - `package.json`.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+When building the productive application, we want to ensure that the application bundle only includes required dependencies. As Angular dependencies are bundled via webpack, we do not want to include them. Hence, dependencies that are only used in the Angular codebase should be included under the `devDependencies` keyword in the `package.json`-file. All dependencies that are used in the Electron codebase must be included under the `dependencies` keyword.
 
-## Running end-to-end tests
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
