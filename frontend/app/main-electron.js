@@ -72,11 +72,7 @@ function createMainApplicationWindow() {
   mainCortadoWin.removeMenu();
   //mainCortadoWin.webContents.openDevTools()
   //mainCortadoWin.loadURL('data:text/html;charset=utf-8,' + backendExecutablePathWindows);
-  mainCortadoWin.loadURL(url.format({
-    pathname: path.join(__dirname, `/dist/index.html`),
-    protocol: "file:",
-    slashes: true
-  }));
+  mainCortadoWin.loadFile('dist/index.html');
   mainCortadoWin.on('closed', function () {
     mainCortadoWin = null;
     app.quit();
