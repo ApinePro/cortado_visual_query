@@ -4,6 +4,7 @@
   "main": "app/main-electron.js",
   "author": "Daniel Schuster (Fraunhofer FIT)",
   "description": "An Interactive Tool for Data-Driven Process Discovery and Modeling",
+  "private": true,
   "directories": {
     "app": "app"
   },
