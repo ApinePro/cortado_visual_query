@@ -1,5 +1,6 @@
 @import "~bootstrap-icons/font/bootstrap-icons.css";
 
+
 /* You can add global styles to this file, and also import other style files */
 .btn-icon {
   font-size: var(--standard-font-size);
@@ -151,3 +152,86 @@ code {
 .swal2-html-container {
   text-align: left !important;
 }
+
+.node {
+  rx: 3;
+  ry: 3;
+}
+
+.node-operator {
+  fill: #404040;
+}
+
+.frozen-node-operator {
+  fill: #25306a;
+}
+
+.node-visible-activity {
+}
+
+.frozen-node-visible-activity {
+  fill: #425bbf;
+}
+
+.node-invisible-activity {
+  fill: #181818;
+  font-size: 2em;
+}
+
+.frozen-node-invisible-activity {
+  fill: #161e40;
+  font-size: 2em;
+}
+
+
+.btn-fixed-width {
+  min-width: 90px;
+}
+
+
+.crosshair {
+  cursor: crosshair;
+}
+
+.dropdown-node-insert {
+  font-size: small;
+  max-height: 90vh;
+  overflow-x: auto;
+  user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  overflow-y: scroll;
+}
+
+.insertion-position-active {
+  background-color: var(--primary);
+  color: white;
+}
+
+.node-text {
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.syntax-info {
+  background-color: rgba(0, 0, 0, 0.4);
+  position: absolute;
+  font-size: small;
+  bottom: 0;
+  left: 0;
+  text-align: left;
+  cursor: auto;
+}
+
+.syntax-info ul {
+  margin-bottom: 0;
+}
+
+.grid {
+  background-image: radial-gradient(var(--line-color) 1px, transparent 0px);
+  background-size: 20px 20px;
+}
+
+
+

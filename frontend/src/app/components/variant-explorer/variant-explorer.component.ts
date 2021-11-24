@@ -1,4 +1,6 @@
-import {Component, ElementRef, Inject, isDevMode, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
+
+import { Component, ElementRef, Inject, isDevMode, OnInit, QueryList, ViewChild, ViewChildren, Renderer2 } from '@angular/core';
+import {ComponentContainer} from 'golden-layout';
 import {ColorMapService} from '../../services/colorMapService/color-map.service';
 import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
 import {BackendService} from '../../services/backendService/backend.service';
@@ -8,6 +10,8 @@ import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import {deserialize, ParallelGroup, SequenceGroup, VariantElement} from './model';
 import {VariantFragmentComponent} from './variant-fragment/variant-fragment.component';
+import {LayoutChangeDirective} from '../../directives/layout-change.directive';
+
 
 
 @Component({
@@ -15,14 +19,18 @@ import {VariantFragmentComponent} from './variant-fragment/variant-fragment.comp
   templateUrl: './variant-explorer.component.html',
   styleUrls: ['./variant-explorer.component.scss']
 })
-export class VariantExplorerComponent implements OnInit {
+export class VariantExplorerComponent extends LayoutChangeDirective implements OnInit {
 
   constructor(private colorMapService: ColorMapService,
               private sharedDataService: SharedDataService,
               private backendService: BackendService,
               private tooltipActivationService: ActivateTooltipsService,
-              elRef: ElementRef
+              @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer,
+              elRef: ElementRef,
+              renderer : Renderer2
               ){
+    super(elRef.nativeElement, renderer);
+    const state = this.container.initialState;
   }
 
   private readonly nVariantsInc = 50;
