@@ -1,8 +1,8 @@
 {
-  "name": "cortado",
+  "name": "interactive-process-mining-angular-app",
   "version": "1.3.0-beta",
-  "main": "main-electron.js",
   "author": "Daniel Schuster (Fraunhofer FIT)",
+  "main": "main-electron.js",
   "description": "An Interactive Tool for Data-Driven Process Discovery and Modeling",
   "build": {
     "appId": "Cortado",
@@ -32,7 +32,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --port 4444 --configuration=browser",
-    "start-prod": "ng serve --prod --port 4444 --open",
+    "start-prod": "ng serve --prod --port 4444 --source-map",
     "build": "ng build",
     "build-prod": "ng build --prod",
     "test": "ng test",
@@ -97,6 +97,7 @@
     "rxjs": "~6.6.0",
     "sweetalert2": "^10.16.7",
     "tslib": "^2.1.0",
-    "zone.js": "~0.10.2"
+    "zone.js": "~0.10.2",
+    "golden-layout": "^2.4.0"
   }
 }
