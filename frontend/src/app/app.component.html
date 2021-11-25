@@ -1,22 +1,7 @@
-<app-side-bar></app-side-bar>
 
-<!-- Begin page content -->
-<main role="main" class="flex-shrink-0" style="background-color: lightblue;">
-  <div class="container-fluid h-100 bootstrap-container pl-0 pr-0">
-    <div class="row h-50 m-0">
-      <div class="col-12 h-100 p-0">
-        <app-process-tree-editor></app-process-tree-editor>
-      </div>
-    </div>
-    <div class="row h-50 m-0">
-      <div class="col-7 p-0 mh-100">
-        <app-variant-explorer></app-variant-explorer>
-      </div>
-      <div class="col-5 p-0 mh-100">
-        <app-activity-overview></app-activity-overview>
-      </div>
-    </div>
-  </div>
-</main>
 
-<app-footer></app-footer>
+<app-side-bar #sidebarComponent></app-side-bar>
+
+<app-golden-layout-host #goldenLayoutHost></app-golden-layout-host>
+
+<app-footer #footerComponent></app-footer>

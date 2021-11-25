@@ -10,9 +10,21 @@
   color: var(--text-secondary);
 }
 
+:host {
+  position: absolute;
+  overflow: hidden;
+}
+
 .variant-info-cell {
   align-items: center;
   display: flex;
+}
+
+.btn-tool-bar{
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  border-top: 0px;
 }
 
 .variant-cell {

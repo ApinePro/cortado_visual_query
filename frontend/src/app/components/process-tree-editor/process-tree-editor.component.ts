@@ -1,11 +1,15 @@
 import {
-  Component, OnInit, ViewChild, AfterViewInit, ElementRef, ViewEncapsulation, HostListener, isDevMode
+  Component, OnInit, ViewChild, AfterViewInit, ElementRef, HostListener, isDevMode, Inject, Renderer2
 } from '@angular/core';
+import {ComponentContainer} from 'golden-layout';
 import * as d3 from 'd3';
 import * as constants from './constants_tree_d3';
+import {tree} from './dummy_backend_data.js';
 import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
 import {ActivateTooltipsService} from '../../services/activateTooltipsService/activate-tooltips.service';
+import {LayoutChangeDirective} from '../../directives/layout-change.directive';
 import {ColorMapService} from '../../services/colorMapService/color-map.service';
+
 
 declare var $;
 import {ProcessTree, ProcessTreeSyntaxInfo, checkSyntax} from '../../objects/ProcessTree';
@@ -13,15 +17,23 @@ import {textColorForBackgroundColor} from '../variant-explorer/helper_functions'
 
 @Component({
   selector: 'app-process-tree-editor',
-  encapsulation: ViewEncapsulation.None,
   templateUrl: './process-tree-editor.component.html',
   styleUrls: ['./process-tree-editor.component.css']
 })
-export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
+export class ProcessTreeEditorComponent extends LayoutChangeDirective implements OnInit, AfterViewInit  {
+
+
 
   constructor(private sharedDataService: SharedDataService,
               private activateTooltipsService: ActivateTooltipsService,
-              private colorMapService: ColorMapService) {
+              private colorMapService: ColorMapService,
+              @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer,
+              elRef: ElementRef,
+              renderer : Renderer2) {
+
+    super(elRef.nativeElement, renderer);
+    const state = this.container.initialState;
+
   }
 
   @ViewChild('d3svg') svgElem: ElementRef;
@@ -93,7 +105,7 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.initializeSvg();
     if (isDevMode()) {
-      // this.sharedDataService.currentDisplayedProcessTree = dummyBackendResponse.tree;
+      //this.sharedDataService.currentDisplayedProcessTree = tree;
     }
     // TODO find a global solution to this problem - close/disable tooltips when a dropdown is open
     // enable/disable+close all tooltips on closing/opening a dropdown
@@ -776,4 +788,8 @@ export class ProcessTreeEditorComponent implements OnInit, AfterViewInit {
     this.addZoomFunctionality();
   }
 
+}
+
+export namespace ProcessTreeEditorComponent{
+  export const componentName = "ProcessTreeEditorComponent";
 }

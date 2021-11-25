@@ -28,6 +28,8 @@
             ],
             "styles": [
               "./node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "./node_modules/golden-layout/dist/css/goldenlayout-base.css",
+              "./node_modules/golden-layout/dist/css/themes/goldenlayout-borderless-dark-theme.css",
               "src/styles.css"
             ],
             "scripts": [
