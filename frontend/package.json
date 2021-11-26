@@ -11,12 +11,10 @@
       "app": "./"
     },
     "files": [
-      "node_modules/tree-kill",
-      "dist",
-      "main-electron.js",
-      "license-dialog.html",
-      "license-dialog.css",
-      "license-dialog.js"
+      "**/*",
+      "!**/src",
+      "!**/e2e",
+      "!**/node_modules"
     ],
     "win": {
       "target": "portable",
