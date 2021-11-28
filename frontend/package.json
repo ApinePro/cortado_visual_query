@@ -10,12 +10,6 @@
       "output": "app-dist",
       "app": "./"
     },
-    "files": [
-      "**/*",
-      "!**/src",
-      "!**/e2e",
-      "!**/node_modules"
-    ],
     "win": {
       "target": "portable",
       "icon": "icon/cortado_icon_colorful_transparent.ico"
