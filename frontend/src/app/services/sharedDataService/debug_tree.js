@@ -15,8 +15,24 @@ export const tree = {
       },
         {
           operator: null,
-          label: "very long activity label",
+          label: "W_Nabellen incomplete dossiers",
           id: 7823782399,
+          children: []
+        }]
+    }, {
+      operator: '\u21BA',
+      label: null,
+      id: 1245152,
+      children: [{
+        operator: null,
+        label: "\u03C4",
+        id: 3637465332,
+        children: []
+      },
+        {
+          operator: null,
+          label: "\u03C4",
+          id: 1352136346,
           children: []
         }]
     }, {
@@ -26,25 +42,25 @@ export const tree = {
       children: [
         {
           operator: null,
-          label: "a",
+          label: "O_SENT",
           id: 7823782823,
           children: []
         },
         {
           operator: null,
-          label: "b",
+          label: "O_CREATED",
           id: 7823782023,
           children: []
         },
         {
           operator: null,
-          label: "long activity name c",
+          label: "W_Nabellen incomplete dossiers",
           id: 7824782323,
           children: []
         },
         {
           operator: null,
-          label: "long activity name c",
+          label: "W_Valideren aanvraag",
           id: 7124782321,
           children: []
         }
@@ -61,13 +77,13 @@ export const tree = {
           children: [
             {
               operator: null,
-              label: "very long activity name c long activity name c",
+              label: "W_Nabellen incomplete dossiers",
               id: 7004982323,
               children: []
             },
             {
               operator: null,
-              label: "very long activity name c long activity name cb",
+              label: "W_Wijzigen contractgegevens",
               id: 7854715323,
               children: []
             },
@@ -75,19 +91,19 @@ export const tree = {
         },
         {
           operator: null,
-          label: "very long activity name c long activity name cb",
+          label: "W_Nabellen incomplete dossiers",
           id: 7854782323,
           children: []
         },
         {
           operator: null,
-          label: "very long activity name c long activity name c",
+          label: "O_SENT",
           id: 7899782323,
           children: []
         },
         {
           operator: null,
-          label: "very long activity name c long activity name c",
+          label: "O_CREATED",
           id: 3339782323,
           children: []
         }
