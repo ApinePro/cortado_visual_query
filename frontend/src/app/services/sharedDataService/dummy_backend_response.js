@@ -2,16 +2,16 @@ export const startActivities = new Set(["A_SUBMITTED"]);
 
 export const endActivities = new Set([
   "W_Valideren aanvraag",
-        "W_Wijzigen contractgegevens",
-        "A_DECLINED",
-        "W_Completeren aanvraag",
-        "A_CANCELLED",
-        "W_Nabellen incomplete dossiers",
-        "W_Afhandelen leads",
-        "W_Nabellen offertes",
-        "W_Beoordelen fraude",
-        "O_CANCELLED",
-        "A_REGISTERED"
+  "W_Wijzigen contractgegevens",
+  "A_DECLINED",
+  "W_Completeren aanvraag",
+  "A_CANCELLED",
+  "W_Nabellen incomplete dossiers",
+  "W_Afhandelen leads",
+  "W_Nabellen offertes",
+  "W_Beoordelen fraude",
+  "O_CANCELLED",
+  "A_REGISTERED"
 ]);
 
 export const activitiesInLog = {

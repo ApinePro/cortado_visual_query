@@ -1,14 +1,15 @@
 import {
-  Component, OnInit, ViewChild, AfterViewInit, ElementRef, HostListener, isDevMode, Inject, Renderer2
+  Component, OnInit, ViewChild, AfterViewInit, ElementRef, HostListener, isDevMode, Inject, Renderer2,
 } from '@angular/core';
 import {ComponentContainer} from 'golden-layout';
 import * as d3 from 'd3';
 import * as constants from './constants_tree_d3';
-import {tree} from './dummy_backend_data.js';
+
 import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
 import {ActivateTooltipsService} from '../../services/activateTooltipsService/activate-tooltips.service';
 import {LayoutChangeDirective} from '../../directives/layout-change.directive';
 import {ColorMapService} from '../../services/colorMapService/color-map.service';
+import {flextree} from 'd3-flextree';
 
 
 declare var $;
@@ -36,7 +37,7 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
 
   }
 
-  @ViewChild('d3svg') svgElem: ElementRef;
+  @ViewChild('d3svg') svgElem : ElementRef;
   @ViewChild('d3container') d3ContainerElem: ElementRef;
 
   currentlyDisplayedTreeInEditor;
@@ -67,6 +68,8 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
 
   root: d3.HierarchyNode<any>;
   activitiesOccurringInLog: string[];
+
+  nodeWidthCache = new Map<string, number>();
 
   // Inserting node functionality
   selectedMethod: Function = this.insertNewNodeBelow;
@@ -104,9 +107,7 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
 
   ngAfterViewInit(): void {
     this.initializeSvg();
-    if (isDevMode()) {
-      //this.sharedDataService.currentDisplayedProcessTree = tree;
-    }
+
     // TODO find a global solution to this problem - close/disable tooltips when a dropdown is open
     // enable/disable+close all tooltips on closing/opening a dropdown
     $('.dropDownParent').on('show.bs.dropdown', function () {
@@ -122,6 +123,14 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
       // console.log(e);
       e.stopPropagation();
     });
+
+
+
+    this.resizeTimer = setTimeout(function () {
+      this.update(this.root);
+    }.bind(this), 250);
+
+
   }
 
   saveTreeInSharedDataService(): void {
@@ -635,13 +644,61 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
   calculateTreeLayout(root): void {
     if (root) {
       const treeLayout = d3.tree();
-      treeLayout.size([this.d3ContainerElem.nativeElement.offsetWidth,
-        this.d3ContainerElem.nativeElement.offsetHeight - constants.tree_node_height_width]);
-      // if nodeSize is used you cannot use fixed tree size and the root node is drawn at (0,0)
-      treeLayout.nodeSize([130, 60]);
+      const flextreeLayout = flextree();
+
+      flextreeLayout.nodeSize(node => {
+
+        if(node.data.operator || node.data.label === '\u03C4'){
+          return [constants.tree_node_height_width, 2*constants.tree_node_height_width];
+        }
+
+        return [this.computeLeafNodeWidth(node.data.label), 2*constants.tree_node_height_width];
+
+      })
+
+      // Specifies the spacing between two nodes
+      flextreeLayout.spacing((nodeA,nodeB) => {
+          return (nodeA.parent === nodeB.parent ? constants.nodeSpacing : 2*constants.nodeSpacing)
+      });
+
       // calculate layout
-      treeLayout(root);
+      flextreeLayout(root);
+
     }
+  }
+
+
+  computeLeafNodeWidth(nodeActivityLabel : string) : number{
+
+    // Retrieve the computed width from Cache
+    if(this.nodeWidthCache.has(nodeActivityLabel)) {
+      return this.nodeWidthCache.get(nodeActivityLabel);
+    }
+
+    // Compute the width by rendering a dummy node
+    const dummy_select = d3.select(this.svgElem.nativeElement)
+                           .append('text')
+                           .attr('font-size', '12px')
+                           .text(function (d: any) {
+                              if (nodeActivityLabel.length <= 20) {
+                                return nodeActivityLabel;
+                              } else {
+                                return nodeActivityLabel.substring(0, 20) + '...';
+                              }
+                            })
+
+    // Retrieve the computed width
+    let rendered_width = dummy_select.node().getComputedTextLength();
+
+    // Delete the Dummy
+    dummy_select.remove();
+
+    // Compute the true node width as specified above
+    rendered_width = Math.max(rendered_width + 10, constants.tree_node_height_width);
+
+    // Add to Cache
+    this.nodeWidthCache[nodeActivityLabel] = rendered_width
+    return rendered_width;
   }
 
   addZoomFunctionality(): void {
