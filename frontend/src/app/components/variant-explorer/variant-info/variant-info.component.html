@@ -1,9 +1,9 @@
 <div class="variant-info-cell">
-    <i class="bi bi-circle font-large mr-2 text-muted"
+    <i class="bi bi-circle font-large me-2 text-muted"
         *ngIf="!isExplicitlyAdded"
         (click)="addExplicitlyAddedVariant.emit()">
     </i>
-    <i class="bi bi-check2-circle font-large mr-2 text-light cursor-pointer"
+    <i class="bi bi-check2-circle font-large me-2 text-light cursor-pointer"
         *ngIf="isExplicitlyAdded"
         (click)="removeExplicitlyAdded.emit()">
     </i>
@@ -30,8 +30,8 @@
     </i>
 
 
-    <small class="ml-1 float-right cursor-help"
-            data-toggle="tooltip"
+    <small class="ms-1 float-right cursor-help"
+            data-bs-toggle="tooltip"
             data-placement="right"
             data-container="body"
             data-html="true"

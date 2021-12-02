@@ -10,25 +10,25 @@
   <div class="bg-dark btn-tool-bar">
 
 
-    <i class="bi bi-question-circle-fill font-large ml-1 align-middle secondary-text"
-       data-toggle="tooltip" data-placement="top" data-trigger="hover" data-html="true"
+    <i class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text"
+       data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" data-bs-html="true"
        title="variants marked with <i class='bi bi-check2-circle'></i> have been explicitly added to the process
              model<hr>explicitly added variants will remain in the process tree's language when incrementally adding new
              variants">
     </i>
 
-    <span class="vl ml-1"></span>
+    <span class="vl ms-1"></span>
 
 
     <button class="button"
-            data-toggle="tooltip" data-placement="top" data-trigger="hover" data-html="true"
+            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" data-bs-html="true"
             title='calculate conformance checking statistics
-            <br><i class="bi bi-question-square text-secondary"> unknown</i>
-            <br><i class="bi bi-hourglass-split text-secondary"> being calculated</i>
-            <br><i class="bi bi-check-square text-success"> variant fits model</i>
-            <br><i class="bi bi-x-square text-danger"> variant does not fit model</i>
-            <br><i class="bi bi-check-square text-warning"></i>
-            <i class="bi bi-x-square text-warning"> outdated results (model has changed)</i>'
+                    <br><i class="bi bi-question-square text-secondary"> unknown</i>
+                    <br><i class="bi bi-hourglass-split text-secondary"> being calculated</i>
+                    <br><i class="bi bi-check-square text-success"> variant fits model</i>
+                    <br><i class="bi bi-x-square text-danger"> variant does not fit model</i>
+                    <br><i class="bi bi-check-square text-warning"></i>
+                    <i class="bi bi-x-square text-warning"> outdated results (model has changed)</i>'
             (click)="updateAlignments()"
             [disabled]="!currentlyDisplayedProcessTree || alignmentCalculationInProgress || !correctTreeSyntax">
       <i class="bi bi-layers-fill btn-icon"></i>
@@ -38,7 +38,7 @@
     <span class="vl"></span>
 
     <button class="button"
-            data-toggle="tooltip" data-placement="top" data-trigger="hover"
+            data-bs-toggle="tooltip" data-placement="top" data-bs-html="true"
             title="add selected variant(s) to current process model"
             [disabled]="selectedVariants.length == 0 || !currentlyDisplayedProcessTree"
             (click)="addSelectedVariantsToModel()">
@@ -50,9 +50,9 @@
     <span class="vl"></span>
 
     <button class="button"
-            data-toggle="tooltip" data-placement="top" data-trigger="hover" data-html="true"
+            data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true"
             title="discover an initial model from the selected variants using the standard <em>Inductive Miner</em>
-            algorithm<br><b><i class='bi bi-exclamation-triangle text-warning'></i> overwrites the existing model</b>"
+            algorithm <br><b><i class='bi bi-exclamation-triangle text-warning'></i> overwrites the existing model</b>"
             [disabled]="selectedVariants.length == 0"
             (click)="discoverInitialModel()">
       <i class="bi bi-diagram-2-fill btn-icon" [ngClass]="{'text-success': selectedVariants.length != 0}"></i>
@@ -66,6 +66,9 @@
       <i class="bi bi-x btn-icon" [ngClass]="{'text-danger': selectedVariants.length != 0}"></i>
       clear selection
     </button>
+
+    <span class="vl"></span>
+
   </div>
 
 
@@ -74,17 +77,23 @@
       <div class="chart-variant__percentage">
         <table>
           <tr>
+            <th style="padding-right: 15px; padding-left: 5px;">
+              Nr.
+            </th>
             <th>
               Info
             </th>
-            <th>
+            <th class = "text-start">
               Variant
             </th>
           </tr>
           <ng-container *ngFor="let variant of visibleVariants let i = index">
             <tr>
+              <td style="padding-right: 15px; padding-left: 5px;">
+                {{ i + 1 }}.
+              </td>
               <td>
-                <app-variant-info [variant]="variant" 
+                <app-variant-info [variant]="variant"
                                   [outdatedConformanceStatistics]="outdatedConformanceStatistics"
                                   [isExplicitlyAdded]="explicitlyAddedVariants.includes(i)"
                                   (addExplicitlyAddedVariant)="addExplicitlyAddedVariant(i)"
@@ -102,8 +111,8 @@
             <td></td>
             <td>
               <div class="variant-spacer" [ngStyle]="{ 'height': invisibleVariantsHeight + 'px' }">
-                <div class="spinner-border spinner-border-sm text-primary" 
-                      style="margin-right: 20px; margin-left: 20px;" 
+                <div class="spinner-border spinner-border-sm text-primary"
+                      style="margin-right: 20px; margin-left: 20px;"
                       role="status"></div>
                 Loading...
               </div>
@@ -114,7 +123,7 @@
     </div>
   </div>
 
-  <div class="bg-dark info-bar pl-2 pr-2">
+  <div class="bg-dark info-bar ps-2 pe-2">
 
     <span class="float-left"
           *ngIf="(numberFittingTraces || numberFittingTraces>=0) && (totalNumberTraces || totalNumberTraces>0)">
@@ -124,7 +133,7 @@
         ({{numberFittingTraces / totalNumberTraces| percent:'.1'}})</span>
     </span>
 
-    <span class="float-left ml-4"
+    <span class="float-left ms-4"
           *ngIf="(numberFittingVariants || numberFittingVariants>=0) && (totalNumberVariants || totalNumberVariants>0)">
       fitting variants:
       <span [ngClass]="!outdatedConformanceStatistics? '' : 'text-warning'">
@@ -138,7 +147,7 @@
     </span>
   </div>
 
-  <div  class="tooltip" role="tooltip" id="tooltip-container">
+  <div class="tooltip" role="tooltip" id="tooltip-container">
     <div id="tooltip-inner" class="tooltip-inner"></div>
   </div>
 </div>

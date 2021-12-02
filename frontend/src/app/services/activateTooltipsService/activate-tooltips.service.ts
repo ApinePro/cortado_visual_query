@@ -13,27 +13,46 @@ export class ActivateTooltipsService {
   public initialize(): void {
     // activate tooltips
     // @ts-ignore
-    $('[data-toggle="tooltip"]').tooltip({
+    $('[data-bs-toggle="tooltip"]').tooltip({
       container: 'body',
       placement: 'top',
       boundary: 'window',
-      delay: {show: 200, hide: 60}
+      html: true,
+      trigger: 'hover',
+      delay: {show: 200, hide: 50},
+      sanitize: false
+    });
+
+    $('[data-bs-toggle="tooltip"]').on('click', function () {
+      $(this).tooltip('hide')
+    })
+
+    $('[data-bs-toggle="popover"]').popover({
+      container: 'body',
+      placement: 'top',
+      boundary: 'window',
+      html: true,
+      // delay: {show: 200, hide: 100000},
+      sanitize: false
     });
   }
 
   public close(): void {
-    $('[data-toggle="tooltip"]').tooltip('hide');
+    $('[data-bs-toggle="popover"]').popover('hide');
+    $('[data-bs-toggle="tooltip"]').tooltip('hide');
   }
 
   public disable(): void {
     // activate tooltips
     // @ts-ignore
-    $('[data-toggle="tooltip"]').tooltip('disable');
+    $('[data-bs-toggle="popover"]').popover('disable');
+    $('[data-bs-toggle="tooltip"]').tooltip('disable');
   }
 
   public enable(): void {
     // activate tooltips
     // @ts-ignore
-    $('[data-toggle="tooltip"]').tooltip('enable');
+    $('[data-bs-toggle="popover"]').popover('enable');
+    $('[data-bs-toggle="tooltip"]').tooltip('enable');
   }
 }

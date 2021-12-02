@@ -1,32 +1,28 @@
-<div class="main-process-tree-editor d-flex flex-column  h-100">
+<div class="main-process-tree-editor  h-100 d-flex flex-column">
 
-
-  <div color = "red"> </div>
   <div class="bg-dark btn-tool-bar">
 
-    <div class="btn-group align-baseline dropDownParent"
-         data-toggle="tooltip" data-placement="top" data-trigger="hover"
-         title="add node">
-      <button class="button text-success"
+    <div class="btn-group align-baseline dropDownParent dropdown">
+      <button class="button text-success dropdown-toggle"
               [disabled]="insertNewNodeButtonDisabled()"
-              (click)="addNewNodePreCheck();"
               type="button"
-              data-toggle="dropdown"
+              data-bs-toggle="dropdown"
               aria-haspopup="true"
-              aria-expanded="false">
+              aria-expanded="false"
+              id="addNodeDropdown">
         <i class="bi bi-plus-square-fill btn-icon"></i>
       </button>
-      <div class="dropdown-menu dropdown-node-insert" id="dropdownNewNode">
+      <div class="dropdown-menu dropdown-node-insert" id="dropdownNewNode" aria-labelledby="addNodeDropdown">
 
         <div id="positionMethodSelection" *ngIf="root!==null && root!==undefined">
 
-          <div class="font-italic font-weight-bold pl-2 text-center">Position</div>
+          <div class="font-italic font-weight-bold ps-2 text-center">Position</div>
           <div class="dropdown-item"
                *ngIf="!insertPositionAboveDisabled"
                [ngClass]="lastSelectedInsertMethod===insertNewNodeAbove? 'insertion-position-active':''"
                (click)="selectedMethod=insertNewNodeAbove;lastSelectedInsertMethod=insertNewNodeAbove;">
             <i class="bi bi-box-arrow-in-up btn-icon"></i>
-            <span class="ml-3">insert above</span>
+            <span class="ms-3">insert above</span>
           </div>
 
           <div class="dropdown-item"
@@ -34,14 +30,14 @@
                [ngClass]="lastSelectedInsertMethod===insertNewNodeLeft? 'insertion-position-active':''"
                (click)="selectedMethod=insertNewNodeLeft;lastSelectedInsertMethod=insertNewNodeLeft;">
             <i class="bi bi-box-arrow-in-left btn-icon"></i>
-            <span class="ml-3">insert left</span>
+            <span class="ms-3">insert left</span>
           </div>
 
           <div class="dropdown-item"
                [ngClass]="lastSelectedInsertMethod===insertNewNodeBelow? 'insertion-position-active':''"
                (click)="selectedMethod=insertNewNodeBelow;lastSelectedInsertMethod=insertNewNodeBelow;">
             <i class="bi bi-box-arrow-in-down btn-icon"></i>
-            <span class="ml-3">insert below</span>
+            <span class="ms-3">insert below</span>
           </div>
 
           <div class="dropdown-item"
@@ -49,45 +45,45 @@
                [ngClass]="lastSelectedInsertMethod===insertNewNodeRight? 'insertion-position-active':''"
                (click)="selectedMethod=insertNewNodeRight;lastSelectedInsertMethod=insertNewNodeRight;">
             <i class="bi bi-box-arrow-in-right btn-icon"></i>
-            <span class="ml-3">insert right</span>
+            <span class="ms-3">insert right</span>
           </div>
           <div class="dropdown-divider"></div>
         </div>
 
-        <div class="font-italic font-weight-bold pl-2 text-center">Node</div>
+        <div class="font-italic font-weight-bold ps-2 text-center">Node</div>
 
         <ng-template #operatorListDropdown>
-          <div class="font-italic pl-2 text-primary">Operator</div>
+          <div class="font-italic ps-2 text-primary">Operator</div>
 
           <div class="dropdown-item" (click)="insertNewNode('\u2715',null)">
             <span class="font-weight-bold">&#x2715;</span>
-            <span class="ml-3 text-secondary">choice</span>
+            <span class="ms-3 text-secondary">choice</span>
           </div>
           <div class="dropdown-item" (click)="insertNewNode('\u2794',null)">
             <span class="font-weight-bold">&#x2794;</span>
-            <span class="ml-3 text-secondary">sequence</span>
+            <span class="ms-3 text-secondary">sequence</span>
           </div>
           <div class="dropdown-item" (click)="insertNewNode('\u21BA',null)">
             <span class="font-weight-bold">&#x21BA;</span>
-            <span class="ml-3 text-secondary">loop</span>
+            <span class="ms-3 text-secondary">loop</span>
           </div>
           <div class="dropdown-item" (click)="insertNewNode('\u2227',null)">
             <span class="font-weight-bold">&#x2227;</span>
-            <span class="ml-3 text-secondary">parallel</span>
+            <span class="ms-3 text-secondary">parallel</span>
           </div>
         </ng-template>
 
         <ng-template [ngTemplateOutlet]="operatorListDropdown"></ng-template>
 
         <ng-template #activityListDropdown>
-          <div class="font-italic pl-2 text-primary">Activity</div>
+          <div class="font-italic ps-2 text-primary">Activity</div>
 
           <div class="dropdown-item" (click)="insertNewNode(null,'\u03C4')">
             <span class="font-weight-bold">&#x03C4;</span>
-            <span class="ml-3 text-secondary">invisible activity</span>
+            <span class="ms-3 text-secondary">invisible activity</span>
           </div>
 
-          <div class="ml-1 mr-1 mb-1">
+          <div class="ms-1 me-1 mb-1">
             <input [(ngModel)]="searchText" class="form-control form-control-sm" type="text"
                    placeholder="type activity name">
           </div>
@@ -103,13 +99,13 @@
     </div>
 
     <div class="btn-group align-baseline dropdown dropDownParent"
-         data-toggle="tooltip" data-placement="top" data-trigger="hover"
+         data-bs-toggle="tooltip" data-placement="top" data-trigger="hover"
          title="change selected node">
       <button class="button"
               [disabled]="!selectedRootNode || (selectSubtreeActive && !singleNodeSelected())"
               (click)="selectedMethod=changeSelectedNode;"
               type="button"
-              data-toggle="dropdown"
+              data-bs-toggle="dropdown"
               aria-haspopup="true"
               aria-expanded="false">
         <i class="bi bi-pencil-square btn-icon"></i>
@@ -122,20 +118,20 @@
 
     <button class="button text-warning" (click)="deleteSubtree();"
             [disabled]="buttonDeleteSubtreeDisabled()"
-            data-toggle="tooltip" data-placement="top" data-trigger="hover"
+            data-bs-toggle="tooltip" data-placement="top" data-trigger="hover"
             title="remove selected node(s)">
 
       <i class="bi bi-trash btn-icon"></i>
     </button>
 
     <button class="button" (click)="shiftSubtreeToLeft()" [disabled]="buttonManipulatingMultipleNodesDisabled()"
-            data-toggle="tooltip" data-placement="top" data-trigger="hover"
+            data-bs-toggle="tooltip" data-placement="top" data-trigger="hover"
             title="shift selected node(s) to left">
       <i class="bi bi-chevron-left btn-icon"></i>
     </button>
 
     <button class="button" (click)="shiftSubtreeToRight()" [disabled]="buttonManipulatingMultipleNodesDisabled()"
-            data-toggle="tooltip" data-placement="top" data-trigger="hover"
+            data-bs-toggle="tooltip" data-placement="top" data-trigger="hover"
             title="shift selected node(s) to right">
       <i class="bi bi-chevron-right btn-icon"></i>
     </button>
@@ -177,7 +173,7 @@
     <span class="vl"></span>
 
     <button class="button" (click)="freezeSubtree()" [disabled]="buttonFreezeSubtreeDisabled()"
-            data-toggle="tooltip" data-placement="top" data-trigger="hover" data-html="true"
+            data-bs-toggle="tooltip" data-placement="top" data-trigger="hover" data-html="true"
             title="(un)freeze <em>entire</em> subtree to prevent them from being changed when adding variants">
       <i class="bi bi-snow btn-icon text-primary"></i>
       (un)freeze subtrees
@@ -185,13 +181,14 @@
 
     <span class="vl"></span>
 
-    <button class="button ml-auto" id="btn-reset-zoom" data-toggle="tooltip" data-placement="top"
+    <button class="button ms-auto" id="btn-reset-zoom" data-toggle="tooltip" data-placement="top"
             data-trigger="hover"
             title="reset view">
       <i class="bi bi-arrows-fullscreen btn-icon text-light"></i>
     </button>
 
   </div>
+
 
   <div #d3container id="d3-container" class="m-1 flex-grow-1 crosshair grid">
 
@@ -224,6 +221,5 @@
     <svg #d3svg id="d3-svg" width="100%" height="100%"></svg>
 
   </div>
-
 </div>
 

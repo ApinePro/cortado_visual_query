@@ -19,10 +19,9 @@ import {textColorForBackgroundColor} from '../variant-explorer/helper_functions'
 @Component({
   selector: 'app-process-tree-editor',
   templateUrl: './process-tree-editor.component.html',
-  styleUrls: ['./process-tree-editor.component.css']
+  styleUrls: ['./process-tree-editor.component.scss']
 })
-export class ProcessTreeEditorComponent extends LayoutChangeDirective implements OnInit, AfterViewInit  {
-
+export class ProcessTreeEditorComponent extends LayoutChangeDirective implements OnInit, AfterViewInit {
 
 
   constructor(private sharedDataService: SharedDataService,
@@ -30,14 +29,14 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
               private colorMapService: ColorMapService,
               @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer,
               elRef: ElementRef,
-              renderer : Renderer2) {
+              renderer: Renderer2) {
 
     super(elRef.nativeElement, renderer);
     const state = this.container.initialState;
 
   }
 
-  @ViewChild('d3svg') svgElem : ElementRef;
+  @ViewChild('d3svg') svgElem: ElementRef;
   @ViewChild('d3container') d3ContainerElem: ElementRef;
 
   currentlyDisplayedTreeInEditor;
@@ -106,6 +105,7 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
   }
 
   ngAfterViewInit(): void {
+    this.activateTooltipsService.enable();
     this.initializeSvg();
 
     // TODO find a global solution to this problem - close/disable tooltips when a dropdown is open
@@ -123,7 +123,6 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
       // console.log(e);
       e.stopPropagation();
     });
-
 
 
     this.resizeTimer = setTimeout(function () {
@@ -343,11 +342,13 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
           // @ts-ignore
           return d.data.id;
         })
-        .attr('data-toggle', 'tooltip')
-        .attr('data-placement', 'top')
-        .attr('title', (d: any) => {
-          return d.data.label;
-        });
+        .attr('data-bs-toggle', d => d.data.performance ? 'popover' : 'tooltip')
+        .attr('data-bs-placement', 'top')
+        .attr('data-bs-title', d => d.data.label)
+        .attr('data-bs-html', true)
+        .attr('data-bs-template', '<div class="tooltip"role="tooltip"><div class="tooltip-arrow"> </div><div class="tooltip-inner"></div></div>');
+
+
       // add nodes
       this.nodeEnter.append('rect')
         .classed('node', true)
@@ -390,7 +391,7 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
         .classed('node-text', true)
         .merge(node.select('text'))
         .attr('fill', (d) => {
-          if (d.data.frozen){
+          if (d.data.frozen) {
             return 'white';
           }
           const isVisibleActivity = d.data.label !== null && d.data.label !== '\u03C4';
@@ -648,17 +649,17 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
 
       flextreeLayout.nodeSize(node => {
 
-        if(node.data.operator || node.data.label === '\u03C4'){
-          return [constants.tree_node_height_width, 2*constants.tree_node_height_width];
+        if (node.data.operator || node.data.label === '\u03C4') {
+          return [constants.tree_node_height_width, 2 * constants.tree_node_height_width];
         }
 
-        return [this.computeLeafNodeWidth(node.data.label), 2*constants.tree_node_height_width];
+        return [this.computeLeafNodeWidth(node.data.label), 2 * constants.tree_node_height_width];
 
       })
 
       // Specifies the spacing between two nodes
-      flextreeLayout.spacing((nodeA,nodeB) => {
-          return (nodeA.parent === nodeB.parent ? constants.nodeSpacing : 2*constants.nodeSpacing)
+      flextreeLayout.spacing((nodeA, nodeB) => {
+        return (nodeA.parent === nodeB.parent ? constants.nodeSpacing : 2 * constants.nodeSpacing)
       });
 
       // calculate layout
@@ -668,24 +669,24 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
   }
 
 
-  computeLeafNodeWidth(nodeActivityLabel : string) : number{
+  computeLeafNodeWidth(nodeActivityLabel: string): number {
 
     // Retrieve the computed width from Cache
-    if(this.nodeWidthCache.has(nodeActivityLabel)) {
+    if (this.nodeWidthCache.has(nodeActivityLabel)) {
       return this.nodeWidthCache.get(nodeActivityLabel);
     }
 
     // Compute the width by rendering a dummy node
     const dummy_select = d3.select(this.svgElem.nativeElement)
-                           .append('text')
-                           .attr('font-size', '12px')
-                           .text(function (d: any) {
-                              if (nodeActivityLabel.length <= 20) {
-                                return nodeActivityLabel;
-                              } else {
-                                return nodeActivityLabel.substring(0, 20) + '...';
-                              }
-                            })
+      .append('text')
+      .attr('font-size', '12px')
+      .text(function (d: any) {
+        if (nodeActivityLabel.length <= 20) {
+          return nodeActivityLabel;
+        } else {
+          return nodeActivityLabel.substring(0, 20) + '...';
+        }
+      })
 
     // Retrieve the computed width
     let rendered_width = dummy_select.node().getComputedTextLength();
@@ -847,6 +848,8 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
 
 }
 
-export namespace ProcessTreeEditorComponent{
+// TODO should be solved differently
+// tslint:disable-next-line:no-namespace
+export namespace ProcessTreeEditorComponent {
   export const componentName = "ProcessTreeEditorComponent";
 }
