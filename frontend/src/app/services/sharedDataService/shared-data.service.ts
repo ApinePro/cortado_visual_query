@@ -23,7 +23,7 @@ export class SharedDataService {
     this._loadedEventLog.next(name);
   }
 
-  private _currentDisplayedProcessTree = new BehaviorSubject<any>(this.dummy_tree);
+  private _currentDisplayedProcessTree = new BehaviorSubject<any>(null);
 
   get currentDisplayedProcessTree$(): Observable<any> {
     return this._currentDisplayedProcessTree.asObservable();

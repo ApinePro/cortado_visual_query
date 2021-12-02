@@ -7,10 +7,10 @@
   background-color: var(--box-background-color);
 }
 
-.table-font {
-  color: var(--text-secondary);
+.table-font{
   font-size: small;
 }
+
 
 .table-container {
   overflow-y: auto;

@@ -13,6 +13,19 @@
   --text-secondary: #a0a0a0;
   --thin-border-color: #1a1a1a;
   --standard-font-size: 14px;
+  --bs-dark-rgb: 52,58,64;
+}
+
+.table-dark{
+  --bs-table-bg: #343a40;
+  --bs-table-striped-bg: rgba(255,255,255,.05);
+  --bs-table-striped-color: var(--text-secondary);
+  --bs-table-active-bg: #373b3e;
+  --bs-table-active-color: var(--text-secondary);
+  --bs-table-hover-bg: rgba(0,0,0,.05);
+  --bs-table-hover-color: #fff;
+  color: var(--text-secondary);
+  border-color: #373b3e;
 }
 
 .btn-bar-text {
@@ -151,6 +164,20 @@ code {
 
 .swal2-html-container {
   text-align: left !important;
+}
+
+.container-fluid {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.row>* {
+  padding-left: unset;
+  padding-right: unset;
+}
+
+th {
+  --bs-table-accent-bg: transparent !important;
 }
 
 .node {
