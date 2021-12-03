@@ -1,4 +1,4 @@
-export const tree = {
+export const dummy_tree = {
   operator: '\u2715',
   label: null,
   id: 7823782323,
