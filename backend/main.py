@@ -1,5 +1,6 @@
 from backend.endpoints.add_variants_to_process_model import add_variants_to_process_model
 from cortado_core.utils.cvariants import generate_variants
+from cortado_core.utils.alignment_utils import trace_fits_process_tree
 from multiprocessing import freeze_support, cpu_count
 from typing import Any, List
 import uvicorn
@@ -22,6 +23,7 @@ from pm4py.objects.process_tree.importer.importer import apply as import_pt_from
 
 from backend_utilities.process_tree_conversion import process_tree_to_dict
 from backend_utilities.process_tree_conversion import dict_to_process_tree
+from backend_utilities.variant_trace_conversion import variant_to_trace
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 from endpoints.load_event_log import calculate_event_log_properties
 
@@ -99,24 +101,46 @@ async def discover_process_model_from_cvariants(d: InputDiscoverProcessModelFrom
 
 
 class InputAddVariantsToProcessModel(BaseModel):
+    fitting_variants: List[Any]
     variants_to_add: List[Any]
     pt: dict
-    explicitly_added_variants: List[Any]
 
-
+# TODO this endpoint is currently unused, we have to decide if we want to delete it
 @app.post("/addVariantsToProcessModel")
 async def add_simple_variants_to_process_model(d: InputAddVariantsToProcessModel):
-    explicitly_added = [v['events'] for v in d.explicitly_added_variants]
+    fitting_variants = [v['events'] for v in d.fitting_variants]
     to_add = [v['events'] for v in d.variants_to_add]
-    return add_variants_to_process_model(d.pt, explicitly_added, to_add)
+    return add_variants_to_process_model(d.pt, fitting_variants, to_add)
 
 
 @app.post("/addConcurrencyVariantsToProcessModel")
 async def add_cvariants_to_process_model(d: InputAddVariantsToProcessModel):
-    explicitly_added = set(
-        [tuple(variant) for cvariant in d.explicitly_added_variants for variant in generate_variants(cvariant)])
+    fitting_variants = set(
+        [tuple(variant) for cvariant in d.fitting_variants for variant in generate_variants(cvariant)])
     to_add = set([tuple(variant) for cvariant in d.variants_to_add for variant in generate_variants(cvariant)])
-    return add_variants_to_process_model(d.pt, explicitly_added, to_add)
+    return add_variants_to_process_model(d.pt, fitting_variants, to_add)
+
+
+class InputAddVariantsToProcessModelUnknownConformance(BaseModel):
+    selected_variants: List[Any]
+    pt: dict
+
+
+@app.post("/addConcurrencyVariantsToProcessModelUnknownConformance")
+async def add_cvariants_to_process_model_unknown_conformance(d: InputAddVariantsToProcessModelUnknownConformance):
+    selected_variants = set(
+        [tuple(variant) for cvariant in d.selected_variants for variant in generate_variants(cvariant)])
+
+    fitting_variants = set()
+    variants_to_add = set()
+    process_tree, _ = dict_to_process_tree(d.pt)
+    for selected_variant in selected_variants:
+        t = variant_to_trace(selected_variant)
+        if trace_fits_process_tree(t, process_tree):
+            fitting_variants.add(selected_variant)
+        else:
+            variants_to_add.add(selected_variant)
+    return add_variants_to_process_model(d.pt, fitting_variants, variants_to_add)
 
 
 @app.get("/variants")

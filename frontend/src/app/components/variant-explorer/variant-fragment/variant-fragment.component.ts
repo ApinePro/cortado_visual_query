@@ -1,5 +1,4 @@
-import { element } from 'protractor';
-import {AfterViewInit, ElementRef, EventEmitter, Output} from '@angular/core';
+import {AfterViewInit, ElementRef} from '@angular/core';
 import {Component, Input, ViewChild} from '@angular/core';
 import * as d3 from 'd3';
 import {Selection} from 'd3';
@@ -26,9 +25,6 @@ export class VariantFragmentComponent implements AfterViewInit {
 
   @Input()
   colorMap: Map<string, string>;
-
-  @Output()
-  selectVariant = new EventEmitter<VariantElement>();
 
   svgSelection!: Selection<any, any, any, any>;
 
@@ -135,8 +131,13 @@ export class VariantFragmentComponent implements AfterViewInit {
     }
   }
 
-  onClick(): void {
-    this.selectVariant.emit(this.variant);
+  setExpanded(expanded: boolean): void {
+    this.variant.setExpanded(expanded);
+    this.redraw();
+  }
+
+  isExpanded(): boolean {
+    return this.variant.expanded;
   }
 
   setSelected(selected: boolean): void {
@@ -144,12 +145,7 @@ export class VariantFragmentComponent implements AfterViewInit {
     this.redraw();
   }
 
-  getExpanded(){
-    return this.variant.getExpanded();
-  }
-
   getSVGGraphicElement() : SVGGraphicsElement{
     return this.svgHtmlElement.nativeElement;
   }
-
 }

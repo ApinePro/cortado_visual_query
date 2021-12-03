@@ -1,37 +1,46 @@
-import {ImageExportService} from './../../services/imageExportService/image-export-service';
-import { Component, ElementRef, Inject, AfterViewInit, OnInit, QueryList, ViewChild, ViewChildren, Renderer2 } from '@angular/core';
-import {ComponentContainer} from 'golden-layout';
-import {ColorMapService} from '../../services/colorMapService/color-map.service';
-import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
-import {BackendService} from '../../services/backendService/backend.service';
-import {ActivateTooltipsService} from '../../services/activateTooltipsService/activate-tooltips.service';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
-import {deserialize, ParallelGroup, SequenceGroup, VariantElement, LeafNode} from './model';
-import {VariantFragmentComponent} from './variant-fragment/variant-fragment.component';
-import {PolygonDrawingService} from 'src/app/services/polygon-drawing.service';
+import {
+  Component,
+  ElementRef,
+  Inject,
+  OnInit,
+  AfterContentChecked,
+  QueryList,
+  ViewChild,
+  ViewChildren,
+  Renderer2,
+  AfterViewInit
+} from '@angular/core';
+import { ComponentContainer } from 'golden-layout';
+import { ColorMapService } from '../../services/colorMapService/color-map.service';
+import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
+import { BackendService } from '../../services/backendService/backend.service';
+
+import { ActivateTooltipsService } from '../../services/activateTooltipsService/activate-tooltips.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { deserialize, ParallelGroup, SequenceGroup, VariantElement, Variant, LeafNode } from './model';
+import { VariantFragmentComponent } from './variant-fragment/variant-fragment.component';
+import { LayoutChangeDirective } from '../../directives/layout-change.directive';
+import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
+import { ImageExportService } from '../../services/imageExportService/image-export-service';
 import * as d3 from 'd3';
-import {LayoutChangeDirective} from '../../directives/layout-change.directive';
-
-
 
 @Component({
   selector: 'app-variant-explorer',
   templateUrl: './variant-explorer.component.html',
   styleUrls: ['./variant-explorer.component.scss']
 })
-export class VariantExplorerComponent extends LayoutChangeDirective implements OnInit, AfterViewInit {
-
+export class VariantExplorerComponent extends LayoutChangeDirective implements OnInit, AfterContentChecked, AfterViewInit {
   constructor(private colorMapService: ColorMapService,
-              private sharedDataService: SharedDataService,
-              private backendService: BackendService,
-              private imageExportService: ImageExportService,
-              private polygonDrawingService: PolygonDrawingService,
-              private tooltipActivationService: ActivateTooltipsService,
-              @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer,
-              elRef: ElementRef,
-              renderer : Renderer2
-              ){
+    private sharedDataService: SharedDataService,
+    private backendService: BackendService,
+    private imageExportService: ImageExportService,
+    private polygonDrawingService: PolygonDrawingService,
+    private tooltipActivationService: ActivateTooltipsService,
+    @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer,
+    elRef: ElementRef,
+    renderer: Renderer2
+  ) {
     super(elRef.nativeElement, renderer);
     const state = this.container.initialState;
   }
@@ -54,23 +63,20 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
   public correctTreeSyntax = false;
 
-  public selectedVariants: number[] = [];
-  public explicitlyAddedVariants: number[] = [];
-
   public numberFittingTraces: number = undefined;
   public numberFittingVariants: number = undefined;
   public totalNumberTraces: number = undefined;
   public totalNumberVariants = 5;
 
   public alignmentCalculationInProgress = false;
-  public svgRenderingInProgress : boolean = false;
+  public svgRenderingInProgress: boolean = false;
 
+
+  @ViewChild('variantExplorer', { static: true })
+  variantExplorerDiv: ElementRef<HTMLDivElement>;
 
   @ViewChildren(VariantFragmentComponent)
   variantComponents: QueryList<VariantFragmentComponent>;
-
-  @ViewChild('variantExplorer', {static: true})
-  variantExplorerDiv: ElementRef<HTMLDivElement>;
 
   @ViewChild('variantExplorerContainer') variantExplorerContainer: ElementRef<HTMLDivElement>
   @ViewChild('tooltipContainer') tooltipContainer: ElementRef<HTMLDivElement>;
@@ -79,29 +85,29 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
   ngOnInit(): void {
     // preload road traffic fine management process
-      this.variants = this.sharedDataService.variants;
+    this.variants = this.sharedDataService.variants;
 
-      this.variants.forEach(v => {
-        v.variant = deserialize(v.variant);
-      });
+    this.variants.forEach(v => {
+      v.variant = deserialize(v.variant);
+    });
 
-      this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
-      this.tooltipActivationService.initialize();
-      this.initializeVisibleVariants();
+    this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
+    this.tooltipActivationService.initialize();
+    this.initializeVisibleVariants();
 
-      const total = this.variants.map(v => v.count).reduce((a, b) => a + b);
-      this.variants.forEach(v => {
-        v.percentage = Number.parseFloat((v.count / total * 100).toFixed(2));
-      });
+    const total = this.variants.map(v => v.count).reduce((a, b) => a + b);
+    this.variants.forEach(v => {
+      v.percentage = Number.parseFloat((v.count / total * 100).toFixed(2));
+    });
 
-      this.numberFittingVariants = undefined;
-      this.totalNumberTraces = total;
-      this.totalNumberVariants = this.variants.length;
+    this.numberFittingVariants = undefined;
+    this.totalNumberTraces = total;
+    this.totalNumberVariants = this.variants.length;
 
 
     this.sharedDataService.loadedEventLog$.subscribe(eventLog => {
       if (eventLog) {
-        this.eventLogChanged(eventLog);
+        this.eventLogChanged();
       }
     });
 
@@ -111,27 +117,36 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
     this.sharedDataService.currentDisplayedProcessTree$.subscribe(tree => {
       this.currentlyDisplayedProcessTree = tree;
-      this.outdatedConformanceStatistics = !this.sharedDataService.processTreesEqual(this.usedTreeForConformanceChecking,
+      const treeHasChanged = !this.sharedDataService.processTreesEqual(this.usedTreeForConformanceChecking,
         this.currentlyDisplayedProcessTree);
+
+      if (treeHasChanged) {
+        this.outdatedConformanceStatistics = true;
+        this.variants.forEach(v => v.isAddedFittingVariant = false);
+      }
     });
   }
 
-  ngAfterViewInit(){
+  ngAfterContentChecked(): void {
+    this.tooltipActivationService.initialize();
+  }
+
+  ngAfterViewInit() {
     this.polygonDrawingService.setElementRefereneces(this.variantExplorerContainer,
-                                                     this.tooltipContainer);
+      this.tooltipContainer);
   }
 
 
-  private eventLogChanged(eventLog): void {
+  private eventLogChanged(): void {
     this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
 
     this.variants = this.sharedDataService.variants;
     this.initializeVisibleVariants();
 
-    this.tooltipActivationService.initialize();
-
-    this.explicitlyAddedVariants = [];
-    this.selectedVariants = [];
+    this.variants.forEach(v => {
+      v.isSelected = false;
+      v.isAddedFittingVariant = false;
+    });
 
     this.numberFittingVariants = undefined;
     this.numberFittingTraces = undefined;
@@ -166,20 +181,15 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   updateAlignments(): void {
-    const alignmentsToBeCalculated = this.totalNumberVariants - this.explicitlyAddedVariants.length;
+    if (!this.outdatedConformanceStatistics) {
+      return;
+    }
+
     let calculatedAlignments = 0;
     this.tooltipActivationService.close();
     this.alignmentCalculationInProgress = true;
 
-    this.explicitlyAddedVariants.map(idx => this.variants[idx]).forEach(v => {
-      v.deviation = false;
-      v.calculationInProgress = false;
-    });
     this.updateAlignmentStatistics();
-    if (alignmentsToBeCalculated === 0) {
-      this.alignmentCalculationInProgress = false;
-      this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
-    }
 
     this.variants.forEach(v => {
       v.calculationInProgress = true;
@@ -189,17 +199,10 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
         v.calculationInProgress = false;
         v.alignment = res.alignment;
         v.deviation = res.deviation;
-        v.deviation = res.deviation;
         calculatedAlignments++;
         this.updateAlignmentStatistics();
-        if (res.deviation) {
-          const indexNonFittingVariant = this.variants.findIndex(element => v === element);
-          this.explicitlyAddedVariants = this.explicitlyAddedVariants.filter(i => i !== indexNonFittingVariant);
-        }
-
-        if (calculatedAlignments === alignmentsToBeCalculated) {
+        if (calculatedAlignments === this.totalNumberVariants) {
           this.alignmentCalculationInProgress = false;
-          this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
         }
       }, _ => {
         this.alignmentCalculationInProgress = false;
@@ -233,13 +236,12 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
   discoverInitialModel(): void {
     this.tooltipActivationService.close();
-    this.explicitlyAddedVariants = [...this.selectedVariants];
-    console.warn(this.explicitlyAddedVariants);
 
-    const variants = this.selectedVariants.map(i => this.variants[i].variant);
 
-    this.backendService.discoverProcessModelFromConcurrencyVariants(variants);
-    this.clearSelection();
+    const variants = this.getSelectedVariants().map(v => v.variant);
+
+    this.backendService.discoverProcessModelFromConcurrencyVariants(variants).subscribe(_ =>
+      this.refreshConformanceIconsAfterModelChange(true));
   }
 
 
@@ -267,72 +269,94 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     };
   }
 
-  addExplicitlyAddedVariant(variantIndex): void {
-    if (this.variants[variantIndex].calculationInProgress) {
-      this.showAlert('Cannot explicitly add the variant - conformance statistics being calculated');
-    } else if (this.outdatedConformanceStatistics) {
-      this.showAlert('Cannot explicitly add the variant - outdated or no conformance statistics');
-    } else if (this.variants[variantIndex].deviation) {
-      this.showAlert('Cannot explicitly add the variant - variant does not fit the model');
-    } else {
-      this.showAlert(null);
-      this.explicitlyAddedVariants.push(variantIndex);
-    }
-  }
-
-  removeExplicitlyAddedVariant(variantIndex): void {
-    const i = this.explicitlyAddedVariants.indexOf(variantIndex);
-    this.explicitlyAddedVariants.splice(i, 1);
+  selectionChangedForVariant(variant: Variant, isSelected: boolean): void {
+    variant.isSelected = isSelected;
   }
 
   addSelectedVariantsToModel(): void {
     this.tooltipActivationService.close();
 
+    // TODO we currently distinguish two cases here: 1. outdated conformance and 2. known conformance
+    // in the future, we want to use caching in the backend and use only a single call from frontend
     if (this.outdatedConformanceStatistics) {
-      this.showAlert('cannot add variants - please run conformance check first');
+      this.addSelectedVariantsToModelForOutdatedConformance();
       return;
     }
 
-    const explicitlyAddedVariants = this.explicitlyAddedVariants.map(i => this.variants[i].variant);
+    this.addSelectedVariantsToModelForGivenConformance();
+  }
 
-    const variantsToAdd: VariantElement[] = [];
-    this.selectedVariants.forEach(i => {
-      variantsToAdd.push(this.variants[i].variant);
-    });
+  getSelectedVariants(): Variant[] {
+    return this.variants.filter(v => v.isSelected);
+  }
 
-    this.backendService.addConcurrencyVariantsToProcessModel(variantsToAdd, explicitlyAddedVariants).subscribe(res => {
-      this.selectedVariants.forEach(i => {
-        this.variants[i].deviation = false;
-        this.explicitlyAddedVariants.push(i);
+  addSelectedVariantsToModelForOutdatedConformance(): void {
+    const selectedVariants = this.getSelectedVariants().map(v => v.variant);
+
+    this.backendService.addConcurrencyVariantsToProcessModelForUnknownConformance(selectedVariants)
+      .subscribe(_ => {
+        this.refreshConformanceIconsAfterModelChange(false);
       });
-      this.clearSelection();
+  }
+
+  addSelectedVariantsToModelForGivenConformance(): void {
+    const selectedVariants = this.getSelectedVariants();
+    const fittingVariants = selectedVariants.filter(v => !v.deviation).map(v => v.variant);
+    const variantsToAdd = selectedVariants.filter(v => v.deviation).map(v => v.variant);
+
+    this.backendService.addConcurrencyVariantsToProcessModel(variantsToAdd, fittingVariants)
+      .subscribe(_ => {
+        this.refreshConformanceIconsAfterModelChange(false);
+      });
+  }
+
+  refreshConformanceIconsAfterModelChange(wasInitialDiscovery: boolean): void {
+    if (wasInitialDiscovery) {
+      this.variants.forEach(v => {
+        v.deviation = undefined;
+        v.calculationInProgress = false;
+      });
+    }
+
+    this.getSelectedVariants().forEach(v => {
+      v.isAddedFittingVariant = true;
+      v.deviation = false;
+      v.calculationInProgress = false;
     });
   }
 
-  clearSelection(): void {
-    this.selectedVariants = [];
-    this.variantComponents.forEach(c => c.setSelected(false));
+  isAnyVariantSelected(): boolean {
+    return this.variants.some(v => v.isSelected);
   }
 
-  public toggleSelect(index, variant): void {
-    const component = this.variantComponents.find(c => c.variant === variant);
+  isNoVariantSelected(): boolean {
+    return !this.isAnyVariantSelected();
+  }
 
-    if (this.selectedVariants.includes(index)) {
-      variant.setExpanded(false);
-      component.setSelected(false);
+  areAllVariantsSelected(): boolean {
+    return this.getSelectedVariants().length >= this.totalNumberVariants;
+  }
 
-      const i = this.selectedVariants.indexOf(index);
-      this.selectedVariants.splice(i, 1);
-    } else {
-      variant.setExpanded(true);
-      component.setSelected(true);
-      this.selectedVariants.push(index);
+  unSelectAllChanged(isSelected: boolean): void {
+    this.tooltipActivationService.close();
+    this.variants.forEach(v => v.isSelected = isSelected)
+  }
+
+  areAllVariantsExpanded(): boolean {
+    if (this.variantComponents === undefined) {
+      return false;
     }
+    const unexpandedVariantsExist = this.variantComponents.some(c => !c.isExpanded());
+    return !unexpandedVariantsExist;
+  }
+
+  unExpandAll(shouldExpand: boolean): void {
+    this.tooltipActivationService.close();
+    this.variantComponents.forEach(c => c.setExpanded(shouldExpand));
   }
 
   onScroll(event): void {
     const scrollTop = event.target.scrollTop;
-    const scrollHeight = event.target.scrollHeight;
     this.updateVisible(scrollTop);
   }
 
@@ -350,6 +374,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     }
   }
 
+  // TODO isComplexVariant is currently unused
   isComplexVariant(variant: VariantElement) {
     if (variant instanceof ParallelGroup) {
       return true;
@@ -366,107 +391,88 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     }
   }
 
-  exportVariantSVG(){
+  exportVariantSVG() {
+    let svgs: SVGGraphicsElement[] = [];
+    let state: boolean[] = [];
 
+    this.svgRenderingInProgress = true;
 
-  let svgs : SVGGraphicsElement[] = [];
-  let state : boolean[] = [];
+    // Get current expansion state
+    this.variantComponents.forEach(c => state.push(c.isExpanded()));
 
-  this.svgRenderingInProgress = true;
+    // Expand the elements and redraw them
+    this.variantComponents.forEach(c => c.setSelected(true));
 
-  // Get current expansion state
-  this.variantComponents.forEach(c => state.push(c.getExpanded()));
+    // Collect the SVG and pass them to the SVG Service
+    this.variantComponents.forEach(c => svgs.push(c.getSVGGraphicElement()));
 
-  // Expand the elements and redraw them
-  this.variantComponents.forEach(c => c.setSelected(true));
+    // Add Frequency and Percentage information to the SVG
+    svgs = svgs.map((c, i) => this.addVariantInformation(c, this.variants[i].count, this.variants[i].percentage));
 
-  // Collect the SVG and pass them to the SVG Service
-  this.variantComponents.forEach(c => svgs.push(c.getSVGGraphicElement()));
+    // TODO Create the Legend Element and add it
+    const legend = d3.create("svg")
+      .attr("x", "10")
+      .attr("y", "10");
 
-  // Add Frequency and Percentage information to the SVG
-  svgs = svgs.map((c,i) => this.addVariantInformation(c, this.variants[i].count, this.variants[i].percentage));
+    let leafnodes: LeafNode[] = [];
 
-  // TODO Create the Legend Element and add it
-  const legend =  d3.create("svg")
-                    .attr("x", "10")
-                    .attr("y", "10");
+    for (let activity in this.sharedDataService.activitiesInEventLog) {
+      leafnodes.push(new LeafNode([activity]));
+    }
 
-  let leafnodes : LeafNode[] = [];
+    this.polygonDrawingService.drawLegend(leafnodes, legend, this.colorMap);
 
-  for(let activity in this.sharedDataService.activitiesInEventLog){
-    leafnodes.push(new LeafNode([activity]));
+    svgs.unshift(legend.node());
+
+    // Send all Elements to the export service
+    this.imageExportService.export("variant_explorer", 0, 0, ...svgs);
+
+    // Return everything to its previous state
+    this.variantComponents.forEach((c, i) => c.setSelected(state[i]))
+
+    // Hide the Spinner
+    this.svgRenderingInProgress = false;
   }
 
-  this.polygonDrawingService.drawLegend(leafnodes, legend, this.colorMap);
+  addVariantInformation(svgElement: SVGGraphicsElement, variantAbs: number, variantPerc: number): SVGGraphicsElement {
+    const SHIFTLENGTH: number = 50;
 
-  svgs.unshift(legend.node());
+    const svgElement_copy = (svgElement.cloneNode(true) as SVGGraphicsElement);
 
-  // Send all Elements to the export service
-  this.imageExportService.export("variant_explorer", 0, 0, ...svgs);
+    // Shift all Elements to the right using by transform chaining
+    svgElement_copy.setAttribute("width", (svgElement.clientWidth + SHIFTLENGTH).toString());
 
-  // Return everything to its previous state
-  this.variantComponents.forEach((c, i) => c.setSelected(state[i]))
+    d3.select(svgElement_copy).select("g")
+      .selectChildren()
+      .each(function (this: SVGGraphicsElement) {
+        this.setAttribute("transform", this.getAttribute("transform") ? this.getAttribute("transform") + "," + "translate(50,0)" : "translate(50,0)");
+      })
+    // Add the Frequency Information
+    const textfield = d3.select(svgElement_copy).append('text').attr('transform', `translate(20, ${((svgElement.clientHeight - 25) / 2) + 10})`)
+      .attr('height', 20)
+      .attr('width', 50)
+      .attr('font-size', 9)
+      .attr('fill', "black");
 
-  // Hide the Spinner
-  this.svgRenderingInProgress = false;
-  }
+    textfield.append('tspan')
+      .attr('x', 0)
+      .attr('dy', 0)
+      .attr('height', 9)
+      .attr('fill', 'black')
+      .text(variantPerc + '%')
 
-  addVariantInformation(svgElement : SVGGraphicsElement, variantAbs : number, variantPerc : number) : SVGGraphicsElement{
-  const SHIFTLENGTH: number = 50;
+    textfield.append('tspan')
+      .attr('x', 0)
+      .attr('dy', 10)
+      .attr('height', 9)
+      .attr('fill', 'black')
+      .text('(' + variantAbs + ')');
 
-  const svgElement_copy  = (svgElement.cloneNode(true) as SVGGraphicsElement);
-
-  // Shift all Elements to the right using by transform chaining
-  svgElement_copy.setAttribute("width", (svgElement.clientWidth + SHIFTLENGTH).toString());
-
-  d3.select(svgElement_copy).select("g")
-                            .selectChildren()
-                            .each(function(this : SVGGraphicsElement){
-                              this.setAttribute("transform", this.getAttribute("transform") ? this.getAttribute("transform") + "," + "translate(50,0)" : "translate(50,0)");
-                            })
-  // Add the Frequency Information
-  const textfield = d3.select(svgElement_copy).append('text').attr('transform', `translate(20, ${((svgElement.clientHeight - 25) / 2) + 10})`)
-                       .attr('height', 20)
-                       .attr('width', 50)
-                       .attr('font-size', 9)
-                       .attr('fill', "black");
-
-  textfield.append('tspan')
-           .attr('x', 0)
-           .attr('dy', 0)
-           .attr('height', 9)
-           .attr('fill', 'black')
-           .text(variantPerc + '%')
-
-  textfield.append('tspan')
-           .attr('x', 0)
-           .attr('dy', 10)
-           .attr('height', 9)
-           .attr('fill', 'black')
-           .text('(' + variantAbs + ')');
-
-  return svgElement_copy;
+    return svgElement_copy;
   }
 
 }
 
-export class Variant {
-  count: number;
-  variant: VariantElement;
-  percentage: number;
-  calculationInProgress: boolean | undefined;
-  alignment: any | undefined;
-  deviation: any | undefined;
-  sub_variants: {
-    count: number
-    variant: [string, string][][],
-    percentage: number,
-    calculationInProgress: boolean | undefined,
-    alignment: any | undefined,
-    deviation: any | undefined
-  }[] | undefined;
-}
-
-export namespace VariantExplorerComponent{
+export namespace VariantExplorerComponent {
   export const componentName = "VariantExplorerComponent";
 }
