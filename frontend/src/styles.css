@@ -180,41 +180,44 @@ th {
   --bs-table-accent-bg: transparent !important;
 }
 
-.node {
-  rx: 3;
-  ry: 3;
-}
+/*
+  Classes for the process tree SVG elements are used to easily differentiate the elements
+  and to add style that changes dynamically. Thus easier subtype specific selections can be made
+  and the styling can be stripped before tree export
 
-.node-operator {
-  fill: #404040;
-}
+  Used but Empty classes are:
+
+    .node
+    .node-operator
+    .node-visible-activity
+    .node-invisible-activity
+    .node-text
+
+*/
 
 .frozen-node-operator {
   fill: #25306a;
-}
-
-.node-visible-activity {
 }
 
 .frozen-node-visible-activity {
   fill: #425bbf;
 }
 
-.node-invisible-activity {
-  fill: #181818;
-  font-size: 2em;
-}
-
 .frozen-node-invisible-activity {
   fill: #161e40;
-  font-size: 2em;
 }
 
-
-.btn-fixed-width {
-  min-width: 90px;
+.frozen-edge{
+  stroke : #425bbf;
 }
 
+.selected-node{
+  stroke : #dc3545 !important;
+}
+
+.selected-edge{
+  stroke : #dc3545 !important;
+}
 
 .crosshair {
   cursor: crosshair;
@@ -236,11 +239,6 @@ th {
   color: white;
 }
 
-.node-text {
-  text-anchor: middle;
-  dominant-baseline: middle;
-}
-
 .syntax-info {
   background-color: rgba(0, 0, 0, 0.4);
   position: absolute;
@@ -258,6 +256,11 @@ th {
 .grid {
   background-image: radial-gradient(var(--line-color) 1px, transparent 0px);
   background-size: 20px 20px;
+}
+
+.main-process-tree-editor {
+  background-color: var(--box-background-color);
+  max-height: 100%;
 }
 
 

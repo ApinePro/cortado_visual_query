@@ -97,3 +97,13 @@
   flex-direction: row;
   align-items: center;
 }
+
+.full-body-spinner{
+  width: 100%;
+    height: calc(100% - 28px);
+    position: absolute;
+    display: flex;
+    background-color: var(--box-background-color);
+    justify-content: center;
+    align-items: center;
+}
