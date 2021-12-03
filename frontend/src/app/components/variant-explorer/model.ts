@@ -8,6 +8,10 @@ export class Constants {
   public static ARROW_HEAD_LENGTH = 12;
   public static ARROW_HEAD_ANGLE = 20;
   public static FONT_SIZE = 15;
+  public static CHAR_WIDTH = 12;
+  public static MAX_OFFSETWIDTH = 800;
+  public static LEGEND_MARGIN_X = 10;
+  public static LEGEND_MARGIN_Y = 5;
 }
 
 
@@ -15,7 +19,7 @@ export abstract class VariantElement {
   public expanded: boolean = false;
 
   public height; width;
-    
+
   public asSequenceGroup(): SequenceGroup {
     let self: unknown = this;
     return <SequenceGroup>self;
@@ -33,6 +37,10 @@ export abstract class VariantElement {
 
   public setExpanded(expanded: boolean) {
     this.expanded = expanded;
+  }
+
+  public getExpanded() : boolean{
+    return this.expanded;
   }
 
   public getHeadLength() {
@@ -67,7 +75,7 @@ export class SequenceGroup extends VariantElement {
   public getHeight(): number {
     if(this.height) {
       return this.height;
-    } 
+    }
     return this.recalculateHeight();
   }
 
@@ -94,7 +102,7 @@ export class SequenceGroup extends VariantElement {
     this.elements.forEach(el => el.width = undefined);
     this.width = this.elements.map((el: VariantElement) => el.getWidth())
                               .reduce((a: number, b: number) => a + b) + 2 * Constants.MARGIN_X + this.getHeadLength() - this.elements[0].getHeadLength();
-    return this.width;  
+    return this.width;
   }
 
   public serialize() {
@@ -118,7 +126,7 @@ export class ParallelGroup extends VariantElement {
   public getHeight(): number {
     if(this.height) {
       return this.height;
-    } 
+    }
     return this.recalculateHeight();
   }
 
@@ -128,7 +136,7 @@ export class ParallelGroup extends VariantElement {
     }
     return this.recalculateWidth();
   }
-  
+
   public updateWidth() {
     let headLength = this.getHeadLength();
     for(let el of this.elements) {
@@ -172,24 +180,26 @@ export class LeafNode extends VariantElement {
     return this.height;
   }
 
-  public getWidth(): number {
+  public getWidth(full_text_width : boolean = false): number {
     if(this.width) {
       return this.width;
     }
     if(this.expanded) {
       this.width = Constants.LEAF_WIDTH_EXPANDED
+    } else if (full_text_width){
+      this.width = this.activity[0].length * Constants.CHAR_WIDTH;
     } else {
       this.width = Constants.LEAF_WIDTH;
     }
     this.width += Constants.MARGIN_X;
 
-    this.width = Math.max(this.width * 0.75 + this.getHeadLength() * 2, 
+    this.width = Math.max(this.width * 0.75 + this.getHeadLength() * 2,
                           this.width - this.getHeadLength() * 2)
 
     return this.width;
   }
 
-  public updateWidth() {};  
+  public updateWidth() {};
 
   public recalculateHeight(): number {
     this.height = Constants.LEAF_HEIGHT;
@@ -202,7 +212,7 @@ export class LeafNode extends VariantElement {
     } else {
       this.width = Constants.LEAF_WIDTH;
     }
-    this.width += Constants.MARGIN_X; 
+    this.width += Constants.MARGIN_X;
     return this.width;
   }
 

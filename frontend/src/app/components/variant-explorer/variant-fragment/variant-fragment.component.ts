@@ -1,3 +1,4 @@
+import { element } from 'protractor';
 import {AfterViewInit, ElementRef, EventEmitter, Output} from '@angular/core';
 import {Component, Input, ViewChild} from '@angular/core';
 import * as d3 from 'd3';
@@ -142,4 +143,13 @@ export class VariantFragmentComponent implements AfterViewInit {
     this.variant.setExpanded(selected);
     this.redraw();
   }
+
+  getExpanded(){
+    return this.variant.getExpanded();
+  }
+
+  getSVGGraphicElement() : SVGGraphicsElement{
+    return this.svgHtmlElement.nativeElement;
+  }
+
 }

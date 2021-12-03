@@ -6,7 +6,7 @@
   </button>
 </div>
 
-<div class="d-flex flex-column h-100 container-variant-explorer" id="variant-explorer-container">
+<div class="d-flex flex-column h-100 container-variant-explorer" #variantExplorerContainer>
   <div class="bg-dark btn-tool-bar">
 
 
@@ -61,7 +61,6 @@
 
     <span class="vl"></span>
 
-
     <button class="button" (click)="clearSelection()" [disabled]="selectedVariants.length == 0">
       <i class="bi bi-x btn-icon" [ngClass]="{'text-danger': selectedVariants.length != 0}"></i>
       clear selection
@@ -69,10 +68,24 @@
 
     <span class="vl"></span>
 
+    <button class="button"
+      data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover"
+      title="Exports the view as an .svg"
+      (click)="exportVariantSVG()">
+      <i class="bi bi-save"></i>
+    </button>
   </div>
 
 
   <div class="main-variant-explorer flex-grow-1" (scroll)="onScroll($event)" #variantExplorer>
+    <div *ngIf = "svgRenderingInProgress" class = "full-body-spinner">
+      <div>
+        <div class="spinner-border spinner-border-sm text-primary"
+             role="status">
+        </div>
+         Exporting Variant View...
+      </div>
+    </div>
     <div class="d-flex">
       <div class="chart-variant__percentage">
         <table>
@@ -147,7 +160,7 @@
     </span>
   </div>
 
-  <div class="tooltip" role="tooltip" id="tooltip-container">
-    <div id="tooltip-inner" class="tooltip-inner"></div>
+  <div class="tooltip" role="tooltip" #tooltipContainer>
+    <div class="tooltip-inner"></div>
   </div>
 </div>

@@ -1,15 +1,16 @@
-
-import { Component, ElementRef, Inject, isDevMode, OnInit, QueryList, ViewChild, ViewChildren, Renderer2 } from '@angular/core';
+import {ImageExportService} from './../../services/imageExportService/image-export-service';
+import { Component, ElementRef, Inject, AfterViewInit, OnInit, QueryList, ViewChild, ViewChildren, Renderer2 } from '@angular/core';
 import {ComponentContainer} from 'golden-layout';
 import {ColorMapService} from '../../services/colorMapService/color-map.service';
 import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
 import {BackendService} from '../../services/backendService/backend.service';
-
 import {ActivateTooltipsService} from '../../services/activateTooltipsService/activate-tooltips.service';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
-import {deserialize, ParallelGroup, SequenceGroup, VariantElement} from './model';
+import {deserialize, ParallelGroup, SequenceGroup, VariantElement, LeafNode} from './model';
 import {VariantFragmentComponent} from './variant-fragment/variant-fragment.component';
+import {PolygonDrawingService} from 'src/app/services/polygon-drawing.service';
+import * as d3 from 'd3';
 import {LayoutChangeDirective} from '../../directives/layout-change.directive';
 
 
@@ -19,11 +20,13 @@ import {LayoutChangeDirective} from '../../directives/layout-change.directive';
   templateUrl: './variant-explorer.component.html',
   styleUrls: ['./variant-explorer.component.scss']
 })
-export class VariantExplorerComponent extends LayoutChangeDirective implements OnInit {
+export class VariantExplorerComponent extends LayoutChangeDirective implements OnInit, AfterViewInit {
 
   constructor(private colorMapService: ColorMapService,
               private sharedDataService: SharedDataService,
               private backendService: BackendService,
+              private imageExportService: ImageExportService,
+              private polygonDrawingService: PolygonDrawingService,
               private tooltipActivationService: ActivateTooltipsService,
               @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer,
               elRef: ElementRef,
@@ -60,12 +63,17 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   public totalNumberVariants = 5;
 
   public alignmentCalculationInProgress = false;
+  public svgRenderingInProgress : boolean = false;
+
 
   @ViewChildren(VariantFragmentComponent)
   variantComponents: QueryList<VariantFragmentComponent>;
 
   @ViewChild('variantExplorer', {static: true})
   variantExplorerDiv: ElementRef<HTMLDivElement>;
+
+  @ViewChild('variantExplorerContainer') variantExplorerContainer: ElementRef<HTMLDivElement>
+  @ViewChild('tooltipContainer') tooltipContainer: ElementRef<HTMLDivElement>;
 
   public visibleVariantsHeight = 1000;
 
@@ -106,6 +114,11 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
       this.outdatedConformanceStatistics = !this.sharedDataService.processTreesEqual(this.usedTreeForConformanceChecking,
         this.currentlyDisplayedProcessTree);
     });
+  }
+
+  ngAfterViewInit(){
+    this.polygonDrawingService.setElementRefereneces(this.variantExplorerContainer,
+                                                     this.tooltipContainer);
   }
 
 
@@ -352,6 +365,89 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
       return false;
     }
   }
+
+  exportVariantSVG(){
+
+
+  let svgs : SVGGraphicsElement[] = [];
+  let state : boolean[] = [];
+
+  this.svgRenderingInProgress = true;
+
+  // Get current expansion state
+  this.variantComponents.forEach(c => state.push(c.getExpanded()));
+
+  // Expand the elements and redraw them
+  this.variantComponents.forEach(c => c.setSelected(true));
+
+  // Collect the SVG and pass them to the SVG Service
+  this.variantComponents.forEach(c => svgs.push(c.getSVGGraphicElement()));
+
+  // Add Frequency and Percentage information to the SVG
+  svgs = svgs.map((c,i) => this.addVariantInformation(c, this.variants[i].count, this.variants[i].percentage));
+
+  // TODO Create the Legend Element and add it
+  const legend =  d3.create("svg")
+                    .attr("x", "10")
+                    .attr("y", "10");
+
+  let leafnodes : LeafNode[] = [];
+
+  for(let activity in this.sharedDataService.activitiesInEventLog){
+    leafnodes.push(new LeafNode([activity]));
+  }
+
+  this.polygonDrawingService.drawLegend(leafnodes, legend, this.colorMap);
+
+  svgs.unshift(legend.node());
+
+  // Send all Elements to the export service
+  this.imageExportService.export("variant_explorer", 0, 0, ...svgs);
+
+  // Return everything to its previous state
+  this.variantComponents.forEach((c, i) => c.setSelected(state[i]))
+
+  // Hide the Spinner
+  this.svgRenderingInProgress = false;
+  }
+
+  addVariantInformation(svgElement : SVGGraphicsElement, variantAbs : number, variantPerc : number) : SVGGraphicsElement{
+  const SHIFTLENGTH: number = 50;
+
+  const svgElement_copy  = (svgElement.cloneNode(true) as SVGGraphicsElement);
+
+  // Shift all Elements to the right using by transform chaining
+  svgElement_copy.setAttribute("width", (svgElement.clientWidth + SHIFTLENGTH).toString());
+
+  d3.select(svgElement_copy).select("g")
+                            .selectChildren()
+                            .each(function(this : SVGGraphicsElement){
+                              this.setAttribute("transform", this.getAttribute("transform") ? this.getAttribute("transform") + "," + "translate(50,0)" : "translate(50,0)");
+                            })
+  // Add the Frequency Information
+  const textfield = d3.select(svgElement_copy).append('text').attr('transform', `translate(20, ${((svgElement.clientHeight - 25) / 2) + 10})`)
+                       .attr('height', 20)
+                       .attr('width', 50)
+                       .attr('font-size', 9)
+                       .attr('fill', "black");
+
+  textfield.append('tspan')
+           .attr('x', 0)
+           .attr('dy', 0)
+           .attr('height', 9)
+           .attr('fill', 'black')
+           .text(variantPerc + '%')
+
+  textfield.append('tspan')
+           .attr('x', 0)
+           .attr('dy', 10)
+           .attr('height', 9)
+           .attr('fill', 'black')
+           .text('(' + variantAbs + ')');
+
+  return svgElement_copy;
+  }
+
 }
 
 export class Variant {

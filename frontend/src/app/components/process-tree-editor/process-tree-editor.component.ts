@@ -1,3 +1,5 @@
+
+
 import {
   Component, OnInit, ViewChild, AfterViewInit, ElementRef, HostListener, isDevMode, Inject, Renderer2,
 } from '@angular/core';
@@ -9,8 +11,8 @@ import {SharedDataService} from '../../services/sharedDataService/shared-data.se
 import {ActivateTooltipsService} from '../../services/activateTooltipsService/activate-tooltips.service';
 import {LayoutChangeDirective} from '../../directives/layout-change.directive';
 import {ColorMapService} from '../../services/colorMapService/color-map.service';
+import {ImageExportService} from '../../services/imageExportService/image-export-service';
 import {flextree} from 'd3-flextree';
-
 
 declare var $;
 import {ProcessTree, ProcessTreeSyntaxInfo, checkSyntax} from '../../objects/ProcessTree';
@@ -27,13 +29,13 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
   constructor(private sharedDataService: SharedDataService,
               private activateTooltipsService: ActivateTooltipsService,
               private colorMapService: ColorMapService,
+              private imageExportService: ImageExportService,
               @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer,
               elRef: ElementRef,
               renderer: Renderer2) {
 
     super(elRef.nativeElement, renderer);
     const state = this.container.initialState;
-
   }
 
   @ViewChild('d3svg') svgElem: ElementRef;
@@ -84,9 +86,7 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
 
     this.sharedDataService.currentDisplayedProcessTree$.subscribe(res => {
       console.log('new tree received in processTreeEditor');
-      // console.log(res);
-      // console.log(this.currentlyDisplayedTreeInEditor);
-      // console.log(res != this.currentlyDisplayedTreeInEditor);
+
       if (res && this.root !== res && this.currentlyDisplayedTreeInEditor !== res) {
         this.root = d3.hierarchy(res, (d) => {
           // @ts-ignore
@@ -95,7 +95,7 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
         console.warn('update tree triggered by service');
         this.selectedRootNode = null;
         this.selectedRootNodeOnly = false;
-        this.update(this.root, true);
+        this.update(this.root); // In DevMode this causes an initial error due to an ElementRef before ViewInit
       }
     });
     this.sharedDataService.activitiesInEventLog$.subscribe(activities => {
@@ -124,12 +124,10 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
       e.stopPropagation();
     });
 
-
-    this.resizeTimer = setTimeout(function () {
+   // Wait a short time and render the dummy tree
+   setTimeout(function () {
       this.update(this.root);
     }.bind(this), 250);
-
-
   }
 
   saveTreeInSharedDataService(): void {
@@ -352,8 +350,10 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
       // add nodes
       this.nodeEnter.append('rect')
         .classed('node', true)
-        .attr('stroke', 'gray')
-        .attr('stroke-width', '2')
+        .attr('rx', constants.tree_corner_radius)
+        .attr("ry", constants.tree_corner_radius)
+        .attr('stroke', constants.tree_stroke_color)
+        .attr('stroke-width', constants.tree_stroke_width)
         .merge(node.select('.node'))
         .classed('node-operator', function (d: any) {
           return d.data.operator !== null;
@@ -368,6 +368,8 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
           return d.data.label !== null && d.data.label !== '\u03C4' && d.data.frozen === true;
         })
         .attr('fill', function (d: any) {
+          if(d.data.operator !== null) return constants.node_operator_color;
+          if(d.data.label !== null && d.data.label === '\u03C4') return constants.node_non_visible_activity_color;
           const isVisibleActivity = d.data.label !== null && d.data.label !== '\u03C4';
           return isVisibleActivity ? activityColorMap.get(d.data.label) : null;
         })
@@ -379,6 +381,10 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
         })
         .attr('width', constants.tree_node_height_width)
         .attr('height', constants.tree_node_height_width)
+        .attr('font-size', (d: any) => {
+          if(d.data.label === '\u03C4') return constants.node_invisible_font_size;
+          return "";
+        })
         .attr('x', function (d: any) {
           return d.x - constants.tree_node_height_width / 2;
         })
@@ -389,6 +395,8 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
       this.nodeEnter.append('text')
         .classed('user-select-none', true)
         .classed('node-text', true)
+        .attr("text-anchor", "middle")
+        .attr("dominant-baseline", "middle")
         .merge(node.select('text'))
         .attr('fill', (d) => {
           if (d.data.frozen) {
@@ -399,9 +407,9 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
         })
         .attr('font-size', (d: any) => {
           if (d.data.operator) {
-            return '1.5em';
+            return constants.node_operator_font_size;
           }
-          return '12px';
+          return constants.node_visible_font_size;
         })
         .text(function (d: any) {
           if (d.data.operator) {
@@ -444,12 +452,9 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
         .attr('y2', function (d: any) {
           return d.target.y;
         })
-        .attr('stroke', (d) => {
-          if (d.source.data.frozen) {
-            return constants.frozenEdgeColor;
-          }
-          return d.source.data.selected ? constants.selectedTreeNodeStrokeColor : constants.nonSelectedTreeNodeStrokeColor;
-        });
+        .attr('stroke', constants.tree_stroke_color)
+        .classed("selected-edge", (d) => {d.source.data.selected})
+        .classed("frozen-edge", (d) => {d.source.data.frozen});
 
       // resize leaf nodes if text is too long
       this.nodeEnter
@@ -743,14 +748,9 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
     }.bind(this);
 
     const selectSubtree = function (svgGroup, d) {
-      d3.select(svgGroup).select('.node').attr('stroke', () => {
-        // add red stroke around activity nodes
-        if (d3.select(svgGroup).select('.node').attr('stroke') == constants.selectedTreeNodeStrokeColor) {
-          return constants.nonSelectedTreeNodeStrokeColor;
-        } else {
-          return constants.selectedTreeNodeStrokeColor;
-        }
-      });
+      d3.select(svgGroup).select('.node')
+        .classed("selected-node", () => {return !(d3.select(svgGroup).select('.node').classed("selected-node"))});
+
       d.data.selected = true;
       if (!this.selectSubtreeActive || !d.children) {
         return;
@@ -771,13 +771,9 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
       if (!this.selectSubtreeActive) {
         return;
       }
-      this.mainSvgGroup.selectAll('line').attr('stroke', (e) => {
-        if (e.source.data.selected) {
-          return constants.selectedTreeNodeStrokeColor;
-        }
-
-        return e.source.data.frozen ? constants.frozenEdgeColor : constants.nonSelectedTreeNodeStrokeColor;
-      });
+      this.mainSvgGroup.selectAll('line')
+                       .classed("frozen-edge", (e) => {return e.source.data.frozen})
+                       .classed("selected-edge", (e) => {return e.source.data.selected});
     }.bind(this);
 
     const unselectAll = function () {
@@ -825,13 +821,10 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
     this.mainSvgGroup.selectAll('rect').each((d) => {
       d.data.selected = false;
     });
-    this.mainSvgGroup.selectAll('line').attr('stroke', (d) => {
-      if (d.source.data.frozen && d.source.data.frozen === true) {
-        return constants.frozenEdgeColor;
-      }
-      return constants.nonSelectedTreeNodeStrokeColor;
-    });
-  }
+    this.mainSvgGroup.selectAll('rect').classed('selected-node', false);
+    this.mainSvgGroup.selectAll('line').classed('selected-edge', false);
+    this.mainSvgGroup.selectAll('line').classed('frozen-edge', (d) => {return d.source.data.frozen && d.source.data.frozen})
+    }
 
   initializeSvg(): void {
     // console.log("plot")
@@ -845,6 +838,55 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
     this.horizontallyCenterTree();
     this.addZoomFunctionality();
   }
+
+
+  exportCurrentTree(svg : SVGGraphicsElement): void{
+    // Copy the current tree
+    const tree_copy = svg.cloneNode(true) as SVGGraphicsElement;
+    const svgBBox = (d3.select("#zoomGroup").node() as SVGGraphicsElement).getBBox();
+
+    // Strip all the classed information
+    const tree = d3.select(tree_copy);
+    tree.selectAll("rect").classed(".selected-node", false)
+                          .classed(".frozen-node", false);
+    tree.selectAll("line").classed(".selected-edge", false)
+                          .classed(".frozen-edge", false);
+
+    tree.selectAll("g").attr('data-bs-toggle', 'none')
+                       .attr('data-bs-placement', 'none')
+                       .attr('data-bs-title', 'none')
+                       .attr('data-bs-html', 'none')
+                       .attr('data-bs-template', 'none');
+
+    console.log(tree.selectChildren())
+    console.log(tree.selectAll())
+    console.log(tree.selectAll("rect"));
+    console.log(tree.selectAll("line"));
+
+    const shiftbyXOffset = (node , offset, attrKey)=>{
+      return parseFloat(node.getAttribute(attrKey)) + offset
+    }
+
+    // Recenter the tree and reset scaling
+    let xCords : number[] = [];
+    tree.selectAll("rect").each( function(this : SVGGraphicsElement) {xCords.push(parseFloat(this.getAttribute("x")))});
+
+    const xLower = Math.min(...xCords);
+    const xOffset = Math.abs(xLower) + constants.export_offset;
+
+    tree.selectAll("rect").attr("x", function(this : SVGGraphicsElement) {return shiftbyXOffset(this, xOffset, "x")});
+    tree.selectAll("text").attr("x", function(this : SVGGraphicsElement) {return shiftbyXOffset(this, xOffset, "x")});
+    tree.selectAll("line").attr("x1", function(this : SVGGraphicsElement) {return shiftbyXOffset(this, xOffset, "x1")});
+    tree.selectAll("line").attr("x2", function(this : SVGGraphicsElement) {return shiftbyXOffset(this, xOffset, "x2")});
+
+    tree.selectChild().attr("transform", `translate(0, ${constants.export_offset})`)
+
+    // Export the tree
+    this.imageExportService.export("process_tree",  svgBBox.width + 2*constants.export_offset, svgBBox.height + constants.export_offset, tree_copy);
+
+  }
+
+
 
 }
 
