@@ -14,6 +14,27 @@ export class Constants {
   public static LEGEND_MARGIN_Y = 5;
 }
 
+export class Variant {
+  count: number;
+  variant: VariantElement;
+  isSelected: boolean;
+  isAddedFittingVariant: boolean;
+  percentage: number;
+  calculationInProgress: boolean | undefined;
+  // TODO alignment is unused it will not be returned by calculateAlignmentsCVariant backend endpoint
+  alignment: any | undefined;
+  deviation: any | undefined;
+  sub_variants: {
+    count: number
+    variant: [string, string][][],
+    percentage: number,
+    calculationInProgress: boolean | undefined,
+    // TODO alignment is unused it will not be returned by calculateAlignmentsCVariant backend endpoint
+    alignment: any | undefined,
+    deviation: any | undefined
+  }[] | undefined;
+}
+
 
 export abstract class VariantElement {
   public expanded: boolean = false;
