@@ -14,6 +14,7 @@
   --thin-border-color: #1a1a1a;
   --standard-font-size: 14px;
   --bs-dark-rgb: 52,58,64;
+  --bs-bg-opacity: 1;
 }
 
 .table-dark{
@@ -143,17 +144,6 @@ hr {
   font-size: large;
 }
 
-.floating-infobox {
-  background-color: rgba(0, 0, 0, 0.6);
-  position: absolute;
-  font-size: small;
-  bottom: 0;
-  left: 0;
-  text-align: left;
-  cursor: auto;
-  padding: .25rem;
-}
-
 code {
   color: var(--text-secondary);
 }
@@ -217,50 +207,6 @@ th {
 
 .selected-edge{
   stroke : #dc3545 !important;
-}
-
-.crosshair {
-  cursor: crosshair;
-}
-
-.dropdown-node-insert {
-  font-size: small;
-  max-height: 90vh;
-  overflow-x: auto;
-  user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-user-select: none;
-  overflow-y: scroll;
-}
-
-.insertion-position-active {
-  background-color: var(--primary);
-  color: white;
-}
-
-.syntax-info {
-  background-color: rgba(0, 0, 0, 0.4);
-  position: absolute;
-  font-size: small;
-  bottom: 0;
-  left: 0;
-  text-align: left;
-  cursor: auto;
-}
-
-.syntax-info ul {
-  margin-bottom: 0;
-}
-
-.grid {
-  background-image: radial-gradient(var(--line-color) 1px, transparent 0px);
-  background-size: 20px 20px;
-}
-
-.main-process-tree-editor {
-  background-color: var(--box-background-color);
-  max-height: 100%;
 }
 
 

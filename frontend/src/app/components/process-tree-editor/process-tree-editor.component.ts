@@ -7,6 +7,7 @@ import {ComponentContainer} from 'golden-layout';
 import * as d3 from 'd3';
 import * as constants from './constants_tree_d3';
 
+import {ExpertModeComponent} from './expert-mode/expert-mode.component';
 import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
 import {ActivateTooltipsService} from '../../services/activateTooltipsService/activate-tooltips.service';
 import {LayoutChangeDirective} from '../../directives/layout-change.directive';
@@ -77,6 +78,11 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
   lastSelectedInsertMethod: Function = this.insertNewNodeBelow;
 
   activityColorMap: Map<string, string>;
+
+
+  tree_syntax_string : string;
+  tree_syntax_result : any;
+
 
 
   ngOnInit(): void {

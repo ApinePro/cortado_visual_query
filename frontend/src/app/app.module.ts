@@ -16,7 +16,7 @@ import { VariantInfoComponent } from './components/variant-explorer/variant-info
 import { LayoutChangeDirective } from './directives/layout-change.directive';
 import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
-
+import { ExpertModeComponent } from './components/process-tree-editor/expert-mode/expert-mode.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +29,8 @@ import { GoldenLayoutHostComponent } from './components/golden-layout-host/golde
     VariantFragmentComponent,
     ActivityOverviewComponent,
     ProcessTreeEditorComponent,
-    VariantInfoComponent
+    VariantInfoComponent,
+    ExpertModeComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,28 @@
+<div class="accordion accordion-flush" id="ExpertModeAccordion">
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="ExpertModeHeading">
+      <button #expertModeButton
+        class="accordion-button"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#ExpertModeBody"
+        (click) = "openExpertMode()"
+      >
+        Expert Mode
+      </button>
+    </h2>
+    <div
+      id="ExpertModeBody"
+      class="accordion-collapse collapse"
+      data-bs-parent="#ExpertModeAccordion"
+    >
+      <div class="accordion-body">
+        <div class="tree-syntax-string">
+          <strong> Tree Syntax</strong> <br />
+          <span> {{ syntax_tree_string }}</span>
+        </div>
+        <div class="expert-mode-button-bar"></div>
+      </div>
+    </div>
+  </div>
+</div>

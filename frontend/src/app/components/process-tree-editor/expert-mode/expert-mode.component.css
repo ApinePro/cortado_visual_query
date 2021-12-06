@@ -1,0 +1,27 @@
+.tree-syntax-string{
+}
+
+.accordion-body{
+  padding :.25rem;
+  font-size: small;
+}
+
+.accordion-button{
+  padding : .25rem;
+  font-size: small;
+}
+.accordion-button.collapsed::after{
+  transform: rotate(180deg);
+}
+
+.accordion-button::after{
+  background-size : .75rem;
+  width : .75rem;
+  height : .75rem;
+}
+
+.accordion-button:not(.collapsed)::after{
+  transform: rotate(0deg);
+}
+
+

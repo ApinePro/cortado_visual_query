@@ -7,7 +7,6 @@ import {tree} from "./debug_tree.js";
   providedIn: 'root'
 })
 export class SharedDataService {
-
   constructor() {
   }
 
@@ -130,6 +129,37 @@ export class SharedDataService {
   get correctTreeSyntax(): boolean {
     return this._correctTreeSyntax.getValue();
   }
+
+  private _currentTreeString = new BehaviorSubject<string>("");
+
+  get currentTreeString$(): Observable<string> {
+    return this._currentTreeString.asObservable();
+  }
+
+  set currentTreeString(syntaxObj: any) {
+    this._currentTreeString.next(syntaxObj);
+  }
+
+  get currentTreeString() {
+    return this._currentTreeString.getValue();
+  }
+
+
+
+  private _currentTreeStringSyntaxCheck = new BehaviorSubject<any>(null);
+
+  get currentTreeStringSyntaxCheck$(): Observable<any> {
+    return this._currentTreeStringSyntaxCheck.asObservable();
+  }
+
+  set currentTreeStringSyntaxCheck(syntaxObj: any) {
+    this._currentTreeStringSyntaxCheck.next(syntaxObj);
+  }
+
+  get currentTreeStringSyntaxCheck() {
+    return this._currentTreeStringSyntaxCheck.getValue();
+  }
+
 
 
   // TODO move somewhere else

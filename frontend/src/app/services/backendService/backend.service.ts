@@ -71,6 +71,20 @@ export class BackendService {
       });
   }
 
+  computeTreeString(tree) : void{
+    this.httpClient.post(this.backendUrl + 'computeTreeStringFromTree', {tree: tree})
+      .subscribe(tree => {
+        this.sharedDataService.currentTreeString = tree;
+      });
+  }
+
+  checkTreeStringSyntax(tree_string : string) : void{
+    this.httpClient.post(this.backendUrl + 'checkTreeStringSyntax', {tree_string: tree_string})
+      .subscribe(syntaxCheck => {
+        this.sharedDataService.currentTreeStringSyntaxCheck = syntaxCheck;
+      });
+  }
+
   downloadCurrentTreeAsPTML(): void {
     this.sharedDataService.currentDisplayedProcessTree$.pipe(take(1)).subscribe(tree => {
       this.httpClient.post(this.backendUrl + 'convertPtToPTML', {pt: tree}, {responseType: 'blob'})

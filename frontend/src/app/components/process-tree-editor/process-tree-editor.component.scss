@@ -13,5 +13,62 @@
   position: relative;
 }
 
+.floating-infobox {
+  background-color: rgba(0, 0, 0, 0.6);
+  position: absolute;
+  font-size: small;
+  bottom: 0;
+  left: 0;
+  text-align: left;
+  cursor: auto;
+  padding: .25rem;
+}
 
+.syntax-info {
+  background-color: rgba(0, 0, 0, 0.4);
+  position: absolute;
+  font-size: small;
+  bottom: 0;
+  left: 0;
+  text-align: left;
+  cursor: auto;
+}
+
+.syntax-info ul {
+  margin-bottom: 0;
+}
+
+.crosshair {
+  cursor: crosshair;
+}
+
+.dropdown-node-insert {
+  font-size: small;
+  max-height: 90vh;
+  overflow-x: auto;
+  user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  overflow-y: scroll;
+}
+
+.insertion-position-active {
+  background-color: var(--primary);
+  color: white;
+}
+
+
+.grid {
+  background-image: radial-gradient(var(--line-color) 1px, transparent 0px);
+  background-size: 20px 20px;
+}
+
+
+.exportMode-container{
+  position : absolute;
+  right : 0;
+  bottom : 0;
+  max-width: 25%;
+};
 
