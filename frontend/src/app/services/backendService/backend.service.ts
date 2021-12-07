@@ -4,7 +4,6 @@ import {Observable} from 'rxjs';
 import {SharedDataService} from '../sharedDataService/shared-data.service';
 import * as FileSaver from 'file-saver';
 import {take, tap} from 'rxjs/operators';
-import {ActivateTooltipsService} from '../activateTooltipsService/activate-tooltips.service';
 import {deserialize, VariantElement} from 'src/app/components/variant-explorer/model';
 
 @Injectable({
@@ -13,8 +12,7 @@ import {deserialize, VariantElement} from 'src/app/components/variant-explorer/m
 export class BackendService {
 
   constructor(private httpClient: HttpClient,
-              private sharedDataService: SharedDataService,
-              private activateTooltipsService: ActivateTooltipsService) {
+              private sharedDataService: SharedDataService) {
   }
 
   backendUrl = 'http://127.0.0.1:8000/';
@@ -63,16 +61,16 @@ export class BackendService {
       });
   }
 
-  discoverProcessModelFromConcurrencyVariants(variants: VariantElement[]): void {
-    let variantsSerialized = variants.map(v => v.serialize());
-    this.httpClient.post(this.backendUrl + 'discoverProcessModelFromConcurrencyVariants', {variants: variantsSerialized})
-      .subscribe(tree => {
+  discoverProcessModelFromConcurrencyVariants(variants: VariantElement[]): Observable<any> {
+    const variantsSerialized = variants.map(v => v.serialize());
+    return this.httpClient.post(this.backendUrl + 'discoverProcessModelFromConcurrencyVariants', {variants: variantsSerialized})
+      .pipe(tap(tree => {
         this.sharedDataService.currentDisplayedProcessTree = tree;
-      });
+      }));
   }
 
   computeTreeString(tree) : void{
-    this.httpClient.post(this.backendUrl + 'computeTreeStringFromTree', {tree: tree})
+    this.httpClient.post(this.backendUrl + 'computeTreeStringFromTree', {pt: tree})
       .subscribe(tree => {
         this.sharedDataService.currentTreeString = tree;
       });
@@ -116,28 +114,38 @@ export class BackendService {
     return this.httpClient.post(this.backendUrl + 'calculateAlignmentsCVariant', body);
   }
 
+  // TODO this function is currently unused
   addVariantsToModel(variantsToAdd: any[], explicitlyAddedVariants: any[]): void {
     const body = {
       pt: this.sharedDataService.currentDisplayedProcessTree,
       variants_to_add: variantsToAdd,
-      explicitly_added_variants: explicitlyAddedVariants
+      fitting_variants: explicitlyAddedVariants
     };
     this.httpClient.post(this.backendUrl + 'addVariantsToProcessModel', body).subscribe(res => {
       this.sharedDataService.currentDisplayedProcessTree = res;
-      this.activateTooltipsService.initialize();
     });
   }
 
-  addConcurrencyVariantsToProcessModel(variantsToAdd: VariantElement[], explicitlyAddedVariants: VariantElement[]): Observable<any> {
+  addConcurrencyVariantsToProcessModel(variantsToAdd: VariantElement[], variantsInModelLanguage: VariantElement[]): Observable<any> {
     const body = {
       pt: this.sharedDataService.currentDisplayedProcessTree,
       variants_to_add: variantsToAdd.map(v => v.serialize()),
-      explicitly_added_variants: explicitlyAddedVariants.map(v => v.serialize())
+      fitting_variants: variantsInModelLanguage.map(v => v.serialize())
     };
     return this.httpClient.post(this.backendUrl + 'addConcurrencyVariantsToProcessModel', body).pipe(tap(res => {
       this.sharedDataService.currentDisplayedProcessTree = res;
-      this.activateTooltipsService.initialize();
     }));
+  }
+
+  addConcurrencyVariantsToProcessModelForUnknownConformance(selectedVariants: VariantElement[]): Observable<any> {
+    const body = {
+      pt: this.sharedDataService.currentDisplayedProcessTree,
+      selected_variants: selectedVariants.map(v => v.serialize()),
+    };
+    return this.httpClient.post(this.backendUrl + 'addConcurrencyVariantsToProcessModelUnknownConformance', body)
+      .pipe(tap(res => {
+        this.sharedDataService.currentDisplayedProcessTree = res;
+      }));
   }
 }
 

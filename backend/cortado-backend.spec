@@ -60,7 +60,8 @@ exe = EXE(pyz,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          console=True)
+          console=True,
+          icon=os.path.join(os.path.dirname(SPEC), 'icon', 'cortado_icon_colorful_transparent.ico'))
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,

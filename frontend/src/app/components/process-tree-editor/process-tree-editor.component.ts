@@ -1,5 +1,4 @@
 
-
 import {
   Component, OnInit, ViewChild, AfterViewInit, ElementRef, HostListener, isDevMode, Inject, Renderer2,
 } from '@angular/core';
@@ -25,7 +24,6 @@ import {textColorForBackgroundColor} from '../variant-explorer/helper_functions'
   styleUrls: ['./process-tree-editor.component.scss']
 })
 export class ProcessTreeEditorComponent extends LayoutChangeDirective implements OnInit, AfterViewInit {
-
 
   constructor(private sharedDataService: SharedDataService,
               private activateTooltipsService: ActivateTooltipsService,
@@ -101,7 +99,7 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
         console.warn('update tree triggered by service');
         this.selectedRootNode = null;
         this.selectedRootNodeOnly = false;
-        this.update(this.root); // In DevMode this causes an initial error due to an ElementRef before ViewInit
+        this.update(this.root, true);
       }
     });
     this.sharedDataService.activitiesInEventLog$.subscribe(activities => {
@@ -130,10 +128,6 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
       e.stopPropagation();
     });
 
-   // Wait a short time and render the dummy tree
-   setTimeout(function () {
-      this.update(this.root);
-    }.bind(this), 250);
   }
 
   saveTreeInSharedDataService(): void {

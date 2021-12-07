@@ -1,43 +1,30 @@
 <div class="variant-info-cell">
-    <i class="bi bi-circle font-large me-2 text-muted"
-        *ngIf="!isExplicitlyAdded"
-        (click)="addExplicitlyAddedVariant.emit()">
-    </i>
-    <i class="bi bi-check2-circle font-large me-2 text-light cursor-pointer"
-        *ngIf="isExplicitlyAdded"
-        (click)="removeExplicitlyAdded.emit()">
-    </i>
+  <app-variant-selection-button [isSelected]="variant.isSelected" (selectionChanged)="selectionChanged.emit($event)">
+  </app-variant-selection-button>
 
-    <!-- hourglass-split icon-->
-    <i class="bi bi-hourglass-split text-secondary font-large"
-        *ngIf="variant['calculationInProgress']">
-    </i>
+  <!-- hourglass-split icon-->
+  <i class="bi bi-hourglass-split text-secondary font-large" *ngIf="variant['calculationInProgress']">
+  </i>
 
-    <!-- check-square icon-->
-    <i class="bi bi-check-square font-large"
-        [ngClass]="!outdatedConformanceStatistics? 'text-success' : 'text-warning'"
-        *ngIf="variant['deviation'] == false && variant['calculationInProgress'] == false"> </i>
+  <!-- check-square icon-->
+  <i class="bi bi-check-square font-large"
+    [ngClass]="!outdatedConformanceStatistics || variant.isAddedFittingVariant?  'text-success' : 'text-warning'"
+    *ngIf="variant.deviation == false && variant.calculationInProgress == false"> </i>
 
-    <!-- x-square icon-->
-    <i class="bi bi-x-square font-large"
-        [ngClass]="!outdatedConformanceStatistics? 'text-danger' : 'text-warning'"
-        *ngIf="variant['deviation'] && variant['calculationInProgress'] == false">
-    </i>
+  <!-- x-square icon-->
+  <i class="bi bi-x-square font-large" [ngClass]="!outdatedConformanceStatistics? 'text-danger' : 'text-warning'"
+    *ngIf="variant.deviation && variant.calculationInProgress == false">
+  </i>
 
-    <!-- question mark icon-->
-    <i class="bi bi-question-square text-secondary align-middle font-large"
-        *ngIf="variant['deviation'] == undefined && variant['calculationInProgress'] == false">
-    </i>
+  <!-- question mark icon-->
+  <i class="bi bi-question-square text-secondary align-middle font-large"
+    *ngIf="variant.deviation == undefined && variant.calculationInProgress == false">
+  </i>
 
-
-    <small class="ms-1 float-right cursor-help"
-            data-bs-toggle="tooltip"
-            data-placement="right"
-            data-container="body"
-            data-html="true"
-            title="variant describes ~{{variant['percentage']}}% of all traces in the event log<br>
-        <span class='text-secondary'>variant occurs {{variant['count']| number}} time(s) in total</span>">
-      {{variant['percentage']}}%<br/>
-      ({{variant['count'] | number}})
-    </small>
+  <small class="ms-1 float-end cursor-help" data-toggle="tooltip" data-placement="right" data-container="body"
+    data-html="true" title="variant describes ~{{variant.percentage}}% of all traces in the event log<br>
+        <span class='text-secondary'>variant occurs {{variant.count | number}} time(s) in total</span>">
+    {{variant.percentage}}%<br />
+    ({{variant.count | number}})
+  </small>
 </div>

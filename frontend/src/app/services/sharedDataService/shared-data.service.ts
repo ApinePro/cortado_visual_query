@@ -1,7 +1,7 @@
 import { Injectable, isDevMode } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import * as dummyBackendResponse from './dummy_backend_response.js';
-import {tree} from "./debug_tree.js";
+import {dummy_tree} from "./debug_tree.js";
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +10,6 @@ export class SharedDataService {
   constructor() {
   }
 
-  private dummy_tree = isDevMode() ? tree : null;
   private _loadedEventLog = new Subject<string>();
 
   get loadedEventLog$(): Observable<string> {
@@ -22,7 +21,7 @@ export class SharedDataService {
     this._loadedEventLog.next(name);
   }
 
-  private _currentDisplayedProcessTree = new BehaviorSubject<any>(this.dummy_tree);
+  private _currentDisplayedProcessTree = new BehaviorSubject<any>(null);
 
   get currentDisplayedProcessTree$(): Observable<any> {
     return this._currentDisplayedProcessTree.asObservable();
@@ -143,8 +142,6 @@ export class SharedDataService {
   get currentTreeString() {
     return this._currentTreeString.getValue();
   }
-
-
 
   private _currentTreeStringSyntaxCheck = new BehaviorSubject<any>(null);
 

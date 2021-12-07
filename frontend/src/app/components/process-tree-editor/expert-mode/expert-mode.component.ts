@@ -14,6 +14,10 @@ export class ExpertModeComponent implements OnInit {
   syntax_status : any;
   @ViewChild('expertModeButton') expertModeButton: ElementRef;
 
+
+
+  private currentlyDisplayedTreeInExpertMode;
+
   constructor(private sharedDataService : SharedDataService,
               private backendService : BackendService) {
   }
@@ -29,20 +33,24 @@ export class ExpertModeComponent implements OnInit {
     this.sharedDataService.currentDisplayedProcessTree$.subscribe(tree => {
       this.collectCurrentTreeString(tree);
     })
+
+    this.sharedDataService.currentTreeString$.subscribe(treeString => {
+      this.syntax_tree_string = this.sharedDataService.currentTreeString;
+    })
   }
 
   openExpertMode(){
-    this.collectCurrentTreeString(this.sharedDataService.currentTreeString);
+    this.collectCurrentTreeString(this.sharedDataService.currentDisplayedProcessTree);
   }
 
   // If expert mode is open, compute the syntax tree string
   private collectCurrentTreeString(tree){
 
-    // TODO make the Expansion check less ugly
-
-    if(this.expertModeButton.nativeElement.ariaExpanded === "true"){
+    // Check if tree exists, if the expert mode is active and if it did change
+    // TODO Currently reruns if the same tree is discovered twice as the object changes
+    if(tree && this.expertModeButton.nativeElement.ariaExpanded === "true" && tree !== this.currentlyDisplayedTreeInExpertMode){
       this.backendService.computeTreeString(tree);
-      this.syntax_tree_string = this.sharedDataService.currentTreeString;
+      this.currentlyDisplayedTreeInExpertMode = tree;
       this.syntax_status = null;
     }
 
