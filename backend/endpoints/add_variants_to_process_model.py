@@ -3,8 +3,8 @@ from typing import List
 from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.objects.process_tree.obj import ProcessTree
 
-from backend.backend_utilities.process_tree_conversion import dict_to_process_tree, process_tree_to_dict
-from backend.backend_utilities.variant_trace_conversion import variant_to_trace
+from backend_utilities.process_tree_conversion import dict_to_process_tree, process_tree_to_dict
+from backend_utilities.variant_trace_conversion import variant_to_trace
 from cortado_core.freezing.apply import add_trace_to_pt_language_with_freezing
 from cortado_core.lca_approach import add_trace_to_pt_language
 

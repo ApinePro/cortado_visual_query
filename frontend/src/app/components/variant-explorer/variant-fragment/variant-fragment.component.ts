@@ -92,7 +92,7 @@ export class VariantFragmentComponent implements AfterViewInit {
       .classed('variant-group-element', true)
       .classed('variant-sequence-group', true);
 
-    let x = element.getHeadLength() + Constants.MARGIN_X - element.elements[0].getHeadLength();
+    let x = Constants.SEQUENCEGROUP_Margin
     for (const child of element.elements) {
       const width = child.getWidth();
       const childHeight = child.getHeight();

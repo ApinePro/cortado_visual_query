@@ -4,6 +4,7 @@ export class Constants {
   public static LEAF_HEIGHT = 23;
   public static MARGIN_X = 8;
   public static MARGIN_Y = 5;
+  public static SEQUENCEGROUP_Margin = 15;
   public static ARROW_FEATHER_LENGTH = 10;
   public static ARROW_HEAD_LENGTH = 12;
   public static ARROW_HEAD_ANGLE = 20;
