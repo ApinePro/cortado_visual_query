@@ -2,10 +2,11 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
+import { ActivityOverviewSortingPipe } from './pipes/activity-overview-sorting/activity-overview-sorting.pipe';
 import { AppComponent } from './app.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { ProcessTreeEditorComponent } from './components/process-tree-editor/process-tree-editor.component';
-import { StrFilterPipe } from './pipes/str-filter.pipe';
+import {StrFilterPipe} from './pipes/str-filter/str-filter.pipe';
 import { FormsModule } from '@angular/forms';
 import { VariantExplorerComponent } from './components/variant-explorer/variant-explorer.component';
 import { SideBarComponent } from './components/side-bar/side-bar.component';
@@ -23,6 +24,7 @@ import { GoldenLayoutHostComponent } from './components/golden-layout-host/golde
     AppComponent,
     FooterComponent,
     StrFilterPipe,
+    ActivityOverviewSortingPipe,
     SideBarComponent,
     GoldenLayoutHostComponent,
     VariantExplorerComponent,

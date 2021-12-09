@@ -1,7 +1,9 @@
+
 :host {
   position: absolute;
   overflow: hidden;
 }
+
 
 .activityOverviewContainer {
   background-color: var(--box-background-color);
@@ -17,6 +19,12 @@
   overflow-x: auto;
   background-color: var(--box-background-color);
 }
+
+.toggle-select{
+  cursor : pointer;
+}
+
+
 
 
 thead tr:nth-child(1) th {
