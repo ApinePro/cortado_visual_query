@@ -1,4 +1,4 @@
-from backend.endpoints.add_variants_to_process_model import add_variants_to_process_model
+from endpoints.add_variants_to_process_model import add_variants_to_process_model
 from cortado_core.utils.cvariants import generate_variants
 from cortado_core.utils.alignment_utils import trace_fits_process_tree
 from multiprocessing import freeze_support, cpu_count

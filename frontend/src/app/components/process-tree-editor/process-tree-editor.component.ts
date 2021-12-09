@@ -852,11 +852,6 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
                        .attr('data-bs-html', 'none')
                        .attr('data-bs-template', 'none');
 
-    console.log(tree.selectChildren())
-    console.log(tree.selectAll())
-    console.log(tree.selectAll("rect"));
-    console.log(tree.selectAll("line"));
-
     const shiftbyXOffset = (node , offset, attrKey)=>{
       return parseFloat(node.getAttribute(attrKey)) + offset
     }
