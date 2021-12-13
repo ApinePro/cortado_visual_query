@@ -1,3 +1,4 @@
+
 import { Component, ComponentRef, ElementRef, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
 import {
   ComponentContainer, GoldenLayout,
@@ -10,6 +11,7 @@ import {LayoutChangeDirective} from '../../directives/layout-change.directive';
 import {ProcessTreeEditorComponent} from '../process-tree-editor/process-tree-editor.component';
 import {VariantExplorerComponent} from '../variant-explorer/variant-explorer.component';
 import {ActivityOverviewComponent} from '../activity-overview/activity-overview.component';
+import {SubvariantExplorerComponent} from '../variant-explorer/subvariant-explorer/subvariant-explorer.component';
 import {GoldenLayoutComponentService} from '../../services/goldenLayoutService/golden-layout-component.service';
 
 @Component({
@@ -43,6 +45,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
   this.goldenLayoutComponentService.registerComponentType(ProcessTreeEditorComponent.componentName, ProcessTreeEditorComponent);
   this.goldenLayoutComponentService.registerComponentType(ActivityOverviewComponent.componentName, ActivityOverviewComponent);
   this.goldenLayoutComponentService.registerComponentType(VariantExplorerComponent.componentName, VariantExplorerComponent);
+  this.goldenLayoutComponentService.registerComponentType(SubvariantExplorerComponent.componentName, SubvariantExplorerComponent)
 
   this._goldenLayout = new GoldenLayout(
     this._goldenLayoutElement,
@@ -51,10 +54,11 @@ export class GoldenLayoutHostComponent implements OnDestroy {
   );
 
   this._goldenLayout.beforeVirtualRectingEvent = (count) => this.handleBeforeVirtualRectingEvent(count);
+
+  this.goldenLayoutComponentService.goldenLayout = this._goldenLayout;
   }
 
   ngOnInit(){
-
   }
 
   initializeLayout(){

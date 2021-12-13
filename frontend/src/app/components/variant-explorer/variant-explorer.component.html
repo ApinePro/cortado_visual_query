@@ -90,9 +90,14 @@
                 (selectionChanged)="unSelectAllChanged($event)" selectTooltipText="select all variants"
                 unselectTooltipText="unselect all variants">
               </app-variant-selection-button>
+            </th>
+            <th>
               Info
             </th>
-            <th class="text-start">
+            <th>
+              Subvariants
+            </th>
+            <th class="text-start px-2">
               Variant
             </th>
           </tr>
@@ -102,8 +107,17 @@
                 {{ i + 1 }}.
               </td>
               <td>
+                <app-variant-selection-button [isSelected]="variant.isSelected" (selectionChanged)="selectionChangedForVariant(variant, $event)">
+                </app-variant-selection-button>
+              </td>
+              <td>
                 <app-variant-info [variant]="variant" [outdatedConformanceStatistics]="outdatedConformanceStatistics"
-                  (selectionChanged)="selectionChangedForVariant(variant, $event)"></app-variant-info>
+                ></app-variant-info>
+              </td>
+              <td>
+              <div class = "subvariants" (click)="createSubVariantView(i+1)">
+                {{variant.sub_variants.length}}
+              </div>
               </td>
               <td class="variant-cell">
                 <div class="variant" [ngStyle]="{ 'border-color': variant.isSelected ? 'unset' : 'transparent' }">

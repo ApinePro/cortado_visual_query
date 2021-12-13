@@ -17,6 +17,7 @@ import { VariantInfoComponent } from './components/variant-explorer/variant-info
 import { VariantSelectionButtonComponent } from './components/variant-explorer/variant-selection-button/variant-selection-button.component';
 import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
+import { SubvariantExplorerComponent } from './components/variant-explorer/subvariant-explorer/subvariant-explorer.component';
 
 
 @NgModule({
@@ -33,6 +34,7 @@ import { GoldenLayoutHostComponent } from './components/golden-layout-host/golde
     VariantSelectionButtonComponent,
     ActivityOverviewComponent,
     ProcessTreeEditorComponent,
+    SubvariantExplorerComponent,
   ],
   imports: [
     BrowserModule,

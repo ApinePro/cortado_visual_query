@@ -1,3 +1,7 @@
+import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
+import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
+import { ComponentItemConfig, GoldenLayout, LayoutManager } from 'golden-layout';
+import { GoldenLayoutComponentService } from './../../services/goldenLayoutService/golden-layout-component.service';
 import {
   Component,
   ElementRef,
@@ -33,6 +37,7 @@ import * as d3 from 'd3';
 export class VariantExplorerComponent extends LayoutChangeDirective implements OnInit, AfterContentChecked, AfterViewInit {
   constructor(private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
+    private goldenLayoutComponentService : GoldenLayoutComponentService,
     private backendService: BackendService,
     private imageExportService: ImageExportService,
     private polygonDrawingService: PolygonDrawingService,
@@ -71,6 +76,8 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   public alignmentCalculationInProgress = false;
   public svgRenderingInProgress: boolean = false;
 
+  _goldenLayoutHostComponent : GoldenLayoutHostComponent;
+  _goldenLayout : GoldenLayout;
 
   @ViewChild('variantExplorer', { static: true })
   variantExplorerDiv: ElementRef<HTMLDivElement>;
@@ -134,6 +141,11 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   ngAfterViewInit() {
     this.polygonDrawingService.setElementRefereneces(this.variantExplorerContainer,
       this.tooltipContainer);
+
+    this._goldenLayoutHostComponent =  this.goldenLayoutComponentService.goldenLayoutHostComponent;
+    this._goldenLayout =  this.goldenLayoutComponentService.goldenLayout;
+    console.log(this._goldenLayoutHostComponent);
+    console.log(this._goldenLayout);
   }
 
 
@@ -178,6 +190,17 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
       v.alignment = undefined;
       v.deviation = undefined;
     });
+  }
+
+  createSubVariantView(index){
+
+    const LocationSelectors: LayoutManager.LocationSelector[] = [
+      { typeId: LayoutManager.LocationSelector.TypeId.FocusedStack, index: undefined },
+    ];
+    this._goldenLayout.findFirstComponentItemById(VariantExplorerComponent.name).focus()
+
+    const goldenLayoutComponent = this._goldenLayout.newComponentAtLocation(SubvariantExplorerComponent.name, this.variants[index - 1],"Subvariant " + index, LocationSelectors)
+    const componentRef = this._goldenLayoutHostComponent.getComponentRef(goldenLayoutComponent.container);
   }
 
   updateAlignments(): void {

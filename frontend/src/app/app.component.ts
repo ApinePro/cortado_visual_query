@@ -1,3 +1,4 @@
+import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 
 import {AfterViewInit, Component, OnDestroy, ViewChild} from '@angular/core';
 import {GoldenLayoutHostComponent} from './components/golden-layout-host/golden-layout-host.component';
@@ -11,6 +12,10 @@ export class AppComponent implements AfterViewInit, OnDestroy{
   title = 'interactive-process-mining-angular-app';
   private _windowResizeListener = () => this.handleWindowResizeEvent();
 
+  constructor(private goldenLayoutComponentService : GoldenLayoutComponentService){
+
+  }
+
   @ViewChild('goldenLayoutHost') private _goldenLayoutHostComponent: GoldenLayoutHostComponent;
 
 
@@ -19,6 +24,7 @@ export class AppComponent implements AfterViewInit, OnDestroy{
   ngAfterViewInit() {
     globalThis.addEventListener('resize', this._windowResizeListener);
     this._goldenLayoutHostComponent.initializeLayout();
+    this.goldenLayoutComponentService.goldenLayoutHostComponent = this._goldenLayoutHostComponent;
 
     setTimeout(() => this.resizeGoldenLayout(), 0);
   }

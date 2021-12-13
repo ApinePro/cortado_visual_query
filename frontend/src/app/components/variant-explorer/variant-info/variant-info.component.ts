@@ -13,6 +13,5 @@ export class VariantInfoComponent {
   @Input()
   variant;
 
-  @Output()
-  public selectionChanged = new EventEmitter<boolean>();
+
 }

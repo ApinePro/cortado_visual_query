@@ -1,5 +1,6 @@
 import { ComponentFactoryResolver, Injectable, Injector, StaticProvider, Type } from '@angular/core';
-import { ComponentContainer, JsonValue } from "golden-layout";
+import { ComponentContainer, GoldenLayout, JsonValue } from "golden-layout";
+import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 
 @Injectable({
@@ -7,6 +8,8 @@ import { LayoutChangeDirective } from '../../directives/layout-change.directive'
 })
 export class GoldenLayoutComponentService {
   private _componentTypeMap = new Map<string, Type<LayoutChangeDirective>>()
+  private _goldenLayoutHostComponent: GoldenLayoutHostComponent
+  private _goldenLayout: GoldenLayout;
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver) { }
 
@@ -22,6 +25,22 @@ export class GoldenLayoutComponentService {
       result[idx++] = key;
     }
     return result;
+  }
+
+  set goldenLayout(goldenLayout : GoldenLayout){
+    this._goldenLayout = goldenLayout;
+  }
+
+  get goldenLayout(){
+    return this._goldenLayout;
+  }
+
+  set goldenLayoutHostComponent(goldenLayoutHostComponent : GoldenLayoutHostComponent){
+    this._goldenLayoutHostComponent = goldenLayoutHostComponent;
+  }
+
+  get goldenLayoutHostComponent(){
+    return this._goldenLayoutHostComponent;
   }
 
   createComponent(componentTypeJsonValue: JsonValue, container: ComponentContainer) {
