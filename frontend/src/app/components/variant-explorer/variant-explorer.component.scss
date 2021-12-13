@@ -98,6 +98,10 @@
   align-items: center;
 }
 
+.button-text{
+  display : inline-block;
+}
+
 .rotate-90 {
   display: inline-block;
   -webkit-transform: rotate(90deg);

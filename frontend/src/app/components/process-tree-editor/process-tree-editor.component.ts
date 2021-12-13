@@ -2,8 +2,14 @@
 import {
   Component, OnInit, ViewChild, AfterViewInit, ElementRef, HostListener, isDevMode, Inject, Renderer2,
 } from '@angular/core';
+
+import {
+  trigger, state, style, animate, transition
+} from '@angular/animations';
+
 import {ComponentContainer} from 'golden-layout';
 import * as d3 from 'd3';
+
 import * as constants from './constants_tree_d3';
 
 import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
@@ -20,7 +26,18 @@ import {textColorForBackgroundColor} from '../variant-explorer/helper_functions'
 @Component({
   selector: 'app-process-tree-editor',
   templateUrl: './process-tree-editor.component.html',
-  styleUrls: ['./process-tree-editor.component.scss']
+  styleUrls: ['./process-tree-editor.component.scss'],
+  animations : [
+                trigger('collapseText', [
+                  transition(':enter', [
+                    style({ opacity : '0',  transform: 'translateX(-30px)'}),
+                    animate('150ms 0ms ease-in', style({ opacity : '1', transform: 'translateX(0)'})),
+                  ]),
+                  transition(':leave', [
+                    animate('150ms 00ms ease-in', style({ opacity : '0', transform: 'translateX(-30px)'}))
+                  ])
+                ])
+              ],
 })
 export class ProcessTreeEditorComponent extends LayoutChangeDirective implements OnInit, AfterViewInit {
 
@@ -51,6 +68,8 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
   svg;
   mainSvgGroup;
   nodeEnter;
+
+  collapse : boolean = false;
 
   selectNodeActive = false;
   selectSubtreeActive = true;
@@ -160,6 +179,15 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
       this.insertPositionAboveDisabled = false;
     } else {
       this.insertPositionAboveDisabled = true;
+    }
+  }
+
+
+  handleResponsiveChange(left: number, top: number, width: number, height: number) : void{
+    if (width < 970){
+      this.collapse = true;
+    } else {
+      this.collapse = false;
     }
   }
 
@@ -618,7 +646,6 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
     this.afterInsertNode();
   }
 
-
   afterInsertNode(): void {
     this.update(this.root, true);
     this.selectedRootNode = null;
@@ -775,7 +802,6 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
     }.bind(this);
   }
 
-
   freezeSubtree(): void {
     const markNodeAsFrozen = (node) => {
       node.data.frozen = true;
@@ -865,8 +891,8 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
 
     tree.selectAll("rect").attr("x", function(this : SVGGraphicsElement) {return shiftbyXOffset(this, xOffset, "x")});
     tree.selectAll("text").attr("x", function(this : SVGGraphicsElement) {return shiftbyXOffset(this, xOffset, "x")});
-    tree.selectAll("line").attr("x1", function(this : SVGGraphicsElement) {return shiftbyXOffset(this, xOffset, "x1")});
-    tree.selectAll("line").attr("x2", function(this : SVGGraphicsElement) {return shiftbyXOffset(this, xOffset, "x2")});
+    tree.selectAll("line").attr("x1", function(this : SVGGraphicsElement) {return shiftbyXOffset(this, xOffset, "x1")})
+                          .attr("x2", function(this : SVGGraphicsElement) {return shiftbyXOffset(this, xOffset, "x2")});
 
     tree.selectChild().attr("transform", `translate(0, ${constants.export_offset})`)
 
@@ -874,8 +900,6 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
     this.imageExportService.export("process_tree",  svgBBox.width + 2*constants.export_offset, svgBBox.height + constants.export_offset, tree_copy);
 
   }
-
-
 
 }
 

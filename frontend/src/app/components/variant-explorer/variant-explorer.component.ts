@@ -10,6 +10,14 @@ import {
   Renderer2,
   AfterViewInit
 } from '@angular/core';
+
+import {
+  trigger,
+  style,
+  animate,
+  transition
+} from '@angular/animations';
+
 import { ComponentContainer } from 'golden-layout';
 import { ColorMapService } from '../../services/colorMapService/color-map.service';
 import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
@@ -28,7 +36,18 @@ import * as d3 from 'd3';
 @Component({
   selector: 'app-variant-explorer',
   templateUrl: './variant-explorer.component.html',
-  styleUrls: ['./variant-explorer.component.scss']
+  styleUrls: ['./variant-explorer.component.scss'],
+  animations: [
+              trigger('collapseText', [
+                transition(':enter', [
+                  style({ opacity : '0', transform : 'translateX(-40px)'}),
+                  animate('100ms 50ms ease-in', style({ opacity : '1',  transform : 'translateX(0)'})),
+                ]),
+                transition(':leave', [
+                  animate('100ms 50ms ease-in', style({ opacity : '0',  transform : 'translateX(-50px)'}))
+                ])
+              ])
+            ]
 })
 export class VariantExplorerComponent extends LayoutChangeDirective implements OnInit, AfterContentChecked, AfterViewInit {
   constructor(private colorMapService: ColorMapService,
@@ -46,6 +65,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   private readonly nVariantsInc = 50;
+  collapse : boolean = false;
 
   public variants: Variant[] = [];
   public visibleVariants: Variant[] = [];
@@ -359,6 +379,15 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     const scrollTop = event.target.scrollTop;
     this.updateVisible(scrollTop);
   }
+
+  handleResponsiveChange(left: number, top: number, width: number, height: number) : void{
+    if (width < 600){
+      this.collapse = true;
+    }else{
+      this.collapse = false;
+    }
+  }
+
 
   updateVisible(scrollTop): void {
     const h = this.variantExplorerDiv.nativeElement.clientHeight;
