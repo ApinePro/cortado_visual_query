@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { ProcessTreeEditorComponent } from './components/process-tree-editor/process-tree-editor.component';
 import { StrFilterPipe } from './pipes/str-filter.pipe';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { VariantExplorerComponent } from './components/variant-explorer/variant-explorer.component';
 import { SideBarComponent } from './components/side-bar/side-bar.component';
 import { ActivityOverviewComponent } from './components/activity-overview/activity-overview.component';
@@ -17,6 +17,7 @@ import { VariantSelectionButtonComponent } from './components/variant-explorer/v
 import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
 import { ExpertModeComponent } from './components/process-tree-editor/expert-mode/expert-mode.component';
+import { ContentEditableDirective } from './directives/content-editable-directive.directive';
 
 @NgModule({
   declarations: [
@@ -32,10 +33,12 @@ import { ExpertModeComponent } from './components/process-tree-editor/expert-mod
     ActivityOverviewComponent,
     ProcessTreeEditorComponent,
     VariantInfoComponent,
-    ExpertModeComponent
+    ExpertModeComponent,
+    ContentEditableDirective,
   ],
   imports: [
     BrowserModule,
+    ReactiveFormsModule,
     FormsModule,
     HttpClientModule
   ],

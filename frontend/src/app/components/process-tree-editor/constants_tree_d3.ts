@@ -1,6 +1,6 @@
 /*
   Defines tree constants that should be directly applied to each SVG element
-  and that form the basic visaulization of the tree.
+  and that form the basic visualization of the tree.
   This allows for us to export the styled tree
 */
 

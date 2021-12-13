@@ -19,10 +19,27 @@
       <div class="accordion-body">
         <div class="tree-syntax-string">
           <strong> Tree Syntax</strong> <br />
-          <span> {{ syntax_tree_string }}</span>
         </div>
-        <div class="expert-mode-button-bar"></div>
-      </div>
-    </div>
+        <form [formGroup]="syntaxTreeInput" (ngSubmit)="onSubmit()">
+          <div  contenteditable="true" formControlName="syntax_tree">
+          </div>
+
+          <div *ngIf="syntax_tree.invalid && (syntax_tree.dirty || syntax_tree.touched)"
+            class="alert">
+
+            <div *ngIf="syntax_tree.errors?.['unknowActivities']">
+              <div *ngFor="let unknownActivity of syntax_tree.errors?.['unknowActivities']">
+              Unknown activity name {{unknownActivity.name}} at: {{unknownActivity.index}}
+              </div>
+            </div>
+            <div *ngIf="syntax_tree.errors?.['imbalanced']">
+              Imbalanced parentheses at: {{syntax_tree.errors?.['imbalanced']}}
+            </div>
+
+          </div>
+
+
+        <button type="submit">Submit</button>
+      </form>
   </div>
 </div>

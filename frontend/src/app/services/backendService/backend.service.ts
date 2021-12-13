@@ -76,11 +76,8 @@ export class BackendService {
       });
   }
 
-  checkTreeStringSyntax(tree_string : string) : void{
-    this.httpClient.post(this.backendUrl + 'checkTreeStringSyntax', {tree_string: tree_string})
-      .subscribe(syntaxCheck => {
-        this.sharedDataService.currentTreeStringSyntaxCheck = syntaxCheck;
-      });
+  checkTreeStringSyntax(tree_string : string) : Observable<Object>{
+    return this.httpClient.post<Object>(this.backendUrl + 'checkTreeStringSyntax', {tree_string: tree_string})
   }
 
   downloadCurrentTreeAsPTML(): void {
