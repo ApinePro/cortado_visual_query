@@ -30,6 +30,9 @@ export abstract class LayoutChangeDirective {
     private numberToPixels(value: number): string {
         return value.toString(10) + 'px';
     }
+
+    // Abstract method that gets called after each virtual recting event to allow the component to change its layout
+    abstract handleResponsiveChange(left: number, top: number, width: number, height: number) : void;
 }
 
 export namespace LayoutChangeDirective {

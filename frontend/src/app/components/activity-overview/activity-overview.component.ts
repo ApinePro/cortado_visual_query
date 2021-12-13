@@ -85,6 +85,10 @@ export class ActivityOverviewComponent extends LayoutChangeDirective implements 
     });
   }
 
+
+  handleResponsiveChange(left: number, top: number, width: number, height: number) : void{
+  }
+
   toggleSort(sortKey : string){
 
     // On the first Click always make descending

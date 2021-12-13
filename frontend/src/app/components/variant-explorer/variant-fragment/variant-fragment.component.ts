@@ -9,7 +9,7 @@ import {Constants, LeafNode, ParallelGroup, SequenceGroup, VariantElement} from 
 @Component({
   selector: 'app-variant-fragment',
   templateUrl: './variant-fragment.component.html',
-  styleUrls: ['./variant-fragment.component.css']
+  styleUrls: ['./variant-fragment.component.css'],
 })
 export class VariantFragmentComponent implements AfterViewInit {
 
