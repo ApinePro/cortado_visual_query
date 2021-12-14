@@ -1,4 +1,4 @@
-<div class="accordion accordion-flush" id="ExpertModeAccordion">
+<div class="accordion accordion-flush" id="ExpertModeAccordion" class = "expertModeAccordion">
   <div class="accordion-item">
     <h2 class="accordion-header" id="ExpertModeHeading">
       <button #expertModeButton
@@ -21,8 +21,8 @@
           <strong> Tree Syntax</strong> <br />
         </div>
         <form [formGroup]="syntaxTreeInput" (ngSubmit)="onSubmit()">
-          <div  contenteditable="true" formControlName="syntax_tree">
-          </div>
+          <div class="editor" contenteditable="true" formControlName="syntax_tree" #textEditor (blur)="styleText()" [hidden]="!edit" spellcheck="false"></div>
+          <div #styledText class = "styledTextField" (dblclick)="openEditor()" [hidden]="edit"></div>
 
           <div *ngIf="syntax_tree.invalid && (syntax_tree.dirty || syntax_tree.touched)"
             class="alert">
@@ -39,7 +39,7 @@
           </div>
 
 
-        <button type="submit">Submit</button>
+        <button type="submit">Render Tree</button>
       </form>
   </div>
 </div>

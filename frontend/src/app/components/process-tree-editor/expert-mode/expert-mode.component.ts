@@ -1,9 +1,10 @@
 import { BackendService } from 'src/app/services/backendService/backend.service';
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Injectable} from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Injectable, Renderer2 as Renderer } from '@angular/core';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { AbstractControl, FormControl, ValidationErrors, ValidatorFn, Validators, FormsModule, AsyncValidator, AsyncValidatorFn, AbstractControlOptions, FormGroup } from '@angular/forms';
 import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
+import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 
 @Component({
   selector: 'app-expert-mode',
@@ -13,16 +14,26 @@ import { catchError, map } from 'rxjs/operators';
 export class ExpertModeComponent implements OnInit, AfterViewInit {
 
   syntax_tree_string : string = "";
+
   syntaxTreeInput : any;
+  edit : boolean = false;
+
+  activityNameRegEx = new RegExp("'([^']+)'", 'g');
+
+  activityColorMap: Map<string, string>;
 
   public imbalancedIndex : number;
   @ViewChild('expertModeButton') expertModeButton: ElementRef;
+  @ViewChild('styledText') styledTextDiv : ElementRef<HTMLDivElement>;
+  @ViewChild('textEditor') textEditor : ElementRef<HTMLDivElement>;
 
 
   private currentlyDisplayedTreeInExpertMode;
 
   constructor(private sharedDataService : SharedDataService,
-              private backendService : BackendService) {
+              private backendService : BackendService,
+              private colorMapService : ColorMapService,
+              private renderer : Renderer) {
   }
 
   ngOnInit() {
@@ -36,13 +47,88 @@ export class ExpertModeComponent implements OnInit, AfterViewInit {
                 updateOn : 'change',
               })
     });
+
+
+
+    /* Handling the styling as the input changes, currently problematic due to issues with input cursor tracking
+
+    this.syntax_tree.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    ).subscribe(res => {
+                        res = this.strip_html(res);
+                        this.syntax_tree.setValue(res, {emitEvent : false});
+    })
+    */
+
+    this.colorMapService.colorMap$.subscribe(colorMap => {
+      this.activityColorMap = colorMap;
+    });
+
+  }
+
+  openEditor(){
+    this.edit = true;
+    setTimeout(() => {
+      this.textEditor.nativeElement.focus();
+    }, 5);
+  }
+
+
+  styleText(){
+    let value = this.syntax_tree.value
+    this.edit = false;
+    value = this.colorActivityNames(value);
+
+    // This presents a possible vulnerability for remote code execution, add sanitisation or change input mode, when this presents a serious issue.
+    this.renderer.setProperty(this.styledTextDiv.nativeElement, 'innerHTML', value);
+  }
+
+  colorActivityNames(value: any): string {
+
+    const matches = value.matchAll(this.activityNameRegEx);
+    const activities = new Map<string, string>();
+    let knownActivities = new Set();
+    let unknowActivities = new Set();
+
+    for(let match of matches){
+      if (this.activityColorMap.has(match[1])){
+        knownActivities.add(match[1]);
+      }else{
+        unknowActivities.add(match[1]);
+      }
+    }
+
+    value = value.replaceAll("*tau*", "<b>*tau*</b>")
+
+    knownActivities.forEach((activityName : string) => {
+      value = value.replaceAll(activityName, `<b><span style="color:${this.activityColorMap.get(activityName)}">`+ activityName+'</span></b>')
+    })
+
+    unknowActivities.forEach((activityName : string) => {
+
+    })
+
+    return value
+
+  }
+
+
+  strip_html(value: any): string {
+    const regex = new RegExp("<[^>]*>", "g")
+    value = value.replaceAll(regex, "");
+
+    return value
   }
 
   onSubmit(){
     console.log(this.syntaxTreeInput);
+    console.log(this.strip_html(this.syntax_tree.value));
+
+    this.backendService.renderStringToPT(this.strip_html(this.syntax_tree.value));
   }
 
-  get syntax_tree(){
+  get syntax_tree() : FormControl{
     return this.syntaxTreeInput.get('syntax_tree')!;
   }
 
@@ -50,13 +136,16 @@ export class ExpertModeComponent implements OnInit, AfterViewInit {
 
     // If the tree changes and expert mode is open, compute the syntax tree string
     this.sharedDataService.currentDisplayedProcessTree$.subscribe(tree => {
+      console.log("Tree Changed")
       this.collectCurrentTreeString(tree);
     })
 
     this.sharedDataService.currentTreeString$.subscribe(treeString => {
-      this.syntax_tree_string = treeString;
-      this.syntaxTreeInput.get('syntax_tree').setValue(treeString);
+      this.syntax_tree.setValue(treeString);
+      this.styleText();
     })
+
+    this.syntax_tree.setValue("'A_SUBMITTED'")
   }
 
   openExpertMode(){
@@ -67,26 +156,10 @@ export class ExpertModeComponent implements OnInit, AfterViewInit {
   private collectCurrentTreeString(tree){
 
     // Check if tree exists, if the expert mode is active and if it did change
-    // TODO Currently reruns if the same tree is discovered twice as the object changes
     if(tree && this.expertModeButton.nativeElement.ariaExpanded === "true" && tree !== this.currentlyDisplayedTreeInExpertMode){
       this.backendService.computeTreeString(tree);
       this.currentlyDisplayedTreeInExpertMode = tree;
     }
-  }
-
-
-
-
-  /* Checks if a tree_syntax_string is correct using the backend API.
-     Stores violations in a displayable syntax_status update         */
-  private expert_mode_tree_syntax_check(tree_syntax_string : string) : string{
-
-    return "";
-  }
-
-  // Accepts a syntactically correct syntax tree, transforms it into a tree object and stores it in the data service.
-  private expert_mode_tree_storage(tree_syntax_string : string){
-
   }
 
   balancedParantheseValidator(): ValidatorFn {
@@ -125,10 +198,10 @@ export class ExpertModeComponent implements OnInit, AfterViewInit {
   unknownActivityNameValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       //Quick regExp that matches all chars incl. whitespace between two ' '
-      let re = new RegExp("'([\\w|\\s]+)'", 'g')
+
       let unknowActivities = new Set();
 
-      const res = control.value.matchAll(re)
+      const res = control.value.matchAll(this.activityNameRegEx)
       for(let match of res){
 
         if (!this.sharedDataService.activitiesInEventLog[match[1]]){

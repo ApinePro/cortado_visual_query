@@ -149,6 +149,13 @@ class InputTreeStringFromTree(BaseModel):
 async def computeTreeStringFromTree(d: InputTreeStringFromTree): 
     return str(dict_to_process_tree(d.pt)[0])
 
+class InputTreeFromTreeString(BaseModel): 
+    pt_string : str
+
+@app.post("/renderStringToPT")
+async def renderStringToPT(d: InputTreeFromTreeString): 
+    return {"tree" : None, "errors" : ["Parse Error in Line 12"]}
+
 @app.get("/variants")
 async def get_variants_from_event_log():
     log = await meta.get_event_log()

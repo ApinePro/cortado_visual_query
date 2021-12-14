@@ -1,4 +1,6 @@
-.tree-syntax-string{
+
+.expertModeAccordion{
+  cursor:default;
 }
 
 .accordion-body{
@@ -24,4 +26,12 @@
   transform: rotate(0deg);
 }
 
+.styledTextField{
+  user-select: none;
+  cursor:pointer;
+}
+
+.editor{
+  cursor:text;
+}
 
