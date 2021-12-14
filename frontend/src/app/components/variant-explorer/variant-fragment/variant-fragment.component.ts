@@ -39,12 +39,7 @@ export class VariantFragmentComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.svgSelection = d3.select(this.svgHtmlElement.nativeElement)
-      .append('g')
-      .on('click', () => {
-        this.variant.setExpanded(!this.variant.expanded);
-        this.redraw();
-      });
+    this.svgSelection = d3.select(this.svgHtmlElement.nativeElement).append('g');
     this.redraw();
   }
 
