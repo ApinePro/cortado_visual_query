@@ -33,6 +33,11 @@
   color: whitesmoke;
 }
 
+.lm_goldenlayout{
+  --bs-bg-opacity: 1;
+  background-color: rgba(var(--bs-dark-rgb),var(--bs-bg-opacity))!important;
+}
+
 .button {
   color: whitesmoke;
   border: none;

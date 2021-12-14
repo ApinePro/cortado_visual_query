@@ -10,12 +10,11 @@ import { LayoutChangeDirective } from 'src/app/directives/layout-change.directiv
 @Component({
   selector: 'app-subvariant-explorer',
   templateUrl: './subvariant-explorer.component.html',
-  styleUrls: ['../variant-explorer.component.scss']
+  styleUrls: ['./subvariant-explorer.component.css'] // Consider also importing the base style from the normal variant explorer scss
 })
 export class SubvariantExplorerComponent extends LayoutChangeDirective implements OnInit {
 
   main_variant : Variant;
-  visibleVariants;
   public colorMap: Map<string, string>;
   public invisibleVariantsHeight = 50;
 
@@ -27,17 +26,12 @@ export class SubvariantExplorerComponent extends LayoutChangeDirective implement
              ) {
     super(elRef.nativeElement, renderer);
     this.main_variant = this.container.initialState as Variant;
-    console.log(this.main_variant);
     this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
+    console.log("New Subvariant window created for Variant: ", this.main_variant);
   }
 
   ngOnInit(): void {
-    this.visibleVariants = this.main_variant.sub_variants;
-    console.log(this.visibleVariants);
   }
-
-
-
 
 }
 

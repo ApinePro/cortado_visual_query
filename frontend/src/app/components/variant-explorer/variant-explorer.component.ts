@@ -197,10 +197,31 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     const LocationSelectors: LayoutManager.LocationSelector[] = [
       { typeId: LayoutManager.LocationSelector.TypeId.FocusedStack, index: undefined },
     ];
-    this._goldenLayout.findFirstComponentItemById(VariantExplorerComponent.name).focus()
 
-    const goldenLayoutComponent = this._goldenLayout.newComponentAtLocation(SubvariantExplorerComponent.name, this.variants[index - 1],"Subvariant " + index, LocationSelectors)
-    const componentRef = this._goldenLayoutHostComponent.getComponentRef(goldenLayoutComponent.container);
+    const componentitemRef = this._goldenLayout.findFirstComponentItemById(SubvariantExplorerComponent.componentName + (index - 1))
+
+      // If the Component was found, put it into focus
+    if(componentitemRef){
+      componentitemRef.focus();
+
+      // Instantiate a new Subvariant Component for this variant
+    } else {
+
+
+      this._goldenLayout.findFirstComponentItemById(VariantExplorerComponent.name).focus()
+
+      const itemConfig : ComponentItemConfig = {
+                                               id : SubvariantExplorerComponent.componentName + (index - 1),
+                                               type: "component",
+                                               title: "Subvariant " + (index),
+                                               isClosable: true,
+                                               componentState: this.variants[index - 1],
+                                               componentType: SubvariantExplorerComponent.componentName,
+                                             }
+      const itemConfigItem = this._goldenLayout.addItemAtLocation(itemConfig, LocationSelectors)
+
+    }
+
   }
 
   updateAlignments(): void {

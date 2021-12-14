@@ -10,6 +10,12 @@ export const baseLayout: LayoutConfig = {
     borderWidth: 0.75,
     minItemHeight: 300,
     minItemWidth: 350,
+
+  },
+  settings: {
+    showMaximiseIcon: false,
+    showPopoutIcon: false,
+
   },
   root: {
       type: ItemType.column,
