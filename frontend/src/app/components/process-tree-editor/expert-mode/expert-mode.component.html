@@ -20,9 +20,11 @@
         <div class="tree-syntax-string">
           <strong> Tree Syntax</strong> <br />
         </div>
-        <form [formGroup]="syntaxTreeInput" (ngSubmit)="onSubmit()">
-          <div class="editor" contenteditable="true" formControlName="syntax_tree" #textEditor (blur)="styleText()" [hidden]="!edit" spellcheck="false"></div>
-          <div #styledText class = "styledTextField" (dblclick)="openEditor()" [hidden]="edit"></div>
+        <form [formGroup]="syntaxTreeInput" (ngSubmit)="onSubmit()" (blur)="styleText()">
+          <div class="editor-container">
+            <textarea class="editor" (blur)="styleText()" [hidden]="!edit" #textEditor [formControl]="syntax_tree" [hidden]="!edit" spellcheck="false"> </textarea>
+          </div>
+          <div #styledText class="styled-text-field" (dblclick)="openEditor()" [hidden]="edit"></div>
 
           <div *ngIf="syntax_tree.invalid && (syntax_tree.dirty || syntax_tree.touched)"
             class="alert">
@@ -33,13 +35,23 @@
               </div>
             </div>
             <div *ngIf="syntax_tree.errors?.['imbalanced']">
-              Imbalanced parentheses at: {{syntax_tree.errors?.['imbalanced']}}
+              <div *ngFor="let imbalancedItem of syntax_tree.errors?.['imbalanced']">
+                Imbalanced {{imbalancedItem.symbol}} at {{imbalancedItem.index + 1}}
+              </div>
+            </div>
+            <div *ngIf="syntax_tree.errors?.['apostrophe']">
+                Imbalanced Apostrophes
+            </div>
+
+            <div *ngIf="backendErrors">
+              {{backendErrors}}
             </div>
 
           </div>
 
 
-        <button type="submit">Render Tree</button>
+        <button type="submit" class="button"
+        [disabled]="!allowRender">Render Tree</button>
       </form>
   </div>
 </div>

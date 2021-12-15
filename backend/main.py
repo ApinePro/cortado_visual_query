@@ -27,6 +27,8 @@ from backend_utilities.variant_trace_conversion import variant_to_trace
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 from endpoints.load_event_log import calculate_event_log_properties
 
+from endpoints.parse_string_to_pt import parse
+
 app = FastAPI()
 origins = [
     "http://localhost",
@@ -96,8 +98,8 @@ def discover_process_model_from_variants(variants):
 async def discover_process_model_from_cvariants(d: InputDiscoverProcessModelFromVariants):
     all_variants = set([tuple(variant) for cvariant in d.variants for variant in generate_variants(cvariant)])
     print(f"nVariants: {len(all_variants)}")
-
-    return discover_process_model_from_variants(all_variants)
+    res = discover_process_model_from_variants(all_variants)
+    return res
 
 
 class InputAddVariantsToProcessModel(BaseModel):
@@ -140,6 +142,7 @@ async def add_cvariants_to_process_model_unknown_conformance(d: InputAddVariants
             fitting_variants.add(selected_variant)
         else:
             variants_to_add.add(selected_variant)
+    
     return add_variants_to_process_model(d.pt, fitting_variants, variants_to_add)
 
 class InputTreeStringFromTree(BaseModel): 
@@ -147,14 +150,26 @@ class InputTreeStringFromTree(BaseModel):
 
 @app.post("/computeTreeStringFromTree")
 async def computeTreeStringFromTree(d: InputTreeStringFromTree): 
-    return str(dict_to_process_tree(d.pt)[0])
+    pt = dict_to_process_tree(d.pt)[0]
+    res = str(dict_to_process_tree(d.pt)[0])
+    return res
 
 class InputTreeFromTreeString(BaseModel): 
     pt_string : str
 
-@app.post("/renderStringToPT")
-async def renderStringToPT(d: InputTreeFromTreeString): 
-    return {"tree" : None, "errors" : ["Parse Error in Line 12"]}
+@app.post("/parseStringToPT")
+async def parseStringToPT(d: InputTreeFromTreeString):
+    res = dict()
+    try: 
+        d.pt_string = d.pt_string.replace('*tau*', 'τ')
+        pt = parse(d.pt_string)
+        res["tree"] = process_tree_to_dict(pt)
+        res["errors"] = None
+    except: 
+        res["tree"] = None
+        res["errors"] = "Error occurred during backend parsing"
+
+    return res 
 
 @app.get("/variants")
 async def get_variants_from_event_log():

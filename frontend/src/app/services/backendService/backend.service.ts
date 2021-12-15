@@ -77,11 +77,7 @@ export class BackendService {
   }
 
   renderStringToPT(treeString: string) {
-    this.httpClient.post(this.backendUrl + 'renderStringToPT', {pt_string: treeString})
-      .subscribe(result => {
-        console.log(result)
-      });
-
+    return this.httpClient.post(this.backendUrl + 'parseStringToPT', {pt_string: treeString});
   }
 
   downloadCurrentTreeAsPTML(): void {

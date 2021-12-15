@@ -18,8 +18,6 @@ export class ContentEditableDirective implements ControlValueAccessor {
 
   constructor(private renderer : Renderer,
               private elementRef : ElementRef){
-                console.log("Directive Created")
-
   }
 
 

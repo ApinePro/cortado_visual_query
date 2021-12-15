@@ -1,0 +1,37 @@
+
+.expertModeAccordion{
+  cursor:default;
+}
+
+.tree-syntax-string{
+  color : var(--text-secondary);
+}
+
+.accordion-button{
+  padding: 0.35rem 0.35rem;
+  font-size: small;
+}
+
+.styled-text-field{
+  user-select: none;
+  cursor:pointer;
+  background-color: var(--bs-table-accent-bg);
+  color : var(--text-secondary);
+}
+
+.editor{
+  cursor:text;
+  resize: none;
+  max-width: 40vw;
+  max-height: 25vh;
+  width:  40vw;
+  height: 25vh;
+}
+
+.editor-container{
+  max-width : 100%;
+  max-height : 100%;
+  padding : 5px;
+}
+
+
