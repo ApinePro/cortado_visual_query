@@ -156,17 +156,17 @@
     <span class="vl"></span>
 
     <button class="button" (click)="selectNode()" [class.button-active]="selectNodeActive">
-      <i class="bi bi-check btn-icon text-danger"></i>
+      <i class="bi bi-fullscreen btn-icon text-danger"></i>
       <div class = "button-text px-1" @collapseText *ngIf= "!collapse">select node</div>
     </button>
 
     <button class="button" (click)="selectSubtree()" [class.button-active]="selectSubtreeActive">
-      <i class="bi bi-check-all btn-icon text-danger"></i>
+      <i class="bi bi-fullscreen btn-icon text-danger"></i>
       <div class = "button-text px-1" @collapseText *ngIf= "!collapse">select subtree</div>
     </button>
 
     <button class="button" (click)="clearSelection()">
-      <i class="bi bi-x btn-icon text-danger"></i>
+      <i class="bi bi-x-lg btn-icon text-danger"></i>
       <div class = "button-text px-1" @collapseText *ngIf= "!collapse">clear selection</div>
     </button>
 
