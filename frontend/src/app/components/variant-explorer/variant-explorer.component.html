@@ -35,7 +35,7 @@
       title="add selected, non-fitting variant(s) to current process model"
       [disabled]="isNoVariantSelected() || !currentlyDisplayedProcessTree || alignmentCalculationInProgress"
       (click)="addSelectedVariantsToModel()">
-      <i class="bi bi-plus btn-icon"
+      <i class="bi bi-plus-lg btn-icon"
         [ngClass]="{'text-success': !(isNoVariantSelected() || !currentlyDisplayedProcessTree || alignmentCalculationInProgress)}"></i>
       <div @collapseText class = "button-text px-1" *ngIf= "!collapse">add variant(s) to model </div>
     </button>
