@@ -148,7 +148,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   ngAfterContentChecked(): void {
-    this.tooltipActivationService.initialize();
+    //this.tooltipActivationService.initialize();
   }
 
   ngAfterViewInit() {
