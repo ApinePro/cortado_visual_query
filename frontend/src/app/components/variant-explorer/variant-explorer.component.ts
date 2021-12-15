@@ -234,6 +234,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
                                                type: "component",
                                                title: "Subvariant " + (index),
                                                isClosable: true,
+                                               reorderEnabled : false,
                                                componentState: this.variants[index - 1],
                                                componentType: SubvariantExplorerComponent.componentName,
                                              }

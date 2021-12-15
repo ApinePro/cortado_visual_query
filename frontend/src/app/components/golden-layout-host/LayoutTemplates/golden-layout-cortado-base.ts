@@ -1,9 +1,7 @@
-import { Variant } from './../../variant-explorer/model';
-import {LayoutConfig, ItemType, ComponentItemConfig} from "golden-layout";
+import {LayoutConfig, ItemType, ComponentItemConfig, StackItemConfig, RowOrColumnItemConfig} from "golden-layout";
 import {ProcessTreeEditorComponent} from "../../process-tree-editor/process-tree-editor.component";
 import {VariantExplorerComponent} from "../../variant-explorer/variant-explorer.component";
 import {ActivityOverviewComponent} from "../../activity-overview/activity-overview.component";
-import {SubvariantExplorerComponent} from "../../variant-explorer/subvariant-explorer/subvariant-explorer.component";
 
 export const baseLayout: LayoutConfig = {
   dimensions : {
@@ -16,7 +14,7 @@ export const baseLayout: LayoutConfig = {
   settings: {
     showMaximiseIcon: false,
     showPopoutIcon: false,
-
+    constrainDragToContainer : true,
   },
   root: {
       type: ItemType.column,
@@ -30,13 +28,13 @@ export const baseLayout: LayoutConfig = {
               header: {
                 show: false,
               },
+              reorderEnabled : false,
               componentType: ProcessTreeEditorComponent.componentName,
           } as ComponentItemConfig,
           {
             type: ItemType.row,
             height : 38.197,
             content : [
-
             {
               type : ItemType.stack,
               height : 38.197,
@@ -47,13 +45,11 @@ export const baseLayout: LayoutConfig = {
                   type: "component",
                   title: "Variant Explorer",
                   isClosable: false,
+                  reorderEnabled : false,
                   componentType: VariantExplorerComponent.componentName,
                 } as ComponentItemConfig
               ]
-            },
-
-
-
+            } as StackItemConfig,
             {
               id : ActivityOverviewComponent.componentName,
               type: "component",
@@ -62,12 +58,13 @@ export const baseLayout: LayoutConfig = {
               },
               width: 38.197,
               isClosable: false,
+              reorderEnabled : false,
               title: "Activity Explorer",
               componentType: ActivityOverviewComponent.componentName,
           } as ComponentItemConfig,
 
 
-          ]},
+          ]} as RowOrColumnItemConfig,
       ],
-  },
+  } as RowOrColumnItemConfig,
 };
