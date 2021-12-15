@@ -13,6 +13,8 @@ import { LayoutChangeDirective } from 'src/app/directives/layout-change.directiv
 })
 export class SubvariantExplorerComponent extends LayoutChangeDirective implements OnInit {
 
+
+
   main_variant : Variant;
   public colorMap: Map<string, string>;
   public invisibleVariantsHeight = 50;
@@ -30,6 +32,10 @@ export class SubvariantExplorerComponent extends LayoutChangeDirective implement
   }
 
   ngOnInit(): void {
+  }
+
+  // Implements responsive changes, such as triggering animations, if the layout and thus the components size changes
+  handleResponsiveChange(left: number, top: number, width: number, height: number): void {
   }
 
 }
