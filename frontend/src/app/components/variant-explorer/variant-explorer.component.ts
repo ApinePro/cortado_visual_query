@@ -425,7 +425,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   handleResponsiveChange(left: number, top: number, width: number, height: number) : void{
-    if (width < 600){
+    if (width < 630){
       this.collapse = true;
     }else{
       this.collapse = false;
