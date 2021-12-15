@@ -219,7 +219,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     ];
 
     const componentitemRef = this._goldenLayout.findFirstComponentItemById(SubvariantExplorerComponent.componentName + (index - 1))
-    console.log("Component Ref:", componentitemRef);
+
       // If the Component was found, put it into focus
     if(componentitemRef !== undefined){
       componentitemRef.focus();
