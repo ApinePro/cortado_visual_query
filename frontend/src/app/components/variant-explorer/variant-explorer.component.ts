@@ -199,18 +199,17 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     ];
 
     const componentitemRef = this._goldenLayout.findFirstComponentItemById(SubvariantExplorerComponent.componentName + (index - 1))
-
+    console.log("Component Ref:", componentitemRef);
       // If the Component was found, put it into focus
-    if(componentitemRef){
+    if(componentitemRef !== undefined){
       componentitemRef.focus();
 
       // Instantiate a new Subvariant Component for this variant
     } else {
 
+    this._goldenLayout.findFirstComponentItemById(VariantExplorerComponent.componentName).focus()
 
-      this._goldenLayout.findFirstComponentItemById(VariantExplorerComponent.name).focus()
-
-      const itemConfig : ComponentItemConfig = {
+    const itemConfig : ComponentItemConfig = {
                                                id : SubvariantExplorerComponent.componentName + (index - 1),
                                                type: "component",
                                                title: "Subvariant " + (index),
@@ -218,7 +217,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
                                                componentState: this.variants[index - 1],
                                                componentType: SubvariantExplorerComponent.componentName,
                                              }
-      const itemConfigItem = this._goldenLayout.addItemAtLocation(itemConfig, LocationSelectors)
+    const itemConfigItem = this._goldenLayout.addItemAtLocation(itemConfig, LocationSelectors)
 
     }
 
