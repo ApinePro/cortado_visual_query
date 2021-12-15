@@ -2,7 +2,6 @@ import { SharedDataService } from './../../../services/sharedDataService/shared-
 import { ColorMapService } from './../../../services/colorMapService/color-map.service';
 
 import { Variant } from './../model';
-import { GoldenLayoutComponentService } from './../../../services/goldenLayoutService/golden-layout-component.service';
 import { Component, ElementRef, Inject, OnInit, Renderer2 } from '@angular/core';
 import { ComponentContainer } from 'golden-layout';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';

@@ -217,6 +217,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
                                                componentState: this.variants[index - 1],
                                                componentType: SubvariantExplorerComponent.componentName,
                                              }
+
     const itemConfigItem = this._goldenLayout.addItemAtLocation(itemConfig, LocationSelectors)
 
     }
