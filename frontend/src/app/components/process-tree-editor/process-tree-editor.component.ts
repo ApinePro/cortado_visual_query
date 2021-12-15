@@ -23,6 +23,7 @@ declare var $;
 import {ProcessTree, ProcessTreeSyntaxInfo, checkSyntax} from '../../objects/ProcessTree';
 import {textColorForBackgroundColor} from '../variant-explorer/helper_functions';
 
+
 @Component({
   selector: 'app-process-tree-editor',
   templateUrl: './process-tree-editor.component.html',
@@ -115,15 +116,24 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
         this.update(this.root, true);
       }
     });
+
     this.sharedDataService.activitiesInEventLog$.subscribe(activities => {
-      console.log(activities);
       this.activitiesOccurringInLog = Array.from(Object.keys(activities));
     });
+
   }
 
   ngAfterViewInit(): void {
     this.activateTooltipsService.enable();
     this.initializeSvg();
+
+    // Calculate the initial Node width
+    this.computeLeafNodeWidth(this.activitiesOccurringInLog);
+
+    // Update the cached values if the activities change
+    this.sharedDataService.activitiesInEventLog$.subscribe(activities => {
+      this.computeLeafNodeWidth(Array.from(Object.keys(activities)));
+    });
 
     // TODO find a global solution to this problem - close/disable tooltips when a dropdown is open
     // enable/disable+close all tooltips on closing/opening a dropdown
@@ -679,7 +689,7 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
           return [constants.tree_node_height_width, 2 * constants.tree_node_height_width];
         }
 
-        return [this.computeLeafNodeWidth(node.data.label), 2 * constants.tree_node_height_width];
+        return [this.nodeWidthCache[node.data.label], 2 * constants.tree_node_height_width];
 
       })
 
@@ -695,18 +705,15 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
   }
 
 
-  computeLeafNodeWidth(nodeActivityLabel: string): number {
-
-    // Retrieve the computed width from Cache
-    if (this.nodeWidthCache.has(nodeActivityLabel)) {
-      return this.nodeWidthCache.get(nodeActivityLabel);
-    }
-
-    // Compute the width by rendering a dummy node
+  computeLeafNodeWidth(nodeActivityLabels: string[]): void {
     const dummy_select = d3.select(this.svgElem.nativeElement)
-      .append('text')
-      .attr('font-size', '12px')
-      .text(function (d: any) {
+                           .append('text')
+                           .attr('font-size', '12px')
+
+    for(let nodeActivityLabel of nodeActivityLabels){
+
+      // Compute the width by rendering a dummy node
+      dummy_select.text(function (d: any) {
         if (nodeActivityLabel.length <= 20) {
           return nodeActivityLabel;
         } else {
@@ -714,18 +721,19 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
         }
       })
 
-    // Retrieve the computed width
-    let rendered_width = dummy_select.node().getComputedTextLength();
+      // Retrieve the computed width
+      let rendered_width = dummy_select.node().getComputedTextLength();
+
+      // Compute the true node width as specified above
+      rendered_width = Math.max(rendered_width + 10, constants.tree_node_height_width);
+
+      // Add to Cache
+      this.nodeWidthCache[nodeActivityLabel] = rendered_width
+    }
 
     // Delete the Dummy
     dummy_select.remove();
 
-    // Compute the true node width as specified above
-    rendered_width = Math.max(rendered_width + 10, constants.tree_node_height_width);
-
-    // Add to Cache
-    this.nodeWidthCache[nodeActivityLabel] = rendered_width
-    return rendered_width;
   }
 
   addZoomFunctionality(): void {
