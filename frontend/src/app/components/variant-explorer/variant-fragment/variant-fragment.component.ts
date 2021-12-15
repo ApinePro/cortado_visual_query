@@ -9,7 +9,7 @@ import {Constants, LeafNode, ParallelGroup, SequenceGroup, VariantElement} from 
 @Component({
   selector: 'app-variant-fragment',
   templateUrl: './variant-fragment.component.html',
-  styleUrls: ['./variant-fragment.component.css']
+  styleUrls: ['./variant-fragment.component.css'],
 })
 export class VariantFragmentComponent implements AfterViewInit {
 
@@ -39,12 +39,7 @@ export class VariantFragmentComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.svgSelection = d3.select(this.svgHtmlElement.nativeElement)
-      .append('g')
-      .on('click', () => {
-        this.variant.setExpanded(!this.variant.expanded);
-        this.redraw();
-      });
+    this.svgSelection = d3.select(this.svgHtmlElement.nativeElement).append('g');
     this.redraw();
   }
 

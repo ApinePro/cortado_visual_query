@@ -26,7 +26,7 @@
       (click)="updateAlignments()"
       [disabled]="!currentlyDisplayedProcessTree || alignmentCalculationInProgress || !correctTreeSyntax">
       <i class="bi bi-layers-fill btn-icon"></i>
-      conformance check
+      <div @collapseText class = "button-text px-1" *ngIf= "!collapse">conformance check</div>
     </button>
 
     <span class="vl"></span>
@@ -37,7 +37,7 @@
       (click)="addSelectedVariantsToModel()">
       <i class="bi bi-plus btn-icon"
         [ngClass]="{'text-success': !(isNoVariantSelected() || !currentlyDisplayedProcessTree || alignmentCalculationInProgress)}"></i>
-      add variant(s) to model
+      <div @collapseText class = "button-text px-1" *ngIf= "!collapse">add variant(s) to model </div>
     </button>
 
     <span class="vl"></span>
@@ -47,7 +47,7 @@
       [disabled]="isNoVariantSelected() || alignmentCalculationInProgress" (click)="discoverInitialModel()">
       <i class="bi bi-diagram-2-fill btn-icon"
         [ngClass]="{'text-success': isAnyVariantSelected() && !alignmentCalculationInProgress}"></i>
-      discover initial model
+      <div @collapseText class = "button-text px-1" *ngIf= "!collapse">discover initial model </div>
     </button>
 
     <button class="button ms-auto" *ngIf="areAllVariantsExpanded()" (click)="unExpandAll(false)" data-toggle="tooltip"

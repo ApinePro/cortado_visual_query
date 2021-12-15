@@ -130,6 +130,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     const component = componentRef.instance;
 
     component.setPositionAndSize(left, top, width, height);
+    component.handleResponsiveChange(left, top, width, height);
   }
 
   private handleContainerVisibilityChangeRequiredEvent(container: ComponentContainer, visible: boolean) {

@@ -4,6 +4,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { ActivityOverviewSortingPipe } from './pipes/activity-overview-sorting/activity-overview-sorting.pipe';
 import { AppComponent } from './app.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FooterComponent } from './components/footer/footer.component';
 import { ProcessTreeEditorComponent } from './components/process-tree-editor/process-tree-editor.component';
 import {StrFilterPipe} from './pipes/str-filter/str-filter.pipe';
@@ -18,7 +19,6 @@ import { VariantSelectionButtonComponent } from './components/variant-explorer/v
 import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
 import { SubvariantExplorerComponent } from './components/variant-explorer/subvariant-explorer/subvariant-explorer.component';
-
 
 @NgModule({
   declarations: [
@@ -39,7 +39,8 @@ import { SubvariantExplorerComponent } from './components/variant-explorer/subva
   imports: [
     BrowserModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    BrowserAnimationsModule
   ],
   providers: [
     {

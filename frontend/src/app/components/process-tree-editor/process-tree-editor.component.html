@@ -157,17 +157,17 @@
 
     <button class="button" (click)="selectNode()" [class.button-active]="selectNodeActive">
       <i class="bi bi-check btn-icon text-danger"></i>
-      select node
+      <div class = "button-text px-1" @collapseText *ngIf= "!collapse">select node</div>
     </button>
 
     <button class="button" (click)="selectSubtree()" [class.button-active]="selectSubtreeActive">
       <i class="bi bi-check-all btn-icon text-danger"></i>
-      select subtree
+      <div class = "button-text px-1" @collapseText *ngIf= "!collapse">select subtree</div>
     </button>
 
     <button class="button" (click)="clearSelection()">
       <i class="bi bi-x btn-icon text-danger"></i>
-      clear selection
+      <div class = "button-text px-1" @collapseText *ngIf= "!collapse">clear selection</div>
     </button>
 
     <span class="vl"></span>
@@ -176,21 +176,21 @@
             data-bs-toggle="tooltip" data-placement="top" data-trigger="hover" data-html="true"
             title="(un)freeze <em>entire</em> subtree to prevent them from being changed when adding variants">
       <i class="bi bi-snow btn-icon text-primary"></i>
-      (un)freeze subtrees
+      <div class = "button-text px-1" @collapseText *ngIf= "!collapse">(un)freeze subtrees </div>
     </button>
 
     <span class="vl"></span>
-
-    <button class="button" data-bs-toggle="tooltip" data-bs-placement="top"
-      data-bs-trigger="hover" title="Exports the tree as an .svg"  (click)="exportCurrentTree(d3svg)">
-
-    <i class="bi bi-save"></i>
-    </button>
 
     <button class="button ms-auto" id="btn-reset-zoom" data-bs-toggle="tooltip" data-bs-placement="top"
             data-bs-trigger="hover"
             title="reset view">
       <i class="bi bi-arrows-fullscreen btn-icon text-light"></i>
+    </button>
+
+    <button class="button" data-bs-toggle="tooltip" data-bs-placement="top"
+      data-bs-trigger="hover" title="Exports the tree as an .svg"  (click)="exportCurrentTree(d3svg)">
+
+    <i class="bi bi-save"></i>
     </button>
 
   </div>
