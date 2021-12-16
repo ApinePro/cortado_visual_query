@@ -1,4 +1,5 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
+import { Variant } from '../model';
 
 @Component({
   selector: 'app-variant-info',
@@ -6,12 +7,8 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
   styleUrls: ['./variant-info.component.css']
 })
 export class VariantInfoComponent {
-
   @Input()
-  outdatedConformanceStatistics: boolean;
-
-  @Input()
-  variant;
+  variant: Variant;
 
 
 }

@@ -25,6 +25,8 @@ export class Variant {
   // TODO alignment is unused it will not be returned by calculateAlignmentsCVariant backend endpoint
   alignment: any | undefined;
   deviation: any | undefined;
+  isTimeouted: boolean;
+  isConformanceOutdated: boolean;
   sub_variants: {
     count: number
     variant: [string, string][][],
@@ -68,7 +70,6 @@ export abstract class VariantElement {
   public getHeadLength() {
     return Math.tan(Constants.ARROW_HEAD_ANGLE / 360 * Math.PI * 2) * (this.getHeight() / 2)
   }
-
 
   public abstract getHeight(): number;
   public abstract getWidth(): number;
