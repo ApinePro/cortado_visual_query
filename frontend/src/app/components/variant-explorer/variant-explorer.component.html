@@ -1,11 +1,6 @@
-<div class="alert alert-dark alert-dismissible fade show variant-explorer-alert" role="alert" *ngIf="alertMessage">
-  <i class="bi bi-exclamation-triangle text-danger"></i>&nbsp;{{alertMessage}}
-  <button type="button" class="close" data-dismiss="alert" aria-label="Close" (click)="alertMessage=undefined;">
-    <span aria-hidden="true">&times;</span>
-  </button>
-</div>
+<app-drop-zone [dropzoneConfig]="dropZoneConfig" (fileOnHover)="toggleBlur($event)"> </app-drop-zone>
 
-<div class="d-flex flex-column h-100 container-variant-explorer" #variantExplorerContainer>
+<div class="d-flex flex-column h-100 container-variant-explorer" #variantExplorerContainer [class.blurOutOfFocus]="variantExplorerOutOfFocus">
   <div class="bg-dark btn-tool-bar">
     <i class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text" data-toggle="tooltip"
       data-placement="top" data-trigger="hover" data-html="true" title="Selected (marked with <i class='bi bi-check2-circle'></i>) <b>non-fitting</b> variants will be added to the process

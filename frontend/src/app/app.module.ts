@@ -1,3 +1,4 @@
+import { DropZoneComponent } from './components/drop-zone/drop-zone.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -9,6 +10,8 @@ import { FooterComponent } from './components/footer/footer.component';
 import { ProcessTreeEditorComponent } from './components/process-tree-editor/process-tree-editor.component';
 import {StrFilterPipe} from './pipes/str-filter/str-filter.pipe';
 import { FormsModule } from '@angular/forms';
+import { NgxFileDropModule } from 'ngx-file-drop'
+
 import { VariantExplorerComponent } from './components/variant-explorer/variant-explorer.component';
 import { SideBarComponent } from './components/side-bar/side-bar.component';
 import { ActivityOverviewComponent } from './components/activity-overview/activity-overview.component';
@@ -18,6 +21,7 @@ import { VariantInfoComponent } from './components/variant-explorer/variant-info
 import { VariantSelectionButtonComponent } from './components/variant-explorer/variant-selection-button/variant-selection-button.component';
 import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
+import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 
 @NgModule({
   declarations: [
@@ -33,11 +37,14 @@ import { GoldenLayoutHostComponent } from './components/golden-layout-host/golde
     VariantSelectionButtonComponent,
     ActivityOverviewComponent,
     ProcessTreeEditorComponent,
+    DropZoneComponent,
+    DropZoneDirective
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpClientModule,
+    NgxFileDropModule,
     BrowserAnimationsModule
   ],
   providers: [
@@ -55,7 +62,7 @@ import { GoldenLayoutHostComponent } from './components/golden-layout-host/golde
     ProcessTreeEditorComponent,
     VariantInfoComponent
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {
 }

@@ -32,6 +32,7 @@ import { LayoutChangeDirective } from '../../directives/layout-change.directive'
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import { ImageExportService } from '../../services/imageExportService/image-export-service';
 import * as d3 from 'd3';
+import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -76,9 +77,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
   public currentlyDisplayedProcessTree;
   public usedTreeForConformanceChecking;
-  public alertMessage: string;
   public outdatedConformanceStatistics = false;
-
   protected unsubscribe: Subject<void> = new Subject<void>();
 
   public correctTreeSyntax = false;
@@ -90,7 +89,9 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
   public alignmentCalculationInProgress = false;
   public svgRenderingInProgress: boolean = false;
+  public variantExplorerOutOfFocus: boolean = false;
 
+  dropZoneConfig : DropzoneConfig;
 
   @ViewChild('variantExplorer', { static: true })
   variantExplorerDiv: ElementRef<HTMLDivElement>;
@@ -103,7 +104,17 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
   public visibleVariantsHeight = 1000;
 
+
   ngOnInit(): void {
+
+    this.dropZoneConfig = new DropzoneConfig(
+      ".xes",
+      "false",
+      "false",
+      "<large> Import <strong>Event Log</strong> .xes file</large>"
+    )
+
+
     // preload road traffic fine management process
     this.variants = this.sharedDataService.variants;
 
@@ -247,11 +258,6 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     this.numberFittingVariants = numberFittingVariants;
   }
 
-
-  showAlert(msg: string): void {
-    this.alertMessage = undefined;
-    this.alertMessage = msg;
-  }
 
 
   discoverInitialModel(): void {
@@ -498,6 +504,10 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
       .text('(' + variantAbs + ')');
 
     return svgElement_copy;
+  }
+
+  toggleBlur(event){
+    this.variantExplorerOutOfFocus = event;
   }
 
 }

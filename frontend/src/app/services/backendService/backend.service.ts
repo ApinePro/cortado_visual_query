@@ -26,6 +26,7 @@ export class BackendService {
   }
 
   uploadEventLog(file: File) {
+    console.log(file);
     let formData = new FormData();
     formData.append("file", file);
 
@@ -48,6 +49,7 @@ export class BackendService {
   }
 
   loadProcessTreeFromFilePath(filePath: string): void {
+    console.log(filePath);
     this.httpClient.post(this.backendUrl + 'loadProcessTreeFromPtmlFile', {file_path: filePath})
       .subscribe(tree => {
         this.sharedDataService.currentDisplayedProcessTree = tree;
