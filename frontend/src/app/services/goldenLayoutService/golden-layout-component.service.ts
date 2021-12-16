@@ -1,3 +1,4 @@
+import { Observable, Subject } from 'rxjs';
 import { ComponentFactoryResolver, Injectable, Injector, StaticProvider, Type } from '@angular/core';
 import { ComponentContainer, GoldenLayout, JsonValue } from "golden-layout";
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
@@ -10,6 +11,7 @@ export class GoldenLayoutComponentService {
   private _componentTypeMap = new Map<string, Type<LayoutChangeDirective>>()
   private _goldenLayoutHostComponent: GoldenLayoutHostComponent
   private _goldenLayout: GoldenLayout;
+  private _componentDestroyed = new Subject<any>();
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver) { }
 
@@ -56,4 +58,5 @@ export class GoldenLayoutComponentService {
       return componentFactoryRef.create(injector);
     }
   }
+
 }

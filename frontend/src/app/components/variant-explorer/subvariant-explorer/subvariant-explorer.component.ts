@@ -1,6 +1,5 @@
 import { SharedDataService } from './../../../services/sharedDataService/shared-data.service';
 import { ColorMapService } from './../../../services/colorMapService/color-map.service';
-
 import { Variant } from './../model';
 import { Component, ElementRef, Inject, OnInit, Renderer2 } from '@angular/core';
 import { ComponentContainer } from 'golden-layout';
@@ -23,8 +22,8 @@ export class SubvariantExplorerComponent extends LayoutChangeDirective implement
               elRef: ElementRef,
               renderer: Renderer2,
               private colorMapService : ColorMapService,
-              private sharedDataService : SharedDataService
-             ) {
+              private sharedDataService : SharedDataService,
+             ){
     super(elRef.nativeElement, renderer);
     this.main_variant = this.container.initialState as Variant;
     this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
@@ -37,7 +36,6 @@ export class SubvariantExplorerComponent extends LayoutChangeDirective implement
   // Implements responsive changes, such as triggering animations, if the layout and thus the components size changes
   handleResponsiveChange(left: number, top: number, width: number, height: number): void {
   }
-
 }
 
 export namespace SubvariantExplorerComponent {

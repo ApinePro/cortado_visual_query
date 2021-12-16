@@ -1,6 +1,6 @@
 import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
-import { ComponentItemConfig, GoldenLayout, LayoutManager } from 'golden-layout';
+import { ComponentItem, ComponentItemConfig, GoldenLayout, LayoutManager } from 'golden-layout';
 import { GoldenLayoutComponentService } from './../../services/goldenLayoutService/golden-layout-component.service';
 import {
   Component,
@@ -36,6 +36,7 @@ import { LayoutChangeDirective } from '../../directives/layout-change.directive'
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import { ImageExportService } from '../../services/imageExportService/image-export-service';
 import * as d3 from 'd3';
+import { HostListener } from '@angular/core';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -98,6 +99,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
   _goldenLayoutHostComponent : GoldenLayoutHostComponent;
   _goldenLayout : GoldenLayout;
+  _subvariantcomponentItemsMap : Map<string, ComponentItem> = new Map<string, ComponentItem>();
 
   @ViewChild('variantExplorer', { static: true })
   variantExplorerDiv: ElementRef<HTMLDivElement>;
@@ -164,14 +166,12 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
     this._goldenLayoutHostComponent =  this.goldenLayoutComponentService.goldenLayoutHostComponent;
     this._goldenLayout =  this.goldenLayoutComponentService.goldenLayout;
-    console.log(this._goldenLayoutHostComponent);
-    console.log(this._goldenLayout);
   }
 
 
   private eventLogChanged(): void {
     this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
-
+    this.closeAllSubvariantWindows();
     this.variants = this.sharedDataService.variants;
     this.initializeVisibleVariants();
 
@@ -218,19 +218,23 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
       { typeId: LayoutManager.LocationSelector.TypeId.FocusedStack, index: undefined },
     ];
 
-    const componentitemRef = this._goldenLayout.findFirstComponentItemById(SubvariantExplorerComponent.componentName + (index - 1))
+    const id = SubvariantExplorerComponent.componentName + (index - 1);
 
-      // If the Component was found, put it into focus
-    if(componentitemRef !== undefined){
-      componentitemRef.focus();
+    let componentItem = this._subvariantcomponentItemsMap.get(id);
 
-      // Instantiate a new Subvariant Component for this variant
+    // Check if the component item reference already is stored and if the item still exists
+    // Saves on a search by ID
+    if(componentItem && this._goldenLayoutHostComponent.getComponentRef(componentItem.container)){
+      componentItem.focus();
+
+    // Instantiate a new Subvariant Component for this variant if it did not exist or is closed
     } else {
 
-    this._goldenLayout.findFirstComponentItemById(VariantExplorerComponent.componentName).focus()
+    const variantExplorerItem = this._goldenLayout.findFirstComponentItemById(VariantExplorerComponent.componentName);
+    variantExplorerItem.focus();
 
     const itemConfig : ComponentItemConfig = {
-                                               id : SubvariantExplorerComponent.componentName + (index - 1),
+                                               id : id,
                                                type: "component",
                                                title: "Subvariant " + (index),
                                                isClosable: true,
@@ -240,8 +244,31 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
                                              }
 
     const itemConfigItem = this._goldenLayout.addItemAtLocation(itemConfig, LocationSelectors)
+    componentItem = this._goldenLayout.findFirstComponentItemById(SubvariantExplorerComponent.componentName + (index - 1));
+    this._subvariantcomponentItemsMap.set(id, componentItem);
 
+    // Prevent the VariantExplorer from loosing Focus
+    variantExplorerItem.focus();
     }
+
+  }
+
+
+  closeAllSubvariantWindows() : void{
+    this._subvariantcomponentItemsMap.forEach((value) => {
+      if(value && this._goldenLayoutHostComponent.getComponentRef(value.container)){
+        value.close()
+      }
+    });
+
+    // Reset the Map to empty
+    this._subvariantcomponentItemsMap = new Map<string, ComponentItem>();
+
+  }
+
+  // Handle updates to Subvariants by updating tabs and title using the item and
+  // triggering component functions using the
+  updateAllSubvariantWindows() : void{
 
   }
 
