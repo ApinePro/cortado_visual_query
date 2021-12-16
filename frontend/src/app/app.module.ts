@@ -1,12 +1,17 @@
+import { DropZoneComponent } from './components/drop-zone/drop-zone.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
+import { ActivityOverviewSortingPipe } from './pipes/activity-overview-sorting/activity-overview-sorting.pipe';
 import { AppComponent } from './app.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FooterComponent } from './components/footer/footer.component';
 import { ProcessTreeEditorComponent } from './components/process-tree-editor/process-tree-editor.component';
-import { StrFilterPipe } from './pipes/str-filter.pipe';
+import { StrFilterPipe } from './pipes/str-filter/str-filter.pipe';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgxFileDropModule } from 'ngx-file-drop';
+
 import { VariantExplorerComponent } from './components/variant-explorer/variant-explorer.component';
 import { SideBarComponent } from './components/side-bar/side-bar.component';
 import { ActivityOverviewComponent } from './components/activity-overview/activity-overview.component';
@@ -18,12 +23,15 @@ import { GoldenLayoutComponentService } from './services/goldenLayoutService/gol
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
 import { ExpertModeComponent } from './components/process-tree-editor/expert-mode/expert-mode.component';
 import { ContentEditableDirective } from './directives/content-editable-directive.directive';
+import { SettingsComponent } from './components/settings/settings.component';
+import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 
 @NgModule({
   declarations: [
     AppComponent,
     FooterComponent,
     StrFilterPipe,
+    ActivityOverviewSortingPipe,
     SideBarComponent,
     GoldenLayoutHostComponent,
     VariantExplorerComponent,
@@ -35,12 +43,17 @@ import { ContentEditableDirective } from './directives/content-editable-directiv
     VariantInfoComponent,
     ExpertModeComponent,
     ContentEditableDirective,
+    SettingsComponent,
+    DropZoneComponent,
+    DropZoneDirective
   ],
   imports: [
     BrowserModule,
     ReactiveFormsModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    NgxFileDropModule,
+    BrowserAnimationsModule
   ],
   providers: [
     {
@@ -57,7 +70,7 @@ import { ContentEditableDirective } from './directives/content-editable-directiv
     ProcessTreeEditorComponent,
     VariantInfoComponent
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {
 }

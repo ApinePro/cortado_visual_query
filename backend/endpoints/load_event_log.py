@@ -60,6 +60,11 @@ def get_c_variants(event_log: EventLog):
                 'count': len(sub_variants[sub_v]),
                 'percentage': round(len(sub_variants[sub_v]) / total_sub_traces * 100, 2)
             })
+
+        # If the variant is only a single activity leaf, wrap it up as a sequence
+        if 'leaf' in variant["variant"].keys() or 'parallel' in variant["variant"].keys(): 
+            variant["variant"] = {'follows' : [variant["variant"]]}
+        
         variant['sub_variants'] = sorted(variant['sub_variants'], key=lambda x: x['count'], reverse=True)
         res_variants.append(variant)
     return sorted(res_variants, key=lambda variant: variant['count'], reverse=True)

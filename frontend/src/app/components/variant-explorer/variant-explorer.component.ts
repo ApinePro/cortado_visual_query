@@ -10,6 +10,14 @@ import {
   Renderer2,
   AfterViewInit
 } from '@angular/core';
+
+import {
+  trigger,
+  style,
+  animate,
+  transition
+} from '@angular/animations';
+
 import { ComponentContainer } from 'golden-layout';
 import { ColorMapService } from '../../services/colorMapService/color-map.service';
 import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
@@ -24,11 +32,23 @@ import { LayoutChangeDirective } from '../../directives/layout-change.directive'
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import { ImageExportService } from '../../services/imageExportService/image-export-service';
 import * as d3 from 'd3';
+import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 
 @Component({
   selector: 'app-variant-explorer',
   templateUrl: './variant-explorer.component.html',
-  styleUrls: ['./variant-explorer.component.scss']
+  styleUrls: ['./variant-explorer.component.scss'],
+  animations: [
+              trigger('collapseText', [
+                transition(':enter', [
+                  style({ opacity : '0', transform : 'translateX(-40px)'}),
+                  animate('100ms 50ms ease-in', style({ opacity : '1',  transform : 'translateX(0)'})),
+                ]),
+                transition(':leave', [
+                  animate('100ms 50ms ease-in', style({ opacity : '0',  transform : 'translateX(-50px)'}))
+                ])
+              ])
+            ]
 })
 export class VariantExplorerComponent extends LayoutChangeDirective implements OnInit, AfterContentChecked, AfterViewInit {
   constructor(private colorMapService: ColorMapService,
@@ -46,6 +66,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   private readonly nVariantsInc = 50;
+  collapse : boolean = false;
 
   public variants: Variant[] = [];
   public visibleVariants: Variant[] = [];
@@ -56,9 +77,6 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
   public currentlyDisplayedProcessTree;
   public usedTreeForConformanceChecking;
-  public alertMessage: string;
-  public outdatedConformanceStatistics = false;
-
   protected unsubscribe: Subject<void> = new Subject<void>();
 
   public correctTreeSyntax = false;
@@ -68,9 +86,10 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   public totalNumberTraces: number = undefined;
   public totalNumberVariants = 5;
 
-  public alignmentCalculationInProgress = false;
   public svgRenderingInProgress: boolean = false;
+  public variantExplorerOutOfFocus: boolean = false;
 
+  dropZoneConfig : DropzoneConfig;
 
   @ViewChild('variantExplorer', { static: true })
   variantExplorerDiv: ElementRef<HTMLDivElement>;
@@ -83,12 +102,23 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
   public visibleVariantsHeight = 1000;
 
+
   ngOnInit(): void {
+
+    this.dropZoneConfig = new DropzoneConfig(
+      ".xes",
+      "false",
+      "false",
+      "<large> Import <strong>Event Log</strong> .xes file</large>"
+    )
+
+
     // preload road traffic fine management process
     this.variants = this.sharedDataService.variants;
 
     this.variants.forEach(v => {
       v.variant = deserialize(v.variant);
+      v.isConformanceOutdated = true;
     });
 
     this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
@@ -121,14 +151,17 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
         this.currentlyDisplayedProcessTree);
 
       if (treeHasChanged) {
-        this.outdatedConformanceStatistics = true;
-        this.variants.forEach(v => v.isAddedFittingVariant = false);
+        this.variants.forEach(v => {
+          v.isAddedFittingVariant = false;
+          v.isConformanceOutdated = true;
+        });
       }
     });
   }
 
   ngAfterContentChecked(): void {
-    this.tooltipActivationService.initialize();
+    // TODO the following line is the reason for the performance problems
+    // this.tooltipActivationService.initialize();
   }
 
   ngAfterViewInit() {
@@ -146,6 +179,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     this.variants.forEach(v => {
       v.isSelected = false;
       v.isAddedFittingVariant = false;
+      v.isConformanceOutdated = true;
     });
 
     this.numberFittingVariants = undefined;
@@ -181,15 +215,10 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   updateAlignments(): void {
-    if (!this.outdatedConformanceStatistics) {
-      return;
-    }
-
-    let calculatedAlignments = 0;
     this.tooltipActivationService.close();
-    this.alignmentCalculationInProgress = true;
 
     this.updateAlignmentStatistics();
+    this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
 
     this.variants.forEach(v => {
       v.calculationInProgress = true;
@@ -199,18 +228,20 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
         v.calculationInProgress = false;
         v.alignment = res.alignment;
         v.deviation = res.deviation;
-        calculatedAlignments++;
+        v.isTimeouted = false;
+        v.isConformanceOutdated = false;
         this.updateAlignmentStatistics();
-        if (calculatedAlignments === this.totalNumberVariants) {
-          this.alignmentCalculationInProgress = false;
+      }, error => {
+        if (error.status === 504) {
+          v.calculationInProgress = false;
+          v.isTimeouted = true;
+          v.isConformanceOutdated = true;
+          this.updateAlignmentStatistics();
+        } else {
+          this.updateAlignmentsStop();
         }
-      }, _ => {
-        this.alignmentCalculationInProgress = false;
-        this.updateAlignmentsStop();
       });
     });
-
-    this.outdatedConformanceStatistics = false;
   }
 
   updateAlignmentStatistics(): void {
@@ -228,15 +259,9 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
 
-  showAlert(msg: string): void {
-    this.alertMessage = undefined;
-    this.alertMessage = msg;
-  }
-
 
   discoverInitialModel(): void {
     this.tooltipActivationService.close();
-
 
     const variants = this.getSelectedVariants().map(v => v.variant);
 
@@ -276,31 +301,44 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   addSelectedVariantsToModel(): void {
     this.tooltipActivationService.close();
 
+    const selectedVariants = this.getSelectedVariants()
+
     // TODO we currently distinguish two cases here: 1. outdated conformance and 2. known conformance
     // in the future, we want to use caching in the backend and use only a single call from frontend
-    if (this.outdatedConformanceStatistics) {
-      this.addSelectedVariantsToModelForOutdatedConformance();
+    if (this.isAnyVariantOutdated(selectedVariants)) {
+      this.addSelectedVariantsToModelForOutdatedConformance(selectedVariants);
       return;
     }
 
-    this.addSelectedVariantsToModelForGivenConformance();
+    this.addSelectedVariantsToModelForGivenConformance(selectedVariants);
   }
 
   getSelectedVariants(): Variant[] {
     return this.variants.filter(v => v.isSelected);
   }
 
-  addSelectedVariantsToModelForOutdatedConformance(): void {
-    const selectedVariants = this.getSelectedVariants().map(v => v.variant);
+  isAnyVariantOutdated(variants: Variant[]): boolean {
+    return variants.some(v => v.isConformanceOutdated);
+  }
 
-    this.backendService.addConcurrencyVariantsToProcessModelForUnknownConformance(selectedVariants)
+  isConformanceOutdated(): boolean {
+    return this.isAnyVariantOutdated(this.variants);
+  }
+
+  isAlignmentCalculationInProgress(): boolean {
+    return this.variants.some(v => v.calculationInProgress)
+  }
+
+  addSelectedVariantsToModelForOutdatedConformance(selectedVariants: Variant[]): void {
+    const selectedVariantElements = selectedVariants.map(v => v.variant);
+
+    this.backendService.addConcurrencyVariantsToProcessModelForUnknownConformance(selectedVariantElements)
       .subscribe(_ => {
         this.refreshConformanceIconsAfterModelChange(false);
       });
   }
 
-  addSelectedVariantsToModelForGivenConformance(): void {
-    const selectedVariants = this.getSelectedVariants();
+  addSelectedVariantsToModelForGivenConformance(selectedVariants: Variant[]): void {
     const fittingVariants = selectedVariants.filter(v => !v.deviation).map(v => v.variant);
     const variantsToAdd = selectedVariants.filter(v => v.deviation).map(v => v.variant);
 
@@ -359,6 +397,15 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     const scrollTop = event.target.scrollTop;
     this.updateVisible(scrollTop);
   }
+
+  handleResponsiveChange(left: number, top: number, width: number, height: number) : void{
+    if (width < 600){
+      this.collapse = true;
+    }else{
+      this.collapse = false;
+    }
+  }
+
 
   updateVisible(scrollTop): void {
     const h = this.variantExplorerDiv.nativeElement.clientHeight;
@@ -469,6 +516,10 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
       .text('(' + variantAbs + ')');
 
     return svgElement_copy;
+  }
+
+  toggleBlur(event){
+    this.variantExplorerOutOfFocus = event;
   }
 
 }

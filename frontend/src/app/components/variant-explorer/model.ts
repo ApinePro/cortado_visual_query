@@ -4,6 +4,7 @@ export class Constants {
   public static LEAF_HEIGHT = 23;
   public static MARGIN_X = 8;
   public static MARGIN_Y = 5;
+  public static SEQUENCEGROUP_Margin = 15;
   public static ARROW_FEATHER_LENGTH = 10;
   public static ARROW_HEAD_LENGTH = 12;
   public static ARROW_HEAD_ANGLE = 20;
@@ -24,6 +25,8 @@ export class Variant {
   // TODO alignment is unused it will not be returned by calculateAlignmentsCVariant backend endpoint
   alignment: any | undefined;
   deviation: any | undefined;
+  isTimeouted: boolean;
+  isConformanceOutdated: boolean;
   sub_variants: {
     count: number
     variant: [string, string][][],
@@ -67,7 +70,6 @@ export abstract class VariantElement {
   public getHeadLength() {
     return Math.tan(Constants.ARROW_HEAD_ANGLE / 360 * Math.PI * 2) * (this.getHeight() / 2)
   }
-
 
   public abstract getHeight(): number;
   public abstract getWidth(): number;

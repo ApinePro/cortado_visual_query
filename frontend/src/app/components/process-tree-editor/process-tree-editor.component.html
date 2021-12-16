@@ -1,5 +1,9 @@
-<div class="main-process-tree-editor  h-100 d-flex flex-column">
 
+
+
+<app-drop-zone [dropzoneConfig]="dropZoneConfig" (fileOnHover)="toggleBlur($event)"> </app-drop-zone>
+
+<div class="main-process-tree-editor  h-100 d-flex flex-column" [class.blurOutOfFocus]="processEditorOutOfFocus">
   <div class="bg-dark btn-tool-bar">
 
     <div class="btn-group align-baseline dropDownParent dropdown">
@@ -7,8 +11,8 @@
               [disabled]="insertNewNodeButtonDisabled()"
               type="button"
               data-bs-toggle="dropdown"
-              aria-haspopup="true"
               aria-expanded="false"
+              data-bs-auto-close="outside"
               id="addNodeDropdown">
         <i class="bi bi-plus-square-fill btn-icon"></i>
       </button>
@@ -16,7 +20,7 @@
 
         <div id="positionMethodSelection" *ngIf="root!==null && root!==undefined">
 
-          <div class="font-italic font-weight-bold ps-2 text-center">Position</div>
+          <div class="fst-italic fw-bold ps-2 text-center">Position</div>
           <div class="dropdown-item"
                *ngIf="!insertPositionAboveDisabled"
                [ngClass]="lastSelectedInsertMethod===insertNewNodeAbove? 'insertion-position-active':''"
@@ -50,25 +54,25 @@
           <div class="dropdown-divider"></div>
         </div>
 
-        <div class="font-italic font-weight-bold ps-2 text-center">Node</div>
+        <div class="fst-italic fw-bold ps-2 text-center">Node</div>
 
         <ng-template #operatorListDropdown>
-          <div class="font-italic ps-2 text-primary">Operator</div>
+          <div class="fst-italic ps-2 text-primary">Operator</div>
 
           <div class="dropdown-item" (click)="insertNewNode('\u2715',null)">
-            <span class="font-weight-bold">&#x2715;</span>
+            <span class="fw-bold">&#x2715;</span>
             <span class="ms-3 text-secondary">choice</span>
           </div>
           <div class="dropdown-item" (click)="insertNewNode('\u2794',null)">
-            <span class="font-weight-bold">&#x2794;</span>
+            <span class="fw-bold">&#x2794;</span>
             <span class="ms-3 text-secondary">sequence</span>
           </div>
           <div class="dropdown-item" (click)="insertNewNode('\u21BA',null)">
-            <span class="font-weight-bold">&#x21BA;</span>
+            <span class="fw-bold">&#x21BA;</span>
             <span class="ms-3 text-secondary">loop</span>
           </div>
           <div class="dropdown-item" (click)="insertNewNode('\u2227',null)">
-            <span class="font-weight-bold">&#x2227;</span>
+            <span class="fw-bold">&#x2227;</span>
             <span class="ms-3 text-secondary">parallel</span>
           </div>
         </ng-template>
@@ -76,10 +80,10 @@
         <ng-template [ngTemplateOutlet]="operatorListDropdown"></ng-template>
 
         <ng-template #activityListDropdown>
-          <div class="font-italic ps-2 text-primary">Activity</div>
+          <div class="fst-italic ps-2 text-primary">Activity</div>
 
           <div class="dropdown-item" (click)="insertNewNode(null,'\u03C4')">
-            <span class="font-weight-bold">&#x03C4;</span>
+            <span class="fw-bold">&#x03C4;</span>
             <span class="ms-3 text-secondary">invisible activity</span>
           </div>
 
@@ -156,18 +160,18 @@
     <span class="vl"></span>
 
     <button class="button" (click)="selectNode()" [class.button-active]="selectNodeActive">
-      <i class="bi bi-check btn-icon text-danger"></i>
-      select node
+      <i class="bi bi-fullscreen btn-icon text-danger"></i>
+      <div class = "button-text px-1" @collapseText *ngIf= "!collapse">select node</div>
     </button>
 
     <button class="button" (click)="selectSubtree()" [class.button-active]="selectSubtreeActive">
-      <i class="bi bi-check-all btn-icon text-danger"></i>
-      select subtree
+      <i class="bi bi-fullscreen btn-icon text-danger"></i>
+      <div class = "button-text px-1" @collapseText *ngIf= "!collapse">select subtree</div>
     </button>
 
     <button class="button" (click)="clearSelection()">
-      <i class="bi bi-x btn-icon text-danger"></i>
-      clear selection
+      <i class="bi bi-x-lg btn-icon text-danger"></i>
+      <div class = "button-text px-1" @collapseText *ngIf= "!collapse">clear selection</div>
     </button>
 
     <span class="vl"></span>
@@ -176,21 +180,21 @@
             data-bs-toggle="tooltip" data-placement="top" data-trigger="hover" data-html="true"
             title="(un)freeze <em>entire</em> subtree to prevent them from being changed when adding variants">
       <i class="bi bi-snow btn-icon text-primary"></i>
-      (un)freeze subtrees
+      <div class = "button-text px-1" @collapseText *ngIf= "!collapse">(un)freeze subtrees </div>
     </button>
 
     <span class="vl"></span>
-
-    <button class="button" data-bs-toggle="tooltip" data-bs-placement="top"
-      data-bs-trigger="hover" title="Exports the tree as an .svg"  (click)="exportCurrentTree(d3svg)">
-
-    <i class="bi bi-save"></i>
-    </button>
 
     <button class="button ms-auto" id="btn-reset-zoom" data-bs-toggle="tooltip" data-bs-placement="top"
             data-bs-trigger="hover"
             title="reset view">
       <i class="bi bi-arrows-fullscreen btn-icon text-light"></i>
+    </button>
+
+    <button class="button" data-bs-toggle="tooltip" data-bs-placement="top"
+      data-bs-trigger="hover" title="Exports the tree as an .svg"  (click)="exportCurrentTree(d3svg)">
+
+    <i class="bi bi-save"></i>
     </button>
 
   </div>

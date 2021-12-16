@@ -149,11 +149,6 @@ hr {
   background: #888;
 }
 
-.dropdown-menu {
-  border-radius: 0;
-  background-color: lightgray;
-}
-
 .font-large {
   font-size: large;
 }
@@ -163,7 +158,7 @@ hr {
 }
 
 .imbalanced-parenthesis{
-  border-bottom : 3px solid;
+  border-bottom : 1.5px solid;
   border-color: red;
 }
 
@@ -231,6 +226,20 @@ th {
 
 .selected-edge{
   stroke : #dc3545 !important;
+}
+
+.syntax-info {
+  background-color: rgba(0, 0, 0, 0.4);
+  position: absolute;
+  font-size: small;
+  bottom: 0;
+  left: 0;
+  text-align: left;
+  cursor: auto;
+}
+
+.syntax-info ul {
+  margin-bottom: 0;
 }
 
 

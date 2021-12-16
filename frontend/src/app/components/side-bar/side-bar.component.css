@@ -5,7 +5,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 2;
+  z-index: 5;
   background-color: var(--box-background-color);
   overflow-x: hidden;
   border-right: 1px solid #101010;

@@ -3,5 +3,6 @@ uvicorn
 cycler~=0.10.0
 networkx
 python-multipart
-git+https://gitlab.fit.fraunhofer.de/pm4py/pm4py-core.git@c692509ea25741d517fff100b23af28aa8f1f723#egg=pm4py
+git+https://gitlab.fit.fraunhofer.de/pm4py/pm4py-core.git@dedef73404bdef9d9ac8654e77d6d438fa730501#egg=pm4py
+appdirs
 git+https://gitlab.fit.fraunhofer.de/daniel.schuster/interactive_process_mining_core.git@master#egg=cortado_core

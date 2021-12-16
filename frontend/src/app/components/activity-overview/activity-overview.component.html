@@ -1,4 +1,6 @@
-<div class="d-flex flex-column mh-100 h-100 activityOverviewContainer">
+<app-drop-zone [dropzoneConfig]="dropZoneConfig" (fileOnHover)="toggleBlur($event)"> </app-drop-zone>
+
+<div class="d-flex flex-column mh-100 h-100 activityOverviewContainer" [class.blurOutOfFocus]="activityOverviewOutOfFocus">
   <div class="bg-dark">
 
   </div>
@@ -9,48 +11,60 @@
 
       <tr>
         <th scope="col" class="bg-dark">&nbsp;</th>
-        <th scope="col" class="bg-dark border-end border-color"><em>Activity name</em></th>
-        <th scope="col" class="bg-dark text-center border-end border-color"><em>in model</em></th>
-        <th scope="col" class="bg-dark text-center border-end border-color text-nowrap">
-          <div data-bs-toggle="tooltip" data-placement="bottom" data-html="true"
+
+        <th scope="col" class="bg-dark border-end border-color toggle-select" (click)="toggleSort('activityName')">
+        <em class="user-select-none">Activity name</em>
+          <br>
+          <i class="bi" *ngIf="sortKey==='activityName'" [ngClass]="{'bi-sort-alpha-down':!ascending, 'bi-sort-alpha-down-alt':ascending}"></i>
+        <th scope="col" class="bg-dark text-center border-end border-color toggle-select" (click)="toggleSort('inModel')"><em class="user-select-none">in model</em>
+          <br>
+          <i class="bi" *ngIf="sortKey==='inModel'" [ngClass]="{'bi-sort-up':ascending, 'bi-sort-down':!ascending}"></i>
+        </th>
+        <th scope="col" class="bg-dark text-center border-end border-color text-nowrap toggle-select" (click)="toggleSort('isStart')">
+          <div data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                title="<b class='text-primary'>start-activity</b> (in the event log, there exists a case that starts with the given activity)">
             <i class="bi bi-chevron-right text-white"></i>
             <i class="bi bi-chevron-double-right" style="margin-left: -9px;"></i>
             <!--            <i class="bi bi-chevron-double-right" style="margin-left: -6px;"></i>-->
           </div>
+          <i class="bi" *ngIf="sortKey==='isStart'" [ngClass]="{'bi-sort-up':ascending, 'bi-sort-down':!ascending}"></i>
         </th>
-        <th scope="col" class="bg-dark text-center border-end border-color text-nowrap">
-          <div data-bs-toggle="tooltip" data-placement="bottom" data-html="true"
+        <th scope="col" class="bg-dark text-center border-end border-color text-nowrap toggle-select" (click)="toggleSort('isEnd')">
+          <div data-bs-toggle="tooltip" data-bs-placement="bottom" data-html="true"
+
                title="<b class='text-primary'>end-activity</b> (in the event log, there exists a case that ends with the given activity)">
             <!--            <i class="bi bi-chevron-double-right"></i>-->
             <i class="bi bi-chevron-double-right" style="margin-left: 0px;"></i>
             <i class="bi bi-chevron-right text-white" style="margin-left: -7px;"></i>
           </div>
+          <i class="bi" *ngIf="sortKey==='isEnd'" [ngClass]="{'bi-sort-up':ascending, 'bi-sort-down':!ascending}"></i>
         </th>
-        <th scope="col" class="bg-dark text-center">
-          <i class="bi bi-hash"></i><em>occurrence</em>
+        <th scope="col" class="bg-dark text-center toggle-select" (click)="toggleSort('occurences')">
+          <i class="bi bi-hash"></i><em class="user-select-none">occurrence</em>
+          <br>
+          <i class="bi" *ngIf="sortKey==='occurences'" [ngClass]="{'bi-sort-numeric-down':ascending, 'bi-sort-numeric-down-alt':!ascending}"></i>
         </th>
       </tr>
       </thead>
 
       <tbody>
       <ng-container *ngIf="activitiesInTree && activityColorMap">
-        <tr *ngFor="let a of activityColorMap | keyvalue">
-          <th class="user-select-none" [ngStyle]="{'background-color': a.value}">&nbsp;</th>
+        <tr *ngFor="let activityField of activityFields | activityOverviewSorting:sortKey:ascending">
+          <th class="user-select-none" [ngStyle]="{'background-color': activityField.color}">&nbsp;</th>
           <td class="border-end border-color">
-            {{a.key}}
+            {{activityField.activityName}}
           </td>
           <td class="border-end border-color text-center">
-            <i class="bi bi-check2" *ngIf="activitiesInTree.has(a.key)"></i>
+            <i class="bi bi-check2" *ngIf="activityField.inModel"></i>
           </td>
           <td class="border-end border-color text-center">
-            <i class="bi bi-check2" *ngIf="startActivities.has(a.key)"></i>
+            <i class="bi bi-check2" *ngIf="activityField.isStart"></i>
           </td>
           <td class="border-end border-color text-center">
-            <i class="bi bi-check2" *ngIf="endActivities.has(a.key)"></i>
+            <i class="bi bi-check2" *ngIf="activityField.isEnd"></i>
           </td>
           <td class="text-center">
-            {{activitiesInLog[a.key]}}
+            {{activityField.occurences}}
           </td>
         </tr>
       </ng-container>
