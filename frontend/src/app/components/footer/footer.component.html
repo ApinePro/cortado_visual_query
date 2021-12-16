@@ -5,19 +5,19 @@
       </div>
       <span class="sr-only ps-1">Loading...</span>
 
-      <span class="font-weight-light">
+      <span class="fw-light">
       ( {{currentTask|lowercase}} )
       </span>
-        <span class="font-weight-light" *ngIf="numberTasks>1">
+        <span class="fw-light" *ngIf="numberTasks>1">
         (remaining tasks: {{numberTasks|number}})
       </span>
     </ng-container>
 
     <span class="float-end text-secondary">
-      <a href="mailto:cortado@fit.fraunhofer.de"><i class="bi bi-question-circle"></i> contact</a>
+      <a href="mailto:cortado@fit.fraunhofer.de" class="text-decoration-none"><i class="bi bi-question-circle"></i> contact</a>
 
       <span class="vl ms-2 me-2"></span>
-      <a href="https://cortado.fit.fraunhofer.de/#download" target="_blank" data-bs-toggle="tooltip" data-placement="top"
+      <a href="https://cortado.fit.fraunhofer.de/#download" class="text-decoration-none" target="_blank" data-bs-toggle="tooltip" data-placement="top"
          title="Check for updates">version {{version}}</a>
 
       <span class="vl ms-2 me-2"></span>
