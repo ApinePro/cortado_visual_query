@@ -1,5 +1,5 @@
 import { environment } from '../../../environments/environment';
-import { Component, Input, OnInit, Output, EventEmitter,} from '@angular/core';
+import { Component, Input, ViewEncapsulation, OnInit, Output, EventEmitter,} from '@angular/core';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { NgxFileDropEntry, FileSystemFileEntry } from 'ngx-file-drop';
 import { BackendService  } from 'src/app/services/backendService/backend.service';
@@ -10,6 +10,7 @@ import Swal from 'sweetalert2';
   selector: 'app-drop-zone',
   templateUrl: './drop-zone.component.html',
   styleUrls: ['./drop-zone.component.css'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class DropZoneComponent extends DropZoneDirective implements OnInit {
 

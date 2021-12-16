@@ -217,6 +217,7 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
 
   }
 
+
   saveTreeInSharedDataService(): void {
     console.warn(this.currentlyDisplayedTreeInEditor);
     this.sharedDataService.currentDisplayedProcessTree = this.currentlyDisplayedTreeInEditor;
