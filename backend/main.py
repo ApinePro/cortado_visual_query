@@ -11,7 +11,7 @@ from fastapi.responses import Response
 from pm4py.objects.log.importer.xes.importer import apply as xes_import
 import pm4py.objects.log.importer.xes.importer as xes_importer
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pm4py.algo.filtering.log.variants import variants_filter
 from pm4py.objects.log.obj import EventLog, Trace, Event
 from pm4py.objects.process_tree.obj import ProcessTree
@@ -23,6 +23,9 @@ from pm4py.objects.process_tree.importer.importer import apply as import_pt_from
 
 from backend_utilities.process_tree_conversion import process_tree_to_dict
 from backend_utilities.process_tree_conversion import dict_to_process_tree
+from backend_utilities.configuration.repository import ConfigurationRepositoryFactory
+from backend_utilities.configuration.repository import Configuration as DomainConfiguration
+from backend_utilities.timeout.helper_functions import execute_with_timeout, TimeoutException
 from backend_utilities.variant_trace_conversion import variant_to_trace
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 from endpoints.load_event_log import calculate_event_log_properties
@@ -104,6 +107,7 @@ class InputAddVariantsToProcessModel(BaseModel):
     fitting_variants: List[Any]
     variants_to_add: List[Any]
     pt: dict
+
 
 # TODO this endpoint is currently unused, we have to decide if we want to delete it
 @app.post("/addVariantsToProcessModel")
@@ -199,17 +203,49 @@ class InputCalculateAlignmentCVariant(BaseModel):
     variant: dict
 
 
-@app.post("/calculateAlignmentsCVariant")
-async def calculate_alignment(d: InputCalculateAlignmentCVariant):
-    all_variants = generate_variants(d.variant)
+def calculate_alignments_intern(pt: dict, c_variant: dict):
+    all_variants = generate_variants(c_variant)
     for variant in all_variants:
-        alignment = calculate_alignment_endpoint(variant, d.pt)
+        alignment = calculate_alignment_endpoint(variant, pt)
         if alignment['deviation']:
             return {'cost': alignment['cost'],
                     'deviation': alignment['deviation']}
 
     return {'cost': 0,
             'deviation': False}
+
+
+@app.post("/calculateAlignmentsCVariant")
+async def calculate_alignment(d: InputCalculateAlignmentCVariant, response: Response):
+    config_repository = ConfigurationRepositoryFactory.get_config_repository()
+    timeout = config_repository.get_configuration().timeout_cvariant_alignment_computation
+    try:
+        return execute_with_timeout(calculate_alignments_intern, timeout, args=(d.pt, d.variant))
+    except TimeoutException:
+        response.status_code = 504
+
+
+class Configuration(BaseModel):
+    timeout_cvariant_alignment_computation: int = Field(alias='timeoutCVariantAlignmentComputation')
+
+    class Config:
+        allow_population_by_field_name = True
+
+
+@app.post("/saveConfiguration")
+async def save_configuration(config_dto: Configuration):
+    config_repository = ConfigurationRepositoryFactory.get_config_repository()
+    config = DomainConfiguration(
+        timeout_cvariant_alignment_computation=config_dto.timeout_cvariant_alignment_computation)
+    config_repository.save_configuration(config)
+
+
+@app.get("/getConfiguration")
+async def get_configuration():
+    config_repository = ConfigurationRepositoryFactory.get_config_repository()
+    config = config_repository.get_configuration()
+    config_dto = Configuration(timeout_cvariant_alignment_computation=config.timeout_cvariant_alignment_computation)
+    return config_dto
 
 
 # Using FastAPI instance

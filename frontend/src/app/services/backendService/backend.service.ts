@@ -1,10 +1,11 @@
-import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {SharedDataService} from '../sharedDataService/shared-data.service';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { SharedDataService } from '../sharedDataService/shared-data.service';
 import * as FileSaver from 'file-saver';
 import {take, tap} from 'rxjs/operators';
 import {deserialize, VariantElement} from 'src/app/components/variant-explorer/model';
+import { Configuration } from 'src/app/components/settings/model';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,7 @@ export class BackendService {
 
 
   loadEventLogFromFilePath(filePath: string): void {
-    this.httpClient.post(this.backendUrl + 'loadEventLog', {file_path: filePath})
+    this.httpClient.post(this.backendUrl + 'loadEventLog', { file_path: filePath })
       .subscribe(res => {
         this.processEventLog(res, filePath);
       });
@@ -57,7 +58,7 @@ export class BackendService {
   }
 
   discoverProcessModelFromVariants(variants: any[]): void {
-    this.httpClient.post(this.backendUrl + 'discoverProcessModelFromVariants', {variants: variants})
+    this.httpClient.post(this.backendUrl + 'discoverProcessModelFromVariants', { variants: variants })
       .subscribe(tree => {
         this.sharedDataService.currentDisplayedProcessTree = tree;
       });
@@ -73,7 +74,7 @@ export class BackendService {
 
   downloadCurrentTreeAsPTML(): void {
     this.sharedDataService.currentDisplayedProcessTree$.pipe(take(1)).subscribe(tree => {
-      this.httpClient.post(this.backendUrl + 'convertPtToPTML', {pt: tree}, {responseType: 'blob'})
+      this.httpClient.post(this.backendUrl + 'convertPtToPTML', { pt: tree }, { responseType: 'blob' })
         .subscribe(blob => {
           FileSaver.saveAs(blob, 'process_tree.ptml');
         });
@@ -82,7 +83,7 @@ export class BackendService {
 
   downloadCurrentTreeAsPNML(): void {
     this.sharedDataService.currentDisplayedProcessTree$.pipe(take(1)).subscribe(tree => {
-      this.httpClient.post(this.backendUrl + 'convertPtToPNML', {pt: tree}, {responseType: 'blob'})
+      this.httpClient.post(this.backendUrl + 'convertPtToPNML', { pt: tree }, { responseType: 'blob' })
         .subscribe(blob => {
           FileSaver.saveAs(blob, 'petri_net.pnml');
         });
@@ -90,7 +91,7 @@ export class BackendService {
   }
 
   calculateAlignment(variant): Observable<any> {
-    const body = {pt: this.sharedDataService.currentDisplayedProcessTree, variant};
+    const body = { pt: this.sharedDataService.currentDisplayedProcessTree, variant };
     return this.httpClient.post(this.backendUrl + 'calculateAlignment', body);
   }
 
@@ -134,6 +135,14 @@ export class BackendService {
       .pipe(tap(res => {
         this.sharedDataService.currentDisplayedProcessTree = res;
       }));
+  }
+
+  saveConfiguration(configuration: Configuration): Observable<any> {
+    return this.httpClient.post(this.backendUrl + 'saveConfiguration', configuration);
+  }
+
+  getConfiguration(): Observable<any> {
+    return this.httpClient.get<Configuration>(this.backendUrl + 'getConfiguration');
   }
 }
 

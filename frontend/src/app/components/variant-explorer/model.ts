@@ -25,6 +25,8 @@ export class Variant {
   // TODO alignment is unused it will not be returned by calculateAlignmentsCVariant backend endpoint
   alignment: any | undefined;
   deviation: any | undefined;
+  isTimeouted: boolean;
+  isConformanceOutdated: boolean;
   sub_variants: {
     count: number
     variant: [string, string][][],

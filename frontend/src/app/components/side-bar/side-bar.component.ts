@@ -1,23 +1,19 @@
-import {Component, OnInit, ElementRef, ViewChild} from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import {BackendService} from "../../services/backendService/backend.service";
-import {BackgroundTaskInfoService} from "../../services/backgroundTaskInfoService/background-task-info.service";
-import {SharedDataService} from "../../services/sharedDataService/shared-data.service";
+import { BackendService } from "../../services/backendService/backend.service";
 
 @Component({
   selector: 'app-side-bar',
   templateUrl: './side-bar.component.html',
   styleUrls: ['./side-bar.component.css']
 })
-export class SideBarComponent implements OnInit {
+export class SideBarComponent {
+
+  showSettingsEvent: Subject<void> = new Subject<void>();
 
   constructor(private backendService: BackendService,
-              private backgroundTaskInfoService: BackgroundTaskInfoService,
-              private sharedDataService: SharedDataService,
-              private _elRef: ElementRef<HTMLElement>) {
-  }
-
-  ngOnInit(): void {
+    private _elRef: ElementRef<HTMLElement>) {
   }
 
   @ViewChild('fileUploadEventLog') fileUploadEventLog: ElementRef;
@@ -27,18 +23,16 @@ export class SideBarComponent implements OnInit {
     this.fileUploadEventLog.nativeElement.click();
   }
 
-  get element(){
+  get element() {
     return this._elRef.nativeElement;
   }
 
   handleSelectedEventLogFile(e): void {
-    const taskDescription = 'Loading/parsing event log';
 
     const fileList: FileList = e.target.files;
     if (fileList.length > 0) {
       console.log(fileList[0]);
-      const fileName = fileList[0].name;
-      if(!environment.electron) {
+      if (!environment.electron) {
         this.backendService.uploadEventLog(fileList[0]);
       } else {
         this.backendService.loadEventLogFromFilePath(fileList[0]['path']);
@@ -68,5 +62,9 @@ export class SideBarComponent implements OnInit {
 
   importTreeFromPTML(): void {
     this.fileUploadProcessTree.nativeElement.click();
+  }
+
+  showSettingsDialog(): void {
+    this.showSettingsEvent.next();
   }
 }

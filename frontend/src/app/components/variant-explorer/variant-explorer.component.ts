@@ -77,7 +77,6 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
   public currentlyDisplayedProcessTree;
   public usedTreeForConformanceChecking;
-  public outdatedConformanceStatistics = false;
   protected unsubscribe: Subject<void> = new Subject<void>();
 
   public correctTreeSyntax = false;
@@ -87,7 +86,6 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   public totalNumberTraces: number = undefined;
   public totalNumberVariants = 5;
 
-  public alignmentCalculationInProgress = false;
   public svgRenderingInProgress: boolean = false;
   public variantExplorerOutOfFocus: boolean = false;
 
@@ -120,6 +118,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
     this.variants.forEach(v => {
       v.variant = deserialize(v.variant);
+      v.isConformanceOutdated = true;
     });
 
     this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
@@ -152,14 +151,17 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
         this.currentlyDisplayedProcessTree);
 
       if (treeHasChanged) {
-        this.outdatedConformanceStatistics = true;
-        this.variants.forEach(v => v.isAddedFittingVariant = false);
+        this.variants.forEach(v => {
+          v.isAddedFittingVariant = false;
+          v.isConformanceOutdated = true;
+        });
       }
     });
   }
 
   ngAfterContentChecked(): void {
-    //this.tooltipActivationService.initialize();
+    // TODO the following line is the reason for the performance problems
+    // this.tooltipActivationService.initialize();
   }
 
   ngAfterViewInit() {
@@ -177,6 +179,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     this.variants.forEach(v => {
       v.isSelected = false;
       v.isAddedFittingVariant = false;
+      v.isConformanceOutdated = true;
     });
 
     this.numberFittingVariants = undefined;
@@ -212,15 +215,10 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   updateAlignments(): void {
-    if (!this.outdatedConformanceStatistics) {
-      return;
-    }
-
-    let calculatedAlignments = 0;
     this.tooltipActivationService.close();
-    this.alignmentCalculationInProgress = true;
 
     this.updateAlignmentStatistics();
+    this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
 
     this.variants.forEach(v => {
       v.calculationInProgress = true;
@@ -230,18 +228,20 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
         v.calculationInProgress = false;
         v.alignment = res.alignment;
         v.deviation = res.deviation;
-        calculatedAlignments++;
+        v.isTimeouted = false;
+        v.isConformanceOutdated = false;
         this.updateAlignmentStatistics();
-        if (calculatedAlignments === this.totalNumberVariants) {
-          this.alignmentCalculationInProgress = false;
+      }, error => {
+        if (error.status === 504) {
+          v.calculationInProgress = false;
+          v.isTimeouted = true;
+          v.isConformanceOutdated = true;
+          this.updateAlignmentStatistics();
+        } else {
+          this.updateAlignmentsStop();
         }
-      }, _ => {
-        this.alignmentCalculationInProgress = false;
-        this.updateAlignmentsStop();
       });
     });
-
-    this.outdatedConformanceStatistics = false;
   }
 
   updateAlignmentStatistics(): void {
@@ -262,7 +262,6 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
   discoverInitialModel(): void {
     this.tooltipActivationService.close();
-
 
     const variants = this.getSelectedVariants().map(v => v.variant);
 
@@ -302,31 +301,44 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   addSelectedVariantsToModel(): void {
     this.tooltipActivationService.close();
 
+    const selectedVariants = this.getSelectedVariants()
+
     // TODO we currently distinguish two cases here: 1. outdated conformance and 2. known conformance
     // in the future, we want to use caching in the backend and use only a single call from frontend
-    if (this.outdatedConformanceStatistics) {
-      this.addSelectedVariantsToModelForOutdatedConformance();
+    if (this.isAnyVariantOutdated(selectedVariants)) {
+      this.addSelectedVariantsToModelForOutdatedConformance(selectedVariants);
       return;
     }
 
-    this.addSelectedVariantsToModelForGivenConformance();
+    this.addSelectedVariantsToModelForGivenConformance(selectedVariants);
   }
 
   getSelectedVariants(): Variant[] {
     return this.variants.filter(v => v.isSelected);
   }
 
-  addSelectedVariantsToModelForOutdatedConformance(): void {
-    const selectedVariants = this.getSelectedVariants().map(v => v.variant);
+  isAnyVariantOutdated(variants: Variant[]): boolean {
+    return variants.some(v => v.isConformanceOutdated);
+  }
 
-    this.backendService.addConcurrencyVariantsToProcessModelForUnknownConformance(selectedVariants)
+  isConformanceOutdated(): boolean {
+    return this.isAnyVariantOutdated(this.variants);
+  }
+
+  isAlignmentCalculationInProgress(): boolean {
+    return this.variants.some(v => v.calculationInProgress)
+  }
+
+  addSelectedVariantsToModelForOutdatedConformance(selectedVariants: Variant[]): void {
+    const selectedVariantElements = selectedVariants.map(v => v.variant);
+
+    this.backendService.addConcurrencyVariantsToProcessModelForUnknownConformance(selectedVariantElements)
       .subscribe(_ => {
         this.refreshConformanceIconsAfterModelChange(false);
       });
   }
 
-  addSelectedVariantsToModelForGivenConformance(): void {
-    const selectedVariants = this.getSelectedVariants();
+  addSelectedVariantsToModelForGivenConformance(selectedVariants: Variant[]): void {
     const fittingVariants = selectedVariants.filter(v => !v.deviation).map(v => v.variant);
     const variantsToAdd = selectedVariants.filter(v => v.deviation).map(v => v.variant);
 
