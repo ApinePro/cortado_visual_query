@@ -8,6 +8,9 @@ workflow:
       when: never
     - when: always
 
+variables:
+  PYTHON_VERSION: 3.8.10
+
 test-angular-app-build:
   stage: test
   image: node:16.10.0
@@ -26,6 +29,28 @@ test-angular-app-build:
   tags:
     - container
 
+
+unit_tests:
+  stage: test
+  image: python:$PYTHON_VERSION
+  before_script:
+    - pip install pytest
+    - git config --global credential.https://gitlab.fit.fraunhofer.de/daniel.schuster/interactive_process_mining_core.git.username ${cortado_core_git_username}
+    - git config --global credential.https://gitlab.fit.fraunhofer.de/pm4py/pm4py-core.git.username ${pm4py_core_git_username}
+    - git config --global credential.helper store
+    - git config --global credential.interactive never
+    - echo https://${cortado_core_git_username}:${cortado_core_git_password}@gitlab.fit.fraunhofer.de >> /root/.git-credentials
+    - echo https://${pm4py_core_git_username}:${pm4py_core_git_password}@gitlab.fit.fraunhofer.de >> /root/.git-credentials
+    - pip install -r backend/requirements.txt
+  script:
+    - pytest --junitxml=report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
+    expire_in: 2 weeks
+
+    
 build-electron-app-windows:
   stage: build
   image: electronuserland/builder:wine

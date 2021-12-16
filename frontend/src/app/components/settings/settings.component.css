@@ -1,0 +1,7 @@
+.h-line-bottom {
+    border-bottom:1px solid var(--line-color);
+}
+
+.h-line-top {
+    border-top:1px solid var(--line-color);
+}
