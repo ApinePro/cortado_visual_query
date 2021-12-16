@@ -90,7 +90,7 @@
             <th>
               Info
             </th>
-            <th>
+            <th *ngIf="variants[0].sub_variants">
               Subvariants
             </th>
             <th class="text-start px-2">
@@ -111,8 +111,8 @@
                   (selectionChanged)="selectionChangedForVariant(variant, $event)"></app-variant-info>
               </td>
               <td>
-              <div class = "subvariants" (click)="createSubVariantView(i+1)">
-                1
+              <div *ngIf="variant.sub_variants" class = "subvariants" (click)="createSubVariantView(i+1)">
+                {{variant.sub_variants.length}}
               </div>
 
               </td>
