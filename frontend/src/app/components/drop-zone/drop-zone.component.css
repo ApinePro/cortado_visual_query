@@ -1,0 +1,16 @@
+.dropZoneContainer{
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index : -1;
+}
+
+.pullInFront{
+  z-index : 3;
+}
+
+.dropZoneText{
+  z-index : -1;
+}
+
+

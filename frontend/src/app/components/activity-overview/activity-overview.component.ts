@@ -4,6 +4,7 @@ import {ComponentContainer} from 'golden-layout';
 import {ColorMapService} from '../../services/colorMapService/color-map.service';
 import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
 import {LayoutChangeDirective} from '../../directives/layout-change.directive';
+import {DropzoneConfig} from '../drop-zone/drop-zone.component';
 
 
 @Component({
@@ -33,7 +34,19 @@ export class ActivityOverviewComponent extends LayoutChangeDirective implements 
   sortKey : string = "activityName";
   ascending : boolean = false;
 
+  activityOverviewOutOfFocus : boolean = false;
+
+  dropZoneConfig : DropzoneConfig;
+
   ngOnInit(): void {
+
+    this.dropZoneConfig = new DropzoneConfig(
+      ".xes",
+      "false",
+      "false",
+      "<large> Import <strong>Event Log</strong> .xes file</large>"
+    )
+
     this.colorMapService.colorMap$.subscribe(colorMap => {
       this.activityColorMap = colorMap;
     });
@@ -85,9 +98,12 @@ export class ActivityOverviewComponent extends LayoutChangeDirective implements 
     });
   }
 
+  toggleBlur(event){
+    this.activityOverviewOutOfFocus = event;
+  }
 
   handleResponsiveChange(left: number, top: number, width: number, height: number) : void{
-  }
+  };
 
   toggleSort(sortKey : string){
 

@@ -69,7 +69,6 @@ export abstract class VariantElement {
     return Math.tan(Constants.ARROW_HEAD_ANGLE / 360 * Math.PI * 2) * (this.getHeight() / 2)
   }
 
-
   public abstract getHeight(): number;
   public abstract getWidth(): number;
 

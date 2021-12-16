@@ -45,6 +45,7 @@
   "private": true,
   "dependencies": {
     "electron-store": "^8.0.1",
+    "ngx-file-drop": "^13.0.0",
     "tree-kill": "^1.2.2"
   },
   "devDependencies": {
