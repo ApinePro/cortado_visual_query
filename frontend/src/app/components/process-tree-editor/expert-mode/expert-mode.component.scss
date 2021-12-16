@@ -13,10 +13,17 @@
 }
 
 .styled-text-field{
-  user-select: none;
   cursor:pointer;
-  background-color: var(--bs-table-accent-bg);
+  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+  padding : 0.45rem;
+  border-radius: 0.25rem;
   color : var(--text-secondary);
+  font-size : small;
+}
+
+.syntax-error{
+  color : var(--bs-warning);
+  font-size : smaller;
 }
 
 .editor{
@@ -26,6 +33,14 @@
   max-height: 25vh;
   width:  40vw;
   height: 25vh;
+  font-size: small;
+  border-radius: 0.25rem;
+  color : var(--text-secondary);
+  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+}
+
+.editor:focus{
+  outline : none;
 }
 
 .editor-container{

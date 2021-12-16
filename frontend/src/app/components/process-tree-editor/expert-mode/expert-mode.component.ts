@@ -12,22 +12,20 @@ import { ColorMapService } from 'src/app/services/colorMapService/color-map.serv
 export class ExpertModeComponent implements OnInit, AfterViewInit {
 
   syntax_tree_string : string = "";
-
   syntaxTreeInput : any;
   edit : boolean = false;
   allowRender : boolean =  true;
   activityNameRegEx = new RegExp("'([^']*)'", 'g');
 
   activityColorMap: Map<string, string>;
-  public imbalancedItems : Array<imbalancedItem>;
-
+  imbalancedItems : Array<imbalancedItem>;
 
   @ViewChild('expertModeButton') expertModeButton: ElementRef;
   @ViewChild('styledText') styledTextDiv : ElementRef<HTMLDivElement>;
   @ViewChild('textEditor') textEditor : ElementRef<HTMLDivElement>;
 
 
-  private currentlyDisplayedTreeInExpertMode;
+  currentlyDisplayedTreeInExpertMode;
 
   constructor(private sharedDataService : SharedDataService,
               private backendService : BackendService,
