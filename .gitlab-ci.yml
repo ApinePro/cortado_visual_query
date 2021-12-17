@@ -1,4 +1,5 @@
 stages:
+  - lint
   - test
   - build-backend
   - build-frontend
@@ -18,6 +19,17 @@ variables:
   LINUX_BUILD_DIR: Cortado_Linux_build_$ARTIFACT_NAME_SUFFIX
   WINDOWS_BUILD_DIR: Cortado_Windows_build_$ARTIFACT_NAME_SUFFIX
 
+eslint-check:
+  stage: lint
+  image: node
+  rules:
+    - when: on_success
+  before_script:
+    - cd frontend
+    - npm ci
+  script:
+    - ./node_modules/.bin/eslint src/
+  
 test-angular-app-build:
   stage: test
   image: node:16.10.0

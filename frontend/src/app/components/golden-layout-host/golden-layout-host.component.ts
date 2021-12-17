@@ -53,9 +53,9 @@ export class GoldenLayoutHostComponent implements OnDestroy {
   this._goldenLayout.beforeVirtualRectingEvent = (count) => this.handleBeforeVirtualRectingEvent(count);
   }
 
-  ngOnInit(){
-
-  }
+  // ngOnInit(){
+  //   
+  // }
 
   initializeLayout(){
     // Start rendering the Template
