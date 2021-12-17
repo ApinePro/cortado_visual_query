@@ -1,6 +1,7 @@
 stages:
   - test
-  - build
+  - build-backend
+  - build-frontend
 
 workflow:
   rules:
@@ -9,7 +10,13 @@ workflow:
     - when: always
 
 variables:
-  PYTHON_VERSION: 3.8.10
+  PYINSTALLER_VERSION: "4.3"
+  PYTHON_VERSION: "3.8.10"
+  ARTIFACT_NAME_SUFFIX: $CI_COMMIT_SHA-$CI_COMMIT_TIMESTAMP
+  LINUX_BACKEND_ARTIFACT_NAME: Cortado_Linux_backend_$ARTIFACT_NAME_SUFFIX
+  WINDOWS_BACKEND_ARTIFACT_NAME: Cortado_Windows_backend_$ARTIFACT_NAME_SUFFIX
+  LINUX_BUILD_DIR: Cortado_Linux_build_$ARTIFACT_NAME_SUFFIX
+  WINDOWS_BUILD_DIR: Cortado_Windows_build_$ARTIFACT_NAME_SUFFIX
 
 test-angular-app-build:
   stage: test
@@ -22,13 +29,14 @@ test-angular-app-build:
     - npm ci
   script:
     - node node_modules/@angular/cli/bin/ng build --configuration production
-  #  artifacts:
-  #    expire_in: 7 day
-  #    paths:
-  #      - dist/
+  # artifacts:
+  #   expire_in: 7 day
+  #   paths:
+  #     - dist/
   tags:
     - container
 
+# build-backend-windows is coming soon 
 
 unit_tests:
   stage: test
@@ -50,9 +58,29 @@ unit_tests:
       junit: report.xml
     expire_in: 2 weeks
 
+build-backend-linux:
+  stage: build-backend
+  image: python:$PYTHON_VERSION
+  rules:
+    - when: on_success
+  before_script:
+    - echo "machine gitlab.fit.fraunhofer.de login gitlab-ci-token password $CI_JOB_TOKEN" > ~/.netrc 
+    - cd backend
+    - pip install -r requirements.txt
+    # - pip install graphviz==0.17
+    - pip install pyinstaller==$PYINSTALLER_VERSION
+  script:
+    - pyinstaller --noconfirm --clean cortado-backend.spec
+    - cd ..
+    - cp -R backend/dist/cortado-backend .
+  artifacts:
+    name: $LINUX_BACKEND_ARTIFACT_NAME
+    paths:
+      - cortado-backend
+    expire_in: 1 week
     
 build-electron-app-windows:
-  stage: build
+  stage: build-frontend
   image: electronuserland/builder:wine
   rules:
     - when: on_success
@@ -62,14 +90,18 @@ build-electron-app-windows:
   script:
     - npm run build-prod
     - npm run build-electron-only-windows
+    - cd ..
+    - mkdir $WINDOWS_BUILD_DIR
+    - cp -R frontend/app-dist/win-unpacked/* $WINDOWS_BUILD_DIR
+    # - cp -R cortado-backend $WINDOWS_BUILD_DIR
   artifacts:
-    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    name: $WINDOWS_BUILD_DIR
     paths:
-      - frontend/app-dist/win-unpacked
+      - $WINDOWS_BUILD_DIR
     expire_in: 1 week
 
 build-electron-app-linux:
-  stage: build
+  stage: build-frontend
   image: electronuserland/builder
   rules:
     - when: on_success
@@ -79,8 +111,14 @@ build-electron-app-linux:
   script:
     - npm run build-prod
     - npm run build-electron-only-linux
+    - cd ..
+    - mkdir $LINUX_BUILD_DIR
+    - cp -R frontend/app-dist/linux-unpacked/* $LINUX_BUILD_DIR
+    - cp -R cortado-backend $LINUX_BUILD_DIR
+  dependencies:
+    - build-backend-linux
   artifacts:
-    name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
+    name: $LINUX_BUILD_DIR
     paths:
-      - frontend/app-dist/linux-unpacked
+      - $LINUX_BUILD_DIR
     expire_in: 1 week
