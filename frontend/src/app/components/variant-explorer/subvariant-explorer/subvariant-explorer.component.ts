@@ -1,7 +1,7 @@
 import { SharedDataService } from './../../../services/sharedDataService/shared-data.service';
 import { ColorMapService } from './../../../services/colorMapService/color-map.service';
 import { Variant } from './../model';
-import { Component, ElementRef, Inject, OnInit, Renderer2 } from '@angular/core';
+import { Component, ElementRef, Inject, Renderer2 } from '@angular/core';
 import { ComponentContainer } from 'golden-layout';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';
 
@@ -10,7 +10,7 @@ import { LayoutChangeDirective } from 'src/app/directives/layout-change.directiv
   templateUrl: './subvariant-explorer.component.html',
   styleUrls: ['./subvariant-explorer.component.css'] // Consider also importing the base style from the normal variant explorer scss
 })
-export class SubvariantExplorerComponent extends LayoutChangeDirective implements OnInit {
+export class SubvariantExplorerComponent extends LayoutChangeDirective {
 
 
 
@@ -28,9 +28,6 @@ export class SubvariantExplorerComponent extends LayoutChangeDirective implement
     this.main_variant = this.container.initialState as Variant;
     this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
     console.log("New Subvariant window created for Variant: ", this.main_variant);
-  }
-
-  ngOnInit(): void {
   }
 
   // Implements responsive changes, such as triggering animations, if the layout and thus the components size changes
