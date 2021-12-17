@@ -143,21 +143,6 @@ export class SharedDataService {
     return this._currentTreeString.getValue();
   }
 
-  private _currentTreeStringSyntaxCheck = new BehaviorSubject<any>(null);
-
-  get currentTreeStringSyntaxCheck$(): Observable<any> {
-    return this._currentTreeStringSyntaxCheck.asObservable();
-  }
-
-  set currentTreeStringSyntaxCheck(syntaxObj: any) {
-    this._currentTreeStringSyntaxCheck.next(syntaxObj);
-  }
-
-  get currentTreeStringSyntaxCheck() {
-    return this._currentTreeStringSyntaxCheck.getValue();
-  }
-
-
 
   // TODO move somewhere else
   processTreesEqual(pt1, pt2): boolean {

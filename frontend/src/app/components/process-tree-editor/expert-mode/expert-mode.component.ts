@@ -16,6 +16,7 @@ export class ExpertModeComponent implements OnInit, AfterViewInit {
   edit : boolean = false;
   allowRender : boolean =  true;
   activityNameRegEx = new RegExp("'([^']*)'", 'g');
+  backendErrorMessage: string;
 
   activityColorMap: Map<string, string>;
   imbalancedItems : Array<imbalancedItem>;
@@ -40,7 +41,7 @@ export class ExpertModeComponent implements OnInit, AfterViewInit {
                 validators : [
                   this.balancedParenthesisValidator(),
                   this.unknownActivityNameValidator(),
-                  this.balancedApostropheValidator()
+                  this.balancedApostropheValidator(),
                  ],
                 updateOn : 'change',
               })
@@ -147,10 +148,14 @@ export class ExpertModeComponent implements OnInit, AfterViewInit {
     const $pendingTreeParse = this.backendService.renderStringToPT(treeString);
 
     $pendingTreeParse.subscribe((result : any )=> {
-      if(!result.error){
+      console.log(result);
+      if(!result.errors){
         this.sharedDataService.currentDisplayedProcessTree = result.tree;
+        this.backendErrorMessage = null;
+
       } else {
-        this.sharedDataService.currentTreeStringSyntaxCheck = result.error;
+
+        this.backendErrorMessage = result.errors;
       }
       this.allowRender = true;
     });

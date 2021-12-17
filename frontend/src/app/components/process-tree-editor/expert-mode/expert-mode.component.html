@@ -16,44 +16,44 @@
       class="accordion-collapse collapse"
       data-bs-parent="#ExpertModeAccordion"
     >
-      <div class="accordion-body">
+      <div class="accordion-body" [hidden]="!currentlyDisplayedTreeInExpertMode">
         <form [formGroup]="syntaxTreeInput" (ngSubmit)="onSubmit()" (blur)="styleText()">
-          <div class="editor-container" [hidden]="!edit">
+          <div class="form-container" [hidden]="!edit">
             <span class = "secondary-text fw-bold mb-1">Editing Tree String</span>
             <textarea class="editor" (blur)="styleText()"  #textEditor [formControl]="syntax_tree" spellcheck="false"> </textarea>
           </div>
 
-          <div [hidden]="edit || !currentlyDisplayedTreeInExpertMode">
+          <div [hidden]="edit || !currentlyDisplayedTreeInExpertMode" class="form-container">
             <span class = "secondary-text fw-bold mb-1">Tree String</span>
-            <div #styledText class="styled-text-field" (dblclick)="openEditor()"></div>
+            <div #styledText class="styled-text-field" (click)="openEditor()"></div>
           </div>
 
-          <ul *ngIf="syntax_tree.invalid && (syntax_tree.dirty || syntax_tree.touched)"
+          <ul *ngIf="(syntax_tree.invalid && (syntax_tree.dirty || syntax_tree.touched)) || backendErrorMessage"
             class="syntax-error">
 
             <div *ngIf="syntax_tree.errors?.['unknowActivities']">
               <li *ngFor="let unknownActivity of syntax_tree.errors?.['unknowActivities']">
-              Unknown activity name {{unknownActivity.name}} at: {{unknownActivity.index}}
+              Unknown activity name {{unknownActivity.name}} at position {{unknownActivity.index}}
               </li>
             </div>
             <div *ngIf="syntax_tree.errors?.['imbalanced']">
               <li *ngFor="let imbalancedItem of syntax_tree.errors?.['imbalanced']">
-                Imbalanced {{imbalancedItem.symbol}} at {{imbalancedItem.index + 1}}
+                Imbalanced {{imbalancedItem.symbol}} at position {{imbalancedItem.index + 1}}
               </li>
             </div>
             <li *ngIf="syntax_tree.errors?.['apostrophe']">
                 Imbalanced Apostrophes
             </li>
 
-            <li *ngIf="backendErrors">
-              {{backendErrors}}
+            <li *ngIf="backendErrorMessage" class="backend-error">
+              <span> {{backendErrorMessage}} </span>
             </li>
 
           </ul>
 
 
         <div class="expert-mode-tool-bar mt-3">
-          <button type="submit" class="button" *ngIf="currentlyDisplayedTreeInExpertMode"
+          <button type="submit" class="button expert-mode-button" *ngIf="currentlyDisplayedTreeInExpertMode"
           [disabled]="!allowRender || syntax_tree.invalid">Render Tree</button>
         </div>
       </form>
