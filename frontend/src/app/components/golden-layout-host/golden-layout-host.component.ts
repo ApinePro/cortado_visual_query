@@ -58,9 +58,6 @@ export class GoldenLayoutHostComponent implements OnDestroy {
   this.goldenLayoutComponentService.goldenLayout = this._goldenLayout;
   }
 
-  ngOnInit(){
-  }
-
   initializeLayout(){
     // Start rendering the Template
     this.goldenLayout.loadLayout(baseLayout);

@@ -4,21 +4,21 @@
 
   <!-- timeout icon-->
   <i class="bi bi-hourglass-bottom font-large text-warning"
-    *ngIf="variant.calculationInProgress == false && variant.isTimeouted"></i>
+    *ngIf="variant.calculationInProgress === false && variant.isTimeouted"></i>
 
   <!-- check-square icon-->
   <i class="bi bi-check-square font-large"
     [ngClass]="!variant.isConformanceOutdated || variant.isAddedFittingVariant ? 'text-success' : 'text-warning'"
-    *ngIf="variant.deviation == false && variant.calculationInProgress == false"> </i>
+    *ngIf="variant.deviation === false && variant.calculationInProgress === false"> </i>
 
   <!-- x-square icon-->
   <i class="bi bi-x-square font-large" [ngClass]="!variant.isConformanceOutdated ? 'text-danger' : 'text-warning'"
-    *ngIf="variant.deviation && variant.calculationInProgress == false">
+    *ngIf="variant.deviation && variant.calculationInProgress === false">
   </i>
 
   <!-- question mark icon-->
   <i class="bi bi-question-square text-secondary align-middle font-large"
-    *ngIf="variant.deviation == undefined && variant.calculationInProgress == false && !variant.isTimeouted">
+    *ngIf="variant.deviation === undefined && variant.calculationInProgress === false && !variant.isTimeouted">
   </i>
 
   <small class="ms-1 float-end cursor-help" data-toggle="tooltip" data-placement="right" data-container="body"

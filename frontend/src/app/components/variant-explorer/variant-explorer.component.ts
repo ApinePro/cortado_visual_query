@@ -54,7 +54,7 @@ import { DropzoneConfig } from '../drop-zone/drop-zone.component';
               ])
             ]
 })
-export class VariantExplorerComponent extends LayoutChangeDirective implements OnInit, AfterContentChecked, AfterViewInit {
+export class VariantExplorerComponent extends LayoutChangeDirective implements OnInit, AfterViewInit {
   constructor(private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
     private goldenLayoutComponentService : GoldenLayoutComponentService,
@@ -167,10 +167,10 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     });
   }
 
-  ngAfterContentChecked(): void {
-    // TODO the following line is the reason for the performance problems
-    // this.tooltipActivationService.initialize();
-  }
+  // ngAfterContentChecked(): void {
+  //   // TODO the following line is the reason for the performance problems
+  //   // this.tooltipActivationService.initialize();
+  // }
 
   ngAfterViewInit() {
     this.polygonDrawingService.setElementRefereneces(this.variantExplorerContainer,

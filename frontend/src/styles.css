@@ -139,11 +139,6 @@ hr {
   background: #888;
 }
 
-.dropdown-menu {
-  border-radius: 0;
-  background-color: lightgray;
-}
-
 .font-large {
   font-size: large;
 }
@@ -228,22 +223,6 @@ th {
   cursor: crosshair;
 }
 
-.dropdown-node-insert {
-  font-size: small;
-  max-height: 90vh;
-  overflow-x: auto;
-  user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-user-select: none;
-  overflow-y: scroll;
-}
-
-.insertion-position-active {
-  background-color: var(--primary);
-  color: white;
-}
-
 .syntax-info {
   background-color: rgba(0, 0, 0, 0.4);
   position: absolute;
@@ -258,27 +237,5 @@ th {
   margin-bottom: 0;
 }
 
-.grid {
-  background-image: radial-gradient(var(--line-color) 1px, transparent 0px);
-  background-size: 20px 20px;
-}
 
-.dropZone{
-  width : 100%;
-  height: 100%;
-}
-
-.dropZoneContent{
-  height: 100%;
-  width : 100%;
-  align-items: center;
-  color: var(--text-secondary);
-  display: flex;
-  justify-content: center;
-}
-
-.blurOutOfFocus{
-  opacity: 0.8;
-  filter: blur(3px) brightness(0.5);
-}
 
