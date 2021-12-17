@@ -7,6 +7,7 @@
         data-bs-toggle="collapse"
         data-bs-target="#ExpertModeBody"
         (click) = "openExpertMode()"
+        [disabled]="!active"
       >
         Expert Mode
       </button>
@@ -16,16 +17,16 @@
       class="accordion-collapse collapse"
       data-bs-parent="#ExpertModeAccordion"
     >
-      <div class="accordion-body" [hidden]="!currentlyDisplayedTreeInExpertMode">
-        <form [formGroup]="syntaxTreeInput" (ngSubmit)="onSubmit()" (blur)="styleText()">
+      <div class="accordion-body" [hidden]="!currentlyDisplayedTreeInExpertMode" (dblclick)="toggleEditor(!edit)">
+        <form [formGroup]="syntaxTreeInput" (ngSubmit)="onSubmit()">
           <div class="form-container" [hidden]="!edit">
             <span class = "secondary-text fw-bold mb-1">Editing Tree String</span>
-            <textarea class="editor" (blur)="styleText()"  #textEditor [formControl]="syntax_tree" spellcheck="false"> </textarea>
+            <textarea class="editor" #textEditor [formControl]="syntax_tree" spellcheck="false"> </textarea>
           </div>
 
           <div [hidden]="edit || !currentlyDisplayedTreeInExpertMode" class="form-container">
             <span class = "secondary-text fw-bold mb-1">Tree String</span>
-            <div #styledText class="styled-text-field" (click)="openEditor()"></div>
+            <app-tree-string-renderer [styled_tree_string]="styled_tree_string"></app-tree-string-renderer>
           </div>
 
           <ul *ngIf="(syntax_tree.invalid && (syntax_tree.dirty || syntax_tree.touched)) || backendErrorMessage"
@@ -53,8 +54,11 @@
 
 
         <div class="expert-mode-tool-bar mt-3">
-          <button type="submit" class="button expert-mode-button" *ngIf="currentlyDisplayedTreeInExpertMode"
+          <button type="submit" class="button expert-mode-button"
           [disabled]="!allowRender || syntax_tree.invalid">Render Tree</button>
+
+          <button type="button" class="button expert-mode-button" (click)="toggleEditor(!edit)"
+          >{{edit ? "Close Editor" : "Open Editor"}}</button>
         </div>
       </form>
   </div>

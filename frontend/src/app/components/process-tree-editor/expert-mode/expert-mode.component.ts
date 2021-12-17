@@ -1,28 +1,27 @@
 import { BackendService } from 'src/app/services/backendService/backend.service';
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Renderer2 as Renderer } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef} from '@angular/core';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { AbstractControl, FormControl, ValidationErrors, ValidatorFn, FormGroup } from '@angular/forms';
-import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 
 @Component({
   selector: 'app-expert-mode',
   templateUrl: './expert-mode.component.html',
   styleUrls: ['./expert-mode.component.scss']
 })
-export class ExpertModeComponent implements OnInit, AfterViewInit {
+export class ExpertModeComponent implements OnInit {
 
   syntax_tree_string : string = "";
   syntaxTreeInput : any;
   edit : boolean = false;
+  active : boolean = false;
   allowRender : boolean =  true;
   activityNameRegEx = new RegExp("'([^']*)'", 'g');
   backendErrorMessage: string;
+  styled_tree_string : string = null;
 
-  activityColorMap: Map<string, string>;
   imbalancedItems : Array<imbalancedItem>;
 
   @ViewChild('expertModeButton') expertModeButton: ElementRef;
-  @ViewChild('styledText') styledTextDiv : ElementRef<HTMLDivElement>;
   @ViewChild('textEditor') textEditor : ElementRef<HTMLDivElement>;
 
 
@@ -30,8 +29,7 @@ export class ExpertModeComponent implements OnInit, AfterViewInit {
 
   constructor(private sharedDataService : SharedDataService,
               private backendService : BackendService,
-              private colorMapService : ColorMapService,
-              private renderer : Renderer) {
+             ) {
   }
 
   ngOnInit() {
@@ -47,8 +45,6 @@ export class ExpertModeComponent implements OnInit, AfterViewInit {
               })
     });
 
-
-
     /* Handling the styling as the input changes, currently problematic due to issues with input cursor tracking
 
     this.syntax_tree.valueChanges.pipe(
@@ -60,59 +56,30 @@ export class ExpertModeComponent implements OnInit, AfterViewInit {
     })
     */
 
-    this.colorMapService.colorMap$.subscribe(colorMap => {
-      this.activityColorMap = colorMap;
-    });
-
-  }
-
-  openEditor(){
-    this.edit = true;
-    setTimeout(() => {
-      this.textEditor.nativeElement.focus();
-    }, 5);
-  }
-
-
-  styleText(){
-    let value = this.syntax_tree.value
-    this.edit = false;
-    value = this.highlightImbalancedParenthesis(value);
-    value = this.colorActivityNames(value);
-
-    // This presents a possible vulnerability for remote code execution, add sanitisation or change input mode, when this presents a serious issue.
-    this.renderer.setProperty(this.styledTextDiv.nativeElement, 'innerHTML', value);
-  }
-
-
-  colorActivityNames(value: any): string {
-    const matches = value.matchAll(this.activityNameRegEx);
-    const activities = new Map<string, string>();
-    let knownActivities = new Set();
-    let unknowActivities = new Set();
-
-    for(let match of matches){
-      if (this.activityColorMap.has(match[1])){
-        knownActivities.add(match[1]);
-      }else{
-        unknowActivities.add(match[1]);
-      }
-    }
-
-    value = value.replaceAll("*tau*", "<b>*tau*</b>")
-
-    knownActivities.forEach((activityName : string) => {
-      value = value.replaceAll(activityName, `<b><span style="color:${this.activityColorMap.get(activityName)}">`+ activityName+'</span></b>')
+        // If the tree changes and expert mode is open, compute the syntax tree string
+    this.sharedDataService.currentDisplayedProcessTree$.subscribe(tree => {
+      this.active = (tree !== null && tree !== undefined);
+      this.collectCurrentTreeString(tree);
     })
 
-    unknowActivities.forEach((activityName : string) => {
-      value = value.replaceAll("'" + activityName + "'", "'<span class=\"warning-highlight\">" + activityName + "</span>'")
+    this.sharedDataService.currentTreeString$.subscribe(treeString => {
+      this.syntax_tree.setValue(treeString);
+      this.highlightText();
     })
-
-    return value
-
   }
 
+  // Preconducts expert mode specific highlighting and passes the tree-string down to the tree-string-renderer-component
+  highlightText(){
+    this.styled_tree_string = this.highlightImbalancedParenthesis(this.syntax_tree.value);
+  }
+
+  toggleEditor(edit : boolean){
+    this.edit = edit;
+    if(!edit) this.highlightText();
+
+
+
+  }
 
   highlightImbalancedParenthesis(value: any){
 
@@ -160,7 +127,6 @@ export class ExpertModeComponent implements OnInit, AfterViewInit {
       this.allowRender = true;
     });
 
-
   }
 
 
@@ -179,18 +145,7 @@ export class ExpertModeComponent implements OnInit, AfterViewInit {
     return this.syntaxTreeInput.get('syntax_tree')!;
   }
 
-  ngAfterViewInit(){
 
-    // If the tree changes and expert mode is open, compute the syntax tree string
-    this.sharedDataService.currentDisplayedProcessTree$.subscribe(tree => {
-      this.collectCurrentTreeString(tree);
-    })
-
-    this.sharedDataService.currentTreeString$.subscribe(treeString => {
-      this.syntax_tree.setValue(treeString);
-      this.styleText();
-    })
-  }
 
   openExpertMode(){
     this.collectCurrentTreeString(this.sharedDataService.currentDisplayedProcessTree);
@@ -257,7 +212,6 @@ export class ExpertModeComponent implements OnInit, AfterViewInit {
 
   unknownActivityNameValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
-      //Quick regExp that matches all chars incl. whitespace between two ' '
 
       let unknowActivities = new Set();
 

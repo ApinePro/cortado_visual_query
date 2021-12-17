@@ -9,11 +9,9 @@ import {
 } from '@angular/animations';
 
 import {ComponentContainer} from 'golden-layout';
+
 import * as d3 from 'd3';
-
 import * as constants from './constants_tree_d3';
-
-import {ExpertModeComponent} from './expert-mode/expert-mode.component';
 import Swal from 'sweetalert2';
 import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
 import {ActivateTooltipsService} from '../../services/activateTooltipsService/activate-tooltips.service';

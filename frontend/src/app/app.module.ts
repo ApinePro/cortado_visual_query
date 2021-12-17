@@ -25,6 +25,7 @@ import { ExpertModeComponent } from './components/process-tree-editor/expert-mod
 import { ContentEditableDirective } from './directives/content-editable-directive.directive';
 import { SettingsComponent } from './components/settings/settings.component';
 import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
+import { TreeStringRendererComponent } from './components/tree-string-renderer/tree-string-renderer.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +46,8 @@ import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
     ContentEditableDirective,
     SettingsComponent,
     DropZoneComponent,
-    DropZoneDirective
+    DropZoneDirective,
+    TreeStringRendererComponent
   ],
   imports: [
     BrowserModule,
