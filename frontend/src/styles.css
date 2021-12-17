@@ -14,6 +14,7 @@
   --thin-border-color: #1a1a1a;
   --standard-font-size: 14px;
   --bs-dark-rgb: 52,58,64;
+  --bs-bg-opacity: 1;
 }
 
 .table-dark{
@@ -34,9 +35,20 @@
 }
 
 .lm_goldenlayout{
-  --bs-bg-opacity: 1;
   background-color: rgba(var(--bs-dark-rgb),var(--bs-bg-opacity))!important;
 }
+
+.lm_tab {
+  background: var(--box-background-color)!important;
+  border-top-left-radius: .25rem;
+  border-top-right-radius: .25rem;
+}
+
+.lm_tab.lm_active {
+  background: #354be3 !important;
+}
+
+
 
 .button {
   color: whitesmoke;
