@@ -260,8 +260,6 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     componentItem = this._goldenLayout.findFirstComponentItemById(SubvariantExplorerComponent.componentName + (index - 1));
     this._subvariantcomponentItemsMap.set(id, componentItem);
 
-    // Prevent the VariantExplorer from loosing Focus
-    variantExplorerItem.focus();
     }
 
   }
