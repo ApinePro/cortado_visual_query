@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-variant-selection-button',
@@ -11,11 +11,12 @@ export class VariantSelectionButtonComponent {
   isSelected: boolean;
 
   @Input()
-  selectTooltipText: boolean;
-
-  @Input()
-  unselectTooltipText: boolean;
+  tooltipText: string;
 
   @Output()
   public selectionChanged = new EventEmitter<boolean>();
+
+  onButtonSelected(): void {
+    this.selectionChanged.emit(!this.isSelected);
+  }
 }

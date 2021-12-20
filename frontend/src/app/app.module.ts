@@ -23,6 +23,7 @@ import { GoldenLayoutComponentService } from './services/goldenLayoutService/gol
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
+import { TooltipDirective } from './directives/tooltip/tooltip.directive';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
     ProcessTreeEditorComponent,
     SettingsComponent,
     DropZoneComponent,
-    DropZoneDirective
+    DropZoneDirective,
+    TooltipDirective
   ],
   imports: [
     BrowserModule,

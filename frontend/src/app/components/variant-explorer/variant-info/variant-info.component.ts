@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Variant } from '../model';
 
 @Component({
@@ -7,6 +7,9 @@ import { Variant } from '../model';
   styleUrls: ['./variant-info.component.css']
 })
 export class VariantInfoComponent {
+  @Input()
+  outdatedConformanceStatistics: boolean;
+
   @Input()
   variant: Variant;
 

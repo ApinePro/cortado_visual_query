@@ -1,9 +1,9 @@
 
-import {Component, OnInit, ElementRef, Inject, Renderer2} from '@angular/core';
-import {ComponentContainer} from 'golden-layout';
-import {ColorMapService} from '../../services/colorMapService/color-map.service';
-import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
-import {LayoutChangeDirective} from '../../directives/layout-change.directive';
+import { Component, OnInit, ElementRef, Inject, Renderer2 } from '@angular/core';
+import { ComponentContainer } from 'golden-layout';
+import { ColorMapService } from '../../services/colorMapService/color-map.service';
+import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
+import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import {DropzoneConfig} from '../drop-zone/drop-zone.component';
 
 
@@ -15,10 +15,10 @@ import {DropzoneConfig} from '../drop-zone/drop-zone.component';
 export class ActivityOverviewComponent extends LayoutChangeDirective implements OnInit {
 
   constructor(private colorMapService: ColorMapService,
-              private sharedDataService: SharedDataService,
-              @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer,
-              elRef: ElementRef,
-              renderer : Renderer2) {
+    private sharedDataService: SharedDataService,
+    @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer,
+    elRef: ElementRef,
+    renderer: Renderer2) {
 
     super(elRef.nativeElement, renderer);
     const state = this.container.initialState;
@@ -31,8 +31,8 @@ export class ActivityOverviewComponent extends LayoutChangeDirective implements 
   activitiesInLog: any;
   activityFields: ActivityField[];
 
-  sortKey : string = "activityName";
-  ascending : boolean = false;
+  sortKey: string = "activityName";
+  ascending: boolean = false;
 
   activityOverviewOutOfFocus : boolean = false;
 
@@ -62,17 +62,17 @@ export class ActivityOverviewComponent extends LayoutChangeDirective implements 
     this.activityFields = [];
     for (let activity in this.activitiesInLog) {
       this.activityFields.push(new ActivityField(activity,
-                                                 this.activitiesInLog[activity],
-                                                 this.activityColorMap.get(activity),
-                                                 this.activitiesInTree.has(activity),
-                                                 this.startActivities.has(activity),
-                                                 this.endActivities.has(activity)));
+        this.activitiesInLog[activity],
+        this.activityColorMap.get(activity),
+        this.activitiesInTree.has(activity),
+        this.startActivities.has(activity),
+        this.endActivities.has(activity)));
 
     }
 
     // Handle change of current activies in the loaded model
     this.sharedDataService.activitiesInCurrentTree$.subscribe(activitiesInTree => {
-      for (let field of this.activityFields){
+      for (let field of this.activityFields) {
         field.inModel = activitiesInTree.has(field.activityName);
       }
     })
@@ -88,11 +88,11 @@ export class ActivityOverviewComponent extends LayoutChangeDirective implements 
       this.activityFields = [];
       for (let activity in this.activitiesInLog) {
         this.activityFields.push(new ActivityField(activity,
-                                                   this.activitiesInLog[activity],
-                                                   this.activityColorMap.get(activity),
-                                                   this.activitiesInTree.has(activity),
-                                                   this.startActivities.has(activity),
-                                                   this.endActivities.has(activity)));
+          this.activitiesInLog[activity],
+          this.activityColorMap.get(activity),
+          this.activitiesInTree.has(activity),
+          this.startActivities.has(activity),
+          this.endActivities.has(activity)));
       }
 
     });
@@ -105,13 +105,13 @@ export class ActivityOverviewComponent extends LayoutChangeDirective implements 
   handleResponsiveChange(left: number, top: number, width: number, height: number) : void{
   };
 
-  toggleSort(sortKey : string){
+  toggleSort(sortKey: string) {
 
     // On the first Click always make descending
-    if(this.sortKey != sortKey){
+    if (this.sortKey != sortKey) {
       this.sortKey = sortKey;
       this.ascending = false;
-    }else{
+    } else {
       // Make it toggle between on subsequent clicks
       this.ascending = !this.ascending;
     }
@@ -119,30 +119,30 @@ export class ActivityOverviewComponent extends LayoutChangeDirective implements 
 }
 
 export class ActivityField {
-    activityName : string;
-    occurences : number;
-    inModel : boolean;
-    isStart : boolean;
-    isEnd : boolean;
-    color : string;
+  activityName: string;
+  occurences: number;
+  inModel: boolean;
+  isStart: boolean;
+  isEnd: boolean;
+  color: string;
 
-    constructor(activityName : string,
-                  occurences : number,
-                  color : string,
-                  inModel : boolean,
-                  isStart : boolean,
-                  isEnd : boolean){
+  constructor(activityName: string,
+    occurences: number,
+    color: string,
+    inModel: boolean,
+    isStart: boolean,
+    isEnd: boolean) {
 
-        this.activityName =  activityName;
-        this.occurences = occurences;
-        this.inModel = inModel;
-        this.isStart = isStart;
-        this.isEnd = isEnd;
-        this.color = color;
-    }
+    this.activityName = activityName;
+    this.occurences = occurences;
+    this.inModel = inModel;
+    this.isStart = isStart;
+    this.isEnd = isEnd;
+    this.color = color;
+  }
 }
 
 
-export namespace ActivityOverviewComponent{
+export namespace ActivityOverviewComponent {
   export const componentName = "ActivityOverviewComponent";
 }

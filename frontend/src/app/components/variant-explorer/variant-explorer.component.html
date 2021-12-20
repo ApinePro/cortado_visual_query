@@ -2,15 +2,15 @@
 
 <div class="d-flex flex-column h-100 container-variant-explorer" #variantExplorerContainer [class.blurOutOfFocus]="variantExplorerOutOfFocus">
   <div class="bg-dark btn-tool-bar">
-    <i class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text" data-toggle="tooltip"
-      data-placement="top" data-trigger="hover" data-html="true" title="Selected (marked with <i class='bi bi-check2-circle'></i>) <b>non-fitting</b> variants will be added to the process
+    <i class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text" data-bs-toggle="tooltip"
+      data-bs-placement="top" data-bs-html="true" title="Selected (marked with <i class='bi bi-check2-circle'></i>) <b>non-fitting</b> variants will be added to the process
              model<hr>Selected (marked with <i class='bi bi-check2-circle'></i>) <b>fitting</b> variants will remain in the process tree's language when incrementally adding new
              variants">
     </i>
 
     <span class="vl ms-1"></span>
 
-    <button class="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" data-bs-html="true"
+    <button class="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
             title='calculate conformance checking statistics
             <br><i class="bi bi-question-square text-secondary"> unknown</i>
             <br><i class="bi bi-hourglass-split text-secondary"> being calculated</i>
@@ -22,12 +22,12 @@
             (click)="updateAlignments()"
             [disabled]="!currentlyDisplayedProcessTree || isAlignmentCalculationInProgress() || !correctTreeSyntax">
       <i class="bi bi-layers-fill btn-icon"></i>
-      <div @collapseText class = "button-text px-1" *ngIf= "!collapse">conformance check</div>
+      <div @collapseText class="button-text px-1" *ngIf="!collapse">conformance check</div>
     </button>
 
     <span class="vl"></span>
 
-    <button class="button" data-toggle="tooltip" data-placement="top" data-bs-html="true"
+    <button class="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
       title="add selected, non-fitting variant(s) to current process model"
       [disabled]="isNoVariantSelected() || !currentlyDisplayedProcessTree || isAlignmentCalculationInProgress()"
       (click)="addSelectedVariantsToModel()">
@@ -38,7 +38,7 @@
 
     <span class="vl"></span>
 
-    <button class="button" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-html="true" title="discover an initial model from the selected variants using the standard <em>Inductive Miner</em>
+    <button class="button" data-bs-toggle="tooltip" data-bs-html="true" title="discover an initial model from the selected variants using the standard <em>Inductive Miner</em>
             algorithm<br><b><i class='bi bi-exclamation-triangle text-warning'></i> overwrites the existing model</b>"
       [disabled]="isNoVariantSelected() || isAlignmentCalculationInProgress()" (click)="discoverInitialModel()">
       <i class="bi bi-diagram-2-fill btn-icon"
@@ -46,32 +46,26 @@
       <div @collapseText class = "button-text px-1" *ngIf= "!collapse">discover initial model </div>
     </button>
 
-    <button class="button ms-auto" *ngIf="areAllVariantsExpanded()" (click)="unExpandAll(false)" data-toggle="tooltip"
-      data-placement="top" data-trigger="hover" data-html="true" title="collapse all variants">
-      <i class="bi bi-arrows-collapse btn-icon cursor-pointer rotate-90"></i>
-    </button>
-    <button class="button ms-auto" data-toggle="tooltip" data-placement="top" data-trigger="hover" data-html="true"
-      title="expand all variants" *ngIf="!areAllVariantsExpanded()" (click)="unExpandAll(true)">
-      <i class="bi bi-arrows-expand btn-icon cursor-pointer rotate-90"></i>
+    <button class="button ms-auto" (click)="unExpandAll()" data-bs-toggle="tooltip" data-bs-placement="top"
+      data-bs-html="true" title="(un)expand all variants">
+      <i *ngIf="areAllVariantsExpanded()" class="bi bi-arrows-collapse btn-icon cursor-pointer rotate-90"></i>
+      <i *ngIf="!areAllVariantsExpanded()" class="bi bi-arrows-expand btn-icon cursor-pointer rotate-90"></i>
     </button>
 
     <span class="vl"></span>
 
-    <button class="button"
-      data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover"
-      title="Exports the view as an .svg"
+    <button class="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Exports the view as an .svg"
       (click)="exportVariantSVG()">
       <i class="bi bi-save"></i>
     </button>
   </div>
 
   <div class="main-variant-explorer flex-grow-1" (scroll)="onScroll($event)" #variantExplorer>
-    <div *ngIf = "svgRenderingInProgress" class = "full-body-spinner">
+    <div *ngIf="svgRenderingInProgress" class="full-body-spinner">
       <div>
-        <div class="spinner-border spinner-border-sm text-primary"
-             role="status">
+        <div class="spinner-border spinner-border-sm text-primary" role="status">
         </div>
-         Exporting Variant View...
+        Exporting Variant View...
       </div>
     </div>
     <div class="d-flex">
@@ -83,8 +77,7 @@
             </th>
             <th>
               <app-variant-selection-button [isSelected]="areAllVariantsSelected()"
-                (selectionChanged)="unSelectAllChanged($event)" selectTooltipText="select all variants"
-                unselectTooltipText="unselect all variants">
+                (selectionChanged)="unSelectAllChanged($event)" tooltipText="(un)select all variants">
               </app-variant-selection-button>
               Info
             </th>
