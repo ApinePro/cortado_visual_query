@@ -21,15 +21,15 @@
 .syntax-error{
   color : var(--bs-warning);
   font-size : smaller;
+  overflow: scroll;
+  max-height: 8em;
 }
 
 .editor{
   cursor:text;
   resize: none;
-  max-width: calc(45vw - 1rem);
-  max-height: 25vh;
   width: calc(45vw - 1rem);
-  height: 25vh;
+  height: 10rem;
   font-size: small;
   border-radius: 0.25rem;
   color : var(--text-secondary);
