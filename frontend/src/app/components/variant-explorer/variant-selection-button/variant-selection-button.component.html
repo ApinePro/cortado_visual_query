@@ -1,18 +1,14 @@
-<i class="bi bi-circle font-large me-2 text-muted cursor-pointer"
-   *ngIf="!isSelected"
-   (click)="selectionChanged.emit(true)"
-   data-toggle="tooltip"
-   data-placement="top"
-   data-trigger="hover"
-   data-html="false"
-   title="{{selectTooltipText}}">
+<i *ngIf="tooltipText"
+   class="bi font-large me-2 cursor-pointer"
+   [ngClass]="isSelected ? 'bi-check2-circle text-light':'bi-circle text-muted'"
+   (click)="onButtonSelected()"
+   data-bs-toggle="tooltip"
+   data-bs-placement="top"
+   data-bs-html="false"
+   title="{{tooltipText}}">
 </i>
-<i class="bi bi-check2-circle font-large me-2 text-light cursor-pointer"
-   *ngIf="isSelected"
-   (click)="selectionChanged.emit(false)"
-   data-toggle="tooltip"
-   data-placement="top"
-   data-trigger="hover"
-   data-html="false"
-   title="{{unselectTooltipText}}">
+<i *ngIf="!tooltipText" 
+   class="bi font-large me-2 cursor-pointer"
+   [ngClass]="isSelected ? 'bi-check2-circle text-light':'bi-circle text-muted'"
+   (click)="onButtonSelected()">
 </i>

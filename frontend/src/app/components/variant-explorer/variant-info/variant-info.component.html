@@ -24,8 +24,8 @@
     *ngIf="variant.deviation === undefined && variant.calculationInProgress === false && !variant.isTimeouted">
   </i>
 
-  <small class="ms-1 float-end cursor-help" data-toggle="tooltip" data-placement="right" data-container="body"
-    data-html="true" title="variant describes ~{{variant.percentage}}% of all traces in the event log<br>
+  <small class="ms-1 float-end cursor-help" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-container="body"
+    data-bs-html="true" title="variant describes ~{{variant.percentage}}% of all traces in the event log<br>
         <span class='text-secondary'>variant occurs {{variant.count | number}} time(s) in total</span>">
     {{variant.percentage}}%<br />
     ({{variant.count | number}})

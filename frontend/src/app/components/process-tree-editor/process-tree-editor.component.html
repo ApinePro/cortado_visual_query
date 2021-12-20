@@ -103,7 +103,7 @@
     </div>
 
     <div class="btn-group align-baseline dropdown dropDownParent"
-         data-bs-toggle="tooltip" data-placement="top" data-trigger="hover"
+         data-bs-toggle="tooltip" data-bs-placement="top"
          title="change selected node">
       <button class="button"
               [disabled]="!selectedRootNode || (selectSubtreeActive && !singleNodeSelected())"
@@ -122,20 +122,20 @@
 
     <button class="button text-warning" (click)="deleteSubtree();"
             [disabled]="buttonDeleteSubtreeDisabled()"
-            data-bs-toggle="tooltip" data-placement="top" data-trigger="hover"
+            data-bs-toggle="tooltip" data-bs-placement="top"
             title="remove selected node(s)">
 
       <i class="bi bi-trash btn-icon"></i>
     </button>
 
     <button class="button" (click)="shiftSubtreeToLeft()" [disabled]="buttonManipulatingMultipleNodesDisabled()"
-            data-bs-toggle="tooltip" data-placement="top" data-trigger="hover"
+            data-bs-toggle="tooltip" data-bs-placement="top"
             title="shift selected node(s) to left">
       <i class="bi bi-chevron-left btn-icon"></i>
     </button>
 
     <button class="button" (click)="shiftSubtreeToRight()" [disabled]="buttonManipulatingMultipleNodesDisabled()"
-            data-bs-toggle="tooltip" data-placement="top" data-trigger="hover"
+            data-bs-toggle="tooltip" data-bs-placement="top"
             title="shift selected node(s) to right">
       <i class="bi bi-chevron-right btn-icon"></i>
     </button>
@@ -177,7 +177,7 @@
     <span class="vl"></span>
 
     <button class="button" (click)="freezeSubtree()" [disabled]="buttonFreezeSubtreeDisabled()"
-            data-bs-toggle="tooltip" data-placement="top" data-trigger="hover" data-html="true"
+            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
             title="(un)freeze <em>entire</em> subtree to prevent them from being changed when adding variants">
       <i class="bi bi-snow btn-icon text-primary"></i>
       <div class = "button-text px-1" @collapseText *ngIf= "!collapse">(un)freeze subtrees </div>
@@ -186,13 +186,12 @@
     <span class="vl"></span>
 
     <button class="button ms-auto" id="btn-reset-zoom" data-bs-toggle="tooltip" data-bs-placement="top"
-            data-bs-trigger="hover"
             title="reset view">
       <i class="bi bi-arrows-fullscreen btn-icon text-light"></i>
     </button>
 
     <button class="button" data-bs-toggle="tooltip" data-bs-placement="top"
-      data-bs-trigger="hover" title="Exports the tree as an .svg"  (click)="exportCurrentTree(d3svg)">
+      title="Exports the tree as an .svg"  (click)="exportCurrentTree(d3svg)">
 
     <i class="bi bi-save"></i>
     </button>
