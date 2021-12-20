@@ -26,6 +26,7 @@ import { ContentEditableDirective } from './directives/content-editable-directiv
 import { SettingsComponent } from './components/settings/settings.component';
 import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 import { TreeStringRendererComponent } from './components/tree-string-renderer/tree-string-renderer.component';
+import { TooltipDirective } from './directives/tooltip/tooltip.directive';
 
 @NgModule({
   declarations: [
@@ -47,7 +48,8 @@ import { TreeStringRendererComponent } from './components/tree-string-renderer/t
     SettingsComponent,
     DropZoneComponent,
     DropZoneDirective,
-    TreeStringRendererComponent
+    TreeStringRendererComponent,
+    TooltipDirective
   ],
   imports: [
     BrowserModule,

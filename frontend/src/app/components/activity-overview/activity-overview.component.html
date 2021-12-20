@@ -30,8 +30,7 @@
           <i class="bi" *ngIf="sortKey==='isStart'" [ngClass]="{'bi-sort-up':ascending, 'bi-sort-down':!ascending}"></i>
         </th>
         <th scope="col" class="bg-dark text-center border-end border-color text-nowrap toggle-select" (click)="toggleSort('isEnd')">
-          <div data-bs-toggle="tooltip" data-bs-placement="bottom" data-html="true"
-
+          <div data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                title="<b class='text-primary'>end-activity</b> (in the event log, there exists a case that ends with the given activity)">
             <!--            <i class="bi bi-chevron-double-right"></i>-->
             <i class="bi bi-chevron-double-right" style="margin-left: 0px;"></i>

@@ -3,7 +3,6 @@ import {
   ElementRef,
   Inject,
   OnInit,
-  AfterContentChecked,
   QueryList,
   ViewChild,
   ViewChildren,
@@ -23,7 +22,6 @@ import { ColorMapService } from '../../services/colorMapService/color-map.servic
 import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
 import { BackendService } from '../../services/backendService/backend.service';
 
-import { ActivateTooltipsService } from '../../services/activateTooltipsService/activate-tooltips.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { deserialize, ParallelGroup, SequenceGroup, VariantElement, Variant, LeafNode } from './model';
@@ -56,7 +54,6 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     private backendService: BackendService,
     private imageExportService: ImageExportService,
     private polygonDrawingService: PolygonDrawingService,
-    private tooltipActivationService: ActivateTooltipsService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer,
     elRef: ElementRef,
     renderer: Renderer2
@@ -122,7 +119,6 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     });
 
     this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
-    this.tooltipActivationService.initialize();
     this.initializeVisibleVariants();
 
     const total = this.variants.map(v => v.count).reduce((a, b) => a + b);
@@ -159,16 +155,10 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     });
   }
 
-  // ngAfterContentChecked(): void {
-  //   // TODO the following line is the reason for the performance problems
-  //   // this.tooltipActivationService.initialize();
-  // }
-
   ngAfterViewInit() {
     this.polygonDrawingService.setElementRefereneces(this.variantExplorerContainer,
       this.tooltipContainer);
   }
-
 
   private eventLogChanged(): void {
     this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
@@ -215,8 +205,6 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   updateAlignments(): void {
-    this.tooltipActivationService.close();
-
     this.updateAlignmentStatistics();
     this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
 
@@ -261,8 +249,6 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
 
   discoverInitialModel(): void {
-    this.tooltipActivationService.close();
-
     const variants = this.getSelectedVariants().map(v => v.variant);
 
     this.backendService.discoverProcessModelFromConcurrencyVariants(variants).subscribe(_ =>
@@ -299,8 +285,6 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   addSelectedVariantsToModel(): void {
-    this.tooltipActivationService.close();
-
     const selectedVariants = this.getSelectedVariants()
 
     // TODO we currently distinguish two cases here: 1. outdated conformance and 2. known conformance
@@ -376,7 +360,6 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   unSelectAllChanged(isSelected: boolean): void {
-    this.tooltipActivationService.close();
     this.variants.forEach(v => v.isSelected = isSelected)
   }
 
@@ -388,8 +371,8 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     return !unexpandedVariantsExist;
   }
 
-  unExpandAll(shouldExpand: boolean): void {
-    this.tooltipActivationService.close();
+  unExpandAll(): void {
+    const shouldExpand = !this.areAllVariantsExpanded()
     this.variantComponents.forEach(c => c.setExpanded(shouldExpand));
   }
 
