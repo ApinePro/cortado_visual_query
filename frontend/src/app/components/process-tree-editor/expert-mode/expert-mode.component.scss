@@ -13,6 +13,24 @@
   border-top-left-radius: 0.25rem !important;
 }
 
+
+.accordion-button:not(.collapsed)::after{
+  transform: rotate(0deg);
+}
+
+
+.accordion-button::after{
+  transform: rotate(-180deg);
+}
+
+.collapsing{
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: height 0.35s ease-in-out, opacity 0.35s ease-in-out, width 0.35s ease-in-out;
+}
+
+
 .accordion-button:focus{
   border-color: none;
   box-shadow: none;

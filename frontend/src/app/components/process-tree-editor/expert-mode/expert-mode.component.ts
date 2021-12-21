@@ -6,7 +6,7 @@ import { AbstractControl, FormControl, ValidationErrors, ValidatorFn, FormGroup 
 @Component({
   selector: 'app-expert-mode',
   templateUrl: './expert-mode.component.html',
-  styleUrls: ['./expert-mode.component.scss']
+  styleUrls: ['./expert-mode.component.scss'],
 })
 export class ExpertModeComponent implements OnInit {
 

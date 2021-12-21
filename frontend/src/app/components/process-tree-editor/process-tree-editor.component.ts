@@ -139,7 +139,6 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
             html: '<b>Error Message: </b><br>' +
               '<code> The newly loaded tree contains activities \
                   that do not appear in the currently loaded log.\
-                  This prevents Cortado from properly working with this tree\
                   </code> <br> <br> Unknown Activites: ' +
               '<tspan class = "text-danger">' +
               unknownActivities.join(", ") +

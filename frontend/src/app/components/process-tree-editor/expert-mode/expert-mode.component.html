@@ -1,15 +1,15 @@
-<div class="accordion accordion-flush" id="ExpertModeAccordion" class = "expertModeAccordion">
+<div class="accordion" id="ExpertModeAccordion" class = "expertModeAccordion">
   <div class="accordion-item">
     <h2 class="accordion-header" id="ExpertModeHeading">
       <button #expertModeButton
-        class="accordion-button"
+        class="accordion-button collapsed"
         type="button"
         data-bs-toggle="collapse"
         data-bs-target="#ExpertModeBody"
         (click) = "openExpertMode()"
         [disabled]="!active"
       >
-      <span class="pe-2"> Expert Mode</span>
+      <span class="pe-2">Expert Mode</span>
       </button>
     </h2>
     <div
@@ -17,11 +17,11 @@
       class="accordion-collapse collapse"
       data-bs-parent="#ExpertModeAccordion"
     >
-      <div class="accordion-body" [hidden]="!currentlyDisplayedTreeInExpertMode">
+      <div class="accordion-body collapsed" [hidden]="!currentlyDisplayedTreeInExpertMode">
         <form [formGroup]="syntaxTreeInput" (ngSubmit)="onSubmit()">
           <div class="form-container" [hidden]="!edit">
             <span class = "secondary-text fw-bold mb-1 tree-string-heading">Editing Tree String
-              <i class="bi bi-question-circle-fill font-large ms-1 secondary-text fs-6" data-bs-toggle="tooltip"
+              <i class="bi bi-question-circle-fill font-large ms-1 secondary-text fs-6 cursor-help" data-bs-toggle="tooltip"
                data-bs-placement="top" data-bs-html="true" title="A valid process tree string uses a parent operator followed by its child leafs and or subtrees listed in left to right order surronded by normal parenthesis<br> <br>
                 <table class='tooltip-table'>
                 <tr> <th> Operator </th> <th> String Encoding</th></tr>
