@@ -1,9 +1,10 @@
-<app-drop-zone [dropzoneConfig]="dropZoneConfig" (fileOnHover)="toggleBlur($event)"> </app-drop-zone>
+<app-drop-zone [dropzoneConfig]="dropZoneConfig" (fileOnHover)="toggleBlur($event)"></app-drop-zone>
 
-<div class="d-flex flex-column h-100 container-variant-explorer" #variantExplorerContainer [class.blurOutOfFocus]="variantExplorerOutOfFocus">
+<div class="d-flex flex-column h-100 container-variant-explorer" #variantExplorerContainer
+     [class.blurOutOfFocus]="variantExplorerOutOfFocus">
   <div class="bg-dark btn-tool-bar">
     <i class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text" data-bs-toggle="tooltip"
-      data-bs-placement="top" data-bs-html="true" title="Selected (marked with <i class='bi bi-check2-circle'></i>) <b>non-fitting</b> variants will be added to the process
+       data-bs-placement="top" data-bs-html="true" title="Selected (marked with <i class='bi bi-check2-circle'></i>) <b>non-fitting</b> variants will be added to the process
              model<hr>Selected (marked with <i class='bi bi-check2-circle'></i>) <b>fitting</b> variants will remain in the process tree's language when incrementally adding new
              variants">
     </i>
@@ -28,26 +29,26 @@
     <span class="vl"></span>
 
     <button class="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
-      title="add selected, non-fitting variant(s) to current process model"
-      [disabled]="isNoVariantSelected() || !currentlyDisplayedProcessTree || isAlignmentCalculationInProgress()"
-      (click)="addSelectedVariantsToModel()">
+            title="add selected, non-fitting variant(s) to current process model"
+            [disabled]="isNoVariantSelected() || !currentlyDisplayedProcessTree || isAlignmentCalculationInProgress()"
+            (click)="addSelectedVariantsToModel()">
       <i class="bi bi-plus-lg btn-icon"
-        [ngClass]="{'text-success': !(isNoVariantSelected() || !currentlyDisplayedProcessTree || isAlignmentCalculationInProgress())}"></i>
-      <div @collapseText class = "button-text px-1" *ngIf= "!collapse">add variant(s) to model </div>
+         [ngClass]="{'text-success': !(isNoVariantSelected() || !currentlyDisplayedProcessTree || isAlignmentCalculationInProgress())}"></i>
+      <div @collapseText class="button-text px-1" *ngIf="!collapse">add variant(s) to model</div>
     </button>
 
     <span class="vl"></span>
 
     <button class="button" data-bs-toggle="tooltip" data-bs-html="true" title="discover an initial model from the selected variants using the standard <em>Inductive Miner</em>
             algorithm<br><b><i class='bi bi-exclamation-triangle text-warning'></i> overwrites the existing model</b>"
-      [disabled]="isNoVariantSelected() || isAlignmentCalculationInProgress()" (click)="discoverInitialModel()">
+            [disabled]="isNoVariantSelected() || isAlignmentCalculationInProgress()" (click)="discoverInitialModel()">
       <i class="bi bi-diagram-2-fill btn-icon"
-        [ngClass]="{'text-success': isAnyVariantSelected() && !isAlignmentCalculationInProgress()}"></i>
-      <div @collapseText class = "button-text px-1" *ngIf= "!collapse">discover initial model </div>
+         [ngClass]="{'text-success': isAnyVariantSelected() && !isAlignmentCalculationInProgress()}"></i>
+      <div @collapseText class="button-text px-1" *ngIf="!collapse">discover initial model</div>
     </button>
 
     <button class="button ms-auto" (click)="unExpandAll()" data-bs-toggle="tooltip" data-bs-placement="top"
-      data-bs-html="true" title="(un)expand all variants">
+            data-bs-html="true" title="(un)expand all variants">
       <i *ngIf="areAllVariantsExpanded()" class="bi bi-arrows-collapse btn-icon cursor-pointer rotate-90"></i>
       <i *ngIf="!areAllVariantsExpanded()" class="bi bi-arrows-expand btn-icon cursor-pointer rotate-90"></i>
     </button>
@@ -55,7 +56,7 @@
     <span class="vl"></span>
 
     <button class="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Exports the view as an .svg"
-      (click)="exportVariantSVG()">
+            (click)="exportVariantSVG()">
       <i class="bi bi-save"></i>
     </button>
   </div>
@@ -71,13 +72,14 @@
     <div class="d-flex">
       <div class="chart-variant__percentage">
         <table>
-          <tr>
+          <tr class="user-select-none">
             <th style="padding-right: 15px; padding-left: 5px;">
               Nr.
             </th>
             <th>
               <app-variant-selection-button [isSelected]="areAllVariantsSelected()"
-                (selectionChanged)="unSelectAllChanged($event)" tooltipText="(un)select all variants">
+                                            (selectionChanged)="unSelectAllChanged($event)"
+                                            tooltipText="(un)select all variants">
               </app-variant-selection-button>
               Info
             </th>
@@ -92,7 +94,7 @@
               </td>
               <td>
                 <app-variant-info [variant]="variant"
-                  (selectionChanged)="selectionChangedForVariant(variant, $event)"></app-variant-info>
+                                  (selectionChanged)="selectionChangedForVariant(variant, $event)"></app-variant-info>
               </td>
               <td class="variant-cell">
                 <div class="variant" [ngStyle]="{ 'border-color': variant.isSelected ? 'unset' : 'transparent' }">
@@ -106,7 +108,7 @@
             <td>
               <div class="variant-spacer" [ngStyle]="{ 'height': invisibleVariantsHeight + 'px' }">
                 <div class="spinner-border spinner-border-sm text-primary"
-                  style="margin-right: 20px; margin-left: 20px;" role="status"></div>
+                     style="margin-right: 20px; margin-left: 20px;" role="status"></div>
                 Loading...
               </div>
             </td>
@@ -119,7 +121,7 @@
   <div class="bg-dark info-bar ps-2 pe-2">
 
     <span class="float-start"
-      *ngIf="(numberFittingTraces || numberFittingTraces>=0) && (totalNumberTraces || totalNumberTraces>0)">
+          *ngIf="(numberFittingTraces || numberFittingTraces>=0) && (totalNumberTraces || totalNumberTraces>0)">
       fitting traces:
       <span [ngClass]="!isConformanceOutdated()? '' : 'text-warning'">
         {{numberFittingTraces|number}}&nbsp;/&nbsp;{{totalNumberTraces|number}}
@@ -127,7 +129,7 @@
     </span>
 
     <span class="float-start ms-4"
-      *ngIf="(numberFittingVariants || numberFittingVariants>=0) && (totalNumberVariants || totalNumberVariants>0)">
+          *ngIf="(numberFittingVariants || numberFittingVariants>=0) && (totalNumberVariants || totalNumberVariants>0)">
       fitting variants:
       <span [ngClass]="!isConformanceOutdated()? '' : 'text-warning'">
         {{numberFittingVariants|number}}&nbsp;/&nbsp;{{totalNumberVariants|number}}
