@@ -56,10 +56,12 @@ export class ExpertModeComponent implements OnInit {
     })
     */
 
-        // If the tree changes and expert mode is open, compute the syntax tree string
+    // If the tree changes and expert mode is open, compute the syntax tree string
     this.sharedDataService.currentDisplayedProcessTree$.subscribe(tree => {
       this.active = (tree !== null && tree !== undefined);
       this.collectCurrentTreeString(tree);
+      this.edit = false;
+      this.backendErrorMessage = null;
     })
 
     this.sharedDataService.currentTreeString$.subscribe(treeString => {
@@ -76,8 +78,6 @@ export class ExpertModeComponent implements OnInit {
   toggleEditor(edit : boolean){
     this.edit = edit;
     if(!edit) this.highlightText();
-
-
 
   }
 
