@@ -1,19 +1,11 @@
-
-
-
 <app-drop-zone [dropzoneConfig]="dropZoneConfig" (fileOnHover)="toggleBlur($event)"> </app-drop-zone>
 
 <div class="main-process-tree-editor  h-100 d-flex flex-column" [class.blurOutOfFocus]="processEditorOutOfFocus">
   <div class="bg-dark btn-tool-bar">
 
-    <div class="btn-group align-baseline dropDownParent dropdown">
-      <button class="button text-success dropdown-toggle"
-              [disabled]="insertNewNodeButtonDisabled()"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              data-bs-auto-close="outside"
-              id="addNodeDropdown">
+    <div class="btn-group align-baseline dropDownParent dropdown" data-bs-toggle="tooltip" title="add node">
+      <button class="button text-success dropdown-toggle" [disabled]="insertNewNodeButtonDisabled()" type="button"
+        data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside" id="addNodeDropdown">
         <i class="bi bi-plus-square-fill btn-icon"></i>
       </button>
       <div class="dropdown-menu dropdown-node-insert" id="dropdownNewNode" aria-labelledby="addNodeDropdown">
@@ -21,33 +13,30 @@
         <div id="positionMethodSelection" *ngIf="root!==null && root!==undefined">
 
           <div class="fst-italic fw-bold ps-2 text-center">Position</div>
-          <div class="dropdown-item"
-               *ngIf="!insertPositionAboveDisabled"
-               [ngClass]="lastSelectedInsertMethod===insertNewNodeAbove? 'insertion-position-active':''"
-               (click)="selectedMethod=insertNewNodeAbove;lastSelectedInsertMethod=insertNewNodeAbove;">
+          <div class="dropdown-item" *ngIf="!insertPositionAboveDisabled"
+            [ngClass]="lastSelectedInsertMethod===insertNewNodeAbove? 'insertion-position-active':''"
+            (click)="selectedMethod=insertNewNodeAbove;lastSelectedInsertMethod=insertNewNodeAbove;">
             <i class="bi bi-box-arrow-in-up btn-icon"></i>
             <span class="ms-3">insert above</span>
           </div>
 
-          <div class="dropdown-item"
-               *ngIf="!insertPositionLeftRightDisabled"
-               [ngClass]="lastSelectedInsertMethod===insertNewNodeLeft? 'insertion-position-active':''"
-               (click)="selectedMethod=insertNewNodeLeft;lastSelectedInsertMethod=insertNewNodeLeft;">
+          <div class="dropdown-item" *ngIf="!insertPositionLeftRightDisabled"
+            [ngClass]="lastSelectedInsertMethod===insertNewNodeLeft? 'insertion-position-active':''"
+            (click)="selectedMethod=insertNewNodeLeft;lastSelectedInsertMethod=insertNewNodeLeft;">
             <i class="bi bi-box-arrow-in-left btn-icon"></i>
             <span class="ms-3">insert left</span>
           </div>
 
           <div class="dropdown-item"
-               [ngClass]="lastSelectedInsertMethod===insertNewNodeBelow? 'insertion-position-active':''"
-               (click)="selectedMethod=insertNewNodeBelow;lastSelectedInsertMethod=insertNewNodeBelow;">
+            [ngClass]="lastSelectedInsertMethod===insertNewNodeBelow? 'insertion-position-active':''"
+            (click)="selectedMethod=insertNewNodeBelow;lastSelectedInsertMethod=insertNewNodeBelow;">
             <i class="bi bi-box-arrow-in-down btn-icon"></i>
             <span class="ms-3">insert below</span>
           </div>
 
-          <div class="dropdown-item"
-               *ngIf="!insertPositionLeftRightDisabled"
-               [ngClass]="lastSelectedInsertMethod===insertNewNodeRight? 'insertion-position-active':''"
-               (click)="selectedMethod=insertNewNodeRight;lastSelectedInsertMethod=insertNewNodeRight;">
+          <div class="dropdown-item" *ngIf="!insertPositionLeftRightDisabled"
+            [ngClass]="lastSelectedInsertMethod===insertNewNodeRight? 'insertion-position-active':''"
+            (click)="selectedMethod=insertNewNodeRight;lastSelectedInsertMethod=insertNewNodeRight;">
             <i class="bi bi-box-arrow-in-right btn-icon"></i>
             <span class="ms-3">insert right</span>
           </div>
@@ -89,10 +78,10 @@
 
           <div class="ms-1 me-1 mb-1">
             <input [(ngModel)]="searchText" class="form-control form-control-sm" type="text"
-                   placeholder="type activity name">
+              placeholder="type activity name">
           </div>
           <div class="dropdown-item" *ngFor="let a of activitiesOccurringInLog | strFilter: searchText"
-               (click)="insertNewNode(null,a)">
+            (click)="insertNewNode(null,a)">
             <span class="">{{a}}</span>
           </div>
         </ng-template>
@@ -142,7 +131,8 @@
     <span class="vl"></span>
 
     <button class="button btn-fixed-width" (click)="undo()"
-            [disabled]="!(previousTreeObjects.length-1 > 0 && currentIdxPreviousTreeObjects!==0)">
+      [disabled]="!(previousTreeObjects.length-1 > 0 && currentIdxPreviousTreeObjects!==0)" data-bs-toggle="tooltip"
+      data-bs-placement="top" title="undo">
       <i class="bi bi-arrow-counterclockwise btn-icon"></i>
       <span class="text-secondary" *ngIf="previousTreeObjects.length-1 > 0 && currentIdxPreviousTreeObjects!==0">
         ({{currentIdxPreviousTreeObjects}})
@@ -150,7 +140,8 @@
     </button>
 
     <button class="button btn-fixed-width" (click)="redo()"
-            [disabled]="!(currentIdxPreviousTreeObjects < previousTreeObjects.length-1)">
+      [disabled]="!(currentIdxPreviousTreeObjects < previousTreeObjects.length-1)" data-bs-toggle="tooltip"
+      data-bs-placement="top" title="redo">
       <i class="bi bi-arrow-clockwise btn-icon"></i>
       <span class="text-secondary" *ngIf="currentIdxPreviousTreeObjects < previousTreeObjects.length-1">
         ({{previousTreeObjects.length - 1 - currentIdxPreviousTreeObjects}})
@@ -159,28 +150,31 @@
 
     <span class="vl"></span>
 
-    <button class="button" (click)="selectNode()" [class.button-active]="selectNodeActive">
+    <button class="button" (click)="selectNode()" [class.button-active]="selectNodeActive" data-bs-toggle="tooltip"
+      data-bs-placement="top" title="select node">
       <i class="bi bi-fullscreen btn-icon text-danger"></i>
-      <div class = "button-text px-1" @collapseText *ngIf= "!collapse">select node</div>
+      <div class="button-text px-1" @collapseText *ngIf="!collapse">select node</div>
     </button>
 
-    <button class="button" (click)="selectSubtree()" [class.button-active]="selectSubtreeActive">
+    <button class="button" (click)="selectSubtree()" [class.button-active]="selectSubtreeActive" data-bs-toggle="tooltip"
+    data-bs-placement="top" title="select subtree">
       <i class="bi bi-fullscreen btn-icon text-danger"></i>
-      <div class = "button-text px-1" @collapseText *ngIf= "!collapse">select subtree</div>
+      <div class="button-text px-1" @collapseText *ngIf="!collapse">select subtree</div>
     </button>
 
-    <button class="button" (click)="clearSelection()">
+    <button class="button" (click)="clearSelection()" data-bs-toggle="tooltip"
+    data-bs-placement="top" title="clear selection">
       <i class="bi bi-x-lg btn-icon text-danger"></i>
-      <div class = "button-text px-1" @collapseText *ngIf= "!collapse">clear selection</div>
+      <div class="button-text px-1" @collapseText *ngIf="!collapse">clear selection</div>
     </button>
 
     <span class="vl"></span>
 
-    <button class="button" (click)="freezeSubtree()" [disabled]="buttonFreezeSubtreeDisabled()"
-            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
-            title="(un)freeze <em>entire</em> subtree to prevent them from being changed when adding variants">
-      <i class="bi bi-snow btn-icon text-primary"></i>
-      <div class = "button-text px-1" @collapseText *ngIf= "!collapse">(un)freeze subtrees </div>
+    <button class="button" (click)="freezeSubtree()" [disabled]="buttonFreezeSubtreeDisabled()" data-bs-toggle="tooltip"
+      data-bs-placement="top" data-bs-html="true"
+      title="(un)freeze <em>entire</em> subtree to prevent them from being changed when adding variants">
+      <i class="bi bi-snow btn-icon" [ngClass]="!buttonFreezeSubtreeDisabled() ? 'text-primary':''"></i>
+      <div class="button-text px-1" @collapseText *ngIf="!collapse">(un)freeze subtrees </div>
     </button>
 
     <span class="vl"></span>
@@ -193,7 +187,7 @@
     <button class="button" data-bs-toggle="tooltip" data-bs-placement="top"
       title="Exports the tree as an .svg"  (click)="exportCurrentTree(d3svg)">
 
-    <i class="bi bi-save"></i>
+      <i class="bi bi-save"></i>
     </button>
 
   </div>
@@ -231,4 +225,3 @@
 
   </div>
 </div>
-
