@@ -12,6 +12,35 @@
   position: relative;
 }
 
+.floating-infobox {
+  background-color: rgba(0, 0, 0, 0.6);
+  position: absolute;
+  font-size: small;
+  bottom: 0;
+  left: 0;
+  text-align: left;
+  cursor: auto;
+  padding: .25rem;
+}
+
+.syntax-info {
+  background-color: rgba(0, 0, 0, 0.4);
+  position: absolute;
+  font-size: small;
+  bottom: 0;
+  left: 0;
+  text-align: left;
+  cursor: auto;
+}
+
+.syntax-info ul {
+  margin-bottom: 0;
+}
+
+.crosshair {
+  cursor: crosshair;
+}
+
 .button-text{
   display : inline-block;
 }
@@ -44,4 +73,10 @@
 }
 
 
-
+.exportMode-container{
+  position : absolute;
+  right : 0;
+  bottom : 0;
+  max-width: 45vw;
+  max-height: 95%;
+}

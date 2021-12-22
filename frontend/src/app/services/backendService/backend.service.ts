@@ -72,6 +72,17 @@ export class BackendService {
       }));
   }
 
+  computeTreeString(tree) : void{
+    this.httpClient.post(this.backendUrl + 'computeTreeStringFromTree', {pt: tree})
+      .subscribe(tree => {
+        this.sharedDataService.currentTreeString = tree;
+      });
+  }
+
+  renderStringToPT(treeString: string) {
+    return this.httpClient.post(this.backendUrl + 'parseStringToPT', {pt_string: treeString});
+  }
+
   downloadCurrentTreeAsPTML(): void {
     this.sharedDataService.currentDisplayedProcessTree$.pipe(take(1)).subscribe(tree => {
       this.httpClient.post(this.backendUrl + 'convertPtToPTML', { pt: tree }, { responseType: 'blob' })

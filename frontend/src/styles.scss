@@ -1,4 +1,31 @@
+
+/* Handle Bootstrap default overwrites here */
+
+// Accordion
+$accordion-bg: var(--box-background-color);
+$accordion-color: var(--text-secondary);
+$accordion-body-padding-y: 0rem 0rem;
+$accordion-body-padding-x: 0rem 0rem;
+$accordion-border-width: 0px;
+$accordion-border-radius: 0px;
+$accordion-inner-border-radius: 0px;
+$accordion-icon-width: .65rem;
+$accordion-icon-color: #a0a0a0;
+$accordion-icon-active-color: #a0a0a0;
+$accordion-button-bg: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+
+$accordion-transition:  border-radius .15s ease, opacity .35s ease-in;
+$accordion-icon-transition: transform .2s ease-in-out;
+
+$accordion-button-active-bg: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+$accordion-button-active-color: var(--text-secondary);
+
+$accordion-icon-transform: rotate(-0deg);
+
+/* Define our main import here */
 @import "~bootstrap-icons/font/bootstrap-icons.css";
+@import "../node_modules/bootstrap/scss/bootstrap";
+
 
 
 /* You can add global styles to this file, and also import other style files */
@@ -14,6 +41,7 @@
   --thin-border-color: #1a1a1a;
   --standard-font-size: 14px;
   --bs-dark-rgb: 52,58,64;
+  --bs-bg-opacity: 1;
 }
 
 .table-dark{
@@ -138,16 +166,15 @@ hr {
   font-size: large;
 }
 
-.floating-infobox {
-  background-color: rgba(0, 0, 0, 0.6);
-  position: absolute;
-  font-size: small;
-  bottom: 0;
-  left: 0;
-  text-align: left;
-  cursor: auto;
-  padding: .25rem;
+.warning-highlight{
+  background-color: yellow;
 }
+
+.imbalanced-parenthesis{
+  border-bottom : 1.5px solid;
+  border-color: red;
+}
+
 
 code {
   color: var(--text-secondary);
@@ -214,10 +241,6 @@ th {
   stroke : #dc3545 !important;
 }
 
-.crosshair {
-  cursor: crosshair;
-}
-
 .syntax-info {
   background-color: rgba(0, 0, 0, 0.4);
   position: absolute;
@@ -231,6 +254,27 @@ th {
 .syntax-info ul {
   margin-bottom: 0;
 }
+
+.tooltip-table{
+  border-collapse: collapse;
+  border: none;
+  width: 100%;
+
+  th, td{
+    border-left: 1px solid #dddddd;
+    text-align: center;
+  }
+
+  th{
+    border-bottom: 1px solid #dddddd;
+  }
+
+  th:first-child, td:first-child {
+     border-left: none;
+  }
+}
+
+
 
 
 

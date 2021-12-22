@@ -10,9 +10,7 @@ import {
 
 import { ComponentContainer } from 'golden-layout';
 import * as d3 from 'd3';
-
 import * as constants from './constants_tree_d3';
-
 import Swal from 'sweetalert2';
 import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
@@ -104,6 +102,11 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
 
   dropZoneConfig: DropzoneConfig;
 
+  tree_syntax_string : string;
+  tree_syntax_result : any;
+
+
+
   ngOnInit(): void {
 
     this.dropZoneConfig = new DropzoneConfig(
@@ -136,7 +139,6 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
             html: '<b>Error Message: </b><br>' +
               '<code> The newly loaded tree contains activities \
                   that do not appear in the currently loaded log.\
-                  This prevents Cortado from properly working with this tree\
                   </code> <br> <br> Unknown Activites: ' +
               '<tspan class = "text-danger">' +
               unknownActivities.join(", ") +

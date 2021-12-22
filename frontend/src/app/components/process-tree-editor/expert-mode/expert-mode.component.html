@@ -1,0 +1,78 @@
+<div class="accordion" id="ExpertModeAccordion" class = "expertModeAccordion">
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="ExpertModeHeading">
+      <button #expertModeButton
+        class="accordion-button collapsed"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#ExpertModeBody"
+        (click) = "openExpertMode()"
+        [disabled]="!active"
+      >
+      <span class="pe-2">Expert Mode</span>
+      </button>
+    </h2>
+    <div
+      id="ExpertModeBody"
+      class="accordion-collapse collapse"
+      data-bs-parent="#ExpertModeAccordion"
+    >
+      <div class="accordion-body collapsed" [hidden]="!currentlyDisplayedTreeInExpertMode">
+        <form [formGroup]="syntaxTreeInput" (ngSubmit)="onSubmit()">
+          <div class="form-container" [hidden]="!edit">
+            <span class = "secondary-text fw-bold mb-1 tree-string-heading">Editing Tree String
+              <i class="bi bi-question-circle-fill font-large ms-1 secondary-text fs-6 cursor-help" data-bs-toggle="tooltip"
+               data-bs-placement="top" data-bs-html="true" title="A valid process tree string uses a parent operator followed by its child leafs and or subtrees listed in left to right order surronded by normal parenthesis<br> <br>
+                <table class='tooltip-table'>
+                <tr> <th> Operator </th> <th> String Encoding</th></tr>
+                <tr> <td> &#10005; </td> <td> X </td>
+                <tr> <td> &#10132; </td> <td> -> </td>
+                <tr> <td> &#8634; </td> <td> * </td>
+                <tr> <td> &#8743; </td> <td> + </td>
+                <tr> <td> &#964; </td> <td> *tau* </td>
+                </table>
+               ">
+              </i>
+            </span>
+            <textarea class="editor" #textEditor [formControl]="syntax_tree" spellcheck="false"> </textarea>
+          </div>
+
+          <div [hidden]="edit || !currentlyDisplayedTreeInExpertMode" class="form-container" (click)="toggleEditor(true)">
+            <span class = "secondary-text fw-bold mb-1 tree-string-heading">Tree String</span>
+            <app-tree-string-renderer [styled_tree_string]="styled_tree_string"></app-tree-string-renderer>
+          </div>
+
+          <ul *ngIf="(syntax_tree.invalid && (syntax_tree.dirty || syntax_tree.touched)) || backendErrorMessage"
+            class="syntax-error">
+
+            <div *ngIf="syntax_tree.errors?.['unknowActivities']">
+              <li *ngFor="let unknownActivity of syntax_tree.errors?.['unknowActivities']">
+              Unknown activity name {{unknownActivity.name}} at position {{unknownActivity.index}}
+              </li>
+            </div>
+            <div *ngIf="syntax_tree.errors?.['imbalanced']">
+              <li *ngFor="let imbalancedItem of syntax_tree.errors?.['imbalanced']">
+                Imbalanced {{imbalancedItem.symbol}} at position {{imbalancedItem.index + 1}}
+              </li>
+            </div>
+            <li *ngIf="syntax_tree.errors?.['apostrophe']">
+                Imbalanced Apostrophes
+            </li>
+
+            <li *ngIf="backendErrorMessage" class="backend-error">
+              <span> {{backendErrorMessage}} </span>
+            </li>
+
+          </ul>
+
+
+        <div class="expert-mode-tool-bar mt-3">
+          <button type="submit" class="button expert-mode-button"
+          [disabled]="!allowRender || syntax_tree.errors?.['imbalanced'] || syntax_tree.errors?.['apostrophe']">Render Tree</button>
+
+          <button type="button" class="button expert-mode-button" (click)="toggleEditor(!edit)"
+          >{{edit ? "Close Editor" : "Open Editor"}}</button>
+        </div>
+      </form>
+  </div>
+</div>
