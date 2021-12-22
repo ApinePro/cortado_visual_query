@@ -1,7 +1,8 @@
 import { element } from 'protractor';
-import {Component, OnInit, ElementRef} from '@angular/core';
+import {Component, OnInit, ElementRef, Inject} from '@angular/core';
 import {BackgroundTaskInfoService} from '../../services/backgroundTaskInfoService/background-task-info.service';
 import packageInfo from '../../../../package.json';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-footer',
@@ -11,7 +12,8 @@ import packageInfo from '../../../../package.json';
 export class FooterComponent implements OnInit {
 
   constructor(private backgroundTaskInfoService: BackgroundTaskInfoService,
-              private _elRef: ElementRef<HTMLElement>
+              private _elRef: ElementRef<HTMLElement>,
+              @Inject(DOCUMENT) private document: Document
     ) {
   }
 
@@ -26,6 +28,11 @@ export class FooterComponent implements OnInit {
 
     this.backgroundTaskInfoService.numberBackgroundTasks$().subscribe(res => {
       this.numberTasks = res;
+      if (res > 0){
+        this.document.getElementById("body").style.cursor = 'progress'
+      } else if (res == 0) {
+        this.document.getElementById("body").style.cursor = ''
+      }
     });
   }
 
