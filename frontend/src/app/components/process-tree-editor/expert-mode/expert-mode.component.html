@@ -7,7 +7,6 @@
         data-bs-toggle="collapse"
         data-bs-target="#ExpertModeBody"
         (click) = "openExpertMode()"
-        [disabled]="!active"
       >
       <span class="pe-2">Expert Mode</span>
       </button>
@@ -17,7 +16,7 @@
       class="accordion-collapse collapse"
       data-bs-parent="#ExpertModeAccordion"
     >
-      <div class="accordion-body collapsed" [hidden]="!currentlyDisplayedTreeInExpertMode">
+      <div class="accordion-body collapsed">
         <form [formGroup]="syntaxTreeInput" (ngSubmit)="onSubmit()">
           <div class="form-container" [hidden]="!edit">
             <span class = "secondary-text fw-bold mb-1 tree-string-heading">Editing Tree String
@@ -59,7 +58,7 @@
                 Imbalanced Apostrophes
             </li>
 
-            <li *ngIf="backendErrorMessage" class="backend-error">
+            <li *ngIf="backendErrorMessage && syntax_tree.pristine" class="backend-error">
               <span> {{backendErrorMessage}} </span>
             </li>
 
