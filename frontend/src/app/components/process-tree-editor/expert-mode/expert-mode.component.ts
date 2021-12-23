@@ -12,8 +12,7 @@ export class ExpertModeComponent implements OnInit {
 
   syntax_tree_string : string = "";
   syntaxTreeInput : any;
-  edit : boolean = false;
-  active : boolean = false;
+  edit : boolean = true;
   allowRender : boolean =  true;
   activityNameRegEx = new RegExp("'([^']*)'", 'g');
   backendErrorMessage: string;
@@ -23,7 +22,6 @@ export class ExpertModeComponent implements OnInit {
 
   @ViewChild('expertModeButton') expertModeButton: ElementRef;
   @ViewChild('textEditor') textEditor : ElementRef<HTMLDivElement>;
-
 
   currentlyDisplayedTreeInExpertMode;
 
@@ -58,9 +56,7 @@ export class ExpertModeComponent implements OnInit {
 
     // If the tree changes and expert mode is open, compute the syntax tree string
     this.sharedDataService.currentDisplayedProcessTree$.subscribe(tree => {
-      this.active = (tree !== null && tree !== undefined);
       this.collectCurrentTreeString(tree);
-      this.edit = false;
       this.backendErrorMessage = null;
     })
 
@@ -108,21 +104,18 @@ export class ExpertModeComponent implements OnInit {
   onSubmit(){
     this.allowRender = false;
     let treeString = this.syntax_tree.value;
-    console.log(treeString);
     treeString = this.strip_html(treeString);
-    console.log("After Processing", treeString);
 
     const $pendingTreeParse = this.backendService.renderStringToPT(treeString);
 
     $pendingTreeParse.subscribe((result : any )=> {
-      console.log(result);
       if(!result.errors){
         this.sharedDataService.currentDisplayedProcessTree = result.tree;
         this.backendErrorMessage = null;
 
       } else {
-
         this.backendErrorMessage = result.errors;
+        this.syntax_tree.markAsPristine();
       }
       this.allowRender = true;
     });
@@ -158,6 +151,7 @@ export class ExpertModeComponent implements OnInit {
     if(tree && this.expertModeButton.nativeElement.ariaExpanded === "true" && tree !== this.currentlyDisplayedTreeInExpertMode){
       this.backendService.computeTreeString(tree);
       this.currentlyDisplayedTreeInExpertMode = tree;
+      this.edit = false;
     }
   }
 
@@ -231,7 +225,12 @@ export class ExpertModeComponent implements OnInit {
       let occurences = 0
 
       if(control.value){
-        occurences = control.value.match(/'/g || []).length
+        let matches = control.value.match(/'/g || []);
+
+        if (matches){
+          occurences = matches.length;
+        }
+
       }
 
       return (occurences % 2) === 1 ?{apostrophe : true}: null;
