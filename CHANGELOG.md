@@ -3,10 +3,22 @@
 ---
 
 
-## [1.3.0] - 
+## [1.4.0] -
 ### Changed
 
-* Added size-adjustable user interface components
+### Added
+
+* Added size-adjustable user interface components [Frontend]
+* Added drag-and-drop event log and process tree upload [Frontend + Backend]
+* Added svg image export for process trees and variant explorer [Frontend]
+* Added sorting functionality for activity explorer [Frontend]
+
+### Fixed 
+
+* Issues regarding the variant explorer rendering [Frontend + Backend]
+* Issues regarding process tree rendering [Frontend]
+* Issues regarding the default log used as a usage demo [Frontend]
+
 
 ## [1.2.0] - 2021-08-31
 ### Changed

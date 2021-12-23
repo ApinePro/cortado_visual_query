@@ -436,6 +436,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     // Collect the SVG and pass them to the SVG Service
     this.variantComponents.forEach(c => svgs.push(c.getSVGGraphicElement()));
 
+
     // Add Frequency and Percentage information to the SVG
     svgs = svgs.map((c, i) => this.addVariantInformation(c, this.variants[i].count, this.variants[i].percentage));
 
@@ -465,17 +466,20 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   addVariantInformation(svgElement: SVGGraphicsElement, variantAbs: number, variantPerc: number): SVGGraphicsElement {
-    const SHIFTLENGTH: number = 50;
+
+    const exportMarginX: number = 65;
+    const exportMarginY: number = 15;
 
     const svgElement_copy = (svgElement.cloneNode(true) as SVGGraphicsElement);
 
-    // Shift all Elements to the right using by transform chaining
-    svgElement_copy.setAttribute("width", (svgElement.clientWidth + SHIFTLENGTH).toString());
+    // Shift all Elements to the right using transform chaining
+    svgElement_copy.setAttribute("width", (svgElement.clientWidth + exportMarginX).toString());
+    svgElement_copy.setAttribute("height", (svgElement.clientHeight + exportMarginY).toString());
 
     d3.select(svgElement_copy).select("g")
       .selectChildren()
       .each(function (this: SVGGraphicsElement) {
-        this.setAttribute("transform", this.getAttribute("transform") ? this.getAttribute("transform") + "," + "translate(50,0)" : "translate(50,0)");
+        this.setAttribute("transform", (this.getAttribute("transform") ? this.getAttribute("transform") + "," : '') +  `translate(${exportMarginX}, 0)`);
       })
     // Add the Frequency Information
     const textfield = d3.select(svgElement_copy).append('text').attr('transform', `translate(20, ${((svgElement.clientHeight - 25) / 2) + 10})`)
