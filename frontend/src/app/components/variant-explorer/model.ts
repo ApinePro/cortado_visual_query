@@ -117,7 +117,7 @@ export class SequenceGroup extends VariantElement {
 
   public recalculateHeight(): number {
     this.elements.forEach(el => el.height = undefined);
-    this.height =  Math.max(...this.elements.map((el: VariantElement) => el.getHeight())) + Constants.MARGIN_Y * 2
+    this.height =  Math.max(...this.elements.map((el: VariantElement) => el.getHeight()))
     return this.height;
   }
 

@@ -58,24 +58,24 @@ export class VariantFragmentComponent implements AfterViewInit {
       .attr('width', width)
       .attr('height', height);
 
-    this.draw(this.variant, svg);
+    this.draw(this.variant, svg, true);
 
     if (this.variant instanceof SequenceGroup) {
       this.svgSelection.select('polygon').remove();
     }
   }
 
-  draw(element: VariantElement, svgElement: Selection<any, any, any, any>): void {
+  draw(element: VariantElement, svgElement: Selection<any, any, any, any>, outerElement : boolean = false): void {
     if (element instanceof ParallelGroup) {
       this.drawParallelGroup(element.asParallelGroup(), svgElement);
     } else if (element instanceof SequenceGroup) {
-      this.drawSequenceGroup(element.asSequenceGroup(), svgElement);
+      this.drawSequenceGroup(element.asSequenceGroup(), svgElement, outerElement);
     } else if (element instanceof LeafNode) {
       this.polygonDrawingService.drawLeafNode(element.asLeafNode(), svgElement, this.colorMap);
     }
   }
 
-  drawSequenceGroup(element: SequenceGroup, parent: Selection<any, any, any, any>): void {
+  drawSequenceGroup(element: SequenceGroup, parent: Selection<any, any, any, any>, outerElement): void {
     const width = element.getWidth();
     const height = element.getHeight();
     const polygonPoints = this.polygonService.getPolygonPoints(width, height);
@@ -87,7 +87,8 @@ export class VariantFragmentComponent implements AfterViewInit {
       .classed('variant-group-element', true)
       .classed('variant-sequence-group', true);
 
-    let x = Constants.SEQUENCEGROUP_Margin
+    let x = outerElement ? 0 : Constants.SEQUENCEGROUP_Margin;
+
     for (const child of element.elements) {
       const width = child.getWidth();
       const childHeight = child.getHeight();
