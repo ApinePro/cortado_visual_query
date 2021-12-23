@@ -19,3 +19,6 @@ dist
 .vscode
 
 app-dist
+
+.mps
+.sol
