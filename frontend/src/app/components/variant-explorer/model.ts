@@ -16,7 +16,10 @@ export class Constants {
 }
 
 export class Variant {
+  id: string;
   count: number;
+  length: number;
+  number_of_activities: number;
   variant: VariantElement;
   isSelected: boolean;
   isAddedFittingVariant: boolean;

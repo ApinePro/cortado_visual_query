@@ -6,6 +6,7 @@ import * as FileSaver from 'file-saver';
 import {take, tap} from 'rxjs/operators';
 import {deserialize, VariantElement} from 'src/app/components/variant-explorer/model';
 import { Configuration } from 'src/app/components/settings/model';
+import * as objectHash from 'object-hash'
 
 @Injectable({
   providedIn: 'root'
@@ -44,6 +45,7 @@ export class BackendService {
     this.sharedDataService.endActivitiesInEventLog = new Set(Object.keys(res['endActivities']));
     this.sharedDataService.variants = res['variants'];
     this.sharedDataService.variants.forEach(variant => {
+      variant['id'] = objectHash(variant['variant']);
       variant['variant'] = deserialize(variant.variant);
     });
     this.sharedDataService.loadedEventLog = filePath;

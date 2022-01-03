@@ -1,14 +1,18 @@
-import { Directive, ElementRef, AfterViewInit } from '@angular/core';
+import { Directive, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { ActivateTooltipsService } from '../../services/activateTooltipsService/activate-tooltips.service';
 
 @Directive({
   selector: '[data-bs-toggle="tooltip"]' // eslint-disable-line @angular-eslint/directive-selector
 })
-export class TooltipDirective implements AfterViewInit {
+export class TooltipDirective implements AfterViewInit, OnDestroy {
 
-  constructor(private el: ElementRef, private activateTooltipsService: ActivateTooltipsService) {}
+  constructor(private el: ElementRef, private activateTooltipsService: ActivateTooltipsService) { }
 
   ngAfterViewInit() {
     this.activateTooltipsService.initializeTooltip(this.el.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.activateTooltipsService.destroyTooltip(this.el.nativeElement);
   }
 }
