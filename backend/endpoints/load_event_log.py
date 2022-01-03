@@ -34,6 +34,8 @@ def get_simple_variants(event_log: EventLog):
         variant = SequenceGroup([LeafGroup([e]) for e in events])
         res_variants.append({
             'count': len(variants[v]),
+            'length': len(variant),
+            'number_of_activities': variant.number_of_activities(),
             'events': events,
             'variant': variant.serialize(),
             'percentage': round(len(variants[v]) / total_traces * 100, 2)
@@ -49,6 +51,8 @@ def get_c_variants(event_log: EventLog):
         variant = {
             'count': len(variants[v]),
             'variant': v.serialize(),
+            'length': len(v),
+            'number_of_activities': v.number_of_activities(),
             'percentage': round(len(variants[v]) / total_traces * 100, 2),
             'sub_variants': []}
         sub_variants = get_detailled_variants(variants[v])

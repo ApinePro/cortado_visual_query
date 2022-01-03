@@ -119,3 +119,22 @@
     justify-content: center;
     align-items: center;
 }
+
+.dropdown-sort {
+  font-size: small;
+  max-height: 90vh;
+  user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+}
+
+.dropdown-menu {
+  border-radius: 0;
+  background-color: lightgray;
+}
+
+.selected-dropdown-item {
+  background-color: var(--bs-blue);
+  color: var(--bs-white);
+}

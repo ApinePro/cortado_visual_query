@@ -31,22 +31,24 @@ import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service'
 import { ImageExportService } from '../../services/imageExportService/image-export-service';
 import * as d3 from 'd3';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
+import { VariantSorter } from './variant-sorter';
+import * as objectHash from 'object-hash'
 
 @Component({
   selector: 'app-variant-explorer',
   templateUrl: './variant-explorer.component.html',
   styleUrls: ['./variant-explorer.component.scss'],
   animations: [
-              trigger('collapseText', [
-                transition(':enter', [
-                  style({ opacity : '0', transform : 'translateX(-40px)'}),
-                  animate('100ms 50ms ease-in', style({ opacity : '1',  transform : 'translateX(0)'})),
-                ]),
-                transition(':leave', [
-                  animate('100ms 50ms ease-in', style({ opacity : '0',  transform : 'translateX(-50px)'}))
-                ])
-              ])
-            ]
+    trigger('collapseText', [
+      transition(':enter', [
+        style({ opacity: '0', transform: 'translateX(-40px)' }),
+        animate('100ms 50ms ease-in', style({ opacity: '1', transform: 'translateX(0)' })),
+      ]),
+      transition(':leave', [
+        animate('100ms 50ms ease-in', style({ opacity: '0', transform: 'translateX(-50px)' }))
+      ])
+    ])
+  ]
 })
 export class VariantExplorerComponent extends LayoutChangeDirective implements OnInit, AfterViewInit {
   constructor(private colorMapService: ColorMapService,
@@ -63,7 +65,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   private readonly nVariantsInc = 50;
-  collapse : boolean = false;
+  collapse: boolean = false;
 
   public variants: Variant[] = [];
   public visibleVariants: Variant[] = [];
@@ -86,7 +88,10 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   public svgRenderingInProgress: boolean = false;
   public variantExplorerOutOfFocus: boolean = false;
 
-  dropZoneConfig : DropzoneConfig;
+  public isAscendingOrder: boolean = false;
+  public sortingFeature: string = 'count';
+
+  dropZoneConfig: DropzoneConfig;
 
   @ViewChild('variantExplorer', { static: true })
   variantExplorerDiv: ElementRef<HTMLDivElement>;
@@ -114,6 +119,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     this.variants = this.sharedDataService.variants;
 
     this.variants.forEach(v => {
+      v.id = objectHash(v.variant);
       v.variant = deserialize(v.variant);
       v.isConformanceOutdated = true;
     });
@@ -177,6 +183,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
     this.totalNumberTraces = this.variants.map(v => v.count).reduce((a, b) => a + b);
     this.totalNumberVariants = this.variants.length;
+    this.sort(this.sortingFeature);
   }
 
   initializeVisibleVariants(): void {
@@ -381,10 +388,10 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     this.updateVisible(scrollTop);
   }
 
-  handleResponsiveChange(left: number, top: number, width: number, height: number) : void{
-    if (width < 600){
+  handleResponsiveChange(left: number, top: number, width: number, height: number): void {
+    if (width < 600) {
       this.collapse = true;
-    }else{
+    } else {
       this.collapse = false;
     }
   }
@@ -395,7 +402,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     if (this.visibleVariantsHeight - (h + scrollTop) <= 50) {
 
       while (this.visibleVariantsHeight < (h + scrollTop) && this.visibleVariants.length < this.variants.length) {
-        const v = this.dummyVariants.pop();
+        const v = this.dummyVariants.shift();
         this.visibleVariantsHeight += v.variant.getHeight();
         this.visibleVariants.push(v);
       }
@@ -505,10 +512,21 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     return svgElement_copy;
   }
 
-  toggleBlur(event){
+  toggleBlur(event) {
     this.variantExplorerOutOfFocus = event;
   }
 
+  sort(sortingFeature: string): void {
+    this.sortingFeature = sortingFeature;
+    this.variants = VariantSorter.sort(this.variants, this.sortingFeature, this.isAscendingOrder);
+    this.variantExplorerDiv.nativeElement.scroll(0,0);
+    this.initializeVisibleVariants();
+  }
+
+  onSortOrderChanged(isAscending: boolean): void {
+    this.isAscendingOrder = isAscending;
+    this.sort(this.sortingFeature);
+  }
 }
 
 export namespace VariantExplorerComponent {

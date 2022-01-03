@@ -39,4 +39,9 @@ export class ActivateTooltipsService {
           element.addEventListener('click', _ => tooltip.hide());
     }
 
+    public destroyTooltip(element: any): void {
+        const tooltip = bootstrap.Tooltip.getInstance(element);
+        tooltip.dispose();
+    }
+
 }
