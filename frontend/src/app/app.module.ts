@@ -27,6 +27,7 @@ import { SettingsComponent } from './components/settings/settings.component';
 import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 import { TreeStringRendererComponent } from './components/tree-string-renderer/tree-string-renderer.component';
 import { TooltipDirective } from './directives/tooltip/tooltip.directive';
+import { VariantConformanceDialogComponent } from './components/variant-explorer/variant-conformance-dialog/variant-conformance-dialog.component';
 
 @NgModule({
   declarations: [
@@ -48,8 +49,9 @@ import { TooltipDirective } from './directives/tooltip/tooltip.directive';
     SettingsComponent,
     DropZoneComponent,
     DropZoneDirective,
+    TooltipDirective,
+    VariantConformanceDialogComponent,
     TreeStringRendererComponent,
-    TooltipDirective
   ],
   imports: [
     BrowserModule,

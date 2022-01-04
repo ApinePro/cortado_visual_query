@@ -229,6 +229,7 @@ async def calculate_alignment(d: InputCalculateAlignment):
 class InputCalculateAlignmentCVariant(BaseModel):
     pt: dict
     variant: dict
+    timeout: int
 
 
 def calculate_alignments_intern(pt: dict, c_variant: dict):
@@ -245,8 +246,11 @@ def calculate_alignments_intern(pt: dict, c_variant: dict):
 
 @app.post("/calculateAlignmentsCVariant")
 async def calculate_alignment(d: InputCalculateAlignmentCVariant, response: Response):
-    config_repository = ConfigurationRepositoryFactory.get_config_repository()
-    timeout = config_repository.get_configuration().timeout_cvariant_alignment_computation
+    timeout = d.timeout
+
+    if d.timeout == 0:
+        config_repository = ConfigurationRepositoryFactory.get_config_repository()
+        timeout = config_repository.get_configuration().timeout_cvariant_alignment_computation
     try:
         return execute_with_timeout(calculate_alignments_intern, timeout, args=(d.pt, d.variant))
     except TimeoutException:

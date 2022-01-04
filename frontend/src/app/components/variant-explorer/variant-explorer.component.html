@@ -134,8 +134,9 @@
                 {{ i + 1 }}.
               </td>
               <td>
-                <app-variant-info [variant]="variant" (selectionChanged)="selectionChangedForVariant(variant, $event)">
-                </app-variant-info>
+                <app-variant-info [variant]="variant"
+                                  (selectionChanged)="selectionChangedForVariant(variant, $event)"
+                                  (updateConformance)="updateConformanceForSingleVariantClicked($event)"></app-variant-info>
               </td>
               <td class="variant-cell">
                 <div class="variant" [ngStyle]="{ 'border-color': variant.isSelected ? 'unset' : 'transparent' }">
@@ -187,3 +188,6 @@
     <div class="tooltip-inner"></div>
   </div>
 </div>
+
+<app-variant-conformance-dialog [showConformanceDialog]="showConformanceDialogEvent.asObservable()"
+(updateConformanceWithCustomTimeout)="updateConformanceForVariant($event.variant, $event.timeout)"></app-variant-conformance-dialog>

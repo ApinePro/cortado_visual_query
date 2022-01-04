@@ -108,10 +108,11 @@ export class BackendService {
     return this.httpClient.post(this.backendUrl + 'calculateAlignment', body);
   }
 
-  calculateAlignmentsCVariant(variant: VariantElement): Observable<any> {
+  calculateAlignmentsCVariant(variant: VariantElement, timeout: number): Observable<any> {
     const body = {
       pt: this.sharedDataService.currentDisplayedProcessTree,
-      variant: variant.serialize()
+      variant: variant.serialize(),
+      timeout: timeout
     };
     return this.httpClient.post(this.backendUrl + 'calculateAlignmentsCVariant', body);
   }
