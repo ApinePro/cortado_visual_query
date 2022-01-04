@@ -104,6 +104,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
   public visibleVariantsHeight = 1000;
 
+  showConformanceDialogEvent: Subject<Variant> = new Subject<Variant>();
 
   ngOnInit(): void {
 
@@ -122,6 +123,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
       v.id = objectHash(v.variant);
       v.variant = deserialize(v.variant);
       v.isConformanceOutdated = true;
+      v.isTimeouted = false;
     });
 
     this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
@@ -176,6 +178,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
       v.isSelected = false;
       v.isAddedFittingVariant = false;
       v.isConformanceOutdated = true;
+      v.isTimeouted = false;
     });
 
     this.numberFittingVariants = undefined;
@@ -219,23 +222,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
       v.calculationInProgress = true;
       v.deviation = undefined;
 
-      this.backendService.calculateAlignmentsCVariant(v.variant).pipe(takeUntil(this.unsubscribe)).subscribe(res => {
-        v.calculationInProgress = false;
-        v.alignment = res.alignment;
-        v.deviation = res.deviation;
-        v.isTimeouted = false;
-        v.isConformanceOutdated = false;
-        this.updateAlignmentStatistics();
-      }, error => {
-        if (error.status === 504) {
-          v.calculationInProgress = false;
-          v.isTimeouted = true;
-          v.isConformanceOutdated = true;
-          this.updateAlignmentStatistics();
-        } else {
-          this.updateAlignmentsStop();
-        }
-      });
+      this.updateConformanceForVariant(v, 0);
     });
   }
 
@@ -253,7 +240,35 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     this.numberFittingVariants = numberFittingVariants;
   }
 
+  updateConformanceForVariant(variant: Variant, timeout: number): void {
+    variant.calculationInProgress = true;
 
+    this.backendService.calculateAlignmentsCVariant(variant.variant, timeout).pipe(takeUntil(this.unsubscribe)).subscribe(res => {
+      variant.calculationInProgress = false;
+      variant.alignment = res.alignment;
+      variant.deviation = res.deviation;
+      variant.isTimeouted = false;
+      variant.isConformanceOutdated = false;
+      this.updateAlignmentStatistics();
+    }, error => {
+      if (error.status === 504) {
+        variant.calculationInProgress = false;
+        variant.isTimeouted = true;
+        variant.isConformanceOutdated = true;
+        this.updateAlignmentStatistics();
+      } else {
+        this.updateAlignmentsStop();
+      }
+    });
+  }
+
+  updateConformanceForSingleVariantClicked(variant: Variant): void {
+    if (variant.isTimeouted) {
+      this.showConformanceDialogEvent.next(variant);
+    } else {
+      this.updateConformanceForVariant(variant, 0);
+    }
+  }
 
   discoverInitialModel(): void {
     const variants = this.getSelectedVariants().map(v => v.variant);
@@ -351,7 +366,10 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
       v.isAddedFittingVariant = true;
       v.deviation = false;
       v.calculationInProgress = false;
+      v.isConformanceOutdated = false;
     });
+
+    this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
   }
 
   isAnyVariantSelected(): boolean {
@@ -486,7 +504,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     d3.select(svgElement_copy).select("g")
       .selectChildren()
       .each(function (this: SVGGraphicsElement) {
-        this.setAttribute("transform", (this.getAttribute("transform") ? this.getAttribute("transform") + "," : '') +  `translate(${exportMarginX}, 0)`);
+        this.setAttribute("transform", (this.getAttribute("transform") ? this.getAttribute("transform") + "," : '') + `translate(${exportMarginX}, 0)`);
       })
     // Add the Frequency Information
     const textfield = d3.select(svgElement_copy).append('text').attr('transform', `translate(20, ${((svgElement.clientHeight - 25) / 2) + 10})`)
