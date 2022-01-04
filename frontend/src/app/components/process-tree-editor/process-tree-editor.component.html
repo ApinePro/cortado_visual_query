@@ -4,8 +4,9 @@
   <div class="bg-dark btn-tool-bar">
 
     <div class="btn-group align-baseline dropDownParent dropdown" data-bs-toggle="tooltip" title="add node">
-      <button class="button text-success dropdown-toggle" [disabled]="insertNewNodeButtonDisabled()" type="button"
-        data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside" id="addNodeDropdown">
+      <button class="button text-success dropdown-toggle" (click)="selectedMethod=this.lastSelectedInsertMethod;"
+        [disabled]="insertNewNodeButtonDisabled()" type="button"data-bs-toggle="dropdown" aria-expanded="false" 
+        data-bs-auto-close="outside" id="addNodeDropdown">
         <i class="bi bi-plus-square-fill btn-icon"></i>
       </button>
       <div class="dropdown-menu dropdown-node-insert" id="dropdownNewNode" aria-labelledby="addNodeDropdown">
