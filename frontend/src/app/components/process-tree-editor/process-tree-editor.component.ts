@@ -376,6 +376,7 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
       }
       this.root = treeToLoad;
       this.update(this.root);
+      this.clearSelection();
     }
   }
 
@@ -394,6 +395,7 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
       }
       this.root = treeToLoad;
       this.update(this.root);
+      this.clearSelection();
     }
   }
 
@@ -480,6 +482,9 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
         })
         .attr('y', function (d: any) {
           return d.y;
+        })
+        .classed("selected-node", (d:any) => {
+          return d.data.selected;
         });
       // add node text
       this.nodeEnter.append('text')
@@ -607,7 +612,7 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
       this.selectedRootNode.data.label = label;
       this.selectedRootNode.data.operator = null;
     }
-    this.afterInsertNode();
+    this.afterInsertNode(this.selectedRootNode);
   }
 
   insertNewNode(operator, label): void {
@@ -621,11 +626,15 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
       newNode.height = 0;
       newNode.children = null;
       this.root = newNode;
-      this.afterInsertNode();
+      this.afterInsertNode(newNode);
     }
   }
 
   insertNewNodeLeft(operator, label): void {
+    if (this.selectedRootNode.parent === null || this.selectedRootNode.parent === undefined){
+      return;
+    }
+
     const newNode = this.createNode(operator, label);
     // @ts-ignore
     newNode.depth = this.selectedRootNode.depth;
@@ -639,7 +648,7 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
       const idx: number = this.selectedRootNode.parent.children.indexOf(this.selectedRootNode);
       this.selectedRootNode.parent.children.splice(idx, 0, newNode);
     }
-    this.afterInsertNode();
+    this.afterInsertNode(newNode);
   }
 
   insertNewNodeAbove(operator, label): void {
@@ -655,12 +664,11 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
     this.selectedRootNode.parent = newNode;
     this.root = newNode;
     this.updateDepthAttributeOfNode(this.selectedRootNode);
-    this.afterInsertNode();
+    this.afterInsertNode(newNode);
   }
 
 
   insertNewNodeBelow(operator, label): void {
-
     const newNode = this.createNode(operator, label);
     // @ts-ignore
     newNode.depth = this.selectedRootNode.depth + 1;
@@ -676,7 +684,7 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
       this.selectedRootNode.children = [newNode];
     }
     this.updateHeightAttributeOfNode(this.selectedRootNode);
-    this.afterInsertNode();
+    this.afterInsertNode(newNode);
   }
 
   updateHeightAttributeOfNode(node): void {
@@ -697,6 +705,10 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
   }
 
   insertNewNodeRight(operator, label): void {
+    if (this.selectedRootNode.parent === null || this.selectedRootNode.parent === undefined){
+      return;
+    }
+    
     const newNode = this.createNode(operator, label);
     // @ts-ignore
     newNode.depth = this.selectedRootNode.depth;
@@ -710,14 +722,15 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
       const idx: number = this.selectedRootNode.parent.children.indexOf(this.selectedRootNode);
       this.selectedRootNode.parent.children.splice(idx + 1, 0, newNode);
     }
-    this.afterInsertNode();
+    this.afterInsertNode(newNode);
   }
 
-  afterInsertNode(): void {
-    this.update(this.root, true);
-    this.selectedRootNode = null;
-    this.selectedRootNodeOnly = false;
+  afterInsertNode(newNode: any): void {
     this.clearSelection();
+    this.selectedRootNodeOnly = true;
+    this.selectedRootNode = newNode;
+    this.selectedRootNode.data.selected = true;
+    this.update(this.root, true);
     this.searchText = undefined;
   }
 
@@ -818,9 +831,6 @@ export class ProcessTreeEditorComponent extends LayoutChangeDirective implements
   addSelectionFunctionality(): void {
     this.nodeEnter.on('click',
       function (event, d) {
-        // console.log(this)
-        // console.log(event);
-        // console.log(d);
         unselectAll();
         setSelectedRootNode(d);
         selectSubtree(this, d);
