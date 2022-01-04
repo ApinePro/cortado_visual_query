@@ -1,15 +1,13 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject, Observable, Subject} from "rxjs";
-import {tap} from "rxjs/operators";
-import * as constants from "./predefinedColors";
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import * as constants from './predefinedColors';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ColorMapService {
-
-  constructor() {
-  }
+  constructor() {}
 
   getColorMap(activities: string[]): Map<string, string> {
     //TODO: ensure activities are ordered based on frequency
@@ -29,7 +27,6 @@ export class ColorMapService {
     return this._colorMap.asObservable();
   }
 
-
   private get_color(activityNameCount): string {
     let color = '';
     if (activityNameCount >= constants.colorRange.length) {
@@ -44,7 +41,8 @@ export class ColorMapService {
   }
 
   private generate_random_color(): string {
-    const color = '#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6);
+    const color =
+      '#' + (0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6);
     return color;
   }
 }

@@ -4,7 +4,7 @@ import { Variant } from '../model';
 @Component({
   selector: 'app-variant-info',
   templateUrl: './variant-info.component.html',
-  styleUrls: ['./variant-info.component.css']
+  styleUrls: ['./variant-info.component.css'],
 })
 export class VariantInfoComponent {
   @Input()
@@ -26,6 +26,9 @@ export class VariantInfoComponent {
   }
 
   isConformanceUpdatePossible(): boolean {
-    return !this.variant.calculationInProgress && (this.variant.isConformanceOutdated || this.variant.isTimeouted);
+    return (
+      !this.variant.calculationInProgress &&
+      (this.variant.isConformanceOutdated || this.variant.isTimeouted)
+    );
   }
 }

@@ -1,47 +1,49 @@
 import { ElementRef, Injectable } from '@angular/core';
 declare var bootstrap: any;
 
-
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root',
 })
 export class ActivateTooltipsService {
-    public initializeChildren(elementRef: ElementRef): void {
-        const tooltipElements = elementRef.nativeElement.querySelectorAll('[data-bs-toggle="tooltip"]');
-        tooltipElements.forEach(tooltipTriggerEl => {
-            this.initializeTooltip(tooltipTriggerEl);
-        });
+  public initializeChildren(elementRef: ElementRef): void {
+    const tooltipElements = elementRef.nativeElement.querySelectorAll(
+      '[data-bs-toggle="tooltip"]'
+    );
+    tooltipElements.forEach((tooltipTriggerEl) => {
+      this.initializeTooltip(tooltipTriggerEl);
+    });
 
-        const popoverElements = elementRef.nativeElement.querySelectorAll('[data-bs-toggle="popover"]');
-        popoverElements.forEach(popoverTriggerEl => {
-            return new bootstrap.Popover(popoverTriggerEl, {
-                container: 'body',
-                placement: 'top',
-                boundary: 'window',
-                html: true,
-                // delay: {show: 200, hide: 100000},
-                sanitize: false
-            })
-        });
-    }
+    const popoverElements = elementRef.nativeElement.querySelectorAll(
+      '[data-bs-toggle="popover"]'
+    );
+    popoverElements.forEach((popoverTriggerEl) => {
+      return new bootstrap.Popover(popoverTriggerEl, {
+        container: 'body',
+        placement: 'top',
+        boundary: 'window',
+        html: true,
+        // delay: {show: 200, hide: 100000},
+        sanitize: false,
+      });
+    });
+  }
 
-    public initializeTooltip(element: any): void {
-        const tooltip = new bootstrap.Tooltip(element, {
-            container: 'body',
-            placement: 'top',
-            boundary: 'window',
-            html: true,
-            trigger: 'hover',
-            delay: { show: 200, hide: 50 },
-            sanitize: false
-          });
-      
-          element.addEventListener('click', _ => tooltip.hide());
-    }
+  public initializeTooltip(element: any): void {
+    const tooltip = new bootstrap.Tooltip(element, {
+      container: 'body',
+      placement: 'top',
+      boundary: 'window',
+      html: true,
+      trigger: 'hover',
+      delay: { show: 200, hide: 50 },
+      sanitize: false,
+    });
 
-    public destroyTooltip(element: any): void {
-        const tooltip = bootstrap.Tooltip.getInstance(element);
-        tooltip.dispose();
-    }
+    element.addEventListener('click', (_) => tooltip.hide());
+  }
 
+  public destroyTooltip(element: any): void {
+    const tooltip = bootstrap.Tooltip.getInstance(element);
+    tooltip.dispose();
+  }
 }

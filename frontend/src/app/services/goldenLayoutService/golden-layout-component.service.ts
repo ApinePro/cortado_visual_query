@@ -1,16 +1,25 @@
-import { ComponentFactoryResolver, Injectable, Injector, StaticProvider, Type } from '@angular/core';
-import { ComponentContainer, JsonValue } from "golden-layout";
+import {
+  ComponentFactoryResolver,
+  Injectable,
+  Injector,
+  StaticProvider,
+  Type,
+} from '@angular/core';
+import { ComponentContainer, JsonValue } from 'golden-layout';
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class GoldenLayoutComponentService {
-  private _componentTypeMap = new Map<string, Type<LayoutChangeDirective>>()
+  private _componentTypeMap = new Map<string, Type<LayoutChangeDirective>>();
 
-  constructor(private componentFactoryResolver: ComponentFactoryResolver) { }
+  constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
 
-  registerComponentType(name: string, componentType: Type<LayoutChangeDirective>) {
+  registerComponentType(
+    name: string,
+    componentType: Type<LayoutChangeDirective>
+  ) {
     this._componentTypeMap.set(name, componentType);
   }
 
@@ -24,16 +33,27 @@ export class GoldenLayoutComponentService {
     return result;
   }
 
-  createComponent(componentTypeJsonValue: JsonValue, container: ComponentContainer) {
-    const componentType = this._componentTypeMap.get(componentTypeJsonValue as string);
+  createComponent(
+    componentTypeJsonValue: JsonValue,
+    container: ComponentContainer
+  ) {
+    const componentType = this._componentTypeMap.get(
+      componentTypeJsonValue as string
+    );
     if (componentType === undefined) {
-      throw new Error('Unknown component type')
+      throw new Error('Unknown component type');
     } else {
-      const provider: StaticProvider = { provide: LayoutChangeDirective.GoldenLayoutContainerInjectionToken, useValue: container };
+      const provider: StaticProvider = {
+        provide: LayoutChangeDirective.GoldenLayoutContainerInjectionToken,
+        useValue: container,
+      };
       const injector = Injector.create({
-        providers: [provider]
+        providers: [provider],
       });
-      const componentFactoryRef = this.componentFactoryResolver.resolveComponentFactory<LayoutChangeDirective>(componentType);
+      const componentFactoryRef =
+        this.componentFactoryResolver.resolveComponentFactory<LayoutChangeDirective>(
+          componentType
+        );
       return componentFactoryRef.create(injector);
     }
   }

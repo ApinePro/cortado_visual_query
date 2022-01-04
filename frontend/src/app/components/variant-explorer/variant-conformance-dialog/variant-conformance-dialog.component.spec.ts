@@ -8,9 +8,8 @@ describe('VariantConformanceDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ VariantConformanceDialogComponent ]
-    })
-    .compileComponents();
+      declarations: [VariantConformanceDialogComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

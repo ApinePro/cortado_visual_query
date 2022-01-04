@@ -1,20 +1,20 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { BackendService } from "../../services/backendService/backend.service";
+import { BackendService } from '../../services/backendService/backend.service';
 
 @Component({
   selector: 'app-side-bar',
   templateUrl: './side-bar.component.html',
-  styleUrls: ['./side-bar.component.css']
+  styleUrls: ['./side-bar.component.css'],
 })
 export class SideBarComponent {
-
   showSettingsEvent: Subject<void> = new Subject<void>();
 
-  constructor(private backendService: BackendService,
-    private _elRef: ElementRef<HTMLElement>) {
-  }
+  constructor(
+    private backendService: BackendService,
+    private _elRef: ElementRef<HTMLElement>
+  ) {}
 
   @ViewChild('fileUploadEventLog') fileUploadEventLog: ElementRef;
   @ViewChild('fileUploadProcessTree') fileUploadProcessTree: ElementRef;
@@ -28,7 +28,6 @@ export class SideBarComponent {
   }
 
   handleSelectedEventLogFile(e): void {
-
     const fileList: FileList = e.target.files;
     if (fileList.length > 0) {
       console.log(fileList[0]);
