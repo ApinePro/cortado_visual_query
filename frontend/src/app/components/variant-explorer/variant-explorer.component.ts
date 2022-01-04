@@ -69,8 +69,10 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
   public variants: Variant[] = [];
   public visibleVariants: Variant[] = [];
+  public dummyVariantsBefore: Variant[] = [];
   public dummyVariants: Variant[] = [];
   public invisibleVariantsHeight = 50;
+  public cumulatedVariantHeights: number[] = []
 
   public colorMap: Map<string, string>;
 
@@ -200,6 +202,10 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
       .reduce((a, b) => a + b, 0) / this.dummyVariants.length;
     this.visibleVariantsHeight = this.visibleVariants.map(v => v.variant.getHeight())
       .reduce((a, b) => a + b, 0);
+    this.cumulatedVariantHeights = [0]
+    for (let index = 1; index < this.variants.length; index++) {
+      this.cumulatedVariantHeights.push(this.cumulatedVariantHeights[index-1]+this.variants[index-1].variant.getHeight())
+    }
   }
 
   updateAlignmentsStop(): void {
@@ -384,8 +390,6 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   onScroll(event): void {
-    const scrollTop = event.target.scrollTop;
-    this.updateVisible(scrollTop);
   }
 
   handleResponsiveChange(left: number, top: number, width: number, height: number): void {
@@ -396,19 +400,14 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     }
   }
 
-
-  updateVisible(scrollTop): void {
-    const h = this.variantExplorerDiv.nativeElement.clientHeight;
-    if (this.visibleVariantsHeight - (h + scrollTop) <= 50) {
-
-      while (this.visibleVariantsHeight < (h + scrollTop) && this.visibleVariants.length < this.variants.length) {
-        const v = this.dummyVariants.shift();
-        this.visibleVariantsHeight += v.variant.getHeight();
-        this.visibleVariants.push(v);
-      }
-      this.invisibleVariantsHeight = this.dummyVariants.map(v => v.variant.getHeight())
-        .reduce((a, b) => a + b, 0) / this.dummyVariants.length;
+  findNearestVariantIndex(scrollTop) {
+    let nearestIndex = 0;
+    let nearestValue = 0;
+    while(nearestIndex < this.cumulatedVariantHeights.length && nearestValue < scrollTop){
+      nearestValue = this.cumulatedVariantHeights[++nearestIndex];
     }
+
+    return nearestIndex;
   }
 
   // TODO isComplexVariant is currently unused

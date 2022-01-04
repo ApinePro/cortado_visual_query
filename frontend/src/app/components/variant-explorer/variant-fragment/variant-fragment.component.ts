@@ -1,10 +1,10 @@
-import {AfterViewInit, ElementRef} from '@angular/core';
-import {Component, Input, ViewChild} from '@angular/core';
+import { AfterViewInit, ElementRef } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
-import {Selection} from 'd3';
-import {PolygonDrawingService} from 'src/app/services/polygon-drawing.service';
-import {PolygonGeneratorService} from 'src/app/services/polygon-generator.service';
-import {Constants, LeafNode, ParallelGroup, SequenceGroup, VariantElement} from '../model';
+import { Selection } from 'd3';
+import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
+import { PolygonGeneratorService } from 'src/app/services/polygon-generator.service';
+import { Constants, LeafNode, ParallelGroup, SequenceGroup, VariantElement } from '../model';
 
 @Component({
   selector: 'app-variant-fragment',
@@ -14,11 +14,14 @@ import {Constants, LeafNode, ParallelGroup, SequenceGroup, VariantElement} from 
 export class VariantFragmentComponent implements AfterViewInit {
 
   constructor(private polygonService: PolygonGeneratorService,
-              private polygonDrawingService: PolygonDrawingService) {
+    private polygonDrawingService: PolygonDrawingService) {
   }
 
   @ViewChild('svg')
   svgHtmlElement: ElementRef;
+
+  @ViewChild('container')
+  containerElement: ElementRef;
 
   @Input()
   variant: VariantElement;
@@ -26,7 +29,12 @@ export class VariantFragmentComponent implements AfterViewInit {
   @Input()
   colorMap: Map<string, string>;
 
+  @Input()
+  position: number;
+
   svgSelection!: Selection<any, any, any, any>;
+
+  isVisible: boolean = false;
 
   deserialize(obj: any): VariantElement {
     if ('follows' in obj) {
@@ -39,8 +47,16 @@ export class VariantFragmentComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.svgSelection = d3.select(this.svgHtmlElement.nativeElement).append('g');
-    this.redraw();
+    let self = this;
+    var observer = new IntersectionObserver(function (entries) {
+      if (!self.isVisible && entries[0]['isIntersecting']) {
+        self.isVisible = true;
+      }
+      self.isVisible = entries[0]['isIntersecting'];
+    }, { root: null });
+
+    // observing a target element
+    observer.observe(this.containerElement.nativeElement);
   }
 
   redraw(): void {
@@ -65,7 +81,7 @@ export class VariantFragmentComponent implements AfterViewInit {
     }
   }
 
-  draw(element: VariantElement, svgElement: Selection<any, any, any, any>, outerElement : boolean = false): void {
+  draw(element: VariantElement, svgElement: Selection<any, any, any, any>, outerElement: boolean = false): void {
     if (element instanceof ParallelGroup) {
       this.drawParallelGroup(element.asParallelGroup(), svgElement);
     } else if (element instanceof SequenceGroup) {
@@ -141,7 +157,7 @@ export class VariantFragmentComponent implements AfterViewInit {
     this.redraw();
   }
 
-  getSVGGraphicElement() : SVGGraphicsElement{
+  getSVGGraphicElement(): SVGGraphicsElement {
     return this.svgHtmlElement.nativeElement;
   }
 }

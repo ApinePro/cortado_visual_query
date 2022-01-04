@@ -139,21 +139,11 @@
               </td>
               <td class="variant-cell">
                 <div class="variant" [ngStyle]="{ 'border-color': variant.isSelected ? 'unset' : 'transparent' }">
-                  <app-variant-fragment [variant]="variant['variant']" [colorMap]="colorMap"></app-variant-fragment>
+                  <app-variant-fragment [variant]="variant['variant']" [colorMap]="colorMap" [position]="cumulatedVariantHeights[i]"></app-variant-fragment>
                 </div>
               </td>
             </tr>
           </ng-container>
-          <tr *ngFor="let variant of dummyVariants">
-            <td></td>
-            <td>
-              <div class="variant-spacer" [ngStyle]="{ 'height': invisibleVariantsHeight + 'px' }">
-                <div class="spinner-border spinner-border-sm text-primary"
-                     style="margin-right: 20px; margin-left: 20px;" role="status"></div>
-                Loading...
-              </div>
-            </td>
-          </tr>
         </table>
       </div>
     </div>
