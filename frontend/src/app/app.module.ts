@@ -59,13 +59,13 @@ import { VariantConformanceDialogComponent } from './components/variant-explorer
     FormsModule,
     HttpClientModule,
     NgxFileDropModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
   ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: HttpRequestInterceptor,
-      multi: true
+      multi: true,
     },
     GoldenLayoutComponentService,
   ],
@@ -74,9 +74,8 @@ import { VariantConformanceDialogComponent } from './components/variant-explorer
     VariantFragmentComponent,
     ActivityOverviewComponent,
     ProcessTreeEditorComponent,
-    VariantInfoComponent
+    VariantInfoComponent,
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {
-}
+export class AppModule {}

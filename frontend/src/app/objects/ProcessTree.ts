@@ -10,7 +10,7 @@ enum ProcessTreeOperator {
   choice = '\u2715',
   loop = '\u21BA',
   parallelism = '\u2227',
-  tau = '\u03C4'
+  tau = '\u03C4',
 }
 
 export class ProcessTreeSyntaxInfo {
@@ -19,26 +19,61 @@ export class ProcessTreeSyntaxInfo {
   errors: string[] = [];
 }
 
-export function checkSyntax(pt: ProcessTree, res = new ProcessTreeSyntaxInfo()): ProcessTreeSyntaxInfo {
+export function checkSyntax(
+  pt: ProcessTree,
+  res = new ProcessTreeSyntaxInfo()
+): ProcessTreeSyntaxInfo {
   if (pt.label && pt.children.length > 0) {
     res.correctSyntax = false;
     res.errors.push('an activity node cannot have child nodes');
   }
-  if (pt.operator && pt.operator !== ProcessTreeOperator.loop && pt.children.length === 0) {
+  if (
+    pt.operator &&
+    pt.operator !== ProcessTreeOperator.loop &&
+    pt.children.length === 0
+  ) {
     res.correctSyntax = false;
-    res.errors.push('a tree operator (' + ProcessTreeOperator.sequence + ',' +
-      ProcessTreeOperator.choice + ',' + ProcessTreeOperator.parallelism + ',' + ') must have at least one child node');
+    res.errors.push(
+      'a tree operator (' +
+        ProcessTreeOperator.sequence +
+        ',' +
+        ProcessTreeOperator.choice +
+        ',' +
+        ProcessTreeOperator.parallelism +
+        ',' +
+        ') must have at least one child node'
+    );
   }
-  if (pt.children.length !== 2 && pt.operator && pt.operator === ProcessTreeOperator.loop) {
+  if (
+    pt.children.length !== 2 &&
+    pt.operator &&
+    pt.operator === ProcessTreeOperator.loop
+  ) {
     res.correctSyntax = false;
-    res.errors.push('a loop operator (' + ProcessTreeOperator.loop + ') must have exactly two children');
+    res.errors.push(
+      'a loop operator (' +
+        ProcessTreeOperator.loop +
+        ') must have exactly two children'
+    );
   }
-  if (pt.children.length === 1 && pt.operator && pt.operator !== ProcessTreeOperator.loop) {
-    res.warnings.push('a tree operator (' + ProcessTreeOperator.sequence + ',' +
-      ProcessTreeOperator.choice + ',' + ProcessTreeOperator.parallelism + ',' + ') contains only one child node');
+  if (
+    pt.children.length === 1 &&
+    pt.operator &&
+    pt.operator !== ProcessTreeOperator.loop
+  ) {
+    res.warnings.push(
+      'a tree operator (' +
+        ProcessTreeOperator.sequence +
+        ',' +
+        ProcessTreeOperator.choice +
+        ',' +
+        ProcessTreeOperator.parallelism +
+        ',' +
+        ') contains only one child node'
+    );
   }
   if (pt.children) {
-    pt.children.forEach(subtree => {
+    pt.children.forEach((subtree) => {
       const subtreeRes = checkSyntax(subtree);
       res.warnings = res.warnings.concat(subtreeRes.warnings);
       res.errors = res.errors.concat(subtreeRes.errors);

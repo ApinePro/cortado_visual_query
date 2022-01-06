@@ -8,26 +8,24 @@ declare var $: any;
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.scss']
+  styleUrls: ['./settings.component.scss'],
 })
-
 export class SettingsComponent implements OnInit {
-
   @Input()
   showSettings: Observable<void>;
 
   configuration: Configuration = new Configuration();
 
-  constructor(private backendService: BackendService) { }
+  constructor(private backendService: BackendService) {}
 
   ngOnInit(): void {
     this.showSettings.subscribe(() => this.showModal());
   }
 
   showModal(): void {
-    this.backendService.getConfiguration().subscribe(config => {
-      this.configuration = config
-      $("#settingsModalDialog").modal('show');
+    this.backendService.getConfiguration().subscribe((config) => {
+      this.configuration = config;
+      $('#settingsModalDialog').modal('show');
     });
   }
 
@@ -36,7 +34,7 @@ export class SettingsComponent implements OnInit {
   }
 
   saveChanges(): void {
-    this.backendService.saveConfiguration(this.configuration).subscribe(_ => {
+    this.backendService.saveConfiguration(this.configuration).subscribe((_) => {
       this.hideModal();
     });
   }

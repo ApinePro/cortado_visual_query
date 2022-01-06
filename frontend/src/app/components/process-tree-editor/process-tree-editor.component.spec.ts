@@ -8,9 +8,8 @@ describe('ProcessTreeEditorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ProcessTreeEditorComponent ]
-    })
-    .compileComponents();
+      declarations: [ProcessTreeEditorComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

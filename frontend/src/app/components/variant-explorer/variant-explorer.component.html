@@ -1,86 +1,186 @@
-<app-drop-zone [dropzoneConfig]="dropZoneConfig" (fileOnHover)="toggleBlur($event)"></app-drop-zone>
+<app-drop-zone
+  [dropzoneConfig]="dropZoneConfig"
+  (fileOnHover)="toggleBlur($event)"
+></app-drop-zone>
 
-<div class="d-flex flex-column h-100 container-variant-explorer" #variantExplorerContainer
-  [class.blurOutOfFocus]="variantExplorerOutOfFocus">
+<div
+  class="d-flex flex-column h-100 container-variant-explorer"
+  #variantExplorerContainer
+  [class.blurOutOfFocus]="variantExplorerOutOfFocus"
+>
   <div class="bg-dark btn-tool-bar">
-    <i class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text" data-bs-toggle="tooltip"
-       data-bs-placement="top" data-bs-html="true" title="Selected (marked with <i class='bi bi-check2-circle'></i>) <b>non-fitting</b> variants will be added to the process
+    <i
+      class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      data-bs-html="true"
+      title="Selected (marked with <i class='bi bi-check2-circle'></i>) <b>non-fitting</b> variants will be added to the process
              model<hr>Selected (marked with <i class='bi bi-check2-circle'></i>) <b>fitting</b> variants will remain in the process tree's language when incrementally adding new
-             variants">
+             variants"
+    >
     </i>
 
     <span class="vl ms-1"></span>
 
-    <button class="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
-            title='calculate conformance checking statistics
+    <button
+      class="button"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      data-bs-html="true"
+      title='calculate conformance checking statistics
             <br><i class="bi bi-question-square text-secondary"> unknown</i>
             <br><i class="bi bi-hourglass-split text-secondary"> being calculated</i>
             <br><i class="bi bi-check-square text-success"> variant fits model</i>
             <br><i class="bi bi-x-square text-danger"> variant does not fit model</i>
             <br><i class="bi bi-check-square text-warning"></i>
             <i class="bi bi-x-square text-warning"> outdated results (model has changed)</i>
-            <br><i class="bi bi-hourglass-bottom text-warning"> timeout</i>' (click)="updateAlignments()"
-      [disabled]="!currentlyDisplayedProcessTree || isAlignmentCalculationInProgress() || !correctTreeSyntax">
+            <br><i class="bi bi-hourglass-bottom text-warning"> timeout</i>'
+      (click)="updateAlignments()"
+      [disabled]="
+        !currentlyDisplayedProcessTree ||
+        isAlignmentCalculationInProgress() ||
+        !correctTreeSyntax
+      "
+    >
       <i class="bi bi-layers-fill btn-icon"></i>
-      <div @collapseText class="button-text px-1" *ngIf="!collapse">conformance check</div>
+      <div @collapseText class="button-text px-1" *ngIf="!collapse">
+        conformance check
+      </div>
     </button>
 
     <span class="vl"></span>
 
-    <button class="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
-            title="add selected, non-fitting variant(s) to current process model"
-            [disabled]="isNoVariantSelected() || !currentlyDisplayedProcessTree || isAlignmentCalculationInProgress()"
-            (click)="addSelectedVariantsToModel()">
-      <i class="bi bi-plus-lg btn-icon"
-        [ngClass]="{'text-success': !(isNoVariantSelected() || !currentlyDisplayedProcessTree || isAlignmentCalculationInProgress())}"></i>
-      <div @collapseText class="button-text px-1" *ngIf="!collapse">add variant(s) to model </div>
+    <button
+      class="button"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      data-bs-html="true"
+      title="add selected, non-fitting variant(s) to current process model"
+      [disabled]="
+        isNoVariantSelected() ||
+        !currentlyDisplayedProcessTree ||
+        isAlignmentCalculationInProgress()
+      "
+      (click)="addSelectedVariantsToModel()"
+    >
+      <i
+        class="bi bi-plus-lg btn-icon"
+        [ngClass]="{
+          'text-success': !(
+            isNoVariantSelected() ||
+            !currentlyDisplayedProcessTree ||
+            isAlignmentCalculationInProgress()
+          )
+        }"
+      ></i>
+      <div @collapseText class="button-text px-1" *ngIf="!collapse">
+        add variant(s) to model
+      </div>
     </button>
 
     <span class="vl"></span>
 
-    <button class="button" data-bs-toggle="tooltip" data-bs-html="true" title="discover an initial model from the selected variants using the standard <em>Inductive Miner</em>
+    <button
+      class="button"
+      data-bs-toggle="tooltip"
+      data-bs-html="true"
+      title="discover an initial model from the selected variants using the standard <em>Inductive Miner</em>
             algorithm<br><b><i class='bi bi-exclamation-triangle text-warning'></i> overwrites the existing model</b>"
-            [disabled]="isNoVariantSelected() || isAlignmentCalculationInProgress()" (click)="discoverInitialModel()">
-      <i class="bi bi-diagram-2-fill btn-icon"
-        [ngClass]="{'text-success': isAnyVariantSelected() && !isAlignmentCalculationInProgress()}"></i>
-      <div @collapseText class="button-text px-1" *ngIf="!collapse">discover initial model </div>
+      [disabled]="isNoVariantSelected() || isAlignmentCalculationInProgress()"
+      (click)="discoverInitialModel()"
+    >
+      <i
+        class="bi bi-diagram-2-fill btn-icon"
+        [ngClass]="{
+          'text-success':
+            isAnyVariantSelected() && !isAlignmentCalculationInProgress()
+        }"
+      ></i>
+      <div @collapseText class="button-text px-1" *ngIf="!collapse">
+        discover initial model
+      </div>
     </button>
 
-    <div class="btn-group align-baseline dropDownParent dropdown ms-auto" data-bs-toggle="tooltip" data-bs-html="true"
-    title='sort variants by one of the following attributes:
+    <div
+      class="btn-group align-baseline dropDownParent dropdown ms-auto"
+      data-bs-toggle="tooltip"
+      data-bs-html="true"
+      title='sort variants by one of the following attributes:
     <br><i class="bi bi-chevron-double-right"> total number of activities</i>
     <br><i class="bi bi-check-square"> conformace</i>
     <br><i class="bi bi-123"> frequency</i>
-    <br><i class="bi bi-three-dots"> maximal trace length</i>'>
-      <button class="button dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown"
-        aria-expanded="false">
+    <br><i class="bi bi-three-dots"> maximal trace length</i>'
+    >
+      <button
+        class="button dropdown-toggle"
+        type="button"
+        id="sortDropdown"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
         <i class="bi bi-sort-alpha-down btn-icon"></i>
       </button>
-      <div class="dropdown-menu dropdown-sort" id="sortDropdownMenu" aria-labelledby="sortDropdown">
+      <div
+        class="dropdown-menu dropdown-sort"
+        id="sortDropdownMenu"
+        aria-labelledby="sortDropdown"
+      >
         <div class="fst-italic fw-bold ps-2 text-center">Sort</div>
         <div class="fst-italic ps-2 text-primary">Order</div>
-        <div class="dropdown-item" (click)="onSortOrderChanged(true)" [ngClass]="isAscendingOrder ? 'selected-dropdown-item' : ''">
+        <div
+          class="dropdown-item"
+          (click)="onSortOrderChanged(true)"
+          [ngClass]="isAscendingOrder ? 'selected-dropdown-item' : ''"
+        >
           <i class="bi bi-sort-down-alt btn-icon"></i>
           <span class="ms-3">ascending</span>
         </div>
-        <div class="dropdown-item" (click)="onSortOrderChanged(false)" [ngClass]="!isAscendingOrder ? 'selected-dropdown-item' : ''">
+        <div
+          class="dropdown-item"
+          (click)="onSortOrderChanged(false)"
+          [ngClass]="!isAscendingOrder ? 'selected-dropdown-item' : ''"
+        >
           <i class="bi bi-sort-down btn-icon"></i>
           <span class="ms-3">descending</span>
         </div>
         <div class="fst-italic ps-2 text-primary">Feature</div>
-        <div class="dropdown-item" (click)="sort('number_of_activities')" [ngClass]="sortingFeature==='number_of_activities' ? 'selected-dropdown-item' : ''">
+        <div
+          class="dropdown-item"
+          (click)="sort('number_of_activities')"
+          [ngClass]="
+            sortingFeature === 'number_of_activities'
+              ? 'selected-dropdown-item'
+              : ''
+          "
+        >
           <i class="bi bi-chevron-double-right btn-icon"></i>
           <span class="ms-3">activities</span>
         </div>
-        <div class="dropdown-item" (click)="sort('conformance')" [ngClass]="sortingFeature==='conformance' ? 'selected-dropdown-item' : ''">
+        <div
+          class="dropdown-item"
+          (click)="sort('conformance')"
+          [ngClass]="
+            sortingFeature === 'conformance' ? 'selected-dropdown-item' : ''
+          "
+        >
           <i class="bi bi-check-square btn-icon"></i>
           <span class="ms-3">conformance</span>
         </div>
-        <div class="dropdown-item" (click)="sort('count')" [ngClass]="sortingFeature==='count' ? 'selected-dropdown-item' : ''">
+        <div
+          class="dropdown-item"
+          (click)="sort('count')"
+          [ngClass]="sortingFeature === 'count' ? 'selected-dropdown-item' : ''"
+        >
           <i class="bi bi-123 btn-icon"></i>
           <span class="ms-3">frequency</span>
         </div>
-        <div class="dropdown-item" (click)="sort('length')" [ngClass]="sortingFeature==='length' ? 'selected-dropdown-item' : ''">
+        <div
+          class="dropdown-item"
+          (click)="sort('length')"
+          [ngClass]="
+            sortingFeature === 'length' ? 'selected-dropdown-item' : ''
+          "
+        >
           <i class="bi bi-three-dots btn-icon"></i>
           <span class="ms-3">length</span>
         </div>
@@ -88,25 +188,48 @@
     </div>
 
     <span class="vl"></span>
-    <button class="button" (click)="unExpandAll()" data-bs-toggle="tooltip" data-bs-placement="top"
-      data-bs-html="true" title="(un)expand all variants">
-      <i *ngIf="areAllVariantsExpanded()" class="bi bi-arrows-collapse btn-icon cursor-pointer rotate-90"></i>
-      <i *ngIf="!areAllVariantsExpanded()" class="bi bi-arrows-expand btn-icon cursor-pointer rotate-90"></i>
+    <button
+      class="button"
+      (click)="unExpandAll()"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      data-bs-html="true"
+      title="(un)expand all variants"
+    >
+      <i
+        *ngIf="areAllVariantsExpanded()"
+        class="bi bi-arrows-collapse btn-icon cursor-pointer rotate-90"
+      ></i>
+      <i
+        *ngIf="!areAllVariantsExpanded()"
+        class="bi bi-arrows-expand btn-icon cursor-pointer rotate-90"
+      ></i>
     </button>
 
     <span class="vl"></span>
 
-    <button class="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Exports the view as an .svg"
-            (click)="exportVariantSVG()">
+    <button
+      class="button"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      title="Exports the view as an .svg"
+      (click)="exportVariantSVG()"
+    >
       <i class="bi bi-save"></i>
     </button>
   </div>
 
-  <div class="main-variant-explorer flex-grow-1" (scroll)="onScroll($event)" #variantExplorer>
+  <div
+    class="main-variant-explorer flex-grow-1"
+    (scroll)="onScroll($event)"
+    #variantExplorer
+  >
     <div *ngIf="svgRenderingInProgress" class="full-body-spinner">
       <div>
-        <div class="spinner-border spinner-border-sm text-primary" role="status">
-        </div>
+        <div
+          class="spinner-border spinner-border-sm text-primary"
+          role="status"
+        ></div>
         Exporting Variant View...
       </div>
     </div>
@@ -114,33 +237,45 @@
       <div class="chart-variant__percentage">
         <table>
           <tr class="user-select-none">
-            <th style="padding-right: 15px; padding-left: 5px;">
-              Nr.
-            </th>
+            <th style="padding-right: 15px; padding-left: 5px">Nr.</th>
             <th>
-              <app-variant-selection-button [isSelected]="areAllVariantsSelected()"
-                                            (selectionChanged)="unSelectAllChanged($event)"
-                                            tooltipText="(un)select all variants">
+              <app-variant-selection-button
+                [isSelected]="areAllVariantsSelected()"
+                (selectionChanged)="unSelectAllChanged($event)"
+                tooltipText="(un)select all variants"
+              >
               </app-variant-selection-button>
               Info
             </th>
-            <th class="text-start">
-              Variant
-            </th>
+            <th class="text-start">Variant</th>
           </tr>
-          <ng-container *ngFor="let variant of visibleVariants let i = index">
+          <ng-container *ngFor="let variant of visibleVariants; let i = index">
             <tr>
-              <td style="padding-right: 15px; padding-left: 5px;">
+              <td style="padding-right: 15px; padding-left: 5px">
                 {{ i + 1 }}.
               </td>
               <td>
-                <app-variant-info [variant]="variant"
-                                  (selectionChanged)="selectionChangedForVariant(variant, $event)"
-                                  (updateConformance)="updateConformanceForSingleVariantClicked($event)"></app-variant-info>
+                <app-variant-info
+                  [variant]="variant"
+                  (selectionChanged)="
+                    selectionChangedForVariant(variant, $event)
+                  "
+                  (updateConformance)="
+                    updateConformanceForSingleVariantClicked($event)
+                  "
+                ></app-variant-info>
               </td>
               <td class="variant-cell">
-                <div class="variant" [ngStyle]="{ 'border-color': variant.isSelected ? 'unset' : 'transparent' }">
-                  <app-variant-fragment [variant]="variant['variant']" [colorMap]="colorMap"></app-variant-fragment>
+                <div
+                  class="variant"
+                  [ngStyle]="{
+                    'border-color': variant.isSelected ? 'unset' : 'transparent'
+                  }"
+                >
+                  <app-variant-fragment
+                    [variant]="variant['variant']"
+                    [colorMap]="colorMap"
+                  ></app-variant-fragment>
                 </div>
               </td>
             </tr>
@@ -148,9 +283,15 @@
           <tr *ngFor="let variant of dummyVariants">
             <td></td>
             <td>
-              <div class="variant-spacer" [ngStyle]="{ 'height': invisibleVariantsHeight + 'px' }">
-                <div class="spinner-border spinner-border-sm text-primary"
-                     style="margin-right: 20px; margin-left: 20px;" role="status"></div>
+              <div
+                class="variant-spacer"
+                [ngStyle]="{ height: invisibleVariantsHeight + 'px' }"
+              >
+                <div
+                  class="spinner-border spinner-border-sm text-primary"
+                  style="margin-right: 20px; margin-left: 20px"
+                  role="status"
+                ></div>
                 Loading...
               </div>
             </td>
@@ -161,26 +302,40 @@
   </div>
 
   <div class="bg-dark info-bar ps-2 pe-2">
-
-    <span class="float-start"
-          *ngIf="(numberFittingTraces || numberFittingTraces>=0) && (totalNumberTraces || totalNumberTraces>0)">
+    <span
+      class="float-start"
+      *ngIf="
+        (numberFittingTraces || numberFittingTraces >= 0) &&
+        (totalNumberTraces || totalNumberTraces > 0)
+      "
+    >
       fitting traces:
-      <span [ngClass]="!isConformanceOutdated()? '' : 'text-warning'">
-        {{numberFittingTraces|number}}&nbsp;/&nbsp;{{totalNumberTraces|number}}
-        ({{numberFittingTraces / totalNumberTraces| percent:'.1'}})</span>
+      <span [ngClass]="!isConformanceOutdated() ? '' : 'text-warning'">
+        {{ numberFittingTraces | number }}&nbsp;/&nbsp;{{
+          totalNumberTraces | number
+        }}
+        ({{ numberFittingTraces / totalNumberTraces | percent: ".1" }})</span
+      >
     </span>
 
-    <span class="float-start ms-4"
-          *ngIf="(numberFittingVariants || numberFittingVariants>=0) && (totalNumberVariants || totalNumberVariants>0)">
+    <span
+      class="float-start ms-4"
+      *ngIf="
+        (numberFittingVariants || numberFittingVariants >= 0) &&
+        (totalNumberVariants || totalNumberVariants > 0)
+      "
+    >
       fitting variants:
-      <span [ngClass]="!isConformanceOutdated()? '' : 'text-warning'">
-        {{numberFittingVariants|number}}&nbsp;/&nbsp;{{totalNumberVariants|number}}
-        ({{numberFittingVariants / totalNumberVariants| percent:'.1'}})
+      <span [ngClass]="!isConformanceOutdated() ? '' : 'text-warning'">
+        {{ numberFittingVariants | number }}&nbsp;/&nbsp;{{
+          totalNumberVariants | number
+        }}
+        ({{ numberFittingVariants / totalNumberVariants | percent: ".1" }})
       </span>
     </span>
 
     <span class="float-end">
-      selected variants: {{getSelectedVariants().length|number}}
+      selected variants: {{ getSelectedVariants().length | number }}
     </span>
   </div>
 
@@ -189,5 +344,9 @@
   </div>
 </div>
 
-<app-variant-conformance-dialog [showConformanceDialog]="showConformanceDialogEvent.asObservable()"
-(updateConformanceWithCustomTimeout)="updateConformanceForVariant($event.variant, $event.timeout)"></app-variant-conformance-dialog>
+<app-variant-conformance-dialog
+  [showConformanceDialog]="showConformanceDialogEvent.asObservable()"
+  (updateConformanceWithCustomTimeout)="
+    updateConformanceForVariant($event.variant, $event.timeout)
+  "
+></app-variant-conformance-dialog>

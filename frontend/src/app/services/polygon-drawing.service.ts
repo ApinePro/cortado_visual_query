@@ -1,32 +1,39 @@
-import {ElementRef, Injectable} from '@angular/core';
-import {Selection} from 'd3';
-import {Constants, LeafNode} from '../components/variant-explorer/model';
-import {PolygonGeneratorService} from './polygon-generator.service';
+import { ElementRef, Injectable } from '@angular/core';
+import { Selection } from 'd3';
+import { Constants, LeafNode } from '../components/variant-explorer/model';
+import { PolygonGeneratorService } from './polygon-generator.service';
 import * as d3 from 'd3';
-import {textColorForBackgroundColor} from '../components/variant-explorer/helper_functions';
-import {constants} from 'buffer';
+import { textColorForBackgroundColor } from '../components/variant-explorer/helper_functions';
+import { constants } from 'buffer';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PolygonDrawingService {
-
   private textLengthCache = new Map<string, number>();
 
   private variantExplorerDiv: HTMLElement;
   private tooltipContainer: Selection<any, any, any, any>;
-  private tooltipInner: Selection<any,any,any,any>;
+  private tooltipInner: Selection<any, any, any, any>;
 
-  constructor(private polygonService: PolygonGeneratorService) {
-  }
+  constructor(private polygonService: PolygonGeneratorService) {}
 
-  public setElementRefereneces(variantExplorerRef : ElementRef<HTMLDivElement>, tooltipContainerRef : ElementRef<HTMLDivElement>){
+  public setElementRefereneces(
+    variantExplorerRef: ElementRef<HTMLDivElement>,
+    tooltipContainerRef: ElementRef<HTMLDivElement>
+  ) {
     this.variantExplorerDiv = variantExplorerRef.nativeElement;
     this.tooltipContainer = d3.select(tooltipContainerRef.nativeElement);
-    this.tooltipInner = d3.select(tooltipContainerRef.nativeElement.firstChild as HTMLElement);
+    this.tooltipInner = d3.select(
+      tooltipContainerRef.nativeElement.firstChild as HTMLElement
+    );
   }
 
-  public drawLeafNode(element: LeafNode, parent: Selection<any, any, any, any>, colorMap: Map<string, string>): void {
+  public drawLeafNode(
+    element: LeafNode,
+    parent: Selection<any, any, any, any>,
+    colorMap: Map<string, string>
+  ): void {
     const width = element.getWidth();
     const height = element.getHeight();
 
@@ -36,13 +43,14 @@ export class PolygonDrawingService {
     if (element.activity.length > 1) {
       color = '#d3d3d3'; // lightgrey
     }
-    const polygon = parent.append('polygon')
+    const polygon = parent
+      .append('polygon')
       .attr('points', polygonPoints)
       .style('fill', color)
       .style('stroke', 'none');
 
-
-    const activityText = parent.append('text')
+    const activityText = parent
+      .append('text')
       .attr('x', width / 2)
       .attr('y', height / 2)
       .attr('text-anchor', 'middle')
@@ -52,13 +60,17 @@ export class PolygonDrawingService {
 
     let y = height / 2;
     if (element.activity.length > 1) {
-      y = height / 2 - ((element.activity.length - 1) / 2) * (Constants.FONT_SIZE + Constants.MARGIN_Y);
+      y =
+        height / 2 -
+        ((element.activity.length - 1) / 2) *
+          (Constants.FONT_SIZE + Constants.MARGIN_Y);
     }
 
     let truncated = false;
     let dy = 0;
     element.activity.forEach((a, i) => {
-      const tspan = activityText.append('tspan')
+      const tspan = activityText
+        .append('tspan')
         .attr('x', width / 2)
         .attr('y', y + dy)
         .text(a);
@@ -66,11 +78,10 @@ export class PolygonDrawingService {
       dy += Constants.FONT_SIZE + Constants.MARGIN_Y;
       tspan.attr('height', Constants.FONT_SIZE + Constants.MARGIN_Y);
 
-      const maxWidth = element.getWidth() - element.getHeadLength() * 2 - Constants.MARGIN_X;
-
+      const maxWidth =
+        element.getWidth() - element.getHeadLength() * 2 - Constants.MARGIN_X;
 
       const tr = this.wrapInnerLabelText(tspan, a, maxWidth);
-
 
       truncated ||= tr;
     });
@@ -79,8 +90,14 @@ export class PolygonDrawingService {
       polygon.on('mouseover', this.showTooltip(element.activity.join('<br>')));
       polygon.on('mousemove', this.showTooltip(element.activity.join('<br>')));
 
-      activityText.on('mouseover', this.showTooltip(element.activity.join('<br>')));
-      activityText.on('mousemove', this.showTooltip(element.activity.join('<br>')));
+      activityText.on(
+        'mouseover',
+        this.showTooltip(element.activity.join('<br>'))
+      );
+      activityText.on(
+        'mousemove',
+        this.showTooltip(element.activity.join('<br>'))
+      );
     }
     polygon.on('mouseout', () => {
       this.tooltipContainer.style('display', 'none');
@@ -100,13 +117,22 @@ export class PolygonDrawingService {
 
   private moveTooltip(event: MouseEvent): void {
     const [x, y] = d3.pointer(event, this.variantExplorerDiv);
-    let left = x - Number.parseFloat(this.tooltipContainer.style('width').slice(0, -2)) / 2;
+    let left =
+      x -
+      Number.parseFloat(this.tooltipContainer.style('width').slice(0, -2)) / 2;
     const top = y - this.tooltipContainer.node().clientHeight - 5;
     left = Math.max(0, left);
-    this.tooltipContainer.style('visibility', 'visible').style('top', top + 'px').style('left', left + 'px');
+    this.tooltipContainer
+      .style('visibility', 'visible')
+      .style('top', top + 'px')
+      .style('left', left + 'px');
   }
 
-  private wrapInnerLabelText(textSelection: Selection<any, any, any, any>, text: string, maxWidth: number): boolean {
+  private wrapInnerLabelText(
+    textSelection: Selection<any, any, any, any>,
+    text: string,
+    maxWidth: number
+  ): boolean {
     let textLength = this.getComputedTextLength(textSelection);
     let truncated = false;
     while (textLength > maxWidth && text.length > 1) {
@@ -118,7 +144,9 @@ export class PolygonDrawingService {
     return truncated;
   }
 
-  private getComputedTextLength(textSelection: Selection<any, any, any, any>): number {
+  private getComputedTextLength(
+    textSelection: Selection<any, any, any, any>
+  ): number {
     let textLength;
     if (this.textLengthCache.has(textSelection.text())) {
       textLength = this.textLengthCache.get(textSelection.text());
@@ -129,47 +157,51 @@ export class PolygonDrawingService {
     return textLength;
   }
 
-
-  public drawLegend(elements: LeafNode[], parent: Selection<any, any, any, any>, colorMap: Map<string, string>): void {
-
+  public drawLegend(
+    elements: LeafNode[],
+    parent: Selection<any, any, any, any>,
+    colorMap: Map<string, string>
+  ): void {
     let offsetY = Constants.LEGEND_MARGIN_Y + 20;
     let offsetX = Constants.LEGEND_MARGIN_X;
     let parent_width = 0;
 
-    let width = Math.max(...elements.map(e => e.getWidth(true)))
+    let width = Math.max(...elements.map((e) => e.getWidth(true)));
     let height = elements[0].getHeight();
 
-    parent.append("line")
-          .attr("x1", Constants.LEGEND_MARGIN_X)
-          .attr("x2", (Constants.MAX_OFFSETWIDTH + width).toString())
-          .attr("y1", "20")
-          .attr("y2", "20")
-          .attr("stroke", "black")
-          .attr("stroke-width", "1.5")
+    parent
+      .append('line')
+      .attr('x1', Constants.LEGEND_MARGIN_X)
+      .attr('x2', (Constants.MAX_OFFSETWIDTH + width).toString())
+      .attr('y1', '20')
+      .attr('y2', '20')
+      .attr('stroke', 'black')
+      .attr('stroke-width', '1.5');
 
-    parent.append("text")
-          .attr("x", Constants.LEGEND_MARGIN_X)
-          .attr("y", "15")
-          .attr("fill", "black")
-          .attr("font-size", "15")
-          .insert("tspan")
-          .attr("height", "10")
-          .text("Activities")
+    parent
+      .append('text')
+      .attr('x', Constants.LEGEND_MARGIN_X)
+      .attr('y', '15')
+      .attr('fill', 'black')
+      .attr('font-size', '15')
+      .insert('tspan')
+      .attr('height', '10')
+      .text('Activities');
 
-    for (let element of elements){
-
-
+    for (let element of elements) {
       const polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
       let color = colorMap.get(element.activity[0]);
 
-      const polygon = parent.append('polygon')
+      const polygon = parent
+        .append('polygon')
         .attr('points', polygonPoints)
         .style('fill', color)
         .style('stWroke', 'none')
         .attr('transform', `translate(${offsetX}, ${offsetY})`);
 
-      const activityText = parent.append('text')
+      const activityText = parent
+        .append('text')
         .attr('x', width / 2)
         .attr('y', height / 2)
         .attr('transform', `translate(${offsetX}, ${offsetY})`)
@@ -178,7 +210,8 @@ export class PolygonDrawingService {
         .attr('font-size', Constants.FONT_SIZE)
         .attr('fill', textColorForBackgroundColor(color));
 
-      activityText.append('tspan')
+      activityText
+        .append('tspan')
         .attr('x', width / 2)
         .attr('y', height / 2)
         .text(element.activity[0])
@@ -186,34 +219,39 @@ export class PolygonDrawingService {
 
       offsetX += width + Constants.LEGEND_MARGIN_X;
 
-      if (offsetX >= Constants.MAX_OFFSETWIDTH){
+      if (offsetX >= Constants.MAX_OFFSETWIDTH) {
         parent_width = Math.max(parent_width, offsetX);
         offsetX = Constants.LEGEND_MARGIN_X;
-        offsetY += (height + Constants.LEGEND_MARGIN_Y);
+        offsetY += height + Constants.LEGEND_MARGIN_Y;
       }
-
     }
 
-    offsetY = (offsetX === Constants.LEGEND_MARGIN_X)? offsetY: offsetY + height + Constants.LEGEND_MARGIN_Y;
+    offsetY =
+      offsetX === Constants.LEGEND_MARGIN_X
+        ? offsetY
+        : offsetY + height + Constants.LEGEND_MARGIN_Y;
 
-    parent.attr("width", parent_width)
-          .attr("height", offsetY + Constants.MARGIN_Y + 40);
+    parent
+      .attr('width', parent_width)
+      .attr('height', offsetY + Constants.MARGIN_Y + 40);
 
-    parent.append("line")
-          .attr("x1", Constants.LEGEND_MARGIN_X)
-          .attr("x2", (Constants.MAX_OFFSETWIDTH + width).toString())
-          .attr("y1", offsetY)
-          .attr("y2", offsetY)
-          .attr("stroke", "black")
-          .attr("stroke-width", "1.5")
+    parent
+      .append('line')
+      .attr('x1', Constants.LEGEND_MARGIN_X)
+      .attr('x2', (Constants.MAX_OFFSETWIDTH + width).toString())
+      .attr('y1', offsetY)
+      .attr('y2', offsetY)
+      .attr('stroke', 'black')
+      .attr('stroke-width', '1.5');
 
-    parent.append("text")
-          .attr("x", Constants.LEGEND_MARGIN_X)
-          .attr("y", offsetY + 20)
-          .attr("fill", "black")
-          .attr("font-size", "15")
-          .insert("tspan")
-          .attr("height", "10")
-          .text("Variants")
+    parent
+      .append('text')
+      .attr('x', Constants.LEGEND_MARGIN_X)
+      .attr('y', offsetY + 20)
+      .attr('fill', 'black')
+      .attr('font-size', '15')
+      .insert('tspan')
+      .attr('height', '10')
+      .text('Variants');
   }
 }
