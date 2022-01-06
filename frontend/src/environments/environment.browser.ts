@@ -1,5 +1,4 @@
 export const environment = {
-    production: false,
-    electron: false
+  production: false,
+  electron: false,
 };
-  

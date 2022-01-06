@@ -8,9 +8,8 @@ describe('GoldenLayoutHostComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ GoldenLayoutHostComponent ]
-    })
-    .compileComponents();
+      declarations: [GoldenLayoutHostComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

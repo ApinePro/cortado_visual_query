@@ -1,11 +1,10 @@
 import { Directive, ElementRef, forwardRef, HostListener } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Renderer2 as Renderer} from '@angular/core';
+import { Renderer2 as Renderer } from '@angular/core';
 
 @Directive({
   selector:
-    '[contenteditable][formControl],' +
-    '[contenteditable][formControlName]',
+    '[contenteditable][formControl],' + '[contenteditable][formControlName]',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -15,11 +14,7 @@ import { Renderer2 as Renderer} from '@angular/core';
   ],
 })
 export class ContentEditableDirective implements ControlValueAccessor {
-
-  constructor(private renderer : Renderer,
-              private elementRef : ElementRef){
-  }
-
+  constructor(private renderer: Renderer, private elementRef: ElementRef) {}
 
   @HostListener('input')
   onInput() {
@@ -28,10 +23,14 @@ export class ContentEditableDirective implements ControlValueAccessor {
 
   private onTouched = () => {};
 
-  private onChange = (value : string) => {};
+  private onChange = (value: string) => {};
 
-  writeValue(value : string): void {
-    this.renderer.setProperty(this.elementRef.nativeElement, 'innerHTML', value);
+  writeValue(value: string): void {
+    this.renderer.setProperty(
+      this.elementRef.nativeElement,
+      'innerHTML',
+      value
+    );
   }
 
   registerOnChange(onChange: (value: string) => void) {
@@ -43,8 +42,10 @@ export class ContentEditableDirective implements ControlValueAccessor {
   }
 
   setDisabledState?(isDisabled: boolean): void {
-    this.renderer.setProperty(this.elementRef.nativeElement, 'contenteditable', String(!isDisabled));
+    this.renderer.setProperty(
+      this.elementRef.nativeElement,
+      'contenteditable',
+      String(!isDisabled)
+    );
   }
-
-
 }

@@ -1,10 +1,16 @@
-import {AfterViewInit, ElementRef} from '@angular/core';
-import {Component, Input, ViewChild} from '@angular/core';
+import { AfterViewInit, ElementRef } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
-import {Selection} from 'd3';
-import {PolygonDrawingService} from 'src/app/services/polygon-drawing.service';
-import {PolygonGeneratorService} from 'src/app/services/polygon-generator.service';
-import {Constants, LeafNode, ParallelGroup, SequenceGroup, VariantElement} from '../model';
+import { Selection } from 'd3';
+import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
+import { PolygonGeneratorService } from 'src/app/services/polygon-generator.service';
+import {
+  Constants,
+  LeafNode,
+  ParallelGroup,
+  SequenceGroup,
+  VariantElement,
+} from '../model';
 
 @Component({
   selector: 'app-variant-fragment',
@@ -12,10 +18,10 @@ import {Constants, LeafNode, ParallelGroup, SequenceGroup, VariantElement} from 
   styleUrls: ['./variant-fragment.component.css'],
 })
 export class VariantFragmentComponent implements AfterViewInit {
-
-  constructor(private polygonService: PolygonGeneratorService,
-              private polygonDrawingService: PolygonDrawingService) {
-  }
+  constructor(
+    private polygonService: PolygonGeneratorService,
+    private polygonDrawingService: PolygonDrawingService
+  ) {}
 
   @ViewChild('svg')
   svgHtmlElement: ElementRef;
@@ -30,16 +36,22 @@ export class VariantFragmentComponent implements AfterViewInit {
 
   deserialize(obj: any): VariantElement {
     if ('follows' in obj) {
-      return new SequenceGroup(obj.follows.map((e: any) => this.deserialize(e)));
+      return new SequenceGroup(
+        obj.follows.map((e: any) => this.deserialize(e))
+      );
     } else if ('parallel' in obj) {
-      return new ParallelGroup(obj.parallel.map((e: any) => this.deserialize(e)));
+      return new ParallelGroup(
+        obj.parallel.map((e: any) => this.deserialize(e))
+      );
     } else {
       return new LeafNode(obj.leaf);
     }
   }
 
   ngAfterViewInit(): void {
-    this.svgSelection = d3.select(this.svgHtmlElement.nativeElement).append('g');
+    this.svgSelection = d3
+      .select(this.svgHtmlElement.nativeElement)
+      .append('g');
     this.redraw();
   }
 
@@ -54,9 +66,7 @@ export class VariantFragmentComponent implements AfterViewInit {
 
     this.svgSelection.selectAll('*').remove();
 
-    const svg = this.svgSelection
-      .attr('width', width)
-      .attr('height', height);
+    const svg = this.svgSelection.attr('width', width).attr('height', height);
 
     this.draw(this.variant, svg, true);
 
@@ -65,22 +75,39 @@ export class VariantFragmentComponent implements AfterViewInit {
     }
   }
 
-  draw(element: VariantElement, svgElement: Selection<any, any, any, any>, outerElement : boolean = false): void {
+  draw(
+    element: VariantElement,
+    svgElement: Selection<any, any, any, any>,
+    outerElement: boolean = false
+  ): void {
     if (element instanceof ParallelGroup) {
       this.drawParallelGroup(element.asParallelGroup(), svgElement);
     } else if (element instanceof SequenceGroup) {
-      this.drawSequenceGroup(element.asSequenceGroup(), svgElement, outerElement);
+      this.drawSequenceGroup(
+        element.asSequenceGroup(),
+        svgElement,
+        outerElement
+      );
     } else if (element instanceof LeafNode) {
-      this.polygonDrawingService.drawLeafNode(element.asLeafNode(), svgElement, this.colorMap);
+      this.polygonDrawingService.drawLeafNode(
+        element.asLeafNode(),
+        svgElement,
+        this.colorMap
+      );
     }
   }
 
-  drawSequenceGroup(element: SequenceGroup, parent: Selection<any, any, any, any>, outerElement): void {
+  drawSequenceGroup(
+    element: SequenceGroup,
+    parent: Selection<any, any, any, any>,
+    outerElement
+  ): void {
     const width = element.getWidth();
     const height = element.getHeight();
     const polygonPoints = this.polygonService.getPolygonPoints(width, height);
     const color = 'lightgrey';
-    parent.append('polygon')
+    parent
+      .append('polygon')
       .attr('points', polygonPoints)
       .style('fill', color)
       .style('stroke', 'none')
@@ -93,22 +120,25 @@ export class VariantFragmentComponent implements AfterViewInit {
       const width = child.getWidth();
       const childHeight = child.getHeight();
       const y = height / 2 - childHeight / 2;
-      const g = parent.append('g')
-        .attr('transform', `translate(${x}, ${y})`);
+      const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
 
       this.draw(child, g);
       x += width;
     }
   }
 
-  drawParallelGroup(element: ParallelGroup, parent: Selection<any, any, any, any>): void {
+  drawParallelGroup(
+    element: ParallelGroup,
+    parent: Selection<any, any, any, any>
+  ): void {
     const width = element.getWidth();
     const height = element.getHeight();
 
     const polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
     const color = 'lightgrey';
-    parent.append('polygon')
+    parent
+      .append('polygon')
       .attr('points', polygonPoints)
       .style('fill', color)
       //.style('stroke', color)
@@ -120,8 +150,7 @@ export class VariantFragmentComponent implements AfterViewInit {
     for (const child of element.elements) {
       const height = child.getHeight();
       const x = element.getHeadLength() + 0.5 * Constants.MARGIN_X;
-      const g = parent.append('g')
-        .attr('transform', `translate(${x}, ${y})`);
+      const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
       this.draw(child, g);
       y += height + Constants.MARGIN_Y;
     }
@@ -141,7 +170,7 @@ export class VariantFragmentComponent implements AfterViewInit {
     this.redraw();
   }
 
-  getSVGGraphicElement() : SVGGraphicsElement{
+  getSVGGraphicElement(): SVGGraphicsElement {
     return this.svgHtmlElement.nativeElement;
   }
 }

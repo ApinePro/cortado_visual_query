@@ -11,9 +11,8 @@ describe('ExpertModeComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ExpertModeComponent ]
-    })
-    .compileComponents();
+      declarations: [ExpertModeComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

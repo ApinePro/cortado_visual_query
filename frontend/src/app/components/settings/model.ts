@@ -1,3 +1,3 @@
 export class Configuration {
-    timeoutCVariantAlignmentComputation: number;
+  timeoutCVariantAlignmentComputation: number;
 }

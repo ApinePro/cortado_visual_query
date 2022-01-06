@@ -1,4 +1,6 @@
-export function textColorForBackgroundColor(backgroundColorInHex: string): string {
+export function textColorForBackgroundColor(
+  backgroundColorInHex: string
+): string {
   return isDarkColor(backgroundColorInHex) ? 'white' : 'black';
 
   function isDarkColor(colorInHex: string): boolean {
@@ -12,10 +14,12 @@ export function textColorForBackgroundColor(backgroundColorInHex: string): strin
 
   function hexToRgb(hex) {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
-    } : null;
+    return result
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16),
+        }
+      : null;
   }
 }
