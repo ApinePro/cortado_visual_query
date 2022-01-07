@@ -31,7 +31,6 @@ from backend_utilities.variant_trace_conversion import variant_to_trace
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 from endpoints.load_event_log import calculate_event_log_properties
 
-
 app = FastAPI()
 origins = [
     "http://localhost",
@@ -146,34 +145,39 @@ async def add_cvariants_to_process_model_unknown_conformance(d: InputAddVariants
             fitting_variants.add(selected_variant)
         else:
             variants_to_add.add(selected_variant)
-    
+
     return add_variants_to_process_model(d.pt, fitting_variants, variants_to_add)
 
-class InputTreeStringFromTree(BaseModel): 
-    pt : dict
+
+class InputTreeStringFromTree(BaseModel):
+    pt: dict
+
 
 @app.post("/computeTreeStringFromTree")
-async def computeTreeStringFromTree(d: InputTreeStringFromTree): 
+async def computeTreeStringFromTree(d: InputTreeStringFromTree):
     pt = dict_to_process_tree(d.pt)[0]
     res = str(dict_to_process_tree(d.pt)[0])
     return res
 
-class InputTreeFromTreeString(BaseModel): 
-    pt_string : str
+
+class InputTreeFromTreeString(BaseModel):
+    pt_string: str
+
 
 @app.post("/parseStringToPT")
 async def parseStringToPT(d: InputTreeFromTreeString):
     res = dict()
-    try: 
+    try:
         d.pt_string = d.pt_string.replace('*tau*', 'τ')
         pt = parse(d.pt_string)
         res["tree"] = process_tree_to_dict(pt)
         res["errors"] = None
-    except: 
+    except:
         res["tree"] = None
         res["errors"] = "Error occurred during backend parsing"
 
-    return res 
+    return res
+
 
 @app.get("/variants")
 async def get_variants_from_event_log():
