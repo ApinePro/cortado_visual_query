@@ -215,7 +215,6 @@ export class VariantExplorerComponent
       Object.keys(this.sharedDataService.activitiesInEventLog)
     );
     this.closeAllSubvariantWindows();
-    this._subvariantcomponentItemsMap = new Map<string, ComponentItem>();
     this.variants = this.sharedDataService.variants;
     this.initializeVisibleVariants();
 
