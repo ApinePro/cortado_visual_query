@@ -246,15 +246,9 @@
               >
               </app-variant-selection-button>
             </th>
-            <th>
-              Info
-            </th>
-            <th *ngIf="variants[0].sub_variants">
-              Subvariants
-            </th>
-            <th class="text-start px-2">
-              Variant
-            </th>
+            <th>Info</th>
+            <th *ngIf="variants[0].sub_variants">Subvariants</th>
+            <th class="text-start px-2">Variant</th>
           </tr>
           <ng-container *ngFor="let variant of visibleVariants; let i = index">
             <tr>
@@ -262,21 +256,33 @@
                 {{ i + 1 }}.
               </td>
               <td>
-                <app-variant-selection-button [isSelected]="variant.isSelected" (selectionChanged)="selectionChangedForVariant(variant, $event)">
+                <app-variant-selection-button
+                  [isSelected]="variant.isSelected"
+                  (selectionChanged)="
+                    selectionChangedForVariant(variant, $event)
+                  "
+                >
                 </app-variant-selection-button>
               </td>
               <td>
-                <app-variant-info [variant]="variant"
-                  (selectionChanged)="selectionChangedForVariant(variant, $event)"
+                <app-variant-info
+                  [variant]="variant"
+                  (selectionChanged)="
+                    selectionChangedForVariant(variant, $event)
+                  "
                   (updateConformance)="
                     updateConformanceForSingleVariantClicked($event)
-                  "></app-variant-info>
+                  "
+                ></app-variant-info>
               </td>
               <td>
-              <div *ngIf="variant.sub_variants" class = "subvariants" (click)="createSubVariantView(i+1)">
-                {{variant.sub_variants.length}}
-              </div>
-
+                <div
+                  *ngIf="variant.sub_variants"
+                  class="subvariants"
+                  (click)="createSubVariantView(i + 1)"
+                >
+                  {{ variant.sub_variants.length }}
+                </div>
               </td>
               <td class="variant-cell">
                 <div

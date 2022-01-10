@@ -13,13 +13,13 @@ import {
   ResolvedComponentItemConfig,
 } from 'golden-layout';
 
-import {baseLayout} from './LayoutTemplates/golden-layout-cortado-base'
-import {LayoutChangeDirective} from '../../directives/layout-change.directive';
-import {ProcessTreeEditorComponent} from '../process-tree-editor/process-tree-editor.component';
-import {VariantExplorerComponent} from '../variant-explorer/variant-explorer.component';
-import {ActivityOverviewComponent} from '../activity-overview/activity-overview.component';
-import {SubvariantExplorerComponent} from '../variant-explorer/subvariant-explorer/subvariant-explorer.component';
-import {GoldenLayoutComponentService} from '../../services/goldenLayoutService/golden-layout-component.service';
+import { baseLayout } from './LayoutTemplates/golden-layout-cortado-base';
+import { LayoutChangeDirective } from '../../directives/layout-change.directive';
+import { ProcessTreeEditorComponent } from '../process-tree-editor/process-tree-editor.component';
+import { VariantExplorerComponent } from '../variant-explorer/variant-explorer.component';
+import { ActivityOverviewComponent } from '../activity-overview/activity-overview.component';
+import { SubvariantExplorerComponent } from '../variant-explorer/subvariant-explorer/subvariant-explorer.component';
+import { GoldenLayoutComponentService } from '../../services/goldenLayoutService/golden-layout-component.service';
 
 @Component({
   selector: 'app-golden-layout-host',
@@ -53,25 +53,38 @@ export class GoldenLayoutHostComponent implements OnDestroy {
   constructor(
     private _elRef: ElementRef<HTMLElement>,
     private goldenLayoutComponentService: GoldenLayoutComponentService
-  ){
-  // Get the Layout Host Component
-  this._goldenLayoutElement = this._elRef.nativeElement;
+  ) {
+    // Get the Layout Host Component
+    this._goldenLayoutElement = this._elRef.nativeElement;
 
-  // Register Components to the Layout Template Host
-  this.goldenLayoutComponentService.registerComponentType(ProcessTreeEditorComponent.componentName, ProcessTreeEditorComponent);
-  this.goldenLayoutComponentService.registerComponentType(ActivityOverviewComponent.componentName, ActivityOverviewComponent);
-  this.goldenLayoutComponentService.registerComponentType(VariantExplorerComponent.componentName, VariantExplorerComponent);
-  this.goldenLayoutComponentService.registerComponentType(SubvariantExplorerComponent.componentName, SubvariantExplorerComponent)
+    // Register Components to the Layout Template Host
+    this.goldenLayoutComponentService.registerComponentType(
+      ProcessTreeEditorComponent.componentName,
+      ProcessTreeEditorComponent
+    );
+    this.goldenLayoutComponentService.registerComponentType(
+      ActivityOverviewComponent.componentName,
+      ActivityOverviewComponent
+    );
+    this.goldenLayoutComponentService.registerComponentType(
+      VariantExplorerComponent.componentName,
+      VariantExplorerComponent
+    );
+    this.goldenLayoutComponentService.registerComponentType(
+      SubvariantExplorerComponent.componentName,
+      SubvariantExplorerComponent
+    );
 
-  this._goldenLayout = new GoldenLayout(
-    this._goldenLayoutElement,
-    this._goldenLayoutBindComponentEventListener,
-    this._goldenLayoutUnbindComponentEventListener,
-  );
+    this._goldenLayout = new GoldenLayout(
+      this._goldenLayoutElement,
+      this._goldenLayoutBindComponentEventListener,
+      this._goldenLayoutUnbindComponentEventListener
+    );
 
-  this._goldenLayout.beforeVirtualRectingEvent = (count) => this.handleBeforeVirtualRectingEvent(count);
+    this._goldenLayout.beforeVirtualRectingEvent = (count) =>
+      this.handleBeforeVirtualRectingEvent(count);
 
-  this.goldenLayoutComponentService.goldenLayout = this._goldenLayout;
+    this.goldenLayoutComponentService.goldenLayout = this._goldenLayout;
   }
 
   initializeLayout() {

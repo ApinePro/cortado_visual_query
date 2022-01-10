@@ -44,6 +44,7 @@ import * as d3 from 'd3';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { VariantSorter } from './variant-sorter';
 import * as objectHash from 'object-hash';
+import { connectableObservableDescriptor } from 'rxjs/internal/observable/ConnectableObservable';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -214,6 +215,7 @@ export class VariantExplorerComponent
       Object.keys(this.sharedDataService.activitiesInEventLog)
     );
     this.closeAllSubvariantWindows();
+    this._subvariantcomponentItemsMap = new Map<string, ComponentItem>();
     this.variants = this.sharedDataService.variants;
     this.initializeVisibleVariants();
 
@@ -273,16 +275,16 @@ export class VariantExplorerComponent
       },
     ];
 
-    const id = SubvariantExplorerComponent.componentName + (index - 1);
+    this.cleanUpSubVariantMap();
+
+    const id =
+      SubvariantExplorerComponent.componentName + this.variants[index - 1].id;
 
     let componentItem = this._subvariantcomponentItemsMap.get(id);
 
     // Check if the component item reference already is stored and if the item still exists
     // Saves on a search by ID
-    if (
-      componentItem &&
-      this._goldenLayoutHostComponent.getComponentRef(componentItem.container)
-    ) {
+    if (componentItem) {
       componentItem.focus();
 
       // Instantiate a new Subvariant Component for this variant if it did not exist or is closed
@@ -291,7 +293,6 @@ export class VariantExplorerComponent
         VariantExplorerComponent.componentName
       );
       variantExplorerItem.focus();
-
       const itemConfig: ComponentItemConfig = {
         id: id,
         type: 'component',
@@ -306,9 +307,7 @@ export class VariantExplorerComponent
         itemConfig,
         LocationSelectors
       );
-      componentItem = this._goldenLayout.findFirstComponentItemById(
-        SubvariantExplorerComponent.componentName + (index - 1)
-      );
+      componentItem = this._goldenLayout.findFirstComponentItemById(id);
       this._subvariantcomponentItemsMap.set(id, componentItem);
     }
   }
@@ -327,9 +326,32 @@ export class VariantExplorerComponent
     this._subvariantcomponentItemsMap = new Map<string, ComponentItem>();
   }
 
-  // Handle updates to Subvariants by updating tabs and title using the item and
-  // triggering component functions using the
-  updateAllSubvariantWindows(): void {}
+  updateAllSubvariantWindows(): void {
+    for (let index = 0; index < this.variants.length; index++) {
+      const id =
+        SubvariantExplorerComponent.componentName + this.variants[index].id;
+      let componentItem = this._subvariantcomponentItemsMap.get(id);
+      if (componentItem) {
+        componentItem.setTitle('Subvariant ' + (index + 1));
+      }
+    }
+  }
+
+  cleanUpSubVariantMap() {
+    for (let index = 0; index < this.variants.length; index++) {
+      const id =
+        SubvariantExplorerComponent.componentName + this.variants[index].id;
+      let componentItem = this._subvariantcomponentItemsMap.get(id);
+      if (
+        componentItem &&
+        !this._goldenLayoutHostComponent.getComponentRef(
+          componentItem.container
+        )
+      ) {
+        this._subvariantcomponentItemsMap.delete(id);
+      }
+    }
+  }
 
   updateAlignments(): void {
     this.updateAlignmentStatistics();
@@ -711,6 +733,7 @@ export class VariantExplorerComponent
       this.sortingFeature,
       this.isAscendingOrder
     );
+    this.updateAllSubvariantWindows();
     this.variantExplorerDiv.nativeElement.scroll(0, 0);
     this.initializeVisibleVariants();
   }
