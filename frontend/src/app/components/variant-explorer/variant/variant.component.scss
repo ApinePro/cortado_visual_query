@@ -3,9 +3,17 @@
     padding: 5px;
     width: fit-content;
     border: dashed;
-  }
+}
 
-  .variant-cell {
-    padding: 5px;
-    width: 100%;
-  }
+.variant-cell {
+padding: 5px;
+width: 100%;
+}
+
+.variant-spacer {
+display: flex;
+flex-direction: row;
+align-items: center;
+}
+  
+  
