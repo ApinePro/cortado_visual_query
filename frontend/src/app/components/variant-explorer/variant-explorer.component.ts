@@ -455,14 +455,16 @@ export class VariantExplorerComponent
 
     this.svgRenderingInProgress = true;
 
+    const visibleComponents = this.variantComponents.filter(c => c.isVisible)
+
     // Get current expansion state
-    this.variantComponents.forEach((c) => state.push(c.isExpanded()));
+    visibleComponents.forEach((c) => state.push(c.isExpanded()));
 
     // Expand the elements and redraw them
-    this.variantComponents.forEach((c) => c.setExpanded(true));
+    visibleComponents.forEach((c) => c.setExpanded(true));
 
     // Collect the SVG and pass them to the SVG Service
-    this.variantComponents.forEach((c) => svgs.push(c.getSVGGraphicElement()));
+    visibleComponents.forEach((c) => svgs.push(c.getSVGGraphicElement()));
 
     // Add Frequency and Percentage information to the SVG
     svgs = svgs.map((c, i) =>
@@ -490,7 +492,7 @@ export class VariantExplorerComponent
     this.imageExportService.export('variant_explorer', 0, 0, ...svgs);
 
     // Return everything to its previous state
-    this.variantComponents.forEach((c, i) => c.setExpanded(state[i]));
+    visibleComponents.forEach((c, i) => c.setExpanded(state[i]));
 
     // Hide the Spinner
     this.svgRenderingInProgress = false;
