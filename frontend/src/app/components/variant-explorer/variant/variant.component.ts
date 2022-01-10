@@ -40,10 +40,6 @@ export class VariantComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     const self = this;
     this.lazyLoadingService.addVariant(this.rowElement, this.rootElement, isIntersecting => self.isVisible = isIntersecting);
-
-    if (this.index < 100) {
-      this.isVisible = true;
-    }
   }
 
   isExpanded(): boolean {
