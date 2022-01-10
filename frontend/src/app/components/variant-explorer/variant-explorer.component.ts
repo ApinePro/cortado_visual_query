@@ -35,6 +35,7 @@ import * as d3 from 'd3';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { VariantSorter } from './variant-sorter';
 import * as objectHash from 'object-hash';
+import { VariantComponent } from './variant/variant.component';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -105,8 +106,8 @@ export class VariantExplorerComponent
   @ViewChild('variantExplorer', { static: true })
   variantExplorerDiv: ElementRef<HTMLDivElement>;
 
-  @ViewChildren(VariantFragmentComponent)
-  variantComponents: QueryList<VariantFragmentComponent>;
+  @ViewChildren(VariantComponent)
+  variantComponents: QueryList<VariantComponent>;
 
   @ViewChild('variantExplorerContainer')
   variantExplorerContainer: ElementRef<HTMLDivElement>;
@@ -408,9 +409,7 @@ export class VariantExplorerComponent
     if (this.variantComponents === undefined) {
       return false;
     }
-    const unexpandedVariantsExist = this.variantComponents.some(
-      (c) => !c.isExpanded()
-    );
+    const unexpandedVariantsExist = this.variants.some(v => !v.variant.expanded);
     return !unexpandedVariantsExist;
   }
 
@@ -459,7 +458,7 @@ export class VariantExplorerComponent
     this.variantComponents.forEach((c) => state.push(c.isExpanded()));
 
     // Expand the elements and redraw them
-    this.variantComponents.forEach((c) => c.setSelected(true));
+    this.variantComponents.forEach((c) => c.setExpanded(true));
 
     // Collect the SVG and pass them to the SVG Service
     this.variantComponents.forEach((c) => svgs.push(c.getSVGGraphicElement()));
@@ -490,7 +489,7 @@ export class VariantExplorerComponent
     this.imageExportService.export('variant_explorer', 0, 0, ...svgs);
 
     // Return everything to its previous state
-    this.variantComponents.forEach((c, i) => c.setSelected(state[i]));
+    this.variantComponents.forEach((c, i) => c.setExpanded(state[i]));
 
     // Hide the Spinner
     this.svgRenderingInProgress = false;

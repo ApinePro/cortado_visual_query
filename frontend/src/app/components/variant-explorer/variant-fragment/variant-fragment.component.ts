@@ -161,15 +161,6 @@ export class VariantFragmentComponent implements AfterViewInit {
     this.redraw();
   }
 
-  isExpanded(): boolean {
-    return this.variant.expanded;
-  }
-
-  setSelected(selected: boolean): void {
-    this.variant.setExpanded(selected);
-    this.redraw();
-  }
-
   getSVGGraphicElement(): SVGGraphicsElement {
     return this.svgHtmlElement.nativeElement;
   }
