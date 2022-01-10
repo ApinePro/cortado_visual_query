@@ -8,9 +8,8 @@ describe('VariantSelectionButtonComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ VariantSelectionButtonComponent ]
-    })
-    .compileComponents();
+      declarations: [VariantSelectionButtonComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

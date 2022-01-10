@@ -28,6 +28,7 @@ import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 import { TreeStringRendererComponent } from './components/tree-string-renderer/tree-string-renderer.component';
 import { TooltipDirective } from './directives/tooltip/tooltip.directive';
 import { VariantComponent } from './components/variant-explorer/variant/variant.component';
+import { VariantConformanceDialogComponent } from './components/variant-explorer/variant-conformance-dialog/variant-conformance-dialog.component';
 
 @NgModule({
   declarations: [
@@ -49,8 +50,9 @@ import { VariantComponent } from './components/variant-explorer/variant/variant.
     SettingsComponent,
     DropZoneComponent,
     DropZoneDirective,
-    TreeStringRendererComponent,
     TooltipDirective,
+    VariantConformanceDialogComponent,
+    TreeStringRendererComponent,
     VariantComponent
   ],
   imports: [
@@ -59,13 +61,13 @@ import { VariantComponent } from './components/variant-explorer/variant/variant.
     FormsModule,
     HttpClientModule,
     NgxFileDropModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
   ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: HttpRequestInterceptor,
-      multi: true
+      multi: true,
     },
     GoldenLayoutComponentService,
   ],
@@ -74,9 +76,8 @@ import { VariantComponent } from './components/variant-explorer/variant/variant.
     VariantFragmentComponent,
     ActivityOverviewComponent,
     ProcessTreeEditorComponent,
-    VariantInfoComponent
+    VariantInfoComponent,
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {
-}
+export class AppModule {}

@@ -1,45 +1,63 @@
 <!-- Side navigation-->
 <div class="sidenav">
-
   <button class="button align-bottom" (click)="importEventLog()">
     <i class="bi bi-upload btn-icon"></i>
     <span class="hidden-if-collapsed">Import event log</span>
   </button>
 
-  <input #fileUploadEventLog type="file" class="d-none" (change)="handleSelectedEventLogFile($event)" accept=".xes">
+  <input
+    #fileUploadEventLog
+    type="file"
+    class="d-none"
+    (change)="handleSelectedEventLogFile($event)"
+    accept=".xes"
+  />
 
-  <input #fileUploadProcessTree type="file" class="d-none" (change)="handleSelectedProcessTreeFile($event)"
-    accept=".ptml">
+  <input
+    #fileUploadProcessTree
+    type="file"
+    class="d-none"
+    (change)="handleSelectedProcessTreeFile($event)"
+    accept=".ptml"
+  />
 
-  <hr class="mt-1 mb-1">
+  <hr class="mt-1 mb-1" />
 
   <button class="button align-bottom" (click)="importTreeFromPTML()">
     <i class="bi bi-file-earmark-arrow-up btn-icon"></i>
-    <span class="hidden-if-collapsed"><b>Import</b> process tree (<samp
-      class="text-primary fw-bold">.ptml</samp>)</span>
+    <span class="hidden-if-collapsed"
+      ><b>Import</b> process tree (<samp class="text-primary fw-bold"
+        >.ptml</samp
+      >)</span
+    >
   </button>
 
   <button class="button align-bottom" (click)="exportTreeAsPTML()">
     <i class="bi bi-file-earmark-arrow-down-fill btn-icon"></i>
-    <span class="hidden-if-collapsed"><b>Export</b> model as process tree (<samp
-      class="text-primary fw-bold">.ptml</samp>)</span>
+    <span class="hidden-if-collapsed"
+      ><b>Export</b> model as process tree (<samp class="text-primary fw-bold"
+        >.ptml</samp
+      >)</span
+    >
   </button>
 
   <button class="button align-bottom" (click)="exportTreeAsPNML()">
     <i class="bi bi-file-earmark-arrow-down-fill btn-icon"></i>
-    <span class="hidden-if-collapsed"><b>Export</b> model as Petri net (<samp
-      class="text-primary fw-bold">.pnml</samp>)</span>
+    <span class="hidden-if-collapsed"
+      ><b>Export</b> model as Petri net (<samp class="text-primary fw-bold"
+        >.pnml</samp
+      >)</span
+    >
   </button>
 
-  <hr class="mt-1 mb-1">
+  <hr class="mt-1 mb-1" />
 
   <button class="button align-bottom" (click)="showSettingsDialog()">
     <i class="bi bi-gear btn-icon"></i>
     <span class="hidden-if-collapsed">Settings</span>
   </button>
 
-  <hr class="mt-1 mb-1">
-
+  <hr class="mt-1 mb-1" />
 </div>
 
 <app-settings [showSettings]="showSettingsEvent.asObservable()"></app-settings>

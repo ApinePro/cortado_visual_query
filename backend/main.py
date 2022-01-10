@@ -31,7 +31,6 @@ from backend_utilities.variant_trace_conversion import variant_to_trace
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 from endpoints.load_event_log import calculate_event_log_properties
 
-
 app = FastAPI()
 origins = [
     "http://localhost",
@@ -146,34 +145,39 @@ async def add_cvariants_to_process_model_unknown_conformance(d: InputAddVariants
             fitting_variants.add(selected_variant)
         else:
             variants_to_add.add(selected_variant)
-    
+
     return add_variants_to_process_model(d.pt, fitting_variants, variants_to_add)
 
-class InputTreeStringFromTree(BaseModel): 
-    pt : dict
+
+class InputTreeStringFromTree(BaseModel):
+    pt: dict
+
 
 @app.post("/computeTreeStringFromTree")
-async def computeTreeStringFromTree(d: InputTreeStringFromTree): 
+async def computeTreeStringFromTree(d: InputTreeStringFromTree):
     pt = dict_to_process_tree(d.pt)[0]
     res = str(dict_to_process_tree(d.pt)[0])
     return res
 
-class InputTreeFromTreeString(BaseModel): 
-    pt_string : str
+
+class InputTreeFromTreeString(BaseModel):
+    pt_string: str
+
 
 @app.post("/parseStringToPT")
 async def parseStringToPT(d: InputTreeFromTreeString):
     res = dict()
-    try: 
+    try:
         d.pt_string = d.pt_string.replace('*tau*', 'τ')
         pt = parse(d.pt_string)
         res["tree"] = process_tree_to_dict(pt)
         res["errors"] = None
-    except: 
+    except:
         res["tree"] = None
         res["errors"] = "Error occurred during backend parsing"
 
-    return res 
+    return res
+
 
 @app.get("/variants")
 async def get_variants_from_event_log():
@@ -229,6 +233,7 @@ async def calculate_alignment(d: InputCalculateAlignment):
 class InputCalculateAlignmentCVariant(BaseModel):
     pt: dict
     variant: dict
+    timeout: int
 
 
 def calculate_alignments_intern(pt: dict, c_variant: dict):
@@ -245,8 +250,11 @@ def calculate_alignments_intern(pt: dict, c_variant: dict):
 
 @app.post("/calculateAlignmentsCVariant")
 async def calculate_alignment(d: InputCalculateAlignmentCVariant, response: Response):
-    config_repository = ConfigurationRepositoryFactory.get_config_repository()
-    timeout = config_repository.get_configuration().timeout_cvariant_alignment_computation
+    timeout = d.timeout
+
+    if d.timeout == 0:
+        config_repository = ConfigurationRepositoryFactory.get_config_repository()
+        timeout = config_repository.get_configuration().timeout_cvariant_alignment_computation
     try:
         return execute_with_timeout(calculate_alignments_intern, timeout, args=(d.pt, d.variant))
     except TimeoutException:
@@ -286,7 +294,6 @@ def get_all_urls():
 if __name__ == "__main__":
     freeze_support()
     num_workers = max(1, cpu_count() - 2)
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=True)
-
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=False)
     # dev mode
-    # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    # uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=True)

@@ -7,15 +7,10 @@ import {
   ViewChild,
   ViewChildren,
   Renderer2,
-  AfterViewInit
+  AfterViewInit,
 } from '@angular/core';
 
-import {
-  trigger,
-  style,
-  animate,
-  transition
-} from '@angular/animations';
+import { trigger, style, animate, transition } from '@angular/animations';
 
 import { ComponentContainer } from 'golden-layout';
 import { ColorMapService } from '../../services/colorMapService/color-map.service';
@@ -24,7 +19,14 @@ import { BackendService } from '../../services/backendService/backend.service';
 
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { deserialize, ParallelGroup, SequenceGroup, VariantElement, Variant, LeafNode } from './model';
+import {
+  deserialize,
+  ParallelGroup,
+  SequenceGroup,
+  VariantElement,
+  Variant,
+  LeafNode,
+} from './model';
 import { VariantFragmentComponent } from './variant-fragment/variant-fragment.component';
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
@@ -32,7 +34,7 @@ import { ImageExportService } from '../../services/imageExportService/image-expo
 import * as d3 from 'd3';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { VariantSorter } from './variant-sorter';
-import * as objectHash from 'object-hash'
+import * as objectHash from 'object-hash';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -42,21 +44,32 @@ import * as objectHash from 'object-hash'
     trigger('collapseText', [
       transition(':enter', [
         style({ opacity: '0', transform: 'translateX(-40px)' }),
-        animate('100ms 50ms ease-in', style({ opacity: '1', transform: 'translateX(0)' })),
+        animate(
+          '100ms 50ms ease-in',
+          style({ opacity: '1', transform: 'translateX(0)' })
+        ),
       ]),
       transition(':leave', [
-        animate('100ms 50ms ease-in', style({ opacity: '0', transform: 'translateX(-50px)' }))
-      ])
-    ])
-  ]
+        animate(
+          '100ms 50ms ease-in',
+          style({ opacity: '0', transform: 'translateX(-50px)' })
+        ),
+      ]),
+    ]),
+  ],
 })
-export class VariantExplorerComponent extends LayoutChangeDirective implements OnInit, AfterViewInit {
-  constructor(private colorMapService: ColorMapService,
+export class VariantExplorerComponent
+  extends LayoutChangeDirective
+  implements OnInit, AfterViewInit
+{
+  constructor(
+    private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
     private backendService: BackendService,
     private imageExportService: ImageExportService,
     private polygonDrawingService: PolygonDrawingService,
-    @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken) private container: ComponentContainer,
+    @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
+    private container: ComponentContainer,
     elRef: ElementRef,
     renderer: Renderer2
   ) {
@@ -101,61 +114,65 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   @ViewChildren(VariantFragmentComponent)
   variantComponents: QueryList<VariantFragmentComponent>;
 
-  @ViewChild('variantExplorerContainer') variantExplorerContainer: ElementRef<HTMLDivElement>
+  @ViewChild('variantExplorerContainer')
+  variantExplorerContainer: ElementRef<HTMLDivElement>;
   @ViewChild('tooltipContainer') tooltipContainer: ElementRef<HTMLDivElement>;
 
   public visibleVariantsHeight = 1000;
 
+  showConformanceDialogEvent: Subject<Variant> = new Subject<Variant>();
 
   ngOnInit(): void {
-
     this.dropZoneConfig = new DropzoneConfig(
-      ".xes",
-      "false",
-      "false",
-      "<large> Import <strong>Event Log</strong> .xes file</large>"
-    )
-
+      '.xes',
+      'false',
+      'false',
+      '<large> Import <strong>Event Log</strong> .xes file</large>'
+    );
 
     // preload road traffic fine management process
     this.variants = this.sharedDataService.variants;
 
-    this.variants.forEach(v => {
+    this.variants.forEach((v) => {
       v.id = objectHash(v.variant);
       v.variant = deserialize(v.variant);
       v.isConformanceOutdated = true;
+      v.isTimeouted = false;
     });
 
-    this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
+    this.colorMap = this.colorMapService.getColorMap(
+      Object.keys(this.sharedDataService.activitiesInEventLog)
+    );
     this.initializeVisibleVariants();
 
-    const total = this.variants.map(v => v.count).reduce((a, b) => a + b);
-    this.variants.forEach(v => {
-      v.percentage = Number.parseFloat((v.count / total * 100).toFixed(2));
+    const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
+    this.variants.forEach((v) => {
+      v.percentage = Number.parseFloat(((v.count / total) * 100).toFixed(2));
     });
 
     this.numberFittingVariants = undefined;
     this.totalNumberTraces = total;
     this.totalNumberVariants = this.variants.length;
 
-
-    this.sharedDataService.loadedEventLog$.subscribe(eventLog => {
+    this.sharedDataService.loadedEventLog$.subscribe((eventLog) => {
       if (eventLog) {
         this.eventLogChanged();
       }
     });
 
-    this.sharedDataService.correctTreeSyntax$.subscribe(res => {
+    this.sharedDataService.correctTreeSyntax$.subscribe((res) => {
       this.correctTreeSyntax = res;
     });
 
-    this.sharedDataService.currentDisplayedProcessTree$.subscribe(tree => {
+    this.sharedDataService.currentDisplayedProcessTree$.subscribe((tree) => {
       this.currentlyDisplayedProcessTree = tree;
-      const treeHasChanged = !this.sharedDataService.processTreesEqual(this.usedTreeForConformanceChecking,
-        this.currentlyDisplayedProcessTree);
+      const treeHasChanged = !this.sharedDataService.processTreesEqual(
+        this.usedTreeForConformanceChecking,
+        this.currentlyDisplayedProcessTree
+      );
 
       if (treeHasChanged) {
-        this.variants.forEach(v => {
+        this.variants.forEach((v) => {
           v.isAddedFittingVariant = false;
           v.isConformanceOutdated = true;
         });
@@ -164,26 +181,33 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   ngAfterViewInit() {
-    this.polygonDrawingService.setElementRefereneces(this.variantExplorerContainer,
-      this.tooltipContainer);
+    this.polygonDrawingService.setElementRefereneces(
+      this.variantExplorerContainer,
+      this.tooltipContainer
+    );
   }
 
   private eventLogChanged(): void {
-    this.colorMap = this.colorMapService.getColorMap(Object.keys(this.sharedDataService.activitiesInEventLog));
+    this.colorMap = this.colorMapService.getColorMap(
+      Object.keys(this.sharedDataService.activitiesInEventLog)
+    );
 
     this.variants = this.sharedDataService.variants;
     this.initializeVisibleVariants();
 
-    this.variants.forEach(v => {
+    this.variants.forEach((v) => {
       v.isSelected = false;
       v.isAddedFittingVariant = false;
       v.isConformanceOutdated = true;
+      v.isTimeouted = false;
     });
 
     this.numberFittingVariants = undefined;
     this.numberFittingTraces = undefined;
 
-    this.totalNumberTraces = this.variants.map(v => v.count).reduce((a, b) => a + b);
+    this.totalNumberTraces = this.variants
+      .map((v) => v.count)
+      .reduce((a, b) => a + b);
     this.totalNumberVariants = this.variants.length;
     this.sort(this.sortingFeature);
   }
@@ -197,10 +221,16 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
       i++;
     }
     this.visibleVariants = this.variants.slice(0, i + this.nVariantsInc);
-    this.dummyVariants = this.variants.slice(this.visibleVariants.length, this.variants.length + 1);
-    this.invisibleVariantsHeight = this.dummyVariants.map(v => v.variant.getHeight())
-      .reduce((a, b) => a + b, 0) / this.dummyVariants.length;
-    this.visibleVariantsHeight = this.visibleVariants.map(v => v.variant.getHeight())
+    this.dummyVariants = this.variants.slice(
+      this.visibleVariants.length,
+      this.variants.length + 1
+    );
+    this.invisibleVariantsHeight =
+      this.dummyVariants
+        .map((v) => v.variant.getHeight())
+        .reduce((a, b) => a + b, 0) / this.dummyVariants.length;
+    this.visibleVariantsHeight = this.visibleVariants
+      .map((v) => v.variant.getHeight())
       .reduce((a, b) => a + b, 0);
     this.cumulatedVariantHeights = [0]
     for (let index = 1; index < this.variants.length; index++) {
@@ -210,7 +240,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
   updateAlignmentsStop(): void {
     this.unsubscribe.next();
-    this.variants.forEach(v => {
+    this.variants.forEach((v) => {
       v.calculationInProgress = false;
       v.alignment = undefined;
       v.deviation = undefined;
@@ -221,27 +251,11 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     this.updateAlignmentStatistics();
     this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
 
-    this.variants.forEach(v => {
+    this.variants.forEach((v) => {
       v.calculationInProgress = true;
       v.deviation = undefined;
 
-      this.backendService.calculateAlignmentsCVariant(v.variant).pipe(takeUntil(this.unsubscribe)).subscribe(res => {
-        v.calculationInProgress = false;
-        v.alignment = res.alignment;
-        v.deviation = res.deviation;
-        v.isTimeouted = false;
-        v.isConformanceOutdated = false;
-        this.updateAlignmentStatistics();
-      }, error => {
-        if (error.status === 504) {
-          v.calculationInProgress = false;
-          v.isTimeouted = true;
-          v.isConformanceOutdated = true;
-          this.updateAlignmentStatistics();
-        } else {
-          this.updateAlignmentsStop();
-        }
-      });
+      this.updateConformanceForVariant(v, 0);
     });
   }
 
@@ -249,7 +263,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     let numberFittingVariants = 0;
     let numberFittingTraces = 0;
 
-    this.variants.forEach(v => {
+    this.variants.forEach((v) => {
       if (v.deviation !== undefined && !v.deviation) {
         numberFittingVariants++;
         numberFittingTraces += v.count;
@@ -259,21 +273,54 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     this.numberFittingVariants = numberFittingVariants;
   }
 
+  updateConformanceForVariant(variant: Variant, timeout: number): void {
+    variant.calculationInProgress = true;
 
-
-  discoverInitialModel(): void {
-    const variants = this.getSelectedVariants().map(v => v.variant);
-
-    this.backendService.discoverProcessModelFromConcurrencyVariants(variants).subscribe(_ =>
-      this.refreshConformanceIconsAfterModelChange(true));
+    this.backendService
+      .calculateAlignmentsCVariant(variant.variant, timeout)
+      .pipe(takeUntil(this.unsubscribe))
+      .subscribe(
+        (res) => {
+          variant.calculationInProgress = false;
+          variant.alignment = res.alignment;
+          variant.deviation = res.deviation;
+          variant.isTimeouted = false;
+          variant.isConformanceOutdated = false;
+          this.updateAlignmentStatistics();
+        },
+        (error) => {
+          if (error.status === 504) {
+            variant.calculationInProgress = false;
+            variant.isTimeouted = true;
+            variant.isConformanceOutdated = true;
+            this.updateAlignmentStatistics();
+          } else {
+            this.updateAlignmentsStop();
+          }
+        }
+      );
   }
 
+  updateConformanceForSingleVariantClicked(variant: Variant): void {
+    if (variant.isTimeouted) {
+      this.showConformanceDialogEvent.next(variant);
+    } else {
+      this.updateConformanceForVariant(variant, 0);
+    }
+  }
+
+  discoverInitialModel(): void {
+    const variants = this.getSelectedVariants().map((v) => v.variant);
+
+    this.backendService
+      .discoverProcessModelFromConcurrencyVariants(variants)
+      .subscribe((_) => this.refreshConformanceIconsAfterModelChange(true));
+  }
 
   genSimpleVariants(variant: VariantElement): any {
     if (variant instanceof SequenceGroup) {
       return variant.elements;
     } else if (variant instanceof ParallelGroup) {
-
     } else {
       return [variant.asLeafNode().activity];
     }
@@ -288,8 +335,8 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     return {
       events: variant
         .flat()
-        .filter(v => v[1].toLowerCase() === 'complete')
-        .map(v => `${v[0]}`)
+        .filter((v) => v[1].toLowerCase() === 'complete')
+        .map((v) => `${v[0]}`),
     };
   }
 
@@ -298,7 +345,7 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   addSelectedVariantsToModel(): void {
-    const selectedVariants = this.getSelectedVariants()
+    const selectedVariants = this.getSelectedVariants();
 
     // TODO we currently distinguish two cases here: 1. outdated conformance and 2. known conformance
     // in the future, we want to use caching in the backend and use only a single call from frontend
@@ -311,11 +358,11 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   getSelectedVariants(): Variant[] {
-    return this.variants.filter(v => v.isSelected);
+    return this.variants.filter((v) => v.isSelected);
   }
 
   isAnyVariantOutdated(variants: Variant[]): boolean {
-    return variants.some(v => v.isConformanceOutdated);
+    return variants.some((v) => v.isConformanceOutdated);
   }
 
   isConformanceOutdated(): boolean {
@@ -323,45 +370,60 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   isAlignmentCalculationInProgress(): boolean {
-    return this.variants.some(v => v.calculationInProgress)
+    return this.variants.some((v) => v.calculationInProgress);
   }
 
-  addSelectedVariantsToModelForOutdatedConformance(selectedVariants: Variant[]): void {
-    const selectedVariantElements = selectedVariants.map(v => v.variant);
+  addSelectedVariantsToModelForOutdatedConformance(
+    selectedVariants: Variant[]
+  ): void {
+    const selectedVariantElements = selectedVariants.map((v) => v.variant);
 
-    this.backendService.addConcurrencyVariantsToProcessModelForUnknownConformance(selectedVariantElements)
-      .subscribe(_ => {
+    this.backendService
+      .addConcurrencyVariantsToProcessModelForUnknownConformance(
+        selectedVariantElements
+      )
+      .subscribe((_) => {
         this.refreshConformanceIconsAfterModelChange(false);
       });
   }
 
-  addSelectedVariantsToModelForGivenConformance(selectedVariants: Variant[]): void {
-    const fittingVariants = selectedVariants.filter(v => !v.deviation).map(v => v.variant);
-    const variantsToAdd = selectedVariants.filter(v => v.deviation).map(v => v.variant);
+  addSelectedVariantsToModelForGivenConformance(
+    selectedVariants: Variant[]
+  ): void {
+    const fittingVariants = selectedVariants
+      .filter((v) => !v.deviation)
+      .map((v) => v.variant);
+    const variantsToAdd = selectedVariants
+      .filter((v) => v.deviation)
+      .map((v) => v.variant);
 
-    this.backendService.addConcurrencyVariantsToProcessModel(variantsToAdd, fittingVariants)
-      .subscribe(_ => {
+    this.backendService
+      .addConcurrencyVariantsToProcessModel(variantsToAdd, fittingVariants)
+      .subscribe((_) => {
         this.refreshConformanceIconsAfterModelChange(false);
       });
   }
 
   refreshConformanceIconsAfterModelChange(wasInitialDiscovery: boolean): void {
     if (wasInitialDiscovery) {
-      this.variants.forEach(v => {
+      this.variants.forEach((v) => {
         v.deviation = undefined;
         v.calculationInProgress = false;
       });
     }
 
-    this.getSelectedVariants().forEach(v => {
+    this.getSelectedVariants().forEach((v) => {
       v.isAddedFittingVariant = true;
       v.deviation = false;
       v.calculationInProgress = false;
+      v.isConformanceOutdated = false;
     });
+
+    this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
   }
 
   isAnyVariantSelected(): boolean {
-    return this.variants.some(v => v.isSelected);
+    return this.variants.some((v) => v.isSelected);
   }
 
   isNoVariantSelected(): boolean {
@@ -373,26 +435,33 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
   }
 
   unSelectAllChanged(isSelected: boolean): void {
-    this.variants.forEach(v => v.isSelected = isSelected)
+    this.variants.forEach((v) => (v.isSelected = isSelected));
   }
 
   areAllVariantsExpanded(): boolean {
     if (this.variantComponents === undefined) {
       return false;
     }
-    const unexpandedVariantsExist = this.variantComponents.some(c => !c.isExpanded());
+    const unexpandedVariantsExist = this.variantComponents.some(
+      (c) => !c.isExpanded()
+    );
     return !unexpandedVariantsExist;
   }
 
   unExpandAll(): void {
-    const shouldExpand = !this.areAllVariantsExpanded()
-    this.variantComponents.forEach(c => c.setExpanded(shouldExpand));
+    const shouldExpand = !this.areAllVariantsExpanded();
+    this.variantComponents.forEach((c) => c.setExpanded(shouldExpand));
   }
 
   onScroll(event): void {
   }
 
-  handleResponsiveChange(left: number, top: number, width: number, height: number): void {
+  handleResponsiveChange(
+    left: number,
+    top: number,
+    width: number,
+    height: number
+  ): void {
     if (width < 600) {
       this.collapse = true;
     } else {
@@ -400,14 +469,22 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     }
   }
 
-  findNearestVariantIndex(scrollTop) {
-    let nearestIndex = 0;
-    let nearestValue = 0;
-    while(nearestIndex < this.cumulatedVariantHeights.length && nearestValue < scrollTop){
-      nearestValue = this.cumulatedVariantHeights[++nearestIndex];
+  updateVisible(scrollTop): void {
+    const h = this.variantExplorerDiv.nativeElement.clientHeight;
+    if (this.visibleVariantsHeight - (h + scrollTop) <= 50) {
+      while (
+        this.visibleVariantsHeight < h + scrollTop &&
+        this.visibleVariants.length < this.variants.length
+      ) {
+        const v = this.dummyVariants.shift();
+        this.visibleVariantsHeight += v.variant.getHeight();
+        this.visibleVariants.push(v);
+      }
+      this.invisibleVariantsHeight =
+        this.dummyVariants
+          .map((v) => v.variant.getHeight())
+          .reduce((a, b) => a + b, 0) / this.dummyVariants.length;
     }
-
-    return nearestIndex;
   }
 
   // TODO isComplexVariant is currently unused
@@ -434,22 +511,25 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     this.svgRenderingInProgress = true;
 
     // Get current expansion state
-    this.variantComponents.forEach(c => state.push(c.isExpanded()));
+    this.variantComponents.forEach((c) => state.push(c.isExpanded()));
 
     // Expand the elements and redraw them
-    this.variantComponents.forEach(c => c.setSelected(true));
+    this.variantComponents.forEach((c) => c.setSelected(true));
 
     // Collect the SVG and pass them to the SVG Service
-    this.variantComponents.forEach(c => svgs.push(c.getSVGGraphicElement()));
-
+    this.variantComponents.forEach((c) => svgs.push(c.getSVGGraphicElement()));
 
     // Add Frequency and Percentage information to the SVG
-    svgs = svgs.map((c, i) => this.addVariantInformation(c, this.variants[i].count, this.variants[i].percentage));
+    svgs = svgs.map((c, i) =>
+      this.addVariantInformation(
+        c,
+        this.variants[i].count,
+        this.variants[i].percentage
+      )
+    );
 
     // TODO Create the Legend Element and add it
-    const legend = d3.create("svg")
-      .attr("x", "10")
-      .attr("y", "10");
+    const legend = d3.create('svg').attr('x', '10').attr('y', '10');
 
     let leafnodes: LeafNode[] = [];
 
@@ -462,46 +542,69 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
     svgs.unshift(legend.node());
 
     // Send all Elements to the export service
-    this.imageExportService.export("variant_explorer", 0, 0, ...svgs);
+    this.imageExportService.export('variant_explorer', 0, 0, ...svgs);
 
     // Return everything to its previous state
-    this.variantComponents.forEach((c, i) => c.setSelected(state[i]))
+    this.variantComponents.forEach((c, i) => c.setSelected(state[i]));
 
     // Hide the Spinner
     this.svgRenderingInProgress = false;
   }
 
-  addVariantInformation(svgElement: SVGGraphicsElement, variantAbs: number, variantPerc: number): SVGGraphicsElement {
-
+  addVariantInformation(
+    svgElement: SVGGraphicsElement,
+    variantAbs: number,
+    variantPerc: number
+  ): SVGGraphicsElement {
     const exportMarginX: number = 65;
     const exportMarginY: number = 15;
 
-    const svgElement_copy = (svgElement.cloneNode(true) as SVGGraphicsElement);
+    const svgElement_copy = svgElement.cloneNode(true) as SVGGraphicsElement;
 
     // Shift all Elements to the right using transform chaining
-    svgElement_copy.setAttribute("width", (svgElement.clientWidth + exportMarginX).toString());
-    svgElement_copy.setAttribute("height", (svgElement.clientHeight + exportMarginY).toString());
+    svgElement_copy.setAttribute(
+      'width',
+      (svgElement.clientWidth + exportMarginX).toString()
+    );
+    svgElement_copy.setAttribute(
+      'height',
+      (svgElement.clientHeight + exportMarginY).toString()
+    );
 
-    d3.select(svgElement_copy).select("g")
+    d3.select(svgElement_copy)
+      .select('g')
       .selectChildren()
       .each(function (this: SVGGraphicsElement) {
-        this.setAttribute("transform", (this.getAttribute("transform") ? this.getAttribute("transform") + "," : '') +  `translate(${exportMarginX}, 0)`);
-      })
+        this.setAttribute(
+          'transform',
+          (this.getAttribute('transform')
+            ? this.getAttribute('transform') + ','
+            : '') + `translate(${exportMarginX}, 0)`
+        );
+      });
     // Add the Frequency Information
-    const textfield = d3.select(svgElement_copy).append('text').attr('transform', `translate(20, ${((svgElement.clientHeight - 25) / 2) + 10})`)
+    const textfield = d3
+      .select(svgElement_copy)
+      .append('text')
+      .attr(
+        'transform',
+        `translate(20, ${(svgElement.clientHeight - 25) / 2 + 10})`
+      )
       .attr('height', 20)
       .attr('width', 50)
       .attr('font-size', 9)
-      .attr('fill', "black");
+      .attr('fill', 'black');
 
-    textfield.append('tspan')
+    textfield
+      .append('tspan')
       .attr('x', 0)
       .attr('dy', 0)
       .attr('height', 9)
       .attr('fill', 'black')
-      .text(variantPerc + '%')
+      .text(variantPerc + '%');
 
-    textfield.append('tspan')
+    textfield
+      .append('tspan')
       .attr('x', 0)
       .attr('dy', 10)
       .attr('height', 9)
@@ -517,8 +620,12 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
   sort(sortingFeature: string): void {
     this.sortingFeature = sortingFeature;
-    this.variants = VariantSorter.sort(this.variants, this.sortingFeature, this.isAscendingOrder);
-    this.variantExplorerDiv.nativeElement.scroll(0,0);
+    this.variants = VariantSorter.sort(
+      this.variants,
+      this.sortingFeature,
+      this.isAscendingOrder
+    );
+    this.variantExplorerDiv.nativeElement.scroll(0, 0);
     this.initializeVisibleVariants();
   }
 
@@ -529,5 +636,5 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 }
 
 export namespace VariantExplorerComponent {
-  export const componentName = "VariantExplorerComponent";
+  export const componentName = 'VariantExplorerComponent';
 }

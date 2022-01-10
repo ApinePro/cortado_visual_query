@@ -1,15 +1,17 @@
 <div
   class="modal fade"
-  id="settingsModalDialog"
+  id="conformanceModalDialog"
   tabindex="-1"
   role="dialog"
-  aria-labelledby="settingsModalLabel"
+  aria-labelledby="conformanceModalLabel"
   aria-hidden="true"
 >
   <div class="modal-dialog" role="document">
     <div class="modal-content dialog">
       <div class="modal-header h-line-modal-bottom">
-        <h5 class="modal-title text-light" id="settingsModalLabel">Settings</h5>
+        <h5 class="modal-title text-light" id="conformanceModalLabel">
+          Increase conformance timeout
+        </h5>
         <button
           type="button"
           class="btn-close btn-close-white"
@@ -18,6 +20,11 @@
         ></button>
       </div>
       <div class="modal-body">
+        <p class="secondary-text">
+          A previous conformance calculation for the selected variant has timed
+          out. Please increase the timeout for the selected variant. The
+          increased timeout will be applied once and will not be stored.
+        </p>
         <form class="was-validated">
           <div class="form-group row mx-0">
             <label
@@ -29,7 +36,7 @@
                 data-bs-toggle="tooltip"
                 data-bs-placement="top"
                 data-bs-html="true"
-                title="The calculation of conformance statistics stops after the configured timeout (in seconds). The timeout is applied per variant."
+                title="The calculation of conformance statistics stops after the configured timeout (in seconds)."
               >
               </i>
             </label>
@@ -40,7 +47,7 @@
                 id="timeout"
                 aria-describedby="timeoutHelp"
                 placeholder="Enter timeout"
-                [(ngModel)]="configuration.timeoutCVariantAlignmentComputation"
+                [(ngModel)]="conformanceTimeout"
                 [ngModelOptions]="{ standalone: true }"
                 required
               />
@@ -53,17 +60,17 @@
       </div>
       <div class="modal-footer h-line-modal-top">
         <button
-          id="close-modal"
+          id="close-modal-conformance"
           type="button"
           class="button"
           data-bs-dismiss="modal"
         >
           <i class="bi bi-x btn-icon text-danger"></i>
-          close without save
+          close without calculation
         </button>
-        <button type="button" class="button" (click)="saveChanges()">
+        <button type="button" class="button" (click)="calculateConformance()">
           <i class="bi bi-save btn-icon text-success"></i>
-          save
+          update conformance
         </button>
       </div>
     </div>

@@ -255,6 +255,14 @@ th {
   margin-bottom: 0;
 }
 
+.h-line-modal-bottom {
+  border-bottom:1px solid var(--line-color);
+}
+
+.h-line-modal-top {
+  border-top:1px solid var(--line-color);
+}
+
 .tooltip-table{
   border-collapse: collapse;
   border: none;
@@ -274,7 +282,18 @@ th {
   }
 }
 
+.dialog {
+  background-color: var(--box-background-color);
+}
 
+.dialog-label {
+  font-size: var(--standard-font-size);
+}
 
-
-
+.styled-input-field, .styled-input-field:focus {
+  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+  padding : 0.45rem;
+  border-radius: 0.25rem;
+  color : var(--text-secondary);
+  font-size : small;
+}

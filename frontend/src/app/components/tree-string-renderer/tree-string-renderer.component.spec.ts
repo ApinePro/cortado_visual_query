@@ -8,9 +8,8 @@ describe('TreeStringRendererComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TreeStringRendererComponent ]
-    })
-    .compileComponents();
+      declarations: [TreeStringRendererComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {
