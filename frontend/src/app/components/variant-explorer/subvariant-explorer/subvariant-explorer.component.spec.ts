@@ -8,9 +8,8 @@ describe('SubvariantExplorerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SubvariantExplorerComponent ]
-    })
-    .compileComponents();
+      declarations: [SubvariantExplorerComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

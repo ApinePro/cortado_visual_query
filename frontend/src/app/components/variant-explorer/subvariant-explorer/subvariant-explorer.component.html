@@ -1,31 +1,28 @@
-<div class="d-flex flex-column h-100 container-variant-explorer" #variantExplorerContainer>
+<div
+  class="d-flex flex-column h-100 container-variant-explorer"
+  #variantExplorerContainer
+>
   <div class="main-variant-explorer flex-grow-1">
     <div class="d-flex">
       <div class="chart-variant__percentage">
         <!-- Using the same components as on the main explorer to visualize the base variant of the subvariant explorer--->
         <table>
           <tr>
-            <th style="padding-right: 15px; padding-left: 5px;">
-              Nr.
-            </th>
-            <th>
-              Info
-            </th>
-            <th class="text-start">
-              Variant
-            </th>
+            <th style="padding-right: 15px; padding-left: 5px">Nr.</th>
+            <th>Info</th>
+            <th class="text-start">Variant</th>
           </tr>
           <tr>
-            <td style="padding-right: 15px; padding-left: 5px">
-              Parent
-            </td>
+            <td style="padding-right: 15px; padding-left: 5px">Parent</td>
             <td>
-              <app-variant-info [variant]="main_variant"
-              ></app-variant-info>
+              <app-variant-info [variant]="main_variant"></app-variant-info>
             </td>
             <td class="variant-cell">
-              <div class="variant" style = "">
-                <app-variant-fragment [variant]="main_variant['variant']" [colorMap]="colorMap"></app-variant-fragment>
+              <div class="variant" style="">
+                <app-variant-fragment
+                  [variant]="main_variant['variant']"
+                  [colorMap]="colorMap"
+                ></app-variant-fragment>
               </div>
             </td>
           </tr>
