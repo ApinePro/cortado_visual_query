@@ -1,11 +1,6 @@
-<div #container>
-    <div *ngIf="isVisible" class="svg-container variant-cursor" (click)="setExpanded(!variant.expanded)">
-        <svg #svg>
-        </svg>
-    </div>
-    <div *ngIf="!isVisible" class="variant-spacer" [ngStyle]="{ 'height': variant.getHeight() + 'px' }">
-        <div class="spinner-border spinner-border-sm text-primary" style="margin-right: 20px; margin-left: 20px;"
-            role="status"></div>
-        Loading...
-    </div>
+<div
+  class="svg-container variant-cursor"
+  (click)="setExpanded(!variant.expanded)"
+>
+  <svg #svg></svg>
 </div>

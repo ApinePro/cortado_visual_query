@@ -129,20 +129,7 @@
             </th>
           </tr>
           <ng-container *ngFor="let variant of visibleVariants let i = index">
-            <tr>
-              <td style="padding-right: 15px; padding-left: 5px;">
-                {{ i + 1 }}.
-              </td>
-              <td>
-                <app-variant-info [variant]="variant" (selectionChanged)="selectionChangedForVariant(variant, $event)">
-                </app-variant-info>
-              </td>
-              <td class="variant-cell">
-                <div class="variant" [ngStyle]="{ 'border-color': variant.isSelected ? 'unset' : 'transparent' }">
-                  <app-variant-fragment [variant]="variant['variant']" [colorMap]="colorMap" [position]="cumulatedVariantHeights[i]"></app-variant-fragment>
-                </div>
-              </td>
-            </tr>
+            <app-variant [index]="i" [variant]="variant" (selectionChanged)="selectionChangedForVariant(variant, $event)" [colorMap]="colorMap"></app-variant>
           </ng-container>
         </table>
       </div>
