@@ -11,9 +11,8 @@ describe('DropZoneComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DropZoneComponent ]
-    })
-    .compileComponents();
+      declarations: [DropZoneComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

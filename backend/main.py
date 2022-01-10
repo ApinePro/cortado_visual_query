@@ -20,6 +20,7 @@ from pm4py.objects.process_tree.exporter.variants.ptml import export_tree_as_str
 from pm4py.objects.conversion.process_tree.converter import apply as convert_pt_to_petri_net
 from pm4py.objects.petri_net.exporter.variants.pnml import export_petri_as_string as generate_pnml_xml
 from pm4py.objects.process_tree.importer.importer import apply as import_pt_from_ptml
+from pm4py.objects.process_tree.utils.generic import parse
 
 from backend_utilities.process_tree_conversion import process_tree_to_dict
 from backend_utilities.process_tree_conversion import dict_to_process_tree
@@ -99,8 +100,8 @@ def discover_process_model_from_variants(variants):
 async def discover_process_model_from_cvariants(d: InputDiscoverProcessModelFromVariants):
     all_variants = set([tuple(variant) for cvariant in d.variants for variant in generate_variants(cvariant)])
     print(f"nVariants: {len(all_variants)}")
-
-    return discover_process_model_from_variants(all_variants)
+    res = discover_process_model_from_variants(all_variants)
+    return res
 
 
 class InputAddVariantsToProcessModel(BaseModel):
@@ -144,7 +145,38 @@ async def add_cvariants_to_process_model_unknown_conformance(d: InputAddVariants
             fitting_variants.add(selected_variant)
         else:
             variants_to_add.add(selected_variant)
+
     return add_variants_to_process_model(d.pt, fitting_variants, variants_to_add)
+
+
+class InputTreeStringFromTree(BaseModel):
+    pt: dict
+
+
+@app.post("/computeTreeStringFromTree")
+async def computeTreeStringFromTree(d: InputTreeStringFromTree):
+    pt = dict_to_process_tree(d.pt)[0]
+    res = str(dict_to_process_tree(d.pt)[0])
+    return res
+
+
+class InputTreeFromTreeString(BaseModel):
+    pt_string: str
+
+
+@app.post("/parseStringToPT")
+async def parseStringToPT(d: InputTreeFromTreeString):
+    res = dict()
+    try:
+        d.pt_string = d.pt_string.replace('*tau*', 'τ')
+        pt = parse(d.pt_string)
+        res["tree"] = process_tree_to_dict(pt)
+        res["errors"] = None
+    except:
+        res["tree"] = None
+        res["errors"] = "Error occurred during backend parsing"
+
+    return res
 
 
 @app.get("/variants")
@@ -201,6 +233,7 @@ async def calculate_alignment(d: InputCalculateAlignment):
 class InputCalculateAlignmentCVariant(BaseModel):
     pt: dict
     variant: dict
+    timeout: int
 
 
 def calculate_alignments_intern(pt: dict, c_variant: dict):
@@ -217,8 +250,11 @@ def calculate_alignments_intern(pt: dict, c_variant: dict):
 
 @app.post("/calculateAlignmentsCVariant")
 async def calculate_alignment(d: InputCalculateAlignmentCVariant, response: Response):
-    config_repository = ConfigurationRepositoryFactory.get_config_repository()
-    timeout = config_repository.get_configuration().timeout_cvariant_alignment_computation
+    timeout = d.timeout
+
+    if d.timeout == 0:
+        config_repository = ConfigurationRepositoryFactory.get_config_repository()
+        timeout = config_repository.get_configuration().timeout_cvariant_alignment_computation
     try:
         return execute_with_timeout(calculate_alignments_intern, timeout, args=(d.pt, d.variant))
     except TimeoutException:
@@ -258,7 +294,6 @@ def get_all_urls():
 if __name__ == "__main__":
     freeze_support()
     num_workers = max(1, cpu_count() - 2)
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=True)
-
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=False)
     # dev mode
-    # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    # uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=True)

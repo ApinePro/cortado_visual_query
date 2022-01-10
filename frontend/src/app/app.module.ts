@@ -8,8 +8,8 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FooterComponent } from './components/footer/footer.component';
 import { ProcessTreeEditorComponent } from './components/process-tree-editor/process-tree-editor.component';
-import {StrFilterPipe} from './pipes/str-filter/str-filter.pipe';
-import { FormsModule } from '@angular/forms';
+import { StrFilterPipe } from './pipes/str-filter/str-filter.pipe';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxFileDropModule } from 'ngx-file-drop';
 
 import { VariantExplorerComponent } from './components/variant-explorer/variant-explorer.component';
@@ -22,8 +22,13 @@ import { VariantSelectionButtonComponent } from './components/variant-explorer/v
 import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
 import { SubvariantExplorerComponent } from './components/variant-explorer/subvariant-explorer/subvariant-explorer.component';
+import { ExpertModeComponent } from './components/process-tree-editor/expert-mode/expert-mode.component';
+import { ContentEditableDirective } from './directives/content-editable-directive.directive';
 import { SettingsComponent } from './components/settings/settings.component';
 import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
+import { TreeStringRendererComponent } from './components/tree-string-renderer/tree-string-renderer.component';
+import { TooltipDirective } from './directives/tooltip/tooltip.directive';
+import { VariantConformanceDialogComponent } from './components/variant-explorer/variant-conformance-dialog/variant-conformance-dialog.component';
 
 @NgModule({
   declarations: [
@@ -40,22 +45,29 @@ import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
     ActivityOverviewComponent,
     ProcessTreeEditorComponent,
     SubvariantExplorerComponent,
+    VariantInfoComponent,
+    ExpertModeComponent,
+    ContentEditableDirective,
     SettingsComponent,
     DropZoneComponent,
-    DropZoneDirective
+    DropZoneDirective,
+    TooltipDirective,
+    VariantConformanceDialogComponent,
+    TreeStringRendererComponent,
   ],
   imports: [
     BrowserModule,
+    ReactiveFormsModule,
     FormsModule,
     HttpClientModule,
     NgxFileDropModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
   ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: HttpRequestInterceptor,
-      multi: true
+      multi: true,
     },
     GoldenLayoutComponentService,
   ],
@@ -64,9 +76,8 @@ import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
     VariantFragmentComponent,
     ActivityOverviewComponent,
     ProcessTreeEditorComponent,
-    VariantInfoComponent
+    VariantInfoComponent,
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {
-}
+export class AppModule {}

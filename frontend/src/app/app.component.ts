@@ -1,31 +1,37 @@
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  ViewChild,
+  HostListener,
+} from '@angular/core';
+import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
 import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
-
-import {AfterViewInit, Component, HostListener, OnDestroy, ViewChild} from '@angular/core';
-import {GoldenLayoutHostComponent} from './components/golden-layout-host/golden-layout-host.component';
 import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
-export class AppComponent implements AfterViewInit, OnDestroy{
+export class AppComponent implements AfterViewInit, OnDestroy {
   title = 'interactive-process-mining-angular-app';
   private _windowResizeListener = () => this.handleWindowResizeEvent();
 
-  constructor(private goldenLayoutComponentService : GoldenLayoutComponentService){
+  constructor(
+    private goldenLayoutComponentService: GoldenLayoutComponentService
+  ) {}
 
-  }
+  @ViewChild('goldenLayoutHost')
+  private _goldenLayoutHostComponent: GoldenLayoutHostComponent;
 
-  @ViewChild('goldenLayoutHost') private _goldenLayoutHostComponent: GoldenLayoutHostComponent;
-
-
-  _sideBarWidth : number = 30;
+  _sideBarWidth: number = 30;
 
   ngAfterViewInit() {
     globalThis.addEventListener('resize', this._windowResizeListener);
     this._goldenLayoutHostComponent.initializeLayout();
-    this.goldenLayoutComponentService.goldenLayoutHostComponent = this._goldenLayoutHostComponent;
+    this.goldenLayoutComponentService.goldenLayoutHostComponent =
+      this._goldenLayoutHostComponent;
 
     setTimeout(() => this.resizeGoldenLayout(), 0);
   }
@@ -38,12 +44,11 @@ export class AppComponent implements AfterViewInit, OnDestroy{
 
   // If the File Drag leaves the window, put the Dropzone back again
   @HostListener('window:dragleave', ['$event'])
-    window_dragleave(event : DragEvent) {
-        if(event.screenX === 0 && event.screenY === 0){
-          DropZoneDirective.windowDrag = false;
-      }
+  window_dragleave(event: DragEvent) {
+    if (event.screenX === 0 && event.screenY === 0) {
+      DropZoneDirective.windowDrag = false;
+    }
   }
-
 
   ngOnDestroy() {
     globalThis.removeEventListener('resize', this._windowResizeListener);
@@ -56,10 +61,9 @@ export class AppComponent implements AfterViewInit, OnDestroy{
   private resizeGoldenLayout() {
     const bodyWidth = document.body.offsetWidth;
     const bodyHeight = document.body.offsetHeight;
-    this._goldenLayoutHostComponent.setSize(bodyWidth - this._sideBarWidth , bodyHeight)
+    this._goldenLayoutHostComponent.setSize(
+      bodyWidth - this._sideBarWidth,
+      bodyHeight
+    );
   }
-
-
-
 }
-

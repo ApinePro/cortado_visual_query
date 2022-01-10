@@ -4,9 +4,9 @@ import {VariantExplorerComponent} from "../../variant-explorer/variant-explorer.
 import {ActivityOverviewComponent} from "../../activity-overview/activity-overview.component";
 
 export const baseLayout: LayoutConfig = {
-  dimensions : {
+  dimensions: {
     borderWidth: 0.75,
-    borderGrabWidth : 10,
+    borderGrabWidth: 10,
     minItemHeight: 300,
     minItemWidth: 350,
 
@@ -17,20 +17,22 @@ export const baseLayout: LayoutConfig = {
     constrainDragToContainer : true,
   },
   root: {
-      type: ItemType.column,
-      content: [
-          {
-              id : ProcessTreeEditorComponent.componentName,
-              type: "component",
-              title: "Process Tree Visualizer",
-              isClosable: true,
-              height : 61.803,
-              header: {
-                show: false,
-              },
-              reorderEnabled : false,
-              componentType: ProcessTreeEditorComponent.componentName,
-          } as ComponentItemConfig,
+    type: ItemType.column,
+    content: [
+      {
+        type: 'component',
+        title: 'Process Tree Visualizer',
+        isClosable: true,
+        height: 61.803,
+        header: {
+          show: false,
+        },
+        componentType: ProcessTreeEditorComponent.componentName,
+      } as ComponentItemConfig,
+      {
+        type: ItemType.row,
+        height: 38.197,
+        content: [
           {
             type: ItemType.row,
             height : 38.197,
@@ -66,5 +68,8 @@ export const baseLayout: LayoutConfig = {
 
           ]} as RowOrColumnItemConfig,
       ],
-  } as RowOrColumnItemConfig,
+  } as RowOrColumnItemConfig]
+
+  }
+
 };

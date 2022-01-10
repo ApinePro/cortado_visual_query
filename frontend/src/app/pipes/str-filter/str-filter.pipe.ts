@@ -1,10 +1,9 @@
-import {Pipe, PipeTransform} from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'strFilter'
+  name: 'strFilter',
 })
 export class StrFilterPipe implements PipeTransform {
-
   transform(items: any[], searchText: string): any[] {
     if (!items) {
       return [];
@@ -12,9 +11,12 @@ export class StrFilterPipe implements PipeTransform {
     if (!searchText) {
       return items;
     }
-    return [searchText].concat(items.filter(item => {
-      return item.toLocaleLowerCase().includes(searchText.toLocaleLowerCase());
-    }));
+    return [searchText].concat(
+      items.filter((item) => {
+        return item
+          .toLocaleLowerCase()
+          .includes(searchText.toLocaleLowerCase());
+      })
+    );
   }
-
 }

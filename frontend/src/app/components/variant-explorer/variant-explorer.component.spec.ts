@@ -8,9 +8,8 @@ describe('VariantExplorerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ VariantExplorerComponent ]
-    })
-    .compileComponents();
+      declarations: [VariantExplorerComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

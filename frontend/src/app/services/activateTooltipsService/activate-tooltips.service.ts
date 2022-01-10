@@ -1,58 +1,49 @@
-import {Injectable} from '@angular/core';
-// jQuery
-declare var $;
+import { ElementRef, Injectable } from '@angular/core';
+declare var bootstrap: any;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ActivateTooltipsService {
+  public initializeChildren(elementRef: ElementRef): void {
+    const tooltipElements = elementRef.nativeElement.querySelectorAll(
+      '[data-bs-toggle="tooltip"]'
+    );
+    tooltipElements.forEach((tooltipTriggerEl) => {
+      this.initializeTooltip(tooltipTriggerEl);
+    });
 
-  constructor() {
+    const popoverElements = elementRef.nativeElement.querySelectorAll(
+      '[data-bs-toggle="popover"]'
+    );
+    popoverElements.forEach((popoverTriggerEl) => {
+      return new bootstrap.Popover(popoverTriggerEl, {
+        container: 'body',
+        placement: 'top',
+        boundary: 'window',
+        html: true,
+        // delay: {show: 200, hide: 100000},
+        sanitize: false,
+      });
+    });
   }
 
-  public initialize(): void {
-    // activate tooltips
-    // @ts-ignore
-    $('[data-bs-toggle="tooltip"]').tooltip({
+  public initializeTooltip(element: any): void {
+    const tooltip = new bootstrap.Tooltip(element, {
       container: 'body',
       placement: 'top',
       boundary: 'window',
       html: true,
       trigger: 'hover',
-      delay: {show: 200, hide: 50},
-      sanitize: false
+      delay: { show: 200, hide: 50 },
+      sanitize: false,
     });
 
-    $('[data-bs-toggle="tooltip"]').on('click', function () {
-      $(this).tooltip('hide')
-    })
-
-    $('[data-bs-toggle="popover"]').popover({
-      container: 'body',
-      placement: 'top',
-      boundary: 'window',
-      html: true,
-      // delay: {show: 200, hide: 100000},
-      sanitize: false
-    });
+    element.addEventListener('click', (_) => tooltip.hide());
   }
 
-  public close(): void {
-    $('[data-bs-toggle="popover"]').popover('hide');
-    $('[data-bs-toggle="tooltip"]').tooltip('hide');
-  }
-
-  public disable(): void {
-    // activate tooltips
-    // @ts-ignore
-    $('[data-bs-toggle="popover"]').popover('disable');
-    $('[data-bs-toggle="tooltip"]').tooltip('disable');
-  }
-
-  public enable(): void {
-    // activate tooltips
-    // @ts-ignore
-    $('[data-bs-toggle="popover"]').popover('enable');
-    $('[data-bs-toggle="tooltip"]').tooltip('enable');
+  public destroyTooltip(element: any): void {
+    const tooltip = bootstrap.Tooltip.getInstance(element);
+    tooltip.dispose();
   }
 }
