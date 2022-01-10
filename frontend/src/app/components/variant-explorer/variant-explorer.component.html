@@ -150,11 +150,9 @@
             </th>
             <th class="text-start">Variant</th>
           </tr>
-          <ng-container *ngFor="let variant of visibleVariants let i = index">
-            <app-variant [index]="i" [variant]="variant"
-              (selectionChanged)="selectionChangedForVariant(variant, $event)" [colorMap]="colorMap"
-              (updateConformance)="updateConformanceForSingleVariantClicked($event)"></app-variant>
-          </ng-container>
+          <tr app-variant *ngFor="let variant of visibleVariants let i = index" [index]="i" [variant]="variant"
+            (selectionChanged)="selectionChangedForVariant(variant, $event)" [colorMap]="colorMap"
+            (updateConformance)="updateConformanceForSingleVariantClicked($event)"></tr>
         </table>
       </div>
     </div>

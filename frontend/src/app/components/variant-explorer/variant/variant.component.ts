@@ -2,9 +2,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Variant } from '../model';
 
 @Component({
-  selector: 'app-variant',
+  selector: '[app-variant]',
   templateUrl: './variant.component.html',
-  styleUrls: ['./variant.component.css']
+  styleUrls: ['./variant.component.scss']
 })
 export class VariantComponent {
   @Input()
@@ -18,4 +18,7 @@ export class VariantComponent {
 
   @Output()
   public selectionChanged = new EventEmitter<boolean>();
+
+  @Output()
+  public updateConformance = new EventEmitter<Variant>();
 }
