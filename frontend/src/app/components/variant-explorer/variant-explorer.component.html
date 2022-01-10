@@ -130,7 +130,7 @@
     </button>
   </div>
 
-  <div class="main-variant-explorer flex-grow-1" (scroll)="onScroll($event)" #variantExplorer>
+  <div class="main-variant-explorer flex-grow-1" #variantExplorer>
     <div *ngIf="svgRenderingInProgress" class="full-body-spinner">
       <div>
         <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
@@ -150,7 +150,7 @@
             </th>
             <th class="text-start">Variant</th>
           </tr>
-          <tr app-variant *ngFor="let variant of visibleVariants let i = index" [index]="i" [variant]="variant"
+          <tr app-variant *ngFor="let variant of variants let i = index" [index]="i" [variant]="variant"
             (selectionChanged)="selectionChangedForVariant(variant, $event)" [colorMap]="colorMap"
             (updateConformance)="updateConformanceForSingleVariantClicked($event)"></tr>
         </table>

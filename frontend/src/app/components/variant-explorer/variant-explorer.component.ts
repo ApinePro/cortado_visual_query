@@ -81,12 +81,6 @@ export class VariantExplorerComponent
   collapse: boolean = false;
 
   public variants: Variant[] = [];
-  public visibleVariants: Variant[] = [];
-  public dummyVariantsBefore: Variant[] = [];
-  public dummyVariants: Variant[] = [];
-  public invisibleVariantsHeight = 50;
-  public cumulatedVariantHeights: number[] = []
-
   public colorMap: Map<string, string>;
 
   public currentlyDisplayedProcessTree;
@@ -143,7 +137,6 @@ export class VariantExplorerComponent
     this.colorMap = this.colorMapService.getColorMap(
       Object.keys(this.sharedDataService.activitiesInEventLog)
     );
-    this.initializeVisibleVariants();
 
     const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
     this.variants.forEach((v) => {
@@ -193,7 +186,6 @@ export class VariantExplorerComponent
     );
 
     this.variants = this.sharedDataService.variants;
-    this.initializeVisibleVariants();
 
     this.variants.forEach((v) => {
       v.isSelected = false;
@@ -210,32 +202,6 @@ export class VariantExplorerComponent
       .reduce((a, b) => a + b);
     this.totalNumberVariants = this.variants.length;
     this.sort(this.sortingFeature);
-  }
-
-  initializeVisibleVariants(): void {
-    const divHeight = this.variantExplorerDiv.nativeElement.clientHeight;
-    let h = 0;
-    let i = 0;
-    while (h < divHeight && i < this.variants.length) {
-      h += this.variants[i].variant.getHeight();
-      i++;
-    }
-    this.visibleVariants = this.variants.slice(0, i + this.nVariantsInc);
-    this.dummyVariants = this.variants.slice(
-      this.visibleVariants.length,
-      this.variants.length + 1
-    );
-    this.invisibleVariantsHeight =
-      this.dummyVariants
-        .map((v) => v.variant.getHeight())
-        .reduce((a, b) => a + b, 0) / this.dummyVariants.length;
-    this.visibleVariantsHeight = this.visibleVariants
-      .map((v) => v.variant.getHeight())
-      .reduce((a, b) => a + b, 0);
-    this.cumulatedVariantHeights = [0]
-    for (let index = 1; index < this.variants.length; index++) {
-      this.cumulatedVariantHeights.push(this.cumulatedVariantHeights[index-1]+this.variants[index-1].variant.getHeight())
-    }
   }
 
   updateAlignmentsStop(): void {
@@ -453,9 +419,6 @@ export class VariantExplorerComponent
     this.variantComponents.forEach((c) => c.setExpanded(shouldExpand));
   }
 
-  onScroll(event): void {
-  }
-
   handleResponsiveChange(
     left: number,
     top: number,
@@ -466,24 +429,6 @@ export class VariantExplorerComponent
       this.collapse = true;
     } else {
       this.collapse = false;
-    }
-  }
-
-  updateVisible(scrollTop): void {
-    const h = this.variantExplorerDiv.nativeElement.clientHeight;
-    if (this.visibleVariantsHeight - (h + scrollTop) <= 50) {
-      while (
-        this.visibleVariantsHeight < h + scrollTop &&
-        this.visibleVariants.length < this.variants.length
-      ) {
-        const v = this.dummyVariants.shift();
-        this.visibleVariantsHeight += v.variant.getHeight();
-        this.visibleVariants.push(v);
-      }
-      this.invisibleVariantsHeight =
-        this.dummyVariants
-          .map((v) => v.variant.getHeight())
-          .reduce((a, b) => a + b, 0) / this.dummyVariants.length;
     }
   }
 
@@ -626,7 +571,6 @@ export class VariantExplorerComponent
       this.isAscendingOrder
     );
     this.variantExplorerDiv.nativeElement.scroll(0, 0);
-    this.initializeVisibleVariants();
   }
 
   onSortOrderChanged(isAscending: boolean): void {
