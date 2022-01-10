@@ -141,6 +141,19 @@ export class BackendService {
       });
   }
 
+  applyTreeReductionRules(): void {
+    this.sharedDataService.currentDisplayedProcessTree$
+      .pipe(take(1))
+      .subscribe((tree) => {
+        this.httpClient
+          .post(this.backendUrl + 'applyReductionRulesToTree', { pt: tree })
+          .subscribe(
+            (tree) =>
+              (this.sharedDataService.currentDisplayedProcessTree = tree)
+          );
+      });
+  }
+
   calculateAlignment(variant): Observable<any> {
     const body = {
       pt: this.sharedDataService.currentDisplayedProcessTree,

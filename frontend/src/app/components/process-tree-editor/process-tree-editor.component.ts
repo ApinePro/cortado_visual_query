@@ -1,3 +1,4 @@
+import { BackendService } from './../../services/backendService/backend.service';
 import {
   Component,
   OnInit,
@@ -29,7 +30,6 @@ import { ImageExportService } from '../../services/imageExportService/image-expo
 import { flextree } from 'd3-flextree';
 
 declare var $;
-declare var bootstrap: any;
 
 import {
   ProcessTree,
@@ -71,6 +71,7 @@ export class ProcessTreeEditorComponent
     private activateTooltipsService: ActivateTooltipsService,
     private colorMapService: ColorMapService,
     private imageExportService: ImageExportService,
+    private backendService: BackendService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
     elRef: ElementRef,
@@ -1077,6 +1078,10 @@ export class ProcessTreeEditorComponent
     this.mainSvgGroup.selectAll('line').classed('frozen-edge', (d) => {
       return d.source.data.frozen && d.source.data.frozen;
     });
+  }
+
+  applyReductionRules(): void {
+    this.backendService.applyTreeReductionRules();
   }
 
   initializeSvg(): void {
