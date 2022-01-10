@@ -30,6 +30,8 @@ from backend_utilities.timeout.helper_functions import execute_with_timeout, Tim
 from backend_utilities.variant_trace_conversion import variant_to_trace
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 from endpoints.load_event_log import calculate_event_log_properties
+from cortado_core.freezing.reinsert_frozen_subtrees import post_process_tree
+
 
 app = FastAPI()
 origins = [
@@ -155,7 +157,6 @@ class InputTreeStringFromTree(BaseModel):
 
 @app.post("/computeTreeStringFromTree")
 async def computeTreeStringFromTree(d: InputTreeStringFromTree):
-    pt = dict_to_process_tree(d.pt)[0]
     res = str(dict_to_process_tree(d.pt)[0])
     return res
 
@@ -229,6 +230,11 @@ async def calculate_alignment(d: InputCalculateAlignment):
     variant = d.variant['events']
     return calculate_alignment_endpoint(variant, d.pt)
 
+
+@app.post("/applyReductionRulesToTree")
+async def applyTreeReductionRules(d : ConvertPtToX): 
+    pt, frozen_subtrees = dict_to_process_tree(d.pt)
+    return process_tree_to_dict( post_process_tree(pt, frozen_subtrees), frozen_subtrees)
 
 class InputCalculateAlignmentCVariant(BaseModel):
     pt: dict
