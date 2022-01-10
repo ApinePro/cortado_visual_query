@@ -7,7 +7,6 @@ import {
   ElementRef,
   Inject,
   OnInit,
-  AfterContentChecked,
   QueryList,
   ViewChild,
   ViewChildren,
@@ -178,6 +177,9 @@ export class VariantExplorerComponent extends LayoutChangeDirective implements O
 
     this._goldenLayoutHostComponent =  this.goldenLayoutComponentService.goldenLayoutHostComponent;
     this._goldenLayout =  this.goldenLayoutComponentService.goldenLayout;
+
+    const variantExplorerItem = this._goldenLayout.findFirstComponentItemById(VariantExplorerComponent.componentName);
+    variantExplorerItem.focus();
   }
 
 
