@@ -80,4 +80,4 @@ import { VariantConformanceDialogComponent } from './components/variant-explorer
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }

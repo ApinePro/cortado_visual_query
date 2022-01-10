@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild } from '@angular/core';
+import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
 import { Variant } from '../model';
 import { VariantFragmentComponent } from '../variant-fragment/variant-fragment.component';
 
@@ -7,7 +8,7 @@ import { VariantFragmentComponent } from '../variant-fragment/variant-fragment.c
   templateUrl: './variant.component.html',
   styleUrls: ['./variant.component.scss']
 })
-export class VariantComponent implements AfterViewInit, OnDestroy {
+export class VariantComponent implements AfterViewInit {
   @Input()
   index: number;
 
@@ -16,6 +17,9 @@ export class VariantComponent implements AfterViewInit, OnDestroy {
 
   @Input()
   colorMap: Map<string, string>;
+
+  @Input()
+  rootElement: ElementRef;
 
   @Output()
   public selectionChanged = new EventEmitter<boolean>();
@@ -31,21 +35,15 @@ export class VariantComponent implements AfterViewInit, OnDestroy {
 
   isVisible: boolean = false;
 
+  constructor(private lazyLoadingService: LazyLoadingServiceService) {}
+
   ngAfterViewInit(): void {
     const self = this;
-    const observer = new IntersectionObserver(function (entries) {
-      self.isVisible = entries[0]['isIntersecting'];
-    }, { root: null, rootMargin: "200px 0px 200px 0px" });
-
-    observer.observe(this.rowElement.nativeElement);
+    this.lazyLoadingService.addVariant(this.rowElement, this.rootElement, isIntersecting => self.isVisible = isIntersecting);
 
     if (this.index < 100) {
       this.isVisible = true;
     }
-  }
-
-  ngOnDestroy(): void {
-    console.log("Destroyed");
   }
 
   isExpanded(): boolean {

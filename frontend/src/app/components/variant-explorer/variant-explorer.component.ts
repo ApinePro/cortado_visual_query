@@ -36,6 +36,7 @@ import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { VariantSorter } from './variant-sorter';
 import * as objectHash from 'object-hash';
 import { VariantComponent } from './variant/variant.component';
+import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
 
 @Component({
   selector: 'app-variant-explorer',

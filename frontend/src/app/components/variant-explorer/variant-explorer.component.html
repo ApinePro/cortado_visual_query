@@ -152,7 +152,7 @@
           </tr>
           <tr app-variant *ngFor="let variant of variants let i = index" [index]="i" [variant]="variant"
             (selectionChanged)="selectionChangedForVariant(variant, $event)" [colorMap]="colorMap"
-            (updateConformance)="updateConformanceForSingleVariantClicked($event)"></tr>
+            (updateConformance)="updateConformanceForSingleVariantClicked($event)" [rootElement]="variantExplorerDiv"></tr>
         </table>
       </div>
     </div>
