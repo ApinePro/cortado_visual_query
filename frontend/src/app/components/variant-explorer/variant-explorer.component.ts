@@ -410,7 +410,9 @@ export class VariantExplorerComponent
     if (this.variantComponents === undefined) {
       return false;
     }
-    const unexpandedVariantsExist = this.variants.some(v => !v.variant.expanded);
+    const unexpandedVariantsExist = this.variants.some(
+      (v) => !v.variant.expanded
+    );
     return !unexpandedVariantsExist;
   }
 
@@ -455,7 +457,7 @@ export class VariantExplorerComponent
 
     this.svgRenderingInProgress = true;
 
-    const visibleComponents = this.variantComponents.filter(c => c.isVisible)
+    const visibleComponents = this.variantComponents.filter((c) => c.isVisible);
 
     // Get current expansion state
     visibleComponents.forEach((c) => state.push(c.isExpanded()));
