@@ -11,8 +11,8 @@ import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/l
 import { Variant } from '../model';
 import { VariantFragmentComponent } from '../variant-fragment/variant-fragment.component';
 
-/* tslint:disable:component-selector */
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: '[app-variant]',
   templateUrl: './variant.component.html',
   styleUrls: ['./variant.component.scss'],
