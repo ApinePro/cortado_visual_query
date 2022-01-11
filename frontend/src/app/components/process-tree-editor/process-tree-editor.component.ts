@@ -139,6 +139,9 @@ export class ProcessTreeEditorComponent
 
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.activityColorMap = colorMap;
+      if (this.root) {
+        this.update(this.root);
+      }
     });
 
     this.sharedDataService.currentDisplayedProcessTree$.subscribe((res) => {

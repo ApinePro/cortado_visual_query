@@ -28,7 +28,7 @@
 
 
 thead tr:nth-child(1) th {
-  position: sticky;
+  position: static;
   top: 0;
   z-index: 10;
 }
@@ -49,3 +49,27 @@ thead th {
 /*th {
   font-weight: normal;
 }*/
+
+.dropdown-sort {
+  font-size: small;
+  max-height: 90vh;
+  user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+}
+
+.dropdown-menu {
+  border-radius: 0;
+  background-color: lightgray;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.th-dropdown-colors {
+  width: 50px
+}

@@ -16,8 +16,33 @@
     >
       <thead>
         <tr class="user-select-none">
-          <th scope="col" class="bg-dark">&nbsp;</th>
-
+          <th scope="col" class="bg-dark th-dropdown-colors">
+            <div
+              class="btn-group align-baseline dropDownParent dropdown ms-auto center"
+              data-bs-toggle="tooltip"
+              data-bs-html="true"
+              title="Edit activity colors"
+            >
+              <button
+                class="button dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="bi bi-palette btn-icon"></i>
+              </button>
+              <div class="dropdown-menu dropdown-sort">
+                <div class="fst-italic fw-bold ps-2 text-center">
+                  Edit activity colors
+                </div>
+                <div class="dropdown-item" (click)="resetActivityColors()">
+                  <span class="ms-4">Reset colors</span>
+                </div>
+                <!-- <div class="dropdown-item">
+                <span class="ms-3">Load saved colors</span>
+              </div> -->
+              </div>
+            </div>
+          </th>
           <th
             scope="col"
             class="bg-dark border-end border-color toggle-select"
@@ -136,12 +161,26 @@
                 | activityOverviewSorting: sortKey:ascending
             "
           >
-            <th
-              class="user-select-none"
-              [ngStyle]="{ 'background-color': activityField.color }"
-            >
-              &nbsp;
-            </th>
+            <!-- <th class="user-select-none" [ngStyle]="{'background-color': activityField.color}">&nbsp;</th> -->
+            <td [ngStyle]="{ 'background-color': activityField.color }">
+              <div
+                [style.color]="activityField.color"
+                [cpPosition]="'auto'"
+                [(colorPicker)]="color"
+                [cpOutputFormat]="'hex'"
+                [cpUseRootViewContainer]="true"
+                [cpCloseClickOutside]="false"
+                [cpSaveClickOutside]="false"
+                [cpAlphaChannel]="'disabled'"
+                [cpCancelButton]="true"
+                [cpCancelButtonClass]="'button cp-button'"
+                [cpOKButton]="true"
+                [cpOKButtonClass]="'button cp-button'"
+                (colorPickerSelect)="changeActivityColor(activityField, color)"
+              >
+                &nbsp;&nbsp;&nbsp;&nbsp;
+              </div>
+            </td>
             <td class="border-end border-color">
               {{ activityField.activityName }}
             </td>

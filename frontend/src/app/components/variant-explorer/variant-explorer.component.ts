@@ -139,6 +139,18 @@ export class VariantExplorerComponent
     this.colorMap = this.colorMapService.getColorMap(
       Object.keys(this.sharedDataService.activitiesInEventLog)
     );
+    this.colorMapService.colorMap$.subscribe((colorMap) => {
+      this.colorMap = colorMap;
+      if (this.variantComponents) {
+        for (let vc of this.variantComponents) {
+          if (vc.variantFragment) {
+            vc.variantFragment.colorMap = this.colorMap;
+            vc.variantFragment.redraw(); // performance problems
+          }
+        }
+      }
+    });
+    // this.initializeVisibleVariants();
 
     const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
     this.variants.forEach((v) => {
