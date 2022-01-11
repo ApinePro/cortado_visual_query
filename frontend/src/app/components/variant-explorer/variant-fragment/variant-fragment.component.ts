@@ -164,5 +164,4 @@ export class VariantFragmentComponent implements AfterViewInit {
   getSVGGraphicElement(): SVGGraphicsElement {
     return this.svgHtmlElement.nativeElement;
   }
-
 }

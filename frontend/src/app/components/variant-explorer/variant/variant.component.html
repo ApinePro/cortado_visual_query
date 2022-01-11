@@ -1,20 +1,33 @@
-<td #row style="padding-right: 15px; padding-left: 5px;">
-    {{ index + 1 }}.
-</td>
+<td #row style="padding-right: 15px; padding-left: 5px">{{ index + 1 }}.</td>
 <ng-container *ngIf="isVisible">
-    <td>
-        <app-variant-info [variant]="variant" (selectionChanged)="selectionChanged.emit($event)"
-            (updateConformance)="updateConformance.emit($event)">
-        </app-variant-info>
-    </td>
-    <td class="variant-cell">
-        <div class="variant" [ngStyle]="{ 'border-color': variant.isSelected ? 'unset' : 'transparent' }">
-            <app-variant-fragment #fragment [variant]="variant['variant']" [colorMap]="colorMap"></app-variant-fragment>
-        </div>
-    </td>
+  <td>
+    <app-variant-info
+      [variant]="variant"
+      (selectionChanged)="selectionChanged.emit($event)"
+      (updateConformance)="updateConformance.emit($event)"
+    >
+    </app-variant-info>
+  </td>
+  <td class="variant-cell">
+    <div
+      class="variant"
+      [ngStyle]="{
+        'border-color': variant.isSelected ? 'unset' : 'transparent'
+      }"
+    >
+      <app-variant-fragment
+        #fragment
+        [variant]="variant['variant']"
+        [colorMap]="colorMap"
+      ></app-variant-fragment>
+    </div>
+  </td>
 </ng-container>
 <td *ngIf="!isVisible">
-    <div class="variant-spacer" [ngStyle]="{ height: variant.variant.getHeight() + 'px' }">
-        Loading...
-    </div>
+  <div
+    class="variant-spacer"
+    [ngStyle]="{ height: variant.variant.getHeight() + 'px' }"
+  >
+    Loading...
+  </div>
 </td>

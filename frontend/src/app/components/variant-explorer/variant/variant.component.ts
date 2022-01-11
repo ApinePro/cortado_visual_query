@@ -1,12 +1,21 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
 import { Variant } from '../model';
 import { VariantFragmentComponent } from '../variant-fragment/variant-fragment.component';
 
+/* tslint:disable:component-selector */
 @Component({
   selector: '[app-variant]',
   templateUrl: './variant.component.html',
-  styleUrls: ['./variant.component.scss']
+  styleUrls: ['./variant.component.scss'],
 })
 export class VariantComponent implements AfterViewInit {
   @Input()
@@ -39,7 +48,11 @@ export class VariantComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     const self = this;
-    this.lazyLoadingService.addVariant(this.rowElement, this.rootElement, isIntersecting => self.isVisible = isIntersecting);
+    this.lazyLoadingService.addVariant(
+      this.rowElement,
+      this.rootElement,
+      (isIntersecting) => (self.isVisible = isIntersecting)
+    );
   }
 
   isExpanded(): boolean {
