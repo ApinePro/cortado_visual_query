@@ -1,3 +1,5 @@
+import pm4pycvxopt
+
 from endpoints.add_variants_to_process_model import add_variants_to_process_model
 from cortado_core.utils.cvariants import generate_variants
 from cortado_core.utils.alignment_utils import trace_fits_process_tree
@@ -7,11 +9,10 @@ import uvicorn
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
+from pydantic import BaseModel, Field
 
 from pm4py.objects.log.importer.xes.importer import apply as xes_import
 import pm4py.objects.log.importer.xes.importer as xes_importer
-
-from pydantic import BaseModel, Field
 from pm4py.algo.filtering.log.variants import variants_filter
 from pm4py.objects.log.obj import EventLog, Trace, Event
 from pm4py.objects.process_tree.obj import ProcessTree
@@ -21,6 +22,7 @@ from pm4py.objects.conversion.process_tree.converter import apply as convert_pt_
 from pm4py.objects.petri_net.exporter.variants.pnml import export_petri_as_string as generate_pnml_xml
 from pm4py.objects.process_tree.importer.importer import apply as import_pt_from_ptml
 from pm4py.objects.process_tree.utils.generic import parse
+from pm4py.util.lp.solver import DEFAULT_LP_SOLVER_VARIANT
 
 from backend_utilities.process_tree_conversion import process_tree_to_dict
 from backend_utilities.process_tree_conversion import dict_to_process_tree
@@ -232,7 +234,7 @@ async def calculate_alignment(d: InputCalculateAlignment):
 
 
 @app.post("/applyReductionRulesToTree")
-async def applyTreeReductionRules(d : ConvertPtToX): 
+async def applyTreeReductionRules(d : ConvertPtToX):
     pt, frozen_subtrees = dict_to_process_tree(d.pt)
     return process_tree_to_dict( post_process_tree(pt, frozen_subtrees), frozen_subtrees)
 
@@ -298,6 +300,7 @@ def get_all_urls():
 
 
 if __name__ == "__main__":
+    # print(DEFAULT_LP_SOLVER_VARIANT)
     freeze_support()
     num_workers = max(1, cpu_count() - 2)
     uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=True)
