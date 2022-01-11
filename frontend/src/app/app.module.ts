@@ -11,6 +11,7 @@ import { ProcessTreeEditorComponent } from './components/process-tree-editor/pro
 import { StrFilterPipe } from './pipes/str-filter/str-filter.pipe';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxFileDropModule } from 'ngx-file-drop';
+import { ColorPickerModule } from 'ngx-color-picker';
 
 import { VariantExplorerComponent } from './components/variant-explorer/variant-explorer.component';
 import { SideBarComponent } from './components/side-bar/side-bar.component';
@@ -62,6 +63,7 @@ import { VariantConformanceDialogComponent } from './components/variant-explorer
     HttpClientModule,
     NgxFileDropModule,
     BrowserAnimationsModule,
+    ColorPickerModule,
   ],
   providers: [
     {

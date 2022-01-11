@@ -20,6 +20,13 @@ export class ColorMapService {
     return colorMap;
   }
 
+  changeActivityColor(activity: string, color: string): Map<string, string> {
+    let colorMap: Map<string, string> = this._colorMap.getValue();
+    colorMap.set(activity, color);
+    this._colorMap.next(colorMap);
+    return colorMap;
+  }
+
   // tslint:disable-next-line:variable-name
   private _colorMap = new BehaviorSubject<Map<string, string>>(null);
 

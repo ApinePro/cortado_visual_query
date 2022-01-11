@@ -138,6 +138,29 @@ export class ActivityOverviewComponent
       this.ascending = !this.ascending;
     }
   }
+
+  changeActivityColor(activityField: ActivityField, color: string) {
+    if (color) {
+      activityField.color = color;
+      this.colorMapService.changeActivityColor(
+        activityField.activityName,
+        color
+      );
+    }
+  }
+
+  resetActivityColors(): void {
+    this.colorMapService.getColorMap(
+      Object.keys(this.sharedDataService.activitiesInEventLog)
+    );
+    if (this.activityFields) {
+      for (let activityField of this.activityFields) {
+        activityField.color = this.activityColorMap.get(
+          activityField.activityName
+        );
+      }
+    }
+  }
 }
 
 export class ActivityField {
