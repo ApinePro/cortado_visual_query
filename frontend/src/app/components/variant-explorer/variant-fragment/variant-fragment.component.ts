@@ -1,4 +1,4 @@
-import { AfterViewInit, ElementRef } from '@angular/core';
+import { AfterViewInit, ElementRef, OnDestroy } from '@angular/core';
 import { Component, Input, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
@@ -158,15 +158,6 @@ export class VariantFragmentComponent implements AfterViewInit {
 
   setExpanded(expanded: boolean): void {
     this.variant.setExpanded(expanded);
-    this.redraw();
-  }
-
-  isExpanded(): boolean {
-    return this.variant.expanded;
-  }
-
-  setSelected(selected: boolean): void {
-    this.variant.setExpanded(selected);
     this.redraw();
   }
 

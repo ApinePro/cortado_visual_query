@@ -8,9 +8,6 @@ import { Variant } from '../model';
 })
 export class VariantInfoComponent {
   @Input()
-  outdatedConformanceStatistics: boolean;
-
-  @Input()
   variant: Variant;
 
   @Output()

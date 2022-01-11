@@ -19,28 +19,49 @@
     <i
       class="bi bi-hourglass-bottom font-large text-warning"
       *ngIf="variant.calculationInProgress === false && variant.isTimeouted"
+      data-bs-toggle="tooltip"
+      title="(re)calculate conformance statistics"
     ></i>
 
     <!-- check-square icon-->
     <i
-      class="bi bi-check-square font-large"
-      [ngClass]="
-        !variant.isConformanceOutdated || variant.isAddedFittingVariant
-          ? 'text-success'
-          : 'text-warning'
-      "
+      class="bi bi-check-square font-large text-success"
       *ngIf="
-        variant.deviation === false && variant.calculationInProgress === false
+        variant.deviation === false &&
+        variant.calculationInProgress === false &&
+        (!variant.isConformanceOutdated || variant.isAddedFittingVariant)
       "
+    ></i>
+    <i
+      class="bi bi-check-square font-large text-warning"
+      *ngIf="
+        variant.deviation === false &&
+        variant.calculationInProgress === false &&
+        !(!variant.isConformanceOutdated || variant.isAddedFittingVariant)
+      "
+      data-bs-toggle="tooltip"
+      title="(re)calculate conformance statistics"
     >
     </i>
     <!-- x-square icon-->
     <i
-      class="bi bi-x-square font-large"
-      [ngClass]="
-        !variant.isConformanceOutdated ? 'text-danger' : 'text-warning'
+      class="bi bi-x-square font-large text-danger"
+      *ngIf="
+        variant.deviation &&
+        variant.calculationInProgress === false &&
+        !variant.isConformanceOutdated
       "
-      *ngIf="variant.deviation && variant.calculationInProgress === false"
+    >
+    </i>
+    <i
+      class="bi bi-x-square font-large text-warning"
+      *ngIf="
+        variant.deviation &&
+        variant.calculationInProgress === false &&
+        variant.isConformanceOutdated
+      "
+      data-bs-toggle="tooltip"
+      title="(re)calculate conformance statistics"
     >
     </i>
 
@@ -52,6 +73,8 @@
         variant.calculationInProgress === false &&
         !variant.isTimeouted
       "
+      data-bs-toggle="tooltip"
+      title="(re)calculate conformance statistics"
     >
     </i>
   </div>

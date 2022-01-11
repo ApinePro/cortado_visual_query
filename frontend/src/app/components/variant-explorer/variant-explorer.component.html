@@ -219,11 +219,7 @@
     </button>
   </div>
 
-  <div
-    class="main-variant-explorer flex-grow-1"
-    (scroll)="onScroll($event)"
-    #variantExplorer
-  >
+  <div class="main-variant-explorer flex-grow-1" #variantExplorer>
     <div *ngIf="svgRenderingInProgress" class="full-body-spinner">
       <div>
         <div
@@ -249,53 +245,18 @@
             </th>
             <th class="text-start">Variant</th>
           </tr>
-          <ng-container *ngFor="let variant of visibleVariants; let i = index">
-            <tr>
-              <td style="padding-right: 15px; padding-left: 5px">
-                {{ i + 1 }}.
-              </td>
-              <td>
-                <app-variant-info
-                  [variant]="variant"
-                  (selectionChanged)="
-                    selectionChangedForVariant(variant, $event)
-                  "
-                  (updateConformance)="
-                    updateConformanceForSingleVariantClicked($event)
-                  "
-                ></app-variant-info>
-              </td>
-              <td class="variant-cell">
-                <div
-                  class="variant"
-                  [ngStyle]="{
-                    'border-color': variant.isSelected ? 'unset' : 'transparent'
-                  }"
-                >
-                  <app-variant-fragment
-                    [variant]="variant['variant']"
-                    [colorMap]="colorMap"
-                  ></app-variant-fragment>
-                </div>
-              </td>
-            </tr>
-          </ng-container>
-          <tr *ngFor="let variant of dummyVariants">
-            <td></td>
-            <td>
-              <div
-                class="variant-spacer"
-                [ngStyle]="{ height: invisibleVariantsHeight + 'px' }"
-              >
-                <div
-                  class="spinner-border spinner-border-sm text-primary"
-                  style="margin-right: 20px; margin-left: 20px"
-                  role="status"
-                ></div>
-                Loading...
-              </div>
-            </td>
-          </tr>
+          <tr
+            app-variant
+            *ngFor="let variant of variants; let i = index"
+            [index]="i"
+            [variant]="variant"
+            (selectionChanged)="selectionChangedForVariant(variant, $event)"
+            [colorMap]="colorMap"
+            (updateConformance)="
+              updateConformanceForSingleVariantClicked($event)
+            "
+            [rootElement]="variantExplorerDiv"
+          ></tr>
         </table>
       </div>
     </div>

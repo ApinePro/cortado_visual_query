@@ -35,6 +35,8 @@ import * as d3 from 'd3';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { VariantSorter } from './variant-sorter';
 import * as objectHash from 'object-hash';
+import { VariantComponent } from './variant/variant.component';
+import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -81,10 +83,6 @@ export class VariantExplorerComponent
   collapse: boolean = false;
 
   public variants: Variant[] = [];
-  public visibleVariants: Variant[] = [];
-  public dummyVariants: Variant[] = [];
-  public invisibleVariantsHeight = 50;
-
   public colorMap: Map<string, string>;
 
   public currentlyDisplayedProcessTree;
@@ -109,8 +107,8 @@ export class VariantExplorerComponent
   @ViewChild('variantExplorer', { static: true })
   variantExplorerDiv: ElementRef<HTMLDivElement>;
 
-  @ViewChildren(VariantFragmentComponent)
-  variantComponents: QueryList<VariantFragmentComponent>;
+  @ViewChildren(VariantComponent)
+  variantComponents: QueryList<VariantComponent>;
 
   @ViewChild('variantExplorerContainer')
   variantExplorerContainer: ElementRef<HTMLDivElement>;
@@ -141,7 +139,6 @@ export class VariantExplorerComponent
     this.colorMap = this.colorMapService.getColorMap(
       Object.keys(this.sharedDataService.activitiesInEventLog)
     );
-    this.initializeVisibleVariants();
 
     const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
     this.variants.forEach((v) => {
@@ -191,7 +188,6 @@ export class VariantExplorerComponent
     );
 
     this.variants = this.sharedDataService.variants;
-    this.initializeVisibleVariants();
 
     this.variants.forEach((v) => {
       v.isSelected = false;
@@ -208,28 +204,6 @@ export class VariantExplorerComponent
       .reduce((a, b) => a + b);
     this.totalNumberVariants = this.variants.length;
     this.sort(this.sortingFeature);
-  }
-
-  initializeVisibleVariants(): void {
-    const divHeight = this.variantExplorerDiv.nativeElement.clientHeight;
-    let h = 0;
-    let i = 0;
-    while (h < divHeight && i < this.variants.length) {
-      h += this.variants[i].variant.getHeight();
-      i++;
-    }
-    this.visibleVariants = this.variants.slice(0, i + this.nVariantsInc);
-    this.dummyVariants = this.variants.slice(
-      this.visibleVariants.length,
-      this.variants.length + 1
-    );
-    this.invisibleVariantsHeight =
-      this.dummyVariants
-        .map((v) => v.variant.getHeight())
-        .reduce((a, b) => a + b, 0) / this.dummyVariants.length;
-    this.visibleVariantsHeight = this.visibleVariants
-      .map((v) => v.variant.getHeight())
-      .reduce((a, b) => a + b, 0);
   }
 
   updateAlignmentsStop(): void {
@@ -436,8 +410,8 @@ export class VariantExplorerComponent
     if (this.variantComponents === undefined) {
       return false;
     }
-    const unexpandedVariantsExist = this.variantComponents.some(
-      (c) => !c.isExpanded()
+    const unexpandedVariantsExist = this.variants.some(
+      (v) => !v.variant.expanded
     );
     return !unexpandedVariantsExist;
   }
@@ -445,11 +419,6 @@ export class VariantExplorerComponent
   unExpandAll(): void {
     const shouldExpand = !this.areAllVariantsExpanded();
     this.variantComponents.forEach((c) => c.setExpanded(shouldExpand));
-  }
-
-  onScroll(event): void {
-    const scrollTop = event.target.scrollTop;
-    this.updateVisible(scrollTop);
   }
 
   handleResponsiveChange(
@@ -462,24 +431,6 @@ export class VariantExplorerComponent
       this.collapse = true;
     } else {
       this.collapse = false;
-    }
-  }
-
-  updateVisible(scrollTop): void {
-    const h = this.variantExplorerDiv.nativeElement.clientHeight;
-    if (this.visibleVariantsHeight - (h + scrollTop) <= 50) {
-      while (
-        this.visibleVariantsHeight < h + scrollTop &&
-        this.visibleVariants.length < this.variants.length
-      ) {
-        const v = this.dummyVariants.shift();
-        this.visibleVariantsHeight += v.variant.getHeight();
-        this.visibleVariants.push(v);
-      }
-      this.invisibleVariantsHeight =
-        this.dummyVariants
-          .map((v) => v.variant.getHeight())
-          .reduce((a, b) => a + b, 0) / this.dummyVariants.length;
     }
   }
 
@@ -506,14 +457,16 @@ export class VariantExplorerComponent
 
     this.svgRenderingInProgress = true;
 
+    const visibleComponents = this.variantComponents.filter((c) => c.isVisible);
+
     // Get current expansion state
-    this.variantComponents.forEach((c) => state.push(c.isExpanded()));
+    visibleComponents.forEach((c) => state.push(c.isExpanded()));
 
     // Expand the elements and redraw them
-    this.variantComponents.forEach((c) => c.setSelected(true));
+    visibleComponents.forEach((c) => c.setExpanded(true));
 
     // Collect the SVG and pass them to the SVG Service
-    this.variantComponents.forEach((c) => svgs.push(c.getSVGGraphicElement()));
+    visibleComponents.forEach((c) => svgs.push(c.getSVGGraphicElement()));
 
     // Add Frequency and Percentage information to the SVG
     svgs = svgs.map((c, i) =>
@@ -541,7 +494,7 @@ export class VariantExplorerComponent
     this.imageExportService.export('variant_explorer', 0, 0, ...svgs);
 
     // Return everything to its previous state
-    this.variantComponents.forEach((c, i) => c.setSelected(state[i]));
+    visibleComponents.forEach((c, i) => c.setExpanded(state[i]));
 
     // Hide the Spinner
     this.svgRenderingInProgress = false;
@@ -622,7 +575,6 @@ export class VariantExplorerComponent
       this.isAscendingOrder
     );
     this.variantExplorerDiv.nativeElement.scroll(0, 0);
-    this.initializeVisibleVariants();
   }
 
   onSortOrderChanged(isAscending: boolean): void {

@@ -27,18 +27,6 @@
   border-top: 0px;
 }
 
-.variant-cell {
-  padding: 5px;
-  width: 100%;
-}
-
-.variant {
-  border-width: 1px !important;
-  padding: 5px;
-  width: fit-content;
-  border: dashed;
-}
-
 .spacer {
   height: 5px;
 }
@@ -89,12 +77,6 @@
     text-align: left !important;
     max-width: 300px !important;
   }
-}
-
-.variant-spacer {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
 }
 
 .button-text{
