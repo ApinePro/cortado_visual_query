@@ -4,6 +4,9 @@ export function textColorForBackgroundColor(
   return isDarkColor(backgroundColorInHex) ? 'white' : 'black';
 
   function isDarkColor(colorInHex: string): boolean {
+    if (colorInHex === undefined) {
+      return true;
+    }
     const res = hexToRgb(colorInHex);
     if (0.2126 * res['r'] + 0.7152 * res['g'] + 0.0722 * res['b'] >= 135) {
       return false;
