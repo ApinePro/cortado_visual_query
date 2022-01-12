@@ -5,7 +5,7 @@ import { ElementRef, Injectable } from '@angular/core';
 })
 export class LazyLoadingServiceService {
   private intersectionObserver: any;
-  private mapping: Map<Element, Function> = new Map<Element, Function>();
+  private mapping: Map<any, Function> = new Map<any, Function>();
 
   private initialize(rootElement: ElementRef): void {
     const self = this;
@@ -19,12 +19,15 @@ export class LazyLoadingServiceService {
           }
         }
       },
-      { root: rootElement.nativeElement, rootMargin: '2000px 0px 2000px 0px' }
+      {
+        root: rootElement.nativeElement,
+        rootMargin: '2000px 2000px 2000px 2000px',
+      }
     );
   }
 
   public addVariant(
-    variantElement: ElementRef,
+    variantElement: any,
     rootElement: ElementRef,
     callback: Function
   ): void {
@@ -35,7 +38,7 @@ export class LazyLoadingServiceService {
       this.initialize(rootElement);
     }
 
-    this.mapping.set(variantElement.nativeElement, callback);
-    this.intersectionObserver.observe(variantElement.nativeElement);
+    this.mapping.set(variantElement, callback);
+    this.intersectionObserver.observe(variantElement);
   }
 }
