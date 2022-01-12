@@ -27,7 +27,6 @@ import {
   Variant,
   LeafNode,
 } from './model';
-import { VariantFragmentComponent } from './variant-fragment/variant-fragment.component';
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import { ImageExportService } from '../../services/imageExportService/image-export-service';
@@ -36,7 +35,6 @@ import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { VariantSorter } from './variant-sorter';
 import * as objectHash from 'object-hash';
 import { VariantComponent } from './variant/variant.component';
-import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -79,7 +77,6 @@ export class VariantExplorerComponent
     const state = this.container.initialState;
   }
 
-  private readonly nVariantsInc = 50;
   collapse: boolean = false;
 
   public variants: Variant[] = [];
@@ -143,14 +140,10 @@ export class VariantExplorerComponent
       this.colorMap = colorMap;
       if (this.variantComponents) {
         for (let vc of this.variantComponents) {
-          if (vc.variantFragment) {
-            vc.variantFragment.colorMap = this.colorMap;
-            vc.variantFragment.redraw(); // performance problems
-          }
+          vc.colorMapChanged();
         }
       }
     });
-    // this.initializeVisibleVariants();
 
     const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
     this.variants.forEach((v) => {
