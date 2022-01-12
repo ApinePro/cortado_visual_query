@@ -66,6 +66,12 @@ export class VariantComponent implements AfterViewInit {
     }
   }
 
+  colorMapChanged(): void {
+    if (this.isVisible) {
+      this.variantFragment.redraw();
+    }
+  }
+
   getSVGGraphicElement(): SVGGraphicsElement {
     return this.variantFragment.getSVGGraphicElement();
   }
