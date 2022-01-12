@@ -1,9 +1,11 @@
-import { AfterViewInit, ElementRef, OnDestroy } from '@angular/core';
+import { AfterViewInit, ElementRef, OnDestroy, OnInit } from '@angular/core';
 import { Component, Input, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
+import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import { PolygonGeneratorService } from 'src/app/services/polygon-generator.service';
+import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import {
   Constants,
   LeafNode,
@@ -20,7 +22,8 @@ import {
 export class VariantFragmentComponent implements AfterViewInit {
   constructor(
     private polygonService: PolygonGeneratorService,
-    private polygonDrawingService: PolygonDrawingService
+    private polygonDrawingService: PolygonDrawingService,
+    private colorMapService: ColorMapService
   ) {}
 
   @ViewChild('svg')
@@ -29,9 +32,7 @@ export class VariantFragmentComponent implements AfterViewInit {
   @Input()
   variant: VariantElement;
 
-  @Input()
   colorMap: Map<string, string>;
-
   svgSelection!: Selection<any, any, any, any>;
 
   deserialize(obj: any): VariantElement {
@@ -52,6 +53,12 @@ export class VariantFragmentComponent implements AfterViewInit {
     this.svgSelection = d3
       .select(this.svgHtmlElement.nativeElement)
       .append('g');
+
+    this.colorMapService.colorMap$.subscribe((colorMap) => {
+      this.colorMap = colorMap;
+      this.redraw();
+    });
+
     this.redraw();
   }
 

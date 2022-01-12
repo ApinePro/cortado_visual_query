@@ -25,9 +25,6 @@ export class VariantComponent implements AfterViewInit {
   variant: Variant;
 
   @Input()
-  colorMap: Map<string, string>;
-
-  @Input()
   rootElement: ElementRef;
 
   @Output()
@@ -62,12 +59,6 @@ export class VariantComponent implements AfterViewInit {
   setExpanded(expanded: boolean): void {
     this.variant.variant.setExpanded(expanded);
     if (this.variantFragment !== undefined && this.variantFragment !== null) {
-      this.variantFragment.redraw();
-    }
-  }
-
-  colorMapChanged(): void {
-    if (this.isVisible) {
       this.variantFragment.redraw();
     }
   }

@@ -138,11 +138,6 @@ export class VariantExplorerComponent
     );
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.colorMap = colorMap;
-      if (this.variantComponents) {
-        for (let vc of this.variantComponents) {
-          vc.colorMapChanged();
-        }
-      }
     });
 
     const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
