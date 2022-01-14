@@ -1,6 +1,8 @@
 const {app, BrowserWindow} = require('electron')
 const url = require("url");
 const path = require("path");
+const customTitlebar = require('custom-electron-titlebar');
+
 
 let win;
 
