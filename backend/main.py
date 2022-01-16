@@ -6,7 +6,7 @@ from cortado_core.utils.alignment_utils import trace_fits_process_tree
 from multiprocessing import freeze_support, cpu_count
 from typing import Any, List
 import uvicorn
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
@@ -33,7 +33,6 @@ from backend_utilities.variant_trace_conversion import variant_to_trace
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 from endpoints.load_event_log import calculate_event_log_properties
 from cortado_core.freezing.reinsert_frozen_subtrees import post_process_tree
-
 
 app = FastAPI()
 origins = [
@@ -234,9 +233,10 @@ async def calculate_alignment(d: InputCalculateAlignment):
 
 
 @app.post("/applyReductionRulesToTree")
-async def applyTreeReductionRules(d : ConvertPtToX):
+async def applyTreeReductionRules(d: ConvertPtToX):
     pt, frozen_subtrees = dict_to_process_tree(d.pt)
-    return process_tree_to_dict( post_process_tree(pt, frozen_subtrees), frozen_subtrees)
+    return process_tree_to_dict(post_process_tree(pt, frozen_subtrees), frozen_subtrees)
+
 
 class InputCalculateAlignmentCVariant(BaseModel):
     pt: dict
@@ -290,6 +290,23 @@ async def get_configuration():
     config = config_repository.get_configuration()
     config_dto = Configuration(timeout_cvariant_alignment_computation=config.timeout_cvariant_alignment_computation)
     return config_dto
+
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            data = await websocket.receive_json()
+            tst = {
+                'isTimeout': False,
+                'cost': 0,
+                'deviation': False,
+
+            }
+            await websocket.send_json(tst)
+    except WebSocketDisconnect:
+        print('websocket disconnected')
 
 
 # Using FastAPI instance

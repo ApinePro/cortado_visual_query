@@ -18,7 +18,7 @@ import { SharedDataService } from '../../services/sharedDataService/shared-data.
 import { BackendService } from '../../services/backendService/backend.service';
 
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { catchError, map, takeUntil, tap } from 'rxjs/operators';
 import {
   deserialize,
   ParallelGroup,
@@ -35,6 +35,7 @@ import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { VariantSorter } from './variant-sorter';
 import * as objectHash from 'object-hash';
 import { VariantComponent } from './variant/variant.component';
+import { ConformanceCheckingService } from 'src/app/services/ConformanceChecking/conformance-checking.service';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -68,6 +69,7 @@ export class VariantExplorerComponent
     private backendService: BackendService,
     private imageExportService: ImageExportService,
     private polygonDrawingService: PolygonDrawingService,
+    private conformanceCheckingService: ConformanceCheckingService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
     elRef: ElementRef,
@@ -219,9 +221,39 @@ export class VariantExplorerComponent
     this.updateAlignmentStatistics();
     this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
 
+    this.conformanceCheckingService.connect();
+    this.conformanceCheckingService.messages.subscribe(
+      (res) => {
+        console.log(res);
+        // variant.calculationInProgress = false;
+        // variant.alignment = res.alignment;
+        // variant.deviation = res.deviation;
+        // variant.isTimeouted = false;
+        // variant.isConformanceOutdated = false;
+        // this.updateAlignmentStatistics();
+      },
+      (error) => {
+        console.log(error);
+        // if (error.status === 504) {
+        //   variant.calculationInProgress = false;
+        //   variant.isTimeouted = true;
+        //   variant.isConformanceOutdated = true;
+        //   this.updateAlignmentStatistics();
+        // } else {
+        //   this.updateAlignmentsStop();
+        // }
+      }
+    );
+
     this.variants.forEach((v) => {
       v.calculationInProgress = true;
       v.deviation = undefined;
+
+      this.conformanceCheckingService.sendMessage({
+        pt: this.sharedDataService.currentDisplayedProcessTree,
+        variant: v.variant.serialize(),
+        timeout: 0,
+      });
 
       this.updateConformanceForVariant(v, 0);
     });
