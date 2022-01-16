@@ -1,4 +1,5 @@
 import pm4pycvxopt
+from memory_profiler import profile
 
 from endpoints.add_variants_to_process_model import add_variants_to_process_model
 from cortado_core.utils.cvariants import generate_variants
@@ -257,6 +258,13 @@ def calculate_alignment_intern(pt: dict, c_variant: dict):
     return {'cost': 0, 'deviation': False}
 
 
+def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, timeout: int):
+    try:
+        return execute_with_timeout(calculate_alignment_intern, timeout, args=(pt, c_variant))
+    except TimeoutException:
+        return {'isTimeout': True}
+
+
 # @app.post("/calculateAlignmentsCVariant")
 # async def calculate_alignment(d: InputCalculateAlignmentCVariant, response: Response):
 #     timeout = d.timeout
@@ -295,26 +303,31 @@ async def get_configuration():
 
 def _get_cback(idx: str, websocket: WebSocket):
     def cback(result):
-        tst = {
+        data = {
             'id': idx,
             'isTimeout': False,
-            'cost': result['cost'],
-            'deviation': result['deviation'],
+            'cost': 0,
+            'deviation': False,
         }
 
-        asyncio.run(websocket.send_json(tst))
+        for key, value in result.items():
+            data[key] = value
+
+        print(data)
+        asyncio.run(websocket.send_json(data))
 
     return cback
 
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    with Pool(processes=4) as pool:
+    with Pool(processes=1) as pool:
         await websocket.accept()
         while True:
             data = await websocket.receive_json()
+            # TODO adjust timeout
 
-            pool.apply_async(calculate_alignment_intern, (data['pt'], data['variant'],),
+            pool.apply_async(calculate_alignment_intern_with_timeout, (data['pt'], data['variant'], 1,),
                              callback=_get_cback(data['id'], websocket))
 
 

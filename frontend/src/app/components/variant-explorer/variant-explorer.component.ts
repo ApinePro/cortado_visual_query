@@ -228,21 +228,18 @@ export class VariantExplorerComponent
         const variant = this.variants.find((v) => v.id == res.id);
         variant.calculationInProgress = false;
         //variant.alignment = res.alignment;
-        variant.deviation = res.deviation;
-        variant.isTimeouted = false;
-        variant.isConformanceOutdated = false;
+        variant.isTimeouted = res.isTimeout;
+        variant.isConformanceOutdated = res.isTimeout;
+
+        if (!res.isTimeout) {
+          variant.deviation = res.deviation;
+        }
+
         this.updateAlignmentStatistics();
       },
       (error) => {
         console.log(error);
-        // if (error.status === 504) {
-        //   variant.calculationInProgress = false;
-        //   variant.isTimeouted = true;
-        //   variant.isConformanceOutdated = true;
-        //   this.updateAlignmentStatistics();
-        // } else {
         //   this.updateAlignmentsStop();
-        // }
       }
     );
 
