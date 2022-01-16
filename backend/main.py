@@ -10,6 +10,8 @@ from fastapi import FastAPI, File, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
+from multiprocessing import Pool
+import asyncio
 
 from pm4py.objects.log.importer.xes.importer import apply as xes_import
 import pm4py.objects.log.importer.xes.importer as xes_importer
@@ -244,7 +246,7 @@ class InputCalculateAlignmentCVariant(BaseModel):
     timeout: int
 
 
-def calculate_alignments_intern(pt: dict, c_variant: dict):
+def calculate_alignment_intern(pt: dict, c_variant: dict):
     all_variants = generate_variants(c_variant)
     for variant in all_variants:
         alignment = calculate_alignment_endpoint(variant, pt)
@@ -252,21 +254,20 @@ def calculate_alignments_intern(pt: dict, c_variant: dict):
             return {'cost': alignment['cost'],
                     'deviation': alignment['deviation']}
 
-    return {'cost': 0,
-            'deviation': False}
+    return {'cost': 0, 'deviation': False}
 
 
-@app.post("/calculateAlignmentsCVariant")
-async def calculate_alignment(d: InputCalculateAlignmentCVariant, response: Response):
-    timeout = d.timeout
-
-    if d.timeout == 0:
-        config_repository = ConfigurationRepositoryFactory.get_config_repository()
-        timeout = config_repository.get_configuration().timeout_cvariant_alignment_computation
-    try:
-        return execute_with_timeout(calculate_alignments_intern, timeout, args=(d.pt, d.variant))
-    except TimeoutException:
-        response.status_code = 504
+# @app.post("/calculateAlignmentsCVariant")
+# async def calculate_alignment(d: InputCalculateAlignmentCVariant, response: Response):
+#     timeout = d.timeout
+#
+#     if d.timeout == 0:
+#         config_repository = ConfigurationRepositoryFactory.get_config_repository()
+#         timeout = config_repository.get_configuration().timeout_cvariant_alignment_computation
+#     try:
+#         return execute_with_timeout(calculate_alignment_intern, timeout, args=(d.pt, d.variant))
+#     except TimeoutException:
+#         response.status_code = 504
 
 
 class Configuration(BaseModel):
@@ -292,21 +293,29 @@ async def get_configuration():
     return config_dto
 
 
+def _get_cback(idx: str, websocket: WebSocket):
+    def cback(result):
+        tst = {
+            'id': idx,
+            'isTimeout': False,
+            'cost': result['cost'],
+            'deviation': result['deviation'],
+        }
+
+        asyncio.run(websocket.send_json(tst))
+
+    return cback
+
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    try:
+    with Pool(processes=4) as pool:
+        await websocket.accept()
         while True:
             data = await websocket.receive_json()
-            tst = {
-                'isTimeout': False,
-                'cost': 0,
-                'deviation': False,
 
-            }
-            await websocket.send_json(tst)
-    except WebSocketDisconnect:
-        print('websocket disconnected')
+            pool.apply_async(calculate_alignment_intern, (data['pt'], data['variant'],),
+                             callback=_get_cback(data['id'], websocket))
 
 
 # Using FastAPI instance

@@ -10,15 +10,16 @@ export const WS_ENDPOINT = 'ws://127.0.0.1:8000/ws';
 })
 export class ConformanceCheckingService {
   private socket: WebSocketSubject<any>;
-  public messages: Observable<ConformanceCheckingResult>;
+  public results: Observable<ConformanceCheckingResult>;
 
   // TODO catch case where connection is closed from server (catchError)
   public connect(): void {
     if (!this.socket || this.socket.closed) {
       this.socket = webSocket(WS_ENDPOINT);
-      this.messages = this.socket.pipe(
+      this.results = this.socket.pipe(
         map((result) => {
           return new ConformanceCheckingResult(
+            result['id'],
             result['isTimeout'],
             result['cost'],
             result['deviation']
