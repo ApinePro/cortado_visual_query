@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { BackendService } from '../../services/backendService/backend.service';
@@ -8,7 +8,7 @@ import { BackendService } from '../../services/backendService/backend.service';
   templateUrl: './header-bar.component.html',
   styleUrls: ['./header-bar.component.css'],
 })
-export class HeaderBarComponent implements OnInit {
+export class HeaderBarComponent {
   @ViewChild('fileUploadEventLog') fileUploadEventLog: ElementRef;
   @ViewChild('fileUploadProcessTree') fileUploadProcessTree: ElementRef;
 
