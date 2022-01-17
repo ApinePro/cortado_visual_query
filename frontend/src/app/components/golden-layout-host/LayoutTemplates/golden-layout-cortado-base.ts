@@ -1,4 +1,9 @@
-import { LayoutConfig, ItemType, ComponentItemConfig } from 'golden-layout';
+import {
+  LayoutConfig,
+  ItemType,
+  ComponentItemConfig,
+  Side,
+} from 'golden-layout';
 import { ProcessTreeEditorComponent } from '../../process-tree-editor/process-tree-editor.component';
 import { VariantExplorerComponent } from '../../variant-explorer/variant-explorer.component';
 import { ActivityOverviewComponent } from '../../activity-overview/activity-overview.component';
@@ -14,15 +19,23 @@ export const baseLayout: LayoutConfig = {
     type: ItemType.column,
     content: [
       {
-        type: 'component',
-        title: 'Process Tree Visualizer',
-        isClosable: true,
-        height: 61.803,
+        type: ItemType.stack,
         header: {
-          show: false,
+          show: Side.left,
+          maximise: false,
+          popout: false,
         },
-        componentType: ProcessTreeEditorComponent.componentName,
-      } as ComponentItemConfig,
+        content: [
+          {
+            type: 'component',
+            title: 'Process Tree Visualizer',
+            isClosable: false,
+            height: 61.803,
+
+            componentType: ProcessTreeEditorComponent.componentName,
+          } as ComponentItemConfig,
+        ],
+      },
       {
         type: ItemType.row,
         height: 38.197,

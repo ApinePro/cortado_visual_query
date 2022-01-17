@@ -1,0 +1,43 @@
+.header-bar{
+  background-color: var(--box-background-color) !important;
+  color:whitesmoke;
+  font-size: small;
+  position: fixed;
+  width: 100%;
+  height: var(--header-bar-height);
+  -webkit-app-region: drag;
+  -webkit-user-select: none;
+  user-select: none;
+  z-index: 6;
+  top: 0px;
+  left: 0px;
+  display: flex;
+  align-items: center;
+}
+
+.button{
+  -webkit-app-region: no-drag;
+  color:black;
+}
+
+.button:hover:enabled {
+  background-color: #c7c9cc;
+}
+
+.drop-down-button{
+  -webkit-app-region: no-drag;
+  color:grey;
+}
+
+.drop-down-button:hover:enabled {
+  background-color: #c7c9cc;
+}
+
+.btn-icon{
+  margin-left: 6px;
+}
+
+.icon{
+  font-size: 12px;
+}
+

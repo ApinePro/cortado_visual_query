@@ -1,8 +1,6 @@
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, ipcMain, Menu} = require('electron')
 const url = require("url");
 const path = require("path");
-const customTitlebar = require('custom-electron-titlebar');
-
 
 let win;
 
@@ -13,8 +11,8 @@ function createWindow() {
     width: 1280,
     height: 800,
     frame: true,
+    titleBarStyle: true,
     webPreferences: {
-      nodeIntegration: false
     },
     icon: "./icon/cortado_icon_colorful_transparent.png"
   })
@@ -52,3 +50,7 @@ app.on('activate', function () {
     }
   }
 )
+
+
+ipcMain.on('maximize-window', event =>
+console.log("maximize-window:", event))

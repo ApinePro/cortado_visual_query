@@ -1,3 +1,5 @@
+import { FooterComponent } from './components/footer/footer.component';
+import { HeaderBarComponent } from './components/header-bar/header-bar.component';
 import {
   AfterViewInit,
   Component,
@@ -20,7 +22,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   @ViewChild('goldenLayoutHost')
   private _goldenLayoutHostComponent: GoldenLayoutHostComponent;
 
-  _sideBarWidth: number = 30;
+  @ViewChild('headerComponent')
+  private headerComponent: HeaderBarComponent;
+
+  @ViewChild('footerComponent')
+  private footerComponent: FooterComponent;
+
+  _headerBarHeight: number = 25;
 
   ngAfterViewInit() {
     globalThis.addEventListener('resize', this._windowResizeListener);
@@ -54,9 +62,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private resizeGoldenLayout() {
     const bodyWidth = document.body.offsetWidth;
     const bodyHeight = document.body.offsetHeight;
-    this._goldenLayoutHostComponent.setSize(
-      bodyWidth - this._sideBarWidth,
-      bodyHeight
-    );
+    this._goldenLayoutHostComponent.setSize(bodyWidth, bodyHeight);
   }
 }

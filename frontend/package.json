@@ -43,8 +43,8 @@
   },
   "private": true,
   "dependencies": {
-    "custom-electron-titlebar": "^3.2.10",
     "electron-store": "^8.0.1",
+    "fix": "^0.0.6",
     "ngx-color-picker": "^11.0.0",
     "ngx-file-drop": "^13.0.0",
     "object-hash": "^2.2.0",

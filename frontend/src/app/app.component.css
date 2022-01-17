@@ -4,10 +4,11 @@
 
 
 :host {
-  height: calc(100vh - 19px);
+  height: calc(100vh - var(--header-bar-height) - var(--footer-bar-height));
   width: 100%;
   display: flex;
   flex-direction: row;
+  margin-top: var(--header-bar-height);
 }
 
 
