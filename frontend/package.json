@@ -80,7 +80,7 @@
     "bootstrap-icons": "^1.7.2",
     "codelyzer": "^6.0.2",
     "concurrently": "^6.4.0",
-    "d3": "^6.7.0",
+    "d3": "^7.3.0",
     "d3-flextree": "^2.1.2",
     "electron": "^16.0.7",
     "electron-builder": "^22.14.5",
