@@ -43,7 +43,9 @@ export const baseLayout: LayoutConfig = {
           {
             type: 'component',
             header: {
-              show: false,
+              show: Side.left,
+              maximise: false,
+              popout: false,
             },
             width: 61.803,
             title: 'Variant Explorer',

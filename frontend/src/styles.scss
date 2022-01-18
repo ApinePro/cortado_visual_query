@@ -243,6 +243,46 @@ th {
   stroke : #dc3545 !important;
 }
 
+.lm_goldenlayout{
+  background-color: rgba(var(--bs-dark-rgb),var(--bs-bg-opacity))!important;
+}
+
+.lm_tabs{
+  margin-top : 1.5px;
+}
+
+.lm_tab {
+  background: var(--box-background-color)!important;
+  border-top-left-radius: .25rem;
+  border-top-right-radius: .25rem;
+}
+
+.lm_tab.lm_active {
+  background: rgb(119, 117, 117)!important;
+}
+
+.lm_header .lm_tab {
+  cursor: pointer;
+  float: left;
+  height: 10px;
+  margin-top: 1px;
+  padding: 0px 10px 5px;
+  position: relative;
+  touch-action: none;
+}
+
+.lm_header .lm_tab{
+  border-bottom: none;
+  padding-bottom: 7.5px;
+  margin-top: 2px !important;
+}
+
+.lm_header .lm_tab.lm_active {
+  border-bottom: none;
+  padding-bottom: 7.5px;
+  margin-top: 2px !important;
+}
+
 .syntax-info {
   background-color: rgba(0, 0, 0, 0.4);
   position: absolute;

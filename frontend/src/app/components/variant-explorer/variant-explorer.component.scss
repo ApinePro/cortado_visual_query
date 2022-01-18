@@ -39,6 +39,7 @@
 .container-variant-explorer {
   min-height: 100%;
   position: relative;
+  border-left: 1px solid var(--thin-border-color);
 }
 
 .variant-explorer-alert {
