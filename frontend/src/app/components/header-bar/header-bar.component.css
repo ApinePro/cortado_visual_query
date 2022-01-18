@@ -18,6 +18,8 @@
 .button{
   -webkit-app-region: no-drag;
   color:black;
+  width: 100%;
+  text-align: left;
 }
 
 .button:hover:enabled {
@@ -35,6 +37,7 @@
 
 .btn-icon{
   margin-left: 6px;
+  margin-right: 6px;
 }
 
 .icon{

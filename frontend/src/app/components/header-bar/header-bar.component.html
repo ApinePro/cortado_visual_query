@@ -12,41 +12,49 @@
     <ul class="dropdown-menu" aria-labelledby="Files">
       <li>
         <button class="button align-bottom" (click)="importEventLog()">
-          <i class="bi bi-upload btn-icon"></i>
-          <span><b>Import</b> event log</span>
+          <div>
+            <i class="bi bi-upload btn-icon"></i>
+            <span><b>Import</b> event log</span>
+          </div>
         </button>
       </li>
       <li>
         <button class="button align-bottom" (click)="importTreeFromPTML()">
-          <i class="bi bi-file-earmark-arrow-up btn-icon"></i>
-          <span
-            ><b>Import</b> process tree (<samp class="text-primary fw-bold"
-              >.ptml</samp
-            >)</span
-          >
+          <div>
+            <i class="bi bi-file-earmark-arrow-up btn-icon"></i>
+            <span
+              ><b>Import</b> process tree (<samp class="text-primary fw-bold"
+                >.ptml</samp
+              >)</span
+            >
+          </div>
         </button>
       </li>
       <li>
         <button class="button align-bottom" (click)="exportTreeAsPTML()">
-          <i class="bi bi-file-earmark-arrow-down-fill btn-icon"></i>
-          <span
-            ><b>Export</b> model as process tree (<samp
-              class="text-primary fw-bold"
-              >.ptml</samp
-            >)</span
-          >
+          <div>
+            <i class="bi bi-file-earmark-arrow-down-fill btn-icon"></i>
+            <span
+              ><b>Export</b> model as process tree (<samp
+                class="text-primary fw-bold"
+                >.ptml</samp
+              >)</span
+            >
+          </div>
         </button>
       </li>
 
       <li>
         <button class="button align-bottom" (click)="exportTreeAsPNML()">
-          <i class="bi bi-file-earmark-arrow-down-fill btn-icon"></i>
-          <span
-            ><b>Export</b> model as Petri net (<samp
-              class="text-primary fw-bold"
-              >.pnml</samp
-            >)</span
-          >
+          <div>
+            <i class="bi bi-file-earmark-arrow-down-fill btn-icon"></i>
+            <span
+              ><b>Export</b> model as Petri net (<samp
+                class="text-primary fw-bold"
+                >.pnml</samp
+              >)</span
+            >
+          </div>
         </button>
       </li>
     </ul>
