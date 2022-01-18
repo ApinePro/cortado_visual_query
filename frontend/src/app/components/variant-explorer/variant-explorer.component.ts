@@ -427,7 +427,7 @@ export class VariantExplorerComponent
     width: number,
     height: number
   ): void {
-    if (width < 600) {
+    if (width < 690) {
       this.collapse = true;
     } else {
       this.collapse = false;
