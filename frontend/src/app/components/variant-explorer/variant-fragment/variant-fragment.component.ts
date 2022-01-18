@@ -5,7 +5,6 @@ import { Selection } from 'd3';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import { PolygonGeneratorService } from 'src/app/services/polygon-generator.service';
-import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import {
   Constants,
   LeafNode,
