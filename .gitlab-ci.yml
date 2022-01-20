@@ -118,6 +118,7 @@ build-electron-app-linux:
   rules:
     - when: on_success
   before_script:
+    - export LINUX_BUILD_DIR=$(echo "${LINUX_BUILD_DIR//:}") 
     - cd frontend
     - npm ci
   script:
@@ -132,5 +133,5 @@ build-electron-app-linux:
   artifacts:
     name: ${LINUX_BUILD_DIR//:}
     paths:
-      - $LINUX_BUILD_DIR
+      - ${LINUX_BUILD_DIR//:}
     expire_in: 1 week
