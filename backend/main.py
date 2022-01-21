@@ -34,6 +34,13 @@ from endpoints.alignments import calculate_alignment as calculate_alignment_endp
 from endpoints.load_event_log import calculate_event_log_properties
 from cortado_core.freezing.reinsert_frozen_subtrees import post_process_tree
 
+import configparser
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+# Decide when to use multiprocessing for event log
+min_traces_variant_detection_mp = int(config['MULTIPROCESSING']['MIN_TRACES_VARIANT_DETECTION_MULTIPROCESSING'])
+
 
 app = FastAPI()
 origins = [
@@ -64,7 +71,9 @@ class FilePathInput(BaseModel):
 
 @app.post("/loadEventLog")
 async def load_event_log_from_file_path(d: FilePathInput):
-    info = calculate_event_log_properties(xes_import(d.file_path))
+    log = xes_import(d.file_path)
+    use_mp = len(log) > min_traces_variant_detection_mp
+    info = calculate_event_log_properties(log, use_mp)
     return info
 
 
