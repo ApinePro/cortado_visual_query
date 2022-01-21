@@ -9,12 +9,12 @@ from cortado_core.utils.split_graph import LeafGroup, SequenceGroup
 from cortado_core.utils.cvariants import get_concurrency_variants, get_detailled_variants
 
 
-def calculate_event_log_properties(event_log: EventLog):
+def calculate_event_log_properties(event_log: EventLog, use_mp: bool = False):
     if not DEFAULT_TRANSITION_KEY in event_log[0][0] \
             and not DEFAULT_START_TIMESTAMP_KEY in event_log[0][0]:
         res_variants = get_simple_variants(event_log)
     else:
-        res_variants = get_c_variants(event_log)
+        res_variants = get_c_variants(event_log, use_mp)
 
     res = {
         "startActivities": start_activities_filter.get_start_activities(event_log),
@@ -43,8 +43,8 @@ def get_simple_variants(event_log: EventLog):
     return sorted(res_variants, key=lambda variant: variant['count'], reverse=True)
 
 
-def get_c_variants(event_log: EventLog):
-    variants = get_concurrency_variants(event_log)
+def get_c_variants(event_log: EventLog, use_mp: bool = False):
+    variants = get_concurrency_variants(event_log, use_mp)
     total_traces = len(event_log)
     res_variants = []
     for v in variants:
