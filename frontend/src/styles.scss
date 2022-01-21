@@ -38,7 +38,7 @@ $accordion-icon-transform: rotate(-0deg);
   --box-background-color: #2b2b2b;
   --width-sidebar: 30px;
   --footer-bar-height: 20px;
-  --header-bar-height: 20px;
+  --header-bar-height: 25px;
   --text-secondary: #a0a0a0;
   --thin-border-color: #1a1a1a;
   --standard-font-size: 14px;
@@ -99,7 +99,6 @@ $accordion-icon-transform: rotate(-0deg);
 
 .btn-tool-bar {
   min-height: 28px;
-  border-top: 1px solid var(--thin-border-color);
   display: flex;
   align-items: center;
 }
