@@ -1,6 +1,8 @@
 import { Injectable, isDevMode } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { ProcessTree } from 'src/app/objects/ProcessTree';
 import * as dummyBackendResponse from './dummy_backend_response.js';
+import { Variant } from '../../components/variant-explorer/model';
 import { dummy_tree } from './debug_tree.js';
 
 @Injectable({
@@ -9,7 +11,11 @@ import { dummy_tree } from './debug_tree.js';
 export class SharedDataService {
   constructor() {}
 
+  public computedTextLengthCache = new Map<string, number>();
+  public performanceInfoAvailable = false;
+
   private _loadedEventLog = new Subject<string>();
+  private _treePerformance = new BehaviorSubject<Object>({});
 
   get loadedEventLog$(): Observable<string> {
     return this._loadedEventLog.asObservable();
@@ -34,8 +40,23 @@ export class SharedDataService {
     console.log(
       'currentDisplayedProcessTree is SHARED_DATA_SERVICE has changed'
     );
+    if (tree && !(tree instanceof ProcessTree)) {
+      tree = ProcessTree.fromObj(tree);
+    }
     this._currentDisplayedProcessTree.next(tree);
     this._activitiesInCurrentTree.next(this.getSetOfActivities(tree));
+  }
+
+  get treePerformance$(): Observable<Object> {
+    return this._treePerformance.asObservable();
+  }
+
+  get treePerformance(): Object {
+    return this._treePerformance.getValue();
+  }
+
+  set treePerformance(performance) {
+    this._treePerformance.next(performance);
   }
 
   private getSetOfActivities(tree: any): Set<string> {
@@ -110,17 +131,19 @@ export class SharedDataService {
     return this._endActivitiesInEventLog.getValue();
   }
 
-  private _variants = new BehaviorSubject<any[]>(dummyBackendResponse.variant);
+  private _variants = new BehaviorSubject<Variant[]>(
+    dummyBackendResponse.variant
+  );
 
-  get variants$(): Observable<any[]> {
+  get variants$(): Observable<Variant[]> {
     return this._variants.asObservable();
   }
 
-  set variants(activities: any[]) {
+  set variants(activities: Variant[]) {
     this._variants.next(activities);
   }
 
-  get variants(): any[] {
+  get variants(): Variant[] {
     return this._variants.getValue();
   }
 

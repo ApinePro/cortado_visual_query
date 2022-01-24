@@ -1,7 +1,7 @@
 import { LayoutConfig, ItemType, ComponentItemConfig } from 'golden-layout';
 import { ProcessTreeEditorComponent } from '../../process-tree-editor/process-tree-editor.component';
 import { VariantExplorerComponent } from '../../variant-explorer/variant-explorer.component';
-import { ActivityOverviewComponent } from '../../activity-overview/activity-overview.component';
+import { InfoBoxComponent } from '../../info-box/info-box.component';
 
 export const baseLayout: LayoutConfig = {
   dimensions: {
@@ -44,8 +44,8 @@ export const baseLayout: LayoutConfig = {
             },
             width: 38.197,
             isClosable: false,
-            title: 'Activity Explorer',
-            componentType: ActivityOverviewComponent.componentName,
+            title: 'Info Box',
+            componentType: InfoBoxComponent.componentName,
           } as ComponentItemConfig,
         ],
       },

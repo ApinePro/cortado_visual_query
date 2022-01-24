@@ -3,4 +3,5 @@
     width: 100%;
     position: relative;
     margin-left: var(--width-sidebar);
+    overflow: hidden;
 }

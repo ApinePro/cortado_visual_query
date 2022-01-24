@@ -6,7 +6,6 @@
   min-width: 50px;
   */
   font-size: .8rem;
-  color: whitesmoke;
   color: var(--text-secondary);
 }
 
@@ -20,11 +19,11 @@
   display: flex;
 }
 
-.btn-tool-bar{
+.btn-tool-bar {
   min-height: 28px;
   display: flex;
   align-items: center;
-  border-top: 0px;
+  border-top: 0;
 }
 
 .spacer {
@@ -34,6 +33,7 @@
 .main-variant-explorer {
   overflow: auto;
   background-color: var(--box-background-color);
+  user-select: none;
 }
 
 .container-variant-explorer {
@@ -66,21 +66,8 @@
   padding: 5px;
 }
 
-.tooltip {
-  display: none;
-  opacity: 1;
-  position: absolute;
-  white-space: nowrap;
-  font-size: 15px;
-
-  .tooltip-inner {
-    text-align: left !important;
-    max-width: 300px !important;
-  }
-}
-
-.button-text{
-  display : inline-block;
+.button-text {
+  display: inline-block;
 }
 
 .rotate-90 {
@@ -92,14 +79,14 @@
   transform: rotate(90deg);
 }
 
-.full-body-spinner{
+.full-body-spinner {
   width: 100%;
-    height: calc(100% - 28px);
-    position: absolute;
-    display: flex;
-    background-color: var(--box-background-color);
-    justify-content: center;
-    align-items: center;
+  height: calc(100% - 28px);
+  position: absolute;
+  display: flex;
+  background-color: var(--box-background-color);
+  justify-content: center;
+  align-items: center;
 }
 
 .dropdown-sort {

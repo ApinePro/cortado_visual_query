@@ -212,6 +212,7 @@
       class="button"
       data-bs-toggle="tooltip"
       data-bs-placement="top"
+      data-bs-trigger="hover"
       title="Exports the view as an .svg"
       (click)="exportVariantSVG()"
     >
@@ -242,6 +243,50 @@
               >
               </app-variant-selection-button>
               Info
+            </th>
+            <th
+              *ngIf="currentlyDisplayedProcessTree"
+              style="text-align: center"
+            >
+              <div
+                *ngIf="currentlyDisplayedProcessTree && performanceAvailable()"
+                style="
+                  display: flex;
+                  flex-direction: row;
+                  padding: 5px;
+                  margin: 5px 10px 5px 10px;
+                  border-radius: 5px;
+                  border: 1px dashed lightgrey;
+                "
+                [ngClass]="{
+                  'selected-variant-performance': isMeanPerformanceActive()
+                }"
+              >
+                <button
+                  type="button"
+                  class="btn variant-performance-button"
+                  (click)="showMeanPerformance()"
+                  [style.background]="variantPerformanceColor()"
+                  data-bs-toggle="tooltip"
+                  data-bs-trigger="hover"
+                  [title]="meanPerformance()"
+                  id="performanceButtonMean"
+                >
+                  <i
+                    class="bi bi-graph-up align-middle font-large variant-performance-icon"
+                    [style.color]="textColorForBackgroundColor()"
+                  ></i>
+                </button>
+                <button
+                  style="padding: 0"
+                  class="btn"
+                  (click)="performanceService.removeAll()"
+                  data-bs-toggle="tooltip"
+                  title="Remove performance values of all variants."
+                >
+                  <i class="bi bi-trash" style="color: white"></i>
+                </button>
+              </div>
             </th>
             <th class="text-start">Variant</th>
           </tr>

@@ -6,6 +6,7 @@ import * as FileSaver from 'file-saver';
 import { take, tap } from 'rxjs/operators';
 import {
   deserialize,
+  Variant,
   VariantElement,
 } from 'src/app/components/variant-explorer/model';
 import { Configuration } from 'src/app/components/settings/model';
@@ -52,11 +53,13 @@ export class BackendService {
       Object.keys(res['endActivities'])
     );
     this.sharedDataService.variants = res['variants'];
-    this.sharedDataService.variants.forEach((variant) => {
+    this.sharedDataService.variants.forEach((variant, i) => {
       variant['id'] = objectHash(variant['variant']);
+      variant.number = i + 1;
       variant['variant'] = deserialize(variant.variant);
     });
     this.sharedDataService.loadedEventLog = filePath;
+    this.sharedDataService.performanceInfoAvailable = true;
   }
 
   loadProcessTreeFromFilePath(filePath: string): void {
@@ -177,6 +180,22 @@ export class BackendService {
       .subscribe((res) => {
         this.sharedDataService.currentDisplayedProcessTree = res;
       });
+  }
+
+  getTreePerformance(
+    variants: VariantElement[],
+    remove?: Variant[]
+  ): Observable<any> {
+    const body = {
+      pt: this.sharedDataService.currentDisplayedProcessTree,
+      variants: variants.map((v) => v.serialize()),
+      delete: remove?.map((v) => v.variant.serialize()),
+    };
+
+    return this.httpClient.post(
+      this.backendUrl + 'calculateVariantsPerformance',
+      body
+    );
   }
 
   addConcurrencyVariantsToProcessModel(
