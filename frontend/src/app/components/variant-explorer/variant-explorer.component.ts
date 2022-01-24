@@ -115,8 +115,10 @@ export class VariantExplorerComponent
 
   _goldenLayoutHostComponent: GoldenLayoutHostComponent;
   _goldenLayout: GoldenLayout;
-  _subvariantcomponentItemsMap: Map<string, ComponentItem> = new Map<string,ComponentItem>();
-
+  _subvariantcomponentItemsMap: Map<string, ComponentItem> = new Map<
+    string,
+    ComponentItem
+  >();
 
   dropZoneConfig: DropzoneConfig;
   public isAscendingOrder: boolean = false;
@@ -210,11 +212,11 @@ export class VariantExplorerComponent
     );
 
     this._goldenLayoutHostComponent =
-    this.goldenLayoutComponentService.goldenLayoutHostComponent;
+      this.goldenLayoutComponentService.goldenLayoutHostComponent;
     this._goldenLayout = this.goldenLayoutComponentService.goldenLayout;
 
-    console.log(this._goldenLayoutHostComponent)
-    console.log(this._goldenLayout)
+    console.log(this._goldenLayoutHostComponent);
+    console.log(this._goldenLayout);
 
     const variantExplorerItem = this._goldenLayout.findFirstComponentItemById(
       VariantExplorerComponent.componentName
@@ -228,7 +230,7 @@ export class VariantExplorerComponent
       Object.keys(this.sharedDataService.activitiesInEventLog)
     );
 
-    this.closeAllSubvariantWindows()
+    this.closeAllSubvariantWindows();
 
     this.variants = this.sharedDataService.variants;
     this.variantPerformanceService.injectWaitingTimeNodes(
@@ -286,8 +288,6 @@ export class VariantExplorerComponent
     this.numberFittingTraces = numberFittingTraces;
     this.numberFittingVariants = numberFittingVariants;
   }
-
-
 
   updateConformanceForVariant(variant: Variant, timeout: number): void {
     variant.calculationInProgress = true;
@@ -367,7 +367,6 @@ export class VariantExplorerComponent
 
     this.addSelectedVariantsToModelForGivenConformance(selectedVariants);
   }
-
 
   createSubVariantView(index) {
     const LocationSelectors: LayoutManager.LocationSelector[] = [

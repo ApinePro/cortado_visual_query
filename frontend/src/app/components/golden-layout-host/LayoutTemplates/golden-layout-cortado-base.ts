@@ -38,35 +38,34 @@ export const baseLayout: LayoutConfig = {
         type: ItemType.row,
         height: 38.197,
         content: [
+          {
+            type: ItemType.stack,
+            height: 38.197,
+            width: 61.803,
+            content: [
               {
-                type: ItemType.stack,
-                height: 38.197,
-                width: 61.803,
-                content: [
-                  {
-                    id: VariantExplorerComponent.componentName,
-                    type: 'component',
-                    title: 'Variant Explorer',
-                    isClosable: false,
-                    reorderEnabled: false,
-                    componentType: VariantExplorerComponent.componentName,
-                  } as ComponentItemConfig,
-                ],
-              } as StackItemConfig,
-              {
+                id: VariantExplorerComponent.componentName,
                 type: 'component',
-                header: {
-                  show: false,
-                },
-                width: 38.197,
+                title: 'Variant Explorer',
                 isClosable: false,
-                title: 'Info Box',
-                id : InfoBoxComponent.componentName,
-                componentType: InfoBoxComponent.componentName,
+                reorderEnabled: false,
+                componentType: VariantExplorerComponent.componentName,
               } as ComponentItemConfig,
             ],
-          } as RowOrColumnItemConfig,
+          } as StackItemConfig,
+          {
+            type: 'component',
+            header: {
+              show: false,
+            },
+            width: 38.197,
+            isClosable: false,
+            title: 'Info Box',
+            id: InfoBoxComponent.componentName,
+            componentType: InfoBoxComponent.componentName,
+          } as ComponentItemConfig,
         ],
       } as RowOrColumnItemConfig,
+    ],
+  } as RowOrColumnItemConfig,
 };
-

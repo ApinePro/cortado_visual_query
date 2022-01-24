@@ -295,7 +295,7 @@
             *ngFor="let variant of variants; let i = index"
             [index]="i"
             [variant]="variant"
-            (openSubvariantWindow) ="createSubVariantView(i + 1)"
+            (openSubvariantWindow)="createSubVariantView(i + 1)"
             (selectionChanged)="selectionChangedForVariant(variant, $event)"
             (updateConformance)="
               updateConformanceForSingleVariantClicked($event)
