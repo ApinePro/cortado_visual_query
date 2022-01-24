@@ -42,9 +42,9 @@
       *ngIf="performanceService.treeSelection"
       style="overflow: auto; display: flex; flex-direction: column"
     >
-      <div class="tree-selection-title">
-        {{ treeSelection }}
-      </div>
+      <app-tree-string-renderer
+        [styled_tree_string]="treeSelection"
+      ></app-tree-string-renderer>
       <div class="tree-selection-body">
         <app-node-selection-performance></app-node-selection-performance>
       </div>
