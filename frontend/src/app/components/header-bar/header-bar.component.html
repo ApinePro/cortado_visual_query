@@ -1,0 +1,109 @@
+<div class="bg-dark header-bar">
+  <img src="assets/favicon.ico" class="cortado-icon" />
+  <div class="dropdown">
+    <button
+      class="button header-button"
+      type="button"
+      id="Files"
+      data-bs-toggle="dropdown"
+      aria-expanded="false"
+    >
+      Files
+    </button>
+    <ul class="dropdown-menu tool-bar-dropdown" aria-labelledby="Files">
+      <li>
+        <button class="button align-bottom" (click)="importEventLog()">
+          <div>
+            <i class="bi bi-upload btn-icon"></i>
+            <span><b>Import</b> event log</span>
+          </div>
+        </button>
+      </li>
+      <li>
+        <button class="button align-bottom" (click)="importTreeFromPTML()">
+          <div>
+            <i class="bi bi-file-earmark-arrow-up btn-icon"></i>
+            <span
+              ><b>Import</b> process tree (<samp class="text-primary fw-bold"
+                >.ptml</samp
+              >)</span
+            >
+          </div>
+        </button>
+      </li>
+      <hr />
+      <li>
+        <button class="button align-bottom" (click)="exportTreeAsPTML()">
+          <div>
+            <i class="bi bi-file-earmark-arrow-down-fill btn-icon"></i>
+            <span
+              ><b>Export</b> model as process tree (<samp
+                class="text-primary fw-bold"
+                >.ptml</samp
+              >)</span
+            >
+          </div>
+        </button>
+      </li>
+
+      <li>
+        <button class="button align-bottom" (click)="exportTreeAsPNML()">
+          <div>
+            <i class="bi bi-file-earmark-arrow-down-fill btn-icon"></i>
+            <span
+              ><b>Export</b> model as Petri net (<samp
+                class="text-primary fw-bold"
+                >.pnml</samp
+              >)</span
+            >
+          </div>
+        </button>
+      </li>
+    </ul>
+  </div>
+  <div class="dropdown">
+    <button class="button header-button" (click)="showSettingsDialog()">
+      Settings
+    </button>
+  </div>
+  <!-- Window Control Buttons
+      <button
+        class="button ms-auto"
+        (click)="toggleHide()"
+      >
+      <i class="bi bi-dash"></i>
+      </button>
+
+      <button
+        class="button"
+        (click)="toggleMaximization()"
+      >
+        <i class="bi bi-window-fullscreen"></i>
+      </button>
+
+      <button
+        class="button"
+        (click)="closeApp()"
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+    -->
+
+  <input
+    #fileUploadEventLog
+    type="file"
+    class="d-none"
+    (change)="handleSelectedEventLogFile($event)"
+    accept=".xes"
+  />
+
+  <input
+    #fileUploadProcessTree
+    type="file"
+    class="d-none"
+    (change)="handleSelectedProcessTreeFile($event)"
+    accept=".ptml"
+  />
+</div>
+
+<app-settings [showSettings]="showSettingsEvent.asObservable()"></app-settings>

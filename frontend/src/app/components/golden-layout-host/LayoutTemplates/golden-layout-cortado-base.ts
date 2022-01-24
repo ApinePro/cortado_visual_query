@@ -1,6 +1,12 @@
-import { LayoutConfig, ItemType, ComponentItemConfig } from 'golden-layout';
+import {
+  LayoutConfig,
+  ItemType,
+  ComponentItemConfig,
+  Side,
+} from 'golden-layout';
 import { ProcessTreeEditorComponent } from '../../process-tree-editor/process-tree-editor.component';
 import { VariantExplorerComponent } from '../../variant-explorer/variant-explorer.component';
+import { ActivityOverviewComponent } from '../../activity-overview/activity-overview.component';
 import { InfoBoxComponent } from '../../info-box/info-box.component';
 
 export const baseLayout: LayoutConfig = {
@@ -14,15 +20,23 @@ export const baseLayout: LayoutConfig = {
     type: ItemType.column,
     content: [
       {
-        type: 'component',
-        title: 'Process Tree Visualizer',
-        isClosable: true,
-        height: 61.803,
+        type: ItemType.stack,
         header: {
-          show: false,
+          show: Side.left,
+          maximise: false,
+          popout: false,
         },
-        componentType: ProcessTreeEditorComponent.componentName,
-      } as ComponentItemConfig,
+        content: [
+          {
+            type: 'component',
+            title: 'Process Tree Visualizer',
+            isClosable: false,
+            height: 61.803,
+
+            componentType: ProcessTreeEditorComponent.componentName,
+          } as ComponentItemConfig,
+        ],
+      },
       {
         type: ItemType.row,
         height: 38.197,
@@ -30,7 +44,9 @@ export const baseLayout: LayoutConfig = {
           {
             type: 'component',
             header: {
-              show: false,
+              show: Side.left,
+              maximise: false,
+              popout: false,
             },
             width: 61.803,
             title: 'Variant Explorer',
@@ -46,6 +62,7 @@ export const baseLayout: LayoutConfig = {
             isClosable: false,
             title: 'Info Box',
             componentType: InfoBoxComponent.componentName,
+            id : InfoBoxComponent.componentName,
           } as ComponentItemConfig,
         ],
       },

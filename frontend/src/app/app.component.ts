@@ -20,8 +20,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   @ViewChild('goldenLayoutHost')
   private _goldenLayoutHostComponent: GoldenLayoutHostComponent;
 
-  _sideBarWidth: number = 30;
-
   ngAfterViewInit() {
     globalThis.addEventListener('resize', this._windowResizeListener);
     this._goldenLayoutHostComponent.initializeLayout();
@@ -54,9 +52,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private resizeGoldenLayout() {
     const bodyWidth = document.body.offsetWidth;
     const bodyHeight = document.body.offsetHeight;
-    this._goldenLayoutHostComponent.setSize(
-      bodyWidth - this._sideBarWidth,
-      bodyHeight
-    );
+    this._goldenLayoutHostComponent.setSize(bodyWidth, bodyHeight);
   }
 }
