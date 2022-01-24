@@ -102,6 +102,7 @@ export class ProcessTreeEditorComponent
   selectSubtreeActive = true;
 
   selectedRootNode;
+  previousSelectedRootNode;
   // indicates if the entire subtree below the selectedRootNode is selected or only the single node
   selectedRootNodeOnly: boolean;
 
@@ -1043,7 +1044,6 @@ export class ProcessTreeEditorComponent
   addSelectionFunctionality(): void {
     let performanceService = this.performanceService;
     this.nodeEnter.on('click', function (event, d) {
-      unselectAll();
       setSelectedRootNode(d);
       selectSubtree(this, d);
       selectEdges();
@@ -1051,34 +1051,61 @@ export class ProcessTreeEditorComponent
     });
 
     const setSelectedRootNode = function (d) {
+      this.previousSelectedRootNode = this.selectedRootNode;
       this.selectedRootNode = d;
       this.selectedRootNodeOnly =
         this.selectNodeActive || this.leafNodeSelected();
     }.bind(this);
 
     const selectSubtree = function (svgGroup, d) {
-      d3.select(svgGroup)
-        .select('.node')
-        .classed('selected-node', () => {
-          return !d3.select(svgGroup).select('.node').classed('selected-node');
+      if (!this.selectSubtreeActive) {
+        if (this.selectedRootNode.data.selected) {
+          unselectAll();
+        } else {
+          this.mainSvgGroup.selectAll('rect').each((d) => {
+            d.data.selected = false;
+          });
+
+          this.mainSvgGroup.selectAll('rect').classed('selected-node', false);
+          this.mainSvgGroup.selectAll('line').classed('selected-edge', false);
+
+          d.data.selected = true;
+          d3.select(svgGroup).select('.node').classed('selected-node', true);
+        }
+      } else {
+        const selected = d.data.selected;
+
+        // Unselect All Edges and Rect
+        this.mainSvgGroup.selectAll('rect').each((d) => {
+          d.data.selected = false;
         });
 
-      d.data.selected = true;
-      if (!this.selectSubtreeActive || !d.children) {
-        return;
+        this.mainSvgGroup.selectAll('rect').classed('selected-node', false);
+        this.mainSvgGroup.selectAll('line').classed('selected-edge', false);
+
+        if (selected && this.previousSelectedRootNode == d) {
+          d.data.selected = false;
+        } else {
+          d.data.selected = true;
+          selectAllChildren(svgGroup, d);
+        }
       }
+    }.bind(this);
+
+    const selectAllChildren = function (svgGroup, d) {
+      d.data.selected = true;
+
+      d3.select(svgGroup).select('.node').classed('selected-node', true);
+
+      if (!d.children) return;
 
       // add red stroke around sub-nodes if select subtree is selected
       d.children.forEach((c) => {
-        // console.log(c)
-        // console.log(this.mainSvgGroup.select('[id="' + c.data.id + '"]').node())
-        selectSubtree(
+        selectAllChildren(
           this.mainSvgGroup.select('[id="' + c.data.id + '"]').node(),
           c
         );
       });
-      // console.log(this.selectedRootNode);
-      // console.log(this.singleNodeSelected());
     }.bind(this);
 
     const selectEdges = function () {
