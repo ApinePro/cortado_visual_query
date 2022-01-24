@@ -41,6 +41,10 @@ export class TreeStringRendererComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.activityColorMap = colorMap;
+
+      if (this.styled_tree_string) {
+        this.styleText(this.styled_tree_string);
+      }
     });
   }
 
@@ -80,10 +84,10 @@ export class TreeStringRendererComponent implements OnInit, OnChanges {
 
     knownActivities.forEach((activityName: string) => {
       value = value.replace(
-        new RegExp(activityName, 'g'),
-        `<b><span style="color:${this.activityColorMap.get(activityName)}">` +
+        new RegExp("'" + activityName + "'", 'g'),
+        `'<b><span style="color:${this.activityColorMap.get(activityName)}">` +
           activityName +
-          '</span></b>'
+          "</span></b>'"
       );
     });
 
