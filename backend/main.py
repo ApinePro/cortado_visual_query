@@ -248,42 +248,11 @@ async def download_pnml(d: ConvertPtToX):
     return Response(content=generate_pnml_xml(net, im, fm), media_type="application/xml")
 
 
-class InputCalculateAlignment(BaseModel):
-    pt: dict
-    variant: dict
-
-
-@app.post("/calculateAlignment")
-async def calculate_alignment(d: InputCalculateAlignment):
-    variant = d.variant['events']
-    return calculate_alignment_endpoint(variant, d.pt)
-
-
 @app.post("/applyReductionRulesToTree")
 async def applyTreeReductionRules(d: ConvertPtToX):
     pt, frozen_subtrees = dict_to_process_tree(d.pt)
     return process_tree_to_dict(post_process_tree(pt, frozen_subtrees), frozen_subtrees)
 
-
-class InputCalculateAlignmentCVariant(BaseModel):
-    pt: dict
-    variant: dict
-    timeout: int
-
-
-generate_variants_times = []
-calculate_alignments_times = []
-
-
-def calculate_alignment_intern(pt: dict, c_variant: dict):
-    all_variants = generate_variants(c_variant)
-    for variant in all_variants:
-        alignment = calculate_alignment_endpoint(variant, pt)
-        if alignment['deviation']:
-            return {'cost': alignment['cost'],
-                    'deviation': alignment['deviation']}
-
-    return {'cost': 0, 'deviation': False}
 
 class InputCalculatePerformance(BaseModel):
     pt: dict
@@ -384,18 +353,62 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             'fitness_values': variants_fitness}
 
 
-@app.post("/calculateAlignmentsCVariant")
-async def calculate_alignment(d: InputCalculateAlignmentCVariant, response: Response):
-    timeout = d.timeout
-
 def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, timeout: int):
     try:
         return execute_with_timeout(calculate_alignment_intern, timeout, args=(pt, c_variant))
-        # return calculate_alignment_intern(pt, c_variant)
     except TimeoutException:
-        print('Exception')
         return {'isTimeout': True}
 
+
+def calculate_alignment_intern(pt: dict, c_variant: dict):
+    all_variants = generate_variants(c_variant)
+    for variant in all_variants:
+        alignment = calculate_alignment_endpoint(variant, pt)
+        if alignment['deviation']:
+            return {'cost': alignment['cost'],
+                    'deviation': alignment['deviation']}
+
+    return {'cost': 0, 'deviation': False}
+
+
+def get_alignment_callback(idx: str, websocket: WebSocket):
+    def callback(result):
+        data = {
+            'id': idx,
+            'isTimeout': False,
+            'cost': 0,
+            'deviation': False,
+        }
+
+        for key, value in result.items():
+            data[key] = value
+
+        asyncio.run(websocket.send_json(data))
+
+    return callback
+
+
+@app.websocket("/conformancews")
+async def websocket_endpoint(websocket: WebSocket):
+    config_repository = ConfigurationRepositoryFactory.get_config_repository()
+    configuration = config_repository.get_configuration()
+
+    try:
+        with Pool() as pool:
+            await websocket.accept()
+            while True:
+                data = await websocket.receive_json()
+                pool.apply_async(calculate_alignment_intern_with_timeout,
+                                 (data['pt'], data['variant'], configuration.timeout_cvariant_alignment_computation,),
+                                 callback=get_alignment_callback(data['id'], websocket))
+    except WebSocketDisconnect:
+        print('websocket disconnected')
+
+
+class InputCalculateAlignmentCVariant(BaseModel):
+    pt: dict
+    variant: dict
+    timeout: int
 
 # @app.post("/calculateAlignmentsCVariant")
 # async def calculate_alignment(d: InputCalculateAlignmentCVariant, response: Response):
@@ -433,34 +446,6 @@ async def get_configuration():
     return config_dto
 
 
-def _get_cback(idx: str, websocket: WebSocket):
-    def cback(result):
-        data = {
-            'id': idx,
-            'isTimeout': False,
-            'cost': 0,
-            'deviation': False,
-        }
-
-        for key, value in result.items():
-            data[key] = value
-
-        asyncio.run(websocket.send_json(data))
-
-    return cback
-
-
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    with Pool(processes=1) as pool:
-        await websocket.accept()
-        while True:
-            data = await websocket.receive_json()
-            # TODO adjust timeout
-            pool.apply_async(calculate_alignment_intern_with_timeout, (data['pt'], data['variant'], 1,),
-                             callback=_get_cback(data['id'], websocket))
-
-
 # Using FastAPI instance
 @app.get("/url-list")
 def get_all_urls():
@@ -472,9 +457,9 @@ if __name__ == "__main__":
     # print(DEFAULT_LP_SOLVER_VARIANT)
     freeze_support()
     num_workers = max(1, cpu_count() - 2)
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=True)
+    #uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=True)
     # dev mode
-    # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
 
 def merge_performance(all_performances):

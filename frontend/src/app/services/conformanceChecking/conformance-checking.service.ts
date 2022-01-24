@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { ConformanceCheckingResult } from './model';
-export const WS_ENDPOINT = 'ws://127.0.0.1:8000/ws';
+export const WS_ENDPOINT = 'ws://127.0.0.1:8000/conformancews';
 
 @Injectable({
   providedIn: 'root',
