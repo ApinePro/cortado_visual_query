@@ -48,7 +48,7 @@ from pm4py.objects.process_tree.utils.generic import parse
 config = configparser.ConfigParser()
 config.read('config.ini')
 # Decide when to use multiprocessing for event log
-min_traces_variant_detection_mp = int(config['MULTIPROCESSING']['MIN_TRACES_VARIANT_DETECTION_MULTIPROCESSING'])
+min_traces_variant_detection_mp = 10000
 
 app = FastAPI()
 origins = [
