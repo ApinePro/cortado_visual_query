@@ -37,6 +37,9 @@ export class VariantComponent implements AfterViewInit {
   @Output()
   public updateConformance = new EventEmitter<Variant>();
 
+  @Output()
+  public openSubvariantWindow = new EventEmitter<number>()
+
   @ViewChild('row')
   rowElement: ElementRef;
 

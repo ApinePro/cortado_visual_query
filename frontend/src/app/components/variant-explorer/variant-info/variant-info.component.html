@@ -1,4 +1,10 @@
 <div class="variant-info-cell">
+  <app-variant-selection-button
+    [isSelected]="variant.isSelected"
+    (selectionChanged)="selectionChanged.emit($event)"
+  >
+  </app-variant-selection-button>
+
   <div
     (click)="conformanceIconClicked()"
     [ngClass]="isConformanceUpdatePossible() ? 'cursor-pointer' : ''"
