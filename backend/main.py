@@ -398,8 +398,11 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.accept()
             while True:
                 data = await websocket.receive_json()
+                timeout = configuration.timeout_cvariant_alignment_computation
+                if data['timeout'] != 0:
+                    timeout = data['timeout']
                 pool.apply_async(calculate_alignment_intern_with_timeout,
-                                 (data['pt'], data['variant'], configuration.timeout_cvariant_alignment_computation,),
+                                 (data['pt'], data['variant'], timeout,),
                                  callback=get_alignment_callback(data['id'], websocket))
     except WebSocketDisconnect:
         print('websocket disconnected')

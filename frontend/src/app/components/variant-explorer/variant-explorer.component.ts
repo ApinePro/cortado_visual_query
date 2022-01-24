@@ -244,7 +244,6 @@ export class VariantExplorerComponent
   }
 
   updateAlignments(): void {
-    // this.updateAlignmentStatistics();
     this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
 
     this.conformanceCheckingService.results.subscribe(
