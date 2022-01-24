@@ -19,9 +19,18 @@ import { ActivityOverviewComponent } from './components/activity-overview/activi
 import { HttpRequestInterceptor } from './interceptors/http-request.interceptor';
 import { VariantFragmentComponent } from './components/variant-explorer/variant-fragment/variant-fragment.component';
 import { VariantInfoComponent } from './components/variant-explorer/variant-info/variant-info.component';
+import { ModelPerformanceComponent } from './components/performance/performance.component';
+import { HumanizeDurationPipe } from './pipes/humanize-duration.pipe';
+import { VariantPerformanceComponent } from './components/variant-performance/variant-performance.component';
+import { InfoBoxComponent } from './components/info-box/info-box.component';
 import { VariantSelectionButtonComponent } from './components/variant-explorer/variant-selection-button/variant-selection-button.component';
 import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
+import { VariantColorMapComponent } from './components/variant-performance/variant-color-map/variant-color-map.component';
+import { NodeSelectionPerformanceComponent } from './components/performance/node-selection-performance/node-selection-performance.component';
+import { PerformanceTableComponent } from './components/performance/performance-table/performance-table.component';
+import { ColorMapComponent } from './components/performance/color-map/color-map.component';
+import { TreePerformanceColorMapComponent } from './components/performance/tree-performance-color-map/tree-performance-color-map.component';
 import { ExpertModeComponent } from './components/process-tree-editor/expert-mode/expert-mode.component';
 import { ContentEditableDirective } from './directives/content-editable-directive.directive';
 import { SettingsComponent } from './components/settings/settings.component';
@@ -42,9 +51,20 @@ import { VariantConformanceDialogComponent } from './components/variant-explorer
     VariantExplorerComponent,
     VariantFragmentComponent,
     VariantInfoComponent,
-    VariantSelectionButtonComponent,
+    ModelPerformanceComponent,
+    HumanizeDurationPipe,
+    VariantPerformanceComponent,
+    InfoBoxComponent,
     ActivityOverviewComponent,
     ProcessTreeEditorComponent,
+    VariantInfoComponent,
+    VariantColorMapComponent,
+    VariantSelectionButtonComponent,
+    ActivityOverviewComponent,
+    NodeSelectionPerformanceComponent,
+    PerformanceTableComponent,
+    ColorMapComponent,
+    TreePerformanceColorMapComponent,
     VariantInfoComponent,
     ExpertModeComponent,
     ContentEditableDirective,

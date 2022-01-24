@@ -11,7 +11,7 @@ import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements AfterViewInit, OnDestroy {
   title = 'interactive-process-mining-angular-app';

@@ -36,6 +36,7 @@ $accordion-icon-transform: rotate(-0deg);
 :root {
   --line-color: #485158;
   --box-background-color: #2b2b2b;
+  --box-background-color-darker: #2f2f2f;
   --width-sidebar: 30px;
   --text-secondary: #a0a0a0;
   --thin-border-color: #1a1a1a;
@@ -59,6 +60,11 @@ $accordion-icon-transform: rotate(-0deg);
 .btn-bar-text {
   font-size: 13px;
   color: whitesmoke;
+}
+
+.lm_goldenlayout{
+  --bs-bg-opacity: 1;
+  background-color: rgba(var(--bs-dark-rgb),var(--bs-bg-opacity))!important;
 }
 
 .button {
@@ -255,6 +261,11 @@ th {
   margin-bottom: 0;
 }
 
+.grid {
+  background-image: radial-gradient(var(--line-color) 1px, transparent 0px);
+  background-size: 20px 20px;
+}
+
 .h-line-modal-bottom {
   border-bottom:1px solid var(--line-color);
 }
@@ -267,18 +278,41 @@ th {
   border-collapse: collapse;
   border: none;
   width: 100%;
+}
 
-  th, td{
-    border-left: 1px solid #dddddd;
-    text-align: center;
+.nav-link {
+  border: none !important;
+  background-color: transparent !important;
+  color: #495057 !important;
+
+  &.active {
+    background-color: none !important;
+    border-bottom: 1px solid whitesmoke !important;
+    color: whitesmoke !important;
   }
+}
 
-  th{
-    border-bottom: 1px solid #dddddd;
+.accordion-button {
+  background-color: #485158;
+  color: whitesmoke;
+  display: flex;
+  justify-content: space-between;
+
+  .collapsed {
+    background-color: #485158;
   }
+}
 
-  th:first-child, td:first-child {
-     border-left: none;
+.accordion-item {
+  border-left: none;
+  border-right: none;
+  background-color: unset;
+
+  border-bottom-right-radius: unset;
+  border-bottom-left-radius: unset;
+
+  table {
+    margin: 0;
   }
 }
 
@@ -298,6 +332,15 @@ th {
   font-size : small;
 }
 
+.tab-content {
+  overflow: auto;
+}
+
+.performance-tooltip-hr {
+  height: 2px;
+  opacity: 100%;
+  margin-top: 5px
+}
 /* Make the color picker looks more cortado-y */
 
 .color-picker {
@@ -322,4 +365,19 @@ th {
   border-width: 1px !important;
   border-radius: 5px;
   color: var(--text-secondary);
+}
+
+.variant-performance-button {
+  padding: 1px 5px 1px 5px;
+  margin-right: 5px;
+}
+
+.selected-variant-performance {
+  border: solid grey !important;
+  border-radius: 5px !important;
+}
+
+.light-dashed-border {
+  border-radius: 5px;
+  border: 1px dashed lightgrey;
 }

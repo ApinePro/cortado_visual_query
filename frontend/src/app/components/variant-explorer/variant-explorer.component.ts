@@ -1,3 +1,9 @@
+import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
+import {
+  ComponentItemConfig,
+  GoldenLayout,
+  LayoutManager,
+} from 'golden-layout';
 import {
   Component,
   ElementRef,
@@ -31,6 +37,11 @@ import { LayoutChangeDirective } from '../../directives/layout-change.directive'
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import { ImageExportService } from '../../services/imageExportService/image-export-service';
 import * as d3 from 'd3';
+import { PerformanceService } from 'src/app/services/performance.service';
+import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
+import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
+import { textColorForBackgroundColor } from './helper_functions';
+import { HumanizeDurationPipe } from 'src/app/pipes/humanize-duration.pipe';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { VariantSorter } from './variant-sorter';
 import * as objectHash from 'object-hash';
@@ -71,10 +82,12 @@ export class VariantExplorerComponent
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
     elRef: ElementRef,
-    renderer: Renderer2
+    renderer: Renderer2,
+    public performanceService: PerformanceService,
+    private performanceColorService: ModelPerformanceColorScaleService,
+    private variantPerformanceService: VariantPerformanceService
   ) {
     super(elRef.nativeElement, renderer);
-    const state = this.container.initialState;
   }
 
   collapse: boolean = false;
@@ -96,10 +109,11 @@ export class VariantExplorerComponent
   public svgRenderingInProgress: boolean = false;
   public variantExplorerOutOfFocus: boolean = false;
 
+  _goldenLayoutHostComponent: GoldenLayoutHostComponent;
+  _goldenLayout: GoldenLayout;
+  dropZoneConfig: DropzoneConfig;
   public isAscendingOrder: boolean = false;
   public sortingFeature: string = 'count';
-
-  dropZoneConfig: DropzoneConfig;
 
   @ViewChild('variantExplorer', { static: true })
   variantExplorerDiv: ElementRef<HTMLDivElement>;
@@ -109,7 +123,9 @@ export class VariantExplorerComponent
 
   @ViewChild('variantExplorerContainer')
   variantExplorerContainer: ElementRef<HTMLDivElement>;
-  @ViewChild('tooltipContainer') tooltipContainer: ElementRef<HTMLDivElement>;
+
+  @ViewChild('tooltipContainer')
+  tooltipContainer: ElementRef<HTMLDivElement>;
 
   public visibleVariantsHeight = 1000;
 
@@ -126,19 +142,24 @@ export class VariantExplorerComponent
     // preload road traffic fine management process
     this.variants = this.sharedDataService.variants;
 
-    this.variants.forEach((v) => {
+    this.variants.forEach((v, i) => {
       v.id = objectHash(v.variant);
+      v.number = i + 1;
       v.variant = deserialize(v.variant);
       v.isConformanceOutdated = true;
       v.isTimeouted = false;
     });
 
+    this.variantPerformanceService.injectWaitingTimeNodes(
+      this.variants.map((v) => v.variant)
+    );
     this.colorMap = this.colorMapService.getColorMap(
       Object.keys(this.sharedDataService.activitiesInEventLog)
     );
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.colorMap = colorMap;
     });
+    this.sharedDataService.loadedEventLog = 'preload';
 
     const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
     this.variants.forEach((v) => {
@@ -188,6 +209,9 @@ export class VariantExplorerComponent
     );
 
     this.variants = this.sharedDataService.variants;
+    this.variantPerformanceService.injectWaitingTimeNodes(
+      this.variants.map((v) => v.variant)
+    );
 
     this.variants.forEach((v) => {
       v.isSelected = false;
@@ -292,11 +316,6 @@ export class VariantExplorerComponent
     } else {
       return [variant.asLeafNode().activity];
     }
-  }
-
-  mapVariantIndexToVariant(variantIndex, subVariantIndex): any {
-    const v = this.variants[variantIndex].sub_variants[subVariantIndex].variant;
-    return this.mapVariantToEventList(v);
   }
 
   mapVariantToEventList(variant): any {
@@ -427,28 +446,64 @@ export class VariantExplorerComponent
     width: number,
     height: number
   ): void {
-    if (width < 600) {
-      this.collapse = true;
+    this.collapse = width < 600;
+  }
+
+  performanceAvailable(): boolean {
+    return this.performanceService.mergedPerformance !== undefined;
+  }
+
+  isMeanPerformanceActive(): boolean {
+    return this.performanceService.activeVariant === undefined;
+  }
+
+  showMeanPerformance(): void {
+    if (this.performanceService.activeVariant === undefined) {
+      this.performanceService.unselectPerformance();
     } else {
-      this.collapse = false;
+      this.performanceService.activeVariant = undefined;
+      this.sharedDataService.currentDisplayedProcessTree =
+        this.performanceService.mergedPerformance;
     }
   }
 
-  // TODO isComplexVariant is currently unused
-  isComplexVariant(variant: VariantElement) {
-    if (variant instanceof ParallelGroup) {
-      return true;
-    } else if (variant instanceof SequenceGroup) {
-      for (const e of variant.asSequenceGroup().elements) {
-        const complex = this.isComplexVariant(e);
-        if (complex) {
-          return true;
-        }
-      }
-      return false;
-    } else {
-      return false;
+  meanPerformance(): string {
+    let p = this.performanceService.mergedPerformance?.performance;
+    let selectedScale = this.performanceColorService.selectedColorScale;
+    let pValue =
+      p[selectedScale.performanceIndicator]?.[selectedScale.statistic];
+    return HumanizeDurationPipe.apply(pValue * 1000, { round: true });
+  }
+
+  variantPerformanceColor(): string {
+    let tree = this.performanceService.mergedPerformance;
+    if (!tree) {
+      return null;
     }
+    let selectedScale = this.performanceColorService.selectedColorScale;
+    const colorScale = this.performanceColorService
+      .getVariantComparisonColorScale()
+      .get(tree.id);
+    if (
+      colorScale &&
+      tree.performance?.[selectedScale.performanceIndicator]?.[
+        selectedScale.statistic
+      ] !== undefined
+    ) {
+      return colorScale(
+        tree.performance[selectedScale.performanceIndicator][
+          selectedScale.statistic
+        ]
+      );
+    }
+    return '#d3d3d3';
+  }
+
+  textColorForBackgroundColor(): string {
+    if (this.variantPerformanceColor() === null) {
+      return 'white';
+    }
+    return textColorForBackgroundColor(this.variantPerformanceColor());
   }
 
   exportVariantSVG() {
