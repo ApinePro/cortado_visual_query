@@ -3,7 +3,7 @@
     <label for="compareModeSelect" class="form-label">Mode</label>
     <select
       id="compareModeSelect"
-      class="form-select"
+      class="form-select form-select-sm"
       aria-label="performance color scale selection"
       aria-describedby="compareModeHelp"
       [(ngModel)]="performanceColorScaleService.selectedColorScale.mode"
@@ -38,7 +38,7 @@
   <div class="mb-3">
     <label class="form-label">Performance Indicator</label>
     <select
-      class="form-select"
+      class="form-select form-select-sm"
       aria-label="performance indicator for color scale selection"
       [(ngModel)]="
         performanceColorScaleService.selectedColorScale.performanceIndicator
@@ -60,7 +60,7 @@
   <div class="mb-3">
     <label class="form-label">Statistic</label>
     <select
-      class="form-select"
+      class="form-select form-select-sm"
       aria-label="statistic aggregation for color scale seleciton"
       [(ngModel)]="performanceColorScaleService.selectedColorScale.statistic"
       (change)="colorScaleChange($event)"
