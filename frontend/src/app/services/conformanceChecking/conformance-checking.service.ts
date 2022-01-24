@@ -12,7 +12,6 @@ export class ConformanceCheckingService {
   private socket: WebSocketSubject<any>;
   public results: Observable<ConformanceCheckingResult>;
 
-  // TODO catch case where connection is closed from server (catchError)
   public connect(): void {
     if (!this.socket || this.socket.closed) {
       this.socket = webSocket(WS_ENDPOINT);
@@ -29,11 +28,13 @@ export class ConformanceCheckingService {
     }
   }
 
-  sendMessage(msg: any) {
-    this.socket.next(msg);
-  }
-
-  close(): void {
-    this.socket.complete();
+  public calculateConformance(
+    id: string,
+    pt: any,
+    variant: any,
+    timeout: number
+  ): void {
+    this.connect();
+    this.socket.next({ id: id, pt: pt, variant: variant, timeout: timeout });
   }
 }

@@ -196,6 +196,8 @@ export class VariantExplorerComponent
         });
       }
     });
+
+    this.conformanceCheckingService.connect();
   }
 
   ngAfterViewInit() {
@@ -242,15 +244,13 @@ export class VariantExplorerComponent
   }
 
   updateAlignments(): void {
-    this.updateAlignmentStatistics();
+    // this.updateAlignmentStatistics();
     this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
 
-    this.conformanceCheckingService.connect();
     this.conformanceCheckingService.results.subscribe(
       (res) => {
         const variant = this.variants.find((v) => v.id == res.id);
         variant.calculationInProgress = false;
-        //variant.alignment = res.alignment;
         variant.isTimeouted = res.isTimeout;
         variant.isConformanceOutdated = res.isTimeout;
 
@@ -289,12 +289,12 @@ export class VariantExplorerComponent
     variant.calculationInProgress = true;
     variant.deviation = undefined;
 
-    this.conformanceCheckingService.sendMessage({
-      id: variant.id,
-      pt: this.sharedDataService.currentDisplayedProcessTree,
-      variant: variant.variant.serialize(),
-      timeout: timeout,
-    });
+    this.conformanceCheckingService.calculateConformance(
+      variant.id,
+      this.sharedDataService.currentDisplayedProcessTree,
+      variant.variant.serialize(),
+      timeout
+    );
   }
 
   updateConformanceForSingleVariantClicked(variant: Variant): void {
