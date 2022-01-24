@@ -247,8 +247,13 @@ class InputCalculateAlignmentCVariant(BaseModel):
     timeout: int
 
 
+generate_variants_times = []
+calculate_alignments_times = []
+
 def calculate_alignment_intern(pt: dict, c_variant: dict):
+    print('start generate variants')
     all_variants = generate_variants(c_variant)
+    print('start calculate alignments')
     for variant in all_variants:
         alignment = calculate_alignment_endpoint(variant, pt)
         if alignment['deviation']:
@@ -261,7 +266,9 @@ def calculate_alignment_intern(pt: dict, c_variant: dict):
 def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, timeout: int):
     try:
         return execute_with_timeout(calculate_alignment_intern, timeout, args=(pt, c_variant))
+        #return calculate_alignment_intern(pt, c_variant)
     except TimeoutException:
+        print('Exception')
         return {'isTimeout': True}
 
 
@@ -313,7 +320,6 @@ def _get_cback(idx: str, websocket: WebSocket):
         for key, value in result.items():
             data[key] = value
 
-        print(data)
         asyncio.run(websocket.send_json(data))
 
     return cback
@@ -326,9 +332,8 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_json()
             # TODO adjust timeout
-
             pool.apply_async(calculate_alignment_intern_with_timeout, (data['pt'], data['variant'], 1,),
-                             callback=_get_cback(data['id'], websocket))
+                           callback=_get_cback(data['id'], websocket))
 
 
 # Using FastAPI instance
@@ -342,6 +347,6 @@ if __name__ == "__main__":
     # print(DEFAULT_LP_SOLVER_VARIANT)
     freeze_support()
     num_workers = max(1, cpu_count() - 2)
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=True)
-    # dev mode
     # uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=True)
+    # dev mode
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=True)
