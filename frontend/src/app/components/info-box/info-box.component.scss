@@ -2,6 +2,11 @@
   position: absolute;
   overflow: hidden;
   color: whitesmoke;
+  border-left:1px solid black;
+}
+
+.btn-tool-bar{
+  border-top : 0px;
 }
 
 .nav-tabs {
@@ -38,5 +43,5 @@
   flex-direction: column;
   height: 100%;
   background-color: var(--box-background-color);
-  border-left: 1px solid var(--thin-border-color);
+  //border-left: 1px solid var(--thin-border-color);
 }

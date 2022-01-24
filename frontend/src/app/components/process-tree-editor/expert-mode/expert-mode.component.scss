@@ -13,6 +13,9 @@
   border-top-left-radius: 0.25rem !important;
 }
 
+.expert-mode-body{
+  background-color: var(--box-background-color);
+}
 
 .accordion-button:not(.collapsed)::after{
   transform: rotate(0deg);
