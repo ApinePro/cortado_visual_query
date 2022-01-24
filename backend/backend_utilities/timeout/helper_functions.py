@@ -16,6 +16,7 @@ def execute_with_timeout(func, timeout, args=()):
         except Exception as e:
             exception.append(e)
 
+    print(timeout)
     t = threading.Thread(target=func_wrapper, args=args)
     t.start()
     t.join(timeout=timeout)

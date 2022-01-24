@@ -250,10 +250,9 @@ class InputCalculateAlignmentCVariant(BaseModel):
 generate_variants_times = []
 calculate_alignments_times = []
 
+
 def calculate_alignment_intern(pt: dict, c_variant: dict):
-    print('start generate variants')
     all_variants = generate_variants(c_variant)
-    print('start calculate alignments')
     for variant in all_variants:
         alignment = calculate_alignment_endpoint(variant, pt)
         if alignment['deviation']:
@@ -266,7 +265,7 @@ def calculate_alignment_intern(pt: dict, c_variant: dict):
 def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, timeout: int):
     try:
         return execute_with_timeout(calculate_alignment_intern, timeout, args=(pt, c_variant))
-        #return calculate_alignment_intern(pt, c_variant)
+        # return calculate_alignment_intern(pt, c_variant)
     except TimeoutException:
         print('Exception')
         return {'isTimeout': True}
@@ -333,7 +332,7 @@ async def websocket_endpoint(websocket: WebSocket):
             data = await websocket.receive_json()
             # TODO adjust timeout
             pool.apply_async(calculate_alignment_intern_with_timeout, (data['pt'], data['variant'], 1,),
-                           callback=_get_cback(data['id'], websocket))
+                             callback=_get_cback(data['id'], websocket))
 
 
 # Using FastAPI instance
