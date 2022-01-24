@@ -1,4 +1,4 @@
-./idea
+.idea
 /.idea/
 
 interactive-process-mining-angular-app/debug.log
@@ -18,7 +18,10 @@ build
 dist
 .vscode
 
+backend/cortado_core
+backend/pm4py
+*.sol
+*.mps
 app-dist
-
 .mps
 .sol

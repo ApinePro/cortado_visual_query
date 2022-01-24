@@ -212,6 +212,7 @@
       class="button"
       data-bs-toggle="tooltip"
       data-bs-placement="top"
+      data-bs-trigger="hover"
       title="Exports the view as an .svg"
       (click)="exportVariantSVG()"
     >
@@ -219,11 +220,7 @@
     </button>
   </div>
 
-  <div
-    class="main-variant-explorer flex-grow-1"
-    (scroll)="onScroll($event)"
-    #variantExplorer
-  >
+  <div class="main-variant-explorer flex-grow-1" #variantExplorer>
     <div *ngIf="svgRenderingInProgress" class="full-body-spinner">
       <div>
         <div
@@ -245,76 +242,66 @@
                 tooltipText="(un)select all variants"
               >
               </app-variant-selection-button>
+              Info
             </th>
-            <th>Info</th>
-            <th *ngIf="variants[0].sub_variants">Subvariants</th>
-            <th class="text-start px-2">Variant</th>
-          </tr>
-          <ng-container *ngFor="let variant of visibleVariants; let i = index">
-            <tr>
-              <td style="padding-right: 15px; padding-left: 5px">
-                {{ i + 1 }}.
-              </td>
-              <td>
-                <app-variant-selection-button
-                  [isSelected]="variant.isSelected"
-                  (selectionChanged)="
-                    selectionChangedForVariant(variant, $event)
-                  "
-                >
-                </app-variant-selection-button>
-              </td>
-              <td>
-                <app-variant-info
-                  [variant]="variant"
-                  (selectionChanged)="
-                    selectionChangedForVariant(variant, $event)
-                  "
-                  (updateConformance)="
-                    updateConformanceForSingleVariantClicked($event)
-                  "
-                ></app-variant-info>
-              </td>
-              <td>
-                <div
-                  *ngIf="variant.sub_variants"
-                  class="subvariants"
-                  (click)="createSubVariantView(i + 1)"
-                >
-                  {{ variant.sub_variants.length }}
-                </div>
-              </td>
-              <td class="variant-cell">
-                <div
-                  class="variant"
-                  [ngStyle]="{
-                    'border-color': variant.isSelected ? 'unset' : 'transparent'
-                  }"
-                >
-                  <app-variant-fragment
-                    [variant]="variant['variant']"
-                    [colorMap]="colorMap"
-                  ></app-variant-fragment>
-                </div>
-              </td>
-            </tr>
-          </ng-container>
-          <tr *ngFor="let variant of dummyVariants">
-            <td></td>
-            <td>
+            <th
+              *ngIf="currentlyDisplayedProcessTree"
+              style="text-align: center"
+            >
               <div
-                class="variant-spacer"
-                [ngStyle]="{ height: invisibleVariantsHeight + 'px' }"
+                *ngIf="currentlyDisplayedProcessTree && performanceAvailable()"
+                style="
+                  display: flex;
+                  flex-direction: row;
+                  padding: 5px;
+                  margin: 5px 10px 5px 10px;
+                  border-radius: 5px;
+                  border: 1px dashed lightgrey;
+                "
+                [ngClass]="{
+                  'selected-variant-performance': isMeanPerformanceActive()
+                }"
               >
-                <div
-                  class="spinner-border spinner-border-sm text-primary"
-                  style="margin-right: 20px; margin-left: 20px"
-                  role="status"
-                ></div>
-                Loading...
+                <button
+                  type="button"
+                  class="btn variant-performance-button"
+                  (click)="showMeanPerformance()"
+                  [style.background]="variantPerformanceColor()"
+                  data-bs-toggle="tooltip"
+                  data-bs-trigger="hover"
+                  [title]="meanPerformance()"
+                  id="performanceButtonMean"
+                >
+                  <i
+                    class="bi bi-graph-up align-middle font-large variant-performance-icon"
+                    [style.color]="textColorForBackgroundColor()"
+                  ></i>
+                </button>
+                <button
+                  style="padding: 0"
+                  class="btn"
+                  (click)="performanceService.removeAll()"
+                  data-bs-toggle="tooltip"
+                  title="Remove performance values of all variants."
+                >
+                  <i class="bi bi-trash" style="color: white"></i>
+                </button>
               </div>
-            </td>
+            </th>
+            <th class="text-start">Variant</th>
           </tr>
+          <tr
+            app-variant
+            *ngFor="let variant of variants; let i = index"
+            [index]="i"
+            [variant]="variant"
+            (openSubvariantWindow) ="createSubVariantView(i + 1)"
+            (selectionChanged)="selectionChangedForVariant(variant, $event)"
+            (updateConformance)="
+              updateConformanceForSingleVariantClicked($event)
+            "
+            [rootElement]="variantExplorerDiv"
+          ></tr>
         </table>
       </div>
     </div>

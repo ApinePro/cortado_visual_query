@@ -20,6 +20,7 @@ import { VariantExplorerComponent } from '../variant-explorer/variant-explorer.c
 import { ActivityOverviewComponent } from '../activity-overview/activity-overview.component';
 import { SubvariantExplorerComponent } from '../variant-explorer/subvariant-explorer/subvariant-explorer.component';
 import { GoldenLayoutComponentService } from '../../services/goldenLayoutService/golden-layout-component.service';
+import { InfoBoxComponent } from '../info-box/info-box.component';
 
 @Component({
   selector: 'app-golden-layout-host',
@@ -69,6 +70,10 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     this.goldenLayoutComponentService.registerComponentType(
       VariantExplorerComponent.componentName,
       VariantExplorerComponent
+    );
+    this.goldenLayoutComponentService.registerComponentType(
+      InfoBoxComponent.componentName,
+      InfoBoxComponent
     );
     this.goldenLayoutComponentService.registerComponentType(
       SubvariantExplorerComponent.componentName,

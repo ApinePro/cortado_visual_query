@@ -12,28 +12,29 @@ import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements AfterViewInit, OnDestroy {
   title = 'interactive-process-mining-angular-app';
   private _windowResizeListener = () => this.handleWindowResizeEvent();
 
+  @ViewChild('goldenLayoutHost')
+  private _goldenLayoutHostComponent: GoldenLayoutHostComponent;
+
   constructor(
     private goldenLayoutComponentService: GoldenLayoutComponentService
   ) {}
-
-  @ViewChild('goldenLayoutHost')
-  private _goldenLayoutHostComponent: GoldenLayoutHostComponent;
 
   _sideBarWidth: number = 30;
 
   ngAfterViewInit() {
     globalThis.addEventListener('resize', this._windowResizeListener);
     this._goldenLayoutHostComponent.initializeLayout();
-    this.goldenLayoutComponentService.goldenLayoutHostComponent =
-      this._goldenLayoutHostComponent;
 
     setTimeout(() => this.resizeGoldenLayout(), 0);
+
+    this.goldenLayoutComponentService.goldenLayoutHostComponent =
+      this._goldenLayoutHostComponent;
   }
 
   // Put the dropzone in front if a File Drag enters

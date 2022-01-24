@@ -1,0 +1,167 @@
+<ul class="nav nav-tabs bg-dark" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link active button"
+      id="variant-selection-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#variantSelection"
+      role="tab"
+      aria-controls="variantSelection"
+      aria-selected="true"
+    >
+      Selection
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link button"
+      id="variant-colormap-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#variantColormap"
+      type="button"
+      role="tab"
+      aria-controls="variantColormap"
+      aria-selected="false"
+    >
+      Color Map
+    </button>
+  </li>
+</ul>
+
+<div class="tab-content" id="myTabContent">
+  <div
+    class="tab-pane fade show active"
+    id="variantSelection"
+    role="tabpanel"
+    aria-labelledby="variant-selection-tab"
+  >
+    <ng-container *ngTemplateOutlet="selectionPerformance"> </ng-container>
+  </div>
+  <div
+    class="tab-pane fade color-map-tab"
+    id="variantColormap"
+    role="tabpanel"
+    aria-labelledby="variant-color-map"
+  >
+    <app-variant-color-map></app-variant-color-map>
+  </div>
+</div>
+
+<ng-template #selectionPerformance>
+  <div class="btn-group-toggle" data-toggle="buttons">
+    <button
+      *ngIf="!variantPerformanceService.variantPerformanceMode.value"
+      style="width: 100%"
+      type="button"
+      class="btn btn-secondary"
+      (click)="setPerformanceMode(true)"
+    >
+      Enable Variant Performance Mode
+    </button>
+    <button
+      *ngIf="variantPerformanceService.variantPerformanceMode.value"
+      style="width: 100%"
+      type="button"
+      class="btn btn-primary"
+      (click)="setPerformanceMode(false)"
+    >
+      Disable Variant Performance Mode
+    </button>
+  </div>
+
+  <div *ngIf="selectedVariantElement && selectedVariantElement.serviceTime">
+    <table class="table table-striped table-dark table-hover table-bordered">
+      <thead>
+        <tr>
+          <th colspan="2">Service Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Mean:</td>
+          <td>
+            {{ selectedVariantElement.serviceTime.mean | humanizeDuration }}
+          </td>
+        </tr>
+        <tr>
+          <td>Stdev:</td>
+          <td>
+            {{ selectedVariantElement.serviceTime.stdev | humanizeDuration }}
+          </td>
+        </tr>
+        <tr>
+          <td>Min:</td>
+          <td>
+            {{ selectedVariantElement.serviceTime.min | humanizeDuration }}
+          </td>
+        </tr>
+        <tr>
+          <td>Max:</td>
+          <td>
+            {{ selectedVariantElement.serviceTime.max | humanizeDuration }}
+          </td>
+        </tr>
+        <tr>
+          <td>95th Percentile:</td>
+          <td>
+            {{ selectedVariantElement.serviceTime["95th"] | humanizeDuration }}
+          </td>
+        </tr>
+        <tr>
+          <td>50th Percentile:</td>
+          <td>
+            {{ selectedVariantElement.serviceTime["50th"] | humanizeDuration }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="selectedVariantElement && selectedVariantElement.waitingTime">
+    <table class="table table-striped table-dark table-hover table-bordered">
+      <thead>
+        <tr>
+          <th colspan="2">Waiting Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Mean:</td>
+          <td>
+            {{ selectedVariantElement.waitingTime.mean | humanizeDuration }}
+          </td>
+        </tr>
+        <tr>
+          <td>Stdev:</td>
+          <td>
+            {{ selectedVariantElement.waitingTime.stdev | humanizeDuration }}
+          </td>
+        </tr>
+        <tr>
+          <td>Min:</td>
+          <td>
+            {{ selectedVariantElement.waitingTime.min | humanizeDuration }}
+          </td>
+        </tr>
+        <tr>
+          <td>Max:</td>
+          <td>
+            {{ selectedVariantElement.waitingTime.max | humanizeDuration }}
+          </td>
+        </tr>
+        <tr>
+          <td>95th Percentile:</td>
+          <td>
+            {{ selectedVariantElement.waitingTime["95th"] | humanizeDuration }}
+          </td>
+        </tr>
+        <tr>
+          <td>50th Percentile:</td>
+          <td>
+            {{ selectedVariantElement.waitingTime["50th"] | humanizeDuration }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</ng-template>

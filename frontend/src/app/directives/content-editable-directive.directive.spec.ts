@@ -1,6 +1,4 @@
-/* tslint:disable:no-unused-variable */
-
-import { TestBed, async } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { ContentEditableDirective } from './content-editable-directive.directive';
 
 describe('Directive: ContentEditableDirective', () => {

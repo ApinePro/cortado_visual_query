@@ -15,11 +15,6 @@
   overflow: hidden;
 }
 
-.subvariants{
-  text-align: center;
-  cursor: pointer;
-}
-
 .variant-info-cell {
   align-items: center;
   display: flex;
@@ -142,4 +137,9 @@
 .selected-dropdown-item {
   background-color: var(--bs-blue);
   color: var(--bs-white);
+}
+
+.container-variant-explorer {
+  min-height: 100%;
+  position: relative;
 }

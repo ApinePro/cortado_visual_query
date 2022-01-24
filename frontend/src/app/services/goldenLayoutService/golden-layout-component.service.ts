@@ -17,7 +17,6 @@ export class GoldenLayoutComponentService {
   private _componentTypeMap = new Map<string, Type<LayoutChangeDirective>>();
   private _goldenLayoutHostComponent: GoldenLayoutHostComponent;
   private _goldenLayout: GoldenLayout;
-  private _componentDestroyed = new Subject<any>();
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
 

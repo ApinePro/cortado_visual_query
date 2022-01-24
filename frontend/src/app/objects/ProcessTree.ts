@@ -1,7 +1,70 @@
+import { PerformanceStats } from '../components/variant-explorer/model';
+
 export class ProcessTree {
-  label: string;
-  operator: ProcessTreeOperator;
-  children: ProcessTree[];
+  constructor(
+    public label: string,
+    public operator: ProcessTreeOperator,
+    public children: ProcessTree[],
+    public id: number,
+    public frozen: boolean,
+    public performance: TreePerformance
+  ) {}
+
+  public equals(other: ProcessTree) {
+    let equals = this.label == other.label && this.operator == other.operator;
+    equals &&= this.children?.length == other.children?.length;
+
+    if (!equals) {
+      return false;
+    }
+
+    for (let i = 0; i < this.children?.length; i++) {
+      equals &&= this.children[i].equals(other.children[i]);
+    }
+
+    return equals;
+  }
+
+  public static fromObj(treeObj) {
+    const tree = new ProcessTree(
+      treeObj['label'],
+      treeObj['operator'],
+      [],
+      treeObj['id'],
+      treeObj['frozen'],
+      treeObj['performance']
+    );
+    if (treeObj['children']) {
+      treeObj['children'].forEach((c) => {
+        tree.children.push(ProcessTree.fromObj(c));
+      });
+    }
+    return tree;
+  }
+
+  toString() {
+    if (this.operator) {
+      return `${this.operator} ( ${this.children
+        .map((n) => n.toString())
+        .join(' ')} )`;
+    } else {
+      return this.label + ',';
+    }
+  }
+}
+
+export class TreePerformance {
+  service_time: PerformanceStats;
+  waiting_time: PerformanceStats;
+  cycle_time: PerformanceStats;
+  idle_time: PerformanceStats;
+
+  constructor(dict: any = {}) {
+    this.service_time = new PerformanceStats(dict.service_time);
+    this.waiting_time = new PerformanceStats(dict.waiting_time);
+    this.cycle_time = new PerformanceStats(dict.cycle_time);
+    this.idle_time = new PerformanceStats(dict.idle_time);
+  }
 }
 
 // TODO

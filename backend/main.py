@@ -1,35 +1,47 @@
-from endpoints.add_variants_to_process_model import add_variants_to_process_model
-from cortado_core.utils.cvariants import generate_variants
-from cortado_core.utils.alignment_utils import trace_fits_process_tree
+import configparser
+import json
 from multiprocessing import freeze_support, cpu_count
-from typing import Any, List
+from typing import Any, List, Optional
+
 import uvicorn
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
-
-from pm4py.objects.log.importer.xes.importer import apply as xes_import
-import pm4py.objects.log.importer.xes.importer as xes_importer
-
 from pydantic import BaseModel, Field
-from pm4py.algo.filtering.log.variants import variants_filter
-from pm4py.objects.log.obj import EventLog, Trace, Event
-from pm4py.objects.process_tree.obj import ProcessTree
-from pm4py.algo.discovery.inductive.variants.im_clean.algorithm import apply_tree as inductive_miner
-from pm4py.objects.process_tree.exporter.variants.ptml import export_tree_as_string as generate_ptml_xml
-from pm4py.objects.conversion.process_tree.converter import apply as convert_pt_to_petri_net
-from pm4py.objects.petri_net.exporter.variants.pnml import export_petri_as_string as generate_pnml_xml
-from pm4py.objects.process_tree.importer.importer import apply as import_pt_from_ptml
-from pm4py.objects.process_tree.utils.generic import parse
 
-from backend_utilities.process_tree_conversion import process_tree_to_dict
-from backend_utilities.process_tree_conversion import dict_to_process_tree
-from backend_utilities.configuration.repository import ConfigurationRepositoryFactory
+import pm4py.objects.log.importer.xes.importer as xes_importer
 from backend_utilities.configuration.repository import Configuration as DomainConfiguration
+from backend_utilities.configuration.repository import ConfigurationRepositoryFactory
+from backend_utilities.process_tree_conversion import dict_to_process_tree
+from backend_utilities.process_tree_conversion import process_tree_to_dict
 from backend_utilities.timeout.helper_functions import execute_with_timeout, TimeoutException
 from backend_utilities.variant_trace_conversion import variant_to_trace
+from cortado_core.freezing.reinsert_frozen_subtrees import post_process_tree
+from cortado_core.performance import tree_performance, utils as performance_utils
+from cortado_core.performance.aggregators import stats, noop, avg
+from cortado_core.utils.alignment_utils import trace_fits_process_tree
+from cortado_core.utils.cvariants import generate_variants
+from cortado_core.utils.process_tree import CortadoProcessTree, convert_tree
+from endpoints import load_event_log
+from endpoints.add_variants_to_process_model import add_variants_to_process_model
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 from endpoints.load_event_log import calculate_event_log_properties
+from pm4py.algo.conformance.alignments.petri_net import algorithm as net_alignment
+from pm4py.algo.discovery.inductive.variants.im_clean.algorithm import apply_tree as inductive_miner
+from pm4py.algo.filtering.log.variants import variants_filter
+from pm4py.objects.conversion.process_tree.converter import apply as convert_pt_to_petri_net
+from pm4py.objects.log.importer.xes.importer import apply as xes_import
+from pm4py.objects.log.obj import EventLog, Trace, Event
+from pm4py.objects.petri_net.exporter.variants.pnml import export_petri_as_string as generate_pnml_xml
+from pm4py.objects.process_tree.exporter.variants.ptml import export_tree_as_string as generate_ptml_xml
+from pm4py.objects.process_tree.importer.importer import apply as import_pt_from_ptml
+from pm4py.objects.process_tree.obj import ProcessTree
+from pm4py.objects.process_tree.utils.generic import parse
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+# Decide when to use multiprocessing for event log
+min_traces_variant_detection_mp = int(config['MULTIPROCESSING']['MIN_TRACES_VARIANT_DETECTION_MULTIPROCESSING'])
 
 app = FastAPI()
 origins = [
@@ -49,8 +61,13 @@ app.add_middleware(
 
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
+    global pcache
+    pcache = {}
+
     content = "".join([line.decode("UTF-8") for line in file.file])
-    info = calculate_event_log_properties(xes_importer.deserialize(content))
+    event_log = xes_importer.deserialize(content)
+    use_mp = len(event_log) > min_traces_variant_detection_mp
+    info = calculate_event_log_properties(event_log, use_mp)
     return info
 
 
@@ -60,7 +77,13 @@ class FilePathInput(BaseModel):
 
 @app.post("/loadEventLog")
 async def load_event_log_from_file_path(d: FilePathInput):
-    info = calculate_event_log_properties(xes_import(d.file_path))
+    global event_log
+    global pcache
+    pcache = {}
+
+    event_log = xes_import(d.file_path)
+    use_mp = len(event_log) > min_traces_variant_detection_mp
+    info = calculate_event_log_properties(event_log, use_mp)
     return info
 
 
@@ -155,7 +178,6 @@ class InputTreeStringFromTree(BaseModel):
 
 @app.post("/computeTreeStringFromTree")
 async def computeTreeStringFromTree(d: InputTreeStringFromTree):
-    pt = dict_to_process_tree(d.pt)[0]
     res = str(dict_to_process_tree(d.pt)[0])
     return res
 
@@ -230,6 +252,12 @@ async def calculate_alignment(d: InputCalculateAlignment):
     return calculate_alignment_endpoint(variant, d.pt)
 
 
+@app.post("/applyReductionRulesToTree")
+async def applyTreeReductionRules(d: ConvertPtToX):
+    pt, frozen_subtrees = dict_to_process_tree(d.pt)
+    return process_tree_to_dict(post_process_tree(pt, frozen_subtrees), frozen_subtrees)
+
+
 class InputCalculateAlignmentCVariant(BaseModel):
     pt: dict
     variant: dict
@@ -246,6 +274,105 @@ def calculate_alignments_intern(pt: dict, c_variant: dict):
 
     return {'cost': 0,
             'deviation': False}
+
+
+class InputCalculatePerformance(BaseModel):
+    pt: dict
+    variants: List[dict]
+    delete: Optional[List[dict]]
+
+
+pcache = {}
+
+
+def get_merged_performances(pt: CortadoProcessTree):
+    tree_nodes = performance_utils.get_all_nodes(pt)
+    tree_cache_key = str(pt)
+
+    all_service_times = [pcache[tree_cache_key][k]["service_times"] for k in pcache[tree_cache_key]]
+    all_waiting_times = [pcache[tree_cache_key][k]["waiting_times"] for k in pcache[tree_cache_key]]
+    all_cycle_times = [pcache[tree_cache_key][k]["cycle_times"] for k in pcache[tree_cache_key]]
+    all_idle_times = [pcache[tree_cache_key][k]["idle_times"] for k in pcache[tree_cache_key]]
+
+    merged_service_times = merge_performance(all_service_times)
+    merged_waiting_times = merge_performance(all_waiting_times)
+    merged_cycle_times = merge_performance(all_cycle_times)
+    merged_idle_times = merge_performance(all_idle_times)
+
+    merged_performances = {str(t): {
+        "service_time": stats(merged_service_times[t]) if t in merged_service_times else None,
+        "cycle_time": stats(merged_cycle_times[t]) if t in merged_cycle_times else None,
+        "waiting_time": stats(merged_waiting_times[t]) if t in merged_waiting_times else None,
+        "idle_time": stats(merged_idle_times[t]) if t in merged_idle_times else None,
+    } for t in tree_nodes}
+    pt_dict = process_tree_to_dict(pt, performance=merged_performances)
+    return pt_dict
+
+
+@app.post("/calculateVariantsPerformance")
+async def calculate_variant_performance(d: InputCalculatePerformance):
+    global pcache
+
+    pt, _ = dict_to_process_tree(d.pt)
+    pt = convert_tree(pt)
+    tree_nodes = performance_utils.get_all_nodes(pt)
+    variants_tree_performance = []
+
+    tree_cache_key = str(pt)
+
+    variants = d.variants
+    if d.delete:
+        for remove_variant in d.delete:
+            delete_cache_key = json.dumps(remove_variant)
+            variants = [v for v in variants if json.dumps(v) != delete_cache_key]
+
+            if tree_cache_key in pcache and delete_cache_key in pcache[tree_cache_key]:
+                del pcache[tree_cache_key][delete_cache_key]
+
+    variants_fitness = []
+    for variant in variants:
+        variant_cache_key = json.dumps(variant)
+        if tree_cache_key in pcache and variant_cache_key in pcache[tree_cache_key]:
+            p_values = pcache[tree_cache_key][variant_cache_key]
+            service_times_aggregated = p_values["service_times"]
+            idle_times_aggregated = p_values["idle_times"]
+            waiting_times_aggregated = p_values["cycle_times"]
+            cycle_times_aggregated = p_values["waiting_times"]
+            mean_fitness = p_values["mean_fitness"]
+        else:
+            test_log = load_event_log.variants_store[variant_cache_key]
+            test_log = EventLog(test_log)
+            (service_times, idle_times, waiting_times, cycle_times), mean_fitness \
+                = tree_performance.get_tree_performance_intervals(pt, test_log,
+                                                                  alignment_variant=net_alignment.Variants.VERSION_STATE_EQUATION_A_STAR)
+
+            service_times_aggregated = tree_performance.apply_aggregation(service_times, noop, avg, avg)
+            idle_times_aggregated = tree_performance.apply_aggregation(idle_times, noop, avg, avg)
+            waiting_times_aggregated = tree_performance.apply_aggregation(waiting_times, noop, avg, avg)
+            cycle_times_aggregated = tree_performance.apply_aggregation(cycle_times, noop, avg, avg)
+
+        perf_stats = {str(t): {
+            "service_time": stats(service_times_aggregated[t]) if t in service_times_aggregated else None,
+            "cycle_time": stats(cycle_times_aggregated[t]) if t in cycle_times_aggregated else None,
+            "waiting_time": stats(waiting_times_aggregated[t]) if t in waiting_times_aggregated else None,
+            "idle_time": stats(idle_times_aggregated[t]) if t in idle_times_aggregated else None,
+        } for t in tree_nodes}
+
+        pt_dict_variant = process_tree_to_dict(pt, performance=perf_stats)
+        variants_tree_performance.append(pt_dict_variant)
+        variants_fitness.append(mean_fitness)
+
+        if tree_cache_key not in pcache:
+            pcache[tree_cache_key] = {}
+        pcache[tree_cache_key][variant_cache_key] = {"service_times": service_times_aggregated,
+                                                     "idle_times": idle_times_aggregated,
+                                                     "cycle_times": cycle_times_aggregated,
+                                                     "waiting_times": waiting_times_aggregated,
+                                                     "mean_fitness": mean_fitness}
+
+    pt_dict = get_merged_performances(pt)
+    return {'merged_performance_tree': pt_dict, 'variants_tree_performance': variants_tree_performance,
+            'fitness_values': variants_fitness}
 
 
 @app.post("/calculateAlignmentsCVariant")
@@ -292,8 +419,20 @@ def get_all_urls():
 
 
 if __name__ == "__main__":
+    # print(DEFAULT_LP_SOLVER_VARIANT)
     freeze_support()
     num_workers = max(1, cpu_count() - 2)
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=False)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=True)
     # dev mode
-    # uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=True)
+    # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
+
+def merge_performance(all_performances):
+    merged = {}
+    for performance in all_performances:
+        for tree in performance:
+            p = merged.get(tree, [])
+            if performance[tree]:
+                p.extend(performance[tree])
+            merged[tree] = p
+    return merged

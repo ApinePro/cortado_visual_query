@@ -1,10 +1,13 @@
 # Changelog of Cortado
-
 ---
 
+## [1.4.0] - 2022-01-11
 
-## [1.4.0] -
 ### Changed
+
+* Updated Electron version to 16.x [Frontend]
+* Updated Angular version to 13.x [Frontend]
+* Improved EULA dialog at the start [Frontend]
 
 ### Added
 
@@ -12,15 +15,24 @@
 * Added drag-and-drop event log and process tree upload [Frontend + Backend]
 * Added svg image export for process trees and variant explorer [Frontend]
 * Added sorting functionality for activity explorer [Frontend]
+* Button for process tree reductions [Frontend]
+* Expert mode in the process tree editor [Frontend]
+* Using activity colors in process tree [Frontend]
 
-### Fixed 
+### Fixed
 
 * Issues regarding the variant explorer rendering [Frontend + Backend]
 * Issues regarding process tree rendering [Frontend]
 * Issues regarding the default log used as a usage demo [Frontend]
 
+## [1.3.0] - 2021-09-20
+
+### Added
+
+* Freezing subtrees within incremental process discovery [Frontend + Backend]
 
 ## [1.2.0] - 2021-08-31
+
 ### Changed
 
 * Variant explorer supports start- and complete-timestamps (partially ordered event data) [Frontend + Backend]
@@ -45,3 +57,5 @@
 ---
 
 ## [1.0.0] - 2021-05-17
+
+Initial release

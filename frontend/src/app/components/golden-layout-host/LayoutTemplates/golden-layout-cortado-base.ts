@@ -7,7 +7,7 @@ import {
 } from 'golden-layout';
 import { ProcessTreeEditorComponent } from '../../process-tree-editor/process-tree-editor.component';
 import { VariantExplorerComponent } from '../../variant-explorer/variant-explorer.component';
-import { ActivityOverviewComponent } from '../../activity-overview/activity-overview.component';
+import { InfoBoxComponent } from '../../info-box/info-box.component';
 
 export const baseLayout: LayoutConfig = {
   dimensions: {
@@ -38,10 +38,6 @@ export const baseLayout: LayoutConfig = {
         type: ItemType.row,
         height: 38.197,
         content: [
-          {
-            type: ItemType.row,
-            height: 38.197,
-            content: [
               {
                 type: ItemType.stack,
                 height: 38.197,
@@ -58,21 +54,19 @@ export const baseLayout: LayoutConfig = {
                 ],
               } as StackItemConfig,
               {
-                id: ActivityOverviewComponent.componentName,
                 type: 'component',
                 header: {
                   show: false,
                 },
                 width: 38.197,
                 isClosable: false,
-                reorderEnabled: false,
-                title: 'Activity Explorer',
-                componentType: ActivityOverviewComponent.componentName,
+                title: 'Info Box',
+                id : InfoBoxComponent.componentName,
+                componentType: InfoBoxComponent.componentName,
               } as ComponentItemConfig,
             ],
           } as RowOrColumnItemConfig,
         ],
       } as RowOrColumnItemConfig,
-    ],
-  },
 };
+

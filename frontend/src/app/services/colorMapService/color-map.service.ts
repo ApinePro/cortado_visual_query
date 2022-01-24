@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
 import * as constants from './predefinedColors';
 
 @Injectable({
@@ -16,6 +15,13 @@ export class ColorMapService {
     activities.forEach((a, i) => {
       colorMap.set(a, this.get_color(i));
     });
+    this._colorMap.next(colorMap);
+    return colorMap;
+  }
+
+  changeActivityColor(activity: string, color: string): Map<string, string> {
+    let colorMap: Map<string, string> = this._colorMap.getValue();
+    colorMap.set(activity, color);
     this._colorMap.next(colorMap);
     return colorMap;
   }
