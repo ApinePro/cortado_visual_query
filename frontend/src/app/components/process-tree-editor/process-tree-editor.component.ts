@@ -1,4 +1,6 @@
-import { BackendService } from './../../services/backendService/backend.service';
+// noinspection JSConstantReassignment
+
+import { BackendService } from '../../services/backendService/backend.service';
 import {
   Component,
   OnInit,
@@ -6,18 +8,11 @@ import {
   AfterViewInit,
   ElementRef,
   HostListener,
-  isDevMode,
   Inject,
   Renderer2,
 } from '@angular/core';
 
-import {
-  trigger,
-  state,
-  style,
-  animate,
-  transition,
-} from '@angular/animations';
+import { trigger, style, animate, transition } from '@angular/animations';
 
 import { ComponentContainer } from 'golden-layout';
 import * as d3 from 'd3';
@@ -30,6 +25,9 @@ import { ImageExportService } from '../../services/imageExportService/image-expo
 import { flextree } from 'd3-flextree';
 
 declare var $;
+import { PerformanceService } from 'src/app/services/performance.service';
+import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
+import { getPerformanceTable } from './utils';
 
 import {
   ProcessTree,
@@ -72,13 +70,14 @@ export class ProcessTreeEditorComponent
     private colorMapService: ColorMapService,
     private imageExportService: ImageExportService,
     private backendService: BackendService,
+    private performanceService: PerformanceService,
+    private performanceColorScaleService: ModelPerformanceColorScaleService,
+    private renderer: Renderer2,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
-    elRef: ElementRef,
-    private renderer: Renderer2
+    elRef: ElementRef
   ) {
     super(elRef.nativeElement, renderer);
-    const state = this.container.initialState;
   }
 
   @ViewChild('d3svg') svgElem: ElementRef;
@@ -122,6 +121,7 @@ export class ProcessTreeEditorComponent
   lastSelectedInsertMethod: Function = this.insertNewNodeBelow;
 
   activityColorMap: Map<string, string>;
+  performanceColorMap;
   processEditorOutOfFocus: boolean = false;
 
   dropZoneConfig: DropzoneConfig;
@@ -143,6 +143,15 @@ export class ProcessTreeEditorComponent
         this.update(this.root);
       }
     });
+
+    this.performanceColorScaleService.currentColorScale.subscribe(
+      (colorMap) => {
+        if (colorMap && colorMap != this.performanceColorMap) {
+          this.performanceColorMap = colorMap;
+          this.refresh();
+        }
+      }
+    );
 
     this.sharedDataService.currentDisplayedProcessTree$.subscribe((res) => {
       console.log('new tree received in processTreeEditor');
@@ -216,8 +225,6 @@ export class ProcessTreeEditorComponent
         unknownActivities.add(subtree.label);
 
         // Else continue
-      } else {
-        continue;
       }
     }
 
@@ -242,6 +249,10 @@ export class ProcessTreeEditorComponent
     });
   }
 
+  private refresh() {
+    this.update(this.root, false);
+  }
+
   saveTreeInSharedDataService(): void {
     console.warn(this.currentlyDisplayedTreeInEditor);
     this.sharedDataService.currentDisplayedProcessTree =
@@ -254,12 +265,16 @@ export class ProcessTreeEditorComponent
       if (d3Node.data.frozen && d3Node.data.frozen === true) {
         currentNodeFrozen = true;
       }
-      const tree = {
-        label: d3Node.data.label,
-        operator: d3Node.data.operator,
-        children: [],
-        frozen: currentNodeFrozen,
-      };
+
+      const tree = new ProcessTree(
+        d3Node.data.label,
+        d3Node.data.operator,
+        [],
+        d3Node.data.id,
+        currentNodeFrozen,
+        d3Node.data.performance
+      );
+
       if (d3Node.children) {
         d3Node.children.forEach((c) => {
           tree.children.push(this.getProcessTreeObject(c));
@@ -271,33 +286,13 @@ export class ProcessTreeEditorComponent
     }
   }
 
-  addNewNodePreCheck(): void {
-    this.selectedMethod = this.lastSelectedInsertMethod;
-    if (this.selectedRootNode) {
-      if (!this.selectedRootNode.parent) {
-        this.insertPositionLeftRightDisabled = true;
-      } else {
-        this.insertPositionLeftRightDisabled = false;
-      }
-    }
-    if (this.selectedRootNode === this.root) {
-      this.insertPositionAboveDisabled = false;
-    } else {
-      this.insertPositionAboveDisabled = true;
-    }
-  }
-
   handleResponsiveChange(
     left: number,
     top: number,
     width: number,
     height: number
   ): void {
-    if (width < 970) {
-      this.collapse = true;
-    } else {
-      this.collapse = false;
-    }
+    this.collapse = width < 970;
   }
 
   @HostListener('window:resize', ['$event'])
@@ -486,11 +481,20 @@ export class ProcessTreeEditorComponent
   }
 
   update(root, cacheTree: boolean = false): void {
+    this.activateTooltipsService.closeAllPopover();
+
+    this.mainSvgGroup.selectAll('g').remove();
     // console.log('update()');
     if (cacheTree) {
       this.cacheCurrentTree();
     }
     if (root) {
+      let selectedStatistic =
+        this.performanceColorScaleService.selectedColorScale.statistic;
+      let selectedPerformanceIndicator =
+        this.performanceColorScaleService.selectedColorScale
+          .performanceIndicator;
+
       this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(root);
       this.processTreeSyntaxInfo = checkSyntax(this.getProcessTreeObject(root));
       this.sharedDataService.correctTreeSyntax =
@@ -515,19 +519,36 @@ export class ProcessTreeEditorComponent
         .enter()
         .append('g')
         .attr('id', function (d) {
-          // @ts-ignore
           return d.data.id;
         })
         .attr('data-bs-toggle', (d) =>
           d.data.performance ? 'popover' : 'tooltip'
         )
         .attr('data-bs-placement', 'top')
-        .attr('data-bs-title', (d) => d.data.label)
+        .attr('data-bs-title', (d) => d.data.label || d.data.operator)
         .attr('data-bs-html', true)
-        .attr(
-          'data-bs-template',
-          '<div class="tooltip"role="tooltip"><div class="tooltip-arrow"> </div><div class="tooltip-inner"></div></div>'
-        );
+        .attr('data-bs-content', (d) =>
+          getPerformanceTable(
+            d.data.performance,
+            selectedPerformanceIndicator,
+            selectedStatistic
+          )
+        )
+        .attr('data-bs-template', (d) => {
+          if (d.data.performance) {
+            return `<div class="popover performance-tooltip" role="tooltip">
+                      <div style="display: flex; justify-content: space-between" class="popover-header-style">
+                        <h3 style="flex: 1" class="popover-header"></h3>
+                        <button class="btn" onclick="$('#${d.data.id}').popover('hide')">&times;</button>
+                      </div>
+                      <div class="popover-body"></div>
+                    </div>`;
+          }
+          return '<div class="tooltip" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>';
+        });
+
+      this.performanceColorMap =
+        this.performanceColorScaleService.getColorScale();
 
       // add nodes
       this.nodeEnter
@@ -538,6 +559,33 @@ export class ProcessTreeEditorComponent
         .attr('stroke', constants.tree_stroke_color)
         .attr('stroke-width', constants.tree_stroke_width)
         .merge(node.select('.node'))
+        .style('fill', (d) => {
+          if (this.root.data.performance) {
+            if (
+              this.performanceColorMap.has(d.data.id) &&
+              d.data.performance?.[selectedPerformanceIndicator]?.[
+                selectedStatistic
+              ] !== undefined
+            ) {
+              return this.performanceColorMap.get(d.data.id)(
+                d.data.performance[selectedPerformanceIndicator][
+                  selectedStatistic
+                ]
+              );
+            } else {
+              return '#404040';
+            }
+          } else {
+            if (d.data.operator !== null) return constants.node_operator_color;
+            if (d.data.label !== null && d.data.label === '\u03C4')
+              return constants.node_non_visible_activity_color;
+            const isVisibleActivity =
+              d.data.label !== null && d.data.label !== '\u03C4';
+            return isVisibleActivity
+              ? activityColorMap.get(d.data.label)
+              : null;
+          }
+        })
         .classed('node-operator', function (d: any) {
           return d.data.operator !== null;
         })
@@ -596,16 +644,32 @@ export class ProcessTreeEditorComponent
         .attr('dominant-baseline', 'middle')
         .merge(node.select('text'))
         .attr('fill', (d) => {
-          if (d.data.frozen) {
+          if (
+            d.data.frozen ||
+            (d.data.performance == undefined &&
+              this.root.data.performance != undefined)
+          ) {
             return 'white';
           }
+
+          let nodeColor = activityColorMap.get(d.data.label);
+          if (
+            d.data.performance &&
+            this.performanceColorMap.has(d.data.id) &&
+            d.data.performance[selectedPerformanceIndicator]
+          ) {
+            nodeColor = this.performanceColorMap.get(d.data.id)(
+              d.data.performance[selectedPerformanceIndicator][
+                selectedStatistic
+              ]
+            );
+          }
+
           const isVisibleActivity =
-            d.data.label !== null && d.data.label !== '\u03C4';
+            (d.data.label !== null && d.data.label !== '\u03C4') ||
+            (d.data.performance != undefined && nodeColor !== undefined);
           return isVisibleActivity
-            ? textColorForBackgroundColor(
-                activityColorMap.get(d.data.label) ||
-                  constants.node_visible_activity_color
-              )
+            ? textColorForBackgroundColor(nodeColor)
             : 'white';
         })
         .attr('font-size', (d: any) => {
@@ -613,6 +677,12 @@ export class ProcessTreeEditorComponent
             return constants.node_operator_font_size;
           }
           return constants.node_visible_font_size;
+        })
+        .attr('x', function (d: any) {
+          return d.x;
+        })
+        .attr('y', function (d: any) {
+          return d.y + constants.tree_node_height_width / 2 + 3;
         })
         .text(function (d: any) {
           if (d.data.operator) {
@@ -626,12 +696,6 @@ export class ProcessTreeEditorComponent
               return d.data.label.substring(0, 20) + '...';
             }
           }
-        })
-        .attr('x', function (d: any) {
-          return d.x;
-        })
-        .attr('y', function (d: any) {
-          return d.y + constants.tree_node_height_width / 2 + 3;
         });
 
       const edges = this.mainSvgGroup.selectAll('line').data(root.links());
@@ -679,7 +743,6 @@ export class ProcessTreeEditorComponent
           );
         })
         .attr('width', function () {
-          // console.log(Math.max(constants.tree_node_height_width, this.nextSibling.getComputedTextLength() + 10));
           return Math.max(
             constants.tree_node_height_width,
             this.nextSibling.getComputedTextLength() + 10
@@ -882,7 +945,6 @@ export class ProcessTreeEditorComponent
 
   calculateTreeLayout(root): void {
     if (root) {
-      const treeLayout = d3.tree();
       const flextreeLayout = flextree();
 
       flextreeLayout.nodeSize((node) => {
@@ -979,11 +1041,13 @@ export class ProcessTreeEditorComponent
   }
 
   addSelectionFunctionality(): void {
+    let performanceService = this.performanceService;
     this.nodeEnter.on('click', function (event, d) {
       unselectAll();
       setSelectedRootNode(d);
       selectSubtree(this, d);
       selectEdges();
+      performanceService.treeSelection.next(ProcessTree.fromObj(d.data));
     });
 
     const setSelectedRootNode = function (d) {
@@ -1070,6 +1134,7 @@ export class ProcessTreeEditorComponent
   clearSelection(): void {
     // console.log("clear selection")
     this.selectedRootNode = null;
+    this.performanceService.treeSelection.next(undefined);
     this.mainSvgGroup
       .selectAll('rect')
       .attr('stroke', constants.nonSelectedTreeNodeStrokeColor);

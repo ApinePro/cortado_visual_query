@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
 import * as constants from './predefinedColors';
 
 @Injectable({

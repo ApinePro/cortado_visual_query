@@ -1,5 +1,6 @@
 import { ElementRef, Injectable } from '@angular/core';
 declare var bootstrap: any;
+declare var $: any;
 
 @Injectable({
   providedIn: 'root',
@@ -40,6 +41,10 @@ export class ActivateTooltipsService {
     });
 
     element.addEventListener('click', (_) => tooltip.hide());
+  }
+
+  public closeAllPopover() {
+    $('[data-bs-toggle="popover"]').popover('hide');
   }
 
   public destroyTooltip(element: any): void {

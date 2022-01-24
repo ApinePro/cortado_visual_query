@@ -55,8 +55,9 @@ unit_tests:
   image: python:$PYTHON_VERSION
   before_script:
     - pip install pytest
-    - git config --global credential.https://gitlab.fit.fraunhofer.de/daniel.schuster/interactive_process_mining_core.git.username ${cortado_core_git_username}
+    - git config --global credential.https://gitlab.fit.fraunhofer.de/cortado/cortado-core.git.username ${cortado_core_git_username}
     - git config --global credential.https://gitlab.fit.fraunhofer.de/pm4py/pm4py-core.git.username ${pm4py_core_git_username}
+    
     - git config --global credential.helper store
     - git config --global credential.interactive never
     - echo https://${cortado_core_git_username}:${cortado_core_git_password}@gitlab.fit.fraunhofer.de >> /root/.git-credentials
