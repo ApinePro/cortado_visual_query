@@ -41,18 +41,23 @@ export const baseLayout: LayoutConfig = {
         type: ItemType.row,
         height: 38.197,
         content: [
-          {
-            type: 'component',
+          {type: ItemType.stack,
+            width: 61.803,
             header: {
               show: Side.left,
               maximise: false,
               popout: false,
             },
-            width: 61.803,
-            title: 'Variant Explorer',
-            isClosable: false,
-            componentType: VariantExplorerComponent.componentName,
-          } as ComponentItemConfig,
+            content : [
+              {
+                type: 'component',
+                title: 'Variant Explorer',
+                isClosable: false,
+                id : VariantExplorerComponent.componentName,
+                componentType: VariantExplorerComponent.componentName,
+              } as ComponentItemConfig,
+            ]
+          },
           {
             type: 'component',
             header: {
