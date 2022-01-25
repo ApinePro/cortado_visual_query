@@ -17,7 +17,7 @@ export class ConformanceCheckingService {
   private runningRequests: number[] = [];
   public results: Observable<ConformanceCheckingResult>;
 
-  public connect(): void {
+  public connect(): boolean {
     if (!this.socket || this.socket.closed) {
       this.socket = webSocket(WS_ENDPOINT);
       this.results = this.socket.pipe(
@@ -39,6 +39,8 @@ export class ConformanceCheckingService {
             showCancelButton: true,
             cancelButtonText: 'close',
           });
+          this.socket = null;
+
           throw error;
         }),
         tap((_) => {
@@ -53,7 +55,11 @@ export class ConformanceCheckingService {
           );
         })
       );
+
+      return true;
     }
+
+    return false;
   }
 
   public calculateConformance(
@@ -61,10 +67,12 @@ export class ConformanceCheckingService {
     pt: any,
     variant: any,
     timeout: number
-  ): void {
-    this.connect();
+  ): boolean {
+    const resubscribe = this.connect();
     const rid = this.infoService.setRequest('conformance checking');
     this.runningRequests.push(rid);
     this.socket.next({ id: id, pt: pt, variant: variant, timeout: timeout });
+
+    return resubscribe;
   }
 }

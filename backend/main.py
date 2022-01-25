@@ -398,6 +398,7 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.accept()
             while True:
                 data = await websocket.receive_json()
+                
                 timeout = configuration.timeout_cvariant_alignment_computation
                 if data['timeout'] != 0:
                     timeout = data['timeout']
@@ -406,24 +407,6 @@ async def websocket_endpoint(websocket: WebSocket):
                                  callback=get_alignment_callback(data['id'], websocket))
     except WebSocketDisconnect:
         print('websocket disconnected')
-
-
-class InputCalculateAlignmentCVariant(BaseModel):
-    pt: dict
-    variant: dict
-    timeout: int
-
-# @app.post("/calculateAlignmentsCVariant")
-# async def calculate_alignment(d: InputCalculateAlignmentCVariant, response: Response):
-#     timeout = d.timeout
-#
-#     if d.timeout == 0:
-#         config_repository = ConfigurationRepositoryFactory.get_config_repository()
-#         timeout = config_repository.get_configuration().timeout_cvariant_alignment_computation
-#     try:
-#         return execute_with_timeout(calculate_alignment_intern, timeout, args=(d.pt, d.variant))
-#     except TimeoutException:
-#         response.status_code = 504
 
 
 class Configuration(BaseModel):

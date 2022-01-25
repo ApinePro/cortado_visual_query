@@ -197,6 +197,7 @@ export class VariantExplorerComponent
     });
 
     this.conformanceCheckingService.connect();
+    this.subscribeForConformanceCheckingResults();
   }
 
   ngAfterViewInit() {
@@ -233,9 +234,7 @@ export class VariantExplorerComponent
     this.sort(this.sortingFeature);
   }
 
-  updateAlignments(): void {
-    this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
-
+  subscribeForConformanceCheckingResults(): void {
     this.conformanceCheckingService.results.subscribe(
       (res) => {
         const variant = this.variants.find((v) => v.id == res.id);
@@ -259,6 +258,10 @@ export class VariantExplorerComponent
         this.updateAlignmentStatistics();
       }
     );
+  }
+
+  updateAlignments(): void {
+    this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
 
     this.variants.forEach((v) => {
       this.updateConformanceForVariant(v, 0);
@@ -283,12 +286,16 @@ export class VariantExplorerComponent
     variant.calculationInProgress = true;
     variant.deviation = undefined;
 
-    this.conformanceCheckingService.calculateConformance(
+    const resubscribe = this.conformanceCheckingService.calculateConformance(
       variant.id,
       this.sharedDataService.currentDisplayedProcessTree,
       variant.variant.serialize(),
       timeout
     );
+
+    if (resubscribe) {
+      this.subscribeForConformanceCheckingResults();
+    }
   }
 
   updateConformanceForSingleVariantClicked(variant: Variant): void {
