@@ -39,16 +39,6 @@ export class NodeSelectionPerformanceComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.performanceService.newValues.subscribe((newValues) => {
-      this.variants = Array.from(
-        this.performanceService.availablePerformances
-      ).sort(
-        (a, b) =>
-          this.sharedDataService.variants.indexOf(a) -
-          this.sharedDataService.variants.indexOf(b)
-      );
-    });
-
     this.performanceService.treeSelection.subscribe((tree) => {
       if (
         tree === undefined ||
@@ -65,9 +55,16 @@ export class NodeSelectionPerformanceComponent implements OnInit {
 
         const availableVariants = Array.from(
           this.performanceService.allValues.get(tree.id).entries()
+        ).filter(
+          ([v, perf]) =>
+            perf.service_time ||
+            perf.waiting_time ||
+            perf.idle_time ||
+            perf.cycle_time
         );
-        availableVariants.sort((a, b) => a[0].number - b[0].number);
 
+        availableVariants.sort((a, b) => a[0].number - b[0].number);
+        this.variants = availableVariants.map((v) => v[0]);
         availableVariants
           .map(
             ([v, p]) =>
@@ -76,7 +73,6 @@ export class NodeSelectionPerformanceComponent implements OnInit {
                 p,
               ]
           )
-          .filter(([vIdx, p]) => p.service_time)
           .forEach(([vIdx, p]) => {
             const v = this.sharedDataService.variants[vIdx];
             this.variantIndices.set(v, vIdx + 1);

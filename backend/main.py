@@ -5,16 +5,16 @@ from cortado_core.utils.cvariants import generate_variants
 from cortado_core.utils.alignment_utils import trace_fits_process_tree
 import configparser
 import json
-from multiprocessing import freeze_support, cpu_count
+from multiprocessing import freeze_support, cpu_count, Pool
 from typing import Any, List, Optional
+import asyncio
 
 import uvicorn
 from fastapi import FastAPI, File, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
-from multiprocessing import Pool
-import asyncio
+from pm4py.objects.process_tree.utils import generic as tree_util
 
 import pm4py.objects.log.importer.xes.importer as xes_importer
 from backend_utilities.configuration.repository import Configuration as DomainConfiguration
@@ -263,6 +263,15 @@ class InputCalculatePerformance(BaseModel):
 pcache = {}
 
 
+def tau_0_values(tree_nodes, perf_stats):
+    for t in [t for t in tree_nodes if tree_util.is_tau_leaf(t)]:
+        perf_stats[str(t)] = {
+            "service_time": stats([0]),
+            "cycle_time": stats([0]),
+            "waiting_time": stats([0]),
+            "idle_time": stats([0]),
+        }
+
 def get_merged_performances(pt: CortadoProcessTree):
     tree_nodes = performance_utils.get_all_nodes(pt)
     tree_cache_key = str(pt)
@@ -283,6 +292,7 @@ def get_merged_performances(pt: CortadoProcessTree):
         "waiting_time": stats(merged_waiting_times[t]) if t in merged_waiting_times else None,
         "idle_time": stats(merged_idle_times[t]) if t in merged_idle_times else None,
     } for t in tree_nodes}
+    tau_0_values(tree_nodes, merged_performances)
     pt_dict = process_tree_to_dict(pt, performance=merged_performances)
     return pt_dict
 
@@ -335,6 +345,8 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             "waiting_time": stats(waiting_times_aggregated[t]) if t in waiting_times_aggregated else None,
             "idle_time": stats(idle_times_aggregated[t]) if t in idle_times_aggregated else None,
         } for t in tree_nodes}
+
+        tau_0_values(tree_nodes, perf_stats)
 
         pt_dict_variant = process_tree_to_dict(pt, performance=perf_stats)
         variants_tree_performance.append(pt_dict_variant)
