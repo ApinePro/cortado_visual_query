@@ -11,7 +11,11 @@
         Overall Performance
       </button>
     </h2>
-    <div id="collapseMean" class="accordion-collapse collapse">
+    <div
+      id="collapseMean"
+      class="accordion-collapse collapse"
+      [class.show]="performanceService.activeVariant === undefined"
+    >
       <app-performance-table
         [performanceValues]="meanValues.service_time"
         heading="Service Time"
@@ -53,7 +57,11 @@
         Variant No. {{ variantIndices.get(variant) }}
       </button>
     </h2>
-    <div [id]="'collapse' + i" class="accordion-collapse collapse">
+    <div
+      [id]="'collapse' + i"
+      class="accordion-collapse collapse"
+      [class.show]="performanceService.activeVariant === variant"
+    >
       <app-performance-table
         [performanceValues]="serviceTimeValues.get(variant)"
         heading="Service Time"
