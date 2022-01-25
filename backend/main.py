@@ -48,7 +48,7 @@ from pm4py.objects.process_tree.utils.generic import parse
 config = configparser.ConfigParser()
 config.read('config.ini')
 # Decide when to use multiprocessing for event log
-min_traces_variant_detection_mp = 10000
+min_traces_variant_detection_mp = int(config['MULTIPROCESSING']['MIN_TRACES_VARIANT_DETECTION_MULTIPROCESSING'])
 
 app = FastAPI()
 origins = [
@@ -455,9 +455,9 @@ if __name__ == "__main__":
     # print(DEFAULT_LP_SOLVER_VARIANT)
     freeze_support()
     num_workers = max(1, cpu_count() - 2)
-    #uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=True)
     # dev mode
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
 
 def merge_performance(all_performances):
