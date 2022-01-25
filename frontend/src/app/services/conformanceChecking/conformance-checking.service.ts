@@ -26,21 +26,22 @@ export class ConformanceCheckingService {
             this.infoService.removeRequest(r)
           );
           this.runningRequests = [];
-          Swal.fire({
-            title: 'Error occurred',
-            html:
-              '<b>Error message: </b><br>' +
-              '<code>' +
-              'websocket connection for conformance checking was closed' +
-              '</code>',
-            icon: 'error',
-            showCloseButton: false,
-            showConfirmButton: false,
-            showCancelButton: true,
-            cancelButtonText: 'close',
-          });
           this.socket = null;
-
+          if (error instanceof CloseEvent) {
+            Swal.fire({
+              title: 'Error occurred',
+              html:
+                '<b>Error message: </b><br>' +
+                '<code>' +
+                'websocket connection for conformance checking was closed' +
+                '</code>',
+              icon: 'error',
+              showCloseButton: false,
+              showConfirmButton: false,
+              showCancelButton: true,
+              cancelButtonText: 'close',
+            });
+          }
           throw error;
         }),
         tap((_) => {
