@@ -49,6 +49,15 @@ export class ModelPerformanceComponent implements OnInit {
     });
 
     this.performanceService.treeSelection.subscribe((tree) => {
+      if (
+        tree === undefined ||
+        this.performanceService.availablePerformances.size === 0
+      ) {
+        this.selectionPerformances = [];
+        this.treeSelection = undefined;
+        return;
+      }
+
       this.selectionPerformances = [];
       this.treeSelection = tree?.toString();
 

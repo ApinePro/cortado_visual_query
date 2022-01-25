@@ -48,7 +48,9 @@ export class ProcessTree {
         .map((n) => n.toString())
         .join(' ')} )`;
     } else {
-      return this.label + ',';
+      return this.label === ProcessTreeOperator.tau
+        ? this.label + ','
+        : "'" + this.label + "'" + ',';
     }
   }
 }

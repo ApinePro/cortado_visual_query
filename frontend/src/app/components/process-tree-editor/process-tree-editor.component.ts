@@ -172,10 +172,10 @@ export class ProcessTreeEditorComponent
 
           Swal.fire({
             title:
-              '<tspan class = "text-warning">Imported process tree contains unkown activites</tspan>',
+              '<tspan class = "text-warning">Current process tree contains unkown activites</tspan>',
             html:
               '<b>Error Message: </b><br>' +
-              '<code> The newly loaded tree contains activities \
+              '<code> The loaded tree contains activities \
                   that do not appear in the currently loaded log.\
                   </code> <br> <br> Unknown Activites: ' +
               '<tspan class = "text-danger">' +
