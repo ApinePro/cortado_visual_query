@@ -1,5 +1,5 @@
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
-import { GoldenLayoutComponentService } from './../../services/goldenLayoutService/golden-layout-component.service';
+import { GoldenLayoutComponentService } from '../../services/goldenLayoutService/golden-layout-component.service';
 import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
 import {
   ComponentItem,
@@ -397,21 +397,18 @@ export class VariantExplorerComponent
       const itemConfig: ComponentItemConfig = {
         id: id,
         type: 'component',
-        title: 'Subvariant ' + index,
+        title: 'Sub-Variant ' + index,
         isClosable: true,
         reorderEnabled: false,
         componentState: this.variants[index - 1],
         componentType: SubvariantExplorerComponent.componentName,
       };
 
-      const itemConfigItem = this._goldenLayout.addItemAtLocation(
-        itemConfig,
-        LocationSelectors
-      );
+      this._goldenLayout.addItemAtLocation(itemConfig, LocationSelectors);
       componentItem = this._goldenLayout.findFirstComponentItemById(id);
       this._subvariantcomponentItemsMap.set(id, componentItem);
 
-      variantExplorerItem.focus();
+      componentItem.focus();
     }
   }
 
@@ -435,7 +432,7 @@ export class VariantExplorerComponent
         SubvariantExplorerComponent.componentName + this.variants[index].id;
       let componentItem = this._subvariantcomponentItemsMap.get(id);
       if (componentItem) {
-        componentItem.setTitle('Subvariant ' + (index + 1));
+        componentItem.setTitle('Sub-Variant ' + (index + 1));
       }
     }
   }
