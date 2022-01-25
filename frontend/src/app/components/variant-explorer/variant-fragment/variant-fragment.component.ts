@@ -61,6 +61,9 @@ export class VariantFragmentComponent implements AfterViewInit {
   @Input()
   variant: VariantElement;
 
+  @Input()
+  disablePerformanceMode: boolean = false;
+
   colorMap: Map<string, string>;
 
   svgSelection!: Selection<any, any, any, any>;
@@ -96,16 +99,18 @@ export class VariantFragmentComponent implements AfterViewInit {
 
     this.redraw();
 
-    this.variantPerformanceService.variantPerformanceMode.subscribe(
-      (perfMode) => {
-        if (perfMode !== undefined && perfMode !== this.inspectionMode) {
-          if (perfMode) {
-            this.variant.setExpanded(true);
+    if (!this.disablePerformanceMode) {
+      this.variantPerformanceService.variantPerformanceMode.subscribe(
+        (perfMode) => {
+          if (perfMode !== undefined && perfMode !== this.inspectionMode) {
+            if (perfMode) {
+              this.variant.setExpanded(true);
+            }
+            this.setInspectVariant(perfMode);
           }
-          this.setInspectVariant(perfMode);
         }
-      }
-    );
+      );
+    }
   }
 
   redraw(): void {

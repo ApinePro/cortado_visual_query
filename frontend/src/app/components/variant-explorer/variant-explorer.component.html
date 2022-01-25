@@ -235,7 +235,7 @@
         <table>
           <tr class="user-select-none">
             <th style="padding-right: 15px; padding-left: 5px">Nr.</th>
-            <th>
+            <th style="display: flex; align-items: center">
               <app-variant-selection-button
                 [isSelected]="areAllVariantsSelected()"
                 (selectionChanged)="unSelectAllChanged($event)"
@@ -287,6 +287,15 @@
                   <i class="bi bi-trash" style="color: white"></i>
                 </button>
               </div>
+            </th>
+            <th
+              style="
+                text-align: center;
+                padding-right: 10px;
+                padding-left: 10px;
+              "
+            >
+              Sub-Variants
             </th>
             <th class="text-start">Variant</th>
           </tr>

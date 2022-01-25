@@ -10,6 +10,9 @@ export class VariantInfoComponent {
   @Input()
   variant: Variant;
 
+  @Input()
+  selectable: boolean = true;
+
   @Output()
   public selectionChanged = new EventEmitter<boolean>();
 

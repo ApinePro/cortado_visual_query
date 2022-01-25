@@ -1,5 +1,6 @@
 <div class="variant-info-cell">
   <app-variant-selection-button
+    *ngIf="selectable"
     [isSelected]="variant.isSelected"
     (selectionChanged)="selectionChanged.emit($event)"
   >

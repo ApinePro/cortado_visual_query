@@ -40,6 +40,7 @@ import { TreeStringRendererComponent } from './components/tree-string-renderer/t
 import { TooltipDirective } from './directives/tooltip/tooltip.directive';
 import { VariantComponent } from './components/variant-explorer/variant/variant.component';
 import { VariantConformanceDialogComponent } from './components/variant-explorer/variant-conformance-dialog/variant-conformance-dialog.component';
+import { SubVariantComponent } from './components/variant-explorer/sub-variant/sub-variant.component';
 
 @NgModule({
   declarations: [
@@ -77,6 +78,7 @@ import { VariantConformanceDialogComponent } from './components/variant-explorer
     VariantConformanceDialogComponent,
     TreeStringRendererComponent,
     VariantComponent,
+    SubVariantComponent,
   ],
   imports: [
     BrowserModule,
