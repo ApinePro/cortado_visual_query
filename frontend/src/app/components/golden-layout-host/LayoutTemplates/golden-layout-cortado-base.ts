@@ -41,23 +41,19 @@ export const baseLayout: LayoutConfig = {
         type: ItemType.row,
         height: 38.197,
         content: [
-          {type: ItemType.stack,
+          {
             width: 61.803,
             header: {
-              show: Side.left,
+              show: false,
               maximise: false,
               popout: false,
             },
-            content : [
-              {
-                type: 'component',
-                title: 'Variant Explorer',
-                isClosable: false,
-                id : VariantExplorerComponent.componentName,
-                componentType: VariantExplorerComponent.componentName,
-              } as ComponentItemConfig,
-            ]
-          },
+            type: 'component',
+            title: 'Variant Explorer',
+            isClosable: false,
+            id: VariantExplorerComponent.componentName,
+            componentType: VariantExplorerComponent.componentName,
+          } as ComponentItemConfig,
           {
             type: 'component',
             header: {
@@ -67,7 +63,7 @@ export const baseLayout: LayoutConfig = {
             isClosable: false,
             title: 'Info Box',
             componentType: InfoBoxComponent.componentName,
-            id : InfoBoxComponent.componentName,
+            id: InfoBoxComponent.componentName,
           } as ComponentItemConfig,
         ],
       },
