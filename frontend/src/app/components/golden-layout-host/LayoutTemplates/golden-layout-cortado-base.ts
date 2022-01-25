@@ -29,7 +29,7 @@ export const baseLayout: LayoutConfig = {
         content: [
           {
             type: 'component',
-            title: 'Process Tree Visualizer',
+            title: 'Process Tree Editor',
             isClosable: false,
             height: 61.803,
 

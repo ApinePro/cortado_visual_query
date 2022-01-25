@@ -48,27 +48,6 @@
 </div>
 
 <ng-template #selectionPerformance>
-  <div class="btn-group-toggle" data-toggle="buttons">
-    <button
-      *ngIf="!variantPerformanceService.variantPerformanceMode.value"
-      style="width: 100%"
-      type="button"
-      class="btn btn-secondary"
-      (click)="setPerformanceMode(true)"
-    >
-      Enable Variant Performance Mode
-    </button>
-    <button
-      *ngIf="variantPerformanceService.variantPerformanceMode.value"
-      style="width: 100%"
-      type="button"
-      class="btn btn-primary"
-      (click)="setPerformanceMode(false)"
-    >
-      Disable Variant Performance Mode
-    </button>
-  </div>
-
   <div *ngIf="selectedVariantElement && selectedVariantElement.serviceTime">
     <table class="table table-striped table-dark table-hover table-bordered">
       <thead>
