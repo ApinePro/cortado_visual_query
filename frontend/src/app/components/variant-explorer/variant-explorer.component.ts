@@ -144,7 +144,6 @@ export class VariantExplorerComponent
     this.variants = this.sharedDataService.variants;
 
     this.variants.forEach((v, i) => {
-      // TODO Niklas expand property
       v.id = objectHash(v.variant);
       v.number = i + 1;
       v.variant = deserialize(v.variant);
@@ -234,15 +233,6 @@ export class VariantExplorerComponent
     this.sort(this.sortingFeature);
   }
 
-  updateAlignmentsStop(): void {
-    this.unsubscribe.next();
-    this.variants.forEach((v) => {
-      v.calculationInProgress = false;
-      v.alignment = undefined;
-      v.deviation = undefined;
-    });
-  }
-
   updateAlignments(): void {
     this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
 
@@ -259,9 +249,14 @@ export class VariantExplorerComponent
 
         this.updateAlignmentStatistics();
       },
-      (error) => {
-        console.log(error);
-        //   this.updateAlignmentsStop();
+      (_) => {
+        this.variants.forEach((v) => {
+          v.calculationInProgress = false;
+          v.alignment = undefined;
+          v.deviation = undefined;
+        });
+
+        this.updateAlignmentStatistics();
       }
     );
 
