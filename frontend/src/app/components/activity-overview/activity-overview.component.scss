@@ -72,3 +72,9 @@ thead th {
 .th-dropdown-colors {
   width: 50px
 }
+
+.activity-overview-table-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
