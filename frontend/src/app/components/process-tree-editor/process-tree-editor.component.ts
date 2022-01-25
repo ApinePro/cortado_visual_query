@@ -523,20 +523,24 @@ export class ProcessTreeEditorComponent
           return d.data.id;
         })
         .attr('data-bs-toggle', (d) =>
-          d.data.performance ? 'popover' : 'tooltip'
+          this.hasPerformance(d) ? 'popover' : 'tooltip'
         )
         .attr('data-bs-placement', 'top')
         .attr('data-bs-title', (d) => d.data.label || d.data.operator)
         .attr('data-bs-html', true)
-        .attr('data-bs-content', (d) =>
-          getPerformanceTable(
-            d.data.performance,
-            selectedPerformanceIndicator,
-            selectedStatistic
-          )
-        )
+        .attr('data-bs-content', (d) => {
+          if (this.hasPerformance(d)) {
+            return getPerformanceTable(
+              d.data.performance,
+              selectedPerformanceIndicator,
+              selectedStatistic
+            );
+          } else {
+            return d.data.label || d.data.operator;
+          }
+        })
         .attr('data-bs-template', (d) => {
-          if (d.data.performance) {
+          if (this.hasPerformance(d)) {
             return `<div class="popover performance-tooltip" role="tooltip">
                       <div style="display: flex; justify-content: space-between" class="popover-header-style">
                         <h3 style="flex: 1" class="popover-header"></h3>
@@ -545,7 +549,7 @@ export class ProcessTreeEditorComponent
                       <div class="popover-body"></div>
                     </div>`;
           }
-          return '<div class="tooltip" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>';
+          return '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>';
         });
 
       this.performanceColorMap =
@@ -758,6 +762,15 @@ export class ProcessTreeEditorComponent
       this.saveTreeInSharedDataService();
       this.mainSvgGroup.selectAll('*').remove();
     }
+  }
+
+  private hasPerformance(d) {
+    return (
+      d.data.performance?.service_time ||
+      d.data.performance?.cycle_time ||
+      d.data.performance?.waiting_time ||
+      d.data.performance?.idle_time
+    );
   }
 
   deleteSubtree(): void {
