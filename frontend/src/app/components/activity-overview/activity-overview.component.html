@@ -23,23 +23,22 @@
               data-bs-html="true"
               title="Edit activity colors"
             >
-              <button
-                class="button dropdown-toggle"
-                type="button"
-                data-bs-toggle="dropdown"
-              >
-                <i class="bi bi-palette btn-icon"></i>
+              <button class="button" type="button" data-bs-toggle="dropdown">
+                <i class="bi bi-chat-square-dots"></i>
               </button>
               <div class="dropdown-menu dropdown-sort">
                 <div class="fst-italic fw-bold ps-2 text-center">
-                  Edit activity colors
+                  Edit activities
                 </div>
                 <div class="dropdown-item" (click)="resetActivityColors()">
-                  <span class="ms-4">Reset colors</span>
+                  <span class="ms-4">Reset activity colors</span>
                 </div>
-                <!-- <div class="dropdown-item">
-                <span class="ms-3">Load saved colors</span>
-              </div> -->
+                <div class="dropdown-item" (click)="changeActivityNames()">
+                  <span class="ms-4">Change acitivity names</span>
+                </div>
+                <div class="dropdown-item" (click)="resetActivityNames()">
+                  <span class="ms-4">Reset activity names</span>
+                </div>
               </div>
             </div>
           </th>
@@ -182,7 +181,11 @@
               </div>
             </td>
             <td class="border-end border-color">
-              {{ activityField.activityName }}
+              <input
+                class="activity-name-input"
+                type="text"
+                value="{{ activityField.activityName }}"
+              />
             </td>
             <td class="border-end border-color text-center">
               <i class="bi bi-check2" *ngIf="activityField.inModel"></i>
