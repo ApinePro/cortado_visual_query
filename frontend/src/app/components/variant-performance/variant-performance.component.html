@@ -49,7 +49,13 @@
 
 <ng-template #selectionPerformance>
   <div
-    *ngIf="!(selectedVariantElement && selectedVariantElement.serviceTime)"
+    *ngIf="
+      !(
+        selectedVariantElement &&
+        (selectedVariantElement.serviceTime ||
+          selectedVariantElement.waitingTime)
+      )
+    "
     class="performance-unaviable-warning"
   >
     <i class="b bi bi-info-lg" style="font-size: 2.5rem"></i>

@@ -14,7 +14,6 @@ import { NgxFileDropModule } from 'ngx-file-drop';
 import { ColorPickerModule } from 'ngx-color-picker';
 
 import { VariantExplorerComponent } from './components/variant-explorer/variant-explorer.component';
-import { SideBarComponent } from './components/side-bar/side-bar.component';
 import { ActivityOverviewComponent } from './components/activity-overview/activity-overview.component';
 import { HttpRequestInterceptor } from './interceptors/http-request.interceptor';
 import { VariantFragmentComponent } from './components/variant-explorer/variant-fragment/variant-fragment.component';
@@ -47,7 +46,6 @@ import { HeaderBarComponent } from './components/header-bar/header-bar.component
     FooterComponent,
     StrFilterPipe,
     ActivityOverviewSortingPipe,
-    SideBarComponent,
     GoldenLayoutHostComponent,
     VariantExplorerComponent,
     VariantFragmentComponent,

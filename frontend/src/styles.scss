@@ -284,13 +284,16 @@ th {
   padding: 0px 10px 5px;
   position: relative;
   touch-action: none;
-  font-weight: bold;
 }
 
 .lm_header .lm_tab{
   border-bottom: none;
   padding-bottom: 7.5px;
   margin-top: 2px !important;
+  -webkit-font-smoothing: subpixel-antialiased;
+  -webkit-filter: blur(0);
+  filter: blur(0);
+  backface-visibility: hidden;
 }
 
 .lm_header .lm_tab.lm_active {
