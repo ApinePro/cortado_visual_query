@@ -21,7 +21,7 @@ export class BackendService {
     private sharedDataService: SharedDataService
   ) {}
 
-  backendUrl = 'http://127.0.0.1:8000/';
+  backendUrl = 'http://127.0.0.1:41211/';
 
   loadEventLogFromFilePath(filePath: string): void {
     this.httpClient
