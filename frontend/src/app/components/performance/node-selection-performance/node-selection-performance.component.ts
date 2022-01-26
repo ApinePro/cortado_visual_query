@@ -24,7 +24,7 @@ export class NodeSelectionPerformanceComponent implements OnInit {
   idleTimeValues: Map<Variant, PerformanceStats> = new Map();
   cycleTimeValues: Map<Variant, PerformanceStats> = new Map();
 
-  public variants: Set<Variant>;
+  public variants: Variant[];
 
   public variantIndices = new Map<Variant, number>();
 
@@ -39,15 +39,33 @@ export class NodeSelectionPerformanceComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.variants = this.performanceService.availablePerformances;
-
     this.performanceService.treeSelection.subscribe((tree) => {
+      if (
+        tree === undefined ||
+        this.performanceService.availablePerformances.size === 0
+      ) {
+        this.treeSelection = undefined;
+        this.meanValues = undefined;
+        return;
+      }
       this.treeSelection = tree?.toString();
       const meanValues = this.performanceService.allValuesMean.get(tree?.id);
       if (tree && meanValues) {
         this.meanValues = this.performanceService.allValuesMean.get(tree.id);
 
-        Array.from(this.performanceService.allValues.get(tree.id).entries())
+        const availableVariants = Array.from(
+          this.performanceService.allValues.get(tree.id).entries()
+        ).filter(
+          ([v, perf]) =>
+            perf.service_time ||
+            perf.waiting_time ||
+            perf.idle_time ||
+            perf.cycle_time
+        );
+
+        availableVariants.sort((a, b) => a[0].number - b[0].number);
+        this.variants = availableVariants.map((v) => v[0]);
+        availableVariants
           .map(
             ([v, p]) =>
               <[number, TreePerformance]>[
@@ -55,8 +73,6 @@ export class NodeSelectionPerformanceComponent implements OnInit {
                 p,
               ]
           )
-          .filter(([vIdx, p]) => p.service_time)
-          .sort((a, b) => a[0] - b[0])
           .forEach(([vIdx, p]) => {
             const v = this.sharedDataService.variants[vIdx];
             this.variantIndices.set(v, vIdx + 1);

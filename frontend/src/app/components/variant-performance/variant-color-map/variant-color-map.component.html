@@ -1,11 +1,11 @@
-<div class="card text-white bg-dark mb-3" *ngIf="serviceTimeValues">
+<div class="card text-white mb-3" *ngIf="serviceTimeValues">
   <div class="card-body">
     <h5 class="card-title">Service Time</h5>
 
     <div class="mb-3">
-      <label class="form-label">Aggregation</label>
+      <label class="form-label">Statistical Measure</label>
       <select
-        class="form-select"
+        class="form-select form-select-sm"
         aria-label="variance service time aggregation statistic"
         (change)="serviceTimeColorScaleChange($event)"
         name="performanceValue"
@@ -24,14 +24,14 @@
   </div>
 </div>
 
-<div class="card text-white bg-dark mb-3" *ngIf="waitingTimeValues">
+<div class="card text-white mb-3" *ngIf="waitingTimeValues">
   <div class="card-body">
     <h5 class="card-title">Waiting Time</h5>
 
     <div class="mb-3">
-      <label class="form-label">Aggregation</label>
+      <label class="form-label">Statistical Measure</label>
       <select
-        class="form-select"
+        class="form-select form-select-sm"
         aria-label="variance service time aggregation statistic"
         (change)="waitingTimeColorScaleChange($event)"
         name="performanceValue"

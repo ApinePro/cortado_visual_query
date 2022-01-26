@@ -8,6 +8,14 @@
     >
     </app-variant-info>
   </td>
+  <td>
+    <div
+      *ngIf="variant.sub_variants"
+      class="subvariants"
+      (click)="openSubvariantWindow.emit(i + 1)">
+      {{ variant.sub_variants.length }}
+    </div>
+  </td>
   <td
     *ngIf="sharedDataService.currentDisplayedProcessTree"
     style="text-align: center"
