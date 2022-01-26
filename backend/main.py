@@ -347,8 +347,8 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             p_values = pcache[tree_cache_key][variant_cache_key]
             service_times_aggregated = p_values["service_times"]
             idle_times_aggregated = p_values["idle_times"]
-            waiting_times_aggregated = p_values["cycle_times"]
-            cycle_times_aggregated = p_values["waiting_times"]
+            waiting_times_aggregated = p_values["waiting_times"]
+            cycle_times_aggregated = p_values["cycle_times"]
             mean_fitness = p_values["mean_fitness"]
         else:
             test_log = load_event_log.variants_store[variant_cache_key]
