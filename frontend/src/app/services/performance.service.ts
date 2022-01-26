@@ -50,6 +50,11 @@ export class PerformanceService {
     sharedDataService.currentDisplayedProcessTree$.subscribe((pt) => {
       if (pt) {
         this.treeSelection.next(pt);
+      } else {
+        this.clear();
+        this.treeSelection.next(undefined);
+        this.currentPt = undefined;
+        return;
       }
 
       if (
