@@ -2,6 +2,7 @@ import configparser
 import json
 from multiprocessing import freeze_support, cpu_count
 from typing import Any, List, Optional
+import pickle
 
 import uvicorn
 from fastapi import FastAPI, File, UploadFile
@@ -59,6 +60,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.on_event("startup")
+async def startup_event():
+    global pcache
+    pcache = pickle.load(open( "pcache.p", "rb" ))
+    load_event_log.variants_store = pickle.load(open( "variants_store.p", "rb" ))
+    
 
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
@@ -323,7 +331,6 @@ def get_merged_performances(pt: CortadoProcessTree):
 @app.post("/calculateVariantsPerformance")
 async def calculate_variant_performance(d: InputCalculatePerformance):
     global pcache
-
     pt, _ = dict_to_process_tree(d.pt)
     pt = convert_tree(pt)
     tree_nodes = performance_utils.get_all_nodes(pt)
@@ -382,6 +389,9 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
                                                      "cycle_times": cycle_times_aggregated,
                                                      "waiting_times": waiting_times_aggregated,
                                                      "mean_fitness": mean_fitness}
+
+    #pickle.dump( pcache, open( "pcache.p", "wb" ))
+    #pickle.dump(load_event_log.variants_store,  open( "variants_store.p", "wb" ))
 
     pt_dict = get_merged_performances(pt)
     return {'merged_performance_tree': pt_dict, 'variants_tree_performance': variants_tree_performance,
