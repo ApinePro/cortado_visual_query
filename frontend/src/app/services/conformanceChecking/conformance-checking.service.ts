@@ -5,7 +5,7 @@ import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { BackgroundTaskInfoService } from '../backgroundTaskInfoService/background-task-info.service';
 import { ConformanceCheckingResult } from './model';
 import Swal from 'sweetalert2';
-export const WS_ENDPOINT = 'ws://127.0.0.1:8000/conformancews';
+export const WS_ENDPOINT = 'ws://127.0.0.1:41211/conformancews';
 
 @Injectable({
   providedIn: 'root',
