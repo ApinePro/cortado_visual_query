@@ -307,6 +307,11 @@ th {
   }
 }
 
+.accordion-button:focus,.accordion-button:active {
+  outline: none !important;
+  box-shadow: none;
+}
+
 .accordion-item {
   border-left: none;
   border-right: none;
@@ -325,6 +330,10 @@ th {
 }
 
 .dialog-label {
+  font-size: var(--standard-font-size);
+}
+
+.standard-font-size {
   font-size: var(--standard-font-size);
 }
 
