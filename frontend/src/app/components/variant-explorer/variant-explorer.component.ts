@@ -201,6 +201,8 @@ export class VariantExplorerComponent
       this.variantExplorerContainer,
       this.tooltipContainer
     );
+
+    console.log(this.variants);
   }
 
   private eventLogChanged(): void {
