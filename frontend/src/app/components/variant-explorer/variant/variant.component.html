@@ -12,7 +12,8 @@
     <div
       *ngIf="variant.sub_variants"
       class="subvariants"
-      (click)="openSubvariantWindow.emit(i + 1)">
+      (click)="openSubvariantWindow.emit(i + 1)"
+    >
       {{ variant.sub_variants.length }}
     </div>
   </td>
