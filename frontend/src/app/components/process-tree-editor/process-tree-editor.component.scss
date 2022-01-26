@@ -11,6 +11,7 @@
   background-color: var(--box-background-color);
   max-height: 100%;
   position: relative;
+  border-left: 1px solid var(--thin-border-color);
 }
 
 .floating-infobox {
@@ -73,15 +74,18 @@
   background-color: lightgray;
 }
 
-::ng-deep .performance-text {
-  font-size: 12px;
+.exportMode-container{
+  position : absolute;
+  right : 0;
+  bottom : 0;
+  max-width: 45vw;
+  max-height: 95%;
 }
 
 ::ng-deep {
-  .performance-tooltip .popover-body {
+  .performance-tooltip {
     max-width: none;
     white-space: nowrap !important;
-    padding: 0px;
 
     table {
       margin: 0;
@@ -95,45 +99,38 @@
         text-align: right;
       }
     }
-
-    .tooltip-title {
-      padding: 10px;
-    }
-
-    .tooltip-content {
-      max-height: 50vh;
-      overflow-y: auto;
-    }
   }
-
-  .popover {
-    max-width: unset;
-    filter: drop-shadow(5px 5px 3px black);
-  }
-}
-
-
-.exportMode-container{
-  position : absolute;
-  right : 0;
-  bottom : 0;
-  max-width: 45vw;
-  max-height: 95%;
 }
 
 ::ng-deep {
-  .popover-header-style {
+  .performance-tooltip-header-style {
     margin-bottom: 0;
     background-color: #f0f0f0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
     border-top-left-radius: calc(0.3rem - 1px);
     border-top-right-radius: calc(0.3rem - 1px);
+    padding: 6px 10px 0px 10px;
   }
 
-  .popover-header {
-    background-color: #f0f0f0;
+  .performance-tooltip-header {
+    color: white;
     border-bottom: unset;
-    border-top-left-radius: unset;
-    border-top-right-radius: unset;
+  }
+
+  .performance-tooltip.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: #373b3e;
+  }
+
+  .performance-tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: #373b3e;
+  }
+
+  .performance-tooltip.bs-tooltip-start .tooltip-arrow::before {
+    border-left-color: #373b3e;
+  }
+
+  .performance-tooltip.bs-tooltip-end .tooltip-arrow::before {
+    border-right-color: #373b3e;
   }
 }
+

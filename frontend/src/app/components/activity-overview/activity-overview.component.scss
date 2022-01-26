@@ -72,3 +72,21 @@ thead th {
 .th-dropdown-colors {
   width: 50px
 }
+
+.color-picker-cell {
+  height: 1px
+}
+
+.color-picker-div {
+  height: 100%
+}
+
+.color-picker-div:hover {
+  cursor: pointer
+}
+
+.activity-overview-table-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}

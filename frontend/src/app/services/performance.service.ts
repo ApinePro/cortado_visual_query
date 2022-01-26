@@ -50,6 +50,11 @@ export class PerformanceService {
     sharedDataService.currentDisplayedProcessTree$.subscribe((pt) => {
       if (pt) {
         this.treeSelection.next(pt);
+      } else {
+        this.clear();
+        this.treeSelection.next(undefined);
+        this.currentPt = undefined;
+        return;
       }
 
       if (
@@ -181,7 +186,7 @@ export class PerformanceService {
     }
 
     if (fitness !== undefined && fitness < 1) {
-      tooltipText = `${tooltipText}<hr class="performance-tooltip-hr">Unfitting traces: possibly unreliable model performance values!<br>Fitness: ${fitness.toFixed(
+      tooltipText = `${tooltipText}<hr class="performance-tooltip-hr"><i class="bi bi-exclamation-triangle-fill text-warning"> Unfitting traces: possibly unreliable model performance values!</i><br>Fitness: ${fitness.toFixed(
         2
       )}`;
     }

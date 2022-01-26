@@ -14,7 +14,6 @@ import { NgxFileDropModule } from 'ngx-file-drop';
 import { ColorPickerModule } from 'ngx-color-picker';
 
 import { VariantExplorerComponent } from './components/variant-explorer/variant-explorer.component';
-import { SideBarComponent } from './components/side-bar/side-bar.component';
 import { ActivityOverviewComponent } from './components/activity-overview/activity-overview.component';
 import { HttpRequestInterceptor } from './interceptors/http-request.interceptor';
 import { VariantFragmentComponent } from './components/variant-explorer/variant-fragment/variant-fragment.component';
@@ -39,6 +38,7 @@ import { TreeStringRendererComponent } from './components/tree-string-renderer/t
 import { TooltipDirective } from './directives/tooltip/tooltip.directive';
 import { VariantComponent } from './components/variant-explorer/variant/variant.component';
 import { VariantConformanceDialogComponent } from './components/variant-explorer/variant-conformance-dialog/variant-conformance-dialog.component';
+import { HeaderBarComponent } from './components/header-bar/header-bar.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +46,6 @@ import { VariantConformanceDialogComponent } from './components/variant-explorer
     FooterComponent,
     StrFilterPipe,
     ActivityOverviewSortingPipe,
-    SideBarComponent,
     GoldenLayoutHostComponent,
     VariantExplorerComponent,
     VariantFragmentComponent,
@@ -75,6 +74,7 @@ import { VariantConformanceDialogComponent } from './components/variant-explorer
     VariantConformanceDialogComponent,
     TreeStringRendererComponent,
     VariantComponent,
+    HeaderBarComponent,
   ],
   imports: [
     BrowserModule,
