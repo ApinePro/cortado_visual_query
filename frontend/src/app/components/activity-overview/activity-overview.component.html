@@ -162,7 +162,10 @@
             "
           >
             <!-- <th class="user-select-none" [ngStyle]="{'background-color': activityField.color}">&nbsp;</th> -->
-            <td [ngStyle]="{ 'background-color': activityField.color }">
+            <td
+              [ngStyle]="{ 'background-color': activityField.color }"
+              class="color-picker-cell"
+            >
               <div
                 class="color-picker-div"
                 [style.color]="activityField.color"
