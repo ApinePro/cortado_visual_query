@@ -1,5 +1,5 @@
 .header-bar{
-  background-color: var(--box-background-color) !important;
+  /*background-color: var(--box-background-color) !important;*/
   color:whitesmoke;
   font-size: small;
   position: fixed;
