@@ -100,6 +100,7 @@ export class VariantExplorerComponent
   protected unsubscribe: Subject<void> = new Subject<void>();
 
   public correctTreeSyntax = false;
+  performanceMode: boolean = false;
 
   public numberFittingTraces: number = undefined;
   public numberFittingVariants: number = undefined;
@@ -374,6 +375,11 @@ export class VariantExplorerComponent
       .subscribe((_) => {
         this.refreshConformanceIconsAfterModelChange(false);
       });
+  }
+
+  setPerformanceMode(performanceMode: boolean): void {
+    this.performanceMode = performanceMode;
+    this.variantPerformanceService.variantPerformanceMode.next(performanceMode);
   }
 
   addSelectedVariantsToModelForGivenConformance(
