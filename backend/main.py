@@ -3,6 +3,7 @@ import json
 from multiprocessing import freeze_support, cpu_count
 from typing import Any, List, Optional
 import pickle
+import pm4pycvxopt
 
 import uvicorn
 from fastapi import FastAPI, File, UploadFile
