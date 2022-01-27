@@ -730,10 +730,10 @@ export class ProcessTreeEditorComponent
         })
         .attr('stroke', constants.tree_stroke_color)
         .classed('selected-edge', (d) => {
-          d.source.data.selected;
+          return d.source.data.selected;
         })
         .classed('frozen-edge', (d) => {
-          d.source.data.frozen;
+          return d.source.data.frozen;
         });
 
       // resize leaf nodes if text is too long
@@ -1187,7 +1187,7 @@ export class ProcessTreeEditorComponent
     this.mainSvgGroup.selectAll('rect').classed('selected-node', false);
     this.mainSvgGroup.selectAll('line').classed('selected-edge', false);
     this.mainSvgGroup.selectAll('line').classed('frozen-edge', (d) => {
-      return d.source.data.frozen && d.source.data.frozen;
+      return d.source.data.frozen;
     });
   }
 
