@@ -86,6 +86,8 @@ build-backend-linux:
     - pyinstaller --noconfirm --clean cortado-backend.spec
     - cd ..
     - cp -R backend/dist/cortado-backend .
+    - cd cortado-backend
+    - chmod +x cortado-backend
   artifacts:
     name: $LINUX_BACKEND_ARTIFACT_NAME
     paths:
@@ -129,6 +131,8 @@ build-electron-app-linux:
     - mkdir $LINUX_BUILD_DIR
     - cp -R frontend/app-dist/linux-unpacked/* $LINUX_BUILD_DIR
     - cp -R cortado-backend $LINUX_BUILD_DIR
+    - cd $LINUX_BUILD_DIR
+    - chmod +x cortado
   dependencies:
     - build-backend-linux
   artifacts:
