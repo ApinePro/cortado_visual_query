@@ -343,13 +343,13 @@ th {
 }
 
 .accordion-button {
-  background-color: #485158;
-  color: whitesmoke;
+  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
+  color: whitesmoke !important;
   display: flex;
   justify-content: space-between;
 
   .collapsed {
-    background-color: #485158;
+    background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
   }
 }
 
