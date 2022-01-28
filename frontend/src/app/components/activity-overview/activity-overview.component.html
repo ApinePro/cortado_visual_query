@@ -33,8 +33,8 @@
                 <div class="dropdown-item" (click)="resetActivityColors()">
                   <span class="ms-4">Reset activity colors</span>
                 </div>
-                <div class="dropdown-item" (click)="changeActivityNames()">
-                  <span class="ms-4">Change acitivity names</span>
+                <div class="dropdown-item" (click)="applyActivityNameChanges()">
+                  <span class="ms-4">Apply acitivity name changes</span>
                 </div>
                 <div class="dropdown-item" (click)="resetActivityNames()">
                   <span class="ms-4">Reset activity names</span>
@@ -184,7 +184,8 @@
               <input
                 class="activity-name-input"
                 type="text"
-                value="{{ activityField.activityName }}"
+                value="{{ activityField.inputActivityName }}"
+                (change)="activityField.inputActivityName=$event.target.value"
               />
             </td>
             <td class="border-end border-color text-center">

@@ -161,6 +161,79 @@ export class ActivityOverviewComponent
       }
     }
   }
+
+  resetActivityNames(): void {
+    if (this.activityFields) {
+      for (let activityField of this.activityFields) {
+        activityField.inputActivityName = activityField.activityName
+      }
+    }
+  }
+
+  applyActivityNameChanges(): void {
+    // build a mapping of old activity name => new activity name
+    let activityNameChanges: Map<string, string> = new Map()
+    if (this.activityFields) {
+      for (let activityField of this.activityFields) {
+        activityNameChanges.set(activityField.activityName, activityField.inputActivityName)
+      }
+    }
+
+    // modifying related data in shared data service. Similar to processEventLog in backend service
+    // relabeling activities
+    let activities = {}
+    for (let activity in this.sharedDataService.activitiesInEventLog) {
+      let newActivityName = activityNameChanges.get(activity)
+      if(!activities[newActivityName]){
+        activities[newActivityName] = this.sharedDataService.activitiesInEventLog[activity]
+      } else {
+        activities[newActivityName] += this.sharedDataService.activitiesInEventLog[activity]
+      }
+      
+    }
+    
+    // relabeling start activities
+    let startActivities = new Set<string>()
+    for (let activity of this.sharedDataService.startActivitiesInEventLog) {
+      startActivities.add(activityNameChanges.get(activity)) 
+    }
+    
+    // relabeling end activities
+    let endActivities = new Set<string>()
+    for (let activity of this.sharedDataService.endActivitiesInEventLog) {
+      endActivities.add(activityNameChanges.get(activity)) 
+    }
+
+    // defining a function to relabel activitiies in variant elements recursively
+    const relabelRecursive = function(variant) {
+      if (variant['activity']) {
+        variant['activity'] = variant['activity'].map(x => activityNameChanges.get(x));
+      } else if (variant['elements']) {
+        for (let elem of variant['elements']){
+          relabelRecursive(elem)
+        }
+      }
+    }
+
+    // relabeling variants
+    let variants = this.sharedDataService.variants
+    for (let variantIndex in variants) {
+      // relabeling the sub variants
+      for (let subVariantIndex in variants[variantIndex]['sub_variants']) {
+        let new_variant = []
+        for (let activity of variants[variantIndex]['sub_variants'][subVariantIndex]['variant']) {
+          new_variant.push([[activityNameChanges.get(activity[0][0]), activity[0][1]]])
+        }
+        variants[variantIndex]['sub_variants'][subVariantIndex]['variant'] = new_variant
+      }
+      // relabeling the concurrency group variants
+      relabelRecursive(variants[variantIndex]['variant'])
+    }
+    this.sharedDataService.activitiesInEventLog = activities;
+    this.sharedDataService.startActivitiesInEventLog = startActivities;
+    this.sharedDataService.endActivitiesInEventLog = endActivities;
+    this.sharedDataService.loadedEventLog += "#";
+  }
 }
 
 export class ActivityField {
@@ -170,6 +243,7 @@ export class ActivityField {
   isStart: boolean;
   isEnd: boolean;
   color: string;
+  inputActivityName: string; // Storing the input name from user
 
   constructor(
     activityName: string,
@@ -185,6 +259,7 @@ export class ActivityField {
     this.isStart = isStart;
     this.isEnd = isEnd;
     this.color = color;
+    this.inputActivityName = activityName;
   }
 }
 
