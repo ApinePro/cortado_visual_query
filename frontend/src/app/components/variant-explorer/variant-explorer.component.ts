@@ -161,6 +161,10 @@ export class VariantExplorerComponent
     });
     this.sharedDataService.loadedEventLog = 'preload';
 
+    this.sharedDataService.activityNamesChanged$.subscribe((notificationString) => {
+      this.activityNamesChanged();
+    })
+
     const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
     this.variants.forEach((v) => {
       v.percentage = Number.parseFloat(((v.count / total) * 100).toFixed(2));
@@ -228,6 +232,10 @@ export class VariantExplorerComponent
       .reduce((a, b) => a + b);
     this.totalNumberVariants = this.variants.length;
     this.sort(this.sortingFeature);
+  }
+
+  private activityNamesChanged(): void {
+    this.variants = this.sharedDataService.variants;
   }
 
   updateAlignmentsStop(): void {

@@ -16,6 +16,16 @@ export class SharedDataService {
 
   private _loadedEventLog = new Subject<string>();
   private _treePerformance = new BehaviorSubject<Object>({});
+  private _activityNamesChanged = new BehaviorSubject<string>("Changed");
+
+  get activityNamesChanged$(): Observable<string> {
+    return this._loadedEventLog.asObservable();
+  }
+
+  set activityNamesChanged(notificationString: string) {
+    console.log("Activity names have been changed");
+    this._activityNamesChanged.next(notificationString);
+  }
 
   get loadedEventLog$(): Observable<string> {
     return this._loadedEventLog.asObservable();

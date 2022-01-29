@@ -10,6 +10,7 @@ import { ColorMapService } from '../../services/colorMapService/color-map.servic
 import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
+import { LeafNode, ParallelGroup, SequenceGroup, WaitingTimeNode } from '../variant-explorer/model';
 
 @Component({
   selector: 'app-activity-overview',
@@ -97,24 +98,28 @@ export class ActivityOverviewComponent
         'new loadedEventLog$ in activity-overview.component:' + eventLogName
       );
 
-      this.startActivities = this.sharedDataService.startActivitiesInEventLog;
-      this.endActivities = this.sharedDataService.endActivitiesInEventLog;
-      this.activitiesInLog = this.sharedDataService.activitiesInEventLog;
-
-      this.activityFields = [];
-      for (let activity in this.activitiesInLog) {
-        this.activityFields.push(
-          new ActivityField(
-            activity,
-            this.activitiesInLog[activity],
-            this.activityColorMap.get(activity),
-            this.activitiesInTree.has(activity),
-            this.startActivities.has(activity),
-            this.endActivities.has(activity)
-          )
-        );
-      }
+      this.resetActivityFields()
     });
+  }
+
+  resetActivityFields() {
+    this.startActivities = this.sharedDataService.startActivitiesInEventLog;
+    this.endActivities = this.sharedDataService.endActivitiesInEventLog;
+    this.activitiesInLog = this.sharedDataService.activitiesInEventLog;
+
+    this.activityFields = [];
+    for (let activity in this.activitiesInLog) {
+      this.activityFields.push(
+        new ActivityField(
+          activity,
+          this.activitiesInLog[activity],
+          this.activityColorMap.get(activity),
+          this.activitiesInTree.has(activity),
+          this.startActivities.has(activity),
+          this.endActivities.has(activity)
+        )
+      );
+    }
   }
 
   toggleBlur(event) {
@@ -179,6 +184,12 @@ export class ActivityOverviewComponent
       }
     }
 
+    // build correct color map
+    let newColorMap: Map<string, string> = new Map()
+    for (let activityField of this.activityFields) {
+      newColorMap.set(activityField.inputActivityName, activityField.color)
+    }
+
     // modifying related data in shared data service. Similar to processEventLog in backend service
     // relabeling activities
     let activities = {}
@@ -189,7 +200,6 @@ export class ActivityOverviewComponent
       } else {
         activities[newActivityName] += this.sharedDataService.activitiesInEventLog[activity]
       }
-      
     }
     
     // relabeling start activities
@@ -203,6 +213,9 @@ export class ActivityOverviewComponent
     for (let activity of this.sharedDataService.endActivitiesInEventLog) {
       endActivities.add(activityNameChanges.get(activity)) 
     }
+    
+    // relabeling activities in tree
+    let activitiesInTree = new Set<string>()
 
     // defining a function to relabel activitiies in variant elements recursively
     const relabelRecursive = function(variant) {
@@ -229,11 +242,19 @@ export class ActivityOverviewComponent
       // relabeling the concurrency group variants
       relabelRecursive(variants[variantIndex]['variant'])
     }
+
+    // Apply necessary changes to shared data service
     this.sharedDataService.activitiesInEventLog = activities;
     this.sharedDataService.startActivitiesInEventLog = startActivities;
     this.sharedDataService.endActivitiesInEventLog = endActivities;
-    this.sharedDataService.loadedEventLog += "#";
+    // TODO: Change process tree
+    this.sharedDataService.activityNamesChanged += "#";
+    this.colorMapService.colorMap = newColorMap;
+
+    // Changing activity field table
+    this.resetActivityFields()
   }
+  
 }
 
 export class ActivityField {
