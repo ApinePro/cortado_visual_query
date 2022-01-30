@@ -138,6 +138,12 @@ export class ProcessTreeEditorComponent
       '<large> Import <strong>Process Tree</strong> .ptml file</large>'
     );
 
+    this.sharedDataService.activityNamesChanged$.subscribe((notificationString) => {
+      if (this.root) {
+        this.update(this.root)
+      }
+    })
+
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.activityColorMap = colorMap;
       if (this.root) {

@@ -10,7 +10,8 @@ import { ColorMapService } from '../../services/colorMapService/color-map.servic
 import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
-import { LeafNode, ParallelGroup, SequenceGroup, WaitingTimeNode } from '../variant-explorer/model';
+import { VariantElement } from '../variant-explorer/model';
+import { ProcessTree } from 'src/app/objects/ProcessTree';
 
 @Component({
   selector: 'app-activity-overview',
@@ -214,16 +215,18 @@ export class ActivityOverviewComponent
       endActivities.add(activityNameChanges.get(activity)) 
     }
     
-    // relabeling activities in tree
-    let activitiesInTree = new Set<string>()
+    // relabeling process tree
+    if(this.sharedDataService.currentDisplayedProcessTree){
+      this.sharedDataService.relabelProcessTree(activityNameChanges)
+    }
 
-    // defining a function to relabel activitiies in variant elements recursively
-    const relabelRecursive = function(variant) {
+    // defining a function to relabel activities in variant elements recursively
+    const relabelVariantRecursive = function(variant: VariantElement) {
       if (variant['activity']) {
         variant['activity'] = variant['activity'].map(x => activityNameChanges.get(x));
       } else if (variant['elements']) {
         for (let elem of variant['elements']){
-          relabelRecursive(elem)
+          relabelVariantRecursive(elem)
         }
       }
     }
@@ -240,14 +243,13 @@ export class ActivityOverviewComponent
         variants[variantIndex]['sub_variants'][subVariantIndex]['variant'] = new_variant
       }
       // relabeling the concurrency group variants
-      relabelRecursive(variants[variantIndex]['variant'])
+      relabelVariantRecursive(variants[variantIndex]['variant'])
     }
 
     // Apply necessary changes to shared data service
     this.sharedDataService.activitiesInEventLog = activities;
     this.sharedDataService.startActivitiesInEventLog = startActivities;
     this.sharedDataService.endActivitiesInEventLog = endActivities;
-    // TODO: Change process tree
     this.sharedDataService.activityNamesChanged += "#";
     this.colorMapService.colorMap = newColorMap;
 

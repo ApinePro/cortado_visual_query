@@ -48,13 +48,33 @@ export class SharedDataService {
 
   set currentDisplayedProcessTree(tree: any) {
     console.log(
-      'currentDisplayedProcessTree is SHARED_DATA_SERVICE has changed'
+      'currentDisplayedProcessTree in SHARED_DATA_SERVICE has changed'
     );
     if (tree && !(tree instanceof ProcessTree)) {
       tree = ProcessTree.fromObj(tree);
     }
     this._currentDisplayedProcessTree.next(tree);
     this._activitiesInCurrentTree.next(this.getSetOfActivities(tree));
+  }
+
+  relabelProcessTree(activityNameChanges: Map<string, string>) {
+    const relabelProcessTreeRecursive = function(tree: ProcessTree): Set<string> {
+      let activitySet: Set<string> = new Set()
+      if (tree.label) {
+        tree.label = activityNameChanges.get(tree.label)
+        activitySet.add(tree.label)
+      }
+      if (tree.children) {
+        for (let child of tree.children){
+          let childrenActivities: Set<string> = relabelProcessTreeRecursive(child)
+          activitySet = new Set([...activitySet, ...childrenActivities])
+        }
+      }
+      return activitySet
+    };
+    let pt = this.currentDisplayedProcessTree
+    this._activitiesInCurrentTree.next(relabelProcessTreeRecursive(pt))
+    this.currentDisplayedProcessTree = pt
   }
 
   get treePerformance$(): Observable<Object> {
