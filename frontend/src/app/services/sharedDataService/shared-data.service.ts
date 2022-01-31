@@ -16,14 +16,17 @@ export class SharedDataService {
 
   private _loadedEventLog = new Subject<string>();
   private _treePerformance = new BehaviorSubject<Object>({});
-  private _activityNamesChanged = new BehaviorSubject<Map<string,string>>(null);
+  private _activityNamesChanged = new BehaviorSubject<Map<string, string>>(
+    null
+  );
 
-  get activityNamesChanged$(): Observable<Map<string,string>> {
+  get activityNamesChanged$(): Observable<Map<string, string>> {
     return this._activityNamesChanged.asObservable();
   }
 
   set activityNamesChanged(activityNameMapping: Map<string, string>) {
-    console.log("Activity names have been changed");
+    console.log('Activity names have been changed');
+    console.log(activityNameMapping);
     this._activityNamesChanged.next(activityNameMapping);
   }
 

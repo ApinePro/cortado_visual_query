@@ -162,9 +162,9 @@ export class VariantExplorerComponent
     });
     this.sharedDataService.loadedEventLog = 'preload';
 
-    this.sharedDataService.activityNamesChanged$.subscribe((notificationString) => {
+    this.sharedDataService.activityNamesChanged$.subscribe((change) => {
       this.activityNamesChanged();
-    })
+    });
 
     const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
     this.variants.forEach((v) => {

@@ -34,7 +34,7 @@ export class ColorMapService {
   }
 
   set colorMap(newColorMap: Map<string, string>) {
-    this._colorMap.next(newColorMap)
+    this._colorMap.next(newColorMap);
   }
 
   private get_color(activityNameCount): string {
