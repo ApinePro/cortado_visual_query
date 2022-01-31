@@ -7,7 +7,7 @@ export function getPerformanceTable(
   selectedPerformanceIndicator,
   selectedStatistic
 ): string {
-  let table = '<table class="table table-striped table-bordered">';
+  let table = '<table class="table table-dark table-striped table-bordered">';
 
   if (!performance) {
     return undefined;

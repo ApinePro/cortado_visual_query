@@ -1,5 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { PerformanceValues } from '../node-selection-performance/node-selection-performance.component';
+import { Component, Input } from '@angular/core';
 import { PerformanceStats } from '../../variant-explorer/model';
 
 @Component({
@@ -15,10 +14,5 @@ export class PerformanceTableComponent {
   heading: string;
 
   @Input()
-  isExpanded = true;
-
-  @Input()
   isBodyExpanded = false;
-
-  constructor() {}
 }

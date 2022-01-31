@@ -511,8 +511,6 @@ export class ProcessTreeEditorComponent
   }
 
   update(root, cacheTree: boolean = false): void {
-    this.activateTooltipsService.closeAllPopover();
-
     this.mainSvgGroup.selectAll('g').remove();
     // console.log('update()');
     if (cacheTree) {
@@ -551,35 +549,40 @@ export class ProcessTreeEditorComponent
         .attr('id', function (d) {
           return d.data.id;
         })
-        .attr('data-bs-toggle', (d) =>
-          this.hasPerformance(d) ? 'popover' : 'tooltip'
-        )
+        .attr('data-bs-toggle', 'tooltip')
         .attr('data-bs-placement', 'top')
-        .attr('data-bs-title', (d) => d.data.label || d.data.operator)
-        .attr('data-bs-html', true)
-        .attr('data-bs-content', (d) => {
+        .attr('data-bs-title', (d) => {
           if (this.hasPerformance(d)) {
-            return getPerformanceTable(
-              d.data.performance,
-              selectedPerformanceIndicator,
-              selectedStatistic
+            return (
+              `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
+              <h6 style="flex: 1" class="performance-tooltip-header">` +
+              (d.data.label || d.data.operator) +
+              `</h6>
+            </div>` +
+              getPerformanceTable(
+                d.data.performance,
+                selectedPerformanceIndicator,
+                selectedStatistic
+              )
             );
-          } else {
-            return d.data.label || d.data.operator;
           }
+
+          return d.data.label || d.data.operator;
         })
         .attr('data-bs-template', (d) => {
           if (this.hasPerformance(d)) {
-            return `<div class="popover performance-tooltip" role="tooltip">
-                      <div style="display: flex; justify-content: space-between" class="popover-header-style">
-                        <h3 style="flex: 1" class="popover-header"></h3>
-                        <button class="btn" onclick="$('#${d.data.id}').popover('hide')">&times;</button>
-                      </div>
-                      <div class="popover-body"></div>
+            return `<div class="tooltip performance-tooltip" role="tooltip">
+                      <div class="tooltip-arrow"></div>
+                      <div class="tooltip-inner p-0" style="max-width: none;"></div>
                     </div>`;
           }
-          return '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>';
-        });
+
+          return `<div class="tooltip" role="tooltip">
+                    <div class="tooltip-arrow"></div>
+                    <div class="tooltip-inner"></div>
+                  </div>`;
+        })
+        .attr('data-bs-html', true);
 
       this.performanceColorMap =
         this.performanceColorScaleService.getColorScale();
@@ -756,10 +759,10 @@ export class ProcessTreeEditorComponent
         })
         .attr('stroke', constants.tree_stroke_color)
         .classed('selected-edge', (d) => {
-          d.source.data.selected;
+          return d.source.data.selected;
         })
         .classed('frozen-edge', (d) => {
-          d.source.data.frozen;
+          return d.source.data.frozen;
         });
 
       // resize leaf nodes if text is too long
@@ -1213,7 +1216,7 @@ export class ProcessTreeEditorComponent
     this.mainSvgGroup.selectAll('rect').classed('selected-node', false);
     this.mainSvgGroup.selectAll('line').classed('selected-edge', false);
     this.mainSvgGroup.selectAll('line').classed('frozen-edge', (d) => {
-      return d.source.data.frozen && d.source.data.frozen;
+      return d.source.data.frozen;
     });
   }
 

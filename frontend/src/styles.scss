@@ -37,6 +37,8 @@ $accordion-icon-transform: rotate(-0deg);
   --line-color: #485158;
   --box-background-color: #2b2b2b;
   --box-background-color-darker: #2f2f2f;
+  --footer-bar-height: 20px;
+  --header-bar-height: 25px;
   --width-sidebar: 30px;
   --text-secondary: #a0a0a0;
   --thin-border-color: #1a1a1a;
@@ -103,7 +105,6 @@ $accordion-icon-transform: rotate(-0deg);
 
 .btn-tool-bar {
   min-height: 28px;
-  border-top: 1px solid var(--thin-border-color);
   display: flex;
   align-items: center;
 }
@@ -224,15 +225,15 @@ th {
 */
 
 .frozen-node-operator {
-  fill: #25306a;
+  fill: #25306a !important;
 }
 
 .frozen-node-visible-activity {
-  fill: #425bbf;
+  fill: #425bbf !important;
 }
 
 .frozen-node-invisible-activity {
-  fill: #161e40;
+  fill: #161e40 !important;
 }
 
 .frozen-edge{
@@ -256,6 +257,51 @@ th {
   text-align: left;
   cursor: auto;
 }
+
+.lm_goldenlayout{
+  background-color: rgba(var(--bs-dark-rgb),var(--bs-bg-opacity))!important;
+}
+
+.lm_tabs{
+  margin-top : 1.5px;
+}
+
+.lm_tab {
+  background: var(--box-background-color)!important;
+  border-top-left-radius: .25rem;
+  border-top-right-radius: .25rem;
+}
+
+.lm_tab.lm_active {
+  background: rgb(119, 117, 117)!important;
+}
+
+.lm_header .lm_tab {
+  cursor: pointer;
+  float: left;
+  height: 10px;
+  margin-top: 1px;
+  padding: 0px 10px 5px;
+  position: relative;
+  touch-action: none;
+}
+
+.lm_header .lm_tab{
+  border-bottom: none;
+  padding-bottom: 7.5px;
+  margin-top: 2px !important;
+  -webkit-font-smoothing: subpixel-antialiased;
+  -webkit-filter: blur(0);
+  filter: blur(0);
+  backface-visibility: hidden;
+}
+
+.lm_header .lm_tab.lm_active {
+  border-bottom: none;
+  padding-bottom: 7.5px;
+  margin-top: 2px !important;
+}
+
 
 .syntax-info ul {
   margin-bottom: 0;
@@ -297,14 +343,19 @@ th {
 }
 
 .accordion-button {
-  background-color: #485158;
-  color: whitesmoke;
+  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
+  color: whitesmoke !important;
   display: flex;
   justify-content: space-between;
 
   .collapsed {
-    background-color: #485158;
+    background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
   }
+}
+
+.accordion-button:focus,.accordion-button:active {
+  outline: none !important;
+  box-shadow: none;
 }
 
 .accordion-item {
@@ -325,6 +376,10 @@ th {
 }
 
 .dialog-label {
+  font-size: var(--standard-font-size);
+}
+
+.standard-font-size {
   font-size: var(--standard-font-size);
 }
 

@@ -4,11 +4,14 @@ import { environment } from '../../../environments/environment';
 import { BackendService } from '../../services/backendService/backend.service';
 
 @Component({
-  selector: 'app-side-bar',
-  templateUrl: './side-bar.component.html',
-  styleUrls: ['./side-bar.component.css'],
+  selector: 'app-header-bar',
+  templateUrl: './header-bar.component.html',
+  styleUrls: ['./header-bar.component.css'],
 })
-export class SideBarComponent {
+export class HeaderBarComponent {
+  @ViewChild('fileUploadEventLog') fileUploadEventLog: ElementRef;
+  @ViewChild('fileUploadProcessTree') fileUploadProcessTree: ElementRef;
+
   showSettingsEvent: Subject<void> = new Subject<void>();
 
   constructor(
@@ -16,15 +19,12 @@ export class SideBarComponent {
     private _elRef: ElementRef<HTMLElement>
   ) {}
 
-  @ViewChild('fileUploadEventLog') fileUploadEventLog: ElementRef;
-  @ViewChild('fileUploadProcessTree') fileUploadProcessTree: ElementRef;
+  get element() {
+    return this._elRef.nativeElement;
+  }
 
   importEventLog(): void {
     this.fileUploadEventLog.nativeElement.click();
-  }
-
-  get element() {
-    return this._elRef.nativeElement;
   }
 
   handleSelectedEventLogFile(e): void {
@@ -66,4 +66,18 @@ export class SideBarComponent {
   showSettingsDialog(): void {
     this.showSettingsEvent.next();
   }
+
+  /* Handle Electron Window Behavior via IPC messages
+  toggleHide(): void{
+    this.ipc.send('maximize-window')
+  }
+
+  toggleMaximization(): void {
+    this.ipc.send('maximize-window')
+  }
+
+  closeApp(): void {
+    this.ipc.send('maximize-window')
+  }
+  */
 }

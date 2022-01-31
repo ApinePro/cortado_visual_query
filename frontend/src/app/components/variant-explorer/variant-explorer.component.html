@@ -3,6 +3,24 @@
   (fileOnHover)="toggleBlur($event)"
 ></app-drop-zone>
 
+<div class="sidebar">
+  <div
+    class="sidebar-button"
+    [ngClass]="!performanceMode ? 'active' : ''"
+    (click)="setPerformanceMode(false)"
+  >
+    <span class="sidebar-button-text"> Standard View</span>
+  </div>
+
+  <div
+    class="sidebar-button"
+    [ngClass]="performanceMode ? 'active' : ''"
+    (click)="setPerformanceMode(true)"
+  >
+    Performance View
+  </div>
+</div>
+
 <div
   class="d-flex flex-column h-100 container-variant-explorer"
   #variantExplorerContainer
@@ -15,8 +33,8 @@
       data-bs-placement="top"
       data-bs-html="true"
       title="Selected (marked with <i class='bi bi-check2-circle'></i>) <b>non-fitting</b> variants will be added to the process
-             model<hr>Selected (marked with <i class='bi bi-check2-circle'></i>) <b>fitting</b> variants will remain in the process tree's language when incrementally adding new
-             variants"
+              model<hr>Selected (marked with <i class='bi bi-check2-circle'></i>) <b>fitting</b> variants will remain in the process tree's language when incrementally adding new
+              variants"
     >
     </i>
 
@@ -28,13 +46,13 @@
       data-bs-placement="top"
       data-bs-html="true"
       title='calculate conformance checking statistics
-            <br><i class="bi bi-question-square text-secondary"> unknown</i>
-            <br><i class="bi bi-hourglass-split text-secondary"> being calculated</i>
-            <br><i class="bi bi-check-square text-success"> variant fits model</i>
-            <br><i class="bi bi-x-square text-danger"> variant does not fit model</i>
-            <br><i class="bi bi-check-square text-warning"></i>
-            <i class="bi bi-x-square text-warning"> outdated results (model has changed)</i>
-            <br><i class="bi bi-hourglass-bottom text-warning"> timeout</i>'
+              <br><i class="bi bi-question-square text-secondary"> unknown</i>
+              <br><i class="bi bi-hourglass-split text-secondary"> being calculated</i>
+              <br><i class="bi bi-check-square text-success"> variant fits model</i>
+              <br><i class="bi bi-x-square text-danger"> variant does not fit model</i>
+              <br><i class="bi bi-check-square text-warning"></i>
+              <i class="bi bi-x-square text-warning"> outdated results (model has changed)</i>
+              <br><i class="bi bi-hourglass-bottom text-warning"> timeout</i>'
       (click)="updateAlignments()"
       [disabled]="
         !currentlyDisplayedProcessTree ||
@@ -85,7 +103,7 @@
       data-bs-toggle="tooltip"
       data-bs-html="true"
       title="discover an initial model from the selected variants using the standard <em>Inductive Miner</em>
-            algorithm<br><b><i class='bi bi-exclamation-triangle text-warning'></i> overwrites the existing model</b>"
+              algorithm<br><b><i class='bi bi-exclamation-triangle text-warning'></i> overwrites the existing model</b>"
       [disabled]="isNoVariantSelected() || isAlignmentCalculationInProgress()"
       (click)="discoverInitialModel()"
     >
@@ -106,10 +124,10 @@
       data-bs-toggle="tooltip"
       data-bs-html="true"
       title='sort variants by one of the following attributes:
-    <br><i class="bi bi-chevron-double-right"> total number of activities</i>
-    <br><i class="bi bi-check-square"> conformace</i>
-    <br><i class="bi bi-123"> frequency</i>
-    <br><i class="bi bi-three-dots"> maximal trace length</i>'
+      <br><i class="bi bi-chevron-double-right"> total number of activities</i>
+      <br><i class="bi bi-check-square"> conformace</i>
+      <br><i class="bi bi-123"> frequency</i>
+      <br><i class="bi bi-three-dots"> maximal trace length</i>'
     >
       <button
         class="button dropdown-toggle"

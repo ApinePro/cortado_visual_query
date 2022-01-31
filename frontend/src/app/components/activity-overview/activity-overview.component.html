@@ -14,7 +14,7 @@
       class="table table-sm table-font table-hover table-striped table-borderless table-dark mb-0"
       *ngIf="activityColorMap"
     >
-      <thead>
+      <thead class="activity-overview-table-header">
         <tr class="user-select-none">
           <th scope="col" class="bg-dark th-dropdown-colors">
             <div
@@ -161,8 +161,12 @@
             "
           >
             <!-- <th class="user-select-none" [ngStyle]="{'background-color': activityField.color}">&nbsp;</th> -->
-            <td [ngStyle]="{ 'background-color': activityField.color }">
+            <td
+              [ngStyle]="{ 'background-color': activityField.color }"
+              class="color-picker-cell"
+            >
               <div
+                class="color-picker-div"
                 [style.color]="activityField.color"
                 [cpPosition]="'auto'"
                 [(colorPicker)]="color"

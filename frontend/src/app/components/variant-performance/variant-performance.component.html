@@ -48,25 +48,20 @@
 </div>
 
 <ng-template #selectionPerformance>
-  <div class="btn-group-toggle" data-toggle="buttons">
-    <button
-      *ngIf="!variantPerformanceService.variantPerformanceMode.value"
-      style="width: 100%"
-      type="button"
-      class="btn btn-secondary"
-      (click)="setPerformanceMode(true)"
-    >
-      Enable Variant Performance Mode
-    </button>
-    <button
-      *ngIf="variantPerformanceService.variantPerformanceMode.value"
-      style="width: 100%"
-      type="button"
-      class="btn btn-primary"
-      (click)="setPerformanceMode(false)"
-    >
-      Disable Variant Performance Mode
-    </button>
+  <div
+    *ngIf="
+      !(
+        selectedVariantElement &&
+        (selectedVariantElement.serviceTime ||
+          selectedVariantElement.waitingTime)
+      )
+    "
+    class="performance-unaviable-warning"
+  >
+    <i class="b bi bi-info-lg" style="font-size: 2.5rem"></i>
+    <br />
+    To show variant performance, change into Performance View and click on the
+    variant chevron in the Variant Explorer.
   </div>
 
   <div *ngIf="selectedVariantElement && selectedVariantElement.serviceTime">
