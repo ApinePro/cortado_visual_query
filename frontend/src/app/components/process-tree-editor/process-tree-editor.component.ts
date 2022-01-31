@@ -139,35 +139,43 @@ export class ProcessTreeEditorComponent
     );
 
     this.sharedDataService.activityNamesChanged$.subscribe(
-      (activityNameMapping) => {
-        if (this.root) {
+      (activityNameChanges) => {
+        if (this.root && this.currentlyDisplayedTreeInEditor) {
           // Function to relabel process tree
           const relabelProcessTreeRecursive = function (
             activityNameChanges: Map<string, string>,
             tree: ProcessTree
-          ): Set<string> {
-            let activitySet: Set<string> = new Set();
+          ): void {
             if (tree.label && tree.label !== '\u03C4') {
               tree.label = activityNameChanges.get(tree.label);
-              activitySet.add(tree.label);
             }
             if (tree.children) {
               for (let child of tree.children) {
-                let childrenActivities: Set<string> =
-                  relabelProcessTreeRecursive(activityNameChanges, child);
-                activitySet = new Set([...activitySet, ...childrenActivities]);
+                relabelProcessTreeRecursive(activityNameChanges, child);
               }
             }
-            return activitySet;
+          };
+
+          // Function to relabel the d3 tree
+          const relabelRootNodeRecursive = function (
+            activityNameChanges: Map<string, string>,
+            tree: d3.HierarchyNode<any>
+          ): void {
+            if (tree.data.label && tree.data.label !== '\u03C4') {
+              tree.data.label = activityNameChanges.get(tree.data.label);
+            }
+            if (tree.children) {
+              for (let child of tree.children) {
+                relabelRootNodeRecursive(activityNameChanges, child);
+              }
+            }
           };
 
           // Relabel the currently displayed tree
-          let pt = this.currentlyDisplayedTreeInEditor;
-          relabelProcessTreeRecursive(activityNameMapping, pt);
-          this.currentlyDisplayedTreeInEditor = pt;
+          relabelRootNodeRecursive(activityNameChanges, this.root);
 
           // Tell shared data service
-          this.sharedDataService.currentDisplayedProcessTree = pt;
+          this.sharedDataService.currentDisplayedProcessTree = this.getProcessTreeObject(this.root);
         }
       }
     );
@@ -192,7 +200,6 @@ export class ProcessTreeEditorComponent
       console.log('new tree received in processTreeEditor');
 
       // If the tree was loaded via the process tree import or Drag&Drop that does not contain the current activites
-
       if (
         res &&
         this.root !== res &&
