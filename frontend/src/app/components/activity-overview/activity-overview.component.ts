@@ -214,11 +214,6 @@ export class ActivityOverviewComponent
     for (let activity of this.sharedDataService.endActivitiesInEventLog) {
       endActivities.add(activityNameChanges.get(activity)) 
     }
-    
-    // relabeling process tree
-    if(this.sharedDataService.currentDisplayedProcessTree){
-      this.sharedDataService.relabelProcessTree(activityNameChanges)
-    }
 
     // defining a function to relabel activities in variant elements recursively
     const relabelVariantRecursive = function(variant: VariantElement) {
@@ -250,7 +245,7 @@ export class ActivityOverviewComponent
     this.sharedDataService.activitiesInEventLog = activities;
     this.sharedDataService.startActivitiesInEventLog = startActivities;
     this.sharedDataService.endActivitiesInEventLog = endActivities;
-    this.sharedDataService.activityNamesChanged += "#";
+    this.sharedDataService.activityNamesChanged = activityNameChanges;
     this.colorMapService.colorMap = newColorMap;
 
     // Changing activity field table

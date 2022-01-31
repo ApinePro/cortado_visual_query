@@ -138,10 +138,33 @@ export class ProcessTreeEditorComponent
       '<large> Import <strong>Process Tree</strong> .ptml file</large>'
     );
 
-    this.sharedDataService.activityNamesChanged$.subscribe((notificationString) => {
+    this.sharedDataService.activityNamesChanged$.subscribe((activityNameMapping) => {
       if (this.root) {
-        this.update(this.root)
+        // Function to relabel process tree
+        const relabelProcessTreeRecursive = function(activityNameChanges: Map<string, string>, tree: ProcessTree): Set<string> {
+          let activitySet: Set<string> = new Set()
+          if (tree.label) {
+            tree.label = activityNameChanges.get(tree.label)
+            activitySet.add(tree.label)
+          }
+          if (tree.children) {
+            for (let child of tree.children){
+              let childrenActivities: Set<string> = relabelProcessTreeRecursive(activityNameChanges, child)
+              activitySet = new Set([...activitySet, ...childrenActivities])
+            }
+          }
+          return activitySet
+        };
+
+        // Relabel the currently displayed tree
+        let pt = this.currentlyDisplayedTreeInEditor
+        relabelProcessTreeRecursive(activityNameMapping, pt)
+        this.currentlyDisplayedTreeInEditor = pt
+        
+        // Tell shared data service
+        this.saveTreeInSharedDataService()
       }
+      
     })
 
     this.colorMapService.colorMap$.subscribe((colorMap) => {
