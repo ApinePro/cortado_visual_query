@@ -92,6 +92,7 @@ export class VariantExplorerComponent
     private variantPerformanceService: VariantPerformanceService
   ) {
     super(elRef.nativeElement, renderer);
+    // test
   }
 
   collapse: boolean = false;
