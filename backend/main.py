@@ -2,12 +2,15 @@ import configparser
 import json
 from multiprocessing import freeze_support, cpu_count
 from typing import Any, List, Optional
+import pickle
+import pm4pycvxopt
 
 import uvicorn
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
+from pm4py.objects.process_tree.utils import generic as tree_util
 
 import pm4py.objects.log.importer.xes.importer as xes_importer
 from backend_utilities.configuration.repository import Configuration as DomainConfiguration
@@ -58,6 +61,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.on_event("startup")
+async def startup_event():
+    global pcache
+    pcache = pickle.load(open( "pcache.p", "rb" ))
+    load_event_log.variants_store = pickle.load(open( "variants_store.p", "rb" ))
+    
 
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
@@ -285,6 +295,15 @@ class InputCalculatePerformance(BaseModel):
 pcache = {}
 
 
+def tau_0_values(tree_nodes, perf_stats):
+    for t in [t for t in tree_nodes if tree_util.is_tau_leaf(t)]:
+        perf_stats[str(t)] = {
+            "service_time": stats([0]),
+            "cycle_time": stats([0]),
+            "waiting_time": stats([0]),
+            "idle_time": stats([0]),
+        }
+
 def get_merged_performances(pt: CortadoProcessTree):
     tree_nodes = performance_utils.get_all_nodes(pt)
     tree_cache_key = str(pt)
@@ -305,6 +324,7 @@ def get_merged_performances(pt: CortadoProcessTree):
         "waiting_time": stats(merged_waiting_times[t]) if t in merged_waiting_times else None,
         "idle_time": stats(merged_idle_times[t]) if t in merged_idle_times else None,
     } for t in tree_nodes}
+    tau_0_values(tree_nodes, merged_performances)
     pt_dict = process_tree_to_dict(pt, performance=merged_performances)
     return pt_dict
 
@@ -312,7 +332,6 @@ def get_merged_performances(pt: CortadoProcessTree):
 @app.post("/calculateVariantsPerformance")
 async def calculate_variant_performance(d: InputCalculatePerformance):
     global pcache
-
     pt, _ = dict_to_process_tree(d.pt)
     pt = convert_tree(pt)
     tree_nodes = performance_utils.get_all_nodes(pt)
@@ -336,8 +355,8 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             p_values = pcache[tree_cache_key][variant_cache_key]
             service_times_aggregated = p_values["service_times"]
             idle_times_aggregated = p_values["idle_times"]
-            waiting_times_aggregated = p_values["cycle_times"]
-            cycle_times_aggregated = p_values["waiting_times"]
+            waiting_times_aggregated = p_values["waiting_times"]
+            cycle_times_aggregated = p_values["cycle_times"]
             mean_fitness = p_values["mean_fitness"]
         else:
             test_log = load_event_log.variants_store[variant_cache_key]
@@ -358,6 +377,8 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             "idle_time": stats(idle_times_aggregated[t]) if t in idle_times_aggregated else None,
         } for t in tree_nodes}
 
+        tau_0_values(tree_nodes, perf_stats)
+
         pt_dict_variant = process_tree_to_dict(pt, performance=perf_stats)
         variants_tree_performance.append(pt_dict_variant)
         variants_fitness.append(mean_fitness)
@@ -369,6 +390,9 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
                                                      "cycle_times": cycle_times_aggregated,
                                                      "waiting_times": waiting_times_aggregated,
                                                      "mean_fitness": mean_fitness}
+
+    #pickle.dump( pcache, open( "pcache.p", "wb" ))
+    #pickle.dump(load_event_log.variants_store,  open( "variants_store.p", "wb" ))
 
     pt_dict = get_merged_performances(pt)
     return {'merged_performance_tree': pt_dict, 'variants_tree_performance': variants_tree_performance,
@@ -422,7 +446,7 @@ if __name__ == "__main__":
     # print(DEFAULT_LP_SOLVER_VARIANT)
     freeze_support()
     num_workers = max(1, cpu_count() - 2)
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=num_workers, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=41211, workers=num_workers, reload=True)
     # dev mode
     # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 

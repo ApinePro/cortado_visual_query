@@ -39,15 +39,25 @@
     aria-labelledby="selection-tab"
   >
     <div
-      *ngIf="performanceService.treeSelection"
+      *ngIf="performanceService.treeSelection && performanceValues.length > 0"
       style="overflow: auto; display: flex; flex-direction: column"
     >
-      <div class="tree-selection-title">
-        {{ treeSelection }}
-      </div>
+      <app-tree-string-renderer
+        [styled_tree_string]="treeSelection"
+      ></app-tree-string-renderer>
       <div class="tree-selection-body">
         <app-node-selection-performance></app-node-selection-performance>
       </div>
+    </div>
+    <div
+      *ngIf="performanceValues.length === 0"
+      class="performance-unaviable-warning"
+    >
+      <i class="b bi bi-info-lg" style="font-size: 2.5rem"></i>
+      <br />
+      No performance values aviable yet. Discover a tree model and compute the
+      performance for a variant in the variant explorer by clicking on the
+      <i class="bi bi-stopwatch" style="color: white"></i> symbol.
     </div>
   </div>
   <div

@@ -11,6 +11,9 @@ export class ProcessTree {
   ) {}
 
   public equals(other: ProcessTree) {
+    if (!other) {
+      return false;
+    }
     let equals = this.label == other.label && this.operator == other.operator;
     equals &&= this.children?.length == other.children?.length;
 
@@ -48,7 +51,9 @@ export class ProcessTree {
         .map((n) => n.toString())
         .join(' ')} )`;
     } else {
-      return this.label + ',';
+      return this.label === ProcessTreeOperator.tau
+        ? this.label + ','
+        : "'" + this.label + "'" + ',';
     }
   }
 }

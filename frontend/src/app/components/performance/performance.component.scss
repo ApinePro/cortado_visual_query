@@ -1,6 +1,5 @@
 :host {
   background-color: var(--box-background-color);
-  border-left: 1px solid var(--thin-border-color);
   display: flex;
   flex-direction: column;
 }
@@ -31,4 +30,12 @@
 
 .color-map-tab {
   padding: 10px;
+}
+
+.performance-unaviable-warning{
+  font-size: small;
+  margin: 15px;
+  text-align: center;
+  color: var(--bs-warning);
+
 }

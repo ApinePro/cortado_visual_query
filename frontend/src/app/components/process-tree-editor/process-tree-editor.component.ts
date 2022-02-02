@@ -102,6 +102,7 @@ export class ProcessTreeEditorComponent
   selectSubtreeActive = true;
 
   selectedRootNode;
+  previousSelectedRootNode;
   // indicates if the entire subtree below the selectedRootNode is selected or only the single node
   selectedRootNodeOnly: boolean;
 
@@ -171,10 +172,10 @@ export class ProcessTreeEditorComponent
 
           Swal.fire({
             title:
-              '<tspan class = "text-warning">Imported process tree contains unkown activites</tspan>',
+              '<tspan class = "text-warning">Current process tree contains unkown activites</tspan>',
             html:
               '<b>Error Message: </b><br>' +
-              '<code> The newly loaded tree contains activities \
+              '<code> The loaded tree contains activities \
                   that do not appear in the currently loaded log.\
                   </code> <br> <br> Unknown Activites: ' +
               '<tspan class = "text-danger">' +
@@ -481,8 +482,6 @@ export class ProcessTreeEditorComponent
   }
 
   update(root, cacheTree: boolean = false): void {
-    this.activateTooltipsService.closeAllPopover();
-
     this.mainSvgGroup.selectAll('g').remove();
     // console.log('update()');
     if (cacheTree) {
@@ -521,31 +520,40 @@ export class ProcessTreeEditorComponent
         .attr('id', function (d) {
           return d.data.id;
         })
-        .attr('data-bs-toggle', (d) =>
-          d.data.performance ? 'popover' : 'tooltip'
-        )
+        .attr('data-bs-toggle', 'tooltip')
         .attr('data-bs-placement', 'top')
-        .attr('data-bs-title', (d) => d.data.label || d.data.operator)
-        .attr('data-bs-html', true)
-        .attr('data-bs-content', (d) =>
-          getPerformanceTable(
-            d.data.performance,
-            selectedPerformanceIndicator,
-            selectedStatistic
-          )
-        )
+        .attr('data-bs-title', (d) => {
+          if (this.hasPerformance(d)) {
+            return (
+              `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
+              <h6 style="flex: 1" class="performance-tooltip-header">` +
+              (d.data.label || d.data.operator) +
+              `</h6>
+            </div>` +
+              getPerformanceTable(
+                d.data.performance,
+                selectedPerformanceIndicator,
+                selectedStatistic
+              )
+            );
+          }
+
+          return d.data.label || d.data.operator;
+        })
         .attr('data-bs-template', (d) => {
-          if (d.data.performance) {
-            return `<div class="popover performance-tooltip" role="tooltip">
-                      <div style="display: flex; justify-content: space-between" class="popover-header-style">
-                        <h3 style="flex: 1" class="popover-header"></h3>
-                        <button class="btn" onclick="$('#${d.data.id}').popover('hide')">&times;</button>
-                      </div>
-                      <div class="popover-body"></div>
+          if (this.hasPerformance(d)) {
+            return `<div class="tooltip performance-tooltip" role="tooltip">
+                      <div class="tooltip-arrow"></div>
+                      <div class="tooltip-inner p-0" style="max-width: none;"></div>
                     </div>`;
           }
-          return '<div class="tooltip" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>';
-        });
+
+          return `<div class="tooltip" role="tooltip">
+                    <div class="tooltip-arrow"></div>
+                    <div class="tooltip-inner"></div>
+                  </div>`;
+        })
+        .attr('data-bs-html', true);
 
       this.performanceColorMap =
         this.performanceColorScaleService.getColorScale();
@@ -722,10 +730,10 @@ export class ProcessTreeEditorComponent
         })
         .attr('stroke', constants.tree_stroke_color)
         .classed('selected-edge', (d) => {
-          d.source.data.selected;
+          return d.source.data.selected;
         })
         .classed('frozen-edge', (d) => {
-          d.source.data.frozen;
+          return d.source.data.frozen;
         });
 
       // resize leaf nodes if text is too long
@@ -757,6 +765,15 @@ export class ProcessTreeEditorComponent
       this.saveTreeInSharedDataService();
       this.mainSvgGroup.selectAll('*').remove();
     }
+  }
+
+  private hasPerformance(d) {
+    return (
+      d.data.performance?.service_time ||
+      d.data.performance?.cycle_time ||
+      d.data.performance?.waiting_time ||
+      d.data.performance?.idle_time
+    );
   }
 
   deleteSubtree(): void {
@@ -1043,7 +1060,6 @@ export class ProcessTreeEditorComponent
   addSelectionFunctionality(): void {
     let performanceService = this.performanceService;
     this.nodeEnter.on('click', function (event, d) {
-      unselectAll();
       setSelectedRootNode(d);
       selectSubtree(this, d);
       selectEdges();
@@ -1051,34 +1067,61 @@ export class ProcessTreeEditorComponent
     });
 
     const setSelectedRootNode = function (d) {
+      this.previousSelectedRootNode = this.selectedRootNode;
       this.selectedRootNode = d;
       this.selectedRootNodeOnly =
         this.selectNodeActive || this.leafNodeSelected();
     }.bind(this);
 
     const selectSubtree = function (svgGroup, d) {
-      d3.select(svgGroup)
-        .select('.node')
-        .classed('selected-node', () => {
-          return !d3.select(svgGroup).select('.node').classed('selected-node');
+      if (!this.selectSubtreeActive) {
+        if (this.selectedRootNode.data.selected) {
+          unselectAll();
+        } else {
+          this.mainSvgGroup.selectAll('rect').each((d) => {
+            d.data.selected = false;
+          });
+
+          this.mainSvgGroup.selectAll('rect').classed('selected-node', false);
+          this.mainSvgGroup.selectAll('line').classed('selected-edge', false);
+
+          d.data.selected = true;
+          d3.select(svgGroup).select('.node').classed('selected-node', true);
+        }
+      } else {
+        const selected = d.data.selected;
+
+        // Unselect All Edges and Rect
+        this.mainSvgGroup.selectAll('rect').each((d) => {
+          d.data.selected = false;
         });
 
-      d.data.selected = true;
-      if (!this.selectSubtreeActive || !d.children) {
-        return;
+        this.mainSvgGroup.selectAll('rect').classed('selected-node', false);
+        this.mainSvgGroup.selectAll('line').classed('selected-edge', false);
+
+        if (selected && this.previousSelectedRootNode == d) {
+          d.data.selected = false;
+        } else {
+          d.data.selected = true;
+          selectAllChildren(svgGroup, d);
+        }
       }
+    }.bind(this);
+
+    const selectAllChildren = function (svgGroup, d) {
+      d.data.selected = true;
+
+      d3.select(svgGroup).select('.node').classed('selected-node', true);
+
+      if (!d.children) return;
 
       // add red stroke around sub-nodes if select subtree is selected
       d.children.forEach((c) => {
-        // console.log(c)
-        // console.log(this.mainSvgGroup.select('[id="' + c.data.id + '"]').node())
-        selectSubtree(
+        selectAllChildren(
           this.mainSvgGroup.select('[id="' + c.data.id + '"]').node(),
           c
         );
       });
-      // console.log(this.selectedRootNode);
-      // console.log(this.singleNodeSelected());
     }.bind(this);
 
     const selectEdges = function () {
@@ -1144,7 +1187,7 @@ export class ProcessTreeEditorComponent
     this.mainSvgGroup.selectAll('rect').classed('selected-node', false);
     this.mainSvgGroup.selectAll('line').classed('selected-edge', false);
     this.mainSvgGroup.selectAll('line').classed('frozen-edge', (d) => {
-      return d.source.data.frozen && d.source.data.frozen;
+      return d.source.data.frozen;
     });
   }
 

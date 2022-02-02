@@ -90,7 +90,7 @@ export class DropZoneComponent extends DropZoneDirective implements OnInit {
               case '.xes':
                 !environment.electron
                   ? this.backendService.uploadEventLog(file)
-                  : this.backendService.loadEventLogFromFilePath('test');
+                  : this.backendService.loadEventLogFromFilePath(file['path']);
                 break;
 
               case '.ptml':

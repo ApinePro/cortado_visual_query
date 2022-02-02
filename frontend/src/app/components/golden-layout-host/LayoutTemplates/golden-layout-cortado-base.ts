@@ -4,9 +4,11 @@ import {
   ComponentItemConfig,
   StackItemConfig,
   RowOrColumnItemConfig,
+  Side
 } from 'golden-layout';
 import { ProcessTreeEditorComponent } from '../../process-tree-editor/process-tree-editor.component';
 import { VariantExplorerComponent } from '../../variant-explorer/variant-explorer.component';
+import { ActivityOverviewComponent } from '../../activity-overview/activity-overview.component';
 import { InfoBoxComponent } from '../../info-box/info-box.component';
 
 export const baseLayout: LayoutConfig = {

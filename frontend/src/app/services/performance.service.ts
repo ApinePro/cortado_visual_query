@@ -11,42 +11,31 @@ import { HumanizeDurationPipe } from '../pipes/humanize-duration.pipe';
   providedIn: 'root',
 })
 export class PerformanceService {
-  private currentPt: ProcessTree;
-
   mergedPerformance: ProcessTree;
-
   // key is variant, value is process tree
   variantsPerformance: Map<Variant, ProcessTree> = new Map<
     Variant,
     ProcessTree
   >();
-
   availablePerformances: Set<Variant> = new Set<Variant>();
-
   // key is id of node, value is map with performance stats for each variant
   allValues: Map<number, Map<Variant, TreePerformance>> = new Map<
     number,
     Map<Variant, TreePerformance>
   >();
-
   allValuesMean: Map<number, TreePerformance> = new Map<
     number,
     TreePerformance
   >();
-
   // colorScale for each tree node;
   activeVariant: Variant = undefined;
-
   treeSelection: BehaviorSubject<ProcessTree> =
     new BehaviorSubject<ProcessTree>(undefined);
-
   newValues: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-
   calculationInProgress = new Set<Variant>();
-
   latestRequest: Subscription;
-
   fitness = new Map<Variant, number>();
+  private currentPt: ProcessTree;
 
   constructor(
     private sharedDataService: SharedDataService,
@@ -61,6 +50,11 @@ export class PerformanceService {
     sharedDataService.currentDisplayedProcessTree$.subscribe((pt) => {
       if (pt) {
         this.treeSelection.next(pt);
+      } else {
+        this.clear();
+        this.treeSelection.next(undefined);
+        this.currentPt = undefined;
+        return;
       }
 
       if (
@@ -77,29 +71,6 @@ export class PerformanceService {
 
   public removeAll() {
     this.updatePerformance([], Array.from(this.availablePerformances));
-  }
-
-  private clear(): void {
-    this.mergedPerformance = undefined;
-    this.variantsPerformance.clear();
-    this.availablePerformances.clear();
-    this.allValues.clear();
-    this.allValuesMean.clear();
-    this.activeVariant = undefined;
-    this.calculationInProgress.clear();
-
-    if (this.currentPt) {
-      this.sharedDataService.currentDisplayedProcessTree =
-        this.clearProcessTree(this.currentPt);
-    }
-  }
-
-  private clearProcessTree(tree: ProcessTree) {
-    let copy: any = {};
-    Object.assign(copy, tree);
-    copy.performance = undefined;
-    copy.children = copy.children.map((t) => this.clearProcessTree(t));
-    return copy;
   }
 
   public updatePerformance(
@@ -134,60 +105,66 @@ export class PerformanceService {
       .forEach((v) => this.calculationInProgress.add(v));
     this.latestRequest = this.backendService
       .getTreePerformance(variantElements, removeVariants)
-      .subscribe((performance) => {
-        this.mergedPerformance = ProcessTree.fromObj(
-          performance.merged_performance_tree
-        );
-
-        this.allValues.clear();
-        this.setVariantsPerformance(
-          variants,
-          performance.variants_tree_performance
-        );
-        this.allValuesMean.clear();
-        this.setMeanPerformanceMap(this.mergedPerformance);
-
-        variants.forEach((v, i) => {
-          this.fitness.set(v, performance.fitness_values[i]);
-        });
-
-        variants.forEach((v) => this.availablePerformances.add(v));
-        this.newValues.next(true);
-
-        this.sharedDataService.currentDisplayedProcessTree =
-          performance.merged_performance_tree;
-
-        variants.forEach((v) => this.calculationInProgress.delete(v));
-
-        const meanPerformance =
-          this.mergedPerformance?.performance?.service_time?.mean;
-        const meanButton = document.getElementById('performanceButtonMean');
-        if (meanButton) {
-          this.updateTooltip(meanButton, meanPerformance);
-        }
-
-        if (variants.length === 0) {
-          this.clear();
-          return;
-        }
-
-        variants.forEach((v) => {
-          // TODO: use currently selected performanceIndicator and statistic
-          const performanceButton = document.getElementById(
-            `performanceButton${v.number}`
+      .subscribe(
+        (performance) => {
+          this.mergedPerformance = ProcessTree.fromObj(
+            performance.merged_performance_tree
           );
-          const vPerformance =
-            this.variantsPerformance.get(v)?.performance?.service_time?.mean;
-          if (vPerformance && performanceButton) {
-            this.updateTooltip(
-              performanceButton,
-              vPerformance,
-              { performanceIndicator: 'Service Time', statistic: 'mean' },
-              this.fitness.get(v)
-            );
+
+          this.allValues.clear();
+          this.setVariantsPerformance(
+            variants,
+            performance.variants_tree_performance
+          );
+          this.allValuesMean.clear();
+          this.setMeanPerformanceMap(this.mergedPerformance);
+
+          variants.forEach((v, i) => {
+            this.fitness.set(v, performance.fitness_values[i]);
+          });
+
+          variants.forEach((v) => this.availablePerformances.add(v));
+          this.newValues.next(true);
+
+          this.sharedDataService.currentDisplayedProcessTree =
+            performance.merged_performance_tree;
+
+          variants.forEach((v) => this.calculationInProgress.delete(v));
+
+          const meanPerformance =
+            this.mergedPerformance?.performance?.service_time?.mean;
+          const meanButton = document.getElementById('performanceButtonMean');
+          if (meanButton) {
+            this.updateTooltip(meanButton, meanPerformance);
           }
-        });
-      });
+
+          if (variants.length === 0) {
+            this.clear();
+            return;
+          }
+
+          variants.forEach((v) => {
+            // TODO: use currently selected performanceIndicator and statistic
+            const performanceButton = document.getElementById(
+              `performanceButton${v.number}`
+            );
+            const vPerformance =
+              this.variantsPerformance.get(v)?.performance?.service_time?.mean;
+            if (vPerformance && performanceButton) {
+              this.updateTooltip(
+                performanceButton,
+                vPerformance,
+                { performanceIndicator: 'Service Time', statistic: 'mean' },
+                this.fitness.get(v)
+              );
+            }
+          });
+        },
+        (error) => {
+          console.log(error);
+          variants.forEach((v) => this.calculationInProgress.clear());
+        }
+      );
   }
 
   public unselectPerformance() {
@@ -195,15 +172,6 @@ export class PerformanceService {
       this.sharedDataService.currentDisplayedProcessTree
     );
     this.activeVariant = null;
-  }
-
-  private deletePerformance(variant: Variant) {
-    if (this.activeVariant == variant) {
-      this.activeVariant = null;
-    }
-    this.availablePerformances.delete(variant);
-    this.variantsPerformance.delete(variant);
-    this.allValues.forEach((v) => v.delete(variant));
   }
 
   public updateTooltip(
@@ -218,7 +186,7 @@ export class PerformanceService {
     }
 
     if (fitness !== undefined && fitness < 1) {
-      tooltipText = `${tooltipText}<hr class="performance-tooltip-hr">Unfitting traces: possibly unreliable model performance values!<br>Fitness: ${fitness.toFixed(
+      tooltipText = `${tooltipText}<hr class="performance-tooltip-hr"><i class="bi bi-exclamation-triangle-fill text-warning"> Unfitting traces: possibly unreliable model performance values!</i><br>Fitness: ${fitness.toFixed(
         2
       )}`;
     }
@@ -241,11 +209,6 @@ export class PerformanceService {
       const tree = performanceTrees[i];
       this.collectPerformance(tree, variant, this.allValues);
     });
-  }
-
-  private setMeanPerformanceMap(tree: ProcessTree): void {
-    this.allValuesMean.set(tree.id, tree.performance);
-    tree.children.forEach((node) => this.setMeanPerformanceMap(node));
   }
 
   // Stores performance values for each tree node in the performances map under the given variantIdx
@@ -273,5 +236,43 @@ export class PerformanceService {
     } else {
       console.error(`No performance values available: ${Variant}`);
     }
+  }
+
+  private clear(): void {
+    this.mergedPerformance = undefined;
+    this.variantsPerformance.clear();
+    this.availablePerformances.clear();
+    this.allValues.clear();
+    this.allValuesMean.clear();
+    this.activeVariant = undefined;
+    this.calculationInProgress.clear();
+    this.treeSelection.next(undefined);
+
+    if (this.currentPt) {
+      this.sharedDataService.currentDisplayedProcessTree =
+        this.clearProcessTree(this.currentPt);
+    }
+  }
+
+  private clearProcessTree(tree: ProcessTree) {
+    let copy: any = {};
+    Object.assign(copy, tree);
+    copy.performance = undefined;
+    copy.children = copy.children.map((t) => this.clearProcessTree(t));
+    return copy;
+  }
+
+  private deletePerformance(variant: Variant) {
+    if (this.activeVariant == variant) {
+      this.activeVariant = null;
+    }
+    this.availablePerformances.delete(variant);
+    this.variantsPerformance.delete(variant);
+    this.allValues.forEach((v) => v.delete(variant));
+  }
+
+  private setMeanPerformanceMap(tree: ProcessTree): void {
+    this.allValuesMean.set(tree.id, tree.performance);
+    tree.children.forEach((node) => this.setMeanPerformanceMap(node));
   }
 }

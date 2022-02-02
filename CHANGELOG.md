@@ -1,6 +1,11 @@
 # Changelog of Cortado
 ---
 
+## [1.5.0] - 2022-01-27
+### Added
+* Temporal performance analysis functionality [Frontend + Backend]
+
+
 ## [1.4.0] - 2022-01-11
 
 ### Changed

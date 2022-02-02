@@ -45,10 +45,25 @@ export class ModelPerformanceComponent implements OnInit {
       if (tree && tree.performance) {
         this.nodePerformance(tree);
         this.changeDetectionRef.markForCheck();
+      } else if (tree === undefined) {
+        this.selectionPerformances = [];
+        this.treeSelection = undefined;
+        this.changeDetectionRef.markForCheck();
+        return;
       }
     });
 
     this.performanceService.treeSelection.subscribe((tree) => {
+      if (
+        tree === undefined ||
+        this.performanceService.availablePerformances.size === 0
+      ) {
+        this.selectionPerformances = [];
+        this.treeSelection = undefined;
+        this.changeDetectionRef.markForCheck();
+        return;
+      }
+
       this.selectionPerformances = [];
       this.treeSelection = tree?.toString();
 

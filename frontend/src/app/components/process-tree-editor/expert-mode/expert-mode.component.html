@@ -14,7 +14,7 @@
     </h2>
     <div
       id="ExpertModeBody"
-      class="accordion-collapse collapse"
+      class="accordion-collapse expert-mode-body collapse"
       data-bs-parent="#ExpertModeAccordion"
     >
       <div class="accordion-body collapsed">
@@ -59,6 +59,7 @@
             >
             <app-tree-string-renderer
               [styled_tree_string]="styled_tree_string"
+              [custom_class]="'styled-input-field cursor-pointer'"
             ></app-tree-string-renderer>
           </div>
 
