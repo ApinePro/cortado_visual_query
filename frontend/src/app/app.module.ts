@@ -78,7 +78,7 @@ import { HeaderBarComponent } from './components/header-bar/header-bar.component
     TreeStringRendererComponent,
     VariantComponent,
     SubVariantComponent,
-    HeaderBarComponent
+    HeaderBarComponent,
   ],
   imports: [
     BrowserModule,
