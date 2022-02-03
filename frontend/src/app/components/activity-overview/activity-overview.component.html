@@ -190,6 +190,7 @@
                 type="text"
                 value="{{ activityField.inputActivityName }}"
                 (change)="activityField.inputActivityName = $event.target.value"
+                [ngStyle]="{'color': (activityField.inputActivityName !== activityField.activityName) ? '#ffff5a' : '#a0a0a0'}"
               />
             </td>
             <td class="border-end border-color text-center">
