@@ -139,40 +139,40 @@ export class ProcessTreeEditorComponent
     );
 
     this.sharedDataService.activityNamesChanged$.subscribe(
-      (activityNameChanges) => {
+      (activityNameMapping) => {
         if (this.root && this.currentlyDisplayedTreeInEditor) {
           // Function to relabel process tree
           const relabelProcessTreeRecursive = function (
-            activityNameChanges: Map<string, string>,
+            mapping: Map<string, string>,
             tree: ProcessTree
           ): void {
             if (tree.label && tree.label !== '\u03C4') {
-              tree.label = activityNameChanges.get(tree.label);
+              tree.label = mapping.get(tree.label);
             }
             if (tree.children) {
               for (let child of tree.children) {
-                relabelProcessTreeRecursive(activityNameChanges, child);
+                relabelProcessTreeRecursive(mapping, child);
               }
             }
           };
 
           // Function to relabel the d3 tree
           const relabelRootNodeRecursive = function (
-            activityNameChanges: Map<string, string>,
+            mapping: Map<string, string>,
             tree: d3.HierarchyNode<any>
           ): void {
             if (tree.data.label && tree.data.label !== '\u03C4') {
-              tree.data.label = activityNameChanges.get(tree.data.label);
+              tree.data.label = mapping.get(tree.data.label);
             }
             if (tree.children) {
               for (let child of tree.children) {
-                relabelRootNodeRecursive(activityNameChanges, child);
+                relabelRootNodeRecursive(mapping, child);
               }
             }
           };
 
           // Relabel the currently displayed tree
-          relabelRootNodeRecursive(activityNameChanges, this.root);
+          relabelRootNodeRecursive(activityNameMapping, this.root);
 
           // Tell shared data service
           this.sharedDataService.currentDisplayedProcessTree = this.getProcessTreeObject(this.root);

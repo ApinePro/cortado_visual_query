@@ -162,7 +162,7 @@ export class VariantExplorerComponent
     });
     this.sharedDataService.loadedEventLog = 'preload';
 
-    this.sharedDataService.activityNamesChanged$.subscribe((change) => {
+    this.sharedDataService.activityNamesChanged$.subscribe((activityNameMapping) => {
       this.activityNamesChanged();
     });
 
@@ -238,6 +238,7 @@ export class VariantExplorerComponent
   }
 
   private activityNamesChanged(): void {
+    // Changes to variants in shared data service are made in activity overview
     this.variants = this.sharedDataService.variants;
   }
 
