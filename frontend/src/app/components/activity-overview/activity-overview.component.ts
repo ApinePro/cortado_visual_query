@@ -222,11 +222,12 @@ export class ActivityOverviewComponent
     }
 
     // defining a function to relabel activities in variant elements recursively
-    const relabelVariantRecursive = function (mapping: Map<string, string>, variant: VariantElement): void {
+    const relabelVariantRecursive = function (
+      mapping: Map<string, string>,
+      variant: VariantElement
+    ): void {
       if (variant['activity']) {
-        variant['activity'] = variant['activity'].map((x) =>
-          mapping.get(x)
-        );
+        variant['activity'] = variant['activity'].map((x) => mapping.get(x));
       } else if (variant['elements']) {
         for (let elem of variant['elements']) {
           relabelVariantRecursive(mapping, elem);
@@ -251,7 +252,10 @@ export class ActivityOverviewComponent
           new_variant;
       }
       // relabeling the concurrency group variants
-      relabelVariantRecursive(activityNameMapping, variants[variantIndex]['variant']);
+      relabelVariantRecursive(
+        activityNameMapping,
+        variants[variantIndex]['variant']
+      );
     }
 
     // Apply necessary changes to shared data service

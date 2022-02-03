@@ -175,7 +175,8 @@ export class ProcessTreeEditorComponent
           relabelRootNodeRecursive(activityNameMapping, this.root);
 
           // Tell shared data service
-          this.sharedDataService.currentDisplayedProcessTree = this.getProcessTreeObject(this.root);
+          this.sharedDataService.currentDisplayedProcessTree =
+            this.getProcessTreeObject(this.root);
         }
       }
     );
