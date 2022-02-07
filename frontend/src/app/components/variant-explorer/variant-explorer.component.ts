@@ -24,7 +24,6 @@ import { SharedDataService } from '../../services/sharedDataService/shared-data.
 import { BackendService } from '../../services/backendService/backend.service';
 
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import {
   deserialize,
   ParallelGroup,
@@ -46,6 +45,7 @@ import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { VariantSorter } from './variant-sorter';
 import * as objectHash from 'object-hash';
 import { VariantComponent } from './variant/variant.component';
+import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -85,7 +85,8 @@ export class VariantExplorerComponent
     renderer: Renderer2,
     public performanceService: PerformanceService,
     private performanceColorService: ModelPerformanceColorScaleService,
-    private variantPerformanceService: VariantPerformanceService
+    private variantPerformanceService: VariantPerformanceService,
+    private conformanceCheckingService: ConformanceCheckingService
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -195,6 +196,9 @@ export class VariantExplorerComponent
         });
       }
     });
+
+    this.conformanceCheckingService.connect();
+    this.subscribeForConformanceCheckingResults();
   }
 
   ngAfterViewInit() {
@@ -202,8 +206,6 @@ export class VariantExplorerComponent
       this.variantExplorerContainer,
       this.tooltipContainer
     );
-
-    console.log(this.variants);
   }
 
   private eventLogChanged(): void {
@@ -233,23 +235,36 @@ export class VariantExplorerComponent
     this.sort(this.sortingFeature);
   }
 
-  updateAlignmentsStop(): void {
-    this.unsubscribe.next();
-    this.variants.forEach((v) => {
-      v.calculationInProgress = false;
-      v.alignment = undefined;
-      v.deviation = undefined;
-    });
+  subscribeForConformanceCheckingResults(): void {
+    this.conformanceCheckingService.results.subscribe(
+      (res) => {
+        const variant = this.variants.find((v) => v.id == res.id);
+        variant.calculationInProgress = false;
+        variant.isTimeouted = res.isTimeout;
+        variant.isConformanceOutdated = res.isTimeout;
+
+        if (!res.isTimeout) {
+          variant.deviation = res.deviation;
+        }
+
+        this.updateAlignmentStatistics();
+      },
+      (_) => {
+        this.variants.forEach((v) => {
+          v.calculationInProgress = false;
+          v.alignment = undefined;
+          v.deviation = undefined;
+        });
+
+        this.updateAlignmentStatistics();
+      }
+    );
   }
 
   updateAlignments(): void {
-    this.updateAlignmentStatistics();
     this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
 
     this.variants.forEach((v) => {
-      v.calculationInProgress = true;
-      v.deviation = undefined;
-
       this.updateConformanceForVariant(v, 0);
     });
   }
@@ -270,30 +285,18 @@ export class VariantExplorerComponent
 
   updateConformanceForVariant(variant: Variant, timeout: number): void {
     variant.calculationInProgress = true;
+    variant.deviation = undefined;
 
-    this.backendService
-      .calculateAlignmentsCVariant(variant.variant, timeout)
-      .pipe(takeUntil(this.unsubscribe))
-      .subscribe(
-        (res) => {
-          variant.calculationInProgress = false;
-          variant.alignment = res.alignment;
-          variant.deviation = res.deviation;
-          variant.isTimeouted = false;
-          variant.isConformanceOutdated = false;
-          this.updateAlignmentStatistics();
-        },
-        (error) => {
-          if (error.status === 504) {
-            variant.calculationInProgress = false;
-            variant.isTimeouted = true;
-            variant.isConformanceOutdated = true;
-            this.updateAlignmentStatistics();
-          } else {
-            this.updateAlignmentsStop();
-          }
-        }
-      );
+    const resubscribe = this.conformanceCheckingService.calculateConformance(
+      variant.id,
+      this.sharedDataService.currentDisplayedProcessTree,
+      variant.variant.serialize(),
+      timeout
+    );
+
+    if (resubscribe) {
+      this.subscribeForConformanceCheckingResults();
+    }
   }
 
   updateConformanceForSingleVariantClicked(variant: Variant): void {

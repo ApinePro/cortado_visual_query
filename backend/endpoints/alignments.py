@@ -12,7 +12,7 @@ from pm4py.algo.conformance.alignments.process_tree.variants import search_graph
 # @lru_cache(maxsize=None)
 def _calculate_alignment(variant, pt):
     # this function uses the standard alignment calculation (a star based search)
-    pt: ProcessTree = dict_to_process_tree(pt)
+    pt, _ = dict_to_process_tree(pt)
     net, im, fm = convert_pt_to_petri_net(pt)
     trace = Trace()
     for a in variant:
@@ -23,6 +23,7 @@ def _calculate_alignment(variant, pt):
     # remove non essential information
     res = {k: align[k] for k in ['alignment', 'cost']}
     res['deviation'] = res['cost'] >= STD_MODEL_LOG_MOVE_COST
+    del res["alignment"]
     return res
 
 

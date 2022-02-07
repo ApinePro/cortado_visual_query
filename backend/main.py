@@ -1,12 +1,18 @@
+import pm4pycvxopt
+
+from endpoints.add_variants_to_process_model import add_variants_to_process_model
+from cortado_core.utils.cvariants import generate_variants
+from cortado_core.utils.alignment_utils import trace_fits_process_tree
 import configparser
 import json
-from multiprocessing import freeze_support, cpu_count
+from multiprocessing import freeze_support, cpu_count, Pool
 from typing import Any, List, Optional
+import asyncio
 import pickle
 import pm4pycvxopt
 
 import uvicorn
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
@@ -251,39 +257,10 @@ async def download_pnml(d: ConvertPtToX):
     return Response(content=generate_pnml_xml(net, im, fm), media_type="application/xml")
 
 
-class InputCalculateAlignment(BaseModel):
-    pt: dict
-    variant: dict
-
-
-@app.post("/calculateAlignment")
-async def calculate_alignment(d: InputCalculateAlignment):
-    variant = d.variant['events']
-    return calculate_alignment_endpoint(variant, d.pt)
-
-
 @app.post("/applyReductionRulesToTree")
 async def applyTreeReductionRules(d: ConvertPtToX):
     pt, frozen_subtrees = dict_to_process_tree(d.pt)
     return process_tree_to_dict(post_process_tree(pt, frozen_subtrees), frozen_subtrees)
-
-
-class InputCalculateAlignmentCVariant(BaseModel):
-    pt: dict
-    variant: dict
-    timeout: int
-
-
-def calculate_alignments_intern(pt: dict, c_variant: dict):
-    all_variants = generate_variants(c_variant)
-    for variant in all_variants:
-        alignment = calculate_alignment_endpoint(variant, pt)
-        if alignment['deviation']:
-            return {'cost': alignment['cost'],
-                    'deviation': alignment['deviation']}
-
-    return {'cost': 0,
-            'deviation': False}
 
 
 class InputCalculatePerformance(BaseModel):
@@ -399,17 +376,60 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             'fitness_values': variants_fitness}
 
 
-@app.post("/calculateAlignmentsCVariant")
-async def calculate_alignment(d: InputCalculateAlignmentCVariant, response: Response):
-    timeout = d.timeout
-
-    if d.timeout == 0:
-        config_repository = ConfigurationRepositoryFactory.get_config_repository()
-        timeout = config_repository.get_configuration().timeout_cvariant_alignment_computation
+def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, timeout: int):
     try:
-        return execute_with_timeout(calculate_alignments_intern, timeout, args=(d.pt, d.variant))
+        return execute_with_timeout(calculate_alignment_intern, timeout, args=(pt, c_variant))
     except TimeoutException:
-        response.status_code = 504
+        return {'isTimeout': True}
+
+
+def calculate_alignment_intern(pt: dict, c_variant: dict):
+    all_variants = generate_variants(c_variant)
+    for variant in all_variants:
+        alignment = calculate_alignment_endpoint(variant, pt)
+        if alignment['deviation']:
+            return {'cost': alignment['cost'],
+                    'deviation': alignment['deviation']}
+
+    return {'cost': 0, 'deviation': False}
+
+
+def get_alignment_callback(idx: str, websocket: WebSocket):
+    def callback(result):
+        data = {
+            'id': idx,
+            'isTimeout': False,
+            'cost': 0,
+            'deviation': False,
+        }
+
+        for key, value in result.items():
+            data[key] = value
+
+        asyncio.run(websocket.send_json(data))
+
+    return callback
+
+
+@app.websocket("/conformancews")
+async def websocket_endpoint(websocket: WebSocket):
+    config_repository = ConfigurationRepositoryFactory.get_config_repository()
+    configuration = config_repository.get_configuration()
+
+    try:
+        with Pool() as pool:
+            await websocket.accept()
+            while True:
+                data = await websocket.receive_json()
+                
+                timeout = configuration.timeout_cvariant_alignment_computation
+                if data['timeout'] != 0:
+                    timeout = data['timeout']
+                pool.apply_async(calculate_alignment_intern_with_timeout,
+                                 (data['pt'], data['variant'], timeout,),
+                                 callback=get_alignment_callback(data['id'], websocket))
+    except WebSocketDisconnect:
+        print('websocket disconnected')
 
 
 class Configuration(BaseModel):
