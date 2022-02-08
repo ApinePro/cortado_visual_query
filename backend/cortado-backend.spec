@@ -17,6 +17,9 @@ for package, files in packages_datas:
     print(proot)
     datas.extend((os.path.join(proot, source), os.path.join(package, target)) for (source, target) in files)
 
+datas.append(( './*.p', '.' ))
+datas.append(( './*.ini', '.' ))
+
 packages_binaries = ['cvxopt']
 binaries = []
 for package in packages_binaries:
