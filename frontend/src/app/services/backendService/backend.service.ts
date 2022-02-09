@@ -160,29 +160,6 @@ export class BackendService {
       });
   }
 
-  calculateAlignment(variant): Observable<any> {
-    const body = {
-      pt: this.sharedDataService.currentDisplayedProcessTree,
-      variant,
-    };
-    return this.httpClient.post(this.backendUrl + 'calculateAlignment', body);
-  }
-
-  calculateAlignmentsCVariant(
-    variant: VariantElement,
-    timeout: number
-  ): Observable<any> {
-    const body = {
-      pt: this.sharedDataService.currentDisplayedProcessTree,
-      variant: variant.serialize(),
-      timeout: timeout,
-    };
-    return this.httpClient.post(
-      this.backendUrl + 'calculateAlignmentsCVariant',
-      body
-    );
-  }
-
   // TODO this function is currently unused
   addVariantsToModel(
     variantsToAdd: any[],
