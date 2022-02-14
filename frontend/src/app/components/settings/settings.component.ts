@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { BackendService } from 'src/app/services/backendService/backend.service';
 import { Configuration } from './model';
@@ -13,18 +14,23 @@ declare var $: any;
 export class SettingsComponent implements OnInit {
   @Input()
   showSettings: Observable<void>;
+  configForm: FormGroup;
 
-  configuration: Configuration = new Configuration();
-
-  constructor(private backendService: BackendService) {}
+  constructor(
+    private backendService: BackendService,
+    private fb: FormBuilder
+  ) {}
 
   ngOnInit(): void {
     this.showSettings.subscribe(() => this.showModal());
+    this.configForm = this.fb.group({
+      timeoutCVariantAlignmentComputation: [null, Validators.required],
+    });
   }
 
   showModal(): void {
     this.backendService.getConfiguration().subscribe((config) => {
-      this.configuration = config;
+      this.configForm.patchValue(config);
       $('#settingsModalDialog').modal('show');
     });
   }
@@ -34,8 +40,10 @@ export class SettingsComponent implements OnInit {
   }
 
   saveChanges(): void {
-    this.backendService.saveConfiguration(this.configuration).subscribe((_) => {
-      this.hideModal();
-    });
+    this.backendService
+      .saveConfiguration(this.configForm.getRawValue())
+      .subscribe((_) => {
+        this.hideModal();
+      });
   }
 }
