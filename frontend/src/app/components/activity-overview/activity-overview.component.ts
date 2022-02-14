@@ -177,22 +177,31 @@ export class ActivityOverviewComponent
   }
 
   // TODO: refactor this to shared data service
-  applyActivityNameChanges(): void {
+  applyActivityNameChanges(
+    oldActivityName: string,
+    newActivityName: string
+  ): void {
     // build a mapping of old activity name => new activity name
     let activityNameMapping: Map<string, string> = new Map();
     if (this.activityFields) {
       for (let activityField of this.activityFields) {
         activityNameMapping.set(
           activityField.activityName,
-          activityField.inputActivityName
+          activityField.activityName
         );
       }
     }
 
+    activityNameMapping.set(oldActivityName, newActivityName);
+
     // build correct color map
     let newColorMap: Map<string, string> = new Map();
     for (let activityField of this.activityFields) {
-      newColorMap.set(activityField.inputActivityName, activityField.color);
+      if (activityField.activityName !== oldActivityName) {
+        newColorMap.set(activityField.activityName, activityField.color);
+      } else {
+        newColorMap.set(newActivityName, activityField.color);
+      }
     }
 
     // modifying related data in shared data service. Similar to processEventLog in backend service

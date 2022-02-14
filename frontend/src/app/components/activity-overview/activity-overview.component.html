@@ -23,8 +23,12 @@
               data-bs-html="true"
               title="Edit activity colors"
             >
-              <button class="button" type="button" data-bs-toggle="dropdown">
-                <i class="bi bi-chat-square-dots"></i>
+              <button
+                class="button dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="bi bi-palette"></i>
               </button>
               <div class="dropdown-menu dropdown-sort">
                 <div class="fst-italic fw-bold ps-2 text-center">
@@ -32,12 +36,6 @@
                 </div>
                 <div class="dropdown-item" (click)="resetActivityColors()">
                   <span class="ms-4">Reset activity colors</span>
-                </div>
-                <div class="dropdown-item" (click)="applyActivityNameChanges()">
-                  <span class="ms-4">Apply acitivity name changes</span>
-                </div>
-                <div class="dropdown-item" (click)="resetActivityNames()">
-                  <span class="ms-4">Reset activity names</span>
                 </div>
               </div>
             </div>
@@ -188,15 +186,14 @@
               <input
                 class="activity-name-input"
                 type="text"
-                value="{{ activityField.inputActivityName }}"
-                (change)="activityField.inputActivityName = $event.target.value"
-                [ngStyle]="{
-                  color:
-                    activityField.inputActivityName !==
-                    activityField.activityName
-                      ? '#ffff5a'
-                      : '#a0a0a0'
-                }"
+                value="{{ activityField.activityName }}"
+                (keyup.enter)="
+                  applyActivityNameChanges(
+                    activityField.activityName,
+                    $event.target.value
+                  )
+                "
+                (focusout)="$event.target.value = activityField.activityName"
               />
             </td>
             <td class="border-end border-color text-center">
