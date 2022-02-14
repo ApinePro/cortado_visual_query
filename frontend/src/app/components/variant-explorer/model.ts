@@ -33,6 +33,7 @@ export class Variant {
   isAddedFittingVariant: boolean;
   percentage: number;
   calculationInProgress: boolean | undefined;
+  userDefined: boolean;
   // TODO alignment is unused it will not be returned by calculateAlignmentsCVariant backend endpoint
   alignment: any | undefined;
   deviation: any | undefined;
@@ -49,6 +50,30 @@ export class Variant {
         deviation: any | undefined;
       }[]
     | undefined;
+
+  constructor(
+    count: number,
+    variant: VariantElement,
+    isSelected: boolean,
+    isAddedFittingVariant: boolean,
+    percentage: number,
+    calculationInProgress: boolean | undefined,
+    userDefined: boolean,
+    isTimeouted: boolean,
+    isConformanceOutdated: boolean,
+    sub_variants
+  ) {
+    this.count = count;
+    this.variant = variant;
+    this.isSelected = isSelected;
+    this.isAddedFittingVariant = isAddedFittingVariant;
+    this.percentage = percentage;
+    this.calculationInProgress = calculationInProgress;
+    this.userDefined = userDefined;
+    this.isTimeouted = isTimeouted;
+    this.isConformanceOutdated = isConformanceOutdated;
+    this.sub_variants = sub_variants;
+  }
 }
 
 export abstract class VariantElement {
@@ -93,6 +118,35 @@ export abstract class VariantElement {
     return this.expanded;
   }
 
+  // Creates a deep copy of a Variant Element
+  public copy(): VariantElement {
+    if (this instanceof ParallelGroup) {
+      return this.asParallelGroup().copy();
+    } else if (this instanceof SequenceGroup) {
+      return this.asSequenceGroup().copy();
+    } else {
+      return this.asLeafNode().copy();
+    }
+  }
+
+  public getElements() {
+    if (this instanceof ParallelGroup) {
+      return this.asParallelGroup().getElements();
+    } else if (this instanceof SequenceGroup) {
+      return this.asSequenceGroup().getElements();
+    } else {
+      return null;
+    }
+  }
+
+  public setElements(children: VariantElement[]) {
+    if (this instanceof ParallelGroup) {
+      this.asParallelGroup().setElements(children);
+    } else if (this instanceof SequenceGroup) {
+      this.asSequenceGroup().setElements(children);
+    }
+  }
+
   public getHeadLength() {
     return (
       Math.tan((Constants.ARROW_HEAD_ANGLE / 360) * Math.PI * 2) *
@@ -132,6 +186,14 @@ export class SequenceGroup extends VariantElement {
     }
   }
 
+  public setElements(elements: VariantElement[]) {
+    this.elements = elements;
+  }
+
+  public getElements() {
+    return this.elements;
+  }
+
   public getHeight(): number {
     if (this.height) {
       return this.height;
@@ -158,6 +220,12 @@ export class SequenceGroup extends VariantElement {
     for (let el of this.elements) {
       el.updateWidth(includeWaiting);
     }
+  }
+
+  public copy(): SequenceGroup {
+    const res = new SequenceGroup(this.elements.map((e) => e.copy()));
+    res.expanded = this.expanded;
+    return res;
   }
 
   public recalculateHeight(): number {
@@ -204,6 +272,14 @@ export class ParallelGroup extends VariantElement {
     }
   }
 
+  public setElements(elements: VariantElement[]) {
+    this.elements = elements;
+  }
+
+  public getElements() {
+    return this.elements;
+  }
+
   public getHeight(): number {
     if (this.height) {
       return this.height;
@@ -216,6 +292,12 @@ export class ParallelGroup extends VariantElement {
       return this.width;
     }
     return this.recalculateWidth(includeWaiting);
+  }
+
+  public copy(): ParallelGroup {
+    const res = new ParallelGroup(this.elements.map((e) => e.copy()));
+    res.expanded = this.expanded;
+    return res;
   }
 
   public updateWidth(includeWaiting) {
@@ -301,6 +383,12 @@ export class LeafNode extends VariantElement {
   public recalculateHeight(): number {
     this.height = Constants.LEAF_HEIGHT;
     return this.height;
+  }
+
+  public copy(): LeafNode {
+    const res = new LeafNode([...this.activity]);
+    res.expanded = this.expanded;
+    return res;
   }
 
   public recalculateWidth(): number {

@@ -16,6 +16,11 @@ export const baseLayout: LayoutConfig = {
     minItemHeight: 300,
     minItemWidth: 350,
   },
+  settings: {
+    showMaximiseIcon: false,
+    showPopoutIcon: false,
+    constrainDragToContainer: true,
+  },
   root: {
     type: ItemType.column,
     content: [
@@ -32,7 +37,7 @@ export const baseLayout: LayoutConfig = {
             title: 'Process Tree Editor',
             isClosable: false,
             height: 61.803,
-
+            id: ProcessTreeEditorComponent.componentName,
             componentType: ProcessTreeEditorComponent.componentName,
           } as ComponentItemConfig,
         ],

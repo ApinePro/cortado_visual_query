@@ -20,6 +20,7 @@ import { VariantExplorerComponent } from '../variant-explorer/variant-explorer.c
 import { ActivityOverviewComponent } from '../activity-overview/activity-overview.component';
 import { GoldenLayoutComponentService } from '../../services/goldenLayoutService/golden-layout-component.service';
 import { InfoBoxComponent } from '../info-box/info-box.component';
+import { VariantEditorComponent } from '../variant-editor/variant-editor.component';
 
 @Component({
   selector: 'app-golden-layout-host',
@@ -74,6 +75,10 @@ export class GoldenLayoutHostComponent implements OnDestroy {
       VariantExplorerComponent.componentName,
       VariantExplorerComponent
     );
+    this.goldenLayoutComponentService.registerComponentType(
+      VariantEditorComponent.componentName,
+      VariantEditorComponent
+    );
 
     this._goldenLayout = new GoldenLayout(
       this._goldenLayoutElement,
@@ -83,6 +88,8 @@ export class GoldenLayoutHostComponent implements OnDestroy {
 
     this._goldenLayout.beforeVirtualRectingEvent = () =>
       this.handleBeforeVirtualRectingEvent();
+
+    this.goldenLayoutComponentService.goldenLayout = this._goldenLayout;
   }
 
   // ngOnInit(){

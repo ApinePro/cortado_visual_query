@@ -1,3 +1,5 @@
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
+
 import {
   AfterViewInit,
   Component,
@@ -7,9 +9,9 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
+
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
-import { Variant } from '../model';
-import { VariantFragmentComponent } from '../variant-fragment/variant-fragment.component';
+import { Variant, VariantElement } from '../model';
 import { SharedDataService } from '../../../services/sharedDataService/shared-data.service';
 import { PerformanceService } from '../../../services/performance.service';
 import { ModelPerformanceColorScaleService } from '../../../services/performance-color-scale.service';
@@ -31,6 +33,28 @@ export class VariantComponent implements AfterViewInit {
   @Input()
   rootElement: ElementRef;
 
+  @Input()
+  performanceMode: boolean = false;
+
+  @Input()
+  computeActivityColor: (
+    drawerDirective: VariantDrawerDirective,
+    element: VariantElement,
+    variant: VariantElement
+  ) => string;
+
+  @Input()
+  onClickCbFc: (
+    drawerDirective: VariantDrawerDirective,
+    element: VariantElement
+  ) => void;
+
+  @Input()
+  onMouseOverCbFc: (
+    drawerDirective: VariantDrawerDirective,
+    element: VariantElement
+  ) => void;
+
   @Output()
   public selectionChanged = new EventEmitter<boolean>();
 
@@ -40,8 +64,11 @@ export class VariantComponent implements AfterViewInit {
   @ViewChild('row')
   rowElement: ElementRef;
 
+  @ViewChild(VariantDrawerDirective)
+  variantDrawer: VariantDrawerDirective;
+
   @ViewChild('fragment')
-  variantFragment: VariantFragmentComponent;
+  fragment: ElementRef;
 
   isVisible: boolean = false;
 
@@ -54,6 +81,7 @@ export class VariantComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     const self = this;
+
     this.lazyLoadingService.addVariant(
       this.rowElement.nativeElement.parentNode,
       this.rootElement,
@@ -66,14 +94,20 @@ export class VariantComponent implements AfterViewInit {
   }
 
   setExpanded(expanded: boolean): void {
-    this.variant.variant.setExpanded(expanded);
-    if (this.variantFragment !== undefined && this.variantFragment !== null) {
-      this.variantFragment.redraw();
+    if (!this.performanceMode && expanded != this.variant.variant.expanded) {
+      this.variant.variant.setExpanded(expanded);
+      this.variantDrawer.redraw();
+    }
+  }
+
+  redraw() {
+    if (this.variantDrawer) {
+      this.variantDrawer.redraw();
     }
   }
 
   getSVGGraphicElement(): SVGGraphicsElement {
-    return this.variantFragment.getSVGGraphicElement();
+    return this.fragment.nativeElement;
   }
 
   isPerformanceAvailable(variant: Variant): boolean {

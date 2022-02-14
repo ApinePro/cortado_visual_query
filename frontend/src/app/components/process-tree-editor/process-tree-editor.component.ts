@@ -13,7 +13,6 @@ import {
 } from '@angular/core';
 
 import { trigger, style, animate, transition } from '@angular/animations';
-
 import { ComponentContainer } from 'golden-layout';
 import * as d3 from 'd3';
 import * as constants from './constants_tree_d3';
@@ -155,8 +154,6 @@ export class ProcessTreeEditorComponent
     );
 
     this.sharedDataService.currentDisplayedProcessTree$.subscribe((res) => {
-      console.log('new tree received in processTreeEditor');
-
       // If the tree was loaded via the process tree import or Drag&Drop that does not contain the current activites
 
       if (
@@ -237,7 +234,6 @@ export class ProcessTreeEditorComponent
 
     // Calculate the initial Node width
     this.computeLeafNodeWidth(this.activitiesOccurringInLog);
-
     // Update the cached values if the activities change
     this.sharedDataService.activitiesInEventLog$.subscribe((activities) => {
       this.computeLeafNodeWidth(Array.from(Object.keys(activities)));
@@ -298,15 +294,16 @@ export class ProcessTreeEditorComponent
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
-    clearTimeout(this.resizeTimer);
-    this.resizeTimer = setTimeout(
-      function () {
-        console.log('replot svg');
-        // resizing has potentially "stopped", i.e., user has not resized window since last 250ms
-        this.update(this.root);
-      }.bind(this),
-      250
-    );
+    if (this.container.visible) {
+      clearTimeout(this.resizeTimer);
+      this.resizeTimer = setTimeout(
+        function () {
+          // resizing has potentially "stopped", i.e., user has not resized window since last 250ms
+          this.update(this.root);
+        }.bind(this),
+        250
+      );
+    }
   }
 
   insertNewNodeButtonDisabled(): boolean {
@@ -401,6 +398,7 @@ export class ProcessTreeEditorComponent
 
   cacheCurrentTree(): void {
     // console.log('cacheCurrentTree()');
+
     if (
       this.currentIdxPreviousTreeObjects <
       this.previousTreeObjects.length - 1
@@ -421,7 +419,7 @@ export class ProcessTreeEditorComponent
     } else {
       this.currentIdxPreviousTreeObjects = this.previousTreeObjects.length - 1;
     }
-    // console.log(this.previousTreeObjects);
+    console.log(this.previousTreeObjects);
     if (this.root) {
       this.root.each((node) => {
         node.data = JSON.parse(JSON.stringify(node.data));
@@ -461,7 +459,6 @@ export class ProcessTreeEditorComponent
       this.currentIdxPreviousTreeObjects++;
       let treeToLoad =
         this.previousTreeObjects[this.currentIdxPreviousTreeObjects];
-      console.log(treeToLoad);
       if (treeToLoad) {
         treeToLoad = treeToLoad.copy();
         treeToLoad.each((node) => {
@@ -812,7 +809,6 @@ export class ProcessTreeEditorComponent
       this.selectedRootNode.data.operator = operator;
       this.selectedRootNode.data.label = null;
     } else if (label) {
-      console.log('change label');
       this.selectedRootNode.data.label = label;
       this.selectedRootNode.data.operator = null;
     }
@@ -861,7 +857,6 @@ export class ProcessTreeEditorComponent
   }
 
   insertNewNodeAbove(operator, label): void {
-    console.log(this.selectedRootNode);
     const newNode = this.createNode(operator, label);
     // @ts-ignore
     newNode.depth = 0;
@@ -903,7 +898,6 @@ export class ProcessTreeEditorComponent
   }
 
   updateDepthAttributeOfNode(node): void {
-    console.log(node);
     node.depth += 1;
     if (node.children) {
       node.children.forEach((n) => {
@@ -927,7 +921,6 @@ export class ProcessTreeEditorComponent
     // @ts-ignore
     newNode.height = this.selectedRootNode.height;
     newNode.children = null;
-    console.log(newNode);
 
     if (this.selectedRootNode.parent) {
       const idx: number = this.selectedRootNode.parent.children.indexOf(
@@ -963,7 +956,6 @@ export class ProcessTreeEditorComponent
   calculateTreeLayout(root): void {
     if (root) {
       const flextreeLayout = flextree();
-
       flextreeLayout.nodeSize((node) => {
         if (node.data.operator || node.data.label === '\u03C4') {
           return [
