@@ -1,29 +1,3 @@
-::ng-deep .variant-group-element {
-  fill-opacity: 50%;
-  stroke-width: 2px;
-}
-
-::ng-deep .selected-polygon {
-  stroke: whitesmoke !important;
-  stroke-width: 3px;
-  stroke-dasharray: 4;
-}
-
-::ng-deep svg * {
-  outline: none
-}
-
-::ng-deep text {
-  stroke: none;
-}
-
-::ng-deep .variant-element-group {
-  stroke: none;
-}
-
-::ng-deep .cursor-pointer {
-  cursor: pointer;
-}
 
 .svg-container {
   display: flex;

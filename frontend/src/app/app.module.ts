@@ -36,8 +36,11 @@ import { SettingsComponent } from './components/settings/settings.component';
 import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 import { TreeStringRendererComponent } from './components/tree-string-renderer/tree-string-renderer.component';
 import { TooltipDirective } from './directives/tooltip/tooltip.directive';
+import { VariantEditorComponent } from './components/variant-editor/variant-editor.component';
+import { VariantDrawerDirective } from './directives/variant-drawer.directive';
 import { VariantComponent } from './components/variant-explorer/variant/variant.component';
 import { VariantConformanceDialogComponent } from './components/variant-explorer/variant-conformance-dialog/variant-conformance-dialog.component';
+import { ActivityButtonAreaComponent } from './components/variant-editor/activity-button-area/activity-button-area.component';
 import { HeaderBarComponent } from './components/header-bar/header-bar.component';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { DialogModule } from './components/dialogs/dialog.module';
@@ -75,6 +78,10 @@ import { DialogModule } from './components/dialogs/dialog.module';
     TooltipDirective,
     VariantConformanceDialogComponent,
     TreeStringRendererComponent,
+    TooltipDirective,
+    VariantEditorComponent,
+    VariantDrawerDirective,
+    ActivityButtonAreaComponent,
     VariantComponent,
     HeaderBarComponent,
   ],

@@ -1,0 +1,213 @@
+<div class="variant-editor">
+  <div class="bg-dark btn-tool-bar">
+    <button
+      class="button"
+      (click)="addCurrentVariantToVariantList()"
+      data-bs-toggle="tooltip"
+      [disabled]="emptyVariant || performanceMode"
+      data-bs-placement="bottom"
+      title="Add variant to Log"
+    >
+      <i
+        class="bi bi-hammer"
+        [ngClass]="{
+          'text-success': !emptyVariant && !performanceMode
+        }"
+      ></i>
+
+      <div @collapseText class="button-text px-1" *ngIf="!collapse">
+        Add new variant to log
+      </div>
+    </button>
+
+    <span class="vl mx-2"></span>
+
+    <div class="btn-group round-corners" role="group">
+      <button
+        type="button"
+        class="button"
+        (click)="selectedStrategy = insertionStrategy.behind"
+        [ngClass]="
+          selectedStrategy === insertionStrategy.behind
+            ? 'strategy-selected'
+            : ''
+        "
+        data-bs-toggle="tooltip"
+        data-bs-placement="bottom"
+        title="Insert new activities behind the selected activtiy"
+      >
+        <i class="bi bi-chevron-left"></i>
+      </button>
+
+      <button
+        type="button"
+        class="button"
+        (click)="selectedStrategy = insertionStrategy.infront"
+        [ngClass]="
+          selectedStrategy === insertionStrategy.infront
+            ? 'strategy-selected'
+            : ''
+        "
+        data-bs-toggle="tooltip"
+        data-bs-placement="bottom"
+        title="Insert new activities infront of the selected activtiy"
+      >
+        <i class="bi bi-chevron-right"></i>
+      </button>
+
+      <button
+        type="button"
+        class="button"
+        (click)="selectedStrategy = insertionStrategy.parallel"
+        [ngClass]="
+          selectedStrategy === insertionStrategy.parallel
+            ? 'strategy-selected'
+            : ''
+        "
+        data-bs-toggle="tooltip"
+        data-bs-placement="bottom"
+        title="Insert new activities parallel of the selected activtiy"
+      >
+        <i class="bi bi-chevron-expand"></i>
+      </button>
+
+      <button
+        type="button"
+        class="button"
+        (click)="selectedStrategy = insertionStrategy.replace"
+        [ngClass]="
+          selectedStrategy === insertionStrategy.replace
+            ? 'strategy-selected'
+            : ''
+        "
+        data-bs-toggle="tooltip"
+        data-bs-placement="bottom"
+        title="Replace the currently selected activity"
+      >
+        <i class="bi bi-arrow-repeat"></i>
+      </button>
+    </div>
+
+    <span class="vl mx-2"></span>
+
+    <button
+      class="button btn-fixed-width"
+      (click)="undo()"
+      [disabled]="!(cachedVariants.length - 1 > 0 && cacheIdx !== 0)"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      title="undo"
+    >
+      <i class="bi bi-arrow-counterclockwise btn-icon"></i>
+      <span
+        class="text-secondary"
+        *ngIf="cachedVariants.length - 1 > 0 && cacheIdx !== 0"
+      >
+        ({{ cacheIdx }})
+      </span>
+    </button>
+
+    <button
+      class="button btn-fixed-width"
+      (click)="redo()"
+      [disabled]="!(cacheIdx < cachedVariants.length - 1)"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      title="redo"
+    >
+      <i class="bi bi-arrow-clockwise btn-icon"></i>
+      <span class="text-secondary" *ngIf="cacheIdx < cachedVariants.length - 1">
+        ({{ cachedVariants.length - 1 - cacheIdx }})
+      </span>
+    </button>
+
+    <span class="vl mx-2"></span>
+
+    <button
+      class="button"
+      (click)="onDeleteSelected()"
+      data-bs-toggle="tooltip"
+      data-bs-placement="bottom"
+      title="Removes the currently selected activity"
+      [disabled]="emptyVariant || !selectedElement"
+    >
+      <i
+        class="bi bi-trash"
+        [ngClass]="{
+          'text-warning': !emptyVariant
+        }"
+      ></i>
+
+      <div @collapseText class="button-text px-1" *ngIf="!collapse">
+        remove selected chevron
+      </div>
+    </button>
+
+    <span class="vl mx-2"></span>
+
+    <button
+      class="button"
+      (click)="onDeleteVariant()"
+      data-bs-toggle="tooltip"
+      data-bs-placement="bottom"
+      title="Removes the current variant"
+      [disabled]="emptyVariant"
+    >
+      <i
+        class="bi bi-x-octagon"
+        [ngClass]="{
+          'text-danger': !emptyVariant
+        }"
+      ></i>
+      <div @collapseText class="button-text px-1" *ngIf="!collapse">
+        remove current variant
+      </div>
+    </button>
+
+    <button
+      class="button ms-auto"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      title="focus selected"
+      id="btn-focus-selected"
+      [disabled]="emptyVariant || multipleSelected"
+    >
+      <i class="bi bi-eye-fill"></i>
+    </button>
+
+    <button
+      class="button"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      title="Move to the start of the variant"
+      id="btn-center-variant"
+    >
+      <i class="bi bi-arrows-fullscreen btn-icon text-light"></i>
+    </button>
+  </div>
+  <app-activity-button-area
+    [activityNames]="activityNames"
+    (activityButtonClick)="handleActivityButtonClick($event)"
+    [ngClass]="
+      multipleSelected || (!selectedElement && !emptyVariant)
+        ? 'button-area-disabled'
+        : ''
+    "
+  >
+  </app-activity-button-area>
+
+  <div class="editor-zone" #EditorWindow>
+    <svg
+      appVariantDrawer
+      #VariantMainGroup
+      id="VariantMainGroup"
+      [variant]="currentVariant"
+      (selection)="handleRedraw($event)"
+      [computeActivityColor]="computeActivityColor"
+      class="zoom-group-variant"
+    ></svg>
+  </div>
+  <div class="redundancy-warning" @fadeIn *ngIf="redundancyWarning">
+    This variant already exists in the user defined dataset
+  </div>
+</div>

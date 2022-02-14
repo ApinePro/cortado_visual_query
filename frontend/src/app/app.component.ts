@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
 import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
+import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 
 @Component({
   selector: 'app-root',
@@ -18,14 +19,17 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   @ViewChild('goldenLayoutHost')
   private _goldenLayoutHostComponent: GoldenLayoutHostComponent;
-
   private _windowResizeListener = () => this.handleWindowResizeEvent();
 
-  constructor() {}
+  constructor(
+    private goldenLayoutComponentService: GoldenLayoutComponentService
+  ) {}
 
   ngAfterViewInit() {
     globalThis.addEventListener('resize', this._windowResizeListener);
     this._goldenLayoutHostComponent.initializeLayout();
+    this.goldenLayoutComponentService.goldenLayoutHostComponent =
+      this._goldenLayoutHostComponent;
     setTimeout(() => this.resizeGoldenLayout(), 0);
   }
 
