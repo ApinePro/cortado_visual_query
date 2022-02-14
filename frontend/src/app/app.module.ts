@@ -39,6 +39,8 @@ import { TooltipDirective } from './directives/tooltip/tooltip.directive';
 import { VariantComponent } from './components/variant-explorer/variant/variant.component';
 import { VariantConformanceDialogComponent } from './components/variant-explorer/variant-conformance-dialog/variant-conformance-dialog.component';
 import { HeaderBarComponent } from './components/header-bar/header-bar.component';
+import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
+import { DialogModule } from './components/dialogs/dialog.module';
 
 @NgModule({
   declarations: [
@@ -84,6 +86,8 @@ import { HeaderBarComponent } from './components/header-bar/header-bar.component
     NgxFileDropModule,
     BrowserAnimationsModule,
     ColorPickerModule,
+    SweetAlert2Module.forRoot(),
+    DialogModule,
   ],
   providers: [
     {

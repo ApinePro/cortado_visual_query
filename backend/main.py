@@ -10,11 +10,13 @@ from typing import Any, List, Optional
 import asyncio
 import pickle
 import pm4pycvxopt
+import traceback
 
 import uvicorn
-from fastapi import FastAPI, File, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, File, HTTPException, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
+from fastapi.responses import Response, JSONResponse
+from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, Field
 from pm4py.objects.process_tree.utils import generic as tree_util
 
@@ -47,6 +49,8 @@ from pm4py.objects.process_tree.importer.importer import apply as import_pt_from
 from pm4py.objects.process_tree.obj import ProcessTree
 from pm4py.objects.process_tree.utils.generic import parse
 
+from error_handlers import exception_handler, http_exception_handler, validation_exception_handler
+
 config = configparser.ConfigParser()
 config.read('config.ini')
 # Decide when to use multiprocessing for event log
@@ -67,14 +71,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_exception_handler(HTTPException, http_exception_handler)
+app.add_exception_handler(Exception, exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 @app.on_event("startup")
 async def startup_event():
     global pcache
     pcache = pickle.load(open( "pcache.p", "rb" ))
     load_event_log.variants_store = pickle.load(open( "variants_store.p", "rb" ))
-    
 
+ 
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
     global pcache

@@ -12,12 +12,14 @@ import { map, catchError, finalize } from 'rxjs/operators';
 import { BackgroundTaskInfoService } from '../services/backgroundTaskInfoService/background-task-info.service';
 import { BackendService } from '../services/backendService/backend.service';
 import Swal from 'sweetalert2';
+import { ErrorService } from '../services/errorService/error.service';
 
 @Injectable()
 export class HttpRequestInterceptor implements HttpInterceptor {
   constructor(
     private backgroundTaskInfoService: BackgroundTaskInfoService,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private errorService: ErrorService
   ) {}
 
   intercept(
@@ -37,7 +39,8 @@ export class HttpRequestInterceptor implements HttpInterceptor {
           return next.handle(request);
         }
 
-        this.showErrorDialog(error);
+        this.errorService.addApiError(error);
+        //this.showErrorDialog(error);
         return throwError(error);
       }),
       finalize(() => {
