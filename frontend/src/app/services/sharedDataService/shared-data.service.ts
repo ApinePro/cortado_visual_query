@@ -16,6 +16,19 @@ export class SharedDataService {
 
   private _loadedEventLog = new Subject<string>();
   private _treePerformance = new BehaviorSubject<Object>({});
+  private _activityNamesChanged = new BehaviorSubject<Map<string, string>>(
+    null
+  );
+
+  get activityNamesChanged$(): Observable<Map<string, string>> {
+    return this._activityNamesChanged.asObservable();
+  }
+
+  set activityNamesChanged(activityNameMapping: Map<string, string>) {
+    console.log('Activity names have been changed');
+    console.log(activityNameMapping);
+    this._activityNamesChanged.next(activityNameMapping);
+  }
 
   get loadedEventLog$(): Observable<string> {
     return this._loadedEventLog.asObservable();
@@ -38,7 +51,7 @@ export class SharedDataService {
 
   set currentDisplayedProcessTree(tree: any) {
     console.log(
-      'currentDisplayedProcessTree is SHARED_DATA_SERVICE has changed'
+      'currentDisplayedProcessTree in SHARED_DATA_SERVICE has changed'
     );
     if (tree && !(tree instanceof ProcessTree)) {
       tree = ProcessTree.fromObj(tree);

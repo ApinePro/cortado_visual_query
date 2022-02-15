@@ -10,6 +10,8 @@ import { ColorMapService } from '../../services/colorMapService/color-map.servic
 import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
+import { VariantElement } from '../variant-explorer/model';
+import { ProcessTree } from 'src/app/objects/ProcessTree';
 
 @Component({
   selector: 'app-activity-overview',
@@ -97,24 +99,28 @@ export class ActivityOverviewComponent
         'new loadedEventLog$ in activity-overview.component:' + eventLogName
       );
 
-      this.startActivities = this.sharedDataService.startActivitiesInEventLog;
-      this.endActivities = this.sharedDataService.endActivitiesInEventLog;
-      this.activitiesInLog = this.sharedDataService.activitiesInEventLog;
-
-      this.activityFields = [];
-      for (let activity in this.activitiesInLog) {
-        this.activityFields.push(
-          new ActivityField(
-            activity,
-            this.activitiesInLog[activity],
-            this.activityColorMap.get(activity),
-            this.activitiesInTree.has(activity),
-            this.startActivities.has(activity),
-            this.endActivities.has(activity)
-          )
-        );
-      }
+      this.resetActivityFields();
     });
+  }
+
+  resetActivityFields() {
+    this.startActivities = this.sharedDataService.startActivitiesInEventLog;
+    this.endActivities = this.sharedDataService.endActivitiesInEventLog;
+    this.activitiesInLog = this.sharedDataService.activitiesInEventLog;
+
+    this.activityFields = [];
+    for (let activity in this.activitiesInLog) {
+      this.activityFields.push(
+        new ActivityField(
+          activity,
+          this.activitiesInLog[activity],
+          this.activityColorMap.get(activity),
+          this.activitiesInTree.has(activity),
+          this.startActivities.has(activity),
+          this.endActivities.has(activity)
+        )
+      );
+    }
   }
 
   toggleBlur(event) {
@@ -168,6 +174,116 @@ export class ActivityOverviewComponent
       }
     }
   }
+
+  resetActivityNames(): void {
+    if (this.activityFields) {
+      for (let activityField of this.activityFields) {
+        activityField.inputActivityName = activityField.activityName;
+      }
+    }
+  }
+
+  // TODO: refactor this to shared data service
+  applyActivityNameChanges(
+    oldActivityName: string,
+    newActivityName: string
+  ): void {
+    // build a mapping of old activity name => new activity name
+    let activityNameMapping: Map<string, string> = new Map();
+    if (this.activityFields) {
+      for (let activityField of this.activityFields) {
+        activityNameMapping.set(
+          activityField.activityName,
+          activityField.activityName
+        );
+      }
+    }
+
+    activityNameMapping.set(oldActivityName, newActivityName);
+
+    // build correct color map
+    let newColorMap: Map<string, string> = new Map();
+    for (let activityField of this.activityFields) {
+      if (activityField.activityName !== oldActivityName) {
+        newColorMap.set(activityField.activityName, activityField.color);
+      } else {
+        newColorMap.set(newActivityName, activityField.color);
+      }
+    }
+
+    // modifying related data in shared data service. Similar to processEventLog in backend service
+    // relabeling activities
+    let activities = {};
+    for (let activity in this.sharedDataService.activitiesInEventLog) {
+      let newActivityName = activityNameMapping.get(activity);
+      if (!activities[newActivityName]) {
+        activities[newActivityName] =
+          this.sharedDataService.activitiesInEventLog[activity];
+      } else {
+        activities[newActivityName] +=
+          this.sharedDataService.activitiesInEventLog[activity];
+      }
+    }
+
+    // relabeling start activities
+    let startActivities = new Set<string>();
+    for (let activity of this.sharedDataService.startActivitiesInEventLog) {
+      startActivities.add(activityNameMapping.get(activity));
+    }
+
+    // relabeling end activities
+    let endActivities = new Set<string>();
+    for (let activity of this.sharedDataService.endActivitiesInEventLog) {
+      endActivities.add(activityNameMapping.get(activity));
+    }
+
+    // defining a function to relabel activities in variant elements recursively
+    const relabelVariantRecursive = function (
+      mapping: Map<string, string>,
+      variant: VariantElement
+    ): void {
+      if (variant['activity']) {
+        variant['activity'] = variant['activity'].map((x) => mapping.get(x));
+      } else if (variant['elements']) {
+        for (let elem of variant['elements']) {
+          relabelVariantRecursive(mapping, elem);
+        }
+      }
+    };
+
+    // relabeling variants
+    let variants = this.sharedDataService.variants;
+    for (let variantIndex in variants) {
+      // relabeling the sub variants
+      for (let subVariantIndex in variants[variantIndex]['sub_variants']) {
+        let new_variant = [];
+        for (let activity of variants[variantIndex]['sub_variants'][
+          subVariantIndex
+        ]['variant']) {
+          new_variant.push([
+            [activityNameMapping.get(activity[0][0]), activity[0][1]],
+          ]);
+        }
+        variants[variantIndex]['sub_variants'][subVariantIndex]['variant'] =
+          new_variant;
+      }
+      // relabeling the concurrency group variants
+      relabelVariantRecursive(
+        activityNameMapping,
+        variants[variantIndex]['variant']
+      );
+    }
+
+    // Apply necessary changes to shared data service
+    this.sharedDataService.activitiesInEventLog = activities;
+    this.sharedDataService.startActivitiesInEventLog = startActivities;
+    this.sharedDataService.endActivitiesInEventLog = endActivities;
+    this.sharedDataService.activityNamesChanged = activityNameMapping;
+    this.colorMapService.colorMap = newColorMap;
+
+    // Changing activity field table
+    this.resetActivityFields();
+  }
 }
 
 export class ActivityField {
@@ -177,6 +293,7 @@ export class ActivityField {
   isStart: boolean;
   isEnd: boolean;
   color: string;
+  inputActivityName: string; // Storing the input name from user
 
   constructor(
     activityName: string,
@@ -192,6 +309,7 @@ export class ActivityField {
     this.isStart = isStart;
     this.isEnd = isEnd;
     this.color = color;
+    this.inputActivityName = activityName;
   }
 }
 

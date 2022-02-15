@@ -33,6 +33,10 @@ export class ColorMapService {
     return this._colorMap.asObservable();
   }
 
+  set colorMap(newColorMap: Map<string, string>) {
+    this._colorMap.next(newColorMap);
+  }
+
   private get_color(activityNameCount): string {
     let color = '';
     if (activityNameCount >= constants.colorRange.length) {
