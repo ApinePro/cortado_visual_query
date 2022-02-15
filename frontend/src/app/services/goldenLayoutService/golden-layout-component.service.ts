@@ -1,4 +1,3 @@
-import { Observable, Subject } from 'rxjs';
 import {
   ComponentFactoryResolver,
   Injectable,

@@ -1,32 +1,8 @@
-
-/* Handle Bootstrap default overwrites here */
-
-// Accordion
-$accordion-bg: var(--box-background-color);
-$accordion-color: var(--text-secondary);
-$accordion-body-padding-y: 0rem 0rem;
-$accordion-body-padding-x: 0rem 0rem;
-$accordion-border-width: 0px;
-$accordion-border-radius: 0px;
-$accordion-inner-border-radius: 0px;
-$accordion-icon-width: .65rem;
-$accordion-icon-color: #a0a0a0;
-$accordion-icon-active-color: #a0a0a0;
-$accordion-button-bg: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
-
-$accordion-transition:  border-radius .15s ease, opacity .35s ease-in;
-$accordion-icon-transition: transform .2s ease-in-out;
-
-$accordion-button-active-bg: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
-$accordion-button-active-color: var(--text-secondary);
-
-$accordion-icon-transform: rotate(-0deg);
-
 /* Define our main import here */
+@import "./@theme/theme";
 @import "~bootstrap-icons/font/bootstrap-icons.css";
 @import "../node_modules/bootstrap/scss/bootstrap";
-
-
+@import "./styles/custom_golden_layout_styles.scss";
 
 /* You can add global styles to this file, and also import other style files */
 .btn-icon {
@@ -257,7 +233,7 @@ th {
   text-align: left;
   cursor: auto;
 }
-
+/*
 .lm_goldenlayout{
   background-color: rgba(var(--bs-dark-rgb),var(--bs-bg-opacity))!important;
 }
@@ -301,7 +277,7 @@ th {
   padding-bottom: 7.5px;
   margin-top: 2px !important;
 }
-
+*/
 
 .syntax-info ul {
   margin-bottom: 0;
@@ -439,14 +415,4 @@ th {
 .light-dashed-border {
   border-radius: 5px;
   border: 1px dashed lightgrey;
-}
-
-.tab-content {
-  overflow: auto;
-}
-
-.performance-tooltip-hr {
-  height: 2px;
-  opacity: 100%;
-  margin-top: 5px;
 }

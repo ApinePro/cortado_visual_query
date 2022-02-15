@@ -4,6 +4,7 @@ import {
   ComponentItemConfig,
   StackItemConfig,
   RowOrColumnItemConfig,
+  Side,
 } from 'golden-layout';
 import { ProcessTreeEditorComponent } from '../../process-tree-editor/process-tree-editor.component';
 import { VariantExplorerComponent } from '../../variant-explorer/variant-explorer.component';
@@ -25,15 +26,24 @@ export const baseLayout: LayoutConfig = {
     type: ItemType.column,
     content: [
       {
-        type: 'component',
-        title: 'Process Tree Visualizer',
-        isClosable: true,
-        height: 61.803,
-        header: {
-          show: false,
-        },
-        componentType: ProcessTreeEditorComponent.componentName,
-      } as ComponentItemConfig,
+        type: ItemType.row,
+        isClosable: false,
+
+        content: [
+          {
+            type: 'component',
+            title: 'Process Tree Editor',
+            isClosable: false,
+            height: 61.803,
+            header: {
+              show: Side.left,
+            },
+            id: ProcessTreeEditorComponent.componentName,
+            componentType: ProcessTreeEditorComponent.componentName,
+            componentState: { cssParentClass: 'process-tree-editor-stack' },
+          } as ComponentItemConfig,
+        ],
+      },
       {
         type: ItemType.row,
         height: 38.197,
@@ -48,8 +58,10 @@ export const baseLayout: LayoutConfig = {
                 type: 'component',
                 title: 'Variant Explorer',
                 isClosable: false,
+                cssClass: 'highlight',
                 reorderEnabled: false,
                 componentType: VariantExplorerComponent.componentName,
+                componentState: { cssParentClass: 'variant-explorer-stack' },
               } as ComponentItemConfig,
             ],
           } as StackItemConfig,

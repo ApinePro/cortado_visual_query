@@ -3,12 +3,14 @@ import {
   ComponentRef,
   ElementRef,
   OnDestroy,
+  Renderer2,
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
 import {
   ComponentContainer,
   GoldenLayout,
+  ItemType,
   LogicalZIndex,
   ResolvedComponentItemConfig,
 } from 'golden-layout';
@@ -20,6 +22,7 @@ import { VariantExplorerComponent } from '../variant-explorer/variant-explorer.c
 import { ActivityOverviewComponent } from '../activity-overview/activity-overview.component';
 import { SubvariantExplorerComponent } from '../variant-explorer/subvariant-explorer/subvariant-explorer.component';
 import { GoldenLayoutComponentService } from '../../services/goldenLayoutService/golden-layout-component.service';
+import { VariantEditorComponent } from '../variant-editor/variant-editor.component';
 import { InfoBoxComponent } from '../info-box/info-box.component';
 
 @Component({
@@ -53,6 +56,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
 
   constructor(
     private _elRef: ElementRef<HTMLElement>,
+    private renderer: Renderer2,
     private goldenLayoutComponentService: GoldenLayoutComponentService
   ) {
     // Get the Layout Host Component
@@ -67,10 +71,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
       ActivityOverviewComponent.componentName,
       ActivityOverviewComponent
     );
-    this.goldenLayoutComponentService.registerComponentType(
-      VariantExplorerComponent.componentName,
-      VariantExplorerComponent
-    );
+
     this.goldenLayoutComponentService.registerComponentType(
       InfoBoxComponent.componentName,
       InfoBoxComponent
@@ -80,17 +81,31 @@ export class GoldenLayoutHostComponent implements OnDestroy {
       SubvariantExplorerComponent
     );
 
+    this.goldenLayoutComponentService.registerComponentType(
+      VariantExplorerComponent.componentName,
+      VariantExplorerComponent
+    );
+
+    this.goldenLayoutComponentService.registerComponentType(
+      VariantEditorComponent.componentName,
+      VariantEditorComponent
+    );
+
     this._goldenLayout = new GoldenLayout(
       this._goldenLayoutElement,
       this._goldenLayoutBindComponentEventListener,
       this._goldenLayoutUnbindComponentEventListener
     );
 
-    this._goldenLayout.beforeVirtualRectingEvent = (count) =>
-      this.handleBeforeVirtualRectingEvent(count);
+    this._goldenLayout.beforeVirtualRectingEvent = () =>
+      this.handleBeforeVirtualRectingEvent();
 
     this.goldenLayoutComponentService.goldenLayout = this._goldenLayout;
   }
+
+  // ngOnInit(){
+  //
+  // }
 
   initializeLayout() {
     // Start rendering the Template
@@ -119,7 +134,6 @@ export class GoldenLayoutHostComponent implements OnDestroy {
       container
     );
     const component = componentRef.instance;
-
     this._componentRefMap.set(container, componentRef);
 
     container.virtualRectingRequiredEvent = (container, width, height) =>
@@ -136,6 +150,20 @@ export class GoldenLayoutHostComponent implements OnDestroy {
         logicalZIndex,
         defaultZIndex
       );
+
+    if (itemConfig.componentState['cssParentClass']) {
+      this.renderer.addClass(
+        container.parent.parentItem.element,
+        itemConfig.componentState['cssParentClass']
+      );
+    }
+
+    if (itemConfig.componentState['cssContainerClass']) {
+      this.renderer.addClass(
+        container.element,
+        itemConfig.componentState['cssContainerClass']
+      );
+    }
 
     this._componentViewContainerRef.insert(componentRef.hostView);
 
@@ -162,7 +190,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     componentRef.destroy();
   }
 
-  private handleBeforeVirtualRectingEvent(count: number) {
+  private handleBeforeVirtualRectingEvent() {
     this._goldenLayoutBoundingClientRect =
       this._goldenLayoutElement.getBoundingClientRect();
   }
@@ -187,8 +215,8 @@ export class GoldenLayoutHostComponent implements OnDestroy {
         'handleContainerVirtualRectingRequiredEvent: ComponentRef not found'
       );
     }
-    const component = componentRef.instance;
 
+    const component = componentRef.instance;
     component.setPositionAndSize(left, top, width, height);
     component.handleResponsiveChange(left, top, width, height);
   }
@@ -220,5 +248,20 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     }
     const component = componentRef.instance;
     component.setZIndex(defaultZIndex);
+
+    if (
+      logicalZIndex === 'base' &&
+      container.component instanceof VariantExplorerComponent
+    ) {
+      // Triggers a Redraw, to prevent faulty rendering after minimization
+      this.goldenLayout.setSize(
+        this.goldenLayout.width + 4,
+        this.goldenLayout.height
+      );
+      this.goldenLayout.setSize(
+        this.goldenLayout.width - 4,
+        this.goldenLayout.height
+      );
+    }
   }
 }

@@ -1,3 +1,4 @@
+import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import {
   ComponentItem,
@@ -33,6 +34,7 @@ import {
   Variant,
   LeafNode,
 } from './model';
+
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import { ImageExportService } from '../../services/imageExportService/image-export-service';
@@ -46,8 +48,10 @@ import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { VariantSorter } from './variant-sorter';
 import * as objectHash from 'object-hash';
 import { VariantComponent } from './variant/variant.component';
-import { GoldenLayoutComponentService } from '../../services/goldenLayoutService/golden-layout-component.service';
 import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
+import { ProcessTreeEditorComponent } from '../process-tree-editor/process-tree-editor.component';
+import { VariantEditorComponent } from '../variant-editor/variant-editor.component';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
 
 @Component({
@@ -84,12 +88,12 @@ export class VariantExplorerComponent
     private polygonDrawingService: PolygonDrawingService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
-    private goldenLayoutComponentService: GoldenLayoutComponentService,
     elRef: ElementRef,
     renderer: Renderer2,
     public performanceService: PerformanceService,
     private performanceColorService: ModelPerformanceColorScaleService,
     private variantPerformanceService: VariantPerformanceService,
+    private goldenLayoutComponentService: GoldenLayoutComponentService,
     private conformanceCheckingService: ConformanceCheckingService
   ) {
     super(elRef.nativeElement, renderer);
@@ -106,6 +110,10 @@ export class VariantExplorerComponent
 
   public correctTreeSyntax = false;
   performanceMode: boolean = false;
+  performanceColorMap: any;
+  waitingColorMap: any;
+
+  editorOpen: boolean = false;
 
   public numberFittingTraces: number = undefined;
   public numberFittingVariants: number = undefined;
@@ -158,6 +166,7 @@ export class VariantExplorerComponent
       v.number = i + 1;
       v.variant = deserialize(v.variant);
       v.isConformanceOutdated = true;
+      v.userDefined = false;
       v.isTimeouted = false;
     });
 
@@ -169,6 +178,7 @@ export class VariantExplorerComponent
     );
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.colorMap = colorMap;
+      this.redraw_components();
     });
     this.sharedDataService.loadedEventLog = 'preload';
 
@@ -210,6 +220,47 @@ export class VariantExplorerComponent
     this.subscribeForConformanceCheckingResults();
   }
 
+  toggleVariantEditor(): void {
+    if (!this.editorOpen) {
+      console.log('Opening Editor');
+      const editor = this._goldenLayout.findFirstComponentItemById(
+        VariantEditorComponent.componentName
+      );
+      if (editor) {
+        editor.focus();
+      } else {
+        const LocationSelectors: LayoutManager.LocationSelector[] = [
+          {
+            typeId: LayoutManager.LocationSelector.TypeId.FocusedStack,
+            index: undefined,
+          },
+        ];
+
+        this._goldenLayout
+          .findFirstComponentItemById(ProcessTreeEditorComponent.componentName)
+          .focus();
+
+        const itemConfig: ComponentItemConfig = {
+          id: VariantEditorComponent.componentName,
+          type: 'component',
+          title: 'Variant Explorer',
+          isClosable: false,
+          reorderEnabled: false,
+          componentType: VariantEditorComponent.componentName,
+        };
+
+        this._goldenLayout.addItemAtLocation(itemConfig, LocationSelectors);
+      }
+    } else {
+      console.log('Closing Editor');
+      this._goldenLayout
+        .findFirstComponentItemById(ProcessTreeEditorComponent.componentName)
+        .focus();
+    }
+
+    this.editorOpen = !this.editorOpen;
+  }
+
   ngAfterViewInit() {
     this.polygonDrawingService.setElementRefereneces(
       this.variantExplorerContainer,
@@ -228,6 +279,28 @@ export class VariantExplorerComponent
     );
 
     variantExplorerItem.focus();
+
+    this.variantPerformanceService.serviceTimeColorMap.subscribe((colorMap) => {
+      if (colorMap !== undefined) {
+        this.performanceColorMap = colorMap;
+        this.redraw_components();
+      }
+    });
+
+    this.variantPerformanceService.waitingTimeColorMap.subscribe((colorMap) => {
+      if (colorMap !== undefined) {
+        this.waitingColorMap = colorMap;
+        this.redraw_components();
+      }
+    });
+  }
+
+  private redraw_components() {
+    if (this.variantComponents) {
+      for (let component of this.variantComponents) {
+        component.redraw();
+      }
+    }
   }
 
   private eventLogChanged(): void {
@@ -244,6 +317,7 @@ export class VariantExplorerComponent
       v.isSelected = false;
       v.isAddedFittingVariant = false;
       v.isConformanceOutdated = true;
+      v.userDefined = false;
       v.isTimeouted = false;
     });
 
@@ -373,6 +447,8 @@ export class VariantExplorerComponent
   }
 
   createSubVariantView(index) {
+    console.log('Creating Window at', index);
+
     const LocationSelectors: LayoutManager.LocationSelector[] = [
       {
         typeId: LayoutManager.LocationSelector.TypeId.FocusedStack,
@@ -564,7 +640,7 @@ export class VariantExplorerComponent
     width: number,
     height: number
   ): void {
-    this.collapse = width < 600;
+    this.collapse = width < 875;
   }
 
   performanceAvailable(): boolean {
@@ -623,6 +699,53 @@ export class VariantExplorerComponent
     }
     return textColorForBackgroundColor(this.variantPerformanceColor());
   }
+
+  variantClickCallBack = (
+    self: VariantDrawerDirective,
+    element: VariantElement,
+    variant: VariantElement
+  ) => {
+    if (this.performanceMode) {
+      self.changeSelected(element);
+      this.variantPerformanceService.setSelectedVariantElement(element);
+    } else {
+      variant.setExpanded(!variant.getExpanded());
+      self.redraw();
+    }
+  };
+
+  computeActivityColor = (
+    self: VariantDrawerDirective,
+    element: VariantElement,
+    variant: Variant
+  ) => {
+    let color;
+
+    if (element instanceof LeafNode) {
+      color = this.colorMap.get(element.asLeafNode().activity[0]);
+
+      if (element.serviceTime?.mean !== undefined && this.performanceMode) {
+        let stat = this.variantPerformanceService.serviceTimeStatistic;
+        color = this.performanceColorMap(element.serviceTime[stat]);
+        if (color == undefined) {
+          color = '#d3d3d3'; // lightgrey
+        }
+      } else if (this.performanceMode && variant.variant?.serviceTime) {
+        color = '#d3d3d3';
+      }
+    } else {
+      if (this.performanceMode && element.waitingTime?.mean !== undefined) {
+        let stat = this.variantPerformanceService.waitingTimeStatistic;
+        color = this.waitingColorMap(element.waitingTime[stat]);
+      }
+    }
+
+    if (!color) {
+      color = '#d3d3d3'; // lightgrey
+    }
+
+    return color;
+  };
 
   exportVariantSVG() {
     let svgs: SVGGraphicsElement[] = [];
