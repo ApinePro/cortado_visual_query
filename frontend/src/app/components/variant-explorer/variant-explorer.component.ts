@@ -403,8 +403,6 @@ export class VariantExplorerComponent
   }
 
   createSubVariantView(index) {
-    console.log('Creating Window at', index);
-
     const LocationSelectors: LayoutManager.LocationSelector[] = [
       {
         typeId: LayoutManager.LocationSelector.TypeId.FocusedStack,
