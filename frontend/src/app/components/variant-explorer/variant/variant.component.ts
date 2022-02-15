@@ -97,7 +97,6 @@ export class VariantComponent implements AfterViewInit {
   }
 
   openNewSubvariantWindow(index: number) {
-    console.log('Got index:', index);
     this.openSubvariantWindow.emit(index);
   }
 
