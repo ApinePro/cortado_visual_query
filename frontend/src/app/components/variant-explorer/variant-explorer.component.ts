@@ -11,7 +11,7 @@ import {
   Component,
   ElementRef,
   Inject,
-  OnInit, 
+  OnInit,
   QueryList,
   ViewChild,
   ViewChildren,
