@@ -115,6 +115,22 @@ export class BackendService {
     });
   }
 
+  downloadCurrentTreeAsBPMN(): void {
+    this.sharedDataService.currentDisplayedProcessTree$
+      .pipe(take(1))
+      .subscribe((tree) => {
+        this.httpClient
+          .post(
+            this.backendUrl + 'convertPtToBPMN',
+            { pt: tree },
+            { responseType: 'blob' }
+          )
+          .subscribe((blob) => {
+            FileSaver.saveAs(blob, 'bpmn_model.bpmn');
+          });
+      });
+  }
+
   downloadCurrentTreeAsPTML(): void {
     this.sharedDataService.currentDisplayedProcessTree$
       .pipe(take(1))
@@ -206,6 +222,7 @@ export class BackendService {
       .post(this.backendUrl + 'addConcurrencyVariantsToProcessModel', body)
       .pipe(
         tap((res) => {
+          console.log('Tree Received from BackEnd Service', res);
           this.sharedDataService.currentDisplayedProcessTree = res;
         })
       );
@@ -226,6 +243,7 @@ export class BackendService {
       )
       .pipe(
         tap((res) => {
+          console.log('Tree Received from BackEnd Service', res);
           this.sharedDataService.currentDisplayedProcessTree = res;
         })
       );

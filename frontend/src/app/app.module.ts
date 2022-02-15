@@ -41,6 +41,8 @@ import { VariantEditorComponent } from './components/variant-editor/variant-edit
 import { VariantDrawerDirective } from './directives/variant-drawer.directive';
 import { VariantComponent } from './components/variant-explorer/variant/variant.component';
 import { VariantConformanceDialogComponent } from './components/variant-explorer/variant-conformance-dialog/variant-conformance-dialog.component';
+import { BpmnEditorComponent } from './components/bpmn-editor/bpmn-editor.component';
+import { GoldenLayoutDummyComponent } from './components/golden-layout-host/golden-layout-dummy/golden-layout-dummy.component';
 import { SubVariantComponent } from './components/variant-explorer/sub-variant/sub-variant.component';
 import { ActivityButtonAreaComponent } from './components/variant-editor/activity-button-area/activity-button-area.component';
 import { HeaderBarComponent } from './components/header-bar/header-bar.component';
@@ -86,8 +88,10 @@ import { DialogModule } from './components/dialogs/dialog.module';
     VariantDrawerDirective,
     ActivityButtonAreaComponent,
     VariantComponent,
+    BpmnEditorComponent,
     SubVariantComponent,
     HeaderBarComponent,
+    GoldenLayoutDummyComponent,
   ],
   imports: [
     BrowserModule,

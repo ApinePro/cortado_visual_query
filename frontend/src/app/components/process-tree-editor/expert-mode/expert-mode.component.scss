@@ -49,7 +49,7 @@
 .editor{
   cursor:text;
   resize: none;
-  width: calc(45vw - 1rem);
+  width: calc(30vw - 2rem);
   height: 10rem;
   font-size: small;
   border-radius: 0.25rem;
@@ -66,9 +66,15 @@
 }
 
 .form-container{
-  max-width : 100%;
-  max-height : 100%;
-  padding : 0.5rem;
+  max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    padding: 0.5rem;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    overflow-x: auto;
 }
 
 .tree-string-heading{

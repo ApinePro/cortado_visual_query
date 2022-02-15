@@ -6,6 +6,9 @@ import {
   RowOrColumnItemConfig,
   Side,
 } from 'golden-layout';
+
+import { BpmnEditorComponent } from './../../bpmn-editor/bpmn-editor.component';
+import { GoldenLayoutDummyComponent } from '../golden-layout-dummy/golden-layout-dummy.component';
 import { ProcessTreeEditorComponent } from '../../process-tree-editor/process-tree-editor.component';
 import { VariantExplorerComponent } from '../../variant-explorer/variant-explorer.component';
 import { InfoBoxComponent } from '../../info-box/info-box.component';
@@ -27,26 +30,33 @@ export const baseLayout: LayoutConfig = {
     content: [
       {
         type: ItemType.row,
+        height: 61.803,
         isClosable: false,
-
         content: [
           {
-            type: 'component',
-            title: 'Process Tree Editor',
-            isClosable: false,
-            height: 61.803,
+            type: ItemType.stack,
             header: {
               show: Side.left,
+              maximise: false,
+              popout: false,
             },
-            id: ProcessTreeEditorComponent.componentName,
-            componentType: ProcessTreeEditorComponent.componentName,
-            componentState: { cssParentClass: 'process-tree-editor-stack' },
-          } as ComponentItemConfig,
+            content: [
+              {
+                type: 'component',
+                title: 'Process Tree Editor',
+                isClosable: false,
+                id: ProcessTreeEditorComponent.componentName,
+                componentType: ProcessTreeEditorComponent.componentName,
+                componentState: { cssParentClass: 'process-tree-editor-stack' },
+              } as ComponentItemConfig,
+            ],
+          },
         ],
-      },
+      } as RowOrColumnItemConfig,
       {
         type: ItemType.row,
         height: 38.197,
+        isClosable: false,
         content: [
           {
             type: ItemType.stack,

@@ -416,3 +416,40 @@ th {
   border-radius: 5px;
   border: 1px dashed lightgrey;
 }
+
+.variant-group-element {
+  fill-opacity: 50%;
+  stroke-width: 2px;
+}
+
+.selected-polygon {
+  stroke: whitesmoke !important;
+  stroke-width: 3px;
+  stroke-dasharray: 4;
+}
+
+
+.selected-bpmn-operator{
+  outline: dashed 1px red;
+  outline-offset: 5px;
+}
+
+.selected-bpmn-event{
+
+  rect {
+    stroke: red;
+    stroke-width: 2px;
+    stroke-dasharray: 0;
+  }
+
+  text {
+    stroke : None;
+  }
+
+
+  stroke: red;
+  stroke-width: 1px;
+  stroke-dasharray: 4;
+  marker-end: url('#arrow-red');
+
+}

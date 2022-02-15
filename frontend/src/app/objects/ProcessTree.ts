@@ -73,7 +73,7 @@ export class TreePerformance {
 }
 
 // TODO
-enum ProcessTreeOperator {
+export enum ProcessTreeOperator {
   sequence = '\u2794',
   choice = '\u2715',
   loop = '\u21BA',

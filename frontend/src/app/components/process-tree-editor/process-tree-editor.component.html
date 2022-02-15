@@ -341,7 +341,17 @@
 
     <button
       class="button ms-auto"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      title="Toggle BPMN editor in Splitview"
+      (click)="toggleBPMNEditor()"
+    >
+      <i class="bi bi-window-split"></i>
+    </button>
+
+    <button
       id="btn-reset-zoom"
+      class="button"
       data-bs-toggle="tooltip"
       data-bs-placement="top"
       title="reset view"

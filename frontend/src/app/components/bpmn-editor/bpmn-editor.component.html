@@ -1,0 +1,27 @@
+<div class="bpmn-tree-editor h-100 d-flex flex-column">
+  <div class="bg-dark btn-tool-bar">
+    <button
+      class="button ms-auto"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      title="reset view"
+      (click)="reset_zoom(true)"
+    >
+      <i class="bi bi-arrows-fullscreen btn-icon text-light"></i>
+    </button>
+
+    <button
+      class="button"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      title="Exports the tree as an .svg"
+      (click)="exportBPMN(bpmn)"
+    >
+      <i class="bi bi-save"></i>
+    </button>
+  </div>
+
+  <div #BPMNcontainer class="m-1 flex-grow-1 crosshair grid">
+    <svg #bpmn class="editor-zone"></svg>
+  </div>
+</div>

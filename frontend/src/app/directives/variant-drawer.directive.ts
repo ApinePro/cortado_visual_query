@@ -427,9 +427,8 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
   }
 
   changeSelected(group: VariantElement) {
-    d3.selectAll('.variant-element-group').classed(
-      'selected-polygon',
-      (d) => group === d
-    );
+    d3.selectAll('.variant-element-group')
+      .selectAll('polygon')
+      .classed('selected-polygon', (d) => group === d);
   }
 }

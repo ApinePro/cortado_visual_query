@@ -37,7 +37,7 @@
           <div>
             <i class="bi bi-file-earmark-arrow-down-fill btn-icon"></i>
             <span
-              ><b>Export</b> model as process tree (<samp
+              ><b>Export</b> model as Process tree (<samp
                 class="text-primary fw-bold"
                 >.ptml</samp
               >)</span
@@ -59,6 +59,19 @@
           </div>
         </button>
       </li>
+
+      <li>
+        <button class="button align-bottom" (click)="exportTreeAsBPMN()">
+          <div>
+            <i class="bi bi-file-earmark-arrow-down-fill btn-icon"></i>
+            <span
+              ><b>Export</b> model as BPMN (<samp class="text-primary fw-bold"
+                >.bpmn</samp
+              >)</span
+            >
+          </div>
+        </button>
+      </li>
     </ul>
   </div>
   <div class="dropdown">
@@ -66,6 +79,45 @@
       Settings
     </button>
   </div>
+
+  <div class="dropdown">
+    <button
+      class="button header-button"
+      type="button"
+      id="Editors"
+      data-bs-toggle="dropdown"
+      aria-expanded="false"
+    >
+      Editors
+    </button>
+    <ul class="dropdown-menu tool-bar-dropdown" aria-labelledby="Files">
+      <li>
+        <button class="button align-bottom" (click)="openProcessTreeEditor()">
+          <div>
+            <i class="bi bi-diagram-2 btn-icon"></i>
+            <span><b>Open</b> Process Tree Editor</span>
+          </div>
+        </button>
+      </li>
+      <li>
+        <button class="button align-bottom" (click)="openBPMNViewer()">
+          <div>
+            <i class="bi bi-diagram-2 btn-icon rotate-270"></i>
+            <span><b>Open</b> BPMN Viewer</span>
+          </div>
+        </button>
+      </li>
+      <li>
+        <button class="button align-bottom" (click)="openVariantEditor()">
+          <div>
+            <i class="bi bi-tools btn-icon"></i>
+            <span> <b>Open</b> Variant Modeler </span>
+          </div>
+        </button>
+      </li>
+    </ul>
+  </div>
+
   <!-- Window Control Buttons
       <button
         class="button ms-auto"

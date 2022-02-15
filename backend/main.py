@@ -40,7 +40,8 @@ from endpoints.load_event_log import calculate_event_log_properties
 from pm4py.algo.conformance.alignments.petri_net import algorithm as net_alignment
 from pm4py.algo.discovery.inductive.variants.im_clean.algorithm import apply_tree as inductive_miner
 from pm4py.algo.filtering.log.variants import variants_filter
-from pm4py.objects.conversion.process_tree.converter import apply as convert_pt_to_petri_net
+from pm4py.objects.conversion.process_tree.converter import apply as convert_pt
+from pm4py.objects.conversion.process_tree.converter import Variants as ptConverterVariant
 from pm4py.objects.log.importer.xes.importer import apply as xes_import
 from pm4py.objects.log.obj import EventLog, Trace, Event
 from pm4py.objects.petri_net.exporter.variants.pnml import export_petri_as_string as generate_pnml_xml
@@ -48,6 +49,8 @@ from pm4py.objects.process_tree.exporter.variants.ptml import export_tree_as_str
 from pm4py.objects.process_tree.importer.importer import apply as import_pt_from_ptml
 from pm4py.objects.process_tree.obj import ProcessTree
 from pm4py.objects.process_tree.utils.generic import parse
+from pm4py.objects.bpmn.exporter.variants.etree import get_xml_string as generate_bpmn_xml
+
 
 from error_handlers import exception_handler, http_exception_handler, validation_exception_handler
 
@@ -223,7 +226,6 @@ async def parseStringToPT(d: InputTreeFromTreeString):
 
     return res
 
-
 @app.get("/variants")
 async def get_variants_from_event_log():
     log = await meta.get_event_log()
@@ -247,11 +249,25 @@ class ConvertPtToX(BaseModel):
     pt: dict
 
 
+@app.post("/convertPtToBPMN")
+async def download_ptml(d: ConvertPtToX):
+    pt: ProcessTree
+    frozen_subtree: List[ProcessTree]
+    
+    pt, frozen_subtrees = dict_to_process_tree(d.pt)
+    bpmn = convert_pt(pt, variant= ptConverterVariant.TO_BPMN)
+    
+    return Response(content = generate_bpmn_xml(bpmn), media_type="application/xml")
+
+
+
 @app.post("/convertPtToPTML")
 async def download_ptml(d: ConvertPtToX):
     pt: ProcessTree
     frozen_subtree: List[ProcessTree]
     pt, frozen_subtrees = dict_to_process_tree(d.pt)
+    
+ 
     return Response(content=generate_ptml_xml(pt), media_type="application/xml")
 
 
@@ -260,7 +276,7 @@ async def download_pnml(d: ConvertPtToX):
     pt: ProcessTree
     frozen_subtree: List[ProcessTree]
     pt, frozen_subtrees = dict_to_process_tree(d.pt)
-    net, im, fm = convert_pt_to_petri_net(pt)
+    net, im, fm = convert_pt(pt)
     return Response(content=generate_pnml_xml(net, im, fm), media_type="application/xml")
 
 

@@ -5,7 +5,7 @@ import {
   Inject,
   Renderer2,
 } from '@angular/core';
-import { ComponentContainer } from 'golden-layout';
+import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { ColorMapService } from '../../services/colorMapService/color-map.service';
 import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
@@ -126,6 +126,13 @@ export class ActivityOverviewComponent
     top: number,
     width: number,
     height: number
+  ): void {}
+
+  handleVisibilityChange(visibility: boolean): void {}
+
+  handleZIndexChange(
+    logicalZIndex: LogicalZIndex,
+    defaultZIndex: string
   ): void {}
 
   toggleSort(sortKey: string) {
