@@ -21,7 +21,6 @@ export const baseLayout: LayoutConfig = {
     minItemWidth: 350,
   },
   settings: {
-    showMaximiseIcon: false,
     showPopoutIcon: false,
     constrainDragToContainer: true,
   },

@@ -66,7 +66,7 @@ export class SubvariantExplorerComponent
   ): void {}
 
   handleVisibilityChange(visibility: boolean): void {
-    if (visibility) {
+    if (visibility && this.mainvariantDrawer) {
       this.mainvariantDrawer.redraw();
       this.subVariantComponents.forEach((svc) => svc.draw());
     }

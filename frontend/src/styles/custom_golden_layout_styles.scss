@@ -48,6 +48,7 @@
 
 }
 
+
 .variant-explorer-stack{
 
   .lm_tabs{
@@ -67,6 +68,7 @@
   .lm_header{
     margin-left: 20px;
     border-bottom: 1px solid black;
+    background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
   }
 
   .lm_header .lm_tab {

@@ -429,7 +429,9 @@ export class VariantExplorerComponent
       const variantExplorerItem = this._goldenLayout.findFirstComponentItemById(
         VariantExplorerComponent.componentName
       );
+
       variantExplorerItem.focus();
+
       const itemConfig: ComponentItemConfig = {
         id: id,
         type: 'component',
@@ -444,8 +446,11 @@ export class VariantExplorerComponent
       componentItem = this._goldenLayout.findFirstComponentItemById(id);
       this._subvariantcomponentItemsMap.set(id, componentItem);
 
-      componentItem.focus();
+      variantExplorerItem.focus();
+
     }
+
+
   }
 
   closeAllSubvariantWindows(): void {
