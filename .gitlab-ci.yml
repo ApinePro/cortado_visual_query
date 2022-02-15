@@ -83,7 +83,7 @@ build-backend-linux:
     # - pip install graphviz==0.17
     - pip install pyinstaller==$PYINSTALLER_VERSION
   script:
-    - pyinstaller --noconfirm --clean cortado-backend.spec
+    - python -O -m PyInstaller --noconfirm --clean cortado-backend.spec
     - cd ..
     - cp -R backend/dist/cortado-backend .
     - cd cortado-backend
