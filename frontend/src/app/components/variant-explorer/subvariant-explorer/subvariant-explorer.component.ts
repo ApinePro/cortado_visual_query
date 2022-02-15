@@ -2,6 +2,7 @@ import { SharedDataService } from '../../../services/sharedDataService/shared-da
 import { ColorMapService } from '../../../services/colorMapService/color-map.service';
 import { Variant, VariantElement } from '../model';
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   Inject,
@@ -12,7 +13,6 @@ import {
 } from '@angular/core';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';
-import { VariantComponent } from '../variant/variant.component';
 import { SubVariantComponent } from '../sub-variant/sub-variant.component';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 
@@ -21,7 +21,10 @@ import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.direct
   templateUrl: './subvariant-explorer.component.html',
   styleUrls: ['./subvariant-explorer.component.css'], // Consider also importing the base style from the normal variant explorer scss
 })
-export class SubvariantExplorerComponent extends LayoutChangeDirective {
+export class SubvariantExplorerComponent
+  extends LayoutChangeDirective
+  implements AfterViewInit
+{
   mainVariant: Variant;
   public colorMap: Map<string, string>;
 
@@ -46,6 +49,14 @@ export class SubvariantExplorerComponent extends LayoutChangeDirective {
     );
   }
 
+  ngAfterViewInit() {
+    this.colorMapService.colorMap$.subscribe((cMap) => {
+      this.colorMap = cMap;
+      this.mainvariantDrawer.redraw();
+      this.subVariantComponents.forEach((svc) => svc.draw());
+    });
+  }
+
   // Implements responsive changes, such as triggering animations, if the layout and thus the components size changes
   handleResponsiveChange(
     left: number,
@@ -57,9 +68,7 @@ export class SubvariantExplorerComponent extends LayoutChangeDirective {
   handleVisibilityChange(visibility: boolean): void {
     if (visibility) {
       this.mainvariantDrawer.redraw();
-      this.subVariantComponents.forEach((svc) =>
-        svc.setExpanded(this.mainvariantDrawer.isExpanded())
-      );
+      this.subVariantComponents.forEach((svc) => svc.draw());
     }
   }
   handleZIndexChange(
