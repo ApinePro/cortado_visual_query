@@ -1,19 +1,20 @@
-// noinspection JSConstantReassignment
-
-import { BackendService } from '../../services/backendService/backend.service';
+import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
+import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
+import { BpmnEditorComponent } from './../bpmn-editor/bpmn-editor.component';
+import { BackendService } from './../../services/backendService/backend.service';
 import {
   Component,
   OnInit,
   ViewChild,
   AfterViewInit,
   ElementRef,
-  HostListener,
   Inject,
   Renderer2,
 } from '@angular/core';
 
 import { trigger, style, animate, transition } from '@angular/animations';
-import { ComponentContainer } from 'golden-layout';
+
+import { ComponentContainer, GoldenLayout, LogicalZIndex } from 'golden-layout';
 import * as d3 from 'd3';
 import * as constants from './constants_tree_d3';
 import Swal from 'sweetalert2';
@@ -69,6 +70,7 @@ export class ProcessTreeEditorComponent
     private colorMapService: ColorMapService,
     private imageExportService: ImageExportService,
     private backendService: BackendService,
+    private goldenLayoutComponentService: GoldenLayoutComponentService,
     private performanceService: PerformanceService,
     private performanceColorScaleService: ModelPerformanceColorScaleService,
     private renderer: Renderer2,
@@ -100,8 +102,9 @@ export class ProcessTreeEditorComponent
   selectNodeActive = false;
   selectSubtreeActive = true;
 
-  selectedRootNode;
-  previousSelectedRootNode;
+  selectedRootNodeId: number;
+  selectedRootNode: d3.HierarchyNode<any>;
+
   // indicates if the entire subtree below the selectedRootNode is selected or only the single node
   selectedRootNodeOnly: boolean;
 
@@ -125,6 +128,9 @@ export class ProcessTreeEditorComponent
   processEditorOutOfFocus: boolean = false;
 
   dropZoneConfig: DropzoneConfig;
+  editorOpen: boolean = false;
+  _goldenLayoutHostComponent: GoldenLayoutHostComponent;
+  _goldenLayout: GoldenLayout;
 
   tree_syntax_string: string;
   tree_syntax_result: any;
@@ -148,7 +154,7 @@ export class ProcessTreeEditorComponent
       (colorMap) => {
         if (colorMap && colorMap != this.performanceColorMap) {
           this.performanceColorMap = colorMap;
-          this.refresh();
+          this.update(this.root, false);
         }
       }
     );
@@ -156,11 +162,7 @@ export class ProcessTreeEditorComponent
     this.sharedDataService.currentDisplayedProcessTree$.subscribe((res) => {
       // If the tree was loaded via the process tree import or Drag&Drop that does not contain the current activites
 
-      if (
-        res &&
-        this.root !== res &&
-        this.currentlyDisplayedTreeInEditor !== res
-      ) {
+      if (res && this.currentlyDisplayedTreeInEditor !== res) {
         if (this.checkForLoadedTreeIntegrity(res).size > 0) {
           const unknownActivities = Array.from(
             this.checkForLoadedTreeIntegrity(res)
@@ -190,6 +192,7 @@ export class ProcessTreeEditorComponent
           // @ts-ignore
           return d.children;
         });
+
         console.warn('update tree triggered by service');
         this.selectedRootNode = null;
         this.selectedRootNodeOnly = false;
@@ -199,6 +202,7 @@ export class ProcessTreeEditorComponent
 
     this.sharedDataService.activitiesInEventLog$.subscribe((activities) => {
       this.activitiesOccurringInLog = Array.from(Object.keys(activities));
+      this.nodeWidthCache = new Map<string, number>();
     });
   }
 
@@ -230,6 +234,10 @@ export class ProcessTreeEditorComponent
   }
 
   ngAfterViewInit(): void {
+    this._goldenLayoutHostComponent =
+      this.goldenLayoutComponentService.goldenLayoutHostComponent;
+    this._goldenLayout = this.goldenLayoutComponentService.goldenLayout;
+
     this.initializeSvg();
 
     // Calculate the initial Node width
@@ -241,13 +249,36 @@ export class ProcessTreeEditorComponent
 
     // do not close the insert new node dropdown menu
     $(document).on('click', '#positionMethodSelection', function (e) {
-      // console.log(e);
       e.stopPropagation();
+    });
+
+    this._goldenLayoutHostComponent =
+      this.goldenLayoutComponentService.goldenLayoutHostComponent;
+    this._goldenLayout = this.goldenLayoutComponentService.goldenLayout;
+
+    this.sharedDataService.selectedRootNodeID$.subscribe((id) => {
+      // Change the Selection
+      if (id) {
+        this.selectRootNodeFromID(id);
+
+        // Unselect all
+      } else {
+        this.clearSelection();
+      }
+
+      this.selectedRootNodeId = id;
     });
   }
 
-  private refresh() {
-    this.update(this.root, false);
+  private selectRootNodeFromID(id) {
+    const selectedRoot = this.mainSvgGroup.select('[id="' + id + '"]');
+    const node = selectedRoot.data()[0];
+
+    if (id) {
+      this.setSelectedRootNode(node);
+      this.selectSubtreeFromRoot(selectedRoot.node(), node);
+      this.selectEdges();
+    }
   }
 
   saveTreeInSharedDataService(): void {
@@ -292,19 +323,21 @@ export class ProcessTreeEditorComponent
     this.collapse = width < 970;
   }
 
-  @HostListener('window:resize', ['$event'])
-  onResize(): void {
-    if (this.container.visible) {
+  handleVisibilityChange(visibile: boolean): void {
+    console.log('Visibility', visibile);
+
+    if (this.root && visibile) {
       clearTimeout(this.resizeTimer);
-      this.resizeTimer = setTimeout(
-        function () {
-          // resizing has potentially "stopped", i.e., user has not resized window since last 250ms
-          this.update(this.root);
-        }.bind(this),
-        250
-      );
+
+      this.update(this.root);
+      this.sharedDataService.selectedRootNodeID = this.selectedRootNodeId;
     }
   }
+
+  handleZIndexChange(
+    logicalZIndex: LogicalZIndex,
+    defaultZIndex: string
+  ): void {}
 
   insertNewNodeButtonDisabled(): boolean {
     return (
@@ -315,13 +348,13 @@ export class ProcessTreeEditorComponent
   }
 
   selectNode(): void {
-    this.clearSelection();
+    this.sharedDataService.selectedRootNodeID = null;
     this.selectNodeActive = true;
     this.selectSubtreeActive = false;
   }
 
   selectSubtree(): void {
-    this.clearSelection();
+    this.sharedDataService.selectedRootNodeID = null;
     this.selectNodeActive = false;
     this.selectSubtreeActive = true;
   }
@@ -419,7 +452,6 @@ export class ProcessTreeEditorComponent
     } else {
       this.currentIdxPreviousTreeObjects = this.previousTreeObjects.length - 1;
     }
-    console.log(this.previousTreeObjects);
     if (this.root) {
       this.root.each((node) => {
         node.data = JSON.parse(JSON.stringify(node.data));
@@ -436,7 +468,7 @@ export class ProcessTreeEditorComponent
       this.currentIdxPreviousTreeObjects--;
       let treeToLoad =
         this.previousTreeObjects[this.currentIdxPreviousTreeObjects];
-      // console.log(treeToLoad);
+
       if (treeToLoad) {
         treeToLoad = treeToLoad.copy();
         treeToLoad.each((node) => {
@@ -445,13 +477,11 @@ export class ProcessTreeEditorComponent
       }
       this.root = treeToLoad;
       this.update(this.root);
-      this.clearSelection();
+      this.sharedDataService.selectedRootNodeID = null;
     }
   }
 
   redo(): void {
-    // console.warn(this.previousTreeObjects);
-    // console.warn(this.currentIdxPreviousTreeObjects);
     if (
       this.currentIdxPreviousTreeObjects <
       this.previousTreeObjects.length - 1
@@ -467,292 +497,314 @@ export class ProcessTreeEditorComponent
       }
       this.root = treeToLoad;
       this.update(this.root);
-      this.clearSelection();
+      this.sharedDataService.selectedRootNodeID = null;
     }
   }
 
   horizontallyCenterTree(): void {
+    console.log(this.d3ContainerElem.nativeElement.offsetWidth);
     this.mainSvgGroup.attr(
       'transform',
       'translate(' + this.d3ContainerElem.nativeElement.offsetWidth / 2 + ',0)'
     );
   }
 
-  update(root, cacheTree: boolean = false): void {
-    this.mainSvgGroup.selectAll('g').remove();
-    // console.log('update()');
-    if (cacheTree) {
-      this.cacheCurrentTree();
-    }
-    if (root) {
-      let selectedStatistic =
-        this.performanceColorScaleService.selectedColorScale.statistic;
-      let selectedPerformanceIndicator =
-        this.performanceColorScaleService.selectedColorScale
-          .performanceIndicator;
-
-      this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(root);
-      this.processTreeSyntaxInfo = checkSyntax(this.getProcessTreeObject(root));
-      this.sharedDataService.correctTreeSyntax =
-        this.processTreeSyntaxInfo.correctSyntax;
-      // console.log(this.processTreeSyntaxInfo);
-      this.saveTreeInSharedDataService();
-      // console.log(root.descendants());
-      // console.log(root.links());
-
-      this.calculateTreeLayout(root);
-      // add node groups that contain a rectangle and text
-      const activityColorMap = this.activityColorMap;
-      const node = this.mainSvgGroup
-        .selectAll('g')
-        .data(root.descendants(), function (d) {
-          return d.data.id;
-        });
-      // remove nodes
-      node.exit().transition().duration(50).remove();
-      // add node groups
-      this.nodeEnter = node
-        .enter()
-        .append('g')
-        .attr('id', function (d) {
-          return d.data.id;
-        })
-        .attr('data-bs-toggle', 'tooltip')
-        .attr('data-bs-placement', 'top')
-        .attr('data-bs-title', (d) => {
-          if (this.hasPerformance(d)) {
-            return (
-              `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
-              <h6 style="flex: 1" class="performance-tooltip-header">` +
-              (d.data.label || d.data.operator) +
-              `</h6>
-            </div>` +
-              getPerformanceTable(
-                d.data.performance,
-                selectedPerformanceIndicator,
-                selectedStatistic
-              )
-            );
-          }
-
-          return d.data.label || d.data.operator;
-        })
-        .attr('data-bs-template', (d) => {
-          if (this.hasPerformance(d)) {
-            return `<div class="tooltip performance-tooltip" role="tooltip">
-                      <div class="tooltip-arrow"></div>
-                      <div class="tooltip-inner p-0" style="max-width: none;"></div>
-                    </div>`;
-          }
-
-          return `<div class="tooltip" role="tooltip">
-                    <div class="tooltip-arrow"></div>
-                    <div class="tooltip-inner"></div>
-                  </div>`;
-        })
-        .attr('data-bs-html', true);
-
-      this.performanceColorMap =
-        this.performanceColorScaleService.getColorScale();
-
-      // add nodes
-      this.nodeEnter
-        .append('rect')
-        .classed('node', true)
-        .attr('rx', constants.tree_corner_radius)
-        .attr('ry', constants.tree_corner_radius)
-        .attr('stroke', constants.tree_stroke_color)
-        .attr('stroke-width', constants.tree_stroke_width)
-        .merge(node.select('.node'))
-        .style('fill', (d) => {
-          if (this.root.data.performance) {
-            if (
-              this.performanceColorMap.has(d.data.id) &&
-              d.data.performance?.[selectedPerformanceIndicator]?.[
-                selectedStatistic
-              ] !== undefined
-            ) {
-              return this.performanceColorMap.get(d.data.id)(
-                d.data.performance[selectedPerformanceIndicator][
-                  selectedStatistic
-                ]
-              );
-            } else {
-              return '#404040';
-            }
-          } else {
-            if (d.data.operator !== null) return constants.node_operator_color;
-            if (d.data.label !== null && d.data.label === '\u03C4')
-              return constants.node_non_visible_activity_color;
-            const isVisibleActivity =
-              d.data.label !== null && d.data.label !== '\u03C4';
-            return isVisibleActivity
-              ? activityColorMap.get(d.data.label)
-              : null;
-          }
-        })
-        .classed('node-operator', function (d: any) {
-          return d.data.operator !== null;
-        })
-        .classed('frozen-node-operator', function (d: any) {
-          return d.data.operator !== null && d.data.frozen === true;
-        })
-        .classed('node-visible-activity', function (d: any) {
-          return d.data.label !== null && d.data.label !== '\u03C4';
-        })
-        .classed('frozen-node-visible-activity', function (d: any) {
+  drawNodes(
+    node: d3.Selection<any, any, any, any>,
+    activityColorMap: Map<string, string>,
+    selectedPerformanceIndicator,
+    selectedStatistic
+  ) {
+    // add node groups
+    this.nodeEnter = node
+      .enter()
+      .append('g')
+      .attr('id', function (d) {
+        return d.data.id;
+      })
+      .attr('data-bs-toggle', 'tooltip')
+      .attr('data-bs-placement', 'top')
+      .attr('data-bs-title', (d) => {
+        if (this.hasPerformance(d)) {
           return (
-            d.data.label !== null &&
-            d.data.label !== '\u03C4' &&
-            d.data.frozen === true
+            `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
+        <h6 style="flex: 1" class="performance-tooltip-header">` +
+            (d.data.label || d.data.operator) +
+            `</h6>
+      </div>` +
+            getPerformanceTable(
+              d.data.performance,
+              selectedPerformanceIndicator,
+              selectedStatistic
+            )
           );
-        })
-        .attr('fill', function (d: any) {
+        }
+
+        return d.data.label || d.data.operator;
+      })
+      .attr('data-bs-template', (d) => {
+        if (this.hasPerformance(d)) {
+          return `<div class="tooltip performance-tooltip" role="tooltip">
+                <div class="tooltip-arrow"></div>
+                <div class="tooltip-inner p-0" style="max-width: none;"></div>
+              </div>`;
+        }
+
+        return `<div class="tooltip" role="tooltip">
+              <div class="tooltip-arrow"></div>
+              <div class="tooltip-inner"></div>
+            </div>`;
+      })
+      .attr('data-bs-html', true);
+
+    // add nodes
+    this.nodeEnter
+      .append('rect')
+      .classed('node', true)
+      .attr('rx', constants.tree_corner_radius)
+      .attr('ry', constants.tree_corner_radius)
+      .attr('stroke', constants.tree_stroke_color)
+      .attr('stroke-width', constants.tree_stroke_width)
+      .merge(node.select('.node'))
+      .style('fill', (d) => {
+        if (this.root.data.performance) {
+          if (
+            this.performanceColorMap.has(d.data.id) &&
+            d.data.performance?.[selectedPerformanceIndicator]?.[
+              selectedStatistic
+            ] !== undefined
+          ) {
+            return this.performanceColorMap.get(d.data.id)(
+              d.data.performance[selectedPerformanceIndicator][
+                selectedStatistic
+              ]
+            );
+          } else {
+            return '#404040';
+          }
+        } else {
           if (d.data.operator !== null) return constants.node_operator_color;
           if (d.data.label !== null && d.data.label === '\u03C4')
             return constants.node_non_visible_activity_color;
           const isVisibleActivity =
             d.data.label !== null && d.data.label !== '\u03C4';
-          return isVisibleActivity
-            ? activityColorMap.get(d.data.label) ||
-                constants.node_visible_activity_color
-            : null;
-        })
-        .classed('node-invisible-activity', (d: any) => {
-          return d.data.label === '\u03C4';
-        })
-        .classed('frozen-node-invisible-activity', (d: any) => {
-          return d.data.label === '\u03C4' && d.data.frozen === true;
-        })
-        .attr('width', constants.tree_node_height_width)
-        .attr('height', constants.tree_node_height_width)
-        .attr('font-size', (d: any) => {
-          if (d.data.label === '\u03C4')
-            return constants.node_invisible_font_size;
-          return '';
-        })
-        .attr('x', function (d: any) {
-          return d.x - constants.tree_node_height_width / 2;
-        })
-        .attr('y', function (d: any) {
-          return d.y;
-        })
-        .classed('selected-node', (d: any) => {
-          return d.data.selected;
-        });
-      // add node text
-      this.nodeEnter
-        .append('text')
-        .classed('user-select-none', true)
-        .classed('node-text', true)
-        .attr('text-anchor', 'middle')
-        .attr('dominant-baseline', 'middle')
-        .merge(node.select('text'))
-        .attr('fill', (d) => {
-          if (
-            d.data.frozen ||
-            (d.data.performance == undefined &&
-              this.root.data.performance != undefined)
-          ) {
-            return 'white';
-          }
+          return isVisibleActivity ? activityColorMap.get(d.data.label) : null;
+        }
+      })
+      .classed('node-operator', function (d: any) {
+        return d.data.operator !== null;
+      })
+      .classed('frozen-node-operator', function (d: any) {
+        return d.data.operator !== null && d.data.frozen === true;
+      })
+      .classed('node-visible-activity', function (d: any) {
+        return d.data.label !== null && d.data.label !== '\u03C4';
+      })
+      .classed('frozen-node-visible-activity', function (d: any) {
+        return (
+          d.data.label !== null &&
+          d.data.label !== '\u03C4' &&
+          d.data.frozen === true
+        );
+      })
+      .attr('fill', function (d: any) {
+        if (d.data.operator !== null) return constants.node_operator_color;
+        if (d.data.label !== null && d.data.label === '\u03C4')
+          return constants.node_non_visible_activity_color;
+        const isVisibleActivity =
+          d.data.label !== null && d.data.label !== '\u03C4';
+        return isVisibleActivity
+          ? activityColorMap.get(d.data.label) ||
+              constants.node_visible_activity_color
+          : null;
+      })
+      .classed('node-invisible-activity', (d: any) => {
+        return d.data.label === '\u03C4';
+      })
+      .classed('frozen-node-invisible-activity', (d: any) => {
+        return d.data.label === '\u03C4' && d.data.frozen === true;
+      })
+      .attr('width', constants.tree_node_height_width)
+      .attr('height', constants.tree_node_height_width)
+      .attr('font-size', (d: any) => {
+        if (d.data.label === '\u03C4')
+          return constants.node_invisible_font_size;
+        return '';
+      })
+      .attr('x', function (d: any) {
+        return d.x - constants.tree_node_height_width / 2;
+      })
+      .attr('y', function (d: any) {
+        return d.y;
+      });
 
-          let nodeColor = activityColorMap.get(d.data.label);
-          if (
-            d.data.performance &&
-            this.performanceColorMap.has(d.data.id) &&
-            d.data.performance[selectedPerformanceIndicator]
-          ) {
-            nodeColor = this.performanceColorMap.get(d.data.id)(
-              d.data.performance[selectedPerformanceIndicator][
-                selectedStatistic
-              ]
-            );
-          }
+    // add node text
+    this.nodeEnter
+      .append('text')
+      .classed('user-select-none', true)
+      .classed('node-text', true)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .merge(node.select('text'))
+      .attr('fill', (d) => {
+        if (
+          d.data.frozen ||
+          (d.data.performance == undefined &&
+            this.root.data.performance != undefined)
+        ) {
+          return 'white';
+        }
 
-          const isVisibleActivity =
-            (d.data.label !== null && d.data.label !== '\u03C4') ||
-            (d.data.performance != undefined && nodeColor !== undefined);
-          return isVisibleActivity
-            ? textColorForBackgroundColor(nodeColor)
-            : 'white';
-        })
-        .attr('font-size', (d: any) => {
-          if (d.data.operator) {
-            return constants.node_operator_font_size;
-          }
-          return constants.node_visible_font_size;
-        })
-        .attr('x', function (d: any) {
-          return d.x;
-        })
-        .attr('y', function (d: any) {
-          return d.y + constants.tree_node_height_width / 2 + 3;
-        })
-        .text(function (d: any) {
-          if (d.data.operator) {
-            return d.data.operator;
-          }
-          if (d.data.label) {
-            // shorten text if it is too long
-            if (d.data.label.length <= 20) {
-              return d.data.label;
-            } else {
-              return d.data.label.substring(0, 20) + '...';
-            }
-          }
-        });
+        let nodeColor = activityColorMap.get(d.data.label);
 
-      const edges = this.mainSvgGroup.selectAll('line').data(root.links());
-      // remove old edges
-      edges.exit().remove();
-      // add edges
-      edges
-        .enter()
-        .append('line')
-        .attr('class', 'link')
-        .merge(edges)
-        // .transition()
-        .attr('x1', function (d: any) {
-          return d.source.x;
-        })
-        .attr('y1', function (d: any) {
-          return d.source.y + constants.tree_node_height_width;
-        })
-        .attr('x2', function (d: any) {
-          return d.target.x;
-        })
-        .attr('y2', function (d: any) {
-          return d.target.y;
-        })
-        .attr('stroke', constants.tree_stroke_color)
-        .classed('selected-edge', (d) => {
-          return d.source.data.selected;
-        })
-        .classed('frozen-edge', (d) => {
-          return d.source.data.frozen;
-        });
-
-      // resize leaf nodes if text is too long
-      this.nodeEnter
-        .merge(node)
-        .select('.node-visible-activity')
-        .attr('x', function (d) {
-          return (
-            d.x -
-            Math.max(
-              constants.tree_node_height_width,
-              this.nextSibling.getComputedTextLength() + 10
-            ) /
-              2
+        if (
+          d.data.performance &&
+          this.performanceColorMap.has(d.data.id) &&
+          d.data.performance[selectedPerformanceIndicator]
+        ) {
+          nodeColor = this.performanceColorMap.get(d.data.id)(
+            d.data.performance[selectedPerformanceIndicator][selectedStatistic]
           );
-        })
-        .attr('width', function () {
-          return Math.max(
+        }
+
+        const isVisibleActivity =
+          (d.data.label !== null && d.data.label !== '\u03C4') ||
+          (d.data.performance != undefined && nodeColor !== undefined);
+        return isVisibleActivity
+          ? textColorForBackgroundColor(nodeColor)
+          : 'white';
+      })
+      .attr('font-size', (d: any) => {
+        if (d.data.operator) {
+          return constants.node_operator_font_size;
+        }
+        return constants.node_visible_font_size;
+      })
+      .attr('x', function (d: any) {
+        return d.x;
+      })
+      .attr('y', function (d: any) {
+        return d.y + constants.tree_node_height_width / 2 + 3;
+      })
+      .text(function (d: any) {
+        if (d.data.operator) {
+          return d.data.operator;
+        }
+        if (d.data.label) {
+          // shorten text if it is too long
+          if (d.data.label.length <= 20) {
+            return d.data.label;
+          } else {
+            return d.data.label.substring(0, 20) + '...';
+          }
+        }
+      });
+
+    // resize leaf nodes if text is too long
+    this.nodeEnter
+      .merge(node)
+      .select('.node-visible-activity')
+      .attr('x', function (d) {
+        return (
+          d.x -
+          Math.max(
             constants.tree_node_height_width,
             this.nextSibling.getComputedTextLength() + 10
-          );
+          ) /
+            2
+        );
+      })
+      .attr('width', function () {
+        return Math.max(
+          constants.tree_node_height_width,
+          this.nextSibling.getComputedTextLength() + 10
+        );
+      });
+
+    // remove nodes
+    node.exit().transition().duration(50).remove();
+  }
+
+  drawEdges(root) {
+    const edges = this.mainSvgGroup.selectAll('line').data(root.links());
+
+    edges.classed('selected-edge', false);
+
+    // remove old edges
+    edges.exit().remove();
+
+    // add edges
+    edges
+      .enter()
+      .append('line')
+      .attr('class', 'link')
+      .merge(edges)
+      // .transition()
+      .attr('x1', function (d: any) {
+        return d.source.x;
+      })
+      .attr('y1', function (d: any) {
+        return d.source.y + constants.tree_node_height_width;
+      })
+      .attr('x2', function (d: any) {
+        return d.target.x;
+      })
+      .attr('y2', function (d: any) {
+        return d.target.y;
+      })
+      .attr('stroke', constants.tree_stroke_color)
+      .classed('frozen-edge', (d) => {
+        return d.source.data.frozen;
+      });
+  }
+
+  update(root, cacheTree: boolean = false): void {
+    this.mainSvgGroup.selectAll('g').remove();
+
+    if (cacheTree) {
+      this.cacheCurrentTree();
+    }
+
+    if (root) {
+      const selectedStatistic =
+        this.performanceColorScaleService.selectedColorScale.statistic;
+
+      const selectedPerformanceIndicator =
+        this.performanceColorScaleService.selectedColorScale
+          .performanceIndicator;
+
+      this.performanceColorMap =
+        this.performanceColorScaleService.getColorScale();
+
+      // add node groups that contain a rectangle and text
+      const activityColorMap = this.activityColorMap;
+
+      this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(root);
+      this.processTreeSyntaxInfo = checkSyntax(this.getProcessTreeObject(root));
+
+      this.sharedDataService.correctTreeSyntax =
+        this.processTreeSyntaxInfo.correctSyntax;
+
+      this.saveTreeInSharedDataService();
+      this.calculateTreeLayout(root);
+
+      const node = this.mainSvgGroup
+        .selectAll('g')
+        .data(root.descendants(), function (d) {
+          return d.data.id;
         });
+
+      // Draw Nodes
+      this.drawNodes(
+        node,
+        activityColorMap,
+        selectedPerformanceIndicator,
+        selectedStatistic
+      );
+
+      // Draw Edges
+      this.drawEdges(root);
+
       this.addSelectionFunctionality();
       this.activateTooltipsService.initializeChildren(this.svgElem);
     } else {
@@ -778,13 +830,10 @@ export class ProcessTreeEditorComponent
       this.root = null;
       this.update(null, true);
     } else {
-      // console.log(this.selectedRootNode);
       this.deleteNodeAndChildren(this.root, this.selectedRootNode);
-      // console.log(this.root)
       this.update(this.root, true);
-      this.selectedRootNode = null;
     }
-    this.selectedRootNode = null;
+    this.sharedDataService.selectedRootNodeID = null;
   }
 
   deleteNodeAndChildren(tree, nodeToDelete): void {
@@ -932,11 +981,10 @@ export class ProcessTreeEditorComponent
   }
 
   afterInsertNode(newNode: any): void {
-    this.clearSelection();
     this.selectedRootNodeOnly = true;
-    this.selectedRootNode = newNode;
-    this.selectedRootNode.data.selected = true;
-    this.update(this.root, true);
+    this.update(this.root, false);
+
+    this.sharedDataService.selectedRootNodeID = this.selectedRootNode.data.id;
     this.searchText = undefined;
   }
 
@@ -1013,6 +1061,12 @@ export class ProcessTreeEditorComponent
 
     // Delete the Dummy
     dummy_select.remove();
+
+    this.sharedDataService.nodeWidthCache = this.nodeWidthCache;
+    console.warn(
+      'Updated Nodewidth Cache',
+      this.sharedDataService.nodeWidthCache
+    );
   }
 
   addZoomFunctionality(): void {
@@ -1052,88 +1106,76 @@ export class ProcessTreeEditorComponent
   addSelectionFunctionality(): void {
     let performanceService = this.performanceService;
     this.nodeEnter.on('click', function (event, d) {
-      setSelectedRootNode(d);
-      selectSubtree(this, d);
-      selectEdges();
-      performanceService.treeSelection.next(ProcessTree.fromObj(d.data));
+      pushIDtoService(this, d),
+        performanceService.treeSelection.next(ProcessTree.fromObj(d.data));
     });
 
-    const setSelectedRootNode = function (d) {
-      this.previousSelectedRootNode = this.selectedRootNode;
-      this.selectedRootNode = d;
-      this.selectedRootNodeOnly =
-        this.selectNodeActive || this.leafNodeSelected();
-    }.bind(this);
-
-    const selectSubtree = function (svgGroup, d) {
-      if (!this.selectSubtreeActive) {
-        if (this.selectedRootNode.data.selected) {
-          unselectAll();
-        } else {
-          this.mainSvgGroup.selectAll('rect').each((d) => {
-            d.data.selected = false;
-          });
-
-          this.mainSvgGroup.selectAll('rect').classed('selected-node', false);
-          this.mainSvgGroup.selectAll('line').classed('selected-edge', false);
-
-          d.data.selected = true;
-          d3.select(svgGroup).select('.node').classed('selected-node', true);
-        }
-      } else {
-        const selected = d.data.selected;
-
-        // Unselect All Edges and Rect
-        this.mainSvgGroup.selectAll('rect').each((d) => {
-          d.data.selected = false;
-        });
-
-        this.mainSvgGroup.selectAll('rect').classed('selected-node', false);
-        this.mainSvgGroup.selectAll('line').classed('selected-edge', false);
-
-        if (selected && this.previousSelectedRootNode == d) {
-          d.data.selected = false;
-        } else {
-          d.data.selected = true;
-          selectAllChildren(svgGroup, d);
-        }
-      }
-    }.bind(this);
-
-    const selectAllChildren = function (svgGroup, d) {
-      d.data.selected = true;
-
-      d3.select(svgGroup).select('.node').classed('selected-node', true);
-
-      if (!d.children) return;
-
-      // add red stroke around sub-nodes if select subtree is selected
-      d.children.forEach((c) => {
-        selectAllChildren(
-          this.mainSvgGroup.select('[id="' + c.data.id + '"]').node(),
-          c
-        );
-      });
-    }.bind(this);
-
-    const selectEdges = function () {
-      if (!this.selectSubtreeActive) {
-        return;
-      }
-      this.mainSvgGroup
-        .selectAll('line')
-        .classed('frozen-edge', (e) => {
-          return e.source.data.frozen;
-        })
-        .classed('selected-edge', (e) => {
-          return e.source.data.selected;
-        });
-    }.bind(this);
-
-    const unselectAll = function () {
-      this.clearSelection();
-    }.bind(this);
+    const pushIDtoService = this.pushIDtoService;
   }
+
+  private pushIDtoService = (svg, d) => {
+    // Activate Toogle by pushing Null to service
+    if (d.data.id !== this.selectedRootNodeId) {
+      this.sharedDataService.selectedRootNodeID = d.data.id;
+    } else {
+      this.sharedDataService.selectedRootNodeID = null;
+    }
+  };
+
+  private setSelectedRootNode = function (d) {
+    this.selectedRootNode = d;
+    this.selectedRootNodeOnly =
+      this.selectNodeActive || this.leafNodeSelected();
+  };
+
+  private selectSubtreeFromRoot = function (svgGroup, d) {
+    // Unselect All Edges and Rect
+    this.mainSvgGroup.selectAll('rect').each((d) => {
+      d.data.selected = false;
+    });
+
+    this.mainSvgGroup.selectAll('rect').classed('selected-node', false);
+    this.mainSvgGroup.selectAll('line').classed('selected-edge', false);
+
+    // Select the node, if it isn't selected yet
+    d.data.selected = true;
+
+    // Chose depending on selection strategy, to paint all children
+    if (this.selectSubtreeActive) {
+      this.selectAllChildren(svgGroup, d);
+    } else {
+      d3.select(svgGroup).select('.node').classed('selected-node', true);
+    }
+  };
+
+  private selectAllChildren = function (svgGroup, d) {
+    d.data.selected = true;
+    d3.select(svgGroup).select('.node').classed('selected-node', true);
+
+    if (!d.children) return;
+
+    // add red stroke around sub-nodes if select subtree is selected
+    d.children.forEach((c) => {
+      this.selectAllChildren(
+        this.mainSvgGroup.select('[id="' + c.data.id + '"]').node(),
+        c
+      );
+    });
+  };
+
+  private selectEdges = function () {
+    if (!this.selectSubtreeActive) {
+      return;
+    }
+    this.mainSvgGroup
+      .selectAll('line')
+      .classed('frozen-edge', (e) => {
+        return e.source.data.frozen;
+      })
+      .classed('selected-edge', (e) => {
+        return e.source.data.selected;
+      });
+  };
 
   freezeSubtree(): void {
     const markNodeAsFrozen = (node) => {
@@ -1162,25 +1204,20 @@ export class ProcessTreeEditorComponent
       markNodeAsNonFrozen(this.selectedRootNode);
     }
 
-    this.clearSelection();
     this.update(this.root, false);
+    this.sharedDataService.selectedRootNodeID = null;
   }
 
   clearSelection(): void {
-    // console.log("clear selection")
     this.selectedRootNode = null;
     this.performanceService.treeSelection.next(undefined);
-    this.mainSvgGroup
-      .selectAll('rect')
-      .attr('stroke', constants.nonSelectedTreeNodeStrokeColor);
+
     this.mainSvgGroup.selectAll('rect').each((d) => {
       d.data.selected = false;
     });
+
     this.mainSvgGroup.selectAll('rect').classed('selected-node', false);
     this.mainSvgGroup.selectAll('line').classed('selected-edge', false);
-    this.mainSvgGroup.selectAll('line').classed('frozen-edge', (d) => {
-      return d.source.data.frozen;
-    });
   }
 
   applyReductionRules(): void {
@@ -1188,16 +1225,18 @@ export class ProcessTreeEditorComponent
   }
 
   initializeSvg(): void {
-    // console.log("plot")
-    // console.log(this.d3ContainerElem.nativeElement.offsetWidth)
-    // console.log(this.d3ContainerElem.nativeElement.offsetHeight)
-    // console.log(root)
     this.svg = d3.select('#d3-svg');
     // add svg group for zooming
     this.mainSvgGroup = this.svg.append('g').attr('id', 'zoomGroup');
-    // this.update(root);
+
     this.horizontallyCenterTree();
     this.addZoomFunctionality();
+  }
+
+  toggleBPMNEditor() {
+    this.goldenLayoutComponentService.createSplitViewWindow(
+      BpmnEditorComponent.componentName
+    );
   }
 
   exportCurrentTree(svg: SVGGraphicsElement): void {

@@ -1,7 +1,7 @@
 import { VariantExplorerComponent } from './../variant-explorer/variant-explorer.component';
 import { GoldenLayoutComponentService } from './../../services/goldenLayoutService/golden-layout-component.service';
 import { ColorMapService } from './../../services/colorMapService/color-map.service';
-import { ComponentContainer } from 'golden-layout';
+import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { VariantDrawerDirective } from './../../directives/variant-drawer.directive';
 import {
   SequenceGroup,
@@ -169,6 +169,12 @@ export class VariantEditorComponent
       this.collapse = false;
     }
   }
+
+  handleVisibilityChange(visibility: boolean): void {}
+  handleZIndexChange(
+    logicalZIndex: LogicalZIndex,
+    defaultZIndex: string
+  ): void {}
 
   handleRedraw(selection: Selection<any, any, any, any>) {
     selection.selectAll('g').on('click', function (event, d) {

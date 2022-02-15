@@ -1,3 +1,4 @@
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import {
   ComponentFactoryResolver,
   Injectable,
@@ -5,7 +6,14 @@ import {
   StaticProvider,
   Type,
 } from '@angular/core';
-import { ComponentContainer, GoldenLayout, JsonValue } from 'golden-layout';
+import {
+  ComponentContainer,
+  ComponentItemConfig,
+  GoldenLayout,
+  JsonValue,
+  LayoutManager,
+} from 'golden-layout';
+import { take } from 'rxjs/operators';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 
@@ -16,6 +24,7 @@ export class GoldenLayoutComponentService {
   private _componentTypeMap = new Map<string, Type<LayoutChangeDirective>>();
   private _goldenLayoutHostComponent: GoldenLayoutHostComponent;
   private _goldenLayout: GoldenLayout;
+  private _splitViewWindow: string = null;
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
 
@@ -76,6 +85,81 @@ export class GoldenLayoutComponentService {
           componentType
         );
       return componentFactoryRef.create(injector);
+    }
+  }
+
+  openWindow(
+    componentID: string,
+    parentContainerID: string,
+    LocationSelectors: LayoutManager.LocationSelector[],
+    itemConfig: ComponentItemConfig
+  ) {
+    const editor = this._goldenLayout.findFirstComponentItemById(componentID);
+
+    const createComponent = (
+      parentContainerID,
+      itemConfig,
+      LocationSelectors
+    ) => {
+      if (parentContainerID) {
+        this._goldenLayout
+          .findFirstComponentItemById(parentContainerID)
+          .focus();
+      }
+
+      if (LocationSelectors) {
+        this._goldenLayout.addItemAtLocation(itemConfig, LocationSelectors);
+      } else {
+        this._goldenLayout.addItem(itemConfig);
+      }
+    };
+
+    // Destroy the split window instance, and register the creation after the semaphor fires TODO carry over the state
+    // Issue, when in the Future multiple Editor might exist and can be closed in rapid succesion
+
+    if (editor && componentID === this._splitViewWindow) {
+      editor.close();
+      this._splitViewWindow = null;
+      createComponent(parentContainerID, itemConfig, LocationSelectors);
+
+      // Create the component at the specified selector
+    } else if (!editor) {
+      createComponent(parentContainerID, itemConfig, LocationSelectors);
+    } else {
+      editor.focus();
+    }
+  }
+
+  createSplitViewWindow(componentID) {
+    this._goldenLayout
+      .findFirstComponentItemById(this._splitViewWindow)
+      ?.close();
+
+    if (this._splitViewWindow === componentID) {
+      this._splitViewWindow = null;
+    } else {
+      this._goldenLayout.findFirstComponentItemById(componentID)?.close();
+
+      const LocationSelectors: LayoutManager.LocationSelector[] = [
+        {
+          typeId: LayoutManager.LocationSelector.TypeId.FirstRow,
+          index: undefined,
+        },
+      ];
+
+      const itemConfig: ComponentItemConfig = {
+        id: componentID,
+        type: 'component',
+        title: 'BPMN Editor',
+        isClosable: true,
+        header: {
+          show: false,
+        },
+        componentType: componentID,
+      };
+
+      this._goldenLayout.addItemAtLocation(itemConfig, LocationSelectors);
+      this._splitViewWindow = componentID;
     }
   }
 }

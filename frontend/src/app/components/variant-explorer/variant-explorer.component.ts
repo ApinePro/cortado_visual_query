@@ -5,6 +5,7 @@ import {
   ComponentItemConfig,
   GoldenLayout,
   LayoutManager,
+  LogicalZIndex,
 } from 'golden-layout';
 import {
   Component,
@@ -49,8 +50,6 @@ import { VariantSorter } from './variant-sorter';
 import * as objectHash from 'object-hash';
 import { VariantComponent } from './variant/variant.component';
 import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
-import { ProcessTreeEditorComponent } from '../process-tree-editor/process-tree-editor.component';
-import { VariantEditorComponent } from '../variant-editor/variant-editor.component';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
 
@@ -93,8 +92,8 @@ export class VariantExplorerComponent
     public performanceService: PerformanceService,
     private performanceColorService: ModelPerformanceColorScaleService,
     private variantPerformanceService: VariantPerformanceService,
-    private goldenLayoutComponentService: GoldenLayoutComponentService,
-    private conformanceCheckingService: ConformanceCheckingService
+    private conformanceCheckingService: ConformanceCheckingService,
+    private goldenLayoutComponentService: GoldenLayoutComponentService
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -112,8 +111,6 @@ export class VariantExplorerComponent
   performanceMode: boolean = false;
   performanceColorMap: any;
   waitingColorMap: any;
-
-  editorOpen: boolean = false;
 
   public numberFittingTraces: number = undefined;
   public numberFittingVariants: number = undefined;
@@ -218,47 +215,6 @@ export class VariantExplorerComponent
 
     this.conformanceCheckingService.connect();
     this.subscribeForConformanceCheckingResults();
-  }
-
-  toggleVariantEditor(): void {
-    if (!this.editorOpen) {
-      console.log('Opening Editor');
-      const editor = this._goldenLayout.findFirstComponentItemById(
-        VariantEditorComponent.componentName
-      );
-      if (editor) {
-        editor.focus();
-      } else {
-        const LocationSelectors: LayoutManager.LocationSelector[] = [
-          {
-            typeId: LayoutManager.LocationSelector.TypeId.FocusedStack,
-            index: undefined,
-          },
-        ];
-
-        this._goldenLayout
-          .findFirstComponentItemById(ProcessTreeEditorComponent.componentName)
-          .focus();
-
-        const itemConfig: ComponentItemConfig = {
-          id: VariantEditorComponent.componentName,
-          type: 'component',
-          title: 'Variant Explorer',
-          isClosable: false,
-          reorderEnabled: false,
-          componentType: VariantEditorComponent.componentName,
-        };
-
-        this._goldenLayout.addItemAtLocation(itemConfig, LocationSelectors);
-      }
-    } else {
-      console.log('Closing Editor');
-      this._goldenLayout
-        .findFirstComponentItemById(ProcessTreeEditorComponent.componentName)
-        .focus();
-    }
-
-    this.editorOpen = !this.editorOpen;
   }
 
   ngAfterViewInit() {
@@ -642,6 +598,13 @@ export class VariantExplorerComponent
   ): void {
     this.collapse = width < 875;
   }
+
+  handleVisibilityChange(visibility: boolean): void {}
+
+  handleZIndexChange(
+    logicalZIndex: LogicalZIndex,
+    defaultZIndex: string
+  ): void {}
 
   performanceAvailable(): boolean {
     return this.performanceService.mergedPerformance !== undefined;

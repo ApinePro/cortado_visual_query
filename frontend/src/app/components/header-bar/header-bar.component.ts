@@ -1,7 +1,12 @@
+import { VariantEditorComponent } from './../variant-editor/variant-editor.component';
+import { ProcessTreeEditorComponent } from './../process-tree-editor/process-tree-editor.component';
+import { BpmnEditorComponent } from './../bpmn-editor/bpmn-editor.component';
+import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { BackendService } from '../../services/backendService/backend.service';
+import { ComponentItemConfig, LayoutManager } from 'golden-layout';
 
 @Component({
   selector: 'app-header-bar',
@@ -16,7 +21,8 @@ export class HeaderBarComponent {
 
   constructor(
     private backendService: BackendService,
-    private _elRef: ElementRef<HTMLElement>
+    private _elRef: ElementRef<HTMLElement>,
+    private goldenLayoutComponentService: GoldenLayoutComponentService
   ) {}
 
   get element() {
@@ -30,7 +36,6 @@ export class HeaderBarComponent {
   handleSelectedEventLogFile(e): void {
     const fileList: FileList = e.target.files;
     if (fileList.length > 0) {
-      console.log(fileList[0]);
       if (!environment.electron) {
         this.backendService.uploadEventLog(fileList[0]);
       } else {
@@ -42,10 +47,8 @@ export class HeaderBarComponent {
   }
 
   handleSelectedProcessTreeFile(e): void {
-    // console.log(e);
     const fileList: FileList = e.target.files;
     if (fileList.length > 0) {
-      // console.log(fileList[0]);
       this.backendService.loadProcessTreeFromFilePath(fileList[0]['path']);
     }
     this.fileUploadProcessTree.nativeElement.value = '';
@@ -57,6 +60,10 @@ export class HeaderBarComponent {
 
   exportTreeAsPNML(): void {
     this.backendService.downloadCurrentTreeAsPNML();
+  }
+
+  exportTreeAsBPMN(): void {
+    this.backendService.downloadCurrentTreeAsBPMN();
   }
 
   importTreeFromPTML(): void {
@@ -80,4 +87,92 @@ export class HeaderBarComponent {
     this.ipc.send('maximize-window')
   }
   */
+
+  openBPMNViewer() {
+    const componentID = BpmnEditorComponent.componentName;
+    const parentComponentID = ProcessTreeEditorComponent.componentName;
+
+    const LocationSelectors: LayoutManager.LocationSelector[] = [
+      {
+        typeId: LayoutManager.LocationSelector.TypeId.FocusedStack,
+        index: undefined,
+      },
+    ];
+
+    const itemConfig: ComponentItemConfig = {
+      id: componentID,
+      type: 'component',
+      title: 'BPMN Editor',
+      isClosable: false,
+      header: {
+        show: false,
+      },
+      componentType: componentID,
+    };
+
+    this.goldenLayoutComponentService.openWindow(
+      componentID,
+      parentComponentID,
+      LocationSelectors,
+      itemConfig
+    );
+  }
+
+  openProcessTreeEditor() {
+    const componentID = ProcessTreeEditorComponent.componentName;
+
+    const LocationSelectors: LayoutManager.LocationSelector[] = [
+      {
+        typeId: LayoutManager.LocationSelector.TypeId.FirstRow,
+        index: undefined,
+      },
+    ];
+
+    const itemConfig: ComponentItemConfig = {
+      id: componentID,
+      type: 'component',
+      title: 'BPMN Editor',
+      isClosable: false,
+      header: {
+        show: false,
+      },
+      componentType: componentID,
+    };
+
+    this.goldenLayoutComponentService.openWindow(
+      componentID,
+      null,
+      LocationSelectors,
+      itemConfig
+    );
+  }
+
+  openVariantEditor() {
+    const componentID = VariantEditorComponent.componentName;
+
+    const LocationSelectors: LayoutManager.LocationSelector[] = [
+      {
+        typeId: LayoutManager.LocationSelector.TypeId.FocusedStack,
+        index: undefined,
+      },
+    ];
+
+    const itemConfig: ComponentItemConfig = {
+      id: componentID,
+      type: 'component',
+      title: 'Variant Editor',
+      isClosable: false,
+      header: {
+        show: false,
+      },
+      componentType: componentID,
+    };
+
+    this.goldenLayoutComponentService.openWindow(
+      componentID,
+      ProcessTreeEditorComponent.componentName,
+      LocationSelectors,
+      itemConfig
+    );
+  }
 }

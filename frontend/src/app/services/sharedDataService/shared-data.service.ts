@@ -161,6 +161,20 @@ export class SharedDataService {
     return this._correctTreeSyntax.getValue();
   }
 
+  private _selectedRootNodeID = new BehaviorSubject<number>(null);
+
+  get selectedRootNodeID$(): Observable<number> {
+    return this._selectedRootNodeID.asObservable();
+  }
+
+  set selectedRootNodeID(node: number) {
+    this._selectedRootNodeID.next(node);
+  }
+
+  get selectedRootNodeID(): number {
+    return this._selectedRootNodeID.getValue();
+  }
+
   private _currentTreeString = new BehaviorSubject<string>('');
 
   get currentTreeString$(): Observable<string> {
@@ -173,6 +187,20 @@ export class SharedDataService {
 
   get currentTreeString() {
     return this._currentTreeString.getValue();
+  }
+
+  private _nodeWidthCache = new BehaviorSubject<Map<string, number>>(null);
+
+  get nodeWidthCache$(): Observable<Map<string, number>> {
+    return this._nodeWidthCache.asObservable();
+  }
+
+  get nodeWidthCache() {
+    return this._nodeWidthCache.getValue();
+  }
+
+  set nodeWidthCache(map: Map<string, number>) {
+    this._nodeWidthCache.next(map);
   }
 
   // TODO move somewhere else

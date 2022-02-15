@@ -69,3 +69,6 @@
   font-size: 12px;
 }
 
+.bi-diagram-2.rotate-270::before {
+  transform: rotate(270deg);
+}

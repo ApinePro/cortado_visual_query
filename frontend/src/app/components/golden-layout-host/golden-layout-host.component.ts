@@ -1,3 +1,4 @@
+import { GoldenLayoutDummyComponent } from './golden-layout-dummy/golden-layout-dummy.component';
 import {
   Component,
   ComponentRef,
@@ -22,6 +23,7 @@ import { VariantExplorerComponent } from '../variant-explorer/variant-explorer.c
 import { ActivityOverviewComponent } from '../activity-overview/activity-overview.component';
 import { SubvariantExplorerComponent } from '../variant-explorer/subvariant-explorer/subvariant-explorer.component';
 import { GoldenLayoutComponentService } from '../../services/goldenLayoutService/golden-layout-component.service';
+import { BpmnEditorComponent } from '../bpmn-editor/bpmn-editor.component';
 import { VariantEditorComponent } from '../variant-editor/variant-editor.component';
 import { InfoBoxComponent } from '../info-box/info-box.component';
 
@@ -43,6 +45,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     container: ComponentContainer,
     itemConfig: ResolvedComponentItemConfig
   ) => this.handleBindComponentEvent(container, itemConfig);
+
   private _goldenLayoutUnbindComponentEventListener = (
     container: ComponentContainer
   ) => this.handleUnbindComponentEvent(container);
@@ -87,6 +90,16 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     );
 
     this.goldenLayoutComponentService.registerComponentType(
+      BpmnEditorComponent.componentName,
+      BpmnEditorComponent
+    );
+
+    this.goldenLayoutComponentService.registerComponentType(
+      GoldenLayoutDummyComponent.componentName,
+      GoldenLayoutDummyComponent
+    );
+
+    this.goldenLayoutComponentService.registerComponentType(
       VariantEditorComponent.componentName,
       VariantEditorComponent
     );
@@ -100,12 +113,9 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     this._goldenLayout.beforeVirtualRectingEvent = () =>
       this.handleBeforeVirtualRectingEvent();
 
-    this.goldenLayoutComponentService.goldenLayout = this._goldenLayout;
+    this.goldenLayoutComponentService.goldenLayout = this.goldenLayout;
+    this.goldenLayoutComponentService.goldenLayoutHostComponent = this;
   }
-
-  // ngOnInit(){
-  //
-  // }
 
   initializeLayout() {
     // Start rendering the Template
@@ -231,8 +241,11 @@ export class GoldenLayoutHostComponent implements OnDestroy {
         'handleContainerVisibilityChangeRequiredEvent: ComponentRef not found'
       );
     }
+
     const component = componentRef.instance;
+
     component.setVisibility(visible);
+    component.handleVisibilityChange(visible);
   }
 
   private handleContainerVirtualZIndexChangeRequiredEvent(
@@ -246,8 +259,10 @@ export class GoldenLayoutHostComponent implements OnDestroy {
         'handleContainerVirtualZIndexChangeRequiredEvent: ComponentRef not found'
       );
     }
+
     const component = componentRef.instance;
     component.setZIndex(defaultZIndex);
+    component.handleZIndexChange(logicalZIndex, defaultZIndex);
 
     if (
       logicalZIndex === 'base' &&

@@ -10,7 +10,7 @@ import {
   ViewChild,
   ViewChildren,
 } from '@angular/core';
-import { ComponentContainer } from 'golden-layout';
+import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';
 import { VariantComponent } from '../variant/variant.component';
 import { SubVariantComponent } from '../sub-variant/sub-variant.component';
@@ -52,6 +52,19 @@ export class SubvariantExplorerComponent extends LayoutChangeDirective {
     top: number,
     width: number,
     height: number
+  ): void {}
+
+  handleVisibilityChange(visibility: boolean): void {
+    if (visibility) {
+      this.mainvariantDrawer.redraw();
+      this.subVariantComponents.forEach((svc) =>
+        svc.setExpanded(this.mainvariantDrawer.isExpanded())
+      );
+    }
+  }
+  handleZIndexChange(
+    logicalZIndex: LogicalZIndex,
+    defaultZIndex: string
   ): void {}
 
   public toggleExpanded() {
