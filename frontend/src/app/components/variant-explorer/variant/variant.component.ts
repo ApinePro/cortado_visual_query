@@ -96,6 +96,11 @@ export class VariantComponent implements AfterViewInit {
     return this.variant.variant.expanded;
   }
 
+  openNewSubvariantWindow(index: number) {
+    console.log('Got index:', index);
+    this.openSubvariantWindow.emit(index);
+  }
+
   setExpanded(expanded: boolean): void {
     if (!this.performanceMode && expanded != this.variant.variant.expanded) {
       this.variant.variant.setExpanded(expanded);

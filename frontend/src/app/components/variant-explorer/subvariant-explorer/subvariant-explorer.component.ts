@@ -1,6 +1,6 @@
 import { SharedDataService } from '../../../services/sharedDataService/shared-data.service';
 import { ColorMapService } from '../../../services/colorMapService/color-map.service';
-import { Variant } from '../model';
+import { Variant, VariantElement } from '../model';
 import {
   Component,
   ElementRef,
@@ -14,7 +14,7 @@ import { ComponentContainer } from 'golden-layout';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';
 import { VariantComponent } from '../variant/variant.component';
 import { SubVariantComponent } from '../sub-variant/sub-variant.component';
-import { VariantFragmentComponent } from '../variant-fragment/variant-fragment.component';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 
 @Component({
   selector: 'app-subvariant-explorer',
@@ -25,8 +25,8 @@ export class SubvariantExplorerComponent extends LayoutChangeDirective {
   mainVariant: Variant;
   public colorMap: Map<string, string>;
 
-  @ViewChild(VariantFragmentComponent)
-  mainVariantComponent: VariantFragmentComponent;
+  @ViewChild(VariantDrawerDirective)
+  mainvariantDrawer: VariantDrawerDirective;
 
   @ViewChildren(SubVariantComponent)
   subVariantComponents: QueryList<SubVariantComponent>;
@@ -55,14 +55,37 @@ export class SubvariantExplorerComponent extends LayoutChangeDirective {
   ): void {}
 
   public toggleExpanded() {
-    let expanded = this.mainVariantComponent.isExpanded();
-    this.mainVariantComponent.setExpanded(!expanded);
+    let expanded = this.mainvariantDrawer.isExpanded();
+    this.mainvariantDrawer.setExpanded(!expanded);
     this.setExpandedSubVariants(!expanded);
   }
 
   public setExpandedSubVariants(expanded) {
     this.subVariantComponents.forEach((svc) => svc.setExpanded(expanded));
   }
+
+  computeActivityColor = (
+    self: VariantDrawerDirective,
+    element: VariantElement,
+    variant: Variant
+  ) => {
+    let color;
+    color = this.colorMap.get(element.asLeafNode().activity[0]);
+
+    if (!color) {
+      color = '#d3d3d3'; // lightgrey
+    }
+
+    return color;
+  };
+
+  subvariantClickCallBack = (
+    self: VariantDrawerDirective,
+    element: VariantElement,
+    variant: VariantElement
+  ) => {
+    this.toggleExpanded();
+  };
 }
 
 export namespace SubvariantExplorerComponent {

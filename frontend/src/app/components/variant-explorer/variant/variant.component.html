@@ -13,7 +13,7 @@
     <div
       *ngIf="variant.sub_variants"
       class="subvariants"
-      (click)="openSubvariantWindow.emit(i + 1)"
+      (click)="openNewSubvariantWindow(index + 1)"
     >
       {{ variant.sub_variants.length }}
     </div>
@@ -99,7 +99,6 @@
         appVariantDrawer
         #fragment
         [variant]="variant['variant']"
-        [enrichSelection]="false"
         [onClickCbFc]="onClickCbFc"
         [performanceMode]="performanceMode"
         [computeActivityColor]="computeActivityColor"

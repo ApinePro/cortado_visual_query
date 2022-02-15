@@ -8,7 +8,6 @@ import {
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
 import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
-import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 
 @Component({
   selector: 'app-root',
@@ -21,10 +20,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   @ViewChild('goldenLayoutHost')
   private _goldenLayoutHostComponent: GoldenLayoutHostComponent;
   private _windowResizeListener = () => this.handleWindowResizeEvent();
-
-  constructor(
-    private goldenLayoutComponentService: GoldenLayoutComponentService
-  ) {}
 
   constructor(
     private goldenLayoutComponentService: GoldenLayoutComponentService

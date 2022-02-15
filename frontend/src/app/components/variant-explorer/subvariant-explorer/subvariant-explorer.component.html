@@ -14,13 +14,14 @@
             </td>
             <td class="variant-cell">
               <div class="variant" style="">
-                <app-variant-fragment
-                  (click)="
-                    setExpandedSubVariants(mainVariantComponent.isExpanded())
-                  "
+                <svg
+                  appVariantDrawer
+                  #fragment
                   [variant]="mainVariant['variant']"
-                  [disablePerformanceMode]="true"
-                ></app-variant-fragment>
+                  [onClickCbFc]="subvariantClickCallBack"
+                  [performanceMode]="false"
+                  [computeActivityColor]="computeActivityColor"
+                ></svg>
               </div>
             </td>
           </tr>
