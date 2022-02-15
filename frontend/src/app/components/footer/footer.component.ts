@@ -1,4 +1,3 @@
-import { element } from 'protractor';
 import { Component, OnInit, ElementRef, Inject } from '@angular/core';
 import { BackgroundTaskInfoService } from '../../services/backgroundTaskInfoService/background-task-info.service';
 import packageInfo from '../../../../package.json';
@@ -23,8 +22,8 @@ export class FooterComponent implements OnInit {
   ngOnInit(): void {
     this.backgroundTaskInfoService
       .currentBackgroundTask$()
-      .subscribe((taskDescription) => {
-        this.currentTask = taskDescription;
+      .subscribe((backgroundTask) => {
+        this.currentTask = backgroundTask;
       });
 
     this.backgroundTaskInfoService.numberBackgroundTasks$().subscribe((res) => {
@@ -35,6 +34,19 @@ export class FooterComponent implements OnInit {
         this.document.getElementById('body').style.cursor = '';
       }
     });
+  }
+
+  isCancelableTask(): boolean {
+    return (
+      this.currentTask !== undefined &&
+      this.currentTask.CancellationFunc !== null
+    );
+  }
+
+  cancelCurrentRequest(): void {
+    if (this.isCancelableTask()) {
+      this.currentTask.CancellationFunc();
+    }
   }
 
   get element() {

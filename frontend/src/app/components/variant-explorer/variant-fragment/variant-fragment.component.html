@@ -2,5 +2,5 @@
   class="svg-container variant-cursor"
   (click)="setExpanded(!variant.expanded)"
 >
-  <svg #svg></svg>
+  <svg appVariantDrawer [variant]="variant"></svg>
 </div>

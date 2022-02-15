@@ -7,9 +7,14 @@
       ></div>
       <span class="sr-only ps-1">Loading...</span>
 
-      <span class="fw-light"> ( {{ currentTask | lowercase }} ) </span>
+      <span class="fw-light">
+        ( {{ currentTask.Description | lowercase }} )
+      </span>
       <span class="fw-light" *ngIf="numberTasks > 1">
         (remaining tasks: {{ numberTasks | number }})
+      </span>
+      <span style="cursor: pointer" *ngIf="isCancelableTask()">
+        <i class="bi bi-x text-danger" (click)="cancelCurrentRequest()"></i>
       </span>
     </ng-container>
 

@@ -5,6 +5,7 @@ import {
   OnInit,
   Renderer2,
 } from '@angular/core';
+import { LogicalZIndex } from 'golden-layout';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';
 
 @Component({
@@ -23,6 +24,13 @@ export class InfoBoxComponent extends LayoutChangeDirective {
     top: number,
     width: number,
     height: number
+  ): void {}
+
+  handleVisibilityChange(visibility: boolean): void {}
+
+  handleZIndexChange(
+    logicalZIndex: LogicalZIndex,
+    defaultZIndex: string
   ): void {}
 }
 

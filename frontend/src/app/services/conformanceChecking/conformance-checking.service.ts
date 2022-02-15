@@ -5,13 +5,17 @@ import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { BackgroundTaskInfoService } from '../backgroundTaskInfoService/background-task-info.service';
 import { ConformanceCheckingResult } from './model';
 import Swal from 'sweetalert2';
+import { SharedDataService } from '../sharedDataService/shared-data.service';
 export const WS_ENDPOINT = 'ws://127.0.0.1:41211/conformancews';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ConformanceCheckingService {
-  constructor(private infoService: BackgroundTaskInfoService) {}
+  constructor(
+    private infoService: BackgroundTaskInfoService,
+    private sharedDataService: SharedDataService
+  ) {}
 
   private socket: WebSocketSubject<any>;
   private runningRequests: number[] = [];
@@ -70,10 +74,24 @@ export class ConformanceCheckingService {
     timeout: number
   ): boolean {
     const resubscribe = this.connect();
-    const rid = this.infoService.setRequest('conformance checking');
+    const rid = this.infoService.setRequest('conformance checking', () =>
+      this.cancelConformanceCheckingRequests()
+    );
     this.runningRequests.push(rid);
     this.socket.next({ id: id, pt: pt, variant: variant, timeout: timeout });
 
     return resubscribe;
+  }
+
+  private cancelConformanceCheckingRequests(): void {
+    this.socket.next({ isCancellationRequested: true });
+    this.runningRequests.forEach((r: number) =>
+      this.infoService.removeRequest(r)
+    );
+    this.runningRequests = [];
+    this.sharedDataService.variants.forEach((v) => {
+      v.calculationInProgress = false;
+    });
+    this.socket.unsubscribe();
   }
 }

@@ -1,6 +1,7 @@
 
 :host {
   overflow: hidden;
+  position: absolute;
 }
 
 
@@ -22,9 +23,6 @@
 .toggle-select{
   cursor : pointer;
 }
-
-
-
 
 thead tr:nth-child(1) th {
   position: static;

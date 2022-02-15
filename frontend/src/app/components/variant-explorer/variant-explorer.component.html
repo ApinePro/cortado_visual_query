@@ -119,15 +119,19 @@
       </div>
     </button>
 
+    <span class="vl"></span>
+
+    <span class="vl ms-auto"></span>
     <div
-      class="btn-group align-baseline dropDownParent dropdown ms-auto"
+      class="btn-group align-baseline dropDownParent dropdown"
       data-bs-toggle="tooltip"
       data-bs-html="true"
       title='sort variants by one of the following attributes:
       <br><i class="bi bi-chevron-double-right"> total number of activities</i>
       <br><i class="bi bi-check-square"> conformace</i>
       <br><i class="bi bi-123"> frequency</i>
-      <br><i class="bi bi-three-dots"> maximal trace length</i>'
+      <br><i class="bi bi-three-dots"> maximal trace length</i>
+      <br><i class="bi bi-person-circle"></i> user created</i>'
     >
       <button
         class="button dropdown-toggle"
@@ -202,11 +206,22 @@
           <i class="bi bi-three-dots btn-icon"></i>
           <span class="ms-3">length</span>
         </div>
+        <div
+          class="dropdown-item"
+          (click)="sort('userDefined')"
+          [ngClass]="
+            sortingFeature === 'userDefined' ? 'selected-dropdown-item' : ''
+          "
+        >
+          <i class="bi bi-person-circle"></i>
+          <span class="ms-3">user created</span>
+        </div>
       </div>
     </div>
 
-    <span class="vl"></span>
+    <span class="vl" *ngIf="!performanceMode"></span>
     <button
+      *ngIf="!performanceMode"
       class="button"
       (click)="unExpandAll()"
       data-bs-toggle="tooltip"
@@ -253,7 +268,7 @@
         <table>
           <tr class="user-select-none">
             <th style="padding-right: 15px; padding-left: 5px">Nr.</th>
-            <th>
+            <th style="display: flex; align-items: center">
               <app-variant-selection-button
                 [isSelected]="areAllVariantsSelected()"
                 (selectionChanged)="unSelectAllChanged($event)"
@@ -262,6 +277,16 @@
               </app-variant-selection-button>
               Info
             </th>
+            <th
+              style="
+                text-align: center;
+                padding-right: 10px;
+                padding-left: 10px;
+              "
+            >
+              Sub-Variants
+            </th>
+
             <th
               *ngIf="currentlyDisplayedProcessTree"
               style="text-align: center"
@@ -306,6 +331,7 @@
                 </button>
               </div>
             </th>
+
             <th class="text-start">Variant</th>
           </tr>
           <tr
@@ -313,6 +339,10 @@
             *ngFor="let variant of variants; let i = index"
             [index]="i"
             [variant]="variant"
+            (openSubvariantWindow)="createSubVariantView($event)"
+            [onClickCbFc]="variantClickCallBack"
+            [computeActivityColor]="computeActivityColor"
+            [performanceMode]="performanceMode"
             (selectionChanged)="selectionChangedForVariant(variant, $event)"
             (updateConformance)="
               updateConformanceForSingleVariantClicked($event)

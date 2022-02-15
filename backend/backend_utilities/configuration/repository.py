@@ -6,7 +6,7 @@ import os
 import errno
 
 CONFIG_FILENAME = 'config.json'
-DEFAULT_TIMEOUT = 30
+DEFAULT_TIMEOUT = 2
 APP_NAME = 'cortado'
 COMPANY_NAME = 'Fraunhofer'
 

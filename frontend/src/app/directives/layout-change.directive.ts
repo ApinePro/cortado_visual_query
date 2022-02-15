@@ -1,5 +1,5 @@
 import { Directive, InjectionToken, Renderer2 } from '@angular/core';
-import { ComponentContainer } from 'golden-layout';
+import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 
 @Directive()
 export abstract class LayoutChangeDirective {
@@ -53,6 +53,13 @@ export abstract class LayoutChangeDirective {
     top: number,
     width: number,
     height: number
+  ): void;
+
+  abstract handleVisibilityChange(visibility: boolean): void;
+
+  abstract handleZIndexChange(
+    logicalZIndex: LogicalZIndex,
+    defaultZIndex: string
   ): void;
 }
 

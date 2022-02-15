@@ -1,5 +1,6 @@
 <td #row style="padding-right: 15px; padding-left: 5px">{{ index + 1 }}.</td>
-<ng-container *ngIf="isVisible">
+
+<ng-container *ngIf="isVisible && !(variant.userDefined && performanceMode)">
   <td>
     <app-variant-info
       [variant]="variant"
@@ -7,6 +8,15 @@
       (updateConformance)="updateConformance.emit($event)"
     >
     </app-variant-info>
+  </td>
+  <td>
+    <div
+      *ngIf="variant.sub_variants"
+      class="subvariants"
+      (click)="openNewSubvariantWindow(index + 1)"
+    >
+      {{ variant.sub_variants.length }}
+    </div>
   </td>
   <td
     *ngIf="sharedDataService.currentDisplayedProcessTree"
@@ -38,23 +48,29 @@
         style="display: flex; flex-direction: column"
       >
         <i
-          *ngIf="isPerformanceAvailable(variant)"
+          *ngIf="isPerformanceAvailable(variant) && !variant.userDefined"
           class="bi bi-graph-up align-middle font-large variant-performance-icon"
           [style.color]="textColorForBackgroundColor(variant)"
         >
           <i
-            *ngIf="performanceService.fitness.get(variant) < 1"
+            *ngIf="
+              performanceService.fitness.get(variant) < 1 &&
+              !variant.userDefined
+            "
             class="bi bi-exclamation-triangle-fill"
           ></i>
         </i>
         <i
           class="bi bi-stopwatch"
-          *ngIf="!isPerformanceAvailable(variant)"
+          *ngIf="!isPerformanceAvailable(variant) && !variant.userDefined"
           style="color: white"
         >
         </i>
         <div
-          *ngIf="performanceService.calculationInProgress.has(variant)"
+          *ngIf="
+            performanceService.calculationInProgress.has(variant) &&
+            !variant.userDefined
+          "
           class="spinner-border spinner-border-sm text-primary"
           role="status"
           style="margin-top: 5px"
@@ -62,7 +78,7 @@
       </button>
       <button
         style="padding: 0"
-        *ngIf="isPerformanceAvailable(variant)"
+        *ngIf="isPerformanceAvailable(variant) && !variant.userDefined"
         class="btn"
         (click)="removePerformance(variant)"
         data-bs-toggle="tooltip"
@@ -79,13 +95,46 @@
         'border-color': variant.isSelected ? 'unset' : 'transparent'
       }"
     >
-      <app-variant-fragment
+      <svg
+        appVariantDrawer
         #fragment
         [variant]="variant['variant']"
-      ></app-variant-fragment>
+        [onClickCbFc]="onClickCbFc"
+        [performanceMode]="performanceMode"
+        [computeActivityColor]="computeActivityColor"
+        class="zoom-group-variant"
+      ></svg>
     </div>
   </td>
 </ng-container>
+
+<ng-container *ngIf="isVisible && variant.userDefined && performanceMode">
+  <td>
+    <app-variant-info
+      [variant]="variant"
+      (selectionChanged)="selectionChanged.emit($event)"
+      (updateConformance)="updateConformance.emit($event)"
+    >
+    </app-variant-info>
+  </td>
+
+  <td>
+    <div
+      *ngIf="variant.sub_variants"
+      class="subvariants"
+      (click)="openNewSubvariantWindow(index + 1)"
+    >
+      {{ variant.sub_variants.length }}
+    </div>
+  </td>
+
+  <td *ngIf="sharedDataService.currentDisplayedProcessTree"></td>
+
+  <td>
+    <tspan class="ms-2"> Performance not available </tspan>
+  </td>
+</ng-container>
+
 <td *ngIf="!isVisible">
   <div
     class="variant-spacer"

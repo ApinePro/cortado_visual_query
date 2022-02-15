@@ -126,6 +126,7 @@ export class PerformanceService {
           variants.forEach((v) => this.availablePerformances.add(v));
           this.newValues.next(true);
 
+          console.log('TRIGGERED REDRAW AT PERFROMANCE SERVICE');
           this.sharedDataService.currentDisplayedProcessTree =
             performance.merged_performance_tree;
 
@@ -168,6 +169,7 @@ export class PerformanceService {
   }
 
   public unselectPerformance() {
+    console.log('TRIGGERED REDRAW AT UNSELECT PERFORMANCE');
     this.sharedDataService.currentDisplayedProcessTree = this.clearProcessTree(
       this.sharedDataService.currentDisplayedProcessTree
     );
@@ -231,6 +233,7 @@ export class PerformanceService {
   public setShownVariantPerformance(variant: Variant): void {
     this.activeVariant = variant;
     if (this.variantsPerformance.has(variant)) {
+      console.log('TRIGGERED REDRAW AT SHOW VARIANT PERFORMANCE');
       this.sharedDataService.currentDisplayedProcessTree =
         this.variantsPerformance.get(variant);
     } else {
@@ -249,8 +252,9 @@ export class PerformanceService {
     this.treeSelection.next(undefined);
 
     if (this.currentPt) {
-      this.sharedDataService.currentDisplayedProcessTree =
-        this.clearProcessTree(this.currentPt);
+      console.log('TRIGGERED REDRAW AT CLEAR PERFORMANCE');
+      //this.sharedDataService.currentDisplayedProcessTree =
+      //  this.clearProcessTree(this.currentPt);
     }
   }
 

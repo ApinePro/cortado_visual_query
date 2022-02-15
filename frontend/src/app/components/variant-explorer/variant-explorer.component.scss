@@ -19,11 +19,23 @@
   display: flex;
 }
 
-.btn-tool-bar {
+.btn-tool-bar{
   min-height: 28px;
   display: flex;
   align-items: center;
-  border-top: 0;
+  border-top: 0px;
+}
+
+.variant-cell {
+  padding: 5px;
+  width: 100%;
+}
+
+.variant {
+  border-width: 1px !important;
+  padding: 5px;
+  width: fit-content;
+  border: dashed;
 }
 
 .spacer {
