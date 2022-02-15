@@ -421,6 +421,11 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.accept()
             while True:
                 data = await websocket.receive_json()
+
+                if 'isCancellationRequested' in data:
+                    pool.terminate()
+                    await websocket.close(1000)
+                    return
                 
                 timeout = configuration.timeout_cvariant_alignment_computation
                 if data['timeout'] != 0:

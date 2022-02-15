@@ -4,7 +4,6 @@ import { Constants, LeafNode } from '../components/variant-explorer/model';
 import { PolygonGeneratorService } from './polygon-generator.service';
 import * as d3 from 'd3';
 import { textColorForBackgroundColor } from '../components/variant-explorer/helper_functions';
-import { constants } from 'buffer';
 
 @Injectable({
   providedIn: 'root',
