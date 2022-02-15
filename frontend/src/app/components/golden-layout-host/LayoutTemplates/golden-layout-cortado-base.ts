@@ -2,11 +2,12 @@ import {
   LayoutConfig,
   ItemType,
   ComponentItemConfig,
+  StackItemConfig,
+  RowOrColumnItemConfig,
   Side,
 } from 'golden-layout';
 import { ProcessTreeEditorComponent } from '../../process-tree-editor/process-tree-editor.component';
 import { VariantExplorerComponent } from '../../variant-explorer/variant-explorer.component';
-import { ActivityOverviewComponent } from '../../activity-overview/activity-overview.component';
 import { InfoBoxComponent } from '../../info-box/info-box.component';
 
 export const baseLayout: LayoutConfig = {
@@ -25,20 +26,21 @@ export const baseLayout: LayoutConfig = {
     type: ItemType.column,
     content: [
       {
-        type: ItemType.stack,
-        header: {
-          show: Side.left,
-          maximise: false,
-          popout: false,
-        },
+        type: ItemType.row,
+        isClosable: false,
+
         content: [
           {
             type: 'component',
             title: 'Process Tree Editor',
             isClosable: false,
             height: 61.803,
+            header: {
+              show: Side.left,
+            },
             id: ProcessTreeEditorComponent.componentName,
             componentType: ProcessTreeEditorComponent.componentName,
+            componentState: { cssParentClass: 'process-tree-editor-stack' },
           } as ComponentItemConfig,
         ],
       },
@@ -47,18 +49,22 @@ export const baseLayout: LayoutConfig = {
         height: 38.197,
         content: [
           {
+            type: ItemType.stack,
+            height: 38.197,
             width: 61.803,
-            header: {
-              show: false,
-              maximise: false,
-              popout: false,
-            },
-            type: 'component',
-            title: 'Variant Explorer',
-            isClosable: false,
-            id: VariantExplorerComponent.componentName,
-            componentType: VariantExplorerComponent.componentName,
-          } as ComponentItemConfig,
+            content: [
+              {
+                id: VariantExplorerComponent.componentName,
+                type: 'component',
+                title: 'Variant Explorer',
+                isClosable: false,
+                cssClass: 'highlight',
+                reorderEnabled: false,
+                componentType: VariantExplorerComponent.componentName,
+                componentState: { cssParentClass: 'variant-explorer-stack' },
+              } as ComponentItemConfig,
+            ],
+          } as StackItemConfig,
           {
             type: 'component',
             header: {
@@ -67,11 +73,11 @@ export const baseLayout: LayoutConfig = {
             width: 38.197,
             isClosable: false,
             title: 'Info Box',
-            componentType: InfoBoxComponent.componentName,
             id: InfoBoxComponent.componentName,
+            componentType: InfoBoxComponent.componentName,
           } as ComponentItemConfig,
         ],
-      },
+      } as RowOrColumnItemConfig,
     ],
-  },
+  } as RowOrColumnItemConfig,
 };

@@ -2,7 +2,7 @@
 @import "./@theme/theme";
 @import "~bootstrap-icons/font/bootstrap-icons.css";
 @import "../node_modules/bootstrap/scss/bootstrap";
-
+@import "./styles/custom_golden_layout_styles.scss";
 
 /* You can add global styles to this file, and also import other style files */
 .btn-icon {
@@ -233,7 +233,7 @@ th {
   text-align: left;
   cursor: auto;
 }
-
+/*
 .lm_goldenlayout{
   background-color: rgba(var(--bs-dark-rgb),var(--bs-bg-opacity))!important;
 }
@@ -277,7 +277,7 @@ th {
   padding-bottom: 7.5px;
   margin-top: 2px !important;
 }
-
+*/
 
 .syntax-info ul {
   margin-bottom: 0;

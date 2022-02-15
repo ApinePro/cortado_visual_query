@@ -28,6 +28,9 @@ export class VariantFragmentComponent {
   @Input()
   variant: VariantElement;
 
+  @Input()
+  disablePerformanceMode: boolean = false;
+
   colorMap: Map<string, string>;
 
   svgSelection!: Selection<any, any, any, any>;

@@ -61,6 +61,9 @@ export class VariantComponent implements AfterViewInit {
   @Output()
   public updateConformance = new EventEmitter<Variant>();
 
+  @Output()
+  public openSubvariantWindow = new EventEmitter<number>();
+
   @ViewChild('row')
   rowElement: ElementRef;
 
@@ -91,6 +94,11 @@ export class VariantComponent implements AfterViewInit {
 
   isExpanded(): boolean {
     return this.variant.variant.expanded;
+  }
+
+  openNewSubvariantWindow(index: number) {
+    console.log('Got index:', index);
+    this.openSubvariantWindow.emit(index);
   }
 
   setExpanded(expanded: boolean): void {

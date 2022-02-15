@@ -6,8 +6,8 @@ import {
   ViewChild,
 } from '@angular/core';
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
-import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
+import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 
 @Component({
   selector: 'app-root',
@@ -25,12 +25,17 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     private goldenLayoutComponentService: GoldenLayoutComponentService
   ) {}
 
+  _sideBarWidth: number = 30;
+
   ngAfterViewInit() {
     globalThis.addEventListener('resize', this._windowResizeListener);
     this._goldenLayoutHostComponent.initializeLayout();
     this.goldenLayoutComponentService.goldenLayoutHostComponent =
       this._goldenLayoutHostComponent;
     setTimeout(() => this.resizeGoldenLayout(), 0);
+
+    this.goldenLayoutComponentService.goldenLayoutHostComponent =
+      this._goldenLayoutHostComponent;
   }
 
   // Put the dropzone in front if a File Drag enters

@@ -9,6 +9,15 @@
     >
     </app-variant-info>
   </td>
+  <td>
+    <div
+      *ngIf="variant.sub_variants"
+      class="subvariants"
+      (click)="openNewSubvariantWindow(index + 1)"
+    >
+      {{ variant.sub_variants.length }}
+    </div>
+  </td>
   <td
     *ngIf="sharedDataService.currentDisplayedProcessTree"
     style="text-align: center"
@@ -90,7 +99,6 @@
         appVariantDrawer
         #fragment
         [variant]="variant['variant']"
-        [enrichSelection]="false"
         [onClickCbFc]="onClickCbFc"
         [performanceMode]="performanceMode"
         [computeActivityColor]="computeActivityColor"
@@ -108,6 +116,16 @@
       (updateConformance)="updateConformance.emit($event)"
     >
     </app-variant-info>
+  </td>
+
+  <td>
+    <div
+      *ngIf="variant.sub_variants"
+      class="subvariants"
+      (click)="openNewSubvariantWindow(index + 1)"
+    >
+      {{ variant.sub_variants.length }}
+    </div>
   </td>
 
   <td *ngIf="sharedDataService.currentDisplayedProcessTree"></td>

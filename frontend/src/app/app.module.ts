@@ -25,6 +25,7 @@ import { InfoBoxComponent } from './components/info-box/info-box.component';
 import { VariantSelectionButtonComponent } from './components/variant-explorer/variant-selection-button/variant-selection-button.component';
 import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
+import { SubvariantExplorerComponent } from './components/variant-explorer/subvariant-explorer/subvariant-explorer.component';
 import { VariantColorMapComponent } from './components/variant-performance/variant-color-map/variant-color-map.component';
 import { NodeSelectionPerformanceComponent } from './components/performance/node-selection-performance/node-selection-performance.component';
 import { PerformanceTableComponent } from './components/performance/performance-table/performance-table.component';
@@ -40,6 +41,7 @@ import { VariantEditorComponent } from './components/variant-editor/variant-edit
 import { VariantDrawerDirective } from './directives/variant-drawer.directive';
 import { VariantComponent } from './components/variant-explorer/variant/variant.component';
 import { VariantConformanceDialogComponent } from './components/variant-explorer/variant-conformance-dialog/variant-conformance-dialog.component';
+import { SubVariantComponent } from './components/variant-explorer/sub-variant/sub-variant.component';
 import { ActivityButtonAreaComponent } from './components/variant-editor/activity-button-area/activity-button-area.component';
 import { HeaderBarComponent } from './components/header-bar/header-bar.component';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
@@ -61,6 +63,7 @@ import { DialogModule } from './components/dialogs/dialog.module';
     InfoBoxComponent,
     ActivityOverviewComponent,
     ProcessTreeEditorComponent,
+    SubvariantExplorerComponent,
     VariantInfoComponent,
     VariantColorMapComponent,
     VariantSelectionButtonComponent,
@@ -83,6 +86,7 @@ import { DialogModule } from './components/dialogs/dialog.module';
     VariantDrawerDirective,
     ActivityButtonAreaComponent,
     VariantComponent,
+    SubVariantComponent,
     HeaderBarComponent,
   ],
   imports: [

@@ -1,6 +1,7 @@
 import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import {
+  ComponentItem,
   ComponentItemConfig,
   GoldenLayout,
   LayoutManager,
@@ -47,6 +48,7 @@ import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { VariantSorter } from './variant-sorter';
 import * as objectHash from 'object-hash';
 import { VariantComponent } from './variant/variant.component';
+import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
 import { ProcessTreeEditorComponent } from '../process-tree-editor/process-tree-editor.component';
 import { VariantEditorComponent } from '../variant-editor/variant-editor.component';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
@@ -123,6 +125,10 @@ export class VariantExplorerComponent
 
   _goldenLayoutHostComponent: GoldenLayoutHostComponent;
   _goldenLayout: GoldenLayout;
+  _subvariantcomponentItemsMap: Map<string, ComponentItem> = new Map<
+    string,
+    ComponentItem
+  >();
 
   dropZoneConfig: DropzoneConfig;
   public isAscendingOrder: boolean = false;
@@ -264,6 +270,15 @@ export class VariantExplorerComponent
     this._goldenLayoutHostComponent =
       this.goldenLayoutComponentService.goldenLayoutHostComponent;
     this._goldenLayout = this.goldenLayoutComponentService.goldenLayout;
+
+    console.log(this._goldenLayoutHostComponent);
+    console.log(this._goldenLayout);
+
+    const variantExplorerItem = this._goldenLayout.findFirstComponentItemById(
+      VariantExplorerComponent.componentName
+    );
+
+    variantExplorerItem.focus();
 
     this.variantPerformanceService.serviceTimeColorMap.subscribe((colorMap) => {
       if (colorMap !== undefined) {
@@ -429,6 +444,93 @@ export class VariantExplorerComponent
     }
 
     this.addSelectedVariantsToModelForGivenConformance(selectedVariants);
+  }
+
+  createSubVariantView(index) {
+    console.log('Creating Window at', index);
+
+    const LocationSelectors: LayoutManager.LocationSelector[] = [
+      {
+        typeId: LayoutManager.LocationSelector.TypeId.FocusedStack,
+        index: undefined,
+      },
+    ];
+
+    this.cleanUpSubVariantMap();
+
+    const id =
+      SubvariantExplorerComponent.componentName + this.variants[index - 1].id;
+
+    let componentItem = this._subvariantcomponentItemsMap.get(id);
+
+    // Check if the component item reference already is stored and if the item still exists
+    // Saves on a search by ID
+    if (componentItem) {
+      componentItem.focus();
+
+      // Instantiate a new Subvariant Component for this variant if it did not exist or is closed
+    } else {
+      const variantExplorerItem = this._goldenLayout.findFirstComponentItemById(
+        VariantExplorerComponent.componentName
+      );
+      variantExplorerItem.focus();
+      const itemConfig: ComponentItemConfig = {
+        id: id,
+        type: 'component',
+        title: 'Sub-Variant ' + index,
+        isClosable: true,
+        reorderEnabled: false,
+        componentState: this.variants[index - 1],
+        componentType: SubvariantExplorerComponent.componentName,
+      };
+
+      this._goldenLayout.addItemAtLocation(itemConfig, LocationSelectors);
+      componentItem = this._goldenLayout.findFirstComponentItemById(id);
+      this._subvariantcomponentItemsMap.set(id, componentItem);
+
+      componentItem.focus();
+    }
+  }
+
+  closeAllSubvariantWindows(): void {
+    this._subvariantcomponentItemsMap.forEach((value) => {
+      if (
+        value &&
+        this._goldenLayoutHostComponent.getComponentRef(value.container)
+      ) {
+        value.close();
+      }
+    });
+
+    // Reset the Map to empty
+    this._subvariantcomponentItemsMap = new Map<string, ComponentItem>();
+  }
+
+  updateAllSubvariantWindows(): void {
+    for (let index = 0; index < this.variants.length; index++) {
+      const id =
+        SubvariantExplorerComponent.componentName + this.variants[index].id;
+      let componentItem = this._subvariantcomponentItemsMap.get(id);
+      if (componentItem) {
+        componentItem.setTitle('Sub-Variant ' + (index + 1));
+      }
+    }
+  }
+
+  cleanUpSubVariantMap() {
+    for (let index = 0; index < this.variants.length; index++) {
+      const id =
+        SubvariantExplorerComponent.componentName + this.variants[index].id;
+      let componentItem = this._subvariantcomponentItemsMap.get(id);
+      if (
+        componentItem &&
+        !this._goldenLayoutHostComponent.getComponentRef(
+          componentItem.container
+        )
+      ) {
+        this._subvariantcomponentItemsMap.delete(id);
+      }
+    }
   }
 
   getSelectedVariants(): Variant[] {
@@ -769,6 +871,7 @@ export class VariantExplorerComponent
       this.isAscendingOrder
     );
     this.variantExplorerDiv.nativeElement.scroll(0, 0);
+    this.updateAllSubvariantWindows();
   }
 
   onSortOrderChanged(isAscending: boolean): void {
