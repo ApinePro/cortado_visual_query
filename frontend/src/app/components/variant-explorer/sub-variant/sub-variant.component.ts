@@ -61,7 +61,7 @@ export class SubVariantComponent implements AfterViewInit {
       .attr('x2', ([_, d]) => xScale(d[1][0]))
       .attr('y1', ([_, d]) => yScale(d[0][1]))
       .attr('y2', ([_, d]) => yScale(d[1][1]))
-      .attr("stroke-width", ([_,d]) => 2*Constants.POINT_RADIUS);
+      .attr('stroke-width', ([_, d]) => 2 * Constants.POINT_RADIUS);
 
     const circles = g
       .selectAll('circle')
