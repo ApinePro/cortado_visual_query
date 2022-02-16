@@ -81,7 +81,7 @@ export class SubVariantComponent implements AfterViewInit {
       .filter(([_, d]) => d.length === 2)
       .append('text')
       .attr('x', ([_, d]) => xScale(d[0][0] + (d[1][0] - d[0][0]) / 2))
-      .attr('y', ([_, d]) => yScale(d[0][1]) - Constants.POINT_RADIUS)
+      .attr('y', ([_, d]) => yScale(d[0][1]) - Constants.POINT_RADIUS - 5)
       .style('text-anchor', 'middle')
       .style('fill', 'whitesmoke')
       .text(([_, d]) => d[0][2]);
