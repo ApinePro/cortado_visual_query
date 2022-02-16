@@ -112,6 +112,10 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       changes.performanceMode &&
       !changes.performanceMode.firstChange
     ) {
+      if (changes.performanceMode.currentValue) {
+        this.variant.setExpanded(true);
+      }
+
       this.redraw();
       this.setInspectVariant();
     }
@@ -270,7 +274,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     element: LeafNode,
     parent: Selection<any, any, any, any>
   ): void {
-    const width = element.getWidth();
+    const width = element.getWidth(true);
     const height = element.getHeight();
 
     const polygonPoints = this.polygonService.getPolygonPoints(width, height);

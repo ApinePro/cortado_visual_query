@@ -109,6 +109,7 @@ export class VariantExplorerComponent
 
   public correctTreeSyntax = false;
   performanceMode: boolean = false;
+  expansionState: Map<string, boolean> = new Map<string, boolean>();
   performanceColorMap: any;
   waitingColorMap: any;
 
@@ -529,6 +530,17 @@ export class VariantExplorerComponent
   }
 
   setPerformanceMode(performanceMode: boolean): void {
+    if (performanceMode) {
+      this.variants.map((variant) => {
+        this.expansionState.set(variant.id, variant.variant.getExpanded());
+      });
+    } else {
+      // Return everything to its previous state
+      this.variants.forEach((variant, i) =>
+        variant.variant.setExpanded(this.expansionState.get(variant.id))
+      );
+    }
+
     this.performanceMode = performanceMode;
     this.variantPerformanceService.variantPerformanceMode.next(performanceMode);
   }
