@@ -197,6 +197,8 @@ export class VariantExplorerComponent
 
     this.sharedDataService.loadedEventLog$.subscribe((eventLog) => {
       if (eventLog) {
+        this.performanceMode = false;
+        this.variantPerformanceService.variantPerformanceMode.next(false);
         this.eventLogChanged();
       }
     });
