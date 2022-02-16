@@ -357,7 +357,10 @@ export class LeafNode extends VariantElement {
     return this.height;
   }
 
-  public getWidth(includeWaiting = false, full_text_width: boolean = false): number {
+  public getWidth(
+    includeWaiting = false,
+    full_text_width: boolean = false
+  ): number {
     if (this.width) {
       return this.width;
     }
