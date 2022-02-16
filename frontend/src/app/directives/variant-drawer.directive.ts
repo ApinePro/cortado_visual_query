@@ -274,7 +274,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     element: LeafNode,
     parent: Selection<any, any, any, any>
   ): void {
-    const width = element.getWidth(true);
+    const width = element.getWidth();
     const height = element.getHeight();
 
     const polygonPoints = this.polygonService.getPolygonPoints(width, height);
