@@ -37,7 +37,7 @@ export class PolygonDrawingService {
     let offsetX = Constants.LEGEND_MARGIN_X;
     let parent_width = 0;
 
-    let width = Math.max(...elements.map((e) => e.getWidth(true)));
+    let width = Math.max(...elements.map((e) => e.getWidth(false, true)));
     let height = elements[0].getHeight();
 
     parent

@@ -357,11 +357,14 @@ export class LeafNode extends VariantElement {
     return this.height;
   }
 
-  public getWidth(full_text_width: boolean = false): number {
+  public getWidth(
+    includeWaiting = false,
+    full_text_width: boolean = false
+  ): number {
     if (this.width) {
       return this.width;
     }
-    if (this.expanded) {
+    if (this.expanded || includeWaiting) {
       this.width = Constants.LEAF_WIDTH_EXPANDED;
     } else if (full_text_width) {
       this.width = this.activity[0].length * Constants.CHAR_WIDTH;
