@@ -36,8 +36,6 @@ export const baseLayout: LayoutConfig = {
             type: ItemType.stack,
             header: {
               show: Side.left,
-              maximise: false,
-              popout: false,
             },
             content: [
               {

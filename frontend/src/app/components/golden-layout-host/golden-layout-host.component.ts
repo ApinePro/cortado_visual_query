@@ -269,7 +269,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
       container.component instanceof VariantExplorerComponent
     ) {
       // Triggers a Redraw, to prevent faulty rendering after minimization
-      this.goldenLayout.setSize(
+        this.goldenLayout.setSize(
         this.goldenLayout.width + 4,
         this.goldenLayout.height
       );
