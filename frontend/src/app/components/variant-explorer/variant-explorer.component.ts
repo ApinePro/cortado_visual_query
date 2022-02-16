@@ -198,7 +198,7 @@ export class VariantExplorerComponent
 
     this.sharedDataService.loadedEventLog$.subscribe((eventLog) => {
       if (eventLog) {
-        this.closeAllSubvariantWindows()
+        this.closeAllSubvariantWindows();
         this.eventLogChanged();
       }
     });
