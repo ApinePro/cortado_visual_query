@@ -112,6 +112,10 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       changes.performanceMode &&
       !changes.performanceMode.firstChange
     ) {
+      if (changes.performanceMode.currentValue) {
+        this.variant.setExpanded(true);
+      }
+
       this.redraw();
       this.setInspectVariant();
     }
