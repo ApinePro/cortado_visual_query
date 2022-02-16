@@ -127,6 +127,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     if (this.variant) {
       const height = this.variant.recalculateHeight(this.performanceMode);
       const width = this.variant.recalculateWidth(this.performanceMode);
+
       this.variant.updateWidth(this.performanceMode);
 
       d3.select(this.svgHtmlElement.nativeElement)
