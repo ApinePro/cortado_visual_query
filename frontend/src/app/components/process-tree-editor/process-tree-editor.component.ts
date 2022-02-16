@@ -367,8 +367,6 @@ export class ProcessTreeEditorComponent
   }
 
   handleVisibilityChange(visibile: boolean): void {
-    console.log('Visibility', visibile);
-
     if (this.root && visibile) {
       clearTimeout(this.resizeTimer);
 

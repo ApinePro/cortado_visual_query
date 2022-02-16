@@ -21,7 +21,6 @@ export const baseLayout: LayoutConfig = {
     minItemWidth: 350,
   },
   settings: {
-    showMaximiseIcon: false,
     showPopoutIcon: false,
     constrainDragToContainer: true,
   },
@@ -37,8 +36,6 @@ export const baseLayout: LayoutConfig = {
             type: ItemType.stack,
             header: {
               show: Side.left,
-              maximise: false,
-              popout: false,
             },
             content: [
               {

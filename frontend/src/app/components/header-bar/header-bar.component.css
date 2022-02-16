@@ -63,6 +63,7 @@
   background-color: var(--box-background-color) ;
   transform : translate(0, 22px) !important;
   border-radius: 0;
+  z-index :  100;
 }
 
 .icon{

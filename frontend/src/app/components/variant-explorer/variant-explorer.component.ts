@@ -6,6 +6,7 @@ import {
   GoldenLayout,
   LayoutManager,
   LogicalZIndex,
+  Stack,
 } from 'golden-layout';
 import {
   Component,
@@ -99,6 +100,7 @@ export class VariantExplorerComponent
   }
 
   collapse: boolean = false;
+  maximized: boolean = false;
 
   public variants: Variant[] = [];
   public colorMap: Map<string, string>;
@@ -197,6 +199,7 @@ export class VariantExplorerComponent
 
     this.sharedDataService.loadedEventLog$.subscribe((eventLog) => {
       if (eventLog) {
+        this.closeAllSubvariantWindows();
         this.performanceMode = false;
         this.variantPerformanceService.variantPerformanceMode.next(false);
         this.eventLogChanged();
@@ -235,9 +238,6 @@ export class VariantExplorerComponent
     this._goldenLayoutHostComponent =
       this.goldenLayoutComponentService.goldenLayoutHostComponent;
     this._goldenLayout = this.goldenLayoutComponentService.goldenLayout;
-
-    console.log(this._goldenLayoutHostComponent);
-    console.log(this._goldenLayout);
 
     const variantExplorerItem = this._goldenLayout.findFirstComponentItemById(
       VariantExplorerComponent.componentName
@@ -417,6 +417,8 @@ export class VariantExplorerComponent
   }
 
   createSubVariantView(index) {
+    const currently_maximized = this.maximized;
+
     const LocationSelectors: LayoutManager.LocationSelector[] = [
       {
         typeId: LayoutManager.LocationSelector.TypeId.FocusedStack,
@@ -441,13 +443,16 @@ export class VariantExplorerComponent
       const variantExplorerItem = this._goldenLayout.findFirstComponentItemById(
         VariantExplorerComponent.componentName
       );
+
       variantExplorerItem.focus();
+
       const itemConfig: ComponentItemConfig = {
         id: id,
         type: 'component',
         title: 'Sub-Variant ' + index,
         isClosable: true,
         reorderEnabled: false,
+        maximised: true,
         componentState: this.variants[index - 1],
         componentType: SubvariantExplorerComponent.componentName,
       };
@@ -456,7 +461,13 @@ export class VariantExplorerComponent
       componentItem = this._goldenLayout.findFirstComponentItemById(id);
       this._subvariantcomponentItemsMap.set(id, componentItem);
 
-      componentItem.focus();
+      // Keep the stack maximized
+      if (currently_maximized) {
+        const stack = componentItem.container.parent.parent as Stack;
+        stack.toggleMaximise();
+      }
+
+      variantExplorerItem.focus();
     }
   }
 
@@ -627,7 +638,9 @@ export class VariantExplorerComponent
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
     defaultZIndex: string
-  ): void {}
+  ): void {
+    this.maximized = logicalZIndex === 'stackMaximised';
+  }
 
   performanceAvailable(): boolean {
     return this.performanceService.mergedPerformance !== undefined;
