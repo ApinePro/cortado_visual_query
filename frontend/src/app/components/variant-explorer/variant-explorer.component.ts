@@ -100,7 +100,7 @@ export class VariantExplorerComponent
   }
 
   collapse: boolean = false;
-  maximized : boolean = false;
+  maximized: boolean = false;
 
   public variants: Variant[] = [];
   public colorMap: Map<string, string>;
@@ -192,6 +192,7 @@ export class VariantExplorerComponent
 
     this.sharedDataService.loadedEventLog$.subscribe((eventLog) => {
       if (eventLog) {
+        this.closeAllSubvariantWindows()
         this.eventLogChanged();
       }
     });
@@ -402,7 +403,6 @@ export class VariantExplorerComponent
   }
 
   createSubVariantView(index) {
-
     const currently_maximized = this.maximized;
 
     const LocationSelectors: LayoutManager.LocationSelector[] = [
@@ -438,30 +438,23 @@ export class VariantExplorerComponent
         title: 'Sub-Variant ' + index,
         isClosable: true,
         reorderEnabled: false,
-        maximised : true,
+        maximised: true,
         componentState: this.variants[index - 1],
         componentType: SubvariantExplorerComponent.componentName,
       };
-
-
-
 
       this._goldenLayout.addItemAtLocation(itemConfig, LocationSelectors);
       componentItem = this._goldenLayout.findFirstComponentItemById(id);
       this._subvariantcomponentItemsMap.set(id, componentItem);
 
       // Keep the stack maximized
-      if(currently_maximized){
-        const stack = (componentItem.container.parent.parent as Stack)
-        stack.toggleMaximise()
+      if (currently_maximized) {
+        const stack = componentItem.container.parent.parent as Stack;
+        stack.toggleMaximise();
       }
 
       variantExplorerItem.focus();
-
-
     }
-
-
   }
 
   closeAllSubvariantWindows(): void {
@@ -621,7 +614,7 @@ export class VariantExplorerComponent
     logicalZIndex: LogicalZIndex,
     defaultZIndex: string
   ): void {
-    this.maximized = logicalZIndex === 'stackMaximised'
+    this.maximized = logicalZIndex === 'stackMaximised';
   }
 
   performanceAvailable(): boolean {

@@ -324,7 +324,6 @@ export class ProcessTreeEditorComponent
   }
 
   handleVisibilityChange(visibile: boolean): void {
-
     if (this.root && visibile) {
       clearTimeout(this.resizeTimer);
 
