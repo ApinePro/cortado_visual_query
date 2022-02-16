@@ -71,6 +71,14 @@ thead th {
   width: 50px
 }
 
+.activity-name-input {
+  background: transparent;
+  height: 20px;
+  width: 100%;
+  color: var(--text-secondary);
+  border: none
+}
+
 .color-picker-cell {
   height: 1px
 }

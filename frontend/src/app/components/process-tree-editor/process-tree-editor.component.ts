@@ -143,6 +143,49 @@ export class ProcessTreeEditorComponent
       '<large> Import <strong>Process Tree</strong> .ptml file</large>'
     );
 
+    this.sharedDataService.activityNamesChanged$.subscribe(
+      (activityNameMapping) => {
+        if (this.root && this.currentlyDisplayedTreeInEditor) {
+          // Function to relabel process tree
+          const relabelProcessTreeRecursive = function (
+            mapping: Map<string, string>,
+            tree: ProcessTree
+          ): void {
+            if (tree.label && tree.label !== '\u03C4') {
+              tree.label = mapping.get(tree.label);
+            }
+            if (tree.children) {
+              for (let child of tree.children) {
+                relabelProcessTreeRecursive(mapping, child);
+              }
+            }
+          };
+
+          // Function to relabel the d3 tree
+          const relabelRootNodeRecursive = function (
+            mapping: Map<string, string>,
+            tree: d3.HierarchyNode<any>
+          ): void {
+            if (tree.data.label && tree.data.label !== '\u03C4') {
+              tree.data.label = mapping.get(tree.data.label);
+            }
+            if (tree.children) {
+              for (let child of tree.children) {
+                relabelRootNodeRecursive(mapping, child);
+              }
+            }
+          };
+
+          // Relabel the currently displayed tree
+          relabelRootNodeRecursive(activityNameMapping, this.root);
+
+          // Tell shared data service
+          this.sharedDataService.currentDisplayedProcessTree =
+            this.getProcessTreeObject(this.root);
+        }
+      }
+    );
+
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.activityColorMap = colorMap;
       if (this.root) {
