@@ -103,7 +103,10 @@ export class VariantComponent implements AfterViewInit {
   setExpanded(expanded: boolean): void {
     if (!this.performanceMode && expanded != this.variant.variant.expanded) {
       this.variant.variant.setExpanded(expanded);
-      this.variantDrawer.redraw();
+
+      if (this.variantDrawer) {
+        this.variantDrawer.redraw();
+      }
     }
   }
 
