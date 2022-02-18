@@ -449,7 +449,7 @@ export class VariantExplorerComponent
       const itemConfig: ComponentItemConfig = {
         id: id,
         type: 'component',
-        title: 'Sub-Variant ' + index,
+        title: 'Sub-Variants for ' + index,
         isClosable: true,
         reorderEnabled: false,
         maximised: true,
@@ -491,7 +491,7 @@ export class VariantExplorerComponent
         SubvariantExplorerComponent.componentName + this.variants[index].id;
       let componentItem = this._subvariantcomponentItemsMap.get(id);
       if (componentItem) {
-        componentItem.setTitle('Sub-Variant ' + (index + 1));
+        componentItem.setTitle('Sub-Variants for ' + (index + 1));
       }
     }
   }

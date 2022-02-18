@@ -34,6 +34,9 @@ export class SubvariantExplorerComponent
   @ViewChildren(SubVariantComponent)
   subVariantComponents: QueryList<SubVariantComponent>;
 
+  public sortAscending: boolean;
+  public sortOrderTextDisplay: string;
+
   constructor(
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
@@ -47,6 +50,7 @@ export class SubvariantExplorerComponent
     this.colorMap = this.colorMapService.getColorMap(
       Object.keys(this.sharedDataService.activitiesInEventLog)
     );
+    this.sortAscending = false;
   }
 
   ngAfterViewInit() {
@@ -108,6 +112,24 @@ export class SubvariantExplorerComponent
   ) => {
     this.toggleExpanded();
   };
+
+  toggleSortOrder(): void {
+    this.sortAscending = !this.sortAscending;
+    this.sortSubvariants('count');
+  }
+
+  sortSubvariants(sortAttribute: string): void {
+    const order = this.sortAscending ? 1 : -1;
+    const subvariantSortFunction = (a, b) => {
+      if (a[sortAttribute] < b[sortAttribute]) {
+        return -order;
+      } else if (a[sortAttribute] > b[sortAttribute]) {
+        return order;
+      } else return order;
+    };
+
+    this.mainVariant.sub_variants.sort(subvariantSortFunction);
+  }
 }
 
 export namespace SubvariantExplorerComponent {
