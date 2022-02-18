@@ -14,6 +14,10 @@ export class VariantSorter {
       sortFn = VariantSorter.conformanceSorting;
     }
 
+    if (sortKey == 'sub_variants') {
+      sortFn = VariantSorter.subvariantsSorting;
+    }
+
     return variants.sort((a: Variant, b: Variant) =>
       VariantSorter.applyOrder(sortFn(a, b), isAscendingOrder)
     );
@@ -23,6 +27,16 @@ export class VariantSorter {
     if (a[sortAttribute] < b[sortAttribute]) {
       return -1;
     } else if (a[sortAttribute] > b[sortAttribute]) {
+      return 1;
+    } else {
+      return a.id > b.id ? 1 : -1;
+    }
+  }
+
+  static subvariantsSorting(a: Variant, b: Variant) {
+    if (a['sub_variants'].length < b['sub_variants'].length) {
+      return -1;
+    } else if (a['sub_variants'].length > b['sub_variants'].length) {
       return 1;
     } else {
       return a.id > b.id ? 1 : -1;
