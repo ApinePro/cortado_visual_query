@@ -208,6 +208,16 @@
         </div>
         <div
           class="dropdown-item"
+          (click)="sort('sub_variants')"
+          [ngClass]="
+            sortingFeature === 'sub_variants' ? 'selected-dropdown-item' : ''
+          "
+        >
+          <i class="bi bi-bar-chart-steps"></i>
+          <span class="ms-3">sub-variants</span>
+        </div>
+        <div
+          class="dropdown-item"
           (click)="sort('userDefined')"
           [ngClass]="
             sortingFeature === 'userDefined' ? 'selected-dropdown-item' : ''
