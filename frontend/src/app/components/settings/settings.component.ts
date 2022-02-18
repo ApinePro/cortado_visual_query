@@ -25,6 +25,7 @@ export class SettingsComponent implements OnInit {
     this.showSettings.subscribe(() => this.showModal());
     this.configForm = this.fb.group({
       timeoutCVariantAlignmentComputation: [null, Validators.required],
+      minTracesVariantDetectionMultiprocessing: [null, Validators.required],
     });
   }
 

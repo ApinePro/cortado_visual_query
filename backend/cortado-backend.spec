@@ -1,7 +1,8 @@
 # -*- mode: python ; coding: utf-8 -*-
 block_cipher = None
 
-import sys 
+import sys
+import glob
 sys.setrecursionlimit(sys.getrecursionlimit() * 5)
 
 # https://stackoverflow.com/a/48068640
@@ -17,8 +18,12 @@ for package, files in packages_datas:
     print(proot)
     datas.extend((os.path.join(proot, source), os.path.join(package, target)) for (source, target) in files)
 
-datas.append(( './*.p', '.' ))
-datas.append(( './*.ini', '.' ))
+
+if glob.glob('./*.p'):
+    datas.append(( './*.p', '.' ))
+
+if glob.glob('./*.ini'):
+    datas.append(( './*.ini', '.' ))
 
 packages_binaries = ['cvxopt']
 binaries = []
