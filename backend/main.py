@@ -13,7 +13,7 @@ import pm4pycvxopt
 import traceback
 
 import uvicorn
-from fastapi import FastAPI, File, HTTPException, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, File, UploadFile, WebSocket, WebSocketDisconnect, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, JSONResponse
 from fastapi.exceptions import RequestValidationError
@@ -21,7 +21,7 @@ from pydantic import BaseModel, Field
 from pm4py.objects.process_tree.utils import generic as tree_util
 
 import pm4py.objects.log.importer.xes.importer as xes_importer
-from backend_utilities.configuration.repository import Configuration as DomainConfiguration
+from backend_utilities.configuration.repository import Configuration as DomainConfiguration, ConfigurationRepository
 from backend_utilities.configuration.repository import ConfigurationRepositoryFactory
 from backend_utilities.process_tree_conversion import dict_to_process_tree
 from backend_utilities.process_tree_conversion import process_tree_to_dict
@@ -50,14 +50,7 @@ from pm4py.objects.process_tree.importer.importer import apply as import_pt_from
 from pm4py.objects.process_tree.obj import ProcessTree
 from pm4py.objects.process_tree.utils.generic import parse
 from pm4py.objects.bpmn.exporter.variants.etree import get_xml_string as generate_bpmn_xml
-
-
 from error_handlers import exception_handler, http_exception_handler, validation_exception_handler
-
-config = configparser.ConfigParser()
-config.read('config.ini')
-# Decide when to use multiprocessing for event log
-min_traces_variant_detection_mp = int(config['MULTIPROCESSING']['MIN_TRACES_VARIANT_DETECTION_MULTIPROCESSING'])
 
 app = FastAPI()
 origins = [
@@ -74,6 +67,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+def get_config_repo():
+    return ConfigurationRepositoryFactory.get_config_repository()
+
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
@@ -86,13 +82,13 @@ async def startup_event():
 
  
 @app.post("/uploadfile")
-async def create_upload_file(file: UploadFile = File(...)):
+async def create_upload_file(file: UploadFile = File(...), config_repo: ConfigurationRepository = Depends(get_config_repo)):
     global pcache
     pcache = {}
 
     content = "".join([line.decode("UTF-8") for line in file.file])
     event_log = xes_importer.deserialize(content)
-    use_mp = len(event_log) > min_traces_variant_detection_mp
+    use_mp = len(event_log) > config_repo.get_configuration().min_traces_variant_detection_mp
     info = calculate_event_log_properties(event_log, use_mp)
     return info
 
@@ -102,13 +98,13 @@ class FilePathInput(BaseModel):
 
 
 @app.post("/loadEventLog")
-async def load_event_log_from_file_path(d: FilePathInput):
+async def load_event_log_from_file_path(d: FilePathInput, config_repo: ConfigurationRepository = Depends(get_config_repo)):
     global event_log
     global pcache
     pcache = {}
 
     event_log = xes_import(d.file_path)
-    use_mp = len(event_log) > min_traces_variant_detection_mp
+    use_mp = len(event_log) > config_repo.get_configuration().min_traces_variant_detection_mp
     info = calculate_event_log_properties(event_log, use_mp)
     return info
 
@@ -462,24 +458,25 @@ async def websocket_endpoint(websocket: WebSocket):
 
 class Configuration(BaseModel):
     timeout_cvariant_alignment_computation: int = Field(alias='timeoutCVariantAlignmentComputation')
+    min_traces_variant_detection_mp: int = Field(alias="minTracesVariantDetectionMultiprocessing")
 
     class Config:
         allow_population_by_field_name = True
 
 
 @app.post("/saveConfiguration")
-async def save_configuration(config_dto: Configuration):
-    config_repository = ConfigurationRepositoryFactory.get_config_repository()
+async def save_configuration(config_dto: Configuration, config_repository: ConfigurationRepository = Depends(get_config_repo)):
     config = DomainConfiguration(
-        timeout_cvariant_alignment_computation=config_dto.timeout_cvariant_alignment_computation)
+        timeout_cvariant_alignment_computation=config_dto.timeout_cvariant_alignment_computation,
+        min_traces_variant_detection_mp=config_dto.min_traces_variant_detection_mp)
     config_repository.save_configuration(config)
 
 
 @app.get("/getConfiguration")
-async def get_configuration():
-    config_repository = ConfigurationRepositoryFactory.get_config_repository()
-    config = config_repository.get_configuration()
-    config_dto = Configuration(timeout_cvariant_alignment_computation=config.timeout_cvariant_alignment_computation)
+async def get_configuration(config_repo: ConfigurationRepository = Depends(get_config_repo)):
+    config = config_repo.get_configuration()
+    config_dto = Configuration(timeout_cvariant_alignment_computation=config.timeout_cvariant_alignment_computation,
+                               min_traces_variant_detection_mp=config.min_traces_variant_detection_mp)
     return config_dto
 
 
