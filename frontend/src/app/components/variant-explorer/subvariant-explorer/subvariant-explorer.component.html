@@ -1,5 +1,58 @@
 <div class="d-flex flex-column h-100 container-variant-explorer">
   <div class="main-variant-explorer flex-grow-1">
+    <div class="bg-dark btn-tool-bar">
+      <span class="vl ms-auto"></span>
+      <div
+        *ngIf="sortAscending"
+        class="btn-group align-baseline"
+        data-bs-toggle="tooltip"
+        data-bs-html="true"
+        title="Sort subvariants by frequency
+        <br/>Click to change sort order
+        <br/>Current sort order: ascending"
+      >
+        <button
+          class="button"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          (click)="toggleSortOrder()"
+        >
+          <i
+            [ngClass]="
+              sortAscending
+                ? 'bi bi-sort-numeric-down btn-icon'
+                : 'bi bi-sort-numeric-down-alt btn-icon'
+            "
+          ></i>
+        </button>
+      </div>
+      <div
+        *ngIf="!sortAscending"
+        class="btn-group align-baseline"
+        data-bs-toggle="tooltip"
+        data-bs-html="true"
+        title="Sort subvariants by frequency
+        <br/>Click to change sort order
+        <br/>Current sort order: descending"
+      >
+        <button
+          class="button"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          (click)="toggleSortOrder()"
+        >
+          <i
+            [ngClass]="
+              sortAscending
+                ? 'bi bi-sort-numeric-down btn-icon'
+                : 'bi bi-sort-numeric-down-alt btn-icon'
+            "
+          ></i>
+        </button>
+      </div>
+    </div>
     <div class="d-flex">
       <div class="chart-variant__percentage">
         <!-- Using the same components as on the main explorer to visualize the base variant of the subvariant explorer--->
@@ -28,7 +81,9 @@
           <tr
             *ngFor="let subVariant of mainVariant.sub_variants; let j = index"
           >
-            <td></td>
+            <td style="padding-right: 15px; padding-left: 5px">
+              {{ mainVariant.number }}.{{ j + 1 }}
+            </td>
             <td style="text-align: start">
               <small
                 class="cursor-help"
