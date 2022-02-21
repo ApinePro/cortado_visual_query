@@ -41,7 +41,7 @@ export class SubVariantComponent implements AfterViewInit {
     this.draw();
   }
 
-  draw(): void {
+  draw(textColor: string = 'whitesmoke'): void {
     const intervalWidth = !this.expanded
       ? Constants.INTERVAL_LENGTH
       : Constants.INTERVAL_LENGTH * 1.5;
@@ -83,7 +83,7 @@ export class SubVariantComponent implements AfterViewInit {
       .attr('x', ([_, d]) => xScale(d[0][0] + (d[1][0] - d[0][0]) / 2))
       .attr('y', ([_, d]) => yScale(d[0][1]) - Constants.POINT_RADIUS - 5)
       .style('text-anchor', 'middle')
-      .style('fill', 'whitesmoke')
+      .style('fill', textColor)
       .text(([_, d]) => d[0][2]);
 
     texts.each((a, b, c) => {
