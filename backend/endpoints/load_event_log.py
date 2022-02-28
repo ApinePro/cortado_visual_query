@@ -43,7 +43,11 @@ def calculate_event_log_properties(event_log: EventLog, use_mp: bool = False):
 
 def get_simple_variants(event_log: EventLog):
     global variants_store
+    global logVariants
+    
     variants = variants_filter.get_variants(event_log)
+    logVariants = variants
+    
     total_traces = len(event_log)
     res_variants = []
     for v in variants:
@@ -70,7 +74,11 @@ def get_simple_variants(event_log: EventLog):
 
 def get_c_variants(event_log: EventLog, use_mp: bool = False):
     global variants_store
+    global logVariants
+     
     variants = get_concurrency_variants(event_log, use_mp)
+    logVariants = variants
+    
     total_traces = len(event_log)
     res_variants = []
     for v in variants:

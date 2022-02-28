@@ -1,3 +1,4 @@
+import { VariantMinerComponent } from './../variant-miner/variant-miner.component';
 import { GoldenLayoutDummyComponent } from './golden-layout-dummy/golden-layout-dummy.component';
 import {
   Component,
@@ -82,6 +83,11 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     this.goldenLayoutComponentService.registerComponentType(
       SubvariantExplorerComponent.componentName,
       SubvariantExplorerComponent
+    );
+
+    this.goldenLayoutComponentService.registerComponentType(
+      VariantMinerComponent.componentName,
+      VariantMinerComponent
     );
 
     this.goldenLayoutComponentService.registerComponentType(

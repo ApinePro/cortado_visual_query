@@ -9,6 +9,7 @@ import { dummy_tree } from './debug_tree.js';
   providedIn: 'root',
 })
 export class SharedDataService {
+
   constructor() {}
 
   public computedTextLengthCache = new Map<string, number>();
@@ -186,6 +187,16 @@ export class SharedDataService {
 
   get selectedRootNodeID(): number {
     return this._selectedRootNodeID.getValue();
+  }
+
+  private _frequentMiningResults = new BehaviorSubject<Object>(null);
+
+  get frequentMiningResults$(): Observable<Object> {
+    return this._frequentMiningResults.asObservable();
+  }
+
+  set frequentMiningResults(res: Object) {
+    this._frequentMiningResults.next(res);
   }
 
   private _currentTreeString = new BehaviorSubject<string>('');

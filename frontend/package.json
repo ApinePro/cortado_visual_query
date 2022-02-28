@@ -41,6 +41,7 @@
     "build-electron-only-windows": "electron-builder build -w",
     "build-electron-only-linux": "electron-builder build -l"
   },
+
   "private": true,
   "dependencies": {
     "@sweetalert2/ngx-sweetalert2": "^10.0.0",

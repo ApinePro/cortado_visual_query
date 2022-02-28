@@ -1,3 +1,4 @@
+import { VariantMinerComponent } from './../variant-miner/variant-miner.component';
 import { VariantEditorComponent } from './../variant-editor/variant-editor.component';
 import { ProcessTreeEditorComponent } from './../process-tree-editor/process-tree-editor.component';
 import { BpmnEditorComponent } from './../bpmn-editor/bpmn-editor.component';
@@ -142,6 +143,38 @@ export class HeaderBarComponent {
     this.goldenLayoutComponentService.openWindow(
       componentID,
       null,
+      LocationSelectors,
+      itemConfig
+    );
+  }
+
+
+  openVariantMiner() {
+
+    const componentID = VariantMinerComponent.componentName;
+    const parentComponentID = ProcessTreeEditorComponent.componentName;
+
+    const LocationSelectors: LayoutManager.LocationSelector[] = [
+      {
+        typeId: LayoutManager.LocationSelector.TypeId.FocusedStack,
+        index: undefined,
+      },
+    ];
+
+    const itemConfig: ComponentItemConfig = {
+      id: componentID,
+      type: 'component',
+      title: 'Variant Miner',
+      isClosable: false,
+      header: {
+        show: false,
+      },
+      componentType: componentID,
+    };
+
+    this.goldenLayoutComponentService.openWindow(
+      componentID,
+      parentComponentID,
       LocationSelectors,
       itemConfig
     );

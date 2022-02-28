@@ -48,6 +48,7 @@ import { ActivityButtonAreaComponent } from './components/variant-editor/activit
 import { HeaderBarComponent } from './components/header-bar/header-bar.component';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { DialogModule } from './components/dialogs/dialog.module';
+import { VariantMinerComponent } from './components/variant-miner/variant-miner.component';
 
 @NgModule({
   declarations: [
@@ -92,6 +93,7 @@ import { DialogModule } from './components/dialogs/dialog.module';
     SubVariantComponent,
     HeaderBarComponent,
     GoldenLayoutDummyComponent,
+    VariantMinerComponent,
   ],
   imports: [
     BrowserModule,

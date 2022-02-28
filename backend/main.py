@@ -51,6 +51,11 @@ from pm4py.objects.process_tree.obj import ProcessTree
 from pm4py.objects.process_tree.utils.generic import parse
 from pm4py.objects.bpmn.exporter.variants.etree import get_xml_string as generate_bpmn_xml
 from error_handlers import exception_handler, http_exception_handler, validation_exception_handler
+from cortado_core.subprocess_discovery.subtree_mining.treebank import create_treebank_from_cv_variants
+from cortado_core.subprocess_discovery.subtree_mining.right_most_path_extension.min_sub_mining import min_sub_mining
+from cortado_core.subprocess_discovery.subtree_mining.freq_counting import FrequencyCountingStrategy
+from cortado_core.subprocess_discovery.subtree_mining.maximal_connected_components.maximal_connected_check import set_maximaly_closed_patterns
+from cortado_core.subprocess_discovery.subtree_mining.output import dataframe_from_k_patterns
 
 app = FastAPI()
 origins = [
@@ -77,6 +82,9 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 @app.on_event("startup")
 async def startup_event():
     global pcache
+    global treeBank
+    treeBank = None 
+    
     pcache = pickle.load(open( "pcache.p", "rb" ))
     load_event_log.variants_store = pickle.load(open( "variants_store.p", "rb" ))
 
@@ -486,6 +494,46 @@ def get_all_urls():
     url_list = [{"path": route.path, "name": route.name} for route in app.routes]
     return url_list
 
+
+class VariantMinerConfig(BaseModel):
+    k : int
+    min_sup : int
+    strat : int
+
+
+
+
+@app.post("/frequentSubtreeMining")
+def mineFrequentSubtrees(config : VariantMinerConfig):
+    global treeBank
+    
+    print(config)
+    
+    print("K:", config.k)
+    print("min_sup:", config.min_sup)
+    print("Strat:", config.strat)
+    
+    if not treeBank: 
+        treeBank = create_treebank_from_cv_variants(load_event_log.logVariants, True)
+        
+    
+    print("Mining K Patterns")
+    k_patterns = min_sub_mining(treeBank, load_event_log.logVariants, frequency_counting_strat = FrequencyCountingStrategy.TraceTransaction, k_it = config.k, min_sup = config.min_sup, artifical_start = True)
+
+    print("Setting Maximally Closed Patterns")
+    set_maximaly_closed_patterns(k_patterns)
+    
+    for k in k_patterns: 
+        for p in k_patterns[k]:
+            print(p)
+    
+    print("Computing Confidence")
+    df = dataframe_from_k_patterns(k_patterns)
+
+    print(df)
+    
+    print("Finished Computation")
+    return df.to_json(orient = "index")
 
 if __name__ == "__main__":
     # print(DEFAULT_LP_SOLVER_VARIANT)

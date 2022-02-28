@@ -11,6 +11,7 @@ import {
 } from 'src/app/components/variant-explorer/model';
 import { Configuration } from 'src/app/components/settings/model';
 import * as objectHash from 'object-hash';
+import { MiningConfig } from 'src/app/components/variant-miner/variant-miner.component';
 
 @Injectable({
   providedIn: 'root',
@@ -249,6 +250,17 @@ export class BackendService {
       );
   }
 
+  frequentSubtreeMining(config : MiningConfig): void {
+    this.httpClient
+      .post(this.backendUrl + 'frequentSubtreeMining', config.serialize())
+      .subscribe((res) => {
+        console.log("DataFrame")
+        console.log(res)
+
+        this.sharedDataService.frequentMiningResults = res
+      });
+  }
+
   saveConfiguration(configuration: Configuration): Observable<any> {
     return this.httpClient.post(
       this.backendUrl + 'saveConfiguration',
@@ -262,3 +274,5 @@ export class BackendService {
     );
   }
 }
+
+

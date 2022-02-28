@@ -7,8 +7,6 @@ import {
   Side,
 } from 'golden-layout';
 
-import { BpmnEditorComponent } from './../../bpmn-editor/bpmn-editor.component';
-import { GoldenLayoutDummyComponent } from '../golden-layout-dummy/golden-layout-dummy.component';
 import { ProcessTreeEditorComponent } from '../../process-tree-editor/process-tree-editor.component';
 import { VariantExplorerComponent } from '../../variant-explorer/variant-explorer.component';
 import { InfoBoxComponent } from '../../info-box/info-box.component';
