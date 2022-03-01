@@ -45,3 +45,7 @@
   width: fit-content;
   cursor: pointer;
 }
+
+.svg-rendering-status {
+  color: var(--text-secondary);
+}
