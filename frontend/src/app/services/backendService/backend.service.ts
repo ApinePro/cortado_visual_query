@@ -252,7 +252,7 @@ export class BackendService {
 
   frequentSubtreeMining(config : MiningConfig): void {
     this.httpClient
-      .post(this.backendUrl + 'frequentSubtreeMining', config.serialize())
+      .post<Array<any>>(this.backendUrl + 'frequentSubtreeMining', config.serialize())
       .subscribe((res) => {
         console.log("DataFrame")
         console.log(res)

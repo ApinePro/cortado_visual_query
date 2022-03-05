@@ -4,6 +4,9 @@ import { AfterViewInit, Component, ElementRef, Inject, OnInit, Renderer2 } from 
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
+import { deserialize, LeafNode, Variant, VariantElement } from '../variant-explorer/model';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
+import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 
 @Component({
   selector: 'app-variant-miner',
@@ -18,6 +21,7 @@ export class VariantMinerComponent extends LayoutChangeDirective implements OnIn
               private container: ComponentContainer,
               private backendService : BackendService,
               private sharedDataService: SharedDataService,
+              private colorMapService: ColorMapService,
               elRef: ElementRef,
               renderer: Renderer2,
   ) {
@@ -26,19 +30,73 @@ export class VariantMinerComponent extends LayoutChangeDirective implements OnIn
 
   variantMinerOutOfFocus : boolean = false;
 
+  variantMinerResults : any;
+  colorMap;
+
+  variantPatterns : Array<SubvariantPattern> = new Array<SubvariantPattern>()
+
   ngAfterViewInit(): void {
+
+    this.colorMapService.colorMap$.subscribe((cMap) => {
+
+      this.colorMap = cMap;
+    })
+
+
     this.sharedDataService.frequentMiningResults$.subscribe((res) => {
-      console.log("NEW RESULTS", res)
+      console.log(res)
+
+      if (res){
+
+        this.variantPatterns = new Array<SubvariantPattern>()
+
+        res.forEach((p, i) => {
+
+          if (p.valid){
+            this.variantPatterns.push(
+              new SubvariantPattern(
+                  i,
+                  p.k,
+                  deserialize(p.obj),
+                  p.sup,
+                  p.child_parent_confidence,
+                  p.subpattern_confidence,
+                  p.cross_support_confidence,
+                  p.maximal,
+                  p.valid,
+                  p.closed,
+              )
+            )
+          }
+        })
+      }
     })
   }
+
+  computeActivityColor = (
+    self: VariantDrawerDirective,
+    element: VariantElement,
+    variant: Variant
+  ) => {
+    let color;
+
+    if (element instanceof LeafNode) {
+      color = this.colorMap.get(element.asLeafNode().activity[0]);
+    } else {
+      color = '#d3d3d3';
+    }
+
+
+    return color;
+  };
 
   ngOnInit(): void {
 
     this.dropZoneConfig = new DropzoneConfig(
-      '.xml',
+      '.xes',
       'false',
       'false',
-      '<large> Import <strong>Process Tree</strong> .ptml file</large>'
+      '<large> Import <strong>Event Log</strong> .xes file</large>'
     );
   }
 
@@ -90,4 +148,43 @@ export class MiningConfig {
   serialize(){
     return {k : this.k, min_sup : this.min_sup, strat : this.strat}
   }
+}
+
+
+export class SubvariantPattern{
+  index : number;
+  k : number;
+  variant : VariantElement;
+  support : number;
+  child_parent_confidence : number;
+  subpattern_confidence : number;
+  cross_support_confidence : number;
+  maximal : boolean;
+  valid : boolean;
+  closed : boolean;
+
+  constructor(
+    index : number,
+    k : number,
+    variant : VariantElement,
+    support : number,
+    child_parent_confidence : number,
+    subpattern_confidence : number,
+    cross_support_confidence : number,
+    maximal : boolean,
+    valid : boolean,
+    closed : boolean
+  ){
+    this.index = index;
+    this.k = k;
+    this.variant = variant;
+    this.support = support;
+    this.child_parent_confidence = child_parent_confidence;
+    this.subpattern_confidence = subpattern_confidence;
+    this.cross_support_confidence = cross_support_confidence;
+    this.maximal = maximal;
+    this.valid = valid;
+    this.closed = closed;
+  }
+
 }

@@ -94,6 +94,9 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
   }
 
   ngAfterViewInit(): void {
+
+    console.warn("AFTER INIT", this.variant);
+
     this.svgSelection = d3
       .select(this.svgHtmlElement.nativeElement)
       .append('g');
@@ -122,6 +125,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
   }
 
   redraw(): void {
+    console.warn("DRAWING");
     this.svgSelection.selectAll('*').remove();
 
     if (this.variant) {

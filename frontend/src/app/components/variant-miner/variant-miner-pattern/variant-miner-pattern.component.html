@@ -1,0 +1,41 @@
+<td>
+  {{ pattern.index }}
+</td>
+<td>
+  <div>
+    {{ pattern.k }}
+  </div>
+</td>
+
+<td>
+  <div>
+    {{ pattern.support }}
+  </div>
+</td>
+
+<td>
+  <div>
+    {{ pattern.child_parent_confidence }}
+  </div>
+</td>
+<td>
+  <div>
+    {{ pattern.maximal }}
+  </div>
+</td>
+<td>
+  <div>
+    {{ pattern.closed }}
+  </div>
+</td>
+<td>
+  <svg
+    appVariantDrawer
+    #fragment
+    [variant]="pattern.variant"
+    [onClickCbFc]="onClickCbFc"
+    [computeActivityColor]="computeActivityColor"
+    class="zoom-group-variant"
+  >
+  </svg>
+</td>

@@ -9,16 +9,28 @@
   [class.blurOutOfFocus]="variantMinerOutOfFocus"
 >
   <div class="bg-dark btn-tool-bar">
-    <button
-        class="button"
-        (click)="startMining()"
-        type="button"
-      >
-        <i class="bi bi-minecart-loaded btn-icon"></i>
-      </button>
-
+    <button class="button" (click)="startMining()" type="button">
+      <i class="bi bi-minecart-loaded btn-icon"></i>
+    </button>
   </div>
 
+  <div class="pattern-table-container">
+  <table class="pattern-table">
+    <tr class="user-select-none">
+      <th>Nr.</th>
+      <th>K</th>
+      <th>Support</th>
+      <th>Confidence</th>
+      <th>Maximal</th>
+      <th>Closed</th>
+      <th class="text-start">Variant</th>
+    </tr>
 
+    <tr app-variant-miner-pattern  *ngFor="let pattern of variantPatterns; let i = index" [pattern]="pattern"
+    [computeActivityColor]="computeActivityColor"
+    >
 
+    </tr>
+  </table>
+  </div>
 </div>

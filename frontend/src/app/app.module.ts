@@ -49,6 +49,7 @@ import { HeaderBarComponent } from './components/header-bar/header-bar.component
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { DialogModule } from './components/dialogs/dialog.module';
 import { VariantMinerComponent } from './components/variant-miner/variant-miner.component';
+import { VariantMinerPatternComponent } from './components/variant-miner/variant-miner-pattern/variant-miner-pattern.component';
 
 @NgModule({
   declarations: [
@@ -94,6 +95,7 @@ import { VariantMinerComponent } from './components/variant-miner/variant-miner.
     HeaderBarComponent,
     GoldenLayoutDummyComponent,
     VariantMinerComponent,
+    VariantMinerPatternComponent,
   ],
   imports: [
     BrowserModule,

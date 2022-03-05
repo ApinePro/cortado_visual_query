@@ -189,13 +189,13 @@ export class SharedDataService {
     return this._selectedRootNodeID.getValue();
   }
 
-  private _frequentMiningResults = new BehaviorSubject<Object>(null);
+  private _frequentMiningResults = new BehaviorSubject<Array<any>>(null);
 
-  get frequentMiningResults$(): Observable<Object> {
+  get frequentMiningResults$(): Observable<Array<any>> {
     return this._frequentMiningResults.asObservable();
   }
 
-  set frequentMiningResults(res: Object) {
+  set frequentMiningResults(res: Array<any>) {
     this._frequentMiningResults.next(res);
   }
 

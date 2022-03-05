@@ -1,3 +1,4 @@
+import numpy as np
 import pm4pycvxopt
 
 from endpoints.add_variants_to_process_model import add_variants_to_process_model
@@ -92,6 +93,10 @@ async def startup_event():
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...), config_repo: ConfigurationRepository = Depends(get_config_repo)):
     global pcache
+    global treeBank
+    
+    treeBank = None 
+    
     pcache = {}
 
     content = "".join([line.decode("UTF-8") for line in file.file])
@@ -109,6 +114,9 @@ class FilePathInput(BaseModel):
 async def load_event_log_from_file_path(d: FilePathInput, config_repo: ConfigurationRepository = Depends(get_config_repo)):
     global event_log
     global pcache
+    global treeBank
+    
+    treeBank = None 
     pcache = {}
 
     event_log = xes_import(d.file_path)
@@ -501,8 +509,6 @@ class VariantMinerConfig(BaseModel):
     strat : int
 
 
-
-
 @app.post("/frequentSubtreeMining")
 def mineFrequentSubtrees(config : VariantMinerConfig):
     global treeBank
@@ -514,11 +520,11 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
     print("Strat:", config.strat)
     
     if not treeBank: 
-        treeBank = create_treebank_from_cv_variants(load_event_log.logVariants, True)
+        treeBank = create_treebank_from_cv_variants(load_event_log.logVariants, False)
         
     
     print("Mining K Patterns")
-    k_patterns = min_sub_mining(treeBank, load_event_log.logVariants, frequency_counting_strat = FrequencyCountingStrategy.TraceTransaction, k_it = config.k, min_sup = config.min_sup, artifical_start = True)
+    k_patterns = min_sub_mining(treeBank, load_event_log.logVariants, frequency_counting_strat = FrequencyCountingStrategy.TraceTransaction, k_it = config.k, min_sup = config.min_sup, artifical_start = False)
 
     print("Setting Maximally Closed Patterns")
     set_maximaly_closed_patterns(k_patterns)
@@ -529,11 +535,17 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
     
     print("Computing Confidence")
     df = dataframe_from_k_patterns(k_patterns)
-
+    
     print(df)
+
+    df.obj = df.obj.apply(lambda x : x.to_concurrency_group().serialize(include_performance=False))
+    
+    df = df.replace({np.nan: None})
     
     print("Finished Computation")
-    return df.to_json(orient = "index")
+    df_dict = df.to_dict(orient = 'records')
+    
+    return df_dict
 
 if __name__ == "__main__":
     # print(DEFAULT_LP_SOLVER_VARIANT)
