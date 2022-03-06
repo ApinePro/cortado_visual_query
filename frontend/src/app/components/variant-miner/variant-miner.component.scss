@@ -1,0 +1,94 @@
+$controls-width : 250px;
+
+
+:host {
+  position: absolute;
+  overflow: hidden;
+}
+
+.variant-miner-mainblock {
+  background-color: var(--box-background-color);
+  max-height: 100%;
+  position: relative;
+  border-left: 1px solid var(--thin-border-color);
+}
+
+
+
+.pattern-table-container{
+  color : var(--text-secondary);
+  width : calc(100% - $controls-width);
+  height : 100%;
+  overflow: auto;
+}
+
+.pattern-table{
+  color : var(--text-secondary);
+  width : 100%;
+}
+
+.input-field{
+  margin-left: 5px;
+  width: 75px;
+  border-radius: 3px;
+  background-color: var(--box-background-color);
+  box-shadow: none;
+  border: none;
+  color : whitesmoke;
+}
+
+.input-label{
+  font-size: 0.85rem;
+}
+
+.input-selector{
+  padding: 0.125rem 0.25rem 0.125rem 0.35rem;
+  font-size: 0.85rem;
+  color: whitesmoke;
+  background-color: var(--box-background-color);
+  border: none;
+}
+
+.variant-miner-submit-button{
+  background: rgb(119, 117, 117);
+  border-radius: 3px;
+}
+
+.form-element{
+  padding: 2.5px;
+}
+
+.mine-config-form{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  align-content: space-around;
+  height: 50%;
+  width: 100%;
+}
+
+
+.control-container{
+  width : $controls-width;
+  height : 100%;
+  background-color: rgba(var(--bs-dark-rgb),var(--bs-bg-opacity));
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  color : whitesmoke;
+  border-right: black 0.5px solid;
+}
+
+
+.variant-miner-container{
+  width : 100%;
+  height : 100%;
+  display : flex;
+  border-bottom: black 0.5px solid;
+}

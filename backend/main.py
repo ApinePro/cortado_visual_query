@@ -520,11 +520,11 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
     print("Strat:", config.strat)
     
     if not treeBank: 
-        treeBank = create_treebank_from_cv_variants(load_event_log.logVariants, False)
+        treeBank = create_treebank_from_cv_variants(load_event_log.logVariants, True)
         
     
     print("Mining K Patterns")
-    k_patterns = min_sub_mining(treeBank, load_event_log.logVariants, frequency_counting_strat = FrequencyCountingStrategy.TraceTransaction, k_it = config.k, min_sup = config.min_sup, artifical_start = False)
+    k_patterns = min_sub_mining(treeBank, load_event_log.logVariants, frequency_counting_strat = FrequencyCountingStrategy.TraceTransaction, k_it = config.k, min_sup = config.min_sup, artifical_start = True)
 
     print("Setting Maximally Closed Patterns")
     set_maximaly_closed_patterns(k_patterns)

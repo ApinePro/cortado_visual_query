@@ -41,10 +41,10 @@
     "build-electron-only-windows": "electron-builder build -w",
     "build-electron-only-linux": "electron-builder build -l"
   },
-
   "private": true,
   "dependencies": {
     "@sweetalert2/ngx-sweetalert2": "^10.0.0",
+    "angularjs-slider": "^7.0.1",
     "electron-store": "^8.0.1",
     "humanize-duration-ts": "^2.1.1",
     "ngx-clipboard": "^15.0.1",

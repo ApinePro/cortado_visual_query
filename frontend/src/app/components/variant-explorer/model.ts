@@ -1,5 +1,4 @@
-import { NumberValue } from 'd3-scale';
-import { timeThursdays } from 'd3-time';
+
 
 export class Constants {
   public static LEAF_WIDTH = 40;
@@ -478,7 +477,65 @@ export class InvisibleSequenceGroup extends SequenceGroup {
   public serialize() {
     return this.elements.map((e) => e.serialize()).filter((e) => e !== null);
   }
+
+
+
+
 }
+
+class StartGroup extends VariantElement{
+
+  public getHeight(): number {
+    return Constants.LEAF_HEIGHT
+  }
+
+  public getWidth(includeWaiting: any): number {
+    return 25
+  }
+
+  public recalculateWidth(includeWaiting: any): number {
+    return 25
+  }
+
+  public recalculateHeight(includeWaiting: any): number {
+    return Constants.LEAF_HEIGHT
+  }
+
+  public updateWidth(includeWaiting: any) {
+  }
+
+  public serialize(): Object {
+    return {start : true}
+  }
+
+}
+
+class EndGroup extends VariantElement{
+
+  public getHeight(): number {
+    return Constants.LEAF_HEIGHT
+  }
+
+  public getWidth(includeWaiting: any): number {
+    return 25
+  }
+
+  public recalculateWidth(includeWaiting: any): number {
+    return 25
+  }
+
+  public recalculateHeight(includeWaiting: any): number {
+    return Constants.LEAF_HEIGHT
+  }
+  public updateWidth(includeWaiting: any) {
+  }
+
+  public serialize(): Object {
+    return {end : true}
+  }
+
+}
+
 export function deserialize(obj: any): VariantElement {
   if ('follows' in obj) {
     return new SequenceGroup(
@@ -490,10 +547,18 @@ export function deserialize(obj: any): VariantElement {
       obj['parallel'].map((e: any) => deserialize(e)),
       obj['performance']
     );
+  } else if ('start' in obj ) {
+    return new StartGroup()
+
+  } else if ('end' in obj ) {
+    return new EndGroup()
+
   } else {
     return new LeafNode(obj['leaf'], obj['performance']);
   }
 }
+
+
 
 export class PerformanceStats {
   public min: number;

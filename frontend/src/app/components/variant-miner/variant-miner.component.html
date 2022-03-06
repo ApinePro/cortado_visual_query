@@ -8,29 +8,75 @@
   class="variant-miner-mainblock h-100 d-flex flex-column"
   [class.blurOutOfFocus]="variantMinerOutOfFocus"
 >
-  <div class="bg-dark btn-tool-bar">
-    <button class="button" (click)="startMining()" type="button">
-      <i class="bi bi-minecart-loaded btn-icon"></i>
-    </button>
-  </div>
+  <div class="variant-miner-container">
+    <div class="control-container">
+      <form [formGroup]="variantMinerConfigInput" (ngSubmit)="onSubmit()" class="mine-config-form">
 
-  <div class="pattern-table-container">
-  <table class="pattern-table">
-    <tr class="user-select-none">
-      <th>Nr.</th>
-      <th>K</th>
-      <th>Support</th>
-      <th>Confidence</th>
-      <th>Maximal</th>
-      <th>Closed</th>
-      <th class="text-start">Variant</th>
-    </tr>
+        <div class="form-element">
+            <label for="frequent_mining_strat" class="input-label"
+            >Support Counting Strategy:
+          </label>
+          <select
+            formControlName="frequent_mining_strat"
+            class="form-select input-selector"
+          >
+            <option [ngValue]="FrequentMiningStrategy.TraceTransaction" selected>
+              Trace Transaction
+            </option>
+            <option [ngValue]="FrequentMiningStrategy.VariantTransaction">
+              Variant Transaction
+            </option>
+            <option [ngValue]="FrequentMiningStrategy.TraceOccurence">
+              Trace Occurence
+            </option>
+            <option [ngValue]="FrequentMiningStrategy.VariantOccurence">
+              Variant Occurence
+            </option>
+          </select>
+        </div>
 
-    <tr app-variant-miner-pattern  *ngFor="let pattern of variantPatterns; let i = index" [pattern]="pattern"
-    [computeActivityColor]="computeActivityColor"
-    >
+        <div class="form-element">
+          <label for="k" class="input-label">K: </label>
+          <input id="k" type="text" formControlName="k" class="input-field" />
+        </div>
 
-    </tr>
-  </table>
+        <div class="form-element">
+          <label for="min_sup" class="input-label">Support: </label>
+          <input
+            id="min_sup"
+            type="text"
+            formControlName="min_sup"
+            class="input-field"
+          />
+        </div>
+
+        <div class="form-element">
+          <button type="submit" class="button variant-miner-submit-button">
+            Mine
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="pattern-table-container">
+      <table class="pattern-table">
+        <tr class="user-select-none">
+          <th style="padding-right: 15px; padding-left: 5px">Nr.</th>
+          <th style="padding-right: 15px; padding-left: 5px">K</th>
+          <th style="padding-right: 15px; padding-left: 5px">Support</th>
+          <th style="padding-right: 15px; padding-left: 5px">Confidence</th>
+          <th style="padding-right: 15px; padding-left: 5px">Maximal</th>
+          <th style="padding-right: 15px; padding-left: 5px">Closed</th>
+          <th class="text-start" style="padding-right: 15px; padding-left: 5px">Variant</th>
+        </tr>
+
+        <tr
+          app-variant-miner-pattern
+          *ngFor="let pattern of variantPatterns; let i = index"
+          [pattern]="pattern"
+          [computeActivityColor]="computeActivityColor"
+        ></tr>
+      </table>
+    </div>
   </div>
 </div>

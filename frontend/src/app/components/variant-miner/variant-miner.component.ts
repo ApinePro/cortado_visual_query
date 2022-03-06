@@ -7,14 +7,14 @@ import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { deserialize, LeafNode, Variant, VariantElement } from '../variant-explorer/model';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-variant-miner',
   templateUrl: './variant-miner.component.html',
-  styleUrls: ['./variant-miner.component.css']
+  styleUrls: ['./variant-miner.component.scss']
 })
 export class VariantMinerComponent extends LayoutChangeDirective implements OnInit, AfterViewInit{
-  dropZoneConfig: any;
 
 
   constructor(@Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
@@ -28,6 +28,8 @@ export class VariantMinerComponent extends LayoutChangeDirective implements OnIn
     super(elRef.nativeElement, renderer);
   }
 
+  FrequentMiningStrategy = FrequentMiningStrategy;
+
   variantMinerOutOfFocus : boolean = false;
 
   variantMinerResults : any;
@@ -35,13 +37,56 @@ export class VariantMinerComponent extends LayoutChangeDirective implements OnIn
 
   variantPatterns : Array<SubvariantPattern> = new Array<SubvariantPattern>()
 
+  dropZoneConfig: any;
+  variantMinerConfigInput: FormGroup;
+
+
+  ngOnInit(): void {
+
+    this.dropZoneConfig = new DropzoneConfig(
+      '.xes',
+      'false',
+      'false',
+      '<large> Import <strong>Event Log</strong> .xes file</large>'
+    );
+
+    this.variantMinerConfigInput = new FormGroup({
+      k : new FormControl('', {
+        updateOn: 'change',
+      }),
+
+      min_sup : new FormControl('', {
+        updateOn: 'change',
+      }),
+
+      frequent_mining_strat : new FormControl(this.FrequentMiningStrategy.TraceTransaction, {
+        updateOn: 'change',
+      }),
+
+    })
+  }
+
+
+  onSubmit(){
+
+    console.log("SUBMIT", this.variantMinerConfigInput.value)
+
+    const form_values = this.variantMinerConfigInput.value
+
+    const config = new MiningConfig(form_values.k, form_values.min_sup, form_values.frequent_mining_strat)
+
+    this.backendService.frequentSubtreeMining(config)
+
+
+  }
+
+
   ngAfterViewInit(): void {
 
     this.colorMapService.colorMap$.subscribe((cMap) => {
 
       this.colorMap = cMap;
     })
-
 
     this.sharedDataService.frequentMiningResults$.subscribe((res) => {
       console.log(res)
@@ -53,11 +98,16 @@ export class VariantMinerComponent extends LayoutChangeDirective implements OnIn
         res.forEach((p, i) => {
 
           if (p.valid){
+
+            const variant : VariantElement = deserialize(p.obj);
+            variant.setExpanded(true);
+
+
             this.variantPatterns.push(
               new SubvariantPattern(
                   i,
                   p.k,
-                  deserialize(p.obj),
+                  variant,
                   p.sup,
                   p.child_parent_confidence,
                   p.subpattern_confidence,
@@ -89,27 +139,6 @@ export class VariantMinerComponent extends LayoutChangeDirective implements OnIn
 
     return color;
   };
-
-  ngOnInit(): void {
-
-    this.dropZoneConfig = new DropzoneConfig(
-      '.xes',
-      'false',
-      'false',
-      '<large> Import <strong>Event Log</strong> .xes file</large>'
-    );
-  }
-
-
-  startMining(){
-
-    console.log("Mining")
-    const config = new MiningConfig(12, 100, 3)
-
-
-    this.backendService.frequentSubtreeMining(config)
-  }
-
 
   handleResponsiveChange(left: number, top: number, width: number, height: number): void {
 
@@ -148,6 +177,13 @@ export class MiningConfig {
   serialize(){
     return {k : this.k, min_sup : this.min_sup, strat : this.strat}
   }
+}
+
+export enum FrequentMiningStrategy {
+  TraceTransaction = 1,
+  VariantTransaction = 2,
+  TraceOccurence = 3,
+  VariantOccurence = 4,
 }
 
 
