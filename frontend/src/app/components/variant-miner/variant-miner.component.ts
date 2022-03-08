@@ -29,8 +29,12 @@ export class VariantMinerComponent extends LayoutChangeDirective implements OnIn
   }
 
   FrequentMiningStrategy = FrequentMiningStrategy;
+  VariantSortKey = VariantSortKey;
+  currentSortKey : VariantSortKey;
 
   variantMinerOutOfFocus : boolean = false;
+
+  ascending : boolean = false;
 
   variantMinerResults : any;
   colorMap;
@@ -123,6 +127,36 @@ export class VariantMinerComponent extends LayoutChangeDirective implements OnIn
     })
   }
 
+  sort(key : VariantSortKey){
+
+    if (this.currentSortKey == key){
+      this.ascending = !this.ascending;
+    } else {
+      this.ascending = false;
+    }
+
+    this.variantPatterns.sort((a : SubvariantPattern, b : SubvariantPattern) => {
+      if (a[key] < b[key]) {
+        return this.ascending ? -1 : 1;
+      } else if (a[key] > b[key]) {
+        return this.ascending ? 1 : -1;
+      } else {
+        return 0;
+      }
+    })
+
+    this.currentSortKey = key;
+  }
+
+
+  filter(){
+
+
+  }
+
+
+
+
   computeActivityColor = (
     self: VariantDrawerDirective,
     element: VariantElement,
@@ -186,6 +220,29 @@ export enum FrequentMiningStrategy {
   VariantOccurence = 4,
 }
 
+
+export enum VariantSortKey {
+  k = 'k',
+  index = 'index',
+  support  = 'support',
+  child_parent_confidence = 'child_parent_confidence',
+  subpattern_confidence = 'subpattern_confidence',
+  cross_support_confidence = 'cross_support_confidence',
+  maximal = 'maximal',
+  closed = 'closed',
+}
+
+
+export enum VariantFilterKey {
+  k = 'k',
+  support  = 'support',
+  index = 'index',
+  child_parent_confidence = 'child_parent_confidence',
+  subpattern_confidence = 'subpattern_confidence',
+  cross_support_confidence = 'cross_support_confidence',
+  maximal = 'maximal',
+  closed = 'closed',
+}
 
 export class SubvariantPattern{
   index : number;

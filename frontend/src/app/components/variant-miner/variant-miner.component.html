@@ -10,17 +10,23 @@
 >
   <div class="variant-miner-container">
     <div class="control-container">
-      <form [formGroup]="variantMinerConfigInput" (ngSubmit)="onSubmit()" class="mine-config-form">
-
+      <form
+        [formGroup]="variantMinerConfigInput"
+        (ngSubmit)="onSubmit()"
+        class="mine-config-form"
+      >
         <div class="form-element">
-            <label for="frequent_mining_strat" class="input-label"
+          <label for="frequent_mining_strat" class="input-label"
             >Support Counting Strategy:
           </label>
           <select
             formControlName="frequent_mining_strat"
             class="form-select input-selector"
           >
-            <option [ngValue]="FrequentMiningStrategy.TraceTransaction" selected>
+            <option
+              [ngValue]="FrequentMiningStrategy.TraceTransaction"
+              selected
+            >
               Trace Transaction
             </option>
             <option [ngValue]="FrequentMiningStrategy.VariantTransaction">
@@ -60,16 +66,154 @@
 
     <div class="pattern-table-container">
       <table class="pattern-table">
-        <tr class="user-select-none">
-          <th style="padding-right: 15px; padding-left: 5px">Nr.</th>
-          <th style="padding-right: 15px; padding-left: 5px">K</th>
-          <th style="padding-right: 15px; padding-left: 5px">Support</th>
-          <th style="padding-right: 15px; padding-left: 5px">Confidence</th>
-          <th style="padding-right: 15px; padding-left: 5px">Maximal</th>
-          <th style="padding-right: 15px; padding-left: 5px">Closed</th>
-          <th class="text-start" style="padding-right: 15px; padding-left: 5px">Variant</th>
+        <tr class="user-select-none sticky-header-row">
+          <th
+            style="padding-right: 5px; padding-left: 5px"
+            class="text-center"
+            rowspan="2"
+          >
+            <div class="header-text-container">
+              <i class="bi bi-filter"></i>
+              <div class="header-text" (click)="sort(VariantSortKey.index)">
+                Nr.
+              </div>
+            </div>
+            <i
+              [ngClass]="{
+                'bi-sort-numeric-down': ascending,
+                'bi-sort-numeric-down-alt': !ascending,
+                invisible: !(currentSortKey === VariantSortKey.index)
+              }"
+            ></i>
+          </th>
+          <th
+            style="padding-right: 5px; padding-left: 5px"
+            class="text-center border-start border-lightgrey"
+            rowspan="2"
+          >
+            <div class="header-text-container">
+              <i class="bi bi-filter"></i>
+              <div class="header-text" (click)="sort(VariantSortKey.k)">K</div>
+            </div>
+            <i
+              [ngClass]="{
+                'bi-sort-numeric-down': ascending,
+                'bi-sort-numeric-down-alt': !ascending,
+                invisible: !(currentSortKey === VariantSortKey.k)
+              }"
+            ></i>
+          </th>
+          <th
+            style="padding-right: 5px; padding-left: 5px"
+            class="text-center border-start border-lightgrey"
+            rowspan="2"
+          >
+            <div class="header-text-container">
+              <i class="bi bi-filter"></i>
+              <div class="header-text" (click)="sort(VariantSortKey.support)">
+                Support
+              </div>
+            </div>
+            <i
+              [ngClass]="{
+                'bi-sort-numeric-down': ascending,
+                'bi-sort-numeric-down-alt': !ascending,
+                invisible: !(currentSortKey === VariantSortKey.support)
+              }"
+            ></i>
+          </th>
+          <th
+            class="text-center border-start border-lightgrey"
+            colspan="3"
+            style="padding-right: 50px; padding-left: 50px"
+          >
+            <div class="header-text-container">
+              <i class="bi bi-filter"></i>
+              <div
+                class="header-text"
+                (click)="sort(VariantSortKey.child_parent_confidence)"
+              >
+                Confidence
+              </div>
+              <i
+                [ngClass]="{
+                  'bi-sort-numeric-down': ascending,
+                  'bi-sort-numeric-down-alt': !ascending,
+                  invisible: !(
+                    currentSortKey === VariantSortKey.child_parent_confidence
+                  )
+                }"
+              ></i>
+            </div>
+          </th>
+          <th
+            style="padding-right: 5px; padding-left: 5px"
+            class="border-lightgrey border-start text-center"
+            rowspan="2"
+          >
+            <div class="header-text-container">
+              <i class="bi bi-filter"></i>
+              <div class="header-text" (click)="sort(VariantSortKey.maximal)">
+                Maximal
+              </div>
+            </div>
+            <i
+              class="bi"
+              [ngClass]="{
+                'bi-sort-up': ascending,
+                'bi-sort-down': !ascending,
+                invisible: !(currentSortKey === VariantSortKey.maximal)
+              }"
+            ></i>
+          </th>
+          <th
+            style="padding-right: 5px; padding-left: 5px"
+            class="border-lightgrey border-start text-center"
+            rowspan="2"
+          >
+            <div class="header-text-container">
+              <i class="bi bi-filter"></i>
+              <div class="header-text" (click)="sort(VariantSortKey.closed)">
+                Closed
+              </div>
+            </div>
+            <i
+              class="bi"
+              [ngClass]="{
+                'bi-sort-up': ascending,
+                'bi-sort-down': !ascending,
+                invisible: !(currentSortKey === VariantSortKey.closed)
+              }"
+            ></i>
+          </th>
+          <th
+            class="text-start border-lightgrey border-start"
+            style="padding-right: 10px; padding-left: 5px"
+            rowspan="2"
+          >
+            <div class="header-text-container variant-header">
+              <i class="bi bi-filter"></i>
+              <div class="header-text">Variant</div>
+            </div>
+            <i
+              class="bi"
+              [ngClass]="{
+                'bi-sort-up': ascending,
+                'bi-sort-down': !ascending,
+                invisible: true
+              }"
+            ></i>
+          </th>
         </tr>
-
+        <tr class="sticky-header-row" style="top: 30px">
+          <th
+            class="confidence-names text-center border-start border-lightgrey"
+          >
+            Child-Parent
+          </th>
+          <th class="confidence-names text-center">Subpattern</th>
+          <th class="confidence-names text-center">Cross-Support</th>
+        </tr>
         <tr
           app-variant-miner-pattern
           *ngFor="let pattern of variantPatterns; let i = index"

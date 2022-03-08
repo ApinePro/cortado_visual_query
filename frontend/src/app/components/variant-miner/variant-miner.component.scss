@@ -1,4 +1,4 @@
-$controls-width : 250px;
+$controls-width : 200px;
 
 
 :host {
@@ -27,6 +27,13 @@ $controls-width : 250px;
   width : 100%;
 }
 
+.variant-header{
+  display: flex;
+  align-content: flex-start !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+}
+
 .input-field{
   margin-left: 5px;
   width: 75px;
@@ -40,6 +47,47 @@ $controls-width : 250px;
 .input-label{
   font-size: 0.85rem;
 }
+
+.header-text-container{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+}
+
+.header-text{
+  padding-left: 5px;
+  padding-right: 5px;
+  cursor: pointer;
+}
+
+.header-text:hover{
+  color : whitesmoke;
+}
+
+
+.confidence-names{
+  font-size: x-small;
+  font-weight: 400;
+}
+
+.sticky-header-row{
+  position: sticky;
+  top: 0px;
+  background-color: var(--box-background-color);
+}
+
+.border-lightgrey{
+  border-color: rgb(106, 106, 106, 0.6) !important;
+}
+
+.center-element{
+  border-color: rgb(106, 106, 106, 0.2) !important;
+  border-right-width: 1px;
+  border-left-width: 1px;
+}
+
+
 
 .input-selector{
   padding: 0.125rem 0.25rem 0.125rem 0.35rem;

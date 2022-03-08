@@ -1,34 +1,44 @@
-<td>
+<td class="text-center">
   {{ pattern.index }}
 </td>
-<td>
-  <div>
+<td class="border-start border-lightgrey">
+  <div class="text-center">
     {{ pattern.k }}
   </div>
 </td>
 
-<td>
-  <div>
+<td class="border-start border-lightgrey">
+  <div class="text-center">
     {{ pattern.support }}
   </div>
 </td>
 
-<td>
-  <div>
+<td class="border-start border-lightgrey">
+  <div class="text-center">
     {{ pattern.child_parent_confidence }}
   </div>
 </td>
-<td>
-  <div>
-    {{ pattern.maximal }}
+<td class="center-element">
+  <div class="text-center">
+    {{ pattern.subpattern_confidence }}
   </div>
 </td>
 <td>
-  <div>
-    {{ pattern.closed }}
+  <div class="text-center">
+    {{ pattern.cross_support_confidence }}
   </div>
 </td>
-<td>
+<td class="border-start border-lightgrey">
+  <div class="text-center">
+    <i class="bi bi-check2" *ngIf="pattern.maximal"></i>
+  </div>
+</td>
+<td class="border-start border-lightgrey">
+  <div class="text-center">
+    <i class="bi bi-check2" *ngIf="pattern.closed"></i>
+  </div>
+</td>
+<td class="border-start border-lightgrey ps-2">
   <svg
     appVariantDrawer
     #fragment
@@ -36,6 +46,5 @@
     [onClickCbFc]="onClickCbFc"
     [computeActivityColor]="computeActivityColor"
     class="zoom-group-variant"
-  >
-  </svg>
+  ></svg>
 </td>

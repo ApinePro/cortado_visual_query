@@ -509,6 +509,13 @@ class VariantMinerConfig(BaseModel):
     strat : int
 
 
+freq_strat_mapping = {
+    1 :  FrequencyCountingStrategy.TraceTransaction,
+    2 :  FrequencyCountingStrategy.VariantTransaction,
+    3 :  FrequencyCountingStrategy.TraceOccurence,
+    4 :  FrequencyCountingStrategy.VariantOccurence,   
+}
+
 @app.post("/frequentSubtreeMining")
 def mineFrequentSubtrees(config : VariantMinerConfig):
     global treeBank
@@ -524,7 +531,7 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
         
     
     print("Mining K Patterns")
-    k_patterns = min_sub_mining(treeBank, load_event_log.logVariants, frequency_counting_strat = FrequencyCountingStrategy.TraceTransaction, k_it = config.k, min_sup = config.min_sup, artifical_start = True)
+    k_patterns = min_sub_mining(treeBank, load_event_log.logVariants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True)
 
     print("Setting Maximally Closed Patterns")
     set_maximaly_closed_patterns(k_patterns)
