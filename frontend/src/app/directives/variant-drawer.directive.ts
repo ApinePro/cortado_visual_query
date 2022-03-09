@@ -137,6 +137,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       const svg = this.svgSelection.attr('width', width).attr('height', height);
 
       this.draw(this.variant, svg, true);
+      this.tooltipService.initializeChildren(this.svgHtmlElement);
 
       if (this.variant instanceof SequenceGroup && !this.performanceMode) {
         this.svgSelection.select('polygon').style('fill', 'transparent');
@@ -166,8 +167,6 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     } else if (element instanceof WaitingTimeNode) {
       this.drawWaitingNode(element.asLeafNode(), svgElement);
     }
-
-    this.tooltipService.initializeChildren(this.svgHtmlElement);
   }
 
   drawSequenceGroup(
@@ -255,7 +254,6 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
     for (const child of element.elements) {
       if (child instanceof WaitingTimeNode && !this.performanceMode) {
-        console.log('Skipping Waiting Time Node');
         continue;
       }
 
