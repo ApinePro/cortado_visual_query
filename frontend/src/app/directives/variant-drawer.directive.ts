@@ -19,6 +19,8 @@ import {
   SequenceGroup,
   VariantElement,
   WaitingTimeNode,
+  StartGroup,
+  EndGroup
 } from '../components/variant-explorer/model';
 import { ActivateTooltipsService } from '../services/activateTooltipsService/activate-tooltips.service';
 import { SharedDataService } from '../services/sharedDataService/shared-data.service';
@@ -95,8 +97,6 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
   ngAfterViewInit(): void {
 
-    console.warn("AFTER INIT", this.variant);
-
     this.svgSelection = d3
       .select(this.svgHtmlElement.nativeElement)
       .append('g');
@@ -125,7 +125,6 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
   }
 
   redraw(): void {
-    console.warn("DRAWING");
     this.svgSelection.selectAll('*').remove();
 
     if (this.variant) {
@@ -168,6 +167,10 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     } else if (element instanceof LeafNode) {
       this.drawLeafNode(element.asLeafNode(), svgElement);
     } else if (element instanceof WaitingTimeNode) {
+      this.drawWaitingNode(element.asLeafNode(), svgElement);
+    } else if (element instanceof StartGroup) {
+      this.drawWaitingNode(element.asLeafNode(), svgElement);
+    } else if (element instanceof EndGroup) {
       this.drawWaitingNode(element.asLeafNode(), svgElement);
     }
 

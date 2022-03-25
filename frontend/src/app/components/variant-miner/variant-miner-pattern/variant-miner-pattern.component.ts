@@ -26,6 +26,10 @@ export class VariantMinerPatternComponent implements OnInit {
     element: VariantElement
   ) => void;
 
+
+  @Input()
+  index : number;
+
   @Input()
   onMouseOverCbFc: (
     drawerDirective: VariantDrawerDirective,
@@ -45,7 +49,6 @@ export class VariantMinerPatternComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log(this.pattern.index, this.pattern)
   }
 
 }

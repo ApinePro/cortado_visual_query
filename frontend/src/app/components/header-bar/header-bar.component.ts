@@ -166,6 +166,7 @@ export class HeaderBarComponent {
       type: 'component',
       title: 'Variant Miner',
       isClosable: false,
+      reorderEnabled: false,
       header: {
         show: false,
       },
@@ -195,6 +196,7 @@ export class HeaderBarComponent {
       type: 'component',
       title: 'Variant Editor',
       isClosable: false,
+      reorderEnabled: false,
       header: {
         show: false,
       },

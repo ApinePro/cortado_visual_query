@@ -50,6 +50,7 @@ import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { DialogModule } from './components/dialogs/dialog.module';
 import { VariantMinerComponent } from './components/variant-miner/variant-miner.component';
 import { VariantMinerPatternComponent } from './components/variant-miner/variant-miner-pattern/variant-miner-pattern.component';
+import { NgxSliderModule } from '@angular-slider/ngx-slider';
 
 @NgModule({
   declarations: [
@@ -107,6 +108,7 @@ import { VariantMinerPatternComponent } from './components/variant-miner/variant
     ColorPickerModule,
     SweetAlert2Module.forRoot(),
     DialogModule,
+    NgxSliderModule
   ],
   providers: [
     {

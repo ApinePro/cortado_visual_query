@@ -483,7 +483,7 @@ export class InvisibleSequenceGroup extends SequenceGroup {
 
 }
 
-class StartGroup extends VariantElement{
+export class StartGroup extends VariantElement{
 
   public getHeight(): number {
     return Constants.LEAF_HEIGHT
@@ -510,7 +510,7 @@ class StartGroup extends VariantElement{
 
 }
 
-class EndGroup extends VariantElement{
+export class EndGroup extends VariantElement{
 
   public getHeight(): number {
     return Constants.LEAF_HEIGHT

@@ -29,6 +29,7 @@ export const baseLayout: LayoutConfig = {
         type: ItemType.row,
         height: 61.803,
         isClosable: false,
+        reorderEnabled: false,
         content: [
           {
             type: ItemType.stack,
@@ -40,6 +41,7 @@ export const baseLayout: LayoutConfig = {
                 type: 'component',
                 title: 'Process Tree Editor',
                 isClosable: false,
+                reorderEnabled: false,
                 id: ProcessTreeEditorComponent.componentName,
                 componentType: ProcessTreeEditorComponent.componentName,
                 componentState: { cssParentClass: 'process-tree-editor-stack' },
