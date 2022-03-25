@@ -20,7 +20,7 @@ import {
   VariantElement,
   WaitingTimeNode,
   StartGroup,
-  EndGroup
+  EndGroup,
 } from '../components/variant-explorer/model';
 import { ActivateTooltipsService } from '../services/activateTooltipsService/activate-tooltips.service';
 import { SharedDataService } from '../services/sharedDataService/shared-data.service';
@@ -96,7 +96,6 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
   }
 
   ngAfterViewInit(): void {
-
     this.svgSelection = d3
       .select(this.svgHtmlElement.nativeElement)
       .append('g');

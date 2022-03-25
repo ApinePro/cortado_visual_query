@@ -9,7 +9,6 @@ import { dummy_tree } from './debug_tree.js';
   providedIn: 'root',
 })
 export class SharedDataService {
-
   constructor() {}
 
   public computedTextLengthCache = new Map<string, number>();

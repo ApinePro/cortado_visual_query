@@ -108,7 +108,7 @@ import { NgxSliderModule } from '@angular-slider/ngx-slider';
     ColorPickerModule,
     SweetAlert2Module.forRoot(),
     DialogModule,
-    NgxSliderModule
+    NgxSliderModule,
   ],
   providers: [
     {

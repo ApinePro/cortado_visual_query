@@ -250,14 +250,17 @@ export class BackendService {
       );
   }
 
-  frequentSubtreeMining(config : MiningConfig): void {
+  frequentSubtreeMining(config: MiningConfig): void {
     this.httpClient
-      .post<Array<any>>(this.backendUrl + 'frequentSubtreeMining', config.serialize())
+      .post<Array<any>>(
+        this.backendUrl + 'frequentSubtreeMining',
+        config.serialize()
+      )
       .subscribe((res) => {
-        console.log("DataFrame")
-        console.log(res)
+        console.log('DataFrame');
+        console.log(res);
 
-        this.sharedDataService.frequentMiningResults = res
+        this.sharedDataService.frequentMiningResults = res;
       });
   }
 
@@ -274,5 +277,3 @@ export class BackendService {
     );
   }
 }
-
-

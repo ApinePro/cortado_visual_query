@@ -1,5 +1,3 @@
-
-
 export class Constants {
   public static LEAF_WIDTH = 40;
   public static LEAF_WIDTH_EXPANDED = 120;
@@ -477,63 +475,53 @@ export class InvisibleSequenceGroup extends SequenceGroup {
   public serialize() {
     return this.elements.map((e) => e.serialize()).filter((e) => e !== null);
   }
-
-
-
-
 }
 
-export class StartGroup extends VariantElement{
-
+export class StartGroup extends VariantElement {
   public getHeight(): number {
-    return Constants.LEAF_HEIGHT
+    return Constants.LEAF_HEIGHT;
   }
 
   public getWidth(includeWaiting: any): number {
-    return 25
+    return 25;
   }
 
   public recalculateWidth(includeWaiting: any): number {
-    return 25
+    return 25;
   }
 
   public recalculateHeight(includeWaiting: any): number {
-    return Constants.LEAF_HEIGHT
+    return Constants.LEAF_HEIGHT;
   }
 
-  public updateWidth(includeWaiting: any) {
-  }
+  public updateWidth(includeWaiting: any) {}
 
   public serialize(): Object {
-    return {start : true}
+    return { start: true };
   }
-
 }
 
-export class EndGroup extends VariantElement{
-
+export class EndGroup extends VariantElement {
   public getHeight(): number {
-    return Constants.LEAF_HEIGHT
+    return Constants.LEAF_HEIGHT;
   }
 
   public getWidth(includeWaiting: any): number {
-    return 25
+    return 25;
   }
 
   public recalculateWidth(includeWaiting: any): number {
-    return 25
+    return 25;
   }
 
   public recalculateHeight(includeWaiting: any): number {
-    return Constants.LEAF_HEIGHT
+    return Constants.LEAF_HEIGHT;
   }
-  public updateWidth(includeWaiting: any) {
-  }
+  public updateWidth(includeWaiting: any) {}
 
   public serialize(): Object {
-    return {end : true}
+    return { end: true };
   }
-
 }
 
 export function deserialize(obj: any): VariantElement {
@@ -547,18 +535,14 @@ export function deserialize(obj: any): VariantElement {
       obj['parallel'].map((e: any) => deserialize(e)),
       obj['performance']
     );
-  } else if ('start' in obj ) {
-    return new StartGroup()
-
-  } else if ('end' in obj ) {
-    return new EndGroup()
-
+  } else if ('start' in obj) {
+    return new StartGroup();
+  } else if ('end' in obj) {
+    return new EndGroup();
   } else {
     return new LeafNode(obj['leaf'], obj['performance']);
   }
 }
-
-
 
 export class PerformanceStats {
   public min: number;

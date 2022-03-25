@@ -8,9 +8,8 @@ describe('VariantMinerPatternComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ VariantMinerPatternComponent ]
-    })
-    .compileComponents();
+      declarations: [VariantMinerPatternComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

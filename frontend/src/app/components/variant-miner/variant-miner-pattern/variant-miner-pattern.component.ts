@@ -1,15 +1,22 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 import { Variant, VariantElement } from '../../variant-explorer/model';
 import { SubvariantPattern } from '../variant-miner.component';
 
 @Component({
-  selector: '[app-variant-miner-pattern]',
+  selector: 'app-variant-miner-pattern',
   templateUrl: './variant-miner-pattern.component.html',
-  styleUrls: ['./variant-miner-pattern.component.css']
+  styleUrls: ['./variant-miner-pattern.component.css'],
 })
-export class VariantMinerPatternComponent implements OnInit {
-
+export class VariantMinerPatternComponent {
   @Input()
   pattern: SubvariantPattern;
 
@@ -26,9 +33,8 @@ export class VariantMinerPatternComponent implements OnInit {
     element: VariantElement
   ) => void;
 
-
   @Input()
-  index : number;
+  index: number;
 
   @Input()
   onMouseOverCbFc: (
@@ -44,13 +50,5 @@ export class VariantMinerPatternComponent implements OnInit {
 
   @ViewChild('fragment')
   fragment: ElementRef;
-  constructor() {
-
-  }
-
-  ngOnInit(): void {
-  }
-
+  constructor() {}
 }
-
-

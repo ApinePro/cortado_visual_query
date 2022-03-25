@@ -148,9 +148,7 @@ export class HeaderBarComponent {
     );
   }
 
-
   openVariantMiner() {
-
     const componentID = VariantMinerComponent.componentName;
     const parentComponentID = ProcessTreeEditorComponent.componentName;
 
