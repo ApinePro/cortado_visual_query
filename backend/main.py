@@ -57,6 +57,8 @@ from cortado_core.subprocess_discovery.subtree_mining.right_most_path_extension.
 from cortado_core.subprocess_discovery.subtree_mining.freq_counting import FrequencyCountingStrategy
 from cortado_core.subprocess_discovery.subtree_mining.maximal_connected_components.maximal_connected_check import set_maximaly_closed_patterns
 from cortado_core.subprocess_discovery.subtree_mining.output import dataframe_from_k_patterns
+from cortado_core.subprocess_discovery.subtree_mining.blanket_mining.cm_grow import cm_min_sub_mining
+
 
 app = FastAPI()
 origins = [
@@ -532,19 +534,26 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
     
     print("Mining K Patterns")
     k_patterns = min_sub_mining(treeBank, load_event_log.logVariants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True)
-
+    
     print("Setting Maximally Closed Patterns")
     set_maximaly_closed_patterns(k_patterns)
     
-    for k in k_patterns: 
-        for p in k_patterns[k]:
-            print(p)
+    df = dataframe_from_k_patterns(k_patterns)
+    
+    print()   
+    print('Closed in RMO', df.closed.value_counts())
+    print()
+    
+    print("Mining CM K Patterns")
+    k_patterns = cm_min_sub_mining(treeBank, load_event_log.logVariants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True)
     
     print("Computing Confidence")
     df = dataframe_from_k_patterns(k_patterns)
     
-    print(df)
-
+    print()    
+    print('Closed in CM', df.closed.value_counts())
+    print()
+    
     df.obj = df.obj.apply(lambda x : x.to_concurrency_group().serialize(include_performance=False))
     
     df = df.replace({np.nan: None})
