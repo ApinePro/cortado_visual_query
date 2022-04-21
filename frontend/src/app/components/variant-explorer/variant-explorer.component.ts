@@ -150,6 +150,8 @@ export class VariantExplorerComponent
 
   showConformanceDialogEvent: Subject<Variant> = new Subject<Variant>();
 
+  public deletedVariants: Variant[][] = [];
+
   ngOnInit(): void {
     this.dropZoneConfig = new DropzoneConfig(
       '.xes',
@@ -876,6 +878,27 @@ export class VariantExplorerComponent
   onSortOrderChanged(isAscending: boolean): void {
     this.isAscendingOrder = isAscending;
     this.sort(this.sortingFeature);
+  }
+
+  deleteSelectedVariants(): void {
+    let kept = this.variants.filter((variant) => !variant.isSelected);
+    let deleted = this.variants.filter((variant) => variant.isSelected);
+    for (let variant of deleted) {
+      variant.isSelected = false;
+    }
+    this.deletedVariants.push(deleted);
+    this.variants = kept;
+  }
+
+  noDeletedVariants(): boolean {
+    return this.deletedVariants.length == 0;
+  }
+
+  restoreLastDeletedVariants(): void {
+    if (this.deletedVariants.length > 0) {
+      this.variants = this.variants.concat(this.deletedVariants.pop());
+      this.sort(this.sortingFeature);
+    }
   }
 }
 
