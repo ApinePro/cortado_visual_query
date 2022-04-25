@@ -781,6 +781,16 @@ export class VariantExplorerComponent
       leafnodes.push(new LeafNode([activity]));
     }
 
+    svgs.forEach((svg) => {
+      svg.removeAttribute('ng-reflect-variant');
+      svg.removeAttribute('ng-reflect-on-click-cb-fc');
+      svg.removeAttribute('ng-reflect-performance-mode');
+      svg.removeAttribute('ng-reflect-compute-activity-color');
+      svg.removeAttribute('appVariantDrawer');
+      svg.removeAttribute('class');
+      d3.select(svg).selectAll('text').attr('data-bs-original-title', null);
+    });
+
     this.polygonDrawingService.drawLegend(leafnodes, legend, this.colorMap);
 
     svgs.unshift(legend.node());
