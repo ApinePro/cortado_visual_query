@@ -10,6 +10,7 @@ import { Selection } from 'd3';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { Constants } from '../model';
 import { ActivateTooltipsService } from '../../../services/activateTooltipsService/activate-tooltips.service';
+import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 
 @Component({
   selector: 'app-sub-variant',
@@ -21,24 +22,32 @@ export class SubVariantComponent implements AfterViewInit {
   svgElement: ElementRef;
 
   @Input()
-  colorMap: Map<string, string>;
+  set variant(value: [string, string][][]) {
+    this._variant = value;
+    this.draw();
+  }
 
-  @Input()
-  variant: [string, string][][];
+  private _variant: [string, string][][];
 
   @Input()
   private expanded = false;
 
   svg: Selection<any, any, any, any>;
+  public colorMap: Map<string, string>;
 
   constructor(
     private sharedDataService: SharedDataService,
+    private colorMapService: ColorMapService,
     private tooltipService: ActivateTooltipsService
   ) {}
 
   ngAfterViewInit(): void {
     this.svg = d3.select(this.svgElement.nativeElement);
-    this.draw();
+
+    this.colorMapService.colorMap$.subscribe((cMap) => {
+      this.colorMap = cMap;
+      this.draw();
+    });
   }
 
   draw(textColor: string = 'whitesmoke'): void {
@@ -103,7 +112,7 @@ export class SubVariantComponent implements AfterViewInit {
     );
     this.svg.attr(
       'width',
-      this.variant.length * intervalWidth + 2 * Constants.POINT_RADIUS
+      this._variant.length * intervalWidth + 2 * Constants.POINT_RADIUS
     );
 
     this.tooltipService.initializeChildren(this.svgElement);
@@ -156,7 +165,7 @@ export class SubVariantComponent implements AfterViewInit {
     const starts = new Map<string, [number, number][]>();
     const data = [];
     let xIndex = 0;
-    this.variant.forEach((group, _i) => {
+    this._variant.forEach((group, _i) => {
       group.sort();
       let starting = group
         .filter(([_a, l]) => l.toLowerCase() === 'start')
