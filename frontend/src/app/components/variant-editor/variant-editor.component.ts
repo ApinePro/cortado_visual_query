@@ -97,7 +97,7 @@ export class VariantEditorComponent
   collapse: boolean = false;
 
   insertionStrategy = activityInsertionStrategy;
-  selectedStrategy = this.insertionStrategy.infront;
+  selectedStrategy = this.insertionStrategy.behind;
 
   variantEnrichedSelection: Selection<any, any, any, any>;
   zoom: any;
@@ -337,11 +337,7 @@ export class VariantEditorComponent
     }
   }
 
-  handleInfrontInsert(
-    variant: VariantElement,
-    leaf: LeafNode,
-    selectedElement
-  ) {
+  handleBehindInsert(variant: VariantElement, leaf: LeafNode, selectedElement) {
     const children = variant.getElements();
 
     if (children) {
@@ -350,7 +346,7 @@ export class VariantEditorComponent
       if (index > -1) {
         // Handling Parent Parallel Group Cases
         if (variant instanceof ParallelGroup) {
-          // Inserting infront a leafNode inside a ParallelGroup
+          // Inserting behind a leafNode inside a ParallelGroup
           if (selectedElement instanceof LeafNode) {
             children.splice(
               index,
@@ -358,7 +354,7 @@ export class VariantEditorComponent
               new SequenceGroup([selectedElement, leaf])
             );
           } else {
-            // Inserting infront a ParallelGroup inside a ParallelGroup
+            // Inserting behind a ParallelGroup inside a ParallelGroup
             if (selectedElement instanceof ParallelGroup) {
               children.splice(
                 children.indexOf(selectedElement),
@@ -366,7 +362,7 @@ export class VariantEditorComponent
                 new SequenceGroup([selectedElement, leaf])
               );
 
-              // Inserting infront a SequeneGroup inside a ParallelGroup
+              // Inserting behind a SequeneGroup inside a ParallelGroup
             } else {
               const selectedChildren = selectedElement.getElements();
               selectedChildren.push(leaf);
@@ -381,20 +377,24 @@ export class VariantEditorComponent
         // Recursing into the Children
       } else {
         for (let child of children) {
-          this.handleInfrontInsert(child, leaf, selectedElement);
+          this.handleBehindInsert(child, leaf, selectedElement);
         }
       }
     }
   }
 
-  handleBehindInsert(variant: VariantElement, leaf: LeafNode, selectedElement) {
+  handleInfrontInsert(
+    variant: VariantElement,
+    leaf: LeafNode,
+    selectedElement
+  ) {
     const children = variant.getElements();
 
     if (children) {
       const index = children.indexOf(selectedElement);
       if (index > -1) {
         if (variant instanceof ParallelGroup) {
-          // Inserting behind  a leafNode inside a ParallelGroup
+          // Inserting infront a leafNode inside a ParallelGroup
           if (selectedElement instanceof LeafNode) {
             children.splice(
               index,
@@ -402,7 +402,7 @@ export class VariantEditorComponent
               new SequenceGroup([leaf, selectedElement])
             );
           } else {
-            // Inserting behind a ParallelGroup inside a ParallelGroup
+            // Inserting infront a ParallelGroup inside a ParallelGroup
             if (selectedElement instanceof ParallelGroup) {
               children.splice(
                 children.indexOf(selectedElement),
@@ -410,7 +410,7 @@ export class VariantEditorComponent
                 new SequenceGroup([leaf, selectedElement])
               );
 
-              // Inserting behind a SequeneGroup inside a ParallelGroup
+              // Inserting infront a SequeneGroup inside a ParallelGroup
             } else {
               const selectedChildren = selectedElement.getElements();
               selectedChildren.unshift(leaf);
@@ -421,7 +421,7 @@ export class VariantEditorComponent
         }
       } else {
         for (let child of children) {
-          this.handleBehindInsert(child, leaf, selectedElement);
+          this.handleInfrontInsert(child, leaf, selectedElement);
         }
       }
     }
