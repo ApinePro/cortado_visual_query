@@ -261,4 +261,8 @@ export class BackendService {
       this.backendUrl + 'getConfiguration'
     );
   }
+
+  getInfo(): Observable<any> {
+    return this.httpClient.get(this.backendUrl + 'info');
+  }
 }

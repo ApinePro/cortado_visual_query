@@ -14,8 +14,11 @@
     delete window.module;
   </script> -->
 
-
   <!--<link rel="icon" type="image/x-icon" href="favicon.ico">-->
+  <script>
+    var electron = require('electron');
+    window.$ = window.jQuery = require('jquery');
+</script>
 </head>
 <body id="body">
 <app-root></app-root>
