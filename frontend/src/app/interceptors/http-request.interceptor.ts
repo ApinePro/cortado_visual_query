@@ -5,21 +5,21 @@ import {
   HttpEvent,
   HttpInterceptor,
   HttpErrorResponse,
-  HttpResponse,
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { map, catchError, finalize } from 'rxjs/operators';
+import { map, catchError, finalize, tap } from 'rxjs/operators';
 import { BackgroundTaskInfoService } from '../services/backgroundTaskInfoService/background-task-info.service';
 import { BackendService } from '../services/backendService/backend.service';
-import Swal from 'sweetalert2';
 import { ErrorService } from '../services/errorService/error.service';
+import { BackendInfoService } from '../services/backendInfoService/backend-info.service';
 
 @Injectable()
 export class HttpRequestInterceptor implements HttpInterceptor {
   constructor(
     private backgroundTaskInfoService: BackgroundTaskInfoService,
     private backendService: BackendService,
-    private errorService: ErrorService
+    private errorService: ErrorService,
+    private backendInfoService: BackendInfoService
   ) {}
 
   intercept(
@@ -35,12 +35,12 @@ export class HttpRequestInterceptor implements HttpInterceptor {
 
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
+        this.setBackendRunningState(error);
         if (this.shouldIgnoreError(error)) {
           return next.handle(request);
         }
 
         this.errorService.addApiError(error);
-        //this.showErrorDialog(error);
         return throwError(error);
       }),
       finalize(() => {
@@ -50,27 +50,21 @@ export class HttpRequestInterceptor implements HttpInterceptor {
   }
 
   shouldIgnoreError(error: HttpErrorResponse): boolean {
-    // ignore timeouts for alignment computations because they are handled in the variant explorer
     return (
-      error.status == 504 && error.url.endsWith('calculateAlignmentsCVariant')
+      // ignore timeouts for alignment computations because they are handled in the variant explorer
+      (error.status == 504 &&
+        error.url.endsWith('calculateAlignmentsCVariant')) ||
+      // info requests are made to show the backend state in the footer; therefore, we do not want to show the error dialog
+      error.url.endsWith('/info')
     );
   }
 
-  showErrorDialog(error: HttpErrorResponse): void {
-    let data = {};
-    data = {
-      reason:
-        error && error.error && error.error.reason ? error.error.reason : '',
-      status: error.status,
-    };
-    Swal.fire({
-      title: 'Error occurred',
-      html: '<b>Error message: </b><br>' + '<code>' + error.message + '</code>',
-      icon: 'error',
-      showCloseButton: false,
-      showConfirmButton: false,
-      showCancelButton: true,
-      cancelButtonText: 'close',
-    });
+  setBackendRunningState(error: HttpErrorResponse): void {
+    let isRunning = true;
+    if (error.status === 0) {
+      isRunning = false;
+    }
+
+    this.backendInfoService.setRunning(isRunning);
   }
 }
