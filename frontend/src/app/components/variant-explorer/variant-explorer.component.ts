@@ -42,6 +42,9 @@ import {
   VariantElement,
   Variant,
   LeafNode,
+  isElementWithActivity,
+  setParent,
+  getLowestSelectableParent,
 } from './model';
 
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
@@ -185,6 +188,8 @@ export class VariantExplorerComponent
   public sortingFeature: string = 'count';
   queryActive: boolean = false;
 
+  public traceInfixSelectionMode: boolean = false;
+
   @ViewChild('variantExplorer', { static: true })
   variantExplorerDiv: ElementRef<HTMLDivElement>;
 
@@ -221,6 +226,7 @@ export class VariantExplorerComponent
       v.isConformanceOutdated = true;
       v.userDefined = false;
       v.isTimeouted = false;
+      setParent(v.variant);
     });
 
     this.variantPerformanceService.injectWaitingTimeNodes(
@@ -346,6 +352,7 @@ export class VariantExplorerComponent
       v.isConformanceOutdated = true;
       v.userDefined = false;
       v.isTimeouted = false;
+      setParent(v.variant);
     });
 
     this.numberFittingVariants = undefined;
@@ -796,10 +803,22 @@ export class VariantExplorerComponent
     if (this.performanceMode) {
       self.changeSelected(element);
       this.variantPerformanceService.setSelectedVariantElement(element);
+    } else if (this.traceInfixSelectionMode) {
+      let lowestSelectableParent = getLowestSelectableParent(element);
+      if (lowestSelectableParent != variant) {
+        lowestSelectableParent.setAllChildrenSelected();
+        variant.calculateSelectableElements();
+        if (!variant.selectionStatusUnchangedFromLastSavedSelection()) {
+          variant.saveCurrentSelectionToSelectionHistory();
+        }
+        self.redraw();
+      }
     } else {
       variant.setExpanded(!variant.getExpanded());
       self.redraw();
     }
+    console.log(variant);
+    console.log(element);
   };
 
   computeActivityColor = (
@@ -980,6 +999,11 @@ export class VariantExplorerComponent
   onSortOrderChanged(isAscending: boolean): void {
     this.isAscendingOrder = isAscending;
     this.sort(this.sortingFeature);
+  }
+
+  toggleTraceInfixSelectionMode(): void {
+    this.traceInfixSelectionMode = !this.traceInfixSelectionMode;
+    this.redraw_components();
   }
 }
 
