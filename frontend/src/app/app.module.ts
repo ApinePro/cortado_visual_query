@@ -48,6 +48,8 @@ import { ActivityButtonAreaComponent } from './components/variant-editor/activit
 import { HeaderBarComponent } from './components/header-bar/header-bar.component';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { DialogModule } from './components/dialogs/dialog.module';
+import { VariantQueryComponent } from './components/variant-explorer/variant-query/variant-query.component';
+import { SyntaxHighlightedTextareaDirective } from './directives/syntax-highlighted-textarea.directive';
 
 @NgModule({
   declarations: [
@@ -69,6 +71,7 @@ import { DialogModule } from './components/dialogs/dialog.module';
     VariantInfoComponent,
     VariantColorMapComponent,
     VariantSelectionButtonComponent,
+    VariantQueryComponent,
     ActivityOverviewComponent,
     NodeSelectionPerformanceComponent,
     PerformanceTableComponent,
@@ -86,6 +89,7 @@ import { DialogModule } from './components/dialogs/dialog.module';
     TooltipDirective,
     VariantEditorComponent,
     VariantDrawerDirective,
+    SyntaxHighlightedTextareaDirective,
     ActivityButtonAreaComponent,
     VariantComponent,
     BpmnEditorComponent,
