@@ -24,6 +24,7 @@ export class Constants {
 
 export class Variant {
   id: string;
+  bid: number;
   number: number;
   count: number;
   length: number;

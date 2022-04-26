@@ -939,8 +939,16 @@ export class BpmnEditorComponent
     const tspan = activityText
       .append('tspan')
       .attr('x', width / 2)
-      .attr('y', BPMN_Constant.bpmn_node_height_width / 2)
-      .text(model.eventName);
+      .attr('y', BPMN_Constant.bpmn_node_height_width / 2);
+
+    if (model.eventName) {
+      // shorten text if it is too long
+      if (model.eventName.length <= 20) {
+        tspan.text(model.eventName);
+      } else {
+        tspan.text(model.eventName.substring(0, 20) + '...');
+      }
+    }
 
     this.addToolTip(selection);
   }

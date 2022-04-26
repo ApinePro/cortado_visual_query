@@ -71,6 +71,15 @@ export class ApiErrorDialogComponent implements OnInit, OnDestroy {
         this.isVisible = Object.keys(errorRes).length != 0;
         this.apiError = errorRes.error;
         this.message = errorRes.message;
+
+        if (errorRes.error && errorRes.error.detail) {
+          this.message += '\n' + errorRes.error.detail;
+        }
+
+        if (errorRes.status === 0) {
+          this.message =
+            'The backend is unavailable. Wait for the backend to start or start it manually.';
+        }
       },
     };
   }

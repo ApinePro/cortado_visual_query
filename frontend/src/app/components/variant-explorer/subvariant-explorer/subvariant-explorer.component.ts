@@ -64,7 +64,6 @@ export class SubvariantExplorerComponent
     this.colorMapService.colorMap$.subscribe((cMap) => {
       this.colorMap = cMap;
       this.mainvariantDrawer.redraw();
-      this.subVariantComponents.forEach((svc) => svc.draw());
     });
   }
 

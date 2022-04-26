@@ -1,21 +1,21 @@
 import pm4pycvxopt
 
+from endpoints.query_variant import evaluate_query_against_variant_graphs
 from endpoints.add_variants_to_process_model import add_variants_to_process_model
 from cortado_core.utils.cvariants import generate_variants
 from cortado_core.utils.alignment_utils import trace_fits_process_tree
-import configparser
 import json
 from multiprocessing import freeze_support, cpu_count, Pool
 from typing import Any, List, Optional
 import asyncio
 import pickle
 import pm4pycvxopt
-import traceback
 
 import uvicorn
 from fastapi import FastAPI, File, UploadFile, WebSocket, WebSocketDisconnect, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response, JSONResponse
+from fastapi.responses import Response
+from fastapi.requests import Request
 from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, Field
 from pm4py.objects.process_tree.utils import generic as tree_util
@@ -59,6 +59,18 @@ origins = [
     "http://localhost:4444"
 ]
 
+
+# see https://github.com/tiangolo/fastapi/issues/775
+# Without this middleware, fastapi does not return the CORS headers if there is an uncaught exception.
+# Without the CORS headers, the browser does not forward the correct HTTP status code to the angular application.
+async def catch_exceptions_middleware(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception:
+        return Response("Internal server error", status_code=500)
+
+
+app.middleware('http')(catch_exceptions_middleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -67,22 +79,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 def get_config_repo():
     return ConfigurationRepositoryFactory.get_config_repository()
+
 
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
+
 
 @app.on_event("startup")
 async def startup_event():
     global pcache
     pcache = pickle.load(open( "pcache.p", "rb" ))
     load_event_log.variants_store = pickle.load(open( "variants_store.p", "rb" ))
+    load_event_log.variants = pickle.load(open( "variants.p", "rb" ))
+    load_event_log.activites = pickle.load(open( "activities.p", "rb" ))
 
- 
 @app.post("/uploadfile")
-async def create_upload_file(file: UploadFile = File(...), config_repo: ConfigurationRepository = Depends(get_config_repo)):
+async def create_upload_file(file: UploadFile = File(...),
+                             config_repo: ConfigurationRepository = Depends(get_config_repo)):
     global pcache
     pcache = {}
 
@@ -92,13 +109,12 @@ async def create_upload_file(file: UploadFile = File(...), config_repo: Configur
     info = calculate_event_log_properties(event_log, use_mp)
     return info
 
-
 class FilePathInput(BaseModel):
     file_path: str
 
-
 @app.post("/loadEventLog")
-async def load_event_log_from_file_path(d: FilePathInput, config_repo: ConfigurationRepository = Depends(get_config_repo)):
+async def load_event_log_from_file_path(d: FilePathInput,
+                                        config_repo: ConfigurationRepository = Depends(get_config_repo)):
     global event_log
     global pcache
     pcache = {}
@@ -222,6 +238,7 @@ async def parseStringToPT(d: InputTreeFromTreeString):
 
     return res
 
+
 @app.get("/variants")
 async def get_variants_from_event_log():
     log = await meta.get_event_log()
@@ -249,12 +266,11 @@ class ConvertPtToX(BaseModel):
 async def download_ptml(d: ConvertPtToX):
     pt: ProcessTree
     frozen_subtree: List[ProcessTree]
-    
-    pt, frozen_subtrees = dict_to_process_tree(d.pt)
-    bpmn = convert_pt(pt, variant= ptConverterVariant.TO_BPMN)
-    
-    return Response(content = generate_bpmn_xml(bpmn), media_type="application/xml")
 
+    pt, frozen_subtrees = dict_to_process_tree(d.pt)
+    bpmn = convert_pt(pt, variant=ptConverterVariant.TO_BPMN)
+
+    return Response(content=generate_bpmn_xml(bpmn), media_type="application/xml")
 
 
 @app.post("/convertPtToPTML")
@@ -262,8 +278,7 @@ async def download_ptml(d: ConvertPtToX):
     pt: ProcessTree
     frozen_subtree: List[ProcessTree]
     pt, frozen_subtrees = dict_to_process_tree(d.pt)
-    
- 
+
     return Response(content=generate_ptml_xml(pt), media_type="application/xml")
 
 
@@ -299,6 +314,7 @@ def tau_0_values(tree_nodes, perf_stats):
             "waiting_time": stats([0]),
             "idle_time": stats([0]),
         }
+
 
 def get_merged_performances(pt: CortadoProcessTree):
     tree_nodes = performance_utils.get_all_nodes(pt)
@@ -355,6 +371,9 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             cycle_times_aggregated = p_values["cycle_times"]
             mean_fitness = p_values["mean_fitness"]
         else:
+            if not variant_cache_key in load_event_log.variants_store:
+                raise HTTPException(status_code=409,
+                                    detail="Detailled variant information are not in the backend's cache. Please (re)upload the log file.")
             test_log = load_event_log.variants_store[variant_cache_key]
             test_log = EventLog(test_log)
             (service_times, idle_times, waiting_times, cycle_times), mean_fitness \
@@ -387,8 +406,8 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
                                                      "waiting_times": waiting_times_aggregated,
                                                      "mean_fitness": mean_fitness}
 
-    #pickle.dump( pcache, open( "pcache.p", "wb" ))
-    #pickle.dump(load_event_log.variants_store,  open( "variants_store.p", "wb" ))
+    # pickle.dump( pcache, open( "pcache.p", "wb" ))
+    # pickle.dump(load_event_log.variants_store,  open( "variants_store.p", "wb" ))
 
     pt_dict = get_merged_performances(pt)
     return {'merged_performance_tree': pt_dict, 'variants_tree_performance': variants_tree_performance,
@@ -445,7 +464,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     pool.terminate()
                     await websocket.close(1000)
                     return
-                
+
                 timeout = configuration.timeout_cvariant_alignment_computation
                 if data['timeout'] != 0:
                     timeout = data['timeout']
@@ -465,7 +484,8 @@ class Configuration(BaseModel):
 
 
 @app.post("/saveConfiguration")
-async def save_configuration(config_dto: Configuration, config_repository: ConfigurationRepository = Depends(get_config_repo)):
+async def save_configuration(config_dto: Configuration,
+                             config_repository: ConfigurationRepository = Depends(get_config_repo)):
     config = DomainConfiguration(
         timeout_cvariant_alignment_computation=config_dto.timeout_cvariant_alignment_computation,
         min_traces_variant_detection_mp=config_dto.min_traces_variant_detection_mp)
@@ -480,12 +500,27 @@ async def get_configuration(config_repo: ConfigurationRepository = Depends(get_c
     return config_dto
 
 
+@app.get("/info")
+async def get_info():
+    return {}
+
+
 # Using FastAPI instance
 @app.get("/url-list")
 def get_all_urls():
     url_list = [{"path": route.path, "name": route.name} for route in app.routes]
     return url_list
 
+
+class variantQuery(BaseModel):
+    queryString: str
+
+@app.post("/variant-query")
+def variant_query(query : variantQuery): 
+    
+    res = evaluate_query_against_variant_graphs(query, load_event_log.variants, load_event_log.activites) 
+    
+    return res
 
 if __name__ == "__main__":
     # print(DEFAULT_LP_SOLVER_VARIANT)

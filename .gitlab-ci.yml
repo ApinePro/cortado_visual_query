@@ -101,6 +101,7 @@ build-electron-app-windows:
     - when: on_success
   before_script:
     - cd frontend
+    - npm install -g npm@latest
     - npm ci
   script:
     - npm run build-prod
@@ -123,6 +124,7 @@ build-electron-app-linux:
   before_script:
     - export LINUX_BUILD_DIR=${LINUX_BUILD_DIR//:}
     - cd frontend
+    - npm install -g npm@latest
     - npm ci
   script:
     - npm run build-prod

@@ -18,9 +18,16 @@ import {
   ViewChildren,
   Renderer2,
   AfterViewInit,
+  HostListener,
 } from '@angular/core';
 
-import { trigger, style, animate, transition } from '@angular/animations';
+import {
+  trigger,
+  style,
+  animate,
+  transition,
+  state,
+} from '@angular/animations';
 
 import { ComponentContainer } from 'golden-layout';
 import { ColorMapService } from '../../services/colorMapService/color-map.service';
@@ -74,12 +81,55 @@ import { ConformanceCheckingService } from 'src/app/services/conformanceChecking
         ),
       ]),
     ]),
+    trigger('openCloseQuery', [
+      // ...
+      state(
+        'openQuery',
+        style({
+          height: '75%',
+          width: '55%',
+          overflow: 'hidden',
+        })
+      ),
+      state(
+        'closeQuery',
+        style({
+          height: '25px',
+          width: '25px',
+          overflow: 'hidden',
+        })
+      ),
+      transition('openQuery => closeQuery', [animate('175ms')]),
+      transition('closeQuery => openQuery', [animate('175ms')]),
+    ]),
+    trigger('fadeInOutQuery', [
+      // ...
+      state(
+        'fadeInQuery',
+        style({
+          opacity: '1',
+          width: '100%',
+          height: '100%',
+        })
+      ),
+      state(
+        'fadeOutQuery',
+        style({
+          opacity: '0',
+          width: '0%',
+          height: '0%',
+        })
+      ),
+      transition('fadeInQuery => fadeOutQuery', [animate('175ms')]),
+      transition('fadeOutQuery => fadeInQuery', [animate('175ms')]),
+    ]),
   ],
 })
 export class VariantExplorerComponent
   extends LayoutChangeDirective
   implements OnInit, AfterViewInit
 {
+  displayed_variants: any;
   constructor(
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
@@ -133,6 +183,7 @@ export class VariantExplorerComponent
   dropZoneConfig: DropzoneConfig;
   public isAscendingOrder: boolean = false;
   public sortingFeature: string = 'count';
+  queryActive: boolean = false;
 
   @ViewChild('variantExplorer', { static: true })
   variantExplorerDiv: ElementRef<HTMLDivElement>;
@@ -162,10 +213,12 @@ export class VariantExplorerComponent
 
     // preload road traffic fine management process
     this.variants = this.sharedDataService.variants;
+    this.displayed_variants = this.variants;
 
     this.variants.forEach((v, i) => {
       v.id = objectHash(v.variant);
       v.number = i + 1;
+      v.bid = i;
       v.variant = deserialize(v.variant);
       v.isConformanceOutdated = true;
       v.userDefined = false;
@@ -231,6 +284,11 @@ export class VariantExplorerComponent
     this.subscribeForConformanceCheckingResults();
   }
 
+  @HostListener('window:keydown.control.q', ['$event'])
+  onOpenQuery(e) {
+    this.toggleQuery();
+  }
+
   ngAfterViewInit() {
     this.polygonDrawingService.setElementRefereneces(
       this.variantExplorerContainer,
@@ -276,11 +334,15 @@ export class VariantExplorerComponent
     );
 
     this.variants = this.sharedDataService.variants;
+    console.log('Variants after Load', this.variants);
+
+    this.displayed_variants = this.variants;
+
     this.variantPerformanceService.injectWaitingTimeNodes(
       this.variants.map((v) => v.variant)
     );
 
-    this.variants.forEach((v) => {
+    this.variants.forEach((v, i) => {
       v.isSelected = false;
       v.isAddedFittingVariant = false;
       v.isConformanceOutdated = true;
@@ -296,6 +358,8 @@ export class VariantExplorerComponent
       .reduce((a, b) => a + b);
     this.totalNumberVariants = this.variants.length;
     this.sort(this.sortingFeature);
+
+    console.log('Variants after load:', this.variants);
   }
 
   private activityNamesChanged(): void {
@@ -327,6 +391,21 @@ export class VariantExplorerComponent
         this.updateAlignmentStatistics();
       }
     );
+  }
+
+  apply_query_filter(queryItems: Set<number>) {
+    console.log('Changed Filter', queryItems);
+    console.log('Current Variants', this.variants);
+
+    if (!queryItems) {
+      this.displayed_variants = this.variants;
+    } else {
+      this.displayed_variants = this.variants.filter((variant) => {
+        return queryItems.has(variant.bid);
+      });
+    }
+
+    this.updateAllSubvariantWindows();
   }
 
   updateAlignments(): void {
@@ -431,7 +510,8 @@ export class VariantExplorerComponent
     this.cleanUpSubVariantMap();
 
     const id =
-      SubvariantExplorerComponent.componentName + this.variants[index - 1].id;
+      SubvariantExplorerComponent.componentName +
+      this.displayed_variants[index - 1].id;
 
     let componentItem = this._subvariantcomponentItemsMap.get(id);
 
@@ -454,8 +534,8 @@ export class VariantExplorerComponent
         title: 'Sub-Variants for ' + index,
         isClosable: true,
         reorderEnabled: false,
+        componentState: this.displayed_variants[index - 1],
         maximised: true,
-        componentState: this.variants[index - 1],
         componentType: SubvariantExplorerComponent.componentName,
       };
 
@@ -488,9 +568,18 @@ export class VariantExplorerComponent
   }
 
   updateAllSubvariantWindows(): void {
-    for (let index = 0; index < this.variants.length; index++) {
+    this._subvariantcomponentItemsMap.forEach((value) => {
+      console.log(value);
+
+      if (value) {
+        value.setTitle('Sub-Variant');
+      }
+    });
+
+    for (let index = 0; index < this.displayed_variants.length; index++) {
       const id =
-        SubvariantExplorerComponent.componentName + this.variants[index].id;
+        SubvariantExplorerComponent.componentName +
+        this.displayed_variants[index].id;
       let componentItem = this._subvariantcomponentItemsMap.get(id);
       if (componentItem) {
         componentItem.setTitle('Sub-Variants for ' + (index + 1));
@@ -502,7 +591,7 @@ export class VariantExplorerComponent
     for (let index = 0; index < this.variants.length; index++) {
       const id =
         SubvariantExplorerComponent.componentName + this.variants[index].id;
-      let componentItem = this._subvariantcomponentItemsMap.get(id);
+      const componentItem = this._subvariantcomponentItemsMap.get(id);
       if (
         componentItem &&
         !this._goldenLayoutHostComponent.getComponentRef(
@@ -783,6 +872,16 @@ export class VariantExplorerComponent
       leafnodes.push(new LeafNode([activity]));
     }
 
+    svgs.forEach((svg) => {
+      svg.removeAttribute('ng-reflect-variant');
+      svg.removeAttribute('ng-reflect-on-click-cb-fc');
+      svg.removeAttribute('ng-reflect-performance-mode');
+      svg.removeAttribute('ng-reflect-compute-activity-color');
+      svg.removeAttribute('appVariantDrawer');
+      svg.removeAttribute('class');
+      d3.select(svg).selectAll('text').attr('data-bs-original-title', null);
+    });
+
     this.polygonDrawingService.drawLegend(leafnodes, legend, this.colorMap);
 
     svgs.unshift(legend.node());
@@ -864,10 +963,15 @@ export class VariantExplorerComponent
     this.variantExplorerOutOfFocus = event;
   }
 
+  toggleQuery() {
+    console.log('Toggle Query:', this.queryActive);
+    this.queryActive = !this.queryActive;
+  }
+
   sort(sortingFeature: string): void {
     this.sortingFeature = sortingFeature;
-    this.variants = VariantSorter.sort(
-      this.variants,
+    this.displayed_variants = VariantSorter.sort(
+      this.displayed_variants,
       this.sortingFeature,
       this.isAscendingOrder
     );

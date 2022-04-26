@@ -26,22 +26,6 @@
       <button
         type="button"
         class="button"
-        (click)="selectedStrategy = insertionStrategy.behind"
-        [ngClass]="
-          selectedStrategy === insertionStrategy.behind
-            ? 'strategy-selected'
-            : ''
-        "
-        data-bs-toggle="tooltip"
-        data-bs-placement="bottom"
-        title="Insert new activities behind the selected activtiy"
-      >
-        <i class="bi bi-chevron-left"></i>
-      </button>
-
-      <button
-        type="button"
-        class="button"
         (click)="selectedStrategy = insertionStrategy.infront"
         [ngClass]="
           selectedStrategy === insertionStrategy.infront
@@ -50,7 +34,23 @@
         "
         data-bs-toggle="tooltip"
         data-bs-placement="bottom"
-        title="Insert new activities infront of the selected activtiy"
+        title="insert new activities infront the selected activtiy"
+      >
+        <i class="bi bi-chevron-left"></i>
+      </button>
+
+      <button
+        type="button"
+        class="button"
+        (click)="selectedStrategy = insertionStrategy.behind"
+        [ngClass]="
+          selectedStrategy === insertionStrategy.behind
+            ? 'strategy-selected'
+            : ''
+        "
+        data-bs-toggle="tooltip"
+        data-bs-placement="bottom"
+        title="insert new activities behind of the selected activtiy"
       >
         <i class="bi bi-chevron-right"></i>
       </button>
@@ -66,7 +66,7 @@
         "
         data-bs-toggle="tooltip"
         data-bs-placement="bottom"
-        title="Insert new activities parallel of the selected activtiy"
+        title="insert new activities parallel of the selected activtiy"
       >
         <i class="bi bi-chevron-expand"></i>
       </button>
@@ -82,7 +82,7 @@
         "
         data-bs-toggle="tooltip"
         data-bs-placement="bottom"
-        title="Replace the currently selected activity"
+        title="replace the currently selected activity"
       >
         <i class="bi bi-arrow-repeat"></i>
       </button>
@@ -128,7 +128,7 @@
       (click)="onDeleteSelected()"
       data-bs-toggle="tooltip"
       data-bs-placement="bottom"
-      title="Removes the currently selected activity"
+      title="remove the currently selected activity"
       [disabled]="emptyVariant || !selectedElement"
     >
       <i
@@ -150,7 +150,7 @@
       (click)="onDeleteVariant()"
       data-bs-toggle="tooltip"
       data-bs-placement="bottom"
-      title="Removes the current variant"
+      title="remove the current variant"
       [disabled]="emptyVariant"
     >
       <i
@@ -179,7 +179,7 @@
       class="button"
       data-bs-toggle="tooltip"
       data-bs-placement="top"
-      title="Move to the start of the variant"
+      title="move to the start of the variant"
       id="btn-center-variant"
     >
       <i class="bi bi-arrows-fullscreen btn-icon text-light"></i>

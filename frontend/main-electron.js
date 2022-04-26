@@ -12,8 +12,6 @@ const backendExecutablePathLinux = executablePath.substring(0, executablePath.la
   "/cortado-backend/cortado-backend";
 const lastAcceptedVersionKey = "lastAcceptedVersion";
 
-//const ipc = require('electron').ipcRenderer;
-
 let mainCortadoWin;
 let backendProcess;
 let licenseDialog;
@@ -44,6 +42,11 @@ function createLicenseDialog(){
   licenseDialog.loadFile("license-dialog.html");
 }
 
+ipcMain.on('restartBackend', () => {
+  killBackendProcess();
+  backendProcess = startBackend();
+})
+
 ipcMain.on('license-dialog', (event, arg) => {
   if (arg === 'accepted'){ // Refer to license-dialog.js
     const store = new Store();
@@ -65,7 +68,8 @@ function createMainApplicationWindow() {
     height: 800,
     frame: true,
     webPreferences: {
-      nodeIntegration: false
+      nodeIntegration: true,
+      contextIsolation: false,
     },
     iconUrl: "./icon/cortado_icon_colorful_transparent.png",
     darkTheme: true
@@ -86,6 +90,16 @@ function createMainApplicationWindow() {
   });
 }
 
+function killBackendProcess() {
+  if (backendProcess){
+    if (process.platform !== 'linux'){
+      kill(backendProcess.pid);
+    } else {
+      ChildProcess.execSync("pkill cortado-backend", {shell: '/bin/sh'});
+    }
+  }
+}
+
 //app.on('ready', createWindow);
 app.whenReady().then(function () {
   const store = new Store();
@@ -100,13 +114,7 @@ app.whenReady().then(function () {
 });
 
 app.on("quit", function () {
-  if (backendProcess){
-    if (process.platform !== 'linux'){
-      kill(backendProcess.pid);
-    } else {
-      ChildProcess.execSync("pkill cortado-backend", {shell: '/bin/sh'});
-    }
-  }
+  killBackendProcess();
 });
 
 app.on('window-all-closed', function () {
