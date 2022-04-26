@@ -1,4 +1,5 @@
 <app-drop-zone
+  *ngIf="!queryActive"
   [dropzoneConfig]="dropZoneConfig"
   (fileOnHover)="toggleBlur($event)"
 ></app-drop-zone>
@@ -263,6 +264,25 @@
     </button>
   </div>
 
+  <div
+    class="variant-query-button"
+    [@openCloseQuery]="queryActive ? 'openQuery' : 'closeQuery'"
+  >
+    <div class="query-header query-button d-flex" (click)="toggleQuery()">
+      <i class="bi bi-search"></i>
+      <span *ngIf="queryActive" class="ms-2">Variant Query</span>
+    </div>
+    <div
+      class="query-app-container"
+      [@fadeInOutQuery]="queryActive ? 'fadeInQuery' : 'fadeOutQuery'"
+    >
+      <app-variant-query
+        (query_selection)="apply_query_filter($event)"
+        [active]="queryActive"
+      ></app-variant-query>
+    </div>
+  </div>
+
   <div class="main-variant-explorer flex-grow-1" #variantExplorer>
     <div *ngIf="svgRenderingInProgress" class="full-body-spinner">
       <div>
@@ -342,11 +362,20 @@
               </div>
             </th>
 
-            <th class="text-start">Variant</th>
+            <th class="text-start">
+              Variant <br />
+              <span class="variant-number"
+                >({{
+                  displayed_variants.length === variants.length
+                    ? displayed_variants.length
+                    : displayed_variants.length + "/" + variants.length
+                }})</span
+              >
+            </th>
           </tr>
           <tr
             app-variant
-            *ngFor="let variant of variants; let i = index"
+            *ngFor="let variant of displayed_variants; let i = index"
             [index]="i"
             [variant]="variant"
             (openSubvariantWindow)="createSubVariantView($event)"

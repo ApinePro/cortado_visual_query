@@ -52,7 +52,7 @@ export class BackendService {
     this.sharedDataService.endActivitiesInEventLog = new Set(
       Object.keys(res['endActivities'])
     );
-    console.log(res['variants']);
+
     this.sharedDataService.variants = res['variants'];
 
     this.sharedDataService.variants.forEach((variant, i) => {
@@ -260,6 +260,11 @@ export class BackendService {
     return this.httpClient.get<Configuration>(
       this.backendUrl + 'getConfiguration'
     );
+  }
+
+  variantQuery(query: string): Observable<any> {
+    const queryBody = { queryString: query };
+    return this.httpClient.post(this.backendUrl + 'variant-query', queryBody);
   }
 
   getInfo(): Observable<any> {

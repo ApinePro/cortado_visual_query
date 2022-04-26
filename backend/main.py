@@ -1,16 +1,15 @@
 import pm4pycvxopt
 
+from endpoints.query_variant import evaluate_query_against_variant_graphs
 from endpoints.add_variants_to_process_model import add_variants_to_process_model
 from cortado_core.utils.cvariants import generate_variants
 from cortado_core.utils.alignment_utils import trace_fits_process_tree
-import configparser
 import json
 from multiprocessing import freeze_support, cpu_count, Pool
 from typing import Any, List, Optional
 import asyncio
 import pickle
 import pm4pycvxopt
-import traceback
 
 import uvicorn
 from fastapi import FastAPI, File, UploadFile, WebSocket, WebSocketDisconnect, HTTPException, Depends
@@ -93,9 +92,10 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 @app.on_event("startup")
 async def startup_event():
     global pcache
-    pcache = pickle.load(open("pcache.p", "rb"))
-    load_event_log.variants_store = pickle.load(open("variants_store.p", "rb"))
-
+    pcache = pickle.load(open( "pcache.p", "rb" ))
+    load_event_log.variants_store = pickle.load(open( "variants_store.p", "rb" ))
+    load_event_log.variants = pickle.load(open( "variants.p", "rb" ))
+    load_event_log.activites = pickle.load(open( "activities.p", "rb" ))
 
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...),
@@ -109,10 +109,8 @@ async def create_upload_file(file: UploadFile = File(...),
     info = calculate_event_log_properties(event_log, use_mp)
     return info
 
-
 class FilePathInput(BaseModel):
     file_path: str
-
 
 @app.post("/loadEventLog")
 async def load_event_log_from_file_path(d: FilePathInput,
@@ -513,6 +511,16 @@ def get_all_urls():
     url_list = [{"path": route.path, "name": route.name} for route in app.routes]
     return url_list
 
+
+class variantQuery(BaseModel):
+    queryString: str
+
+@app.post("/variant-query")
+def variant_query(query : variantQuery): 
+    
+    res = evaluate_query_against_variant_graphs(query, load_event_log.variants, load_event_log.activites) 
+    
+    return res
 
 if __name__ == "__main__":
     # print(DEFAULT_LP_SOLVER_VARIANT)
