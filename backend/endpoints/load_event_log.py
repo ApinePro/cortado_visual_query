@@ -70,13 +70,23 @@ def get_simple_variants(event_log: EventLog):
 
 def get_c_variants(event_log: EventLog, use_mp: bool = False):
     global variants_store
+    global variants
+    global activites 
+    
     variants = get_concurrency_variants(event_log, use_mp)
+    
+    activites = set()
+    
     total_traces = len(event_log)
     res_variants = []
-    for v in variants:
+    for i, v in enumerate(variants):
+        
+        activites = activites.union(v.graph.events)
+        
         variant = {
             'count': len(variants[v]),
             'variant': v.serialize(),
+            'bid' : i, 
             'length': len(v),
             'number_of_activities': v.number_of_activities(),
             'percentage': round(len(variants[v]) / total_traces * 100, 2),

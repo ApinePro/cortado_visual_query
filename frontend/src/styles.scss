@@ -1,3 +1,5 @@
+$tooltip-max-width: 450px;
+
 /* Define our main import here */
 @import "./@theme/theme";
 @import "~bootstrap-icons/font/bootstrap-icons.css";
@@ -93,6 +95,10 @@ hr {
   width: 100%;
 }
 
+.green{
+  color : green;
+}
+
 .vl {
   border-left: 1px solid var(--line-color);
   height: 27px;
@@ -105,6 +111,10 @@ hr {
 .secondary-text {
   color: var(--text-secondary);
   font-size: var(--standard-font-size);
+}
+
+.logical-operator{
+  color :rgb(65, 141, 213);
 }
 
 .cursor-pointer {
@@ -150,14 +160,13 @@ hr {
 }
 
 .warning-highlight{
-  background-color: yellow;
+  background-color: rgba(255, 255, 0, 0.333);
 }
 
 .imbalanced-parenthesis{
   border-bottom : 1.5px solid;
   border-color: red;
 }
-
 
 code {
   color: var(--text-secondary);

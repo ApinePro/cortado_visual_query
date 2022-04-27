@@ -8,11 +8,62 @@ import {
   ValidatorFn,
   FormGroup,
 } from '@angular/forms';
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 
 @Component({
   selector: 'app-expert-mode',
   templateUrl: './expert-mode.component.html',
   styleUrls: ['./expert-mode.component.scss'],
+  animations: [
+    trigger('opencloseExpertMode', [
+      // ...
+      state(
+        'openExpertMode',
+        style({
+          height: '55%',
+          width: '35%',
+          overflow: 'hidden',
+        })
+      ),
+      state(
+        'closeExpertMode',
+        style({
+          height: '25px',
+          width: '25px',
+          overflow: 'hidden',
+        })
+      ),
+      transition('openExpertMode => closeExpertMode', [animate('175ms')]),
+      transition('closeExpertMode => openExpertMode', [animate('175ms')]),
+    ]),
+    trigger('fadeInOutExpertMode', [
+      // ...
+      state(
+        'fadeInExpertMode',
+        style({
+          opacity: '1',
+          width: '100%',
+          height: '100%',
+        })
+      ),
+      state(
+        'fadeOutExpertMode',
+        style({
+          opacity: '0',
+          width: '0%',
+          height: '0%',
+        })
+      ),
+      transition('fadeInExpertMode => fadeOutExpertMode', [animate('175ms')]),
+      transition('fadeOutExpertMode => fadeInExpertMode', [animate('175ms')]),
+    ]),
+  ],
 })
 export class ExpertModeComponent implements OnInit {
   syntax_tree_string: string = '';
@@ -22,6 +73,7 @@ export class ExpertModeComponent implements OnInit {
   activityNameRegEx = new RegExp("'([^']*)'", 'g');
   backendErrorMessage: string;
   styled_tree_string: string = null;
+  editorActive: boolean = false;
 
   imbalancedItems: Array<imbalancedItem>;
 
@@ -145,20 +197,20 @@ export class ExpertModeComponent implements OnInit {
     return this.syntaxTreeInput.get('syntax_tree')!;
   }
 
-  openExpertMode() {
-    this.collectCurrentTreeString(
-      this.sharedDataService.currentDisplayedProcessTree
-    );
+  toggleExpertMode() {
+    this.editorActive = !this.editorActive;
+    console.log('Toogle Editor', this.editorActive);
+    if (this.editorActive) {
+      this.collectCurrentTreeString(
+        this.sharedDataService.currentDisplayedProcessTree
+      );
+    }
   }
 
   // If expert mode is open, compute the syntax tree string
   private collectCurrentTreeString(tree) {
     // Check if tree exists, if the expert mode is active and if it did change
-    if (
-      tree &&
-      this.expertModeButton.nativeElement.ariaExpanded === 'true' &&
-      tree !== this.currentlyDisplayedTreeInExpertMode
-    ) {
+    if (tree && tree !== this.currentlyDisplayedTreeInExpertMode) {
       this.backendService.computeTreeString(tree);
       this.currentlyDisplayedTreeInExpertMode = tree;
       this.edit = false;

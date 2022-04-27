@@ -193,7 +193,7 @@ export class PerformanceService {
       )}`;
     }
 
-    tooltipText = `${tooltipText}<hr class="performance-tooltip-hr">Click to visualize performance of this variant on model.`;
+    tooltipText = `${tooltipText}<hr class="performance-tooltip-hr">click to visualize performance of this variant on model`;
 
     button.setAttribute('title', tooltipText);
     this.tooltipService.initializeTooltip(button);

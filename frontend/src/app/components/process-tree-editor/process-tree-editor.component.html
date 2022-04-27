@@ -363,7 +363,7 @@
       class="button"
       data-bs-toggle="tooltip"
       data-bs-placement="top"
-      title="Exports the tree as an .svg"
+      title="export the tree as an .svg"
       (click)="exportCurrentTree(d3svg)"
     >
       <i class="bi bi-save"></i>
@@ -400,9 +400,7 @@
       </div>
     </div>
 
-    <div class="exportMode-container">
-      <app-expert-mode> </app-expert-mode>
-    </div>
+    <app-expert-mode> </app-expert-mode>
 
     <svg #d3svg id="d3-svg" width="100%" height="100%"></svg>
   </div>
