@@ -1023,7 +1023,7 @@ export class VariantExplorerComponent
       this.sort(this.sortingFeature);
     }
   }
-  
+
   toggleTraceInfixSelectionMode(): void {
     this.traceInfixSelectionMode = !this.traceInfixSelectionMode;
     this.redraw_components();
