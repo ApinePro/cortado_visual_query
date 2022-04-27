@@ -8,7 +8,7 @@ import {
 import { AfterViewInit, ElementRef } from '@angular/core';
 import { Input } from '@angular/core';
 import * as d3 from 'd3';
-import { Selection } from 'd3';
+import { Selection, svg } from 'd3';
 import { PolygonGeneratorService } from 'src/app/services/polygon-generator.service';
 import { textColorForBackgroundColor } from '../components/variant-explorer/helper_functions';
 import {
@@ -51,6 +51,9 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
   @Input()
   performanceMode: boolean = false;
+
+  @Input()
+  traceInfixSelectionMode: boolean = false;
 
   @Input()
   computeActivityColor: (
@@ -118,6 +121,8 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
       this.redraw();
       this.setInspectVariant();
+    } else if (changes.traceInfixSelectionMode) {
+      this.redraw();
     }
   }
 
@@ -188,6 +193,25 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       .classed('variant-sequence-group', true)
       .classed('variant-polygon', true);
 
+    if (
+      this.traceInfixSelectionMode &&
+      !(element instanceof InvisibleSequenceGroup)
+    ) {
+      if (element.selected && element.parent && !element.parent.selected) {
+        polygon.attr('stroke', '#ff0000').attr('stroke-width', '1px');
+      }
+      if (!element.selected && element.selectable && element.parent) {
+        polygon
+          .attr('stroke', '#ff0000')
+          .attr('stroke-width', '1px')
+          .attr('stroke-dasharray', '4')
+          .attr('fill', '#999999');
+      }
+      if (!element.selected && !element.selectable) {
+        polygon.attr('fill', '#555555');
+      }
+    }
+
     if (element instanceof InvisibleSequenceGroup) {
       polygon.style('fill', 'transparent');
     } else {
@@ -235,13 +259,35 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     const polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
     const color = 'lightgrey';
-    parent
+    let polygon = parent
       .append('polygon')
       .attr('points', polygonPoints)
       .style('fill', color)
       .classed('variant-group-element', true)
       .classed('variant-parallel-group', true)
       .classed('variant-polygon', true);
+
+    if (
+      this.traceInfixSelectionMode &&
+      !(element instanceof InvisibleSequenceGroup)
+    ) {
+      if (
+        element.selected &&
+        ((element.parent && !element.parent.selected) || !element.parent)
+      ) {
+        polygon.attr('stroke', '#ff0000').attr('stroke-width', '1px');
+      }
+      if (!element.selected && element.selectable) {
+        polygon
+          .attr('stroke', '#ff0000')
+          .attr('stroke-width', '1px')
+          .attr('stroke-dasharray', '4')
+          .style('fill', '#999999');
+      }
+      if (!element.selected && !element.selectable) {
+        polygon.style('fill', '#555555');
+      }
+    }
 
     if (this.onClickCbFc) {
       parent.on('click', (e: PointerEvent) => {
@@ -280,11 +326,38 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
     const color = this.computeActivityColor(this, element, this.variant);
 
-    parent
+    const rgb_code = [
+      color.substring(1, 3),
+      color.substring(3, 5),
+      color.substring(5, 7),
+    ];
+    const inversed = rgb_code.map((d) => 255 - parseInt(d, 16));
+
+    let polygon = parent
       .append('polygon')
       .attr('points', polygonPoints)
       .style('fill', color)
       .classed('variant-polygon', true);
+
+    if (this.traceInfixSelectionMode) {
+      if (
+        element.selected &&
+        ((element.parent && !element.parent.selected) || !element.parent)
+      ) {
+        polygon
+          .attr('stroke', '#ff0000')
+          .attr('stroke-width', '4px')
+          .attr('stroke-opacity', '0.5');
+      } else if (!element.selected && element.selectable) {
+        polygon
+          .style('fill-opacity', '0.2')
+          .attr('stroke', '#ff0000')
+          .attr('stroke-width', '1px')
+          .attr('stroke-dasharray', 4);
+      } else if (!element.selected && !element.selectable) {
+        polygon.style('fill-opacity', '0.1');
+      }
+    }
 
     if (this.onClickCbFc) {
       parent.on('click', (e: PointerEvent) => {

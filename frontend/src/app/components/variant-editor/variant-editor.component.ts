@@ -9,6 +9,7 @@ import {
   VariantElement,
   Variant,
   ParallelGroup,
+  setParent,
 } from './../variant-explorer/model';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import {
@@ -690,6 +691,7 @@ export class VariantEditorComponent
   addCurrentVariantToVariantList() {
     let currentVariants = this.sharedDataService.variants;
     const copyCurrent = cloneDeep(this.currentVariant);
+    setParent(copyCurrent);
     copyCurrent.setExpanded(false);
 
     const newVariant = new Variant(
@@ -702,7 +704,8 @@ export class VariantEditorComponent
       true,
       false,
       true,
-      []
+      [],
+      false
     );
 
     newVariant.alignment = undefined;
