@@ -1004,13 +1004,17 @@ export class VariantExplorerComponent
   }
 
   deleteSelectedVariants(): void {
-    let kept = this.variants.filter((variant) => !variant.isSelected);
-    let deleted = this.variants.filter((variant) => variant.isSelected);
+    const kept = this.variants.filter((variant) => !variant.isSelected);
+    const displayed_kept = this.displayed_variants.filter((variant) => !variant.isSelected);
+    const deleted = this.variants.filter((variant) => variant.isSelected);
+
     for (let variant of deleted) {
       variant.isSelected = false;
     }
+
     this.deletedVariants.push(deleted);
     this.variants = kept;
+    this.displayed_variants = displayed_kept;
   }
 
   noDeletedVariants(): boolean {
@@ -1019,7 +1023,9 @@ export class VariantExplorerComponent
 
   restoreLastDeletedVariants(): void {
     if (this.deletedVariants.length > 0) {
-      this.variants = this.variants.concat(this.deletedVariants.pop());
+      const deleted_elements = this.deletedVariants.pop()
+      this.variants = this.variants.concat(deleted_elements);
+      this.displayed_variants = this.displayed_variants.concat(deleted_elements);
       this.sort(this.sortingFeature);
     }
   }

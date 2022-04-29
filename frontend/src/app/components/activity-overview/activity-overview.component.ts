@@ -40,6 +40,7 @@ export class ActivityOverviewComponent
   endActivities: Set<string>;
   activitiesInLog: any;
   activityFields: ActivityField[];
+  editingActivityName : boolean = false;
 
   sortKey: string = 'activityName';
   ascending: boolean = false;
