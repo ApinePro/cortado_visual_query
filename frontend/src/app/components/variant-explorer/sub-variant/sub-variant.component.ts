@@ -24,13 +24,17 @@ export class SubVariantComponent implements AfterViewInit {
   @Input()
   set variant(value: [string, string][][]) {
     this._variant = value;
-    this.draw();
+    if (this.isLoaded) {
+      this.draw();
+    }
   }
 
   private _variant: [string, string][][];
 
   @Input()
   private expanded = false;
+
+  private isLoaded = false;
 
   svg: Selection<any, any, any, any>;
   public colorMap: Map<string, string>;
@@ -43,6 +47,7 @@ export class SubVariantComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.svg = d3.select(this.svgElement.nativeElement);
+    this.isLoaded = true;
 
     this.colorMapService.colorMap$.subscribe((cMap) => {
       this.colorMap = cMap;
