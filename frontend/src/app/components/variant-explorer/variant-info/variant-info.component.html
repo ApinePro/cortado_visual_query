@@ -9,6 +9,7 @@
   <div
     (click)="conformanceIconClicked()"
     [ngClass]="isConformanceUpdatePossible() ? 'cursor-pointer' : ''"
+    *ngIf="processTreeIsPresent"
   >
     <!-- hourglass-split icon-->
     <i
