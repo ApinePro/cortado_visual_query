@@ -7,8 +7,6 @@ import {
   Side,
 } from 'golden-layout';
 
-import { BpmnEditorComponent } from './../../bpmn-editor/bpmn-editor.component';
-import { GoldenLayoutDummyComponent } from '../golden-layout-dummy/golden-layout-dummy.component';
 import { ProcessTreeEditorComponent } from '../../process-tree-editor/process-tree-editor.component';
 import { VariantExplorerComponent } from '../../variant-explorer/variant-explorer.component';
 import { InfoBoxComponent } from '../../info-box/info-box.component';
@@ -17,7 +15,7 @@ export const baseLayout: LayoutConfig = {
   dimensions: {
     borderWidth: 0.75,
     borderGrabWidth: 10,
-    minItemHeight: 300,
+    minItemHeight: 30,
     minItemWidth: 350,
   },
   settings: {
@@ -30,18 +28,20 @@ export const baseLayout: LayoutConfig = {
       {
         type: ItemType.row,
         height: 61.803,
-        isClosable: false,
+        isClosable: true,
         content: [
           {
             type: ItemType.stack,
             header: {
               show: Side.left,
             },
+            isClosable: true,
             content: [
               {
                 type: 'component',
                 title: 'Process Tree Editor',
                 isClosable: false,
+                reorderEnabled: false,
                 id: ProcessTreeEditorComponent.componentName,
                 componentType: ProcessTreeEditorComponent.componentName,
                 componentState: { cssParentClass: 'process-tree-editor-stack' },
@@ -53,11 +53,12 @@ export const baseLayout: LayoutConfig = {
       {
         type: ItemType.row,
         height: 38.197,
-        isClosable: false,
+        isClosable: true,
         content: [
           {
             type: ItemType.stack,
             height: 38.197,
+            isClosable: true,
             width: 61.803,
             content: [
               {
@@ -78,7 +79,7 @@ export const baseLayout: LayoutConfig = {
               show: false,
             },
             width: 38.197,
-            isClosable: false,
+            isClosable: true,
             title: 'Info Box',
             id: InfoBoxComponent.componentName,
             componentType: InfoBoxComponent.componentName,
