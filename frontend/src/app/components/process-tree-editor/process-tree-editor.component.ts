@@ -245,7 +245,6 @@ export class ProcessTreeEditorComponent
 
     this.sharedDataService.activitiesInEventLog$.subscribe((activities) => {
       this.activitiesOccurringInLog = Array.from(Object.keys(activities));
-      this.nodeWidthCache = new Map<string, number>();
     });
   }
 
