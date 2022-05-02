@@ -121,7 +121,10 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
       this.redraw();
       this.setInspectVariant();
-    } else if (changes.traceInfixSelectionMode) {
+    } else if (
+      changes.traceInfixSelectionMode &&
+      (!changes.variant || !changes.variant.firstChange)
+    ) {
       this.redraw();
     }
   }
