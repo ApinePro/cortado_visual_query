@@ -63,7 +63,7 @@ export class SubVariantComponent implements AfterViewInit {
     const [data, yLength] = this.buildData();
     const xScale = (x) => Constants.POINT_RADIUS + x * intervalWidth;
     const yScale = (y) =>
-      4 * Constants.POINT_RADIUS + y * Constants.LEAF_HEIGHT;
+      4 * Constants.POINT_RADIUS + y * Constants.LEAF_HEIGHT * 1.5;
 
     const groupedData = d3.group(data, (d) => d[4]);
     const g = this.svg.selectAll().data(groupedData).join('g');
