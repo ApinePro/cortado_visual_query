@@ -316,7 +316,7 @@ export class ProcessTreeEditorComponent
     const selectedRoot = this.mainSvgGroup.select('[id="' + id + '"]');
     const node = selectedRoot.data()[0];
 
-    if (id) {
+    if (id && node) {
       this.setSelectedRootNode(node);
       this.selectSubtreeFromRoot(selectedRoot.node(), node);
       this.selectEdges();

@@ -9,7 +9,7 @@
   -webkit-app-region: drag;
   -webkit-user-select: none;
   user-select: none;
-  z-index: 6;
+  z-index: 50;
   top: 0px;
   left: 0px;
   display: flex;

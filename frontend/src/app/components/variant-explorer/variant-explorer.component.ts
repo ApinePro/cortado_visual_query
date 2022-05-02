@@ -538,7 +538,7 @@ export class VariantExplorerComponent
         type: 'component',
         title: 'Sub-Variants for ' + index,
         isClosable: true,
-        reorderEnabled: false,
+        reorderEnabled: true,
         componentState: this.displayed_variants[index - 1],
         maximised: true,
         componentType: SubvariantExplorerComponent.componentName,

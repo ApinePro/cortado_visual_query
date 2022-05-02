@@ -6,6 +6,7 @@ $tooltip-max-width: 450px;
 @import "../node_modules/bootstrap/scss/bootstrap";
 @import "./styles/custom_golden_layout_styles.scss";
 
+
 /* You can add global styles to this file, and also import other style files */
 .btn-icon {
   font-size: var(--standard-font-size);
@@ -40,11 +41,6 @@ $tooltip-max-width: 450px;
 .btn-bar-text {
   font-size: 13px;
   color: whitesmoke;
-}
-
-.lm_goldenlayout{
-  --bs-bg-opacity: 1;
-  background-color: rgba(var(--bs-dark-rgb),var(--bs-bg-opacity))!important;
 }
 
 .button {
@@ -242,51 +238,6 @@ th {
   text-align: left;
   cursor: auto;
 }
-/*
-.lm_goldenlayout{
-  background-color: rgba(var(--bs-dark-rgb),var(--bs-bg-opacity))!important;
-}
-
-.lm_tabs{
-  margin-top : 1.5px;
-}
-
-.lm_tab {
-  background: var(--box-background-color)!important;
-  border-top-left-radius: .25rem;
-  border-top-right-radius: .25rem;
-}
-
-.lm_tab.lm_active {
-  background: rgb(119, 117, 117)!important;
-}
-
-.lm_header .lm_tab {
-  cursor: pointer;
-  float: left;
-  height: 10px;
-  margin-top: 1px;
-  padding: 0px 10px 5px;
-  position: relative;
-  touch-action: none;
-}
-
-.lm_header .lm_tab{
-  border-bottom: none;
-  padding-bottom: 7.5px;
-  margin-top: 2px !important;
-  -webkit-font-smoothing: subpixel-antialiased;
-  -webkit-filter: blur(0);
-  filter: blur(0);
-  backface-visibility: hidden;
-}
-
-.lm_header .lm_tab.lm_active {
-  border-bottom: none;
-  padding-bottom: 7.5px;
-  margin-top: 2px !important;
-}
-*/
 
 .syntax-info ul {
   margin-bottom: 0;
