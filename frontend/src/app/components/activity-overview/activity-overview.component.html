@@ -193,8 +193,18 @@
                     $event.target.value
                   )
                 "
-                (focusout)="$event.target.value = activityField.activityName"
+                (focusout)="
+                  $event.target.value = activityField.activityName;
+                  editActivity = false;
+                "
+                (focus)="editActivity = true"
               />
+              <i
+                class="bi bi-trash btn-icon"
+                *ngIf="editActivity"
+                (click)="deleteActivity(activityField)"
+              >
+              </i>
             </td>
             <td class="border-end border-color text-center">
               <i class="bi bi-check2" *ngIf="activityField.inModel"></i>

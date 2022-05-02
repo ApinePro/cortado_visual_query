@@ -40,6 +40,7 @@ export class ActivityOverviewComponent
   endActivities: Set<string>;
   activitiesInLog: any;
   activityFields: ActivityField[];
+  editActivity : boolean = false;
 
   sortKey: string = 'activityName';
   ascending: boolean = false;
@@ -151,7 +152,10 @@ export class ActivityOverviewComponent
       this.ascending = !this.ascending;
     }
   }
+  deleteActivity(activity : ActivityField){
 
+    console.log(activity.activityName);
+  }
   changeActivityColor(activityField: ActivityField, color: string) {
     if (color) {
       activityField.color = color;
