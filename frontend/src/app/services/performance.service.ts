@@ -99,12 +99,12 @@ export class PerformanceService {
       }
     });
 
-    const variantElements: VariantElement[] = variants.map((v) => v.variant);
+    const variantBIDs: number[] = variants.map((v) => v.bid);
     variants
       .filter((v) => !this.availablePerformances.has(v))
       .forEach((v) => this.calculationInProgress.add(v));
     this.latestRequest = this.backendService
-      .getTreePerformance(variantElements, removeVariants)
+      .getTreePerformance(variantBIDs, removeVariants?.map((v) =>  v.bid))
       .subscribe(
         (performance) => {
           this.mergedPerformance = ProcessTree.fromObj(

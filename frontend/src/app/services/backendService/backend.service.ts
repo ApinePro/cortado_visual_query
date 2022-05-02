@@ -115,6 +115,30 @@ export class BackendService {
     });
   }
 
+
+  propagateActivityNameChange( activityName, newActivityName ){
+
+    console.log('Propangating Change', activityName, newActivityName)
+
+    this.httpClient.post(this.backendUrl + 'changeActivityName', {
+      activityName: activityName,
+      newActivityName : newActivityName
+    }).subscribe((t) => console.log('Send', t));
+
+  }
+
+  propagateActivityDeletion( activityName ){
+
+    this.httpClient.post(this.backendUrl + 'deleteActivity', {
+      activityName: activityName,
+    });
+
+  }
+
+  revertChangeInBackend() {
+    this.httpClient.post(this.backendUrl + 'revertLastChange', {});
+  }
+
   downloadCurrentTreeAsBPMN(): void {
     this.sharedDataService.currentDisplayedProcessTree$
       .pipe(take(1))
@@ -194,13 +218,13 @@ export class BackendService {
   }
 
   getTreePerformance(
-    variants: VariantElement[],
-    remove?: Variant[]
+    variants: number[],
+    remove?: number[]
   ): Observable<any> {
     const body = {
       pt: this.sharedDataService.currentDisplayedProcessTree,
-      variants: variants.map((v) => v.serialize()),
-      delete: remove?.map((v) => v.variant.serialize()),
+      variants: variants,
+      delete: remove,
     };
 
     return this.httpClient.post(

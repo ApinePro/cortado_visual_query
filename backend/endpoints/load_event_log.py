@@ -15,6 +15,8 @@ variants_store = {}
 
 
 def calculate_event_log_properties(event_log: EventLog, use_mp: bool = False):
+    global lifecycle_available 
+    
     lifecycle_available = False
     # TODO: maybe implement more robust check if lifecycle/interval information is available
     if DEFAULT_TRANSITION_KEY not in event_log[0][0] \

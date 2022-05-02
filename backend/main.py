@@ -1,4 +1,5 @@
 import pm4pycvxopt
+from endpoints.transform_event_log import cache_current_data, rename_activities
 
 from endpoints.query_variant import evaluate_query_against_variant_graphs
 from endpoints.add_variants_to_process_model import add_variants_to_process_model
@@ -96,6 +97,7 @@ async def startup_event():
     load_event_log.variants_store = pickle.load(open( "variants_store.p", "rb" ))
     load_event_log.variants = pickle.load(open( "variants.p", "rb" ))
     load_event_log.activites = pickle.load(open( "activities.p", "rb" ))
+    load_event_log.lifecycle_available = True
 
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...),
@@ -258,8 +260,30 @@ async def get_variants_from_event_log():
     return res
 
 
+
+class ChangeActivityName(BaseModel):
+    activityName: str
+    newActivityName : str
+    
+
+@app.post("/changeActivityName")
+async def change_activity_name_in_log(d : ChangeActivityName):  
+    
+    print(d)
+    print(d.activityName)
+    print(d.newActivityName)
+    
+    
+    cache_current_data()
+    
+    
+    res = rename_activities(d.activityName, d.newActivityName)
+    
+    return {'res' : res}
+
 class ConvertPtToX(BaseModel):
     pt: dict
+
 
 
 @app.post("/convertPtToBPMN")
@@ -299,8 +323,8 @@ async def applyTreeReductionRules(d: ConvertPtToX):
 
 class InputCalculatePerformance(BaseModel):
     pt: dict
-    variants: List[dict]
-    delete: Optional[List[dict]]
+    variants: List[int]
+    delete: Optional[List[int]]
 
 
 pcache = {}
@@ -344,6 +368,7 @@ def get_merged_performances(pt: CortadoProcessTree):
 @app.post("/calculateVariantsPerformance")
 async def calculate_variant_performance(d: InputCalculatePerformance):
     global pcache
+    
     pt, _ = dict_to_process_tree(d.pt)
     pt = convert_tree(pt)
     tree_nodes = performance_utils.get_all_nodes(pt)
@@ -351,31 +376,39 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
 
     tree_cache_key = str(pt)
 
-    variants = d.variants
-    if d.delete:
-        for remove_variant in d.delete:
-            delete_cache_key = json.dumps(remove_variant)
-            variants = [v for v in variants if json.dumps(v) != delete_cache_key]
-
-            if tree_cache_key in pcache and delete_cache_key in pcache[tree_cache_key]:
-                del pcache[tree_cache_key][delete_cache_key]
-
+    print('D', d)
+    
     variants_fitness = []
-    for variant in variants:
-        variant_cache_key = json.dumps(variant)
-        if tree_cache_key in pcache and variant_cache_key in pcache[tree_cache_key]:
-            p_values = pcache[tree_cache_key][variant_cache_key]
+    
+    for bid, variant in enumerate(load_event_log.variants.keys()): 
+      
+      print('Loop', bid, variant)
+      
+      if bid in d.delete:
+        print('Delete', bid, variant)
+        
+        if tree_cache_key in pcache and bid in pcache[tree_cache_key]:
+          del pcache[tree_cache_key][bid]
+    
+      elif bid in d.variants:
+        
+        print('Computing Performance', bid, variant)
+        
+        if tree_cache_key in pcache and bid in pcache[tree_cache_key]:
+              
+            p_values = pcache[tree_cache_key][bid]
             service_times_aggregated = p_values["service_times"]
             idle_times_aggregated = p_values["idle_times"]
             waiting_times_aggregated = p_values["waiting_times"]
             cycle_times_aggregated = p_values["cycle_times"]
             mean_fitness = p_values["mean_fitness"]
+            
         else:
-            if not variant_cache_key in load_event_log.variants_store:
-                raise HTTPException(status_code=409,
-                                    detail="Detailled variant information are not in the backend's cache. Please (re)upload the log file.")
-            test_log = load_event_log.variants_store[variant_cache_key]
+
+            test_log = load_event_log.variants[variant]
             test_log = EventLog(test_log)
+            
+            
             (service_times, idle_times, waiting_times, cycle_times), mean_fitness \
                 = tree_performance.get_tree_performance_intervals(pt, test_log,
                                                                   alignment_variant=net_alignment.Variants.VERSION_STATE_EQUATION_A_STAR)
@@ -400,11 +433,15 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
 
         if tree_cache_key not in pcache:
             pcache[tree_cache_key] = {}
-        pcache[tree_cache_key][variant_cache_key] = {"service_times": service_times_aggregated,
-                                                     "idle_times": idle_times_aggregated,
-                                                     "cycle_times": cycle_times_aggregated,
-                                                     "waiting_times": waiting_times_aggregated,
-                                                     "mean_fitness": mean_fitness}
+            
+        pcache[tree_cache_key][bid] = {"service_times": service_times_aggregated,
+                                                    "idle_times": idle_times_aggregated,
+                                                    "cycle_times": cycle_times_aggregated,
+                                                    "waiting_times": waiting_times_aggregated,
+                                                    "mean_fitness": mean_fitness}
+
+      else: 
+        continue
 
     # pickle.dump( pcache, open( "pcache.p", "wb" ))
     # pickle.dump(load_event_log.variants_store,  open( "variants_store.p", "wb" ))

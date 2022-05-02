@@ -1,3 +1,5 @@
+import { BackendService } from 'src/app/services/backendService/backend.service';
+import { element } from 'protractor';
 import {
   Component,
   OnInit,
@@ -25,6 +27,7 @@ export class ActivityOverviewComponent
   constructor(
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
+    private backendService : BackendService, 
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
     elRef: ElementRef,
@@ -40,7 +43,7 @@ export class ActivityOverviewComponent
   endActivities: Set<string>;
   activitiesInLog: any;
   activityFields: ActivityField[];
-  editActivity : boolean = false;
+  editingActivityName : boolean = false;
 
   sortKey: string = 'activityName';
   ascending: boolean = false;
@@ -155,6 +158,7 @@ export class ActivityOverviewComponent
   deleteActivity(activity : ActivityField){
 
     console.log(activity.activityName);
+    this.editingActivityName = false;
   }
   changeActivityColor(activityField: ActivityField, color: string) {
     if (color) {
@@ -165,6 +169,7 @@ export class ActivityOverviewComponent
       );
     }
   }
+
 
   resetActivityColors(): void {
     this.colorMapService.getColorMap(
@@ -193,6 +198,8 @@ export class ActivityOverviewComponent
     newActivityName: string
   ): void {
     // build a mapping of old activity name => new activity name
+    this.backendService.propagateActivityNameChange( oldActivityName, newActivityName)
+    
     let activityNameMapping: Map<string, string> = new Map();
     if (this.activityFields) {
       for (let activityField of this.activityFields) {
@@ -202,6 +209,8 @@ export class ActivityOverviewComponent
         );
       }
     }
+
+    
 
     activityNameMapping.set(oldActivityName, newActivityName);
 
