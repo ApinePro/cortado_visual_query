@@ -103,7 +103,7 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 @app.on_event("startup")
 async def startup_event():
     global pcache
-    pcache = pickle.load(open( "pcache.p", "rb" ))
+    pcache = {} #pickle.load(open( "pcache.p", "rb" ))
     load_event_log.variants_store = pickle.load(open( "variants_store.p", "rb" ))
     load_event_log.variants = pickle.load(open( "variants.p", "rb" ))
     load_event_log.activites = pickle.load(open( "activities.p", "rb" ))
@@ -385,14 +385,11 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
     variants_tree_performance = []
 
     tree_cache_key = str(pt)
-
-    print('D', d)
-    
     variants_fitness = []
     
+    print('D', d)
+    
     for bid, variant in enumerate(load_event_log.variants.keys()): 
-      
-      print('Loop', bid, variant)
       
       if d.delete and bid in d.delete:
         print('Delete', bid, variant)
@@ -418,21 +415,21 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             test_log = load_event_log.variants[variant]
             test_log = EventLog(test_log)
             
-            
             (service_times, idle_times, waiting_times, cycle_times), mean_fitness \
                 = tree_performance.get_tree_performance_intervals(pt, test_log,
                                                                   alignment_variant=net_alignment.Variants.VERSION_STATE_EQUATION_A_STAR)
 
+            print('Computing Mean Fitness')
             service_times_aggregated = tree_performance.apply_aggregation(service_times, noop, avg, avg)
             idle_times_aggregated = tree_performance.apply_aggregation(idle_times, noop, avg, avg)
             waiting_times_aggregated = tree_performance.apply_aggregation(waiting_times, noop, avg, avg)
             cycle_times_aggregated = tree_performance.apply_aggregation(cycle_times, noop, avg, avg)
 
         perf_stats = {str(t): {
-            "service_time": stats(service_times_aggregated[t]) if t in service_times_aggregated else None,
-            "cycle_time": stats(cycle_times_aggregated[t]) if t in cycle_times_aggregated else None,
-            "waiting_time": stats(waiting_times_aggregated[t]) if t in waiting_times_aggregated else None,
-            "idle_time": stats(idle_times_aggregated[t]) if t in idle_times_aggregated else None,
+                "service_time": stats(service_times_aggregated[t]) if t in service_times_aggregated else None,
+                "cycle_time": stats(cycle_times_aggregated[t]) if t in cycle_times_aggregated else None,
+                "waiting_time": stats(waiting_times_aggregated[t]) if t in waiting_times_aggregated else None,
+                "idle_time": stats(idle_times_aggregated[t]) if t in idle_times_aggregated else None,
         } for t in tree_nodes}
 
         tau_0_values(tree_nodes, perf_stats)
@@ -442,22 +439,28 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
         variants_fitness.append(mean_fitness)
 
         if tree_cache_key not in pcache:
+                
             pcache[tree_cache_key] = {}
-            
+                
         pcache[tree_cache_key][bid] = {"service_times": service_times_aggregated,
-                                                    "idle_times": idle_times_aggregated,
-                                                    "cycle_times": cycle_times_aggregated,
-                                                    "waiting_times": waiting_times_aggregated,
-                                                    "mean_fitness": mean_fitness}
+                                        "idle_times": idle_times_aggregated,
+                                        "cycle_times": cycle_times_aggregated,
+                                        "waiting_times": waiting_times_aggregated,
+                                        "mean_fitness": mean_fitness}
 
       else: 
-        print('Continue')
         continue
 
     # pickle.dump( pcache, open( "pcache.p", "wb" ))
     # pickle.dump(load_event_log.variants_store,  open( "variants_store.p", "wb" ))
 
     pt_dict = get_merged_performances(pt)
+    
+    print('Fitness', variants_fitness)
+    
+    print('Variant Performance', variants_tree_performance)
+    
+    print('PT Dict', pt_dict)
     return {'merged_performance_tree': pt_dict, 'variants_tree_performance': variants_tree_performance,
             'fitness_values': variants_fitness}
 
