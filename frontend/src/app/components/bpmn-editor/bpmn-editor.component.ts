@@ -1026,7 +1026,8 @@ export class BpmnEditorComponent
       this.mainGroup.attr(
         'transform',
         event.transform.translate(
-          this.bpmnContainerElem.nativeElement.offsetWidth / 2,
+          3 * BPMN_Constant.HORIZONTALSPACING +
+            2 * BPMN_Constant.START_END_RADIUS,
           this.bpmnContainerElem.nativeElement.offsetHeight / 2
         )
       );

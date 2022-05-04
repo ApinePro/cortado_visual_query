@@ -43,6 +43,7 @@ def calculate_event_log_properties(event_log: EventLog, use_mp: bool = False):
 
 def get_simple_variants(event_log: EventLog):
     global variants_store
+    
     variants = variants_filter.get_variants(event_log)
     total_traces = len(event_log)
     res_variants = []
@@ -67,9 +68,9 @@ def get_simple_variants(event_log: EventLog):
     variants_store = {json.dumps(v.serialize(include_performance=False)): t for v, t in variants.items()}
     return sorted(res_variants, key=lambda variant: variant['count'], reverse=True), variants
 
-
 def get_c_variants(event_log: EventLog, use_mp: bool = False):
     global variants_store
+    global log_info
     global variants
     global activites 
     
@@ -109,4 +110,6 @@ def get_c_variants(event_log: EventLog, use_mp: bool = False):
         res_variants.append(variant)
 
     variants_store = {json.dumps(v.serialize(include_performance=False)): t for v, t in variants.items()}
+    
+    
     return sorted(res_variants, key=lambda variant: variant['count'], reverse=True), variants
