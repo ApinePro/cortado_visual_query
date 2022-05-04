@@ -269,12 +269,9 @@ async def get_variants_from_event_log():
     res['variants'] = sorted(res['variants'], key=lambda variant: variant['count'], reverse=True)
     return res
 
-
-
 class ChangeActivityName(BaseModel):
     activityName: str
     newActivityName : str
-    
 
 @app.post("/changeActivityName")
 async def change_activity_name_in_log(d : ChangeActivityName):  
@@ -286,15 +283,13 @@ async def change_activity_name_in_log(d : ChangeActivityName):
     
     cache_current_data()
     
-    
-    res = rename_activities(d.activityName, d.newActivityName)
-    
-    return {'res' : res}
+    rename_activities(d.activityName, d.newActivityName)
+
+    # Return an Error if any thing did change
+    return True
 
 class ConvertPtToX(BaseModel):
     pt: dict
-
-
 
 @app.post("/convertPtToBPMN")
 async def download_ptml(d: ConvertPtToX):
@@ -387,13 +382,10 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
     tree_cache_key = str(pt)
     variants_fitness = []
     
-    print('D', d)
-    
     for bid, variant in enumerate(load_event_log.variants.keys()): 
       
       if d.delete and bid in d.delete:
-        print('Delete', bid, variant)
-        
+
         if tree_cache_key in pcache and bid in pcache[tree_cache_key]:
           del pcache[tree_cache_key][bid]
     
@@ -419,7 +411,6 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
                 = tree_performance.get_tree_performance_intervals(pt, test_log,
                                                                   alignment_variant=net_alignment.Variants.VERSION_STATE_EQUATION_A_STAR)
 
-            print('Computing Mean Fitness')
             service_times_aggregated = tree_performance.apply_aggregation(service_times, noop, avg, avg)
             idle_times_aggregated = tree_performance.apply_aggregation(idle_times, noop, avg, avg)
             waiting_times_aggregated = tree_performance.apply_aggregation(waiting_times, noop, avg, avg)
@@ -443,10 +434,10 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             pcache[tree_cache_key] = {}
                 
         pcache[tree_cache_key][bid] = {"service_times": service_times_aggregated,
-                                        "idle_times": idle_times_aggregated,
-                                        "cycle_times": cycle_times_aggregated,
-                                        "waiting_times": waiting_times_aggregated,
-                                        "mean_fitness": mean_fitness}
+                                       "idle_times": idle_times_aggregated,
+                                       "cycle_times": cycle_times_aggregated,
+                                       "waiting_times": waiting_times_aggregated,
+                                       "mean_fitness": mean_fitness}
 
       else: 
         continue
@@ -456,11 +447,6 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
 
     pt_dict = get_merged_performances(pt)
     
-    print('Fitness', variants_fitness)
-    
-    print('Variant Performance', variants_tree_performance)
-    
-    print('PT Dict', pt_dict)
     return {'merged_performance_tree': pt_dict, 'variants_tree_performance': variants_tree_performance,
             'fitness_values': variants_fitness}
 

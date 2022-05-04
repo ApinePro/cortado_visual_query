@@ -27,7 +27,7 @@ export class ActivityOverviewComponent
   constructor(
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
-    private backendService : BackendService, 
+    private backendService : BackendService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
     elRef: ElementRef,
@@ -199,7 +199,7 @@ export class ActivityOverviewComponent
   ): void {
     // build a mapping of old activity name => new activity name
     this.backendService.propagateActivityNameChange( oldActivityName, newActivityName)
-    
+
     let activityNameMapping: Map<string, string> = new Map();
     if (this.activityFields) {
       for (let activityField of this.activityFields) {
@@ -210,7 +210,7 @@ export class ActivityOverviewComponent
       }
     }
 
-    
+
 
     activityNameMapping.set(oldActivityName, newActivityName);
 
