@@ -3,7 +3,7 @@ import json
 import pickle
 from multiprocessing import Pool, cpu_count, freeze_support
 from typing import Any, List, Optional
-from endpoints.transform_event_log import cache_current_data, rename_activities
+from endpoints.transform_event_log import cache_current_data, rename_activities, remove_activities
 
 import pm4py.objects.log.importer.xes.importer as xes_importer
 import pm4pycvxopt
@@ -276,16 +276,27 @@ class ChangeActivityName(BaseModel):
 @app.post("/changeActivityName")
 async def change_activity_name_in_log(d : ChangeActivityName):  
     
-    print(d)
-    print(d.activityName)
-    print(d.newActivityName)
-    
-    
     cache_current_data()
     
     rename_activities(d.activityName, d.newActivityName)
 
-    # Return an Error if any thing did change
+    # TODO Return an Error if needed
+    return True
+
+class removeActivityName(BaseModel):
+    activityName: str
+    
+@app.post("/deleteActivity")
+async def remove_activity_name_in_log(d : removeActivityName):  
+    
+    
+    print('Delete Request', d)
+    
+    cache_current_data()
+    
+    remove_activities(d.activityName)
+
+    # TODO Return an Error if needed
     return True
 
 class ConvertPtToX(BaseModel):

@@ -131,7 +131,7 @@ export class BackendService {
 
     this.httpClient.post(this.backendUrl + 'deleteActivity', {
       activityName: activityName,
-    });
+    }).subscribe((t) => console.log('Send', activityName));
 
   }
 

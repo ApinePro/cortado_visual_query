@@ -2,15 +2,14 @@
 from msilib import change_sequence
 import pickle
 from sqlite3 import enable_shared_cache
-from typing import List, Mapping
-from pm4py.algo.filtering.log.attributes import attributes_filter
-from pm4py.algo.filtering.log.end_activities import end_activities_filter
-from pm4py.algo.filtering.log.start_activities import start_activities_filter
+from cortado_core.utils.cvariants import get_concurrency_variants, get_detailed_variants
 from cortado_core.performance.variant_performance import assign_variants_performances
 from cortado_core.utils.split_graph import LeafGroup, SequenceGroup, ConcurrencyGroup
-
+from pm4py.objects.log.obj import EventLog
 from pm4py.util.xes_constants import DEFAULT_START_TIMESTAMP_KEY, DEFAULT_TRANSITION_KEY
 from endpoints import load_event_log
+from pm4py.filtering import filter_event_attribute_values
+from pm4py.algo.filtering.log.attributes import attributes_filter
 
 def cache_current_data(): 
         
@@ -104,8 +103,9 @@ def rename_activities_in_trace(trace, oldActivityName, newActivityName):
     for event in trace:   
         if event["concept:name"] == oldActivityName:
             event["concept:name"] = newActivityName
-        
-       
+    
+    return trace
+
 def rename_activities_in_variant_group(group, oldActivityName, newActivityName): 
 
     change = False
@@ -147,15 +147,68 @@ def rename_activities(oldActivityName, newActivityName):
         
         if changed: 
             
-            for trace in load_event_log.variants[variant]: 
-                rename_activities_in_trace(trace, oldActivityName, newActivityName)
-                
+            traces = [rename_activities_in_trace(trace, oldActivityName, newActivityName) for trace in load_event_log.variants[variant]]  
             new_variant.graph = rename_merge_activities_in_graph(variant.graph, oldActivityName, newActivityName) 
             
-            new_variant_dict[new_variant] = load_event_log.variants[variant]
+            full_traces = new_variant_dict.get(new_variant, [])
+            full_traces.extend(traces)
+            
+            new_variant_dict[new_variant] = traces
 
         else: 
-        
-            new_variant_dict[variant] = load_event_log.variants[variant]
+            
+            traces = new_variant_dict.get(variant, [])
+            traces.extend(load_event_log.variants[variant])
+            
+            new_variant_dict[variant] = traces
         
     load_event_log.variants = new_variant_dict
+    
+    
+    
+def remove_activity_from_trace(trace, activityName): 
+    
+    
+    
+    for event in trace: 
+        
+        if event["concept:name"] == activityName:
+            print('Deleting Event')
+            del event
+     
+    print(trace)
+    return trace
+    
+    
+def remove_activities(activityName): 
+    
+    print('Remove Activity')
+    for variant, traces in load_event_log.variants.items(): 
+
+        if activityName in variant.graph.events: 
+            
+            print('Creating Log')
+            
+            log = EventLog(traces) 
+            
+            print('Filtering')
+            
+            print(log)
+            
+            
+            log = filter_event_attribute_values.apply(log, level = 'event', values = [activityName], 
+                                                      attribute_key = "concept:name", retain = False) 
+            
+            print('Log', log)
+            
+            c_variants = get_concurrency_variants(log, False) 
+            
+            print(c_variants.keys())
+            
+            
+            
+
+        
+        
+        
+    

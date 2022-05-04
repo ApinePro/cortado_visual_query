@@ -159,6 +159,10 @@ export class ActivityOverviewComponent
 
     console.log(activity.activityName);
     this.editingActivityName = false;
+
+
+    this.backendService.propagateActivityDeletion(activity.activityName)
+
   }
   changeActivityColor(activityField: ActivityField, color: string) {
     if (color) {
