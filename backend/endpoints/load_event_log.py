@@ -26,12 +26,9 @@ def calculate_event_log_properties(event_log: EventLog, use_mp: bool = False):
         lifecycle_available = True
 
     res_variants, variants = get_c_variants(event_log, use_mp)
+    
     assign_variants_performances(variants)
-
-    variants = sorted(variants.keys(), key=lambda v: len(variants[v]), reverse=True)
-    for res, v in zip(res_variants, variants):
-        res['variant'] = v.serialize()
-
+    
     res = {
         "startActivities": start_activities_filter.get_start_activities(event_log),
         "endActivities": end_activities_filter.get_end_activities(event_log),
@@ -39,12 +36,11 @@ def calculate_event_log_properties(event_log: EventLog, use_mp: bool = False):
         "variants": res_variants,
         "performanceInfoAvailable": lifecycle_available
     }
-
+ 
     return res
 
 
 def get_simple_variants(event_log: EventLog):
-    global variants_store
     
     variants = variants_filter.get_variants(event_log)
     total_traces = len(event_log)
@@ -67,11 +63,9 @@ def get_simple_variants(event_log: EventLog):
         : variants[v]
         for v in variants
     }
-    variants_store = {json.dumps(v.serialize(include_performance=False)): t for v, t in variants.items()}
     return sorted(res_variants, key=lambda variant: variant['count'], reverse=True), variants
 
 def get_c_variants(event_log: EventLog, use_mp: bool = False):
-    global variants_store
     global log_info
     global variants
     global activites 
@@ -111,7 +105,4 @@ def get_c_variants(event_log: EventLog, use_mp: bool = False):
         variant['sub_variants'] = sorted(variant['sub_variants'], key=lambda x: x['count'], reverse=True)
         res_variants.append(variant)
 
-    variants_store = {json.dumps(v.serialize(include_performance=False)): t for v, t in variants.items()}
-    
-    
     return sorted(res_variants, key=lambda variant: variant['count'], reverse=True), variants
