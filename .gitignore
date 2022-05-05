@@ -11,6 +11,7 @@ interactive-process-mining-angular-app/cortado-linux-x64/
 
 backend/build
 backend/dist
+backend/tmp
 backend/interactive_process_mining_core
 __pycache__/
 .venv
