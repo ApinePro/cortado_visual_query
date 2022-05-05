@@ -704,8 +704,7 @@ export class VariantEditorComponent
       true,
       false,
       true,
-      [],
-      false
+      []
     );
 
     newVariant.alignment = undefined;
