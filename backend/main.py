@@ -108,7 +108,8 @@ async def startup_event():
     load_event_log.variants = pickle.load(open( "variants.p", "rb" ))
     load_event_log.activites = pickle.load(open( "activities.p", "rb" ))
     load_event_log.lifecycle_available = True
-
+    load_event_log.log_info = pickle.load(open( "logInfo.p", "rb" ))
+    
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...),
                              config_repo: ConfigurationRepository = Depends(get_config_repo)):
@@ -335,7 +336,6 @@ async def download_pnml(d: ConvertPtToX):
 async def applyTreeReductionRules(d: ConvertPtToX):
     pt, frozen_subtrees = dict_to_process_tree(d.pt)
     return process_tree_to_dict(post_process_tree(pt, frozen_subtrees), frozen_subtrees)
-
 
 class InputCalculatePerformance(BaseModel):
     pt: dict
