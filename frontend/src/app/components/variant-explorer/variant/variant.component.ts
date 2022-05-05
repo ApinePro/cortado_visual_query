@@ -18,6 +18,7 @@ import {
   someChildrenSelected,
   Variant,
   VariantElement,
+  InfixType,
 } from '../model';
 import { SharedDataService } from '../../../services/sharedDataService/shared-data.service';
 import { PerformanceService } from '../../../services/performance.service';
@@ -85,6 +86,8 @@ export class VariantComponent implements AfterViewInit {
   fragment: ElementRef;
 
   isVisible: boolean = false;
+  // necessary because one cannot use it directly in the template file
+  infixType = InfixType;
 
   constructor(
     private lazyLoadingService: LazyLoadingServiceService,
@@ -101,6 +104,8 @@ export class VariantComponent implements AfterViewInit {
       this.rootElement,
       (isIntersecting) => (self.isVisible = isIntersecting)
     );
+
+    console.log(this.variant);
   }
 
   isExpanded(): boolean {
@@ -206,6 +211,15 @@ export class VariantComponent implements AfterViewInit {
       true
     );
     if (thereAreSelectedChildren && !this.variant.variant.selected) {
+      let infixType;
+      let children = this.variant.variant.getElements();
+      if (children[0].selected) {
+        infixType = InfixType.PREFIX;
+      } else if (children[children.length - 1].selected) {
+        infixType = InfixType.POSTFIX;
+      } else {
+        infixType = InfixType.PROPER_INFIX;
+      }
       let newInfix = getSelectedChildren(this.variant.variant);
       let reducedInfix = handleTreeLevelsWithOneChild(newInfix);
       if (!(reducedInfix instanceof SequenceGroup)) {
@@ -223,7 +237,7 @@ export class VariantComponent implements AfterViewInit {
         false,
         true,
         [],
-        true
+        infixType
       );
 
       let currentVariants = this.sharedDataService.variants;

@@ -45,6 +45,7 @@ import {
   isElementWithActivity,
   setParent,
   getLowestSelectableParent,
+  InfixType,
 } from './model';
 
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
@@ -226,6 +227,7 @@ export class VariantExplorerComponent
       v.isConformanceOutdated = true;
       v.userDefined = false;
       v.isTimeouted = false;
+      v.infixType = InfixType.NOT_AN_INFIX;
       setParent(v.variant);
     });
 
@@ -352,6 +354,7 @@ export class VariantExplorerComponent
       v.isConformanceOutdated = true;
       v.userDefined = false;
       v.isTimeouted = false;
+      v.infixType = InfixType.NOT_AN_INFIX;
       setParent(v.variant);
     });
 
