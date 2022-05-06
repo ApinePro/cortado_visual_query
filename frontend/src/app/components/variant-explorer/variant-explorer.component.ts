@@ -64,6 +64,9 @@ import { VariantComponent } from './variant/variant.component';
 import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
+import { TimeUnit } from 'src/app/objects/TimeUnit';
+import { LogService } from 'src/app/services/logService/log.service';
+import { originalOrder } from 'src/app/utils/util';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -138,6 +141,7 @@ export class VariantExplorerComponent
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
     private backendService: BackendService,
+    private logService: LogService,
     private imageExportService: ImageExportService,
     private polygonDrawingService: PolygonDrawingService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
@@ -206,6 +210,12 @@ export class VariantExplorerComponent
   public visibleVariantsHeight = 1000;
 
   showConformanceDialogEvent: Subject<Variant> = new Subject<Variant>();
+
+  timeUnit = TimeUnit;
+
+  selectedGranularity = TimeUnit.SEC;
+
+  originalOrder = originalOrder;
 
   ngOnInit(): void {
     this.dropZoneConfig = new DropzoneConfig(
@@ -288,6 +298,7 @@ export class VariantExplorerComponent
 
     this.conformanceCheckingService.connect();
     this.subscribeForConformanceCheckingResults();
+    this.listenForLogGranularityChange();
   }
 
   @HostListener('window:keydown.control.q', ['$event'])
@@ -1013,6 +1024,21 @@ export class VariantExplorerComponent
   toggleTraceInfixSelectionMode(): void {
     this.traceInfixSelectionMode = !this.traceInfixSelectionMode;
     this.redraw_components();
+  }
+
+  onGranularityChange(granularity): void {
+    this.selectedGranularity = granularity;
+    this.logService
+      .getLogPropsAndUpdateState({
+        timeGranularity: granularity,
+      })
+      .subscribe();
+  }
+
+  listenForLogGranularityChange() {
+    this.sharedDataService.logGranularity$.subscribe((granularity) => {
+      this.selectedGranularity = granularity;
+    });
   }
 }
 

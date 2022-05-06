@@ -25,3 +25,5 @@ backend/pm4py
 app-dist
 .mps
 .sol
+
+event_log.p

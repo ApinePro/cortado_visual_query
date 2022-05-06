@@ -1,7 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { BackendService } from 'src/app/services/backendService/backend.service';
+import { SettingsService } from 'src/app/services/settingsService/settings.service';
+import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { Configuration } from './model';
 
 declare var $: any;
@@ -16,8 +20,12 @@ export class SettingsComponent implements OnInit {
   showSettings: Observable<void>;
   configForm: FormGroup;
 
+  configuration: Configuration = new Configuration();
+
   constructor(
     private backendService: BackendService,
+    private settingsService: SettingsService,
+    private dataService: SharedDataService,
     private fb: FormBuilder
   ) {}
 
@@ -26,14 +34,26 @@ export class SettingsComponent implements OnInit {
     this.configForm = this.fb.group({
       timeoutCVariantAlignmentComputation: [null, Validators.required],
       minTracesVariantDetectionMultiprocessing: [null, Validators.required],
+      // timeGranularity: [null, Validators.required],
     });
   }
 
+  onGranularityChange(event) {
+    this.dataService.timeGranularity = event;
+  }
+
   showModal(): void {
-    this.backendService.getConfiguration().subscribe((config) => {
-      this.configForm.patchValue(config);
-      $('#settingsModalDialog').modal('show');
-    });
+    this.backendService
+      .getConfiguration()
+      .pipe(
+        tap((config) => {
+          this.settingsService.notify(config);
+        })
+      )
+      .subscribe((config) => {
+        this.configForm.patchValue(config);
+        $('#settingsModalDialog').modal('show');
+      });
   }
 
   hideModal(): void {
@@ -43,6 +63,9 @@ export class SettingsComponent implements OnInit {
   saveChanges(): void {
     this.backendService
       .saveConfiguration(this.configForm.getRawValue())
+      .pipe(
+        tap(() => this.settingsService.notify(this.configForm.getRawValue()))
+      )
       .subscribe((_) => {
         this.hideModal();
       });
