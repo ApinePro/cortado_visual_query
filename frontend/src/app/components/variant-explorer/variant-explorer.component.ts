@@ -834,6 +834,12 @@ export class VariantExplorerComponent
     if (element instanceof LeafNode) {
       color = this.colorMap.get(element.asLeafNode().activity[0]);
 
+      // in this case cuts were not applicable anymore.
+      // The resulting chevron is displayed in gray
+      if (element.activity.length > 1) {
+        color = '#d3d3d3'; // lightgray
+      }
+
       if (element.serviceTime?.mean !== undefined && this.performanceMode) {
         let stat = this.variantPerformanceService.serviceTimeStatistic;
         color = this.performanceColorMap(element.serviceTime[stat]);
