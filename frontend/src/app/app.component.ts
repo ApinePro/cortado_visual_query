@@ -6,8 +6,10 @@ import {
   ViewChild,
 } from '@angular/core';
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
-import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
+import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
+import { LogService } from './services/logService/log.service';
+import { SharedDataService } from './services/sharedDataService/shared-data.service';
 
 @Component({
   selector: 'app-root',
@@ -22,7 +24,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private _windowResizeListener = () => this.handleWindowResizeEvent();
 
   constructor(
-    private goldenLayoutComponentService: GoldenLayoutComponentService
+    private goldenLayoutComponentService: GoldenLayoutComponentService,
+    private logService: LogService,
+    private sharedDataService: SharedDataService
   ) {}
 
   _sideBarWidth: number = 30;
