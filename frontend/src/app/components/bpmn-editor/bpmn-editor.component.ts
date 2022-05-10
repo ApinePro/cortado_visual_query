@@ -225,7 +225,7 @@ export class BpmnEditorComponent
 
   redo(): void {
       this.currentTree = this.processTreeService.redo();
-      this.update(this.root, false);
+      this.redraw();
     }
 
   handleResponsiveChange(
