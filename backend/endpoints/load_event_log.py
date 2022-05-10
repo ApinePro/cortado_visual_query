@@ -1,3 +1,4 @@
+from collections import Counter
 import json
 
 from cortado_core.performance.variant_performance import assign_variants_performances
@@ -29,10 +30,15 @@ def calculate_event_log_properties(event_log: EventLog, use_mp: bool = False):
     
     assign_variants_performances(variants)
     
+    
+    start_activities = set.union(*[set(v.graph.start_activities.keys()) for v in variants.keys()])
+    end_activities = set.union(*[set(v.graph.end_activities.keys()) for v in variants.keys()])
+    activities = dict(sum([Counter({ k : (len(ls) * len(variants[v])) for k, ls in v.graph.events.items()}) for v in variants], Counter()))
+        
     res = {
-        "startActivities": start_activities_filter.get_start_activities(event_log),
-        "endActivities": end_activities_filter.get_end_activities(event_log),
-        "activities": attributes_filter.get_attribute_values(event_log, "concept:name"),
+        "startActivities": start_activities,
+        "endActivities": end_activities,
+        "activities": activities,
         "variants": res_variants,
         "performanceInfoAvailable": lifecycle_available
     }

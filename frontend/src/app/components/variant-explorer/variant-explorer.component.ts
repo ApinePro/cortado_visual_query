@@ -241,6 +241,8 @@ export class VariantExplorerComponent
     });
     this.sharedDataService.loadedEventLog = 'preload';
 
+    console.log('Preloaded log', this.sharedDataService.loadedEventLog)
+
     this.sharedDataService.activityNamesChanged$.subscribe(
       (activityNameMapping) => {
         this.activityNamesChanged();
@@ -257,11 +259,14 @@ export class VariantExplorerComponent
     this.totalNumberVariants = this.variants.length;
 
     this.sharedDataService.loadedEventLog$.subscribe((eventLog) => {
+      console.log('Event Log Changed', eventLog)
       if (eventLog) {
         this.closeAllSubvariantWindows();
         this.performanceMode = false;
         this.variantPerformanceService.variantPerformanceMode.next(false);
         this.eventLogChanged();
+
+        console.log('Loaded Event Log')
       }
     });
 

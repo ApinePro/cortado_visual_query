@@ -295,10 +295,9 @@ async def remove_activity_name_in_log(d : removeActivityName):
     
     cache_current_data()
     
-    remove_activities(d.activityName)
+    res = remove_activities(d.activityName)
 
-    # TODO Return an Error if needed
-    return True
+    return res
 
 class ConvertPtToX(BaseModel):
     pt: dict
@@ -401,8 +400,6 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
           del pcache[tree_cache_key][bid]
     
       elif bid in d.variants:
-        
-        print('Computing Performance', bid, variant)
         
         if tree_cache_key in pcache and bid in pcache[tree_cache_key]:
               

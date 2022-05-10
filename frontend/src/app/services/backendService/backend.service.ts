@@ -44,7 +44,7 @@ export class BackendService {
       });
   }
 
-  private processEventLog(res, filePath) {
+  private processEventLog(res, filePath = null) {
     this.sharedDataService.activitiesInEventLog = res['activities'];
     this.sharedDataService.startActivitiesInEventLog = new Set(
       Object.keys(res['startActivities'])
@@ -62,6 +62,7 @@ export class BackendService {
     });
 
     this.sharedDataService.loadedEventLog = filePath;
+
     this.sharedDataService.performanceInfoAvailable = true;
   }
 
@@ -131,7 +132,7 @@ export class BackendService {
 
     this.httpClient.post(this.backendUrl + 'deleteActivity', {
       activityName: activityName,
-    }).subscribe((t) => console.log('Send', activityName));
+    }).subscribe((res) => this.processEventLog(res, this.sharedDataService.loadedEventLog));
 
   }
 

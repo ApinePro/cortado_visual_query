@@ -14,7 +14,7 @@ export class SharedDataService {
   public computedTextLengthCache = new Map<string, number>();
   public performanceInfoAvailable = false;
 
-  private _loadedEventLog = new Subject<string>();
+  private _loadedEventLog = new BehaviorSubject<string>('preload');
   private _treePerformance = new BehaviorSubject<Object>({});
   private _activityNamesChanged = new BehaviorSubject<Map<string, string>>(
     null
@@ -37,6 +37,10 @@ export class SharedDataService {
   set loadedEventLog(name: string) {
     console.log('set loadedEventLog:' + name);
     this._loadedEventLog.next(name);
+  }
+
+  get loadedEventLog() {
+    return this._loadedEventLog.getValue();
   }
 
   private _currentDisplayedProcessTree = new BehaviorSubject<any>(null);

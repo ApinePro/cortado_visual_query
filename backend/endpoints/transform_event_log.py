@@ -3,16 +3,12 @@ from collections import Counter
 import pickle
 from cortado_core.utils.cvariants import get_concurrency_variants, get_detailed_variants
 from cortado_core.performance.variant_performance import assign_variants_performances
-from cortado_core.utils.split_graph import LeafGroup, SequenceGroup, ConcurrencyGroup
+from cortado_core.utils.split_graph import LeafGroup, SequenceGroup, ConcurrencyGroup, ParallelGroup
 from cortado_core.utils.cgroups_graph import cgroups_graph
-from pm4py.objects.log.obj import EventLog
+from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.util.xes_constants import DEFAULT_NAME_KEY
 from endpoints import load_event_log
 from pm4py.algo.filtering.log.attributes.attributes_filter import apply_events, Parameters
-
-from pm4py.algo.filtering.log.attributes import attributes_filter
-from pm4py.algo.filtering.log.end_activities import end_activities_filter
-from pm4py.algo.filtering.log.start_activities import start_activities_filter
 
 def cache_current_data(): 
         
@@ -127,8 +123,8 @@ def rename_activities_in_variant_group(group, oldActivityName, newActivityName):
         children, changes = zip(*[rename_activities_in_variant_group(child, oldActivityName, newActivityName) for child in group])
  
         
-        if isinstance(group, ConcurrencyGroup):
-            return ConcurrencyGroup(sorted(children)), any(changes)
+        if isinstance(group, ParallelGroup):
+            return ParallelGroup(sorted(children)), any(changes)
         
         
         else: 
@@ -199,18 +195,34 @@ def remove_activitiy_from_group(group, activity_name):
         children, fallthroughs = zip(*[remove_activitiy_from_group(child, activity_name) for child in group])
         children = [child for child in children if child]
         
+        tmp = []
         
-        if len(children) > 0: 
+        for child in children: 
+           
+          if type(child) == type(group): 
             
-            if isinstance(group, ConcurrencyGroup):
-                return ConcurrencyGroup(sorted(children)), any(fallthroughs)
+            for cchild in child: 
+              tmp.append(cchild)
+          
+          else: 
+            tmp.append(child)
+            
+        children = tmp 
+              
+        if len(children) > 1: 
+            
+            if isinstance(group, ParallelGroup):
+                return ParallelGroup(sorted(children)), any(fallthroughs)
         
             else: 
                 return SequenceGroup(children), any(fallthroughs)
+              
+        elif len(children) == 1: 
+            return children[0], any(fallthroughs)
             
         else: 
             
-            return None, any(fallthroughs)
+          return None, any(fallthroughs)
     
     
     
@@ -232,6 +244,20 @@ def create_new_graph(trace):
                 
     return graph
     
+def apply_filter_copy(trace, activityName):
+    
+    new_attributes = {}
+    for k, v in trace.attributes.items():
+        new_attributes[k] = v
+
+    ctrace = Trace(attributes=new_attributes)
+    for ev in trace._list:
+        
+        if ev['concept:name'] != activityName: 
+            ctrace.append(ev)
+            
+    return ctrace
+
 
 def recompute_log_statistics(variants, total_traces):
   
@@ -277,67 +303,60 @@ def remove_activities(activityName):
     
     new_variants = []
     
-    
-    for variant, traces in load_event_log.variants.items(): 
+    for bid, (variant, traces) in enumerate(load_event_log.variants.items()): 
 
         if activityName in variant.graph.events: 
             
             new_variant, fallthrough = remove_activitiy_from_group(variant, activityName)
-            
             # If we detect a Fallthrough, Leaf with multiple Members, we recompute the cuts
             if fallthrough: 
-
-                log = EventLog(traces) 
-                log = apply_events(log, values = [activityName], 
-                                        parameters = {Parameters.ACTIVITY_KEY  : DEFAULT_NAME_KEY, Parameters.POSITIVE : False})  
+ 
+                log = EventLog([apply_filter_copy(trace, activityName) for trace in traces])
             
                 c_variants = get_concurrency_variants(log, False) 
-
                 
                 for new_c_variant, new_traces in c_variants.items(): 
                   
                     new_log[new_c_variant] = new_log.get(new_c_variant, []) + new_traces
                     new_variants.append(new_c_variant)
+            
             else: 
-                print('Deleting Activity, no Fallthrough')
-                log = EventLog(traces) 
-                print('Traces', traces)
+              
+                log = EventLog([apply_filter_copy(trace, activityName) for trace in traces])
                 
-                log = apply_events(log, values = [activityName], 
-                                        parameters = {Parameters.ACTIVITY_KEY  : DEFAULT_NAME_KEY, Parameters.POSITIVE : False})
-
-                print('Creating Graph')
                 new_variant.graph = create_new_graph(log[0])
                 new_variants.append(new_variant)
                 
-                print('Adding Variant to Log')
                 new_log[new_variant] = new_log.get(new_variant, []) + list(log)
                 
                 
             
         else: 
             new_log[variant] = new_log.get(variant, []) + traces
-
+            
     print('New Variant Log creation')
     new_variants_log = {new_variant : new_log[new_variant] for new_variant in new_variants}
     assign_variants_performances(new_variants_log)
 
-
+    print('Computing Log Statistics')
     total_traces = sum([len(v) for _, v in new_log.items()])
     
     res_variants = recompute_log_statistics(new_log, total_traces)
     
     start_activities = set.union(*[set(v.graph.start_activities.keys()) for v in new_log.keys()])
     end_activities = set.union(*[set(v.graph.end_activities.keys()) for v in new_log.keys()])
-    activities = set.union(*[set(v.graph.events.keys()) for v in new_log.keys()])
+    activities = dict(sum([Counter({ k : (len(ls) * len(new_log[v])) for k, ls in v.graph.events.items()}) for v in new_log], Counter()))
     
     res = {
-        "startActivities": start_activities,
-        "endActivities": end_activities,
+        "startActivities": list(start_activities),
+        "endActivities": list(end_activities),
         "activities": activities,
         "variants": res_variants,
         "performanceInfoAvailable": load_event_log.lifecycle_available
     }
-        
-    print('RES')
+    
+    
+    load_event_log.variants = new_log
+         
+    return res
     
