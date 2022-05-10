@@ -1,3 +1,4 @@
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 
 import {
@@ -93,6 +94,7 @@ export class VariantComponent implements AfterViewInit {
     private lazyLoadingService: LazyLoadingServiceService,
     public performanceService: PerformanceService,
     public sharedDataService: SharedDataService,
+    private processTreeService : ProcessTreeService,
     private performanceColorService: ModelPerformanceColorScaleService
   ) {}
 
@@ -155,7 +157,7 @@ export class VariantComponent implements AfterViewInit {
       if (this.performanceService.calculationInProgress.has(variant)) {
         return;
       }
-      if (this.sharedDataService.currentDisplayedProcessTree === undefined) {
+      if (this.processTreeService.currentDisplayedProcessTree === undefined) {
         //
       } else {
         this.performanceService.updatePerformance([variant]);

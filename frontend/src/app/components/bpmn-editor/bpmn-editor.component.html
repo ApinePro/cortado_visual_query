@@ -1,5 +1,96 @@
 <div class="bpmn-tree-editor h-100 d-flex flex-column">
   <div class="bg-dark btn-tool-bar">
+
+
+      <button
+      class="button text-warning"
+      (click)="deleteSubtree()"
+      [disabled]="buttonDeleteSubtreeDisabled()"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      title="remove selected node(s)"
+    >
+      <i class="bi bi-trash btn-icon"></i>
+    </button>
+
+    <span class="vl"></span>
+
+    <button
+      class="button btn-fixed-width"
+      (click)="undo()"
+      [disabled]="!(treeCacheLength - 1 > 0 && treeCacheIndex !== 0)"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      title="undo"
+    >
+      <i class="bi bi-arrow-counterclockwise btn-icon"></i>
+      <span
+        class="text-secondary"
+        *ngIf="treeCacheLength - 1 > 0 && treeCacheIndex !== 0"
+      >
+        ({{ treeCacheIndex }})
+      </span>
+    </button>
+
+    <button
+      class="button btn-fixed-width"
+      (click)="redo()"
+      [disabled]="!(treeCacheIndex < treeCacheLength - 1)"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      title="redo"
+    >
+      <i class="bi bi-arrow-clockwise btn-icon"></i>
+      <span class="text-secondary" *ngIf="treeCacheIndex < treeCacheLength - 1">
+        ({{ treeCacheLength - 1 - treeCacheIndex }})
+      </span>
+    </button>
+
+    <span class="vl"></span>
+
+    <button
+      class="button"
+      (click)="selectNode()"
+      [class.button-active]="nodeSelectionStrategy === NodeSeletionStrategy.NODE"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      title="select node"
+    >
+      <i class="bi bi-fullscreen btn-icon text-danger"></i>
+      <div class="button-text px-1">
+        select node
+      </div>
+    </button>
+
+    <button
+      class="button"
+      (click)="selectSubtree()"
+      [class.button-active]="nodeSelectionStrategy === NodeSeletionStrategy.TREE"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      title="select subtree"
+    >
+      <i class="bi bi-fullscreen btn-icon text-danger"></i>
+      <div class="button-text px-1">
+        select subtree
+      </div>
+    </button>
+
+    <button
+      class="button"
+      (click)="clearSelection()"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      title="clear selection"
+    >
+      <i class="bi bi-x-lg btn-icon text-danger"></i>
+      <div class="button-text px-1">
+        clear selection
+      </div>
+    </button>
+
+    <span class="vl"></span>
+
     <button
       class="button ms-auto"
       data-bs-toggle="tooltip"

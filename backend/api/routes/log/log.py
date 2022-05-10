@@ -1,6 +1,6 @@
 import pickle
 
-import cache.log_cache as log_cache
+import log_cache as log_cache
 from cortado_core.utils.timestamp_utils import TimeUnit
 from endpoints.load_event_log import (calculate_event_log_properties,
                                       get_time_granularity)

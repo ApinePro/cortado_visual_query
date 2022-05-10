@@ -4,7 +4,7 @@ from cortado_core.performance.variant_performance import assign_variants_perform
 from cortado_core.utils.cvariants import get_concurrency_variants, get_detailed_variants
 from cortado_core.utils.split_graph import LeafGroup, SequenceGroup
 from cortado_core.utils.timestamp_utils import TimeUnit
-from pm4py import sample_cases
+from pm4py.objects.log.util.sampling import sample_log 
 from pm4py.algo.filtering.log.attributes import attributes_filter
 from pm4py.algo.filtering.log.end_activities import end_activities_filter
 from pm4py.algo.filtering.log.start_activities import start_activities_filter
@@ -127,7 +127,7 @@ def get_c_variants(event_log: EventLog, use_mp: bool = False, time_granularity: 
 
 
 def get_time_granularity(event_log: EventLog):
-    sample = sample_cases(event_log, 500)
+    sample = sample_log(event_log, 500)
     timestamps = [event[DEFAULT_TIMESTAMP_KEY]
                   for trace in sample for event in trace]
 

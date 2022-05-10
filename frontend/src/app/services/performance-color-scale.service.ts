@@ -114,7 +114,6 @@ export class ModelPerformanceColorScaleService {
   ) {
     const colorScales = new Map<number, any>();
 
-    // const values = getAllTreeValues(this.sharedDataService.currentDisplayedProcessTree, performanceValue, statistic);
     const values = this.getAllAllValues();
     const min = Math.min(...values);
     const max = Math.max(...values);

@@ -1,3 +1,4 @@
+import { NodeSeletionStrategy, ProcessTreeService } from './../../services/processTreeService/process-tree.service';
 import { Subscription } from 'rxjs';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import {
@@ -46,7 +47,6 @@ export class BpmnEditorComponent
 {
   selectedNode: any;
   currentTree: ProcessTree;
-  synchronise: boolean = true;
 
   activityColorMap: Map<string, string>;
   performanceColorMap: Map<number, any>;
@@ -61,10 +61,18 @@ export class BpmnEditorComponent
   selectedPerformanceIndicator: string;
   zoom: d3.ZoomBehavior<Element, unknown>;
 
+  NodeSeletionStrategy = NodeSeletionStrategy;
+  nodeSelectionStrategy : NodeSeletionStrategy = NodeSeletionStrategy.TREE
+  treeCacheLength: number = 0;
+  treeCacheIndex: number = 0;
+
+
   rootNodeIdSub: Subscription;
   curPTSub: Subscription;
   performanceSub: Subscription;
   colorMapSub: Subscription;
+
+
 
   constructor(
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
@@ -75,6 +83,7 @@ export class BpmnEditorComponent
     private colorMapService: ColorMapService,
     private performanceColorScaleService: ModelPerformanceColorScaleService,
     private performanceService: PerformanceService,
+    private processTreeService: ProcessTreeService,
     private activateTooltipsService: ActivateTooltipsService,
     private imageExportService: ImageExportService
   ) {
@@ -83,13 +92,29 @@ export class BpmnEditorComponent
   }
 
   ngOnInit(): void {
-    this.sharedDataService.nodeWidthCache$.subscribe((cache) => {
+    this.processTreeService.nodeWidthCache$.subscribe((cache) => {
       this.nodeWidthCache = cache;
     });
+
+    this.processTreeService.treeCacheIndex$.subscribe((idx) => {
+      this.treeCacheIndex = idx;
+      console.log('Changed Tree Cache Index', idx)
+    })
+
+    this.processTreeService.treeCacheLength$.subscribe((len) => {
+      this.treeCacheLength = len;
+      console.log('Changed Tree Cache Length', len )
+    })
+
+    this.processTreeService.selectionMode$.subscribe((strategy) => {
+      this.nodeSelectionStrategy = strategy;
+      console.log('Current Node Selection Strategy', strategy )
+    })
+
   }
 
   ngAfterViewInit(): void {
-    this.nodeWidthCache = this.sharedDataService.nodeWidthCache;
+    this.nodeWidthCache = this.processTreeService.nodeWidthCache;
 
     this.mainGroup = d3
       .select(this.svgElem.nativeElement)
@@ -122,22 +147,22 @@ export class BpmnEditorComponent
       );
 
     this.curPTSub =
-      this.sharedDataService.currentDisplayedProcessTree$.subscribe((tree) => {
+      this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
         this.currentTree = tree;
         this.redraw();
       });
 
-    this.rootNodeIdSub = this.sharedDataService.selectedRootNodeID$.subscribe(
+    this.rootNodeIdSub = this.processTreeService.selectedRootNodeID$.subscribe(
       (id) => {
-        if (this.synchronise) {
-          if (id) {
-            this.selectBPMNNode(id);
-          } else {
-            this.unselectAll();
-          }
-
-          this.selectedRootID = id;
+        console.log('Selected root Node has Changed')
+        if (id) {
+          this.selectBPMNNode(id);
+        } else {
+          this.unselectAll();
         }
+
+        this.selectedRootID = id;
+
       }
     );
   }
@@ -177,6 +202,32 @@ export class BpmnEditorComponent
     }
   }
 
+  selectNode(): void {
+    this.processTreeService.selectedRootNodeID = null;
+    this.processTreeService.selectionMode = NodeSeletionStrategy.NODE
+  }
+
+  selectSubtree(): void {
+    this.processTreeService.selectedRootNodeID = null;
+    this.processTreeService.selectionMode = NodeSeletionStrategy.TREE
+  }
+
+
+  cacheCurrentTree(): void {
+    this.processTreeService.cacheCurrentTree(this.root);
+  }
+
+  undo(): void {
+      this.currentTree = this.processTreeService.undo();
+      this.redraw();
+    }
+
+
+  redo(): void {
+      this.currentTree = this.processTreeService.redo();
+      this.update(this.root, false);
+    }
+
   handleResponsiveChange(
     left: number,
     top: number,
@@ -196,6 +247,11 @@ export class BpmnEditorComponent
     logicalZIndex: LogicalZIndex,
     defaultZIndex: string
   ): void {}
+
+
+  clearSelection(){
+    this.processTreeService.selectedRootNodeID = null;
+  }
 
   redraw() {
     this.mainGroup.selectChildren().remove();
@@ -673,10 +729,10 @@ export class BpmnEditorComponent
       'click',
       function (e, d) {
         if (d.id === this.selectedRootID) {
-          this.sharedDataService.selectedRootNodeID = null;
+          this.processTreeService.selectedRootNodeID = null;
           this.performanceService.treeSelection.next(undefined);
         } else {
-          this.sharedDataService.selectedRootNodeID = d.id;
+          this.processTreeService.selectedRootNodeID = d.id;
           this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
         }
       }.bind(this)
@@ -918,10 +974,10 @@ export class BpmnEditorComponent
       'click',
       function (e, d) {
         if (d.id === this.selectedRootID) {
-          this.sharedDataService.selectedRootNodeID = null;
+          this.processTreeService.selectedRootNodeID = null;
           this.performanceService.treeSelection.next(undefined);
         } else {
-          this.sharedDataService.selectedRootNodeID = d.id;
+          this.processTreeService.selectedRootNodeID = d.id;
           this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
         }
       }.bind(this)
@@ -970,10 +1026,10 @@ export class BpmnEditorComponent
       'click',
       function (e, d) {
         if (d.id === this.selectedRootID) {
-          this.sharedDataService.selectedRootNodeID = null;
+          this.processTreeService.selectedRootNodeID = null;
           this.performanceService.treeSelection.next(undefined);
         } else {
-          this.sharedDataService.selectedRootNodeID = d.id;
+          this.processTreeService.selectedRootNodeID = d.id;
           this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
         }
       }.bind(this)
@@ -1004,10 +1060,10 @@ export class BpmnEditorComponent
       'click',
       function (e, d) {
         if (d.id === this.selectedRootID) {
-          this.sharedDataService.selectedRootNodeID = null;
+          this.processTreeService.selectedRootNodeID = null;
           this.performanceService.treeSelection.next(undefined);
         } else {
-          this.sharedDataService.selectedRootNodeID = d.id;
+          this.processTreeService.selectedRootNodeID = d.id;
           this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
         }
       }.bind(this)
@@ -1055,10 +1111,6 @@ export class BpmnEditorComponent
           0
         )
       );
-  }
-
-  setSynchronise(event) {
-    this.synchronise = event.currentTarget.checked;
   }
 
   centerContent(): void {}

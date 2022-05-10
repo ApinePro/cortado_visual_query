@@ -1,3 +1,4 @@
+import { ProcessTreeService } from './../processTreeService/process-tree.service';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -18,7 +19,8 @@ import * as objectHash from 'object-hash';
 export class BackendService {
   constructor(
     private httpClient: HttpClient,
-    private sharedDataService: SharedDataService
+    private sharedDataService: SharedDataService,
+    private processTreeService : ProcessTreeService,
   ) {}
 
   backendUrl = 'http://127.0.0.1:41211/';
@@ -74,7 +76,7 @@ export class BackendService {
         file_path: filePath,
       })
       .subscribe((tree) => {
-        this.sharedDataService.currentDisplayedProcessTree = tree;
+        this.processTreeService.currentDisplayedProcessTree = tree;
       });
   }
 
@@ -84,7 +86,7 @@ export class BackendService {
         variants: variants,
       })
       .subscribe((tree) => {
-        this.sharedDataService.currentDisplayedProcessTree = tree;
+        this.processTreeService.currentDisplayedProcessTree = tree;
       });
   }
 
@@ -98,7 +100,7 @@ export class BackendService {
       })
       .pipe(
         tap((tree) => {
-          this.sharedDataService.currentDisplayedProcessTree = tree;
+          this.processTreeService.currentDisplayedProcessTree = tree;
         })
       );
   }
@@ -107,7 +109,7 @@ export class BackendService {
     this.httpClient
       .post(this.backendUrl + 'computeTreeStringFromTree', { pt: tree })
       .subscribe((tree) => {
-        this.sharedDataService.currentTreeString = tree;
+        this.processTreeService.currentTreeString = tree;
       });
   }
 
@@ -118,7 +120,7 @@ export class BackendService {
   }
 
   downloadCurrentTreeAsBPMN(): void {
-    this.sharedDataService.currentDisplayedProcessTree$
+    this.processTreeService.currentDisplayedProcessTree$
       .pipe(take(1))
       .subscribe((tree) => {
         this.httpClient
@@ -134,7 +136,7 @@ export class BackendService {
   }
 
   downloadCurrentTreeAsPTML(): void {
-    this.sharedDataService.currentDisplayedProcessTree$
+    this.processTreeService.currentDisplayedProcessTree$
       .pipe(take(1))
       .subscribe((tree) => {
         this.httpClient
@@ -150,7 +152,7 @@ export class BackendService {
   }
 
   downloadCurrentTreeAsPNML(): void {
-    this.sharedDataService.currentDisplayedProcessTree$
+    this.processTreeService.currentDisplayedProcessTree$
       .pipe(take(1))
       .subscribe((tree) => {
         this.httpClient
@@ -166,14 +168,14 @@ export class BackendService {
   }
 
   applyTreeReductionRules(): void {
-    this.sharedDataService.currentDisplayedProcessTree$
+    this.processTreeService.currentDisplayedProcessTree$
       .pipe(take(1))
       .subscribe((tree) => {
         this.httpClient
           .post(this.backendUrl + 'applyReductionRulesToTree', { pt: tree })
           .subscribe(
             (tree) =>
-              (this.sharedDataService.currentDisplayedProcessTree = tree)
+              (this.processTreeService.currentDisplayedProcessTree = tree)
           );
       });
   }
@@ -184,14 +186,14 @@ export class BackendService {
     explicitlyAddedVariants: any[]
   ): void {
     const body = {
-      pt: this.sharedDataService.currentDisplayedProcessTree,
+      pt: this.processTreeService.currentDisplayedProcessTree,
       variants_to_add: variantsToAdd,
       fitting_variants: explicitlyAddedVariants,
     };
     this.httpClient
       .post(this.backendUrl + 'addVariantsToProcessModel', body)
       .subscribe((res) => {
-        this.sharedDataService.currentDisplayedProcessTree = res;
+        this.processTreeService.currentDisplayedProcessTree = res;
       });
   }
 
@@ -200,7 +202,7 @@ export class BackendService {
     remove?: Variant[]
   ): Observable<any> {
     const body = {
-      pt: this.sharedDataService.currentDisplayedProcessTree,
+      pt: this.processTreeService.currentDisplayedProcessTree,
       variants: variants.map((v) => v.serialize()),
       delete: remove?.map((v) => v.variant.serialize()),
     };
@@ -216,7 +218,7 @@ export class BackendService {
     variantsInModelLanguage: VariantElement[]
   ): Observable<any> {
     const body = {
-      pt: this.sharedDataService.currentDisplayedProcessTree,
+      pt: this.processTreeService.currentDisplayedProcessTree,
       variants_to_add: variantsToAdd.map((v) => v.serialize()),
       fitting_variants: variantsInModelLanguage.map((v) => v.serialize()),
     };
@@ -225,7 +227,7 @@ export class BackendService {
       .pipe(
         tap((res) => {
           console.log('Tree Received from BackEnd Service', res);
-          this.sharedDataService.currentDisplayedProcessTree = res;
+          this.processTreeService.currentDisplayedProcessTree = res;
         })
       );
   }
@@ -234,7 +236,7 @@ export class BackendService {
     selectedVariants: VariantElement[]
   ): Observable<any> {
     const body = {
-      pt: this.sharedDataService.currentDisplayedProcessTree,
+      pt: this.processTreeService.currentDisplayedProcessTree,
       selected_variants: selectedVariants.map((v) => v.serialize()),
     };
     return this.httpClient
@@ -246,7 +248,7 @@ export class BackendService {
       .pipe(
         tap((res) => {
           console.log('Tree Received from BackEnd Service', res);
-          this.sharedDataService.currentDisplayedProcessTree = res;
+          this.processTreeService.currentDisplayedProcessTree = res;
         })
       );
   }

@@ -67,6 +67,7 @@ import { ConformanceCheckingService } from 'src/app/services/conformanceChecking
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { LogService } from 'src/app/services/logService/log.service';
 import { originalOrder } from 'src/app/utils/util';
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -146,6 +147,7 @@ export class VariantExplorerComponent
     private polygonDrawingService: PolygonDrawingService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
+    private processTreeService : ProcessTreeService,
     elRef: ElementRef,
     renderer: Renderer2,
     public performanceService: PerformanceService,
@@ -277,11 +279,11 @@ export class VariantExplorerComponent
       }
     });
 
-    this.sharedDataService.correctTreeSyntax$.subscribe((res) => {
+    this.processTreeService.correctTreeSyntax$.subscribe((res) => {
       this.correctTreeSyntax = res;
     });
 
-    this.sharedDataService.currentDisplayedProcessTree$.subscribe((tree) => {
+    this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
       this.currentlyDisplayedProcessTree = tree;
       const treeHasChanged = !this.sharedDataService.processTreesEqual(
         this.usedTreeForConformanceChecking,
@@ -455,7 +457,7 @@ export class VariantExplorerComponent
 
     const resubscribe = this.conformanceCheckingService.calculateConformance(
       variant.id,
-      this.sharedDataService.currentDisplayedProcessTree,
+      this.processTreeService.currentDisplayedProcessTree,
       variant.variant.serialize(),
       timeout
     );
@@ -765,7 +767,7 @@ export class VariantExplorerComponent
       this.performanceService.unselectPerformance();
     } else {
       this.performanceService.activeVariant = undefined;
-      this.sharedDataService.currentDisplayedProcessTree =
+      this.processTreeService.currentDisplayedProcessTree =
         this.performanceService.mergedPerformance;
     }
   }
