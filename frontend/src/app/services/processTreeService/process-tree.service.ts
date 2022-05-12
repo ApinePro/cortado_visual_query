@@ -7,12 +7,10 @@ import { HierarchyNode } from 'd3';
 import { PerformanceService } from '../performance.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProcessTreeService {
-
-
-  constructor(private sharedDataService : SharedDataService) { }
+  constructor(private sharedDataService: SharedDataService) {}
 
   private _selectedRootNodeID = new BehaviorSubject<number>(null);
 
@@ -70,9 +68,9 @@ export class ProcessTreeService {
     return this._currentTreeString.getValue();
   }
 
-
-
-  private _selectionMode = new BehaviorSubject<NodeSeletionStrategy>(NodeSeletionStrategy.TREE);
+  private _selectionMode = new BehaviorSubject<NodeSeletionStrategy>(
+    NodeSeletionStrategy.TREE
+  );
 
   get selectionMode$(): Observable<any> {
     return this._selectionMode.asObservable();
@@ -85,7 +83,6 @@ export class ProcessTreeService {
   set selectionMode(strategy: NodeSeletionStrategy) {
     this._selectionMode.next(strategy);
   }
-
 
   private _currentDisplayedProcessTree = new BehaviorSubject<any>(null);
 
@@ -102,23 +99,19 @@ export class ProcessTreeService {
       tree = ProcessTree.fromObj(tree);
     }
     this._currentDisplayedProcessTree.next(tree);
-    this.sharedDataService.activitiesInCurrentTree = this.getSetOfActivities(tree);
+    this.sharedDataService.activitiesInCurrentTree =
+      this.getSetOfActivities(tree);
   }
 
-
-
-  public set_currentDisplayedProcessTree_with_Cache(tree : any) {
-
+  public set_currentDisplayedProcessTree_with_Cache(tree: any) {
     if (tree && !(tree instanceof ProcessTree)) {
       tree = ProcessTree.fromObj(tree);
     }
     this._currentDisplayedProcessTree.next(tree);
-    this.sharedDataService.activitiesInCurrentTree = this.getSetOfActivities(tree);
-    this.cacheCurrentTree(tree)
-
+    this.sharedDataService.activitiesInCurrentTree =
+      this.getSetOfActivities(tree);
+    this.cacheCurrentTree(tree);
   }
-
-
 
   private getSetOfActivities(tree: any): Set<string> {
     if (tree) {
@@ -135,8 +128,6 @@ export class ProcessTreeService {
       return new Set();
     }
   }
-
-
 
   previousTreeObjects: d3.HierarchyNode<any>[] = [];
 
@@ -167,23 +158,17 @@ export class ProcessTreeService {
     return this._treeCacheIndex.getValue();
   }
 
-  cacheCurrentTree(root : ProcessTree): void {
-
-    if (
-      this.treeCacheIndex <
-      this.previousTreeObjects.length - 1
-    ) {
+  cacheCurrentTree(root: ProcessTree): void {
+    if (this.treeCacheIndex < this.previousTreeObjects.length - 1) {
       // before change, undo was pressed --> remove newer versions since older version of process tree was changed
       this.previousTreeObjects = this.previousTreeObjects.slice(
         0,
         this.treeCacheIndex + 1
       );
-
     }
 
     if (root) {
       this.previousTreeObjects.push(JSON.parse(JSON.stringify(root)));
-
     } else {
       this.previousTreeObjects.push(null);
     }
@@ -193,10 +178,8 @@ export class ProcessTreeService {
       this.treeCacheIndex = this.previousTreeObjects.length - 1;
     }
 
-
     this.treeCacheLength = this.previousTreeObjects.length;
   }
-
 
   undo() {
     if (
@@ -206,39 +189,26 @@ export class ProcessTreeService {
     ) {
       this.treeCacheIndex--;
 
-      let treeToLoad =
-        this.previousTreeObjects[this.treeCacheIndex];
-
+      let treeToLoad = this.previousTreeObjects[this.treeCacheIndex];
 
       this.selectedRootNodeID = null;
-      this.currentDisplayedProcessTree = treeToLoad
-
-
+      this.currentDisplayedProcessTree = treeToLoad;
     }
   }
 
   redo() {
-    if (
-      this.treeCacheIndex <
-      this.previousTreeObjects.length - 1
-    ) {
+    if (this.treeCacheIndex < this.previousTreeObjects.length - 1) {
       this.treeCacheIndex++;
-      let treeToLoad =
-        this.previousTreeObjects[this.treeCacheIndex];
+      let treeToLoad = this.previousTreeObjects[this.treeCacheIndex];
 
-      
       this.selectedRootNodeID = null;
 
-      this.currentDisplayedProcessTree = treeToLoad
-
-
+      this.currentDisplayedProcessTree = treeToLoad;
     }
   }
-
 }
-
 
 export enum NodeSeletionStrategy {
   NODE = 'Node',
-  TREE = 'Tree'
+  TREE = 'Tree',
 }

@@ -87,7 +87,7 @@ export class ExpertModeComponent implements OnInit {
   constructor(
     private sharedDataService: SharedDataService,
     private backendService: BackendService,
-    private processTreeService : ProcessTreeService,
+    private processTreeService: ProcessTreeService
   ) {}
 
   ngOnInit() {
@@ -175,7 +175,9 @@ export class ExpertModeComponent implements OnInit {
     $pendingTreeParse.subscribe((result: any) => {
       if (!result.errors) {
         console.warn('Expert Mode Tree Update');
-        this.processTreeService.set_currentDisplayedProcessTree_with_Cache(result.tree);
+        this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+          result.tree
+        );
         this.backendErrorMessage = null;
       } else {
         this.backendErrorMessage = result.errors;

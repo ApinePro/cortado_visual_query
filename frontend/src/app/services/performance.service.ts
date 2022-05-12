@@ -41,8 +41,8 @@ export class PerformanceService {
   constructor(
     private sharedDataService: SharedDataService,
     private backendService: BackendService,
-    private tooltipService: ActivateTooltipsService, 
-    private processTreeService : ProcessTreeService
+    private tooltipService: ActivateTooltipsService,
+    private processTreeService: ProcessTreeService
   ) {
     this.currentPt = processTreeService.currentDisplayedProcessTree;
 
@@ -130,7 +130,8 @@ export class PerformanceService {
 
           console.log('TRIGGERED REDRAW AT PERFROMANCE SERVICE');
           this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
-            performance.merged_performance_tree);
+            performance.merged_performance_tree
+          );
 
           variants.forEach((v) => this.calculationInProgress.delete(v));
 
@@ -173,7 +174,8 @@ export class PerformanceService {
   public unselectPerformance() {
     console.log('TRIGGERED REDRAW AT UNSELECT PERFORMANCE');
     this.processTreeService.currentDisplayedProcessTree = this.clearProcessTree(
-      this.processTreeService.currentDisplayedProcessTree)
+      this.processTreeService.currentDisplayedProcessTree
+    );
 
     this.activeVariant = null;
   }
@@ -236,7 +238,9 @@ export class PerformanceService {
     this.activeVariant = variant;
     if (this.variantsPerformance.has(variant)) {
       console.log('TRIGGERED REDRAW AT SHOW VARIANT PERFORMANCE');
-      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(this.variantsPerformance.get(variant))
+      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+        this.variantsPerformance.get(variant)
+      );
     } else {
       console.error(`No performance values available: ${Variant}`);
     }

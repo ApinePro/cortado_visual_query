@@ -20,7 +20,7 @@ export class BackendService {
   constructor(
     private httpClient: HttpClient,
     private sharedDataService: SharedDataService,
-    private processTreeService : ProcessTreeService,
+    private processTreeService: ProcessTreeService
   ) {}
 
   backendUrl = 'http://127.0.0.1:41211/';
@@ -76,7 +76,9 @@ export class BackendService {
         file_path: filePath,
       })
       .subscribe((tree) => {
-        this.processTreeService.set_currentDisplayedProcessTree_with_Cache(tree);
+        this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+          tree
+        );
       });
   }
 
@@ -100,7 +102,9 @@ export class BackendService {
       })
       .pipe(
         tap((tree) => {
-          this.processTreeService.set_currentDisplayedProcessTree_with_Cache(tree);
+          this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+            tree
+          );
         })
       );
   }
@@ -173,9 +177,10 @@ export class BackendService {
       .subscribe((tree) => {
         this.httpClient
           .post(this.backendUrl + 'applyReductionRulesToTree', { pt: tree })
-          .subscribe(
-            (tree) =>
-              (this.processTreeService.set_currentDisplayedProcessTree_with_Cache(tree))
+          .subscribe((tree) =>
+            this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+              tree
+            )
           );
       });
   }
@@ -227,7 +232,9 @@ export class BackendService {
       .pipe(
         tap((res) => {
           console.log('Tree Received from BackEnd Service', res);
-          this.processTreeService.set_currentDisplayedProcessTree_with_Cache(res);
+          this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+            res
+          );
         })
       );
   }
@@ -248,7 +255,9 @@ export class BackendService {
       .pipe(
         tap((res) => {
           console.log('Tree Received from BackEnd Service', res);
-          this.processTreeService.set_currentDisplayedProcessTree_with_Cache(res);
+          this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+            res
+          );
         })
       );
   }

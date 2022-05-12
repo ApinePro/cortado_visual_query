@@ -32,7 +32,7 @@ export class ModelPerformanceComponent implements OnInit {
 
   constructor(
     public performanceService: PerformanceService,
-    private processTreeService : ProcessTreeService,
+    private processTreeService: ProcessTreeService,
     public performanceColorScaleService: ModelPerformanceColorScaleService,
     private changeDetectionRef: ChangeDetectorRef
   ) {

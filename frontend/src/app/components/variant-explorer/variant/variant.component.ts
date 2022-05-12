@@ -94,7 +94,7 @@ export class VariantComponent implements AfterViewInit {
     private lazyLoadingService: LazyLoadingServiceService,
     public performanceService: PerformanceService,
     public sharedDataService: SharedDataService,
-    private processTreeService : ProcessTreeService,
+    private processTreeService: ProcessTreeService,
     private performanceColorService: ModelPerformanceColorScaleService
   ) {}
 

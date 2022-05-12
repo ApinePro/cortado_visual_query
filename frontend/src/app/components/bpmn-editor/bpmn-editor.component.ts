@@ -1,4 +1,7 @@
-import { NodeSeletionStrategy, ProcessTreeService } from './../../services/processTreeService/process-tree.service';
+import {
+  NodeSeletionStrategy,
+  ProcessTreeService,
+} from './../../services/processTreeService/process-tree.service';
 import { Subscription } from 'rxjs';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import {
@@ -62,17 +65,14 @@ export class BpmnEditorComponent
   zoom: d3.ZoomBehavior<Element, unknown>;
 
   NodeSeletionStrategy = NodeSeletionStrategy;
-  nodeSelectionStrategy : NodeSeletionStrategy = NodeSeletionStrategy.TREE
+  nodeSelectionStrategy: NodeSeletionStrategy = NodeSeletionStrategy.TREE;
   treeCacheLength: number = 0;
   treeCacheIndex: number = 0;
-
 
   rootNodeIdSub: Subscription;
   curPTSub: Subscription;
   performanceSub: Subscription;
   colorMapSub: Subscription;
-
-
 
   constructor(
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
@@ -98,16 +98,15 @@ export class BpmnEditorComponent
 
     this.processTreeService.treeCacheIndex$.subscribe((idx) => {
       this.treeCacheIndex = idx;
-    })
+    });
 
     this.processTreeService.treeCacheLength$.subscribe((len) => {
       this.treeCacheLength = len;
-    })
+    });
 
     this.processTreeService.selectionMode$.subscribe((strategy) => {
       this.nodeSelectionStrategy = strategy;
-    })
-
+    });
   }
 
   ngAfterViewInit(): void {
@@ -158,7 +157,6 @@ export class BpmnEditorComponent
         }
 
         this.selectedRootID = id;
-
       }
     );
   }
@@ -186,7 +184,7 @@ export class BpmnEditorComponent
 
     const selected_node = this.mainGroup.select('[id="' + id + '"]');
     if (!selected_node.empty()) {
-      this.selectedNode = selected_node; 
+      this.selectedNode = selected_node;
       if ((selected_node.datum() as ProcessTree).operator) {
         if (this.currentTree === selected_node.datum()) {
           this.mainGroup.classed('selected-bpmn-operator', true);
@@ -200,25 +198,24 @@ export class BpmnEditorComponent
   }
 
   selectNode(): void {
-    console.log('Set Selection Mode Node')
+    console.log('Set Selection Mode Node');
     this.processTreeService.selectedRootNodeID = null;
-    this.processTreeService.selectionMode = NodeSeletionStrategy.NODE
+    this.processTreeService.selectionMode = NodeSeletionStrategy.NODE;
   }
 
   selectSubtree(): void {
-    console.log('Set Selection Mode Tree')
+    console.log('Set Selection Mode Tree');
     this.processTreeService.selectedRootNodeID = null;
-    this.processTreeService.selectionMode = NodeSeletionStrategy.TREE
+    this.processTreeService.selectionMode = NodeSeletionStrategy.TREE;
   }
 
   undo(): void {
-      this.processTreeService.undo();
-    }
-
+    this.processTreeService.undo();
+  }
 
   redo(): void {
-      this.processTreeService.redo();
-    }
+    this.processTreeService.redo();
+  }
 
   handleResponsiveChange(
     left: number,
@@ -240,8 +237,7 @@ export class BpmnEditorComponent
     defaultZIndex: string
   ): void {}
 
-
-  clearSelection(){
+  clearSelection() {
     this.processTreeService.selectedRootNodeID = null;
   }
 
@@ -277,7 +273,7 @@ export class BpmnEditorComponent
         BPMN_Constant.START_END_RADIUS,
         0,
         BPMN_Constant.START_END_RADIUS + 2 * BPMN_Constant.HORIZONTALSPACING,
-        0,
+        0
       );
 
       const bpmn = this.mainGroup.append('g');
@@ -377,7 +373,7 @@ export class BpmnEditorComponent
           BPMN_Constant.bpmn_node_height_width / 2 + interpolate.y,
           offset_x + center,
           BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-          false, 
+          false,
           model._pt.frozen
         );
 
@@ -406,7 +402,7 @@ export class BpmnEditorComponent
             2 * BPMN_Constant.HORIZONTALSPACING +
             interpolate.y,
           BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-          false, 
+          false,
           model._pt.frozen
         );
       }
@@ -440,48 +436,43 @@ export class BpmnEditorComponent
     this.drawOperatorNode(leave_operator, model);
   }
 
-  deleteSelected(){
-
-    const delete_subtree = (tree : ProcessTree, tree_to_delete : ProcessTree) => {
-
-      if (tree === tree_to_delete){
-        return; 
-
+  deleteSelected() {
+    const delete_subtree = (tree: ProcessTree, tree_to_delete: ProcessTree) => {
+      if (tree === tree_to_delete) {
+        return;
       } else {
-        
+        if (tree.children) {
+          let child_list: Array<ProcessTree> = [];
 
-        if (tree.children){
-          let child_list : Array<ProcessTree> = []
+          for (let child of tree.children) {
+            let res = delete_subtree(child, tree_to_delete);
 
-          for (let child of tree.children){
-              let res = delete_subtree(child, tree_to_delete)
-  
-              if (res) {
-                child_list.push(res)
-              }
-  
+            if (res) {
+              child_list.push(res);
+            }
           }
-  
-          tree.children = child_list; 
+
+          tree.children = child_list;
         }
       }
 
-      return tree
-    }
-  
-    if (this.currentTree === this.selectedNode.datum()){
+      return tree;
+    };
 
-      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(null); 
-
+    if (this.currentTree === this.selectedNode.datum()) {
+      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(null);
     } else {
-      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(delete_subtree(this.currentTree, this.selectedNode.datum())); 
+      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+        delete_subtree(this.currentTree, this.selectedNode.datum())
+      );
     }
-
-
   }
 
-  deleteInactive(){
-    return (this.selectedRootID == null || this.nodeSelectionStrategy == this.NodeSeletionStrategy.NODE)
+  deleteInactive() {
+    return (
+      this.selectedRootID == null ||
+      this.nodeSelectionStrategy == this.NodeSeletionStrategy.NODE
+    );
   }
 
   drawChoiceBlock(
@@ -652,7 +643,7 @@ export class BpmnEditorComponent
             model.core_width +
             2 * BPMN_Constant.HORIZONTALSPACING,
           BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-          false, 
+          false,
           model._pt.frozen
         );
       }
@@ -786,10 +777,10 @@ export class BpmnEditorComponent
       .attr(
         'transform-origin',
         `${BPMN_Constant.rectCenter} ${BPMN_Constant.rectCenter}`
-      ).classed('frozen-node-operator', model._pt.frozen); 
+      )
+      .classed('frozen-node-operator', model._pt.frozen);
 
-
-   parent.on(
+    parent.on(
       'click',
       function (e, d) {
         if (d.id === this.selectedRootID) {
@@ -931,7 +922,6 @@ export class BpmnEditorComponent
   drawLine(selection, x1, y1, x2, y2, outBound = false, frozen = false) {
     // Compute a right-angled-cornered Line
 
-    
     const lineData: Array<[number, number]> = outBound
       ? [
           [x1, y1],
@@ -955,7 +945,16 @@ export class BpmnEditorComponent
       .classed('frozen-edge', frozen);
   }
 
-  drawSkipLine(selection, model, x1, y1, x2, y2, outBound = false, frozen = false) {
+  drawSkipLine(
+    selection,
+    model,
+    x1,
+    y1,
+    x2,
+    y2,
+    outBound = false,
+    frozen = false
+  ) {
     // Compute a right-angled-cornered Line
     const lineData: Array<[number, number]> = outBound
       ? [
@@ -995,7 +994,7 @@ export class BpmnEditorComponent
 
     node.datum(model._pt);
 
-    node.classed('frozen-node-visible-activity', model._pt.frozen)
+    node.classed('frozen-node-visible-activity', model._pt.frozen);
     selection.classed('cursor-pointer', true);
 
     let color;
@@ -1080,14 +1079,13 @@ export class BpmnEditorComponent
     this.addToolTip(selection);
   }
 
-  freezeSubtree(){
+  freezeSubtree() {}
 
-
-
-  }
-
-  buttonFreezeSubtreeDisabled(){
-    return (this.selectedRootID == null || this.nodeSelectionStrategy == this.NodeSeletionStrategy.NODE)
+  buttonFreezeSubtreeDisabled() {
+    return (
+      this.selectedRootID == null ||
+      this.nodeSelectionStrategy == this.NodeSeletionStrategy.NODE
+    );
   }
 
   drawStart(parent) {

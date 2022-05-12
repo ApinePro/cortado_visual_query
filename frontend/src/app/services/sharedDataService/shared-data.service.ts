@@ -62,7 +62,6 @@ export class SharedDataService {
     this._treePerformance.next(performance);
   }
 
-
   private _activitiesInCurrentTree = new BehaviorSubject<Set<string>>(
     new Set()
   );
@@ -71,10 +70,9 @@ export class SharedDataService {
     return this._activitiesInCurrentTree.asObservable();
   }
 
-  set activitiesInCurrentTree(activities){
+  set activitiesInCurrentTree(activities) {
     this._activitiesInCurrentTree.next(activities);
   }
-
 
   private _activitiesInEventLog = new BehaviorSubject<any>(
     dummyBackendResponse.activitiesInLog

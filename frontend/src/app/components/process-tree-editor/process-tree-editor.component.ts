@@ -37,7 +37,10 @@ import {
 import { textColorForBackgroundColor } from '../variant-explorer/helper_functions';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { ActivateTooltipsService } from '../../services/activateTooltipsService/activate-tooltips.service';
-import { NodeSeletionStrategy, ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
+import {
+  NodeSeletionStrategy,
+  ProcessTreeService,
+} from 'src/app/services/processTreeService/process-tree.service';
 
 @Component({
   selector: 'app-process-tree-editor',
@@ -74,7 +77,7 @@ export class ProcessTreeEditorComponent
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     private performanceService: PerformanceService,
     private performanceColorScaleService: ModelPerformanceColorScaleService,
-    private processTreeService : ProcessTreeService,
+    private processTreeService: ProcessTreeService,
     private renderer: Renderer2,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
@@ -101,7 +104,7 @@ export class ProcessTreeEditorComponent
 
   collapse: boolean = false;
   NodeSeletionStrategy = NodeSeletionStrategy;
-  nodeSelectionStrategy : NodeSeletionStrategy = NodeSeletionStrategy.TREE
+  nodeSelectionStrategy: NodeSeletionStrategy = NodeSeletionStrategy.TREE;
 
   selectedRootNodeId: number;
   selectedRootNode: d3.HierarchyNode<any>;
@@ -135,7 +138,6 @@ export class ProcessTreeEditorComponent
 
   treeCacheLength: number = 0;
   treeCacheIndex: number = 0;
-
 
   ngOnInit(): void {
     this.dropZoneConfig = new DropzoneConfig(
@@ -181,23 +183,23 @@ export class ProcessTreeEditorComponent
           // Relabel the currently displayed tree
           relabelRootNodeRecursive(activityNameMapping, this.root);
 
-
-          this.processTreeService.currentDisplayedProcessTree = this.getProcessTreeObject(this.root);
+          this.processTreeService.currentDisplayedProcessTree =
+            this.getProcessTreeObject(this.root);
         }
       }
     );
 
     this.processTreeService.treeCacheIndex$.subscribe((idx) => {
       this.treeCacheIndex = idx;
-    })
+    });
 
     this.processTreeService.treeCacheLength$.subscribe((len) => {
       this.treeCacheLength = len;
-    })
+    });
 
     this.processTreeService.selectionMode$.subscribe((strategy) => {
       this.nodeSelectionStrategy = strategy;
-    })
+    });
 
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.activityColorMap = colorMap;
@@ -253,19 +255,18 @@ export class ProcessTreeEditorComponent
         this.selectedRootNode = null;
         this.selectedRootNodeOnly = false;
         this.update(this.root);
-      } else if(res === null &&  this.mainSvgGroup){
-
+      } else if (res === null && this.mainSvgGroup) {
         this.selectedRootNode = null;
         this.selectedRootNodeOnly = false;
         this.root = null;
         this.update(null);
       }
-    })
+    });
 
     this.sharedDataService.activitiesInEventLog$.subscribe((activities) => {
       this.activitiesOccurringInLog = Array.from(Object.keys(activities));
     });
-  } 
+  }
 
   // Checks if a newly loaded tree contains an unknown activity
   checkForLoadedTreeIntegrity(tree): Set<string> {
@@ -334,7 +335,7 @@ export class ProcessTreeEditorComponent
   private selectRootNodeFromID(id) {
     const selectedRoot = this.mainSvgGroup.select('[id="' + id + '"]');
     const node = selectedRoot.data()[0];
-    console.warn('Selected Root Node in PT')
+    console.warn('Selected Root Node in PT');
 
     if (id && node) {
       this.setSelectedRootNode(node);
@@ -345,7 +346,9 @@ export class ProcessTreeEditorComponent
 
   saveTreeInSharedDataService(): void {
     console.warn(this.currentlyDisplayedTreeInEditor);
-    this.processTreeService.set_currentDisplayedProcessTree_with_Cache(this.currentlyDisplayedTreeInEditor)
+    this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+      this.currentlyDisplayedTreeInEditor
+    );
   }
 
   getProcessTreeObject(d3Node: d3.HierarchyNode<any>): ProcessTree {
@@ -407,15 +410,15 @@ export class ProcessTreeEditorComponent
   }
 
   selectNode(): void {
-    console.log('Set Node Selection Strategy in PT')
+    console.log('Set Node Selection Strategy in PT');
     this.processTreeService.selectedRootNodeID = null;
-    this.processTreeService.selectionMode = NodeSeletionStrategy.NODE
+    this.processTreeService.selectionMode = NodeSeletionStrategy.NODE;
   }
 
   selectSubtree(): void {
-    console.log('Set Node Selection Strategy in PT')
+    console.log('Set Node Selection Strategy in PT');
     this.processTreeService.selectedRootNodeID = null;
-    this.processTreeService.selectionMode = NodeSeletionStrategy.TREE
+    this.processTreeService.selectionMode = NodeSeletionStrategy.TREE;
   }
 
   singleNodeSelected(): boolean {
@@ -434,14 +437,16 @@ export class ProcessTreeEditorComponent
     return (
       !this.selectedRootNode ||
       this.rootNodeSelected() ||
-      (this.nodeSelectionStrategy == NodeSeletionStrategy.NODE && !this.leafNodeSelected())
+      (this.nodeSelectionStrategy == NodeSeletionStrategy.NODE &&
+        !this.leafNodeSelected())
     );
   }
 
   buttonDeleteSubtreeDisabled(): boolean {
     return (
       !this.selectedRootNode ||
-      (this.nodeSelectionStrategy == NodeSeletionStrategy.NODE && !this.leafNodeSelected())
+      (this.nodeSelectionStrategy == NodeSeletionStrategy.NODE &&
+        !this.leafNodeSelected())
     );
   }
 
@@ -486,19 +491,17 @@ export class ProcessTreeEditorComponent
           childToLeft;
         this.update(this.root);
         this.saveTreeInSharedDataService();
-
       }
     }
   }
 
   undo(): void {
-      this.processTreeService.undo();
-    }
-
+    this.processTreeService.undo();
+  }
 
   redo(): void {
-      this.processTreeService.redo();
-    }
+    this.processTreeService.redo();
+  }
 
   horizontallyCenterTree(): void {
     console.log(this.d3ContainerElem.nativeElement.offsetWidth);
@@ -599,8 +602,8 @@ export class ProcessTreeEditorComponent
       .classed('node-visible-activity', function (d: any) {
         return d.data.label !== null && d.data.label !== '\u03C4';
       })
-      .classed('selected-node', function (d : any){
-        return d.data.selected
+      .classed('selected-node', function (d: any) {
+        return d.data.selected;
       })
       .classed('frozen-node-visible-activity', function (d: any) {
         return (
@@ -760,7 +763,7 @@ export class ProcessTreeEditorComponent
       })
       .classed('selected-edge', (e) => {
         return e.source.data.selected;
-      })
+      });
   }
 
   update(root): void {
@@ -824,10 +827,6 @@ export class ProcessTreeEditorComponent
     );
   }
 
-
-
-
-
   deleteSubtree(): void {
     if (this.root === this.selectedRootNode) {
       this.root = null;
@@ -842,7 +841,7 @@ export class ProcessTreeEditorComponent
   }
 
   deleteNodeAndChildren(tree, nodeToDelete): void {
-    console.log('Tree in Delete', tree)
+    console.log('Tree in Delete', tree);
     if (tree.children) {
       tree.children = tree.children.filter((c) => c !== nodeToDelete);
       if (tree.children.length === 0) {
@@ -1211,11 +1210,8 @@ export class ProcessTreeEditorComponent
     }
 
     this.update(this.root);
-    this.saveTreeInSharedDataService(); 
-
-
+    this.saveTreeInSharedDataService();
   }
-
 
   clearSelection(): void {
     this.processTreeService.selectedRootNodeID = null;

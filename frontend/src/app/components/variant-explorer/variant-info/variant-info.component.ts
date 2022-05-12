@@ -23,9 +23,10 @@ export class VariantInfoComponent implements OnInit {
 
   public processTreeIsPresent: boolean = false;
 
-  constructor(private sharedDataService: SharedDataService, private processTreeService : ProcessTreeService
-    ){}
-              
+  constructor(
+    private sharedDataService: SharedDataService,
+    private processTreeService: ProcessTreeService
+  ) {}
 
   ngOnInit(): void {
     this.processTreeService.currentDisplayedProcessTree$.subscribe((t) => {

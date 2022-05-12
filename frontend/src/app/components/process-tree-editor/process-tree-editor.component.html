@@ -168,7 +168,9 @@
       <button
         class="button"
         [disabled]="
-          !selectedRootNode || (nodeSelectionStrategy == NodeSeletionStrategy.TREE && !singleNodeSelected())
+          !selectedRootNode ||
+          (nodeSelectionStrategy === NodeSeletionStrategy.TREE &&
+            !singleNodeSelected())
         "
         (click)="selectedMethod = changeSelectedNode"
         type="button"
@@ -266,7 +268,9 @@
     <button
       class="button"
       (click)="selectNode()"
-      [class.button-active]="nodeSelectionStrategy == NodeSeletionStrategy.NODE"
+      [class.button-active]="
+        nodeSelectionStrategy === NodeSeletionStrategy.NODE
+      "
       data-bs-toggle="tooltip"
       data-bs-placement="top"
       title="select node"
@@ -280,7 +284,9 @@
     <button
       class="button"
       (click)="selectSubtree()"
-      [class.button-active]="nodeSelectionStrategy == NodeSeletionStrategy.TREE"
+      [class.button-active]="
+        nodeSelectionStrategy === NodeSeletionStrategy.TREE
+      "
       data-bs-toggle="tooltip"
       data-bs-placement="top"
       title="select subtree"

@@ -147,7 +147,7 @@ export class VariantExplorerComponent
     private polygonDrawingService: PolygonDrawingService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
-    private processTreeService : ProcessTreeService,
+    private processTreeService: ProcessTreeService,
     elRef: ElementRef,
     renderer: Renderer2,
     public performanceService: PerformanceService,
@@ -767,7 +767,9 @@ export class VariantExplorerComponent
       this.performanceService.unselectPerformance();
     } else {
       this.performanceService.activeVariant = undefined;
-      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(this.performanceService.mergedPerformance) 
+      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+        this.performanceService.mergedPerformance
+      );
     }
   }
 

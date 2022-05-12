@@ -33,7 +33,7 @@ export class TreePerformanceColorMapComponent implements OnInit {
   constructor(
     public performanceColorScaleService: ModelPerformanceColorScaleService,
     private sharedDataService: SharedDataService,
-    private processTreeService : ProcessTreeService,
+    private processTreeService: ProcessTreeService,
     private performanceService: PerformanceService
   ) {}
 
