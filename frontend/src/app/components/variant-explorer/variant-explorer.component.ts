@@ -767,8 +767,7 @@ export class VariantExplorerComponent
       this.performanceService.unselectPerformance();
     } else {
       this.performanceService.activeVariant = undefined;
-      this.processTreeService.currentDisplayedProcessTree =
-        this.performanceService.mergedPerformance;
+      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(this.performanceService.mergedPerformance) 
     }
   }
 

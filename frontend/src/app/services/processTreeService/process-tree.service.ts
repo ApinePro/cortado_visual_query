@@ -10,7 +10,7 @@ import { PerformanceService } from '../performance.service';
   providedIn: 'root'
 })
 export class ProcessTreeService {
- 
+
 
   constructor(private sharedDataService : SharedDataService) { }
 
@@ -21,7 +21,6 @@ export class ProcessTreeService {
   }
 
   set selectedRootNodeID(node: number) {
-    console.log('Set Root Node ID', node)
     this._selectedRootNodeID.next(node);
   }
 
@@ -73,8 +72,8 @@ export class ProcessTreeService {
 
 
 
-  private _selectionMode = new BehaviorSubject<NodeSeletionStrategy>(NodeSeletionStrategy.TREE); 
-  
+  private _selectionMode = new BehaviorSubject<NodeSeletionStrategy>(NodeSeletionStrategy.TREE);
+
   get selectionMode$(): Observable<any> {
     return this._selectionMode.asObservable();
   }
@@ -99,14 +98,24 @@ export class ProcessTreeService {
   }
 
   set currentDisplayedProcessTree(tree: any) {
-    console.log(
-      'currentDisplayedProcessTree in SHARED_DATA_SERVICE has changed'
-    );
     if (tree && !(tree instanceof ProcessTree)) {
       tree = ProcessTree.fromObj(tree);
     }
     this._currentDisplayedProcessTree.next(tree);
     this.sharedDataService.activitiesInCurrentTree = this.getSetOfActivities(tree);
+  }
+
+
+
+  public set_currentDisplayedProcessTree_with_Cache(tree : any) {
+
+    if (tree && !(tree instanceof ProcessTree)) {
+      tree = ProcessTree.fromObj(tree);
+    }
+    this._currentDisplayedProcessTree.next(tree);
+    this.sharedDataService.activitiesInCurrentTree = this.getSetOfActivities(tree);
+    this.cacheCurrentTree(tree)
+
   }
 
 
@@ -128,7 +137,7 @@ export class ProcessTreeService {
   }
 
 
-  
+
   previousTreeObjects: d3.HierarchyNode<any>[] = [];
 
   private _treeCacheLength = new BehaviorSubject<number>(0);
@@ -139,7 +148,6 @@ export class ProcessTreeService {
   }
 
   set treeCacheLength(node: number) {
-    console.log('Set Root Node ID', node)
     this._treeCacheLength.next(node);
   }
 
@@ -152,7 +160,6 @@ export class ProcessTreeService {
   }
 
   set treeCacheIndex(node: number) {
-    console.log('Set Root Node ID', node)
     this._treeCacheIndex.next(node);
   }
 
@@ -160,8 +167,7 @@ export class ProcessTreeService {
     return this._treeCacheIndex.getValue();
   }
 
-  cacheCurrentTree(root): void {
-    // console.log('cacheCurrentTree()');
+  cacheCurrentTree(root : ProcessTree): void {
 
     if (
       this.treeCacheIndex <
@@ -176,7 +182,7 @@ export class ProcessTreeService {
     }
 
     if (root) {
-      this.previousTreeObjects.push(root.copy());
+      this.previousTreeObjects.push(JSON.parse(JSON.stringify(root)));
 
     } else {
       this.previousTreeObjects.push(null);
@@ -188,19 +194,11 @@ export class ProcessTreeService {
     }
 
 
-
-    if (root) {
-      root.each((node) => {
-        node.data = JSON.parse(JSON.stringify(node.data));
-      });
-    }
-
-    console.log('Caching Current Tree')
     this.treeCacheLength = this.previousTreeObjects.length;
   }
 
 
-  undo(): HierarchyNode<any> {
+  undo() {
     if (
       this.treeCacheIndex &&
       this.treeCacheIndex > 0 &&
@@ -211,20 +209,15 @@ export class ProcessTreeService {
       let treeToLoad =
         this.previousTreeObjects[this.treeCacheIndex];
 
-      if (treeToLoad) {
-        treeToLoad = treeToLoad.copy();
-        treeToLoad.each((node) => {
-          node.data = JSON.parse(JSON.stringify(node.data));
-        });
-      }
-      
+
       this.selectedRootNodeID = null;
-      return treeToLoad 
-     
+      this.currentDisplayedProcessTree = treeToLoad
+
+
     }
   }
 
-  redo(): HierarchyNode<any> {
+  redo() {
     if (
       this.treeCacheIndex <
       this.previousTreeObjects.length - 1
@@ -233,29 +226,19 @@ export class ProcessTreeService {
       let treeToLoad =
         this.previousTreeObjects[this.treeCacheIndex];
 
-      if (treeToLoad) {
-        treeToLoad = treeToLoad.copy();
-        treeToLoad.each((node) => {
-          node.data = JSON.parse(JSON.stringify(node.data));
-        });
-      }
+      
       this.selectedRootNodeID = null;
-      return treeToLoad 
+
+      this.currentDisplayedProcessTree = treeToLoad
+
 
     }
   }
-
-
-
-
-
-
-
 
 }
 
 
 export enum NodeSeletionStrategy {
-  NODE = 'Node', 
+  NODE = 'Node',
   TREE = 'Tree'
 }

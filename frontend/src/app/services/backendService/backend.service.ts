@@ -76,7 +76,7 @@ export class BackendService {
         file_path: filePath,
       })
       .subscribe((tree) => {
-        this.processTreeService.currentDisplayedProcessTree = tree;
+        this.processTreeService.set_currentDisplayedProcessTree_with_Cache(tree);
       });
   }
 
@@ -100,7 +100,7 @@ export class BackendService {
       })
       .pipe(
         tap((tree) => {
-          this.processTreeService.currentDisplayedProcessTree = tree;
+          this.processTreeService.set_currentDisplayedProcessTree_with_Cache(tree);
         })
       );
   }
@@ -175,7 +175,7 @@ export class BackendService {
           .post(this.backendUrl + 'applyReductionRulesToTree', { pt: tree })
           .subscribe(
             (tree) =>
-              (this.processTreeService.currentDisplayedProcessTree = tree)
+              (this.processTreeService.set_currentDisplayedProcessTree_with_Cache(tree))
           );
       });
   }
@@ -193,7 +193,7 @@ export class BackendService {
     this.httpClient
       .post(this.backendUrl + 'addVariantsToProcessModel', body)
       .subscribe((res) => {
-        this.processTreeService.currentDisplayedProcessTree = res;
+        this.processTreeService.set_currentDisplayedProcessTree_with_Cache(res);
       });
   }
 
@@ -227,7 +227,7 @@ export class BackendService {
       .pipe(
         tap((res) => {
           console.log('Tree Received from BackEnd Service', res);
-          this.processTreeService.currentDisplayedProcessTree = res;
+          this.processTreeService.set_currentDisplayedProcessTree_with_Cache(res);
         })
       );
   }
@@ -248,7 +248,7 @@ export class BackendService {
       .pipe(
         tap((res) => {
           console.log('Tree Received from BackEnd Service', res);
-          this.processTreeService.currentDisplayedProcessTree = res;
+          this.processTreeService.set_currentDisplayedProcessTree_with_Cache(res);
         })
       );
   }

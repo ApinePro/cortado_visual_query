@@ -175,7 +175,7 @@ export class ExpertModeComponent implements OnInit {
     $pendingTreeParse.subscribe((result: any) => {
       if (!result.errors) {
         console.warn('Expert Mode Tree Update');
-        this.processTreeService.currentDisplayedProcessTree = result.tree;
+        this.processTreeService.set_currentDisplayedProcessTree_with_Cache(result.tree);
         this.backendErrorMessage = null;
       } else {
         this.backendErrorMessage = result.errors;
