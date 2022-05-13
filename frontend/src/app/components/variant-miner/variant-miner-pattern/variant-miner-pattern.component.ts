@@ -1,15 +1,10 @@
-import {
-  Component,
-  ElementRef,
-  Input,
-  ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 import { VariantElement } from '../../variant-explorer/model';
 import { SubvariantPattern } from '../variant-miner.component';
 
 @Component({
-  selector: '[app-variant-miner-pattern]',
+  selector: 'app-variant-miner-pattern',
   templateUrl: './variant-miner-pattern.component.html',
   styleUrls: ['./variant-miner-pattern.component.css'],
 })
