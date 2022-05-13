@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { Variant } from '../model';
 
 @Component({
@@ -6,7 +7,7 @@ import { Variant } from '../model';
   templateUrl: './variant-info.component.html',
   styleUrls: ['./variant-info.component.css'],
 })
-export class VariantInfoComponent {
+export class VariantInfoComponent implements OnInit {
   @Input()
   variant: Variant;
 
@@ -18,6 +19,16 @@ export class VariantInfoComponent {
 
   @Output()
   public updateConformance = new EventEmitter<Variant>();
+
+  public processTreeIsPresent: boolean = false;
+
+  constructor(private sharedDataService: SharedDataService) {}
+
+  ngOnInit(): void {
+    this.sharedDataService.currentDisplayedProcessTree$.subscribe((t) => {
+      this.processTreeIsPresent = t !== undefined && t !== null;
+    });
+  }
 
   conformanceIconClicked(): void {
     if (this.isConformanceUpdatePossible()) {

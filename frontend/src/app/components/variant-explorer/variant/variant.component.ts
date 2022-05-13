@@ -11,11 +11,20 @@ import {
 } from '@angular/core';
 
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
-import { Variant, VariantElement } from '../model';
+import {
+  getSelectedChildren,
+  handleTreeLevelsWithOneChild,
+  SequenceGroup,
+  someChildrenSelected,
+  Variant,
+  VariantElement,
+  InfixType,
+} from '../model';
 import { SharedDataService } from '../../../services/sharedDataService/shared-data.service';
 import { PerformanceService } from '../../../services/performance.service';
 import { ModelPerformanceColorScaleService } from '../../../services/performance-color-scale.service';
 import { textColorForBackgroundColor } from '../helper_functions';
+import * as objectHash from 'object-hash';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -35,6 +44,9 @@ export class VariantComponent implements AfterViewInit {
 
   @Input()
   performanceMode: boolean = false;
+
+  @Input()
+  traceInfixSelectionMode: boolean = false;
 
   @Input()
   computeActivityColor: (
@@ -74,6 +86,8 @@ export class VariantComponent implements AfterViewInit {
   fragment: ElementRef;
 
   isVisible: boolean = false;
+  // necessary because one cannot use it directly in the template file
+  infixType = InfixType;
 
   constructor(
     private lazyLoadingService: LazyLoadingServiceService,
@@ -90,6 +104,8 @@ export class VariantComponent implements AfterViewInit {
       this.rootElement,
       (isIntersecting) => (self.isVisible = isIntersecting)
     );
+
+    console.log(this.variant);
   }
 
   isExpanded(): boolean {
@@ -182,5 +198,72 @@ export class VariantComponent implements AfterViewInit {
       return 'white';
     }
     return textColorForBackgroundColor(this.variantPerformanceColor(variant));
+  }
+
+  resetSelectionStatus(): void {
+    this.variant.variant.resetSelectionStatus();
+    this.variantDrawer.redraw();
+  }
+
+  addSelectedTraceInfix(): void {
+    let thereAreSelectedChildren = someChildrenSelected(
+      this.variant.variant,
+      true
+    );
+    if (thereAreSelectedChildren && !this.variant.variant.selected) {
+      let infixType;
+      let children = this.variant.variant.getElements();
+      if (children[0].selected) {
+        infixType = InfixType.PREFIX;
+      } else if (children[children.length - 1].selected) {
+        infixType = InfixType.POSTFIX;
+      } else {
+        infixType = InfixType.PROPER_INFIX;
+      }
+      let newInfix = getSelectedChildren(this.variant.variant);
+      let reducedInfix = handleTreeLevelsWithOneChild(newInfix);
+      if (!(reducedInfix instanceof SequenceGroup)) {
+        // Every variant should be a sequence group
+        reducedInfix = new SequenceGroup([reducedInfix]);
+      }
+      const newVariant = new Variant(
+        1,
+        reducedInfix,
+        false,
+        false,
+        0,
+        undefined,
+        true,
+        false,
+        true,
+        [],
+        infixType
+      );
+
+      let currentVariants = this.sharedDataService.variants;
+
+      newVariant.alignment = undefined;
+      newVariant.deviation = undefined;
+      newVariant.id = objectHash(newVariant);
+
+      const duplicate = currentVariants.map((v) => v.id === newVariant.id);
+
+      if (!duplicate.includes(true)) {
+        currentVariants.push(newVariant);
+        this.sharedDataService.variants = currentVariants;
+      } else {
+        // Will think about some warning mechanism later
+      }
+    }
+  }
+
+  undoSelection(): void {
+    this.variant.variant.undoSelection();
+    this.variantDrawer.redraw();
+  }
+
+  redoSelection(): void {
+    this.variant.variant.redoSelection();
+    this.variantDrawer.redraw();
   }
 }

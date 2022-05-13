@@ -270,18 +270,15 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     component.setZIndex(defaultZIndex);
     component.handleZIndexChange(logicalZIndex, defaultZIndex);
 
-    if (
-      logicalZIndex === 'base' &&
-      container.component instanceof VariantExplorerComponent
-    ) {
+    if (logicalZIndex === 'base') {
       // Triggers a Redraw, to prevent faulty rendering after minimization
       this.goldenLayout.setSize(
         this.goldenLayout.width + 4,
-        this.goldenLayout.height
+        this.goldenLayout.height + 4
       );
       this.goldenLayout.setSize(
         this.goldenLayout.width - 4,
-        this.goldenLayout.height
+        this.goldenLayout.height - 4
       );
     }
   }

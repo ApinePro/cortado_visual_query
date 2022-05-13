@@ -1,54 +1,45 @@
-import numpy as np
-import pm4pycvxopt
-
-from endpoints.add_variants_to_process_model import add_variants_to_process_model
-from cortado_core.utils.cvariants import generate_variants
-from cortado_core.utils.alignment_utils import trace_fits_process_tree
-import configparser
-import json
-from multiprocessing import freeze_support, cpu_count, Pool
-from typing import Any, List, Optional
 import asyncio
+import json
 import pickle
-import pm4pycvxopt
-import traceback
-
-import uvicorn
-from fastapi import FastAPI, File, UploadFile, WebSocket, WebSocketDisconnect, HTTPException, Depends
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response, JSONResponse
-from fastapi.exceptions import RequestValidationError
-from pydantic import BaseModel, Field
-from pm4py.objects.process_tree.utils import generic as tree_util
+from multiprocessing import Pool, cpu_count, freeze_support
+from typing import Any, List, Optional
 
 import pm4py.objects.log.importer.xes.importer as xes_importer
-from backend_utilities.configuration.repository import Configuration as DomainConfiguration, ConfigurationRepository
-from backend_utilities.configuration.repository import ConfigurationRepositoryFactory
-from backend_utilities.process_tree_conversion import dict_to_process_tree
-from backend_utilities.process_tree_conversion import process_tree_to_dict
-from backend_utilities.timeout.helper_functions import execute_with_timeout, TimeoutException
-from backend_utilities.variant_trace_conversion import variant_to_trace
+import pm4pycvxopt
+import uvicorn
 from cortado_core.freezing.reinsert_frozen_subtrees import post_process_tree
-from cortado_core.performance import tree_performance, utils as performance_utils
-from cortado_core.performance.aggregators import stats, noop, avg
+from cortado_core.performance import tree_performance
+from cortado_core.performance import utils as performance_utils
+from cortado_core.performance.aggregators import avg, noop, stats
 from cortado_core.utils.alignment_utils import trace_fits_process_tree
 from cortado_core.utils.cvariants import generate_variants
 from cortado_core.utils.process_tree import CortadoProcessTree, convert_tree
-from endpoints import load_event_log
-from endpoints.add_variants_to_process_model import add_variants_to_process_model
-from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
-from endpoints.load_event_log import calculate_event_log_properties
-from pm4py.algo.conformance.alignments.petri_net import algorithm as net_alignment
-from pm4py.algo.discovery.inductive.variants.im_clean.algorithm import apply_tree as inductive_miner
+from fastapi import (Depends, FastAPI, File, HTTPException, UploadFile,
+                     WebSocket, WebSocketDisconnect)
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.requests import Request
+from fastapi.responses import Response
+from pm4py.algo.conformance.alignments.petri_net import \
+    algorithm as net_alignment
+from pm4py.algo.discovery.inductive.variants.im_clean.algorithm import \
+    apply_tree as inductive_miner
 from pm4py.algo.filtering.log.variants import variants_filter
+from pm4py.objects.bpmn.exporter.variants.etree import \
+    get_xml_string as generate_bpmn_xml
+from pm4py.objects.conversion.process_tree.converter import \
+    Variants as ptConverterVariant
 from pm4py.objects.conversion.process_tree.converter import apply as convert_pt
-from pm4py.objects.conversion.process_tree.converter import Variants as ptConverterVariant
 from pm4py.objects.log.importer.xes.importer import apply as xes_import
-from pm4py.objects.log.obj import EventLog, Trace, Event
-from pm4py.objects.petri_net.exporter.variants.pnml import export_petri_as_string as generate_pnml_xml
-from pm4py.objects.process_tree.exporter.variants.ptml import export_tree_as_string as generate_ptml_xml
-from pm4py.objects.process_tree.importer.importer import apply as import_pt_from_ptml
+from pm4py.objects.log.obj import Event, EventLog, Trace
+from pm4py.objects.petri_net.exporter.variants.pnml import \
+    export_petri_as_string as generate_pnml_xml
+from pm4py.objects.process_tree.exporter.variants.ptml import \
+    export_tree_as_string as generate_ptml_xml
+from pm4py.objects.process_tree.importer.importer import \
+    apply as import_pt_from_ptml
 from pm4py.objects.process_tree.obj import ProcessTree
+from pm4py.objects.process_tree.utils import generic as tree_util
 from pm4py.objects.process_tree.utils.generic import parse
 from pm4py.objects.bpmn.exporter.variants.etree import get_xml_string as generate_bpmn_xml
 from error_handlers import exception_handler, http_exception_handler, validation_exception_handler
@@ -59,6 +50,28 @@ from cortado_core.subprocess_discovery.subtree_mining.maximal_connected_componen
 from cortado_core.subprocess_discovery.subtree_mining.output import dataframe_from_k_patterns
 from cortado_core.subprocess_discovery.subtree_mining.blanket_mining.cm_grow import cm_min_sub_mining
 
+from pydantic import BaseModel, Field
+
+import log_cache as log_cache
+from api.routes.api import router as api_router
+from backend_utilities.configuration.repository import \
+    Configuration as DomainConfiguration
+from backend_utilities.configuration.repository import (
+    ConfigurationRepository, ConfigurationRepositoryFactory)
+from backend_utilities.process_tree_conversion import (dict_to_process_tree,
+                                                       process_tree_to_dict)
+from backend_utilities.timeout.helper_functions import (TimeoutException,
+                                                        execute_with_timeout)
+from backend_utilities.variant_trace_conversion import variant_to_trace
+from endpoints import load_event_log
+from endpoints.add_variants_to_process_model import \
+    add_variants_to_process_model
+from endpoints.alignments import \
+    calculate_alignment as calculate_alignment_endpoint
+from endpoints.load_event_log import calculate_event_log_properties
+from endpoints.query_variant import evaluate_query_against_variant_graphs
+from error_handlers import (exception_handler, http_exception_handler,
+                            validation_exception_handler)
 
 app = FastAPI()
 origins = [
@@ -67,6 +80,18 @@ origins = [
     "http://localhost:4444"
 ]
 
+
+# see https://github.com/tiangolo/fastapi/issues/775
+# Without this middleware, fastapi does not return the CORS headers if there is an uncaught exception.
+# Without the CORS headers, the browser does not forward the correct HTTP status code to the angular application.
+async def catch_exceptions_middleware(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except:
+        return Response("Internal server error", status_code=500)
+
+
+app.middleware('http')(catch_exceptions_middleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -75,12 +100,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def get_config_repo():
-    return ConfigurationRepositoryFactory.get_config_repository()
+app.include_router(api_router)
 
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
+
+def get_config_repo():
+    return ConfigurationRepositoryFactory.get_config_repository()
 
 @app.on_event("startup")
 async def startup_event():
@@ -90,10 +117,13 @@ async def startup_event():
     
     pcache = pickle.load(open( "pcache.p", "rb" ))
     load_event_log.variants_store = pickle.load(open( "variants_store.p", "rb" ))
-
- 
+    load_event_log.variants = pickle.load(open( "variants.p", "rb" ))
+    load_event_log.activites = pickle.load(open( "activities.p", "rb" ))
+    load_event_log.log_info = pickle.load(open( "logInfo.p", "rb" ))
+    
 @app.post("/uploadfile")
-async def create_upload_file(file: UploadFile = File(...), config_repo: ConfigurationRepository = Depends(get_config_repo)):
+async def create_upload_file(file: UploadFile = File(...),
+                             config_repo: ConfigurationRepository = Depends(get_config_repo)):
     global pcache
     global treeBank
     
@@ -103,17 +133,17 @@ async def create_upload_file(file: UploadFile = File(...), config_repo: Configur
 
     content = "".join([line.decode("UTF-8") for line in file.file])
     event_log = xes_importer.deserialize(content)
+    log_cache.event_log = event_log 
     use_mp = len(event_log) > config_repo.get_configuration().min_traces_variant_detection_mp
-    info = calculate_event_log_properties(event_log, use_mp)
+    info = calculate_event_log_properties(event_log, use_mp=use_mp)
     return info
-
 
 class FilePathInput(BaseModel):
     file_path: str
 
-
 @app.post("/loadEventLog")
-async def load_event_log_from_file_path(d: FilePathInput, config_repo: ConfigurationRepository = Depends(get_config_repo)):
+async def load_event_log_from_file_path(d: FilePathInput,
+                                        config_repo: ConfigurationRepository = Depends(get_config_repo)):
     global event_log
     global pcache
     global treeBank
@@ -122,8 +152,10 @@ async def load_event_log_from_file_path(d: FilePathInput, config_repo: Configura
     pcache = {}
 
     event_log = xes_import(d.file_path)
+    log_cache.event_log = event_log
+
     use_mp = len(event_log) > config_repo.get_configuration().min_traces_variant_detection_mp
-    info = calculate_event_log_properties(event_log, use_mp)
+    info = calculate_event_log_properties(event_log, use_mp=use_mp)
     return info
 
 
@@ -240,6 +272,7 @@ async def parseStringToPT(d: InputTreeFromTreeString):
 
     return res
 
+
 @app.get("/variants")
 async def get_variants_from_event_log():
     log = await meta.get_event_log()
@@ -267,12 +300,11 @@ class ConvertPtToX(BaseModel):
 async def download_ptml(d: ConvertPtToX):
     pt: ProcessTree
     frozen_subtree: List[ProcessTree]
-    
-    pt, frozen_subtrees = dict_to_process_tree(d.pt)
-    bpmn = convert_pt(pt, variant= ptConverterVariant.TO_BPMN)
-    
-    return Response(content = generate_bpmn_xml(bpmn), media_type="application/xml")
 
+    pt, frozen_subtrees = dict_to_process_tree(d.pt)
+    bpmn = convert_pt(pt, variant=ptConverterVariant.TO_BPMN)
+
+    return Response(content=generate_bpmn_xml(bpmn), media_type="application/xml")
 
 
 @app.post("/convertPtToPTML")
@@ -280,8 +312,7 @@ async def download_ptml(d: ConvertPtToX):
     pt: ProcessTree
     frozen_subtree: List[ProcessTree]
     pt, frozen_subtrees = dict_to_process_tree(d.pt)
-    
- 
+
     return Response(content=generate_ptml_xml(pt), media_type="application/xml")
 
 
@@ -298,7 +329,6 @@ async def download_pnml(d: ConvertPtToX):
 async def applyTreeReductionRules(d: ConvertPtToX):
     pt, frozen_subtrees = dict_to_process_tree(d.pt)
     return process_tree_to_dict(post_process_tree(pt, frozen_subtrees), frozen_subtrees)
-
 
 class InputCalculatePerformance(BaseModel):
     pt: dict
@@ -317,6 +347,7 @@ def tau_0_values(tree_nodes, perf_stats):
             "waiting_time": stats([0]),
             "idle_time": stats([0]),
         }
+
 
 def get_merged_performances(pt: CortadoProcessTree):
     tree_nodes = performance_utils.get_all_nodes(pt)
@@ -373,6 +404,9 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             cycle_times_aggregated = p_values["cycle_times"]
             mean_fitness = p_values["mean_fitness"]
         else:
+            if not variant_cache_key in load_event_log.variants_store:
+                raise HTTPException(status_code=409,
+                                    detail="Detailled variant information are not in the backend's cache. Please (re)upload the log file.")
             test_log = load_event_log.variants_store[variant_cache_key]
             test_log = EventLog(test_log)
             (service_times, idle_times, waiting_times, cycle_times), mean_fitness \
@@ -405,8 +439,8 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
                                                      "waiting_times": waiting_times_aggregated,
                                                      "mean_fitness": mean_fitness}
 
-    #pickle.dump( pcache, open( "pcache.p", "wb" ))
-    #pickle.dump(load_event_log.variants_store,  open( "variants_store.p", "wb" ))
+    # pickle.dump( pcache, open( "pcache.p", "wb" ))
+    # pickle.dump(load_event_log.variants_store,  open( "variants_store.p", "wb" ))
 
     pt_dict = get_merged_performances(pt)
     return {'merged_performance_tree': pt_dict, 'variants_tree_performance': variants_tree_performance,
@@ -463,7 +497,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     pool.terminate()
                     await websocket.close(1000)
                     return
-                
+
                 timeout = configuration.timeout_cvariant_alignment_computation
                 if data['timeout'] != 0:
                     timeout = data['timeout']
@@ -483,7 +517,8 @@ class Configuration(BaseModel):
 
 
 @app.post("/saveConfiguration")
-async def save_configuration(config_dto: Configuration, config_repository: ConfigurationRepository = Depends(get_config_repo)):
+async def save_configuration(config_dto: Configuration,
+                             config_repository: ConfigurationRepository = Depends(get_config_repo)):
     config = DomainConfiguration(
         timeout_cvariant_alignment_computation=config_dto.timeout_cvariant_alignment_computation,
         min_traces_variant_detection_mp=config_dto.min_traces_variant_detection_mp)
@@ -493,9 +528,14 @@ async def save_configuration(config_dto: Configuration, config_repository: Confi
 @app.get("/getConfiguration")
 async def get_configuration(config_repo: ConfigurationRepository = Depends(get_config_repo)):
     config = config_repo.get_configuration()
-    config_dto = Configuration(timeout_cvariant_alignment_computation=config.timeout_cvariant_alignment_computation,
+    config_dto = Configuration(timeout_cvariant_alignment_computation=config.timeout_cvariant_alignment_computation, 
                                min_traces_variant_detection_mp=config.min_traces_variant_detection_mp)
     return config_dto
+
+
+@app.get("/info")
+async def get_info():
+    return {}
 
 
 # Using FastAPI instance
@@ -562,6 +602,15 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
     df_dict = df.to_dict(orient = 'records')
     
     return df_dict
+class variantQuery(BaseModel):
+    queryString: str
+
+@app.post("/variant-query")
+def variant_query(query : variantQuery): 
+    
+    res = evaluate_query_against_variant_graphs(query, load_event_log.variants, load_event_log.activites) 
+    
+    return res
 
 if __name__ == "__main__":
     # print(DEFAULT_LP_SOLVER_VARIANT)

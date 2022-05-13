@@ -31,7 +31,8 @@ export class PolygonDrawingService {
   public drawLegend(
     elements: LeafNode[],
     parent: Selection<any, any, any, any>,
-    colorMap: Map<string, string>
+    colorMap: Map<string, string>,
+    textUnderLegend: string = 'Variants'
   ): void {
     let offsetY = Constants.LEGEND_MARGIN_Y + 20;
     let offsetX = Constants.LEGEND_MARGIN_X;
@@ -123,6 +124,6 @@ export class PolygonDrawingService {
       .attr('font-size', '15')
       .insert('tspan')
       .attr('height', '10')
-      .text('Variants');
+      .text(textUnderLegend);
   }
 }

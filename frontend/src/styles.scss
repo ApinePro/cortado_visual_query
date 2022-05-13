@@ -1,8 +1,11 @@
+$tooltip-max-width: 450px;
+
 /* Define our main import here */
 @import "./@theme/theme";
 @import "~bootstrap-icons/font/bootstrap-icons.css";
 @import "../node_modules/bootstrap/scss/bootstrap";
 @import "./styles/custom_golden_layout_styles.scss";
+
 
 /* You can add global styles to this file, and also import other style files */
 .btn-icon {
@@ -38,11 +41,6 @@
 .btn-bar-text {
   font-size: 13px;
   color: whitesmoke;
-}
-
-.lm_goldenlayout{
-  --bs-bg-opacity: 1;
-  background-color: rgba(var(--bs-dark-rgb),var(--bs-bg-opacity))!important;
 }
 
 .button {
@@ -93,6 +91,10 @@ hr {
   width: 100%;
 }
 
+.green{
+  color : green;
+}
+
 .vl {
   border-left: 1px solid var(--line-color);
   height: 27px;
@@ -105,6 +107,10 @@ hr {
 .secondary-text {
   color: var(--text-secondary);
   font-size: var(--standard-font-size);
+}
+
+.logical-operator{
+  color :rgb(65, 141, 213);
 }
 
 .cursor-pointer {
@@ -150,14 +156,13 @@ hr {
 }
 
 .warning-highlight{
-  background-color: yellow;
+  background-color: rgba(255, 255, 0, 0.333);
 }
 
 .imbalanced-parenthesis{
   border-bottom : 1.5px solid;
   border-color: red;
 }
-
 
 code {
   color: var(--text-secondary);
@@ -233,51 +238,6 @@ th {
   text-align: left;
   cursor: auto;
 }
-/*
-.lm_goldenlayout{
-  background-color: rgba(var(--bs-dark-rgb),var(--bs-bg-opacity))!important;
-}
-
-.lm_tabs{
-  margin-top : 1.5px;
-}
-
-.lm_tab {
-  background: var(--box-background-color)!important;
-  border-top-left-radius: .25rem;
-  border-top-right-radius: .25rem;
-}
-
-.lm_tab.lm_active {
-  background: rgb(119, 117, 117)!important;
-}
-
-.lm_header .lm_tab {
-  cursor: pointer;
-  float: left;
-  height: 10px;
-  margin-top: 1px;
-  padding: 0px 10px 5px;
-  position: relative;
-  touch-action: none;
-}
-
-.lm_header .lm_tab{
-  border-bottom: none;
-  padding-bottom: 7.5px;
-  margin-top: 2px !important;
-  -webkit-font-smoothing: subpixel-antialiased;
-  -webkit-filter: blur(0);
-  filter: blur(0);
-  backface-visibility: hidden;
-}
-
-.lm_header .lm_tab.lm_active {
-  border-bottom: none;
-  padding-bottom: 7.5px;
-  margin-top: 2px !important;
-}
-*/
 
 .syntax-info ul {
   margin-bottom: 0;
@@ -367,6 +327,12 @@ th {
   font-size : small;
 }
 
+.form-select.styled-select { 
+  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+  color : var(--text-secondary);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='white' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+  
 .tab-content {
   overflow: auto;
 }

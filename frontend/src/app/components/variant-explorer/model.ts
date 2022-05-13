@@ -1,3 +1,130 @@
+import { some } from 'd3';
+import { NumberValue } from 'd3-scale';
+import { timeThursdays } from 'd3-time';
+import { from } from 'rxjs';
+
+export const isElementWithActivity = (elem: VariantElement) => {
+  if (
+    elem instanceof ParallelGroup ||
+    elem instanceof SequenceGroup ||
+    elem instanceof LeafNode
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+const allChildrenSelected = (elem: VariantElement, defaultRes: boolean) => {
+  if (elem instanceof LeafNode) {
+    return elem.selected;
+  } else if (elem instanceof ParallelGroup || elem instanceof SequenceGroup) {
+    let res = true;
+    for (let i = 0; i < elem.elements.length; i++) {
+      if (isElementWithActivity(elem.elements[i])) {
+        res =
+          res &&
+          allChildrenSelected(elem.elements[i], elem.elements[i].selected);
+      }
+    }
+    return res;
+  } else {
+    // Waiting Time Node, etc...
+    return defaultRes;
+  }
+};
+
+export const someChildrenSelected = (
+  elem: VariantElement,
+  defaultRes: boolean
+) => {
+  if (elem instanceof LeafNode) {
+    return elem.selected;
+  } else if (elem instanceof ParallelGroup || elem instanceof SequenceGroup) {
+    let res = false;
+    for (let i = 0; i < elem.elements.length; i++) {
+      if (isElementWithActivity(elem.elements[i])) {
+        res =
+          res ||
+          someChildrenSelected(elem.elements[i], elem.elements[i].selected);
+      }
+    }
+    return res;
+  } else {
+    // Waiting Time Node, etc...
+    return defaultRes;
+  }
+};
+
+export const setParent = (root: VariantElement) => {
+  if (root instanceof ParallelGroup || root instanceof SequenceGroup) {
+    for (let child of root.elements) {
+      child['parent'] = root;
+      setParent(child);
+    }
+  }
+};
+
+export const getLowestSelectableParent = (elem: VariantElement) => {
+  if (elem.selectable || elem.parent == null) {
+    // Selectable or root
+    return elem;
+  } else {
+    return getLowestSelectableParent(elem.parent);
+  }
+};
+
+export const getSelectedChildren = (elem: VariantElement) => {
+  if (elem instanceof LeafNode && elem.selected) {
+    let ret = elem.copy();
+    ret.selected = false;
+    ret.selectable = true;
+    return ret;
+  } else if (elem instanceof SequenceGroup || elem instanceof ParallelGroup) {
+    let copyElem;
+    if (elem instanceof SequenceGroup) {
+      copyElem = new SequenceGroup([]);
+    } else if (elem instanceof ParallelGroup) {
+      copyElem = new ParallelGroup([]);
+    }
+    copyElem.selected = false;
+    copyElem.selectable = true;
+    for (let child of elem.elements) {
+      if (
+        !(child instanceof WaitingTimeNode) &&
+        someChildrenSelected(child, true)
+      ) {
+        let newPushedChild;
+        if (!(child instanceof InvisibleSequenceGroup)) {
+          newPushedChild = child;
+        } else {
+          newPushedChild = child.elements[1]; // InvisibleSequenceGroup has one leaf child at this position
+        }
+        copyElem.elements.push(getSelectedChildren(newPushedChild));
+      }
+    }
+    setParent(copyElem);
+    return copyElem;
+  }
+};
+
+// Sometimes selecting trace infix creates variant elements with only one child on many tree levels
+// The following function fixes the problem by reducing tree levels
+export const handleTreeLevelsWithOneChild = (elem: VariantElement) => {
+  if (elem instanceof LeafNode) {
+    return elem;
+  } else if (elem instanceof SequenceGroup || elem instanceof ParallelGroup) {
+    if (elem.elements.length == 1) {
+      let onlyChild = handleTreeLevelsWithOneChild(elem.elements[0]);
+      return onlyChild;
+    } else {
+      let newChildren = elem.elements.map(handleTreeLevelsWithOneChild);
+      elem.setElements(newChildren);
+      return elem;
+    }
+  }
+};
+
 export class Constants {
   public static LEAF_WIDTH = 40;
   public static LEAF_WIDTH_EXPANDED = 120;
@@ -19,8 +146,16 @@ export class Constants {
   public static INTERVAL_LENGTH = 60;
 }
 
+export enum InfixType {
+  PROPER_INFIX,
+  PREFIX,
+  POSTFIX,
+  NOT_AN_INFIX,
+}
+
 export class Variant {
   id: string;
+  bid: number;
   number: number;
   count: number;
   length: number;
@@ -47,6 +182,7 @@ export class Variant {
         deviation: any | undefined;
       }[]
     | undefined;
+  infixType: InfixType;
 
   constructor(
     count: number,
@@ -58,7 +194,8 @@ export class Variant {
     userDefined: boolean,
     isTimeouted: boolean,
     isConformanceOutdated: boolean,
-    sub_variants
+    sub_variants,
+    infixType: InfixType = InfixType.NOT_AN_INFIX
   ) {
     this.count = count;
     this.variant = variant;
@@ -70,6 +207,7 @@ export class Variant {
     this.isTimeouted = isTimeouted;
     this.isConformanceOutdated = isConformanceOutdated;
     this.sub_variants = sub_variants;
+    this.infixType = infixType;
   }
 }
 
@@ -79,17 +217,25 @@ export abstract class VariantElement {
   public waitingTime: PerformanceStats;
   public waitingTimeStart: PerformanceStats;
   public waitingTimeEnd: PerformanceStats;
+  public selected: boolean = false;
+  public selectable: boolean = true;
 
   public height;
   width;
 
   public inspectionMode = false;
 
+  public parent;
+
+  public selectionHistory = [{ selected: false, selectable: true }]; // contains JSON objects {"selectable": boolean, "selected": boolean}
+  public currentIdxSelectionHistory = 0;
+
   constructor(performance: any = undefined) {
     this.serviceTime = performance?.service_time;
     this.waitingTime = performance?.wait_time;
     this.waitingTimeStart = performance?.wait_time_start;
     this.waitingTimeEnd = performance?.wait_time_end;
+    this.parent = null;
   }
 
   public asSequenceGroup(): SequenceGroup {
@@ -139,8 +285,10 @@ export abstract class VariantElement {
   public setElements(children: VariantElement[]) {
     if (this instanceof ParallelGroup) {
       this.asParallelGroup().setElements(children);
+      setParent(this);
     } else if (this instanceof SequenceGroup) {
       this.asSequenceGroup().setElements(children);
+      setParent(this);
     }
   }
 
@@ -168,6 +316,114 @@ export abstract class VariantElement {
   public abstract updateWidth(includeWaiting);
 
   public abstract serialize(): Object;
+
+  public abstract calculateSelectableElements(): void;
+
+  public setSelectable(): void {
+    this.selectable = true;
+  }
+
+  public disableSelectableAllChildren(): void {
+    this.selectable = false;
+    if (this instanceof ParallelGroup || this instanceof SequenceGroup) {
+      for (let elem of this.elements) {
+        elem.disableSelectableAllChildren();
+      }
+    }
+  }
+
+  public setAllChildrenSelected(): void {
+    this.selected = true;
+    if (this instanceof SequenceGroup || this instanceof ParallelGroup) {
+      for (let child of this.elements) {
+        child.setAllChildrenSelected();
+      }
+    }
+  }
+
+  public resetSelectionStatus(): void {
+    this.selected = false;
+    this.selectable = true;
+    this.selectionHistory = [{ selected: false, selectable: true }];
+    this.currentIdxSelectionHistory = 0;
+    if (this instanceof SequenceGroup || this instanceof ParallelGroup) {
+      for (let child of this.elements) {
+        child.resetSelectionStatus();
+      }
+    }
+  }
+
+  public applySelectionHistory(): void {
+    let toBeApplied = this.selectionHistory[this.currentIdxSelectionHistory];
+    this.selected = toBeApplied['selected'];
+    this.selectable = toBeApplied['selectable'];
+  }
+
+  public saveCurrentSelectionToSelectionHistory(): void {
+    let toBeInserted = {
+      selected: this.selected,
+      selectable: this.selectable,
+    };
+    this.selectionHistory.splice(
+      this.currentIdxSelectionHistory + 1,
+      this.selectionHistory.length - this.currentIdxSelectionHistory - 1,
+      toBeInserted
+    );
+    this.currentIdxSelectionHistory++;
+    if (this instanceof SequenceGroup || this instanceof ParallelGroup) {
+      for (let child of this.getElements()) {
+        if (isElementWithActivity(child)) {
+          child.saveCurrentSelectionToSelectionHistory();
+        }
+      }
+    }
+  }
+
+  public undoSelection(): void {
+    if (this.currentIdxSelectionHistory > 0) {
+      this.currentIdxSelectionHistory--;
+      this.applySelectionHistory();
+      if (this instanceof SequenceGroup || this instanceof ParallelGroup) {
+        for (let child of this.getElements()) {
+          if (isElementWithActivity(child)) {
+            child.undoSelection();
+          }
+        }
+      }
+    }
+  }
+
+  public redoSelection(): void {
+    if (this.currentIdxSelectionHistory < this.selectionHistory.length - 1) {
+      this.currentIdxSelectionHistory++;
+      this.applySelectionHistory();
+      if (this instanceof SequenceGroup || this instanceof ParallelGroup) {
+        for (let child of this.getElements()) {
+          if (isElementWithActivity(child)) {
+            child.redoSelection();
+          }
+        }
+      }
+    }
+  }
+
+  public selectionStatusUnchangedFromLastSavedSelection(): boolean {
+    let checkpoint = this.selectionHistory[this.currentIdxSelectionHistory];
+    let unchanged =
+      this.selected == checkpoint['selected'] &&
+      this.selectable == checkpoint['selectable'];
+    if (this instanceof LeafNode) {
+      return unchanged;
+    } else if (this instanceof ParallelGroup || this instanceof SequenceGroup) {
+      for (let child of this.getElements()) {
+        if (isElementWithActivity(child)) {
+          unchanged =
+            unchanged && child.selectionStatusUnchangedFromLastSavedSelection();
+        }
+      }
+      return unchanged;
+    }
+  }
 }
 
 export class SequenceGroup extends VariantElement {
@@ -254,6 +510,96 @@ export class SequenceGroup extends VariantElement {
         .filter((e) => e !== null),
     };
   }
+
+  public calculateSelectableElements(): void {
+    // Get all variant element containing activities
+    let indexes = [];
+    for (let i = 0; i < this.elements.length; i++) {
+      if (isElementWithActivity(this.elements[i])) {
+        indexes.push(i);
+        // Set correct selected status
+        this.elements[i].selected = allChildrenSelected(
+          this.elements[i],
+          this.elements[i].selected
+        );
+      }
+    }
+
+    // Handling the InvisibleSequenceGroup case
+    if (this instanceof InvisibleSequenceGroup) {
+      let onlyChild = this.elements[indexes[0]];
+      if (onlyChild.selected) {
+        this.selected = true;
+      }
+      return;
+    }
+
+    // Check if the parent element is itself selected
+    let selected = true;
+    for (let k = 0; k < indexes.length; k++) {
+      selected = selected && this.elements[indexes[k]].selected;
+    }
+    this.selected = selected;
+
+    // Check which children are selectable
+
+    // First, check if a child is only partly selected
+    // If yes, set all other children to be not selectable and call this function on that child
+    let partlySelected = -1;
+    for (let p = 0; p < indexes.length; p++) {
+      let elem = this.elements[indexes[p]];
+      if (
+        someChildrenSelected(elem, elem.selected) &&
+        !allChildrenSelected(elem, elem.selected)
+      ) {
+        partlySelected = p;
+        for (let z = 0; z < indexes.length; z++) {
+          if (z != partlySelected) {
+            this.elements[indexes[z]].disableSelectableAllChildren();
+          }
+        }
+        elem.calculateSelectableElements();
+        break;
+      }
+    }
+
+    // If no children is partly selected, then selection happens on this level
+    // Then calculate the next selectable elements
+    if (partlySelected === -1) {
+      let first = -1;
+      let last = -Math.max(); // Infinity
+      // First selected child
+      for (let j = 0; j < indexes.length; j++) {
+        if (this.elements[indexes[j]].selected) {
+          first = j;
+          break;
+        }
+      }
+      // Last selected child
+      for (let l = indexes.length - 1; l >= 0; l--) {
+        if (this.elements[indexes[l]].selected) {
+          last = l;
+          break;
+        }
+      }
+      // Adding two new selectable elements, disabling selection in lower levels
+      if (first > 0) {
+        this.elements[indexes[first - 1]].disableSelectableAllChildren();
+        this.elements[indexes[first - 1]].setSelectable();
+      }
+      if (last < indexes.length - 1) {
+        this.elements[indexes[last + 1]].disableSelectableAllChildren();
+        this.elements[indexes[last + 1]].setSelectable();
+      }
+      // Set all other elements to be not selectable
+      for (let m = 0; m < first - 1; m++) {
+        this.elements[indexes[m]].disableSelectableAllChildren();
+      }
+      for (let n = indexes.length - 1; n > last + 1; n--) {
+        this.elements[indexes[n]].disableSelectableAllChildren();
+      }
+    }
+  }
 }
 
 export class ParallelGroup extends VariantElement {
@@ -339,6 +685,69 @@ export class ParallelGroup extends VariantElement {
         .filter((e) => e !== null),
     };
   }
+
+  public calculateSelectableElements(): void {
+    // Get all variant element containing activities
+    let indexes = [];
+    for (let i = 0; i < this.elements.length; i++) {
+      if (isElementWithActivity(this.elements[i])) {
+        indexes.push(i);
+        // Set correct selected status
+        this.elements[i].selected = allChildrenSelected(
+          this.elements[i],
+          this.elements[i].selected
+        );
+      }
+      // Handling InvisibleSequenceGroup
+      if (this.elements[i] instanceof InvisibleSequenceGroup) {
+        this.elements[i].calculateSelectableElements();
+      }
+    }
+
+    // Check if the parent element is itself selected
+    let selected = true;
+    for (let k = 0; k < indexes.length; k++) {
+      selected = selected && this.elements[indexes[k]].selected;
+    }
+    this.selected = selected;
+
+    // Check which children are selectable
+    // First check if there is a partly selected child. If yes, only allow selection within that child
+    let partlySelected = -1;
+    for (let p = 0; p < indexes.length; p++) {
+      let elem = this.elements[indexes[p]];
+      if (
+        someChildrenSelected(elem, elem.selected) &&
+        !allChildrenSelected(elem, elem.selected)
+      ) {
+        partlySelected = p;
+        for (let z = 0; z < indexes.length; z++) {
+          if (z != partlySelected) {
+            this.elements[indexes[z]].disableSelectableAllChildren();
+          }
+        }
+        elem.calculateSelectableElements();
+        break;
+      }
+    }
+    if (partlySelected === -1) {
+      // No partly selected child found
+      // Then all unselected children are selectable, but only at this level
+      for (let child of this.elements) {
+        if (!child.selected) {
+          child.disableSelectableAllChildren();
+          child.setSelectable();
+        }
+        if (child instanceof InvisibleSequenceGroup) {
+          for (let i = 0; i < child.elements.length; i++) {
+            if (isElementWithActivity(child.elements[i])) {
+              child.elements[i].setSelectable();
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 export class LeafNode extends VariantElement {
@@ -404,6 +813,10 @@ export class LeafNode extends VariantElement {
   public serialize() {
     return { leaf: this.activity };
   }
+
+  public calculateSelectableElements(): void {
+    // pass
+  }
 }
 
 export class WaitingTimeNode extends VariantElement {
@@ -448,6 +861,10 @@ export class WaitingTimeNode extends VariantElement {
 
   public serialize() {
     return null;
+  }
+
+  public calculateSelectableElements(): void {
+    // pass
   }
 }
 

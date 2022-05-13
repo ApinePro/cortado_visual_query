@@ -51,6 +51,8 @@ import { DialogModule } from './components/dialogs/dialog.module';
 import { VariantMinerComponent } from './components/variant-miner/variant-miner.component';
 import { VariantMinerPatternComponent } from './components/variant-miner/variant-miner-pattern/variant-miner-pattern.component';
 import { NgxSliderModule } from '@angular-slider/ngx-slider';
+import { VariantQueryComponent } from './components/variant-explorer/variant-query/variant-query.component';
+import { SyntaxHighlightedTextareaDirective } from './directives/syntax-highlighted-textarea.directive';
 
 @NgModule({
   declarations: [
@@ -72,6 +74,7 @@ import { NgxSliderModule } from '@angular-slider/ngx-slider';
     VariantInfoComponent,
     VariantColorMapComponent,
     VariantSelectionButtonComponent,
+    VariantQueryComponent,
     ActivityOverviewComponent,
     NodeSelectionPerformanceComponent,
     PerformanceTableComponent,
@@ -89,6 +92,7 @@ import { NgxSliderModule } from '@angular-slider/ngx-slider';
     TooltipDirective,
     VariantEditorComponent,
     VariantDrawerDirective,
+    SyntaxHighlightedTextareaDirective,
     ActivityButtonAreaComponent,
     VariantComponent,
     BpmnEditorComponent,

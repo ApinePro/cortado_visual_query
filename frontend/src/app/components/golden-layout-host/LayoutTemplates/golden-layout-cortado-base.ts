@@ -15,7 +15,7 @@ export const baseLayout: LayoutConfig = {
   dimensions: {
     borderWidth: 0.75,
     borderGrabWidth: 10,
-    minItemHeight: 300,
+    minItemHeight: 30,
     minItemWidth: 350,
   },
   settings: {
@@ -28,14 +28,14 @@ export const baseLayout: LayoutConfig = {
       {
         type: ItemType.row,
         height: 61.803,
-        isClosable: false,
-        reorderEnabled: false,
+        isClosable: true,
         content: [
           {
             type: ItemType.stack,
             header: {
               show: Side.left,
             },
+            isClosable: true,
             content: [
               {
                 type: 'component',
@@ -53,11 +53,12 @@ export const baseLayout: LayoutConfig = {
       {
         type: ItemType.row,
         height: 38.197,
-        isClosable: false,
+        isClosable: true,
         content: [
           {
             type: ItemType.stack,
             height: 38.197,
+            isClosable: true,
             width: 61.803,
             content: [
               {
@@ -78,7 +79,7 @@ export const baseLayout: LayoutConfig = {
               show: false,
             },
             width: 38.197,
-            isClosable: false,
+            isClosable: true,
             title: 'Info Box',
             id: InfoBoxComponent.componentName,
             componentType: InfoBoxComponent.componentName,

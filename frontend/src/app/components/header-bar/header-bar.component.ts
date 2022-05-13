@@ -7,7 +7,7 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { BackendService } from '../../services/backendService/backend.service';
-import { ComponentItemConfig, LayoutManager } from 'golden-layout';
+import { ComponentItemConfig, LayoutManager, Side } from 'golden-layout';
 
 @Component({
   selector: 'app-header-bar',
@@ -104,11 +104,13 @@ export class HeaderBarComponent {
       id: componentID,
       type: 'component',
       title: 'BPMN Editor',
-      isClosable: false,
+      isClosable: true,
+      reorderEnabled: true,
       header: {
-        show: false,
+        show: Side.left,
       },
       componentType: componentID,
+      componentState: { cssParentClass: 'bpmn-viewer-stack' },
     };
 
     this.goldenLayoutComponentService.openWindow(
@@ -134,10 +136,12 @@ export class HeaderBarComponent {
       type: 'component',
       title: 'BPMN Editor',
       isClosable: false,
+      reorderEnabled: false,
       header: {
-        show: false,
+        show: Side.left,
       },
       componentType: componentID,
+      componentState: { cssParentClass: 'process-tree-editor-stack' },
     };
 
     this.goldenLayoutComponentService.openWindow(
@@ -193,12 +197,13 @@ export class HeaderBarComponent {
       id: componentID,
       type: 'component',
       title: 'Variant Editor',
-      isClosable: false,
-      reorderEnabled: false,
+      isClosable: true,
+      reorderEnabled: true,
       header: {
-        show: false,
+        show: Side.left,
       },
       componentType: componentID,
+      componentState: { cssParentClass: 'variant-editor-stack' },
     };
 
     this.goldenLayoutComponentService.openWindow(

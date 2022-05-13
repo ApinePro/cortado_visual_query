@@ -10,6 +10,7 @@ import { Selection } from 'd3';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { Constants } from '../model';
 import { ActivateTooltipsService } from '../../../services/activateTooltipsService/activate-tooltips.service';
+import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 
 @Component({
   selector: 'app-sub-variant',
@@ -21,27 +22,40 @@ export class SubVariantComponent implements AfterViewInit {
   svgElement: ElementRef;
 
   @Input()
-  colorMap: Map<string, string>;
+  set variant(value: [string, string][][]) {
+    this._variant = value;
+    if (this.isLoaded) {
+      this.draw();
+    }
+  }
 
-  @Input()
-  variant: [string, string][][];
+  private _variant: [string, string][][];
 
   @Input()
   private expanded = false;
 
+  private isLoaded = false;
+
   svg: Selection<any, any, any, any>;
+  public colorMap: Map<string, string>;
 
   constructor(
     private sharedDataService: SharedDataService,
+    private colorMapService: ColorMapService,
     private tooltipService: ActivateTooltipsService
   ) {}
 
   ngAfterViewInit(): void {
     this.svg = d3.select(this.svgElement.nativeElement);
-    this.draw();
+    this.isLoaded = true;
+
+    this.colorMapService.colorMap$.subscribe((cMap) => {
+      this.colorMap = cMap;
+      this.draw();
+    });
   }
 
-  draw(): void {
+  draw(textColor: string = 'whitesmoke'): void {
     const intervalWidth = !this.expanded
       ? Constants.INTERVAL_LENGTH
       : Constants.INTERVAL_LENGTH * 1.5;
@@ -49,7 +63,7 @@ export class SubVariantComponent implements AfterViewInit {
     const [data, yLength] = this.buildData();
     const xScale = (x) => Constants.POINT_RADIUS + x * intervalWidth;
     const yScale = (y) =>
-      4 * Constants.POINT_RADIUS + y * Constants.LEAF_HEIGHT;
+      4 * Constants.POINT_RADIUS + y * Constants.LEAF_HEIGHT * 1.5;
 
     const groupedData = d3.group(data, (d) => d[4]);
     const g = this.svg.selectAll().data(groupedData).join('g');
@@ -83,7 +97,7 @@ export class SubVariantComponent implements AfterViewInit {
       .attr('x', ([_, d]) => xScale(d[0][0] + (d[1][0] - d[0][0]) / 2))
       .attr('y', ([_, d]) => yScale(d[0][1]) - Constants.POINT_RADIUS - 5)
       .style('text-anchor', 'middle')
-      .style('fill', 'whitesmoke')
+      .style('fill', textColor)
       .text(([_, d]) => d[0][2]);
 
     texts.each((a, b, c) => {
@@ -103,7 +117,7 @@ export class SubVariantComponent implements AfterViewInit {
     );
     this.svg.attr(
       'width',
-      this.variant.length * intervalWidth + 2 * Constants.POINT_RADIUS
+      this._variant.length * intervalWidth + 2 * Constants.POINT_RADIUS
     );
 
     this.tooltipService.initializeChildren(this.svgElement);
@@ -156,7 +170,7 @@ export class SubVariantComponent implements AfterViewInit {
     const starts = new Map<string, [number, number][]>();
     const data = [];
     let xIndex = 0;
-    this.variant.forEach((group, _i) => {
+    this._variant.forEach((group, _i) => {
       group.sort();
       let starting = group
         .filter(([_a, l]) => l.toLowerCase() === 'start')

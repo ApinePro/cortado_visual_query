@@ -939,8 +939,16 @@ export class BpmnEditorComponent
     const tspan = activityText
       .append('tspan')
       .attr('x', width / 2)
-      .attr('y', BPMN_Constant.bpmn_node_height_width / 2)
-      .text(model.eventName);
+      .attr('y', BPMN_Constant.bpmn_node_height_width / 2);
+
+    if (model.eventName) {
+      // shorten text if it is too long
+      if (model.eventName.length <= 20) {
+        tspan.text(model.eventName);
+      } else {
+        tspan.text(model.eventName.substring(0, 20) + '...');
+      }
+    }
 
     this.addToolTip(selection);
   }
@@ -1018,7 +1026,8 @@ export class BpmnEditorComponent
       this.mainGroup.attr(
         'transform',
         event.transform.translate(
-          this.bpmnContainerElem.nativeElement.offsetWidth / 2,
+          3 * BPMN_Constant.HORIZONTALSPACING +
+            2 * BPMN_Constant.START_END_RADIUS,
           this.bpmnContainerElem.nativeElement.offsetHeight / 2
         )
       );

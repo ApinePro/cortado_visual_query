@@ -15,6 +15,10 @@ import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';
 import { SubVariantComponent } from '../sub-variant/sub-variant.component';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
+import { ImageExportService } from 'src/app/services/imageExportService/image-export-service';
+import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
+import * as d3 from 'd3';
+import { LeafNode } from '../model';
 
 @Component({
   selector: 'app-subvariant-explorer',
@@ -35,7 +39,7 @@ export class SubvariantExplorerComponent
   subVariantComponents: QueryList<SubVariantComponent>;
 
   public sortAscending: boolean;
-  public sortOrderTextDisplay: string;
+  public svgRenderingInProgress: boolean;
 
   constructor(
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
@@ -43,7 +47,9 @@ export class SubvariantExplorerComponent
     elRef: ElementRef,
     renderer: Renderer2,
     private colorMapService: ColorMapService,
-    private sharedDataService: SharedDataService
+    private sharedDataService: SharedDataService,
+    private imageExportService: ImageExportService,
+    private polygonDrawingService: PolygonDrawingService
   ) {
     super(elRef.nativeElement, renderer);
     this.mainVariant = this.container.initialState as Variant;
@@ -51,13 +57,13 @@ export class SubvariantExplorerComponent
       Object.keys(this.sharedDataService.activitiesInEventLog)
     );
     this.sortAscending = false;
+    this.svgRenderingInProgress = false;
   }
 
   ngAfterViewInit() {
     this.colorMapService.colorMap$.subscribe((cMap) => {
       this.colorMap = cMap;
       this.mainvariantDrawer.redraw();
-      this.subVariantComponents.forEach((svc) => svc.draw());
     });
   }
 
@@ -129,6 +135,163 @@ export class SubvariantExplorerComponent
     };
 
     this.mainVariant.sub_variants.sort(subvariantSortFunction);
+  }
+
+  exportSubvariantSVG(): void {
+    // Prepare an array for the svg elements
+    let svgs: SVGGraphicsElement[] = [];
+
+    // Temporarily expand all subvariants
+    let expanded = this.mainvariantDrawer.isExpanded();
+    if (!expanded) {
+      this.toggleExpanded();
+    }
+
+    // Turn on the rendering spinner
+    this.svgRenderingInProgress = true;
+
+    // Add the main variant to the SVG array
+    const mainVariantSVG = this.addVariantInformation(
+      this.mainvariantDrawer.getSVGGraphicElement(),
+      100,
+      100,
+      true
+    );
+    svgs.push(mainVariantSVG);
+
+    // Temporarily change text color to black for readability in the svg
+    this.subVariantComponents.forEach((svc) => svc.draw('black'));
+
+    // Insert the subvariants svg to the array
+    this.subVariantComponents.forEach((svc) =>
+      svgs.push(svc.svgElement.nativeElement)
+    );
+
+    // Prepare frequency informations of the subvariants
+    const counts = [];
+    const percentages = [];
+    for (let subVariant of this.mainVariant.sub_variants) {
+      counts.push(subVariant.count);
+      percentages.push(subVariant.percentage);
+    }
+
+    // Add frequency informations of the subvariants
+    // The first svg is the main variant, so index starts from 1
+    for (let i = 1; i < svgs.length; i++) {
+      svgs[i] = this.addVariantInformation(
+        svgs[i],
+        counts[i - 1],
+        percentages[i - 1],
+        false
+      );
+    }
+
+    // Draw the legend and insert it to the start of the svg array
+    const legend = d3.create('svg').attr('x', '10').attr('y', '10');
+    let leafnodes: LeafNode[] = [];
+    for (let activity in this.sharedDataService.activitiesInEventLog) {
+      leafnodes.push(new LeafNode([activity]));
+    }
+    this.polygonDrawingService.drawLegend(
+      leafnodes,
+      legend,
+      this.colorMap,
+      'Subvariants'
+    );
+    svgs.unshift(legend.node());
+
+    // Export to an SVG file
+    this.imageExportService.export(
+      `subvariants-for-${this.mainVariant.number}`,
+      0,
+      0,
+      ...svgs
+    );
+
+    // Reset everything back to normal
+    if (!expanded) {
+      this.toggleExpanded();
+    }
+    this.subVariantComponents.forEach((svc) => svc.draw('whitesmoke'));
+
+    // Turn off the spinner
+    this.svgRenderingInProgress = false;
+  }
+
+  addVariantInformation(
+    svgElement: any,
+    variantAbs: number,
+    variantPerc: number,
+    mainVariant: boolean = false
+  ): SVGGraphicsElement {
+    const exportMarginX: number = 80;
+    const exportMarginY: number = 15;
+
+    const svgElement_copy = svgElement.cloneNode(true) as SVGGraphicsElement;
+
+    // Shift all Elements to the right using transform chaining
+    svgElement_copy.setAttribute(
+      'width',
+      (svgElement.clientWidth + exportMarginX).toString()
+    );
+    svgElement_copy.setAttribute(
+      'height',
+      (svgElement.clientHeight + exportMarginY).toString()
+    );
+
+    d3.select(svgElement_copy)
+      .selectChildren()
+      .each(function (this: SVGGraphicsElement) {
+        this.setAttribute(
+          'transform',
+          (this.getAttribute('transform')
+            ? this.getAttribute('transform') + ','
+            : '') + `translate(${exportMarginX}, 0)`
+        );
+      });
+
+    // Add text field to the left of the variants
+    const textfield = d3
+      .select(svgElement_copy)
+      .append('text')
+      .attr(
+        'transform',
+        `translate(20, ${(svgElement.clientHeight - 25) / 2 + 10})`
+      )
+      .attr('height', 20)
+      .attr('width', 50)
+      .attr('font-size', 9)
+      .attr('fill', 'black');
+
+    if (!mainVariant) {
+      // If the variant is not the main variant, then add frequency informations
+      textfield
+        .append('tspan')
+        .attr('x', 0)
+        .attr('dy', -7)
+        .attr('height', 9)
+        .attr('fill', 'black')
+        .text(variantPerc + '%');
+
+      textfield
+        .append('tspan')
+        .attr('x', 0)
+        .attr('dy', 10)
+        .attr('height', 9)
+        .attr('fill', 'black')
+        .text('(' + variantAbs + ')');
+    } else {
+      // If the variant is the main variant, add an indicating text next to it
+      textfield
+        .append('tspan')
+        .attr('x', 0)
+        .attr('dy', 8)
+        .attr('height', 9)
+        .attr('fill', 'black')
+        .attr('font-size', 14)
+        .text('Parent');
+    }
+    return svgElement_copy;
   }
 }
 
