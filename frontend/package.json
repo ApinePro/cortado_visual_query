@@ -49,6 +49,7 @@
     "ajv": "^8.11.0",
     "angularjs-slider": "^7.0.1",
     "aria-query": "^5.0.0",
+    "detect-passive-events": "^2.0.3",
     "electron-store": "^8.0.1",
     "fastq": "^1.13.0",
     "got": "^12.0.4",

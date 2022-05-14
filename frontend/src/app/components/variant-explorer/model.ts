@@ -895,6 +895,10 @@ export class InvisibleSequenceGroup extends SequenceGroup {
 }
 
 export class StartGroup extends VariantElement {
+  public calculateSelectableElements(): void {
+
+  }
+
   public getHeight(): number {
     return Constants.LEAF_HEIGHT;
   }
@@ -919,6 +923,10 @@ export class StartGroup extends VariantElement {
 }
 
 export class EndGroup extends VariantElement {
+  public calculateSelectableElements(): void {
+
+  }
+
   public getHeight(): number {
     return Constants.LEAF_HEIGHT;
   }
