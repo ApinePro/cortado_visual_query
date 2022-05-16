@@ -1,6 +1,7 @@
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
 import { BpmnEditorComponent } from './../bpmn-editor/bpmn-editor.component';
+import { ProcessTreeOperator } from 'src/app/objects/ProcessTree';
 import { BackendService } from './../../services/backendService/backend.service';
 import {
   Component,
@@ -155,7 +156,7 @@ export class ProcessTreeEditorComponent
             mapping: Map<string, string>,
             tree: ProcessTree
           ): void {
-            if (tree.label && tree.label !== '\u03C4') {
+            if (tree.label && tree.label !== ProcessTreeOperator.tau) {
               tree.label = mapping.get(tree.label);
             }
             if (tree.children) {
@@ -170,7 +171,10 @@ export class ProcessTreeEditorComponent
             mapping: Map<string, string>,
             tree: d3.HierarchyNode<any>
           ): void {
-            if (tree.data.label && tree.data.label !== '\u03C4') {
+            if (
+              tree.data.label &&
+              tree.data.label !== ProcessTreeOperator.tau
+            ) {
               tree.data.label = mapping.get(tree.data.label);
             }
             if (tree.children) {
@@ -283,7 +287,7 @@ export class ProcessTreeEditorComponent
       } else if (
         !(
           this.activitiesOccurringInLog.indexOf(subtree.label) > -1 ||
-          subtree.label === '\u03C4'
+          subtree.label === ProcessTreeOperator.tau
         )
       ) {
         unknownActivities.add(subtree.label);
@@ -527,7 +531,10 @@ export class ProcessTreeEditorComponent
       .attr('data-bs-toggle', 'tooltip')
       .attr('data-bs-placement', 'top')
       .attr('data-bs-title', (d) => {
-        if (this.hasPerformance(d)) {
+        if (
+          this.hasPerformance(d) &&
+          d.data.label !== ProcessTreeOperator.tau
+        ) {
           return (
             `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
         <h6 style="flex: 1" class="performance-tooltip-header">` +
@@ -545,7 +552,10 @@ export class ProcessTreeEditorComponent
         return d.data.label || d.data.operator;
       })
       .attr('data-bs-template', (d) => {
-        if (this.hasPerformance(d)) {
+        if (
+          this.hasPerformance(d) &&
+          d.data.label !== ProcessTreeOperator.tau
+        ) {
           return `<div class="tooltip performance-tooltip" role="tooltip">
                 <div class="tooltip-arrow"></div>
                 <div class="tooltip-inner p-0" style="max-width: none;"></div>
@@ -569,7 +579,10 @@ export class ProcessTreeEditorComponent
       .attr('stroke-width', constants.tree_stroke_width)
       .merge(node.select('.node'))
       .style('fill', (d) => {
-        if (this.root.data.performance) {
+        if (
+          this.root.data.performance &&
+          d.data.label !== ProcessTreeOperator.tau
+        ) {
           if (
             this.performanceColorMap.has(d.data.id) &&
             d.data.performance?.[selectedPerformanceIndicator]?.[
@@ -586,10 +599,10 @@ export class ProcessTreeEditorComponent
           }
         } else {
           if (d.data.operator !== null) return constants.node_operator_color;
-          if (d.data.label !== null && d.data.label === '\u03C4')
+          if (d.data.label !== null && d.data.label === ProcessTreeOperator.tau)
             return constants.node_non_visible_activity_color;
           const isVisibleActivity =
-            d.data.label !== null && d.data.label !== '\u03C4';
+            d.data.label !== null && d.data.label !== ProcessTreeOperator.tau;
           return isVisibleActivity ? activityColorMap.get(d.data.label) : null;
         }
       })
@@ -600,7 +613,9 @@ export class ProcessTreeEditorComponent
         return d.data.operator !== null && d.data.frozen === true;
       })
       .classed('node-visible-activity', function (d: any) {
-        return d.data.label !== null && d.data.label !== '\u03C4';
+        return (
+          d.data.label !== null && d.data.label !== ProcessTreeOperator.tau
+        );
       })
       .classed('selected-node', function (d: any) {
         return d.data.selected;
@@ -608,31 +623,33 @@ export class ProcessTreeEditorComponent
       .classed('frozen-node-visible-activity', function (d: any) {
         return (
           d.data.label !== null &&
-          d.data.label !== '\u03C4' &&
+          d.data.label !== ProcessTreeOperator.tau &&
           d.data.frozen === true
         );
       })
       .attr('fill', function (d: any) {
         if (d.data.operator !== null) return constants.node_operator_color;
-        if (d.data.label !== null && d.data.label === '\u03C4')
+        if (d.data.label !== null && d.data.label === ProcessTreeOperator.tau)
           return constants.node_non_visible_activity_color;
         const isVisibleActivity =
-          d.data.label !== null && d.data.label !== '\u03C4';
+          d.data.label !== null && d.data.label !== ProcessTreeOperator.tau;
         return isVisibleActivity
           ? activityColorMap.get(d.data.label) ||
               constants.node_visible_activity_color
           : null;
       })
       .classed('node-invisible-activity', (d: any) => {
-        return d.data.label === '\u03C4';
+        return d.data.label === ProcessTreeOperator.tau;
       })
       .classed('frozen-node-invisible-activity', (d: any) => {
-        return d.data.label === '\u03C4' && d.data.frozen === true;
+        return (
+          d.data.label === ProcessTreeOperator.tau && d.data.frozen === true
+        );
       })
       .attr('width', constants.tree_node_height_width)
       .attr('height', constants.tree_node_height_width)
       .attr('font-size', (d: any) => {
-        if (d.data.label === '\u03C4')
+        if (d.data.label === ProcessTreeOperator.tau)
           return constants.node_invisible_font_size;
         return '';
       })
@@ -654,6 +671,7 @@ export class ProcessTreeEditorComponent
       .attr('fill', (d) => {
         if (
           d.data.frozen ||
+          d.data.label === ProcessTreeOperator.tau ||
           (d.data.performance == undefined &&
             this.root.data.performance != undefined)
         ) {
@@ -673,7 +691,7 @@ export class ProcessTreeEditorComponent
         }
 
         const isVisibleActivity =
-          (d.data.label !== null && d.data.label !== '\u03C4') ||
+          (d.data.label !== null && d.data.label !== ProcessTreeOperator.tau) ||
           (d.data.performance != undefined && nodeColor !== undefined);
         return isVisibleActivity
           ? textColorForBackgroundColor(nodeColor)
@@ -1010,7 +1028,7 @@ export class ProcessTreeEditorComponent
     if (root) {
       const flextreeLayout = flextree();
       flextreeLayout.nodeSize((node) => {
-        if (node.data.operator || node.data.label === '\u03C4') {
+        if (node.data.operator || node.data.label === ProcessTreeOperator.tau) {
           return [
             constants.tree_node_height_width,
             2 * constants.tree_node_height_width,

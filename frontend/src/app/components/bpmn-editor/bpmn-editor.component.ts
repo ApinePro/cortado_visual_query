@@ -743,23 +743,7 @@ export class BpmnEditorComponent
 
     let color;
 
-    this.addToolTip(parent);
-
-    if (this.currentTree.performance) {
-      color =
-        this.performanceColorMap.has(model._pt.id) &&
-        model._pt.performance?.[this.selectedPerformanceIndicator]?.[
-          this.selectedStatistic
-        ] !== undefined
-          ? this.performanceColorMap.get(model._pt.id)(
-              model._pt.performance[this.selectedPerformanceIndicator][
-                this.selectedStatistic
-              ]
-            )
-          : BPMN_Constant.bpmn_operator_color;
-    } else {
-      color = BPMN_Constant.bpmn_operator_color;
-    }
+    color = BPMN_Constant.bpmn_operator_color;
 
     const op = parent
       .append('rect')
