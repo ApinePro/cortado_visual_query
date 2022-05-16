@@ -60,7 +60,7 @@ export class VariantMinerComponent
   variantMinerDiv: ElementRef<HTMLDivElement>;
 
   FrequentMiningStrategy = FrequentMiningStrategy;
-  FrequentMiningAlgorithm = FrequentMiningAlgorithm; 
+  FrequentMiningAlgorithm = FrequentMiningAlgorithm;
   VariantSortKey = VariantSortKey;
   currentSortKey: VariantSortKey;
 
@@ -197,7 +197,7 @@ export class VariantMinerComponent
       form_values.min_sup,
       form_values.frequent_mining_strat,
       form_values.loop,
-      form_values.frequent_mining_algo, 
+      form_values.frequent_mining_algo
     );
 
     this.backendService.frequentSubtreeMining(config);
@@ -206,7 +206,6 @@ export class VariantMinerComponent
   }
 
   handleFilterChange(event) {
-
     this.displayedVariantsPatterns = this.variantPatterns.filter((vp) => {
       if (
         vp.k >= this.kLow &&
@@ -419,8 +418,8 @@ export class MiningConfig {
   k: number;
   min_sup: number;
   strat: number;
-  loop : number; 
-  algo : number;
+  loop: number;
+  algo: number;
 
   constructor(k, min_sup, strat, loop, algo) {
     this.k = k;
@@ -444,7 +443,7 @@ export enum FrequentMiningStrategy {
 
 export enum FrequentMiningAlgorithm {
   ValidTreeMiner = 1,
-  ClosedMaximalMiner = 2
+  ClosedMaximalMiner = 2,
 }
 
 export enum VariantSortKey {

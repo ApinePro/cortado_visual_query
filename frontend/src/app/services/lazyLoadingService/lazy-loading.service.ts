@@ -5,9 +5,9 @@ import { ElementRef, Injectable } from '@angular/core';
 })
 export class LazyLoadingServiceService {
   private intersectionObserver: any;
- 
+
   private variantMinerMapping: Map<any, Function> = new Map<any, Function>();
-  private variantMinerIntersectionObserver : any;
+  private variantMinerIntersectionObserver: any;
   private mapping: Map<any, Function> = new Map<any, Function>();
 
   private initialize(rootElement: ElementRef): void {
@@ -27,11 +27,9 @@ export class LazyLoadingServiceService {
         rootMargin: '2000px 2000px 2000px 2000px',
       }
     );
-
   }
 
-
-  private initializeVariantMiner(rootElement: ElementRef){
+  private initializeVariantMiner(rootElement: ElementRef) {
     const self = this;
     this.variantMinerIntersectionObserver = new IntersectionObserver(
       function (entries) {
@@ -65,7 +63,6 @@ export class LazyLoadingServiceService {
     this.mapping.set(variantElement, callback);
     this.intersectionObserver.observe(variantElement);
   }
-
 
   public addSubPattern(
     variantElement: any,

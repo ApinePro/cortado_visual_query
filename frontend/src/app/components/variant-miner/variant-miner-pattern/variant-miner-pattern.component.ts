@@ -1,5 +1,11 @@
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
-import { Component, ElementRef, Input, ViewChild, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  Input,
+  ViewChild,
+  AfterViewInit,
+} from '@angular/core';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 import { VariantElement } from '../../variant-explorer/model';
 import { SubvariantPattern } from '../variant-miner.component';
@@ -10,7 +16,7 @@ import { SubvariantPattern } from '../variant-miner.component';
   templateUrl: './variant-miner-pattern.component.html',
   styleUrls: ['./variant-miner-pattern.component.css'],
 })
-export class VariantMinerPatternComponent implements AfterViewInit{
+export class VariantMinerPatternComponent implements AfterViewInit {
   @Input()
   pattern: SubvariantPattern;
 
@@ -47,9 +53,9 @@ export class VariantMinerPatternComponent implements AfterViewInit{
 
   @ViewChild('fragment')
   fragment: ElementRef;
-  constructor(private lazyLoadingService : LazyLoadingServiceService) {}
+  constructor(private lazyLoadingService: LazyLoadingServiceService) {}
 
-  isVisible : boolean = false;
+  isVisible: boolean = false;
 
   ngAfterViewInit(): void {
     const self = this;
@@ -57,7 +63,9 @@ export class VariantMinerPatternComponent implements AfterViewInit{
     this.lazyLoadingService.addSubPattern(
       this.rowElement.nativeElement.parentNode,
       this.rootElement,
-      (isIntersecting) => {self.isVisible = isIntersecting}
+      (isIntersecting) => {
+        self.isVisible = isIntersecting;
+      }
     );
   }
 }

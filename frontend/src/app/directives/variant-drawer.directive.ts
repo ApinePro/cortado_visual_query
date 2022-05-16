@@ -335,7 +335,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
     const color = this.computeActivityColor(this, element, this.variant);
 
-    if (color){
+    if (color) {
       const rgb_code = [
         color.substring(1, 3),
         color.substring(3, 5),
