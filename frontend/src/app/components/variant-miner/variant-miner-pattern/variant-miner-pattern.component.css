@@ -7,3 +7,9 @@
   border-right-width: 1px;
   border-left-width: 1px;
 }
+
+.variant-spacer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}

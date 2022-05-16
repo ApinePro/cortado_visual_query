@@ -1,4 +1,4 @@
-<td class="text-center">
+<td class="text-center" #row>
   {{ index }}
 </td>
 <td class="border-start border-lightgrey">
@@ -38,7 +38,8 @@
     <i class="bi bi-check2" *ngIf="pattern.closed"></i>
   </div>
 </td>
-<td class="border-start border-lightgrey ps-2">
+
+<td class="border-start border-lightgrey ps-2" *ngIf="isVisible">
   <svg
     appVariantDrawer
     #fragment
@@ -47,4 +48,16 @@
     [computeActivityColor]="computeActivityColor"
     class="zoom-group-variant"
   ></svg>
+</td>
+
+<td *ngIf="!isVisible" class="border-start border-lightgrey ps-2">
+  <div
+    class="variant-spacer"
+    [ngStyle]="{
+      height: pattern.variant.getHeight() + 'px',
+      width: pattern.variant.getWidth() + 'px'
+    }"
+  >
+    Loading...
+  </div>
 </td>

@@ -7,6 +7,7 @@ import {
   Inject,
   OnInit,
   Renderer2,
+  ViewChild,
 } from '@angular/core';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';
@@ -55,7 +56,11 @@ export class VariantMinerComponent
     super(elRef.nativeElement, renderer);
   }
 
+  @ViewChild('variantMiner', { static: false })
+  variantMinerDiv: ElementRef<HTMLDivElement>;
+
   FrequentMiningStrategy = FrequentMiningStrategy;
+  FrequentMiningAlgorithm = FrequentMiningAlgorithm; 
   VariantSortKey = VariantSortKey;
   currentSortKey: VariantSortKey;
 
@@ -165,6 +170,14 @@ export class VariantMinerComponent
         updateOn: 'change',
       }),
 
+      loop: new FormControl('', {
+        updateOn: 'change',
+      }),
+
+      frequent_mining_algo: new FormControl('', {
+        updateOn: 'change',
+      }),
+
       frequent_mining_strat: new FormControl(
         this.FrequentMiningStrategy.TraceTransaction,
         {
@@ -182,7 +195,9 @@ export class VariantMinerComponent
     const config = new MiningConfig(
       form_values.k,
       form_values.min_sup,
-      form_values.frequent_mining_strat
+      form_values.frequent_mining_strat,
+      form_values.loop,
+      form_values.frequent_mining_algo, 
     );
 
     this.backendService.frequentSubtreeMining(config);
@@ -191,9 +206,6 @@ export class VariantMinerComponent
   }
 
   handleFilterChange(event) {
-    console.log('CHANGE ENDED!');
-    console.log(event);
-    console.log(this.showOnlyMaximal);
 
     this.displayedVariantsPatterns = this.variantPatterns.filter((vp) => {
       if (
@@ -407,11 +419,15 @@ export class MiningConfig {
   k: number;
   min_sup: number;
   strat: number;
+  loop : number; 
+  algo : number;
 
-  constructor(k, min_sup, strat) {
+  constructor(k, min_sup, strat, loop, algo) {
     this.k = k;
     this.min_sup = min_sup;
     this.strat = strat;
+    this.loop = loop;
+    this.algo = algo;
   }
 
   serialize() {
@@ -424,6 +440,11 @@ export enum FrequentMiningStrategy {
   VariantTransaction = 2,
   TraceOccurence = 3,
   VariantOccurence = 4,
+}
+
+export enum FrequentMiningAlgorithm {
+  ValidTreeMiner = 1,
+  ClosedMaximalMiner = 2
 }
 
 export enum VariantSortKey {

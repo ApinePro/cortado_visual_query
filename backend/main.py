@@ -3,6 +3,7 @@ import json
 import pickle
 from multiprocessing import Pool, cpu_count, freeze_support
 from typing import Any, List, Optional
+import numpy as np
 
 import pm4py.objects.log.importer.xes.importer as xes_importer
 import pm4pycvxopt
@@ -48,7 +49,7 @@ from cortado_core.subprocess_discovery.subtree_mining.right_most_path_extension.
 from cortado_core.subprocess_discovery.subtree_mining.freq_counting import FrequencyCountingStrategy
 from cortado_core.subprocess_discovery.subtree_mining.maximal_connected_components.maximal_connected_check import set_maximaly_closed_patterns
 from cortado_core.subprocess_discovery.subtree_mining.output import dataframe_from_k_patterns
-from cortado_core.subprocess_discovery.subtree_mining.blanket_mining.cm_grow import cm_min_sub_mining
+from cortado_core. subprocess_discovery.subtree_mining.blanket_mining.cm_grow import cm_min_sub_mining
 
 from pydantic import BaseModel, Field
 
@@ -91,7 +92,7 @@ async def catch_exceptions_middleware(request: Request, call_next):
         return Response("Internal server error", status_code=500)
 
 
-app.middleware('http')(catch_exceptions_middleware)
+#app.middleware('http')(catch_exceptions_middleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -116,7 +117,6 @@ async def startup_event():
     treeBank = None 
     
     pcache = pickle.load(open( "pcache.p", "rb" ))
-    load_event_log.variants_store = pickle.load(open( "variants_store.p", "rb" ))
     load_event_log.variants = pickle.load(open( "variants.p", "rb" ))
     load_event_log.activites = pickle.load(open( "activities.p", "rb" ))
     load_event_log.log_info = pickle.load(open( "logInfo.p", "rb" ))
@@ -569,39 +569,39 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
     print("Strat:", config.strat)
     
     if not treeBank: 
-        treeBank = create_treebank_from_cv_variants(load_event_log.logVariants, True)
+        treeBank = create_treebank_from_cv_variants(load_event_log.variants, True)
         
-    
     print("Mining K Patterns")
-    k_patterns = min_sub_mining(treeBank, load_event_log.logVariants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True)
+    k_patterns = min_sub_mining(treeBank, load_event_log.variants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True)
     
     print("Setting Maximally Closed Patterns")
     set_maximaly_closed_patterns(k_patterns)
     
     df = dataframe_from_k_patterns(k_patterns)
+    df.obj = df.obj.apply(lambda x : x.to_concurrency_group().serialize(include_performance=False))
+    df = df.replace({np.nan: None})
     
     print()   
     print('Closed in RMO', df.closed.value_counts())
     print()
     
-    print("Mining CM K Patterns")
-    k_patterns = cm_min_sub_mining(treeBank, load_event_log.logVariants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True)
+    #print("Mining CM K Patterns")
+    #k_patterns = cm_min_sub_mining(treeBank, load_event_log.variants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True)
     
-    print("Computing Confidence")
-    df = dataframe_from_k_patterns(k_patterns)
+    #print("Computing Confidence")
+    #df = dataframe_from_k_patterns(k_patterns)
     
-    print()    
-    print('Closed in CM', df.closed.value_counts())
-    print()
+    #print()    
+    #print('Closed in CM', df.closed.value_counts())
+    #print()
     
-    df.obj = df.obj.apply(lambda x : x.to_concurrency_group().serialize(include_performance=False))
-    
-    df = df.replace({np.nan: None})
+
     
     print("Finished Computation")
     df_dict = df.to_dict(orient = 'records')
     
     return df_dict
+
 class variantQuery(BaseModel):
     queryString: str
 

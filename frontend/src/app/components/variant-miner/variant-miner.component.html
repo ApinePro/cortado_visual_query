@@ -8,7 +8,7 @@
   class="variant-miner-mainblock h-100 d-flex flex-column"
   [class.blurOutOfFocus]="variantMinerOutOfFocus"
 >
-  <div class="variant-miner-container">
+  <div class="variant-miner-container" #variantMiner>
     <div *ngIf="showControls" @collapse>
       <div class="control-container">
         <form
@@ -43,6 +43,26 @@
           </div>
 
           <div class="form-element">
+            <label for="frequent_mining_algo" class="input-label"
+              >Algorithm:
+            </label>
+            <select
+              formControlName="frequent_mining_algo"
+              class="form-select input-selector"
+            >
+              <option
+                [ngValue]="FrequentMiningAlgorithm.ValidTreeMiner"
+                selected
+              >
+                Valid Tree Miner
+              </option>
+              <option [ngValue]="FrequentMiningAlgorithm.ClosedMaximalMiner">
+                Closed Maximal Miner
+              </option>
+            </select>
+          </div>
+
+          <div class="form-element">
             <label for="k" class="input-label">K: </label>
             <input id="k" type="text" formControlName="k" class="input-field" />
           </div>
@@ -53,6 +73,16 @@
               id="min_sup"
               type="text"
               formControlName="min_sup"
+              class="input-field"
+            />
+          </div>
+
+          <div class="form-element">
+            <label for="loop" class="input-label">Loop: </label>
+            <input
+              id="loop"
+              type="text"
+              formControlName="loop"
               class="input-field"
             />
           </div>
@@ -78,443 +108,453 @@
       </div>
 
       <table class="pattern-table">
-        <tr class="user-select-none sticky-header-row" style="z-index: 100">
-          <th
-            style="padding-right: 2.5px; padding-left: 2.5px"
-            class="text-center"
-            rowspan="2"
-          >
-            <div class="header-text-container">
-              <div class="dropdown filter-button">
-                <button
-                  class="filter-button"
-                  type="button"
-                  id="StrategySelect"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                  data-bs-reference="parent"
-                  data-bs-auto-close="outside"
-                >
-                  <i class="bi bi-filter"></i>
-                </button>
-                <div class="dropdown-menu" aria-labelledby="StrategySelect">
-                  <div class="filter-option-container">
-                    <span>Index:</span>
-                    <div class="slider-container">
-                      <ngx-slider
-                        [(value)]="indexLow"
-                        [(highValue)]="indexHigh"
-                        [options]="indexOptions"
-                        (userChangeEnd)="handleFilterChange($event)"
-                      ></ngx-slider>
+        <thead>
+          <tr class="user-select-none sticky-header-row" style="z-index: 100">
+            <th
+              style="padding-right: 2.5px; padding-left: 2.5px"
+              class="text-center"
+              rowspan="2"
+            >
+              <div class="header-text-container">
+                <div class="dropdown filter-button">
+                  <button
+                    class="filter-button"
+                    type="button"
+                    id="StrategySelect"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    data-bs-reference="parent"
+                    data-bs-auto-close="outside"
+                  >
+                    <i class="bi bi-filter"></i>
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="StrategySelect">
+                    <div class="filter-option-container">
+                      <span>Index:</span>
+                      <div class="slider-container">
+                        <ngx-slider
+                          [(value)]="indexLow"
+                          [(highValue)]="indexHigh"
+                          [options]="indexOptions"
+                          (userChangeEnd)="handleFilterChange($event)"
+                        ></ngx-slider>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div
-                class="header-text"
-                (click)="sort(VariantSortKey.index)"
-                [ngClass]="{
-                  'selected-header-text':
-                    currentSortKey === VariantSortKey.index
-                }"
-              >
-                Nr.
-              </div>
-            </div>
-            <i
-              [ngClass]="{
-                'bi-sort-numeric-down': ascending,
-                'bi-sort-numeric-down-alt': !ascending,
-                invisible: !(currentSortKey === VariantSortKey.index)
-              }"
-            ></i>
-          </th>
-          <th
-            style="padding-right: 2.5px; padding-left: 2.5px"
-            class="text-center border-start border-lightgrey"
-            rowspan="2"
-          >
-            <div class="header-text-container">
-              <div class="dropdown filter-button">
-                <button
-                  class="filter-button"
-                  type="button"
-                  id="dropdownMenuButton1"
-                  data-bs-toggle="dropdown"
-                  data-bs-reference="parent"
-                  data-bs-auto-close="outside"
-                  aria-expanded="false"
-                >
-                  <i class="bi bi-filter"></i>
-                </button>
                 <div
-                  class="dropdown-menu"
-                  aria-labelledby="dropdownMenuButton1"
+                  class="header-text"
+                  (click)="sort(VariantSortKey.index)"
+                  [ngClass]="{
+                    'selected-header-text':
+                      currentSortKey === VariantSortKey.index
+                  }"
                 >
-                  <div class="filter-option-container">
-                    <span>K:</span>
-                    <div class="slider-container">
-                      <ngx-slider
-                        [(value)]="kLow"
-                        [(highValue)]="kHigh"
-                        [options]="kOptions"
-                        (userChangeEnd)="handleFilterChange($event)"
-                      ></ngx-slider>
-                    </div>
-                  </div>
+                  Nr.
                 </div>
-              </div>
-              <div
-                class="header-text"
-                (click)="sort(VariantSortKey.k)"
-                [ngClass]="{
-                  'selected-header-text': currentSortKey === VariantSortKey.k
-                }"
-              >
-                K
-              </div>
-            </div>
-            <i
-              [ngClass]="{
-                'bi-sort-numeric-down': ascending,
-                'bi-sort-numeric-down-alt': !ascending,
-                invisible: !(currentSortKey === VariantSortKey.k)
-              }"
-            ></i>
-          </th>
-          <th
-            style="padding-right: 2.5px; padding-left: 2.5px"
-            class="text-center border-start border-lightgrey"
-            rowspan="2"
-          >
-            <div class="header-text-container">
-              <div class="dropdown filter-button">
-                <button
-                  class="filter-button"
-                  type="button"
-                  id="dropdownMenuButton1"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                  data-bs-reference="parent"
-                  data-bs-auto-close="outside"
-                >
-                  <i class="bi bi-filter"></i>
-                </button>
-                <div
-                  class="dropdown-menu"
-                  aria-labelledby="dropdownMenuButton1"
-                >
-                  <div class="filter-option-container">
-                    <span>K:</span>
-                    <div class="slider-container">
-                      <ngx-slider
-                        [(value)]="supLow"
-                        [(highValue)]="supHigh"
-                        [options]="supOptions"
-                        (userChangeEnd)="handleFilterChange($event)"
-                      ></ngx-slider>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                class="header-text"
-                (click)="sort(VariantSortKey.support)"
-                [ngClass]="{
-                  'selected-header-text':
-                    currentSortKey === VariantSortKey.support
-                }"
-              >
-                Sup.
-              </div>
-            </div>
-            <i
-              [ngClass]="{
-                'bi-sort-numeric-down': ascending,
-                'bi-sort-numeric-down-alt': !ascending,
-                invisible: !(currentSortKey === VariantSortKey.support)
-              }"
-            ></i>
-          </th>
-          <th
-            class="text-center border-start border-lightgrey"
-            colspan="3"
-            style="padding-right: 50px; padding-left: 50px"
-          >
-            <div class="header-text-container">
-              <div class="dropdown filter-button">
-                <button
-                  class="filter-button"
-                  type="button"
-                  id="dropdownMenuButton1"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                  data-bs-reference="parent"
-                  data-bs-auto-close="outside"
-                >
-                  <i class="bi bi-filter"></i>
-                </button>
-                <div
-                  class="dropdown-menu"
-                  aria-labelledby="dropdownMenuButton1"
-                >
-                  <div class="filter-option-container">
-                    <span>Child-Parent:</span>
-                    <div class="slider-container">
-                      <ngx-slider
-                        [(value)]="cpConfLow"
-                        [(highValue)]="cpConfHigh"
-                        [options]="cpConfOptions"
-                        (userChangeEnd)="handleFilterChange($event)"
-                      ></ngx-slider>
-                    </div>
-                  </div>
-
-                  <div class="filter-option-container">
-                    <span>Subpattern:</span>
-                    <div class="slider-container">
-                      <ngx-slider
-                        [(value)]="spConfLow"
-                        [(highValue)]="spConfHigh"
-                        [options]="spConfOptions"
-                        (userChangeEnd)="handleFilterChange($event)"
-                      ></ngx-slider>
-                    </div>
-                  </div>
-
-                  <div class="filter-option-container">
-                    <span>K:</span>
-                    <div class="slider-container">
-                      <ngx-slider
-                        [(value)]="crossConfLow"
-                        [(highValue)]="crossConfHigh"
-                        [options]="crossConfOptions"
-                        (userChangeEnd)="handleFilterChange($event)"
-                      ></ngx-slider>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                class="header-text"
-                (click)="sort(VariantSortKey.child_parent_confidence)"
-              >
-                Confidence
               </div>
               <i
                 [ngClass]="{
                   'bi-sort-numeric-down': ascending,
                   'bi-sort-numeric-down-alt': !ascending,
-                  invisible: !(
-                    currentSortKey === VariantSortKey.child_parent_confidence ||
-                    currentSortKey === VariantSortKey.subpattern_confidence ||
-                    currentSortKey === VariantSortKey.cross_support_confidence
-                  )
+                  invisible: !(currentSortKey === VariantSortKey.index)
                 }"
               ></i>
-            </div>
-          </th>
-          <th
-            style="padding-right: 2.5px; padding-left: 2.5px"
-            class="border-lightgrey border-start text-center"
-            rowspan="2"
-          >
-            <div class="header-text-container">
-              <div class="dropdown filter-button">
-                <button
-                  class="filter-button"
-                  type="button"
-                  id="dropdownMenuButton1"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                  data-bs-reference="parent"
-                  data-bs-auto-close="outside"
-                >
-                  <i class="bi bi-filter"></i>
-                </button>
-                <div
-                  class="dropdown-menu"
-                  aria-labelledby="dropdownMenuButton1"
-                >
-                  <div class="form-check form-switch" style="width: 270px">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="flexSwitchCheckChecked"
-                      (change)="
-                        showOnlyMaximal = !showOnlyMaximal;
-                        handleFilterChange($event)
-                      "
-                      [checked]="showOnlyMaximal"
-                    />
-                    <label class="form-check-label" for="flexSwitchCheckChecked"
-                      >Only Maximal Patterns</label
-                    >
+            </th>
+            <th
+              style="padding-right: 2.5px; padding-left: 2.5px"
+              class="text-center border-start border-lightgrey"
+              rowspan="2"
+            >
+              <div class="header-text-container">
+                <div class="dropdown filter-button">
+                  <button
+                    class="filter-button"
+                    type="button"
+                    id="dropdownMenuButton1"
+                    data-bs-toggle="dropdown"
+                    data-bs-reference="parent"
+                    data-bs-auto-close="outside"
+                    aria-expanded="false"
+                  >
+                    <i class="bi bi-filter"></i>
+                  </button>
+                  <div
+                    class="dropdown-menu"
+                    aria-labelledby="dropdownMenuButton1"
+                  >
+                    <div class="filter-option-container">
+                      <span>K:</span>
+                      <div class="slider-container">
+                        <ngx-slider
+                          [(value)]="kLow"
+                          [(highValue)]="kHigh"
+                          [options]="kOptions"
+                          (userChangeEnd)="handleFilterChange($event)"
+                        ></ngx-slider>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div
-                class="header-text"
-                (click)="sort(VariantSortKey.maximal)"
-                [ngClass]="{
-                  'selected-header-text':
-                    currentSortKey === VariantSortKey.maximal
-                }"
-              >
-                Max
-              </div>
-            </div>
-            <i
-              class="bi"
-              [ngClass]="{
-                'bi-sort-up': ascending,
-                'bi-sort-down': !ascending,
-                invisible: !(currentSortKey === VariantSortKey.maximal)
-              }"
-            ></i>
-          </th>
-          <th
-            style="padding-right: 2.5px; padding-left: 2.5px"
-            class="border-lightgrey border-start text-center"
-            rowspan="2"
-          >
-            <div class="header-text-container">
-              <div class="dropdown filter-button">
-                <button
-                  class="filter-button"
-                  type="button"
-                  id="dropdownMenuButton1"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                  data-bs-reference="parent"
-                  data-bs-auto-close="outside"
-                >
-                  <i class="bi bi-filter"></i>
-                </button>
                 <div
-                  class="dropdown-menu"
-                  aria-labelledby="dropdownMenuButton1"
+                  class="header-text"
+                  (click)="sort(VariantSortKey.k)"
+                  [ngClass]="{
+                    'selected-header-text': currentSortKey === VariantSortKey.k
+                  }"
                 >
-                  <div class="form-check form-switch" style="width: 250px">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="flexSwitchCheckChecked"
-                      (change)="
-                        showOnlyClosed = !showOnlyClosed;
-                        handleFilterChange($event)
-                      "
-                      [checked]="showOnlyClosed"
-                    />
-                    <label class="form-check-label" for="flexSwitchCheckChecked"
-                      >Only Closed Patterns</label
-                    >
-                  </div>
+                  K
                 </div>
               </div>
+              <i
+                [ngClass]="{
+                  'bi-sort-numeric-down': ascending,
+                  'bi-sort-numeric-down-alt': !ascending,
+                  invisible: !(currentSortKey === VariantSortKey.k)
+                }"
+              ></i>
+            </th>
+            <th
+              style="padding-right: 2.5px; padding-left: 2.5px"
+              class="text-center border-start border-lightgrey"
+              rowspan="2"
+            >
+              <div class="header-text-container">
+                <div class="dropdown filter-button">
+                  <button
+                    class="filter-button"
+                    type="button"
+                    id="dropdownMenuButton1"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    data-bs-reference="parent"
+                    data-bs-auto-close="outside"
+                  >
+                    <i class="bi bi-filter"></i>
+                  </button>
+                  <div
+                    class="dropdown-menu"
+                    aria-labelledby="dropdownMenuButton1"
+                  >
+                    <div class="filter-option-container">
+                      <span>K:</span>
+                      <div class="slider-container">
+                        <ngx-slider
+                          [(value)]="supLow"
+                          [(highValue)]="supHigh"
+                          [options]="supOptions"
+                          (userChangeEnd)="handleFilterChange($event)"
+                        ></ngx-slider>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="header-text"
+                  (click)="sort(VariantSortKey.support)"
+                  [ngClass]="{
+                    'selected-header-text':
+                      currentSortKey === VariantSortKey.support
+                  }"
+                >
+                  Sup.
+                </div>
+              </div>
+              <i
+                [ngClass]="{
+                  'bi-sort-numeric-down': ascending,
+                  'bi-sort-numeric-down-alt': !ascending,
+                  invisible: !(currentSortKey === VariantSortKey.support)
+                }"
+              ></i>
+            </th>
+            <th
+              class="text-center border-start border-lightgrey"
+              colspan="3"
+              style="padding-right: 50px; padding-left: 50px"
+            >
+              <div class="header-text-container">
+                <div class="dropdown filter-button">
+                  <button
+                    class="filter-button"
+                    type="button"
+                    id="dropdownMenuButton1"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    data-bs-reference="parent"
+                    data-bs-auto-close="outside"
+                  >
+                    <i class="bi bi-filter"></i>
+                  </button>
+                  <div
+                    class="dropdown-menu"
+                    aria-labelledby="dropdownMenuButton1"
+                  >
+                    <div class="filter-option-container">
+                      <span>Child-Parent:</span>
+                      <div class="slider-container">
+                        <ngx-slider
+                          [(value)]="cpConfLow"
+                          [(highValue)]="cpConfHigh"
+                          [options]="cpConfOptions"
+                          (userChangeEnd)="handleFilterChange($event)"
+                        ></ngx-slider>
+                      </div>
+                    </div>
+
+                    <div class="filter-option-container">
+                      <span>Subpattern:</span>
+                      <div class="slider-container">
+                        <ngx-slider
+                          [(value)]="spConfLow"
+                          [(highValue)]="spConfHigh"
+                          [options]="spConfOptions"
+                          (userChangeEnd)="handleFilterChange($event)"
+                        ></ngx-slider>
+                      </div>
+                    </div>
+
+                    <div class="filter-option-container">
+                      <span>K:</span>
+                      <div class="slider-container">
+                        <ngx-slider
+                          [(value)]="crossConfLow"
+                          [(highValue)]="crossConfHigh"
+                          [options]="crossConfOptions"
+                          (userChangeEnd)="handleFilterChange($event)"
+                        ></ngx-slider>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="header-text"
+                  (click)="sort(VariantSortKey.child_parent_confidence)"
+                >
+                  Confidence
+                </div>
+                <i
+                  [ngClass]="{
+                    'bi-sort-numeric-down': ascending,
+                    'bi-sort-numeric-down-alt': !ascending,
+                    invisible: !(
+                      currentSortKey ===
+                        VariantSortKey.child_parent_confidence ||
+                      currentSortKey === VariantSortKey.subpattern_confidence ||
+                      currentSortKey === VariantSortKey.cross_support_confidence
+                    )
+                  }"
+                ></i>
+              </div>
+            </th>
+            <th
+              style="padding-right: 2.5px; padding-left: 2.5px"
+              class="border-lightgrey border-start text-center"
+              rowspan="2"
+            >
+              <div class="header-text-container">
+                <div class="dropdown filter-button">
+                  <button
+                    class="filter-button"
+                    type="button"
+                    id="dropdownMenuButton1"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    data-bs-reference="parent"
+                    data-bs-auto-close="outside"
+                  >
+                    <i class="bi bi-filter"></i>
+                  </button>
+                  <div
+                    class="dropdown-menu"
+                    aria-labelledby="dropdownMenuButton1"
+                  >
+                    <div class="form-check form-switch" style="width: 270px">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="flexSwitchCheckChecked"
+                        (change)="
+                          showOnlyMaximal = !showOnlyMaximal;
+                          handleFilterChange($event)
+                        "
+                        [checked]="showOnlyMaximal"
+                      />
+                      <label
+                        class="form-check-label"
+                        for="flexSwitchCheckChecked"
+                        >Only Maximal Patterns</label
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="header-text"
+                  (click)="sort(VariantSortKey.maximal)"
+                  [ngClass]="{
+                    'selected-header-text':
+                      currentSortKey === VariantSortKey.maximal
+                  }"
+                >
+                  Max
+                </div>
+              </div>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-up': ascending,
+                  'bi-sort-down': !ascending,
+                  invisible: !(currentSortKey === VariantSortKey.maximal)
+                }"
+              ></i>
+            </th>
+            <th
+              style="padding-right: 2.5px; padding-left: 2.5px"
+              class="border-lightgrey border-start text-center"
+              rowspan="2"
+            >
+              <div class="header-text-container">
+                <div class="dropdown filter-button">
+                  <button
+                    class="filter-button"
+                    type="button"
+                    id="dropdownMenuButton1"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    data-bs-reference="parent"
+                    data-bs-auto-close="outside"
+                  >
+                    <i class="bi bi-filter"></i>
+                  </button>
+                  <div
+                    class="dropdown-menu"
+                    aria-labelledby="dropdownMenuButton1"
+                  >
+                    <div class="form-check form-switch" style="width: 250px">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="flexSwitchCheckChecked"
+                        (change)="
+                          showOnlyClosed = !showOnlyClosed;
+                          handleFilterChange($event)
+                        "
+                        [checked]="showOnlyClosed"
+                      />
+                      <label
+                        class="form-check-label"
+                        for="flexSwitchCheckChecked"
+                        >Only Closed Patterns</label
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="header-text"
+                  (click)="sort(VariantSortKey.closed)"
+                  [ngClass]="{
+                    'selected-header-text':
+                      currentSortKey === VariantSortKey.closed
+                  }"
+                >
+                  Closed
+                </div>
+              </div>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-up': ascending,
+                  'bi-sort-down': !ascending,
+                  invisible: !(currentSortKey === VariantSortKey.closed)
+                }"
+              ></i>
+            </th>
+            <th
+              class="text-start border-lightgrey border-start"
+              style="padding-right: 10px; padding-left: 5px"
+              rowspan="2"
+            >
+              <div class="header-text-container variant-header">
+                <div class="dropdown filter-button">
+                  <button
+                    class="filter-button"
+                    type="button"
+                    id="dropdownMenuButton1"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    data-bs-reference="parent"
+                    data-bs-auto-close="outside"
+                  >
+                    <i class="bi bi-filter"></i>
+                  </button>
+                  <div
+                    class="dropdown-menu"
+                    aria-labelledby="dropdownMenuButton1"
+                  ></div>
+                </div>
+                <div class="header-text">Variant</div>
+              </div>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-up': ascending,
+                  'bi-sort-down': !ascending,
+                  invisible: true
+                }"
+              ></i>
+            </th>
+          </tr>
+          <tr class="sticky-header-row" style="top: 33px">
+            <th
+              class="confidence-names text-center border-lightgrey border-start"
+            >
               <div
+                (click)="sort(VariantSortKey.child_parent_confidence)"
                 class="header-text"
-                (click)="sort(VariantSortKey.closed)"
                 [ngClass]="{
                   'selected-header-text':
-                    currentSortKey === VariantSortKey.closed
+                    currentSortKey === VariantSortKey.child_parent_confidence
                 }"
               >
-                Closed
+                Child-Parent
               </div>
-            </div>
-            <i
-              class="bi"
-              [ngClass]="{
-                'bi-sort-up': ascending,
-                'bi-sort-down': !ascending,
-                invisible: !(currentSortKey === VariantSortKey.closed)
-              }"
-            ></i>
-          </th>
-          <th
-            class="text-start border-lightgrey border-start"
-            style="padding-right: 10px; padding-left: 5px"
-            rowspan="2"
-          >
-            <div class="header-text-container variant-header">
-              <div class="dropdown filter-button">
-                <button
-                  class="filter-button"
-                  type="button"
-                  id="dropdownMenuButton1"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                  data-bs-reference="parent"
-                  data-bs-auto-close="outside"
-                >
-                  <i class="bi bi-filter"></i>
-                </button>
-                <div
-                  class="dropdown-menu"
-                  aria-labelledby="dropdownMenuButton1"
-                ></div>
+            </th>
+            <th class="confidence-names text-center">
+              <div
+                (click)="sort(VariantSortKey.subpattern_confidence)"
+                class="header-text"
+                [ngClass]="{
+                  'selected-header-text':
+                    currentSortKey === VariantSortKey.subpattern_confidence
+                }"
+              >
+                Subpattern
               </div>
-              <div class="header-text">Variant</div>
-            </div>
-            <i
-              class="bi"
-              [ngClass]="{
-                'bi-sort-up': ascending,
-                'bi-sort-down': !ascending,
-                invisible: true
-              }"
-            ></i>
-          </th>
-        </tr>
-        <tr class="sticky-header-row" style="top: 33px">
-          <th
-            class="confidence-names text-center border-lightgrey border-start"
-          >
-            <div
-              (click)="sort(VariantSortKey.child_parent_confidence)"
-              class="header-text"
-              [ngClass]="{
-                'selected-header-text':
-                  currentSortKey === VariantSortKey.child_parent_confidence
-              }"
-            >
-              Child-Parent
-            </div>
-          </th>
-          <th class="confidence-names text-center">
-            <div
-              (click)="sort(VariantSortKey.subpattern_confidence)"
-              class="header-text"
-              [ngClass]="{
-                'selected-header-text':
-                  currentSortKey === VariantSortKey.subpattern_confidence
-              }"
-            >
-              Subpattern
-            </div>
-          </th>
-          <th class="confidence-names text-center">
-            <div
-              (click)="sort(VariantSortKey.cross_support_confidence)"
-              class="header-text"
-              [ngClass]="{
-                'selected-header-text':
-                  currentSortKey === VariantSortKey.cross_support_confidence
-              }"
-            >
-              Cross-Support
-            </div>
-          </th>
-        </tr>
-        <tr
-          app-variant-miner-pattern
-          *ngFor="let pattern of displayedVariantsPatterns; let i = index"
-          [pattern]="pattern"
-          [index]="i"
-          [computeActivityColor]="computeActivityColor"
-        ></tr>
+            </th>
+            <th class="confidence-names text-center">
+              <div
+                (click)="sort(VariantSortKey.cross_support_confidence)"
+                class="header-text"
+                [ngClass]="{
+                  'selected-header-text':
+                    currentSortKey === VariantSortKey.cross_support_confidence
+                }"
+              >
+                Cross-Support
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            app-variant-miner-pattern
+            *ngFor="let pattern of displayedVariantsPatterns; let i = index"
+            [pattern]="pattern"
+            [index]="i"
+            [computeActivityColor]="computeActivityColor"
+            [rootElement]="variantMinerDiv"
+          ></tr>
+        </tbody>
       </table>
     </div>
   </div>

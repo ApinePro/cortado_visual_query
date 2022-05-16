@@ -335,12 +335,15 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
     const color = this.computeActivityColor(this, element, this.variant);
 
-    const rgb_code = [
-      color.substring(1, 3),
-      color.substring(3, 5),
-      color.substring(5, 7),
-    ];
-    const inversed = rgb_code.map((d) => 255 - parseInt(d, 16));
+    if (color){
+      const rgb_code = [
+        color.substring(1, 3),
+        color.substring(3, 5),
+        color.substring(5, 7),
+      ];
+
+      const inversed = rgb_code.map((d) => 255 - parseInt(d, 16));
+    }
 
     let polygon = parent
       .append('polygon')

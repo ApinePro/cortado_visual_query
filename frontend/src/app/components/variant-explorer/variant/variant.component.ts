@@ -102,10 +102,8 @@ export class VariantComponent implements AfterViewInit {
     this.lazyLoadingService.addVariant(
       this.rowElement.nativeElement.parentNode,
       this.rootElement,
-      (isIntersecting) => (self.isVisible = isIntersecting)
+      (isIntersecting) => {(self.isVisible = isIntersecting)}
     );
-
-    console.log(this.variant);
   }
 
   isExpanded(): boolean {

@@ -1,14 +1,16 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
+import { Component, ElementRef, Input, ViewChild, AfterViewInit } from '@angular/core';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 import { VariantElement } from '../../variant-explorer/model';
 import { SubvariantPattern } from '../variant-miner.component';
 
 @Component({
-  selector: 'app-variant-miner-pattern',
+  // eslint-disable-next-line @angular-eslint/component-selector
+  selector: '[app-variant-miner-pattern]',
   templateUrl: './variant-miner-pattern.component.html',
   styleUrls: ['./variant-miner-pattern.component.css'],
 })
-export class VariantMinerPatternComponent {
+export class VariantMinerPatternComponent implements AfterViewInit{
   @Input()
   pattern: SubvariantPattern;
 
@@ -37,10 +39,25 @@ export class VariantMinerPatternComponent {
   @ViewChild('row')
   rowElement: ElementRef;
 
+  @Input()
+  rootElement: ElementRef;
+
   @ViewChild(VariantDrawerDirective)
   variantDrawer: VariantDrawerDirective;
 
   @ViewChild('fragment')
   fragment: ElementRef;
-  constructor() {}
+  constructor(private lazyLoadingService : LazyLoadingServiceService) {}
+
+  isVisible : boolean = false;
+
+  ngAfterViewInit(): void {
+    const self = this;
+
+    this.lazyLoadingService.addSubPattern(
+      this.rowElement.nativeElement.parentNode,
+      this.rootElement,
+      (isIntersecting) => {self.isVisible = isIntersecting}
+    );
+  }
 }
