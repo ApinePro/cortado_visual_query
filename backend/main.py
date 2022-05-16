@@ -43,7 +43,7 @@ from pm4py.objects.process_tree.utils import generic as tree_util
 from pm4py.objects.process_tree.utils.generic import parse
 from pydantic import BaseModel, Field
 
-import log_cache as log_cache
+import cache.log_cache as log_cache
 from api.routes.api import router as api_router
 from backend_utilities.configuration.repository import \
     Configuration as DomainConfiguration

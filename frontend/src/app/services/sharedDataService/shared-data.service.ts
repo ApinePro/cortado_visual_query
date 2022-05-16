@@ -1,6 +1,5 @@
 import { Injectable, isDevMode } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { ProcessTree } from 'src/app/objects/ProcessTree';
 import * as dummyBackendResponse from './dummy_backend_response.js';
 import { Variant } from '../../components/variant-explorer/model';
 import { dummy_tree } from './debug_tree.js';

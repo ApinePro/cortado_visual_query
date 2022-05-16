@@ -129,7 +129,7 @@ export class ProcessTreeService {
     }
   }
 
-  previousTreeObjects: d3.HierarchyNode<any>[] = [];
+  previousTreeObjects: ProcessTree[] = [];
 
   private _treeCacheLength = new BehaviorSubject<number>(0);
   private _treeCacheIndex = new BehaviorSubject<number>(0);
@@ -168,7 +168,7 @@ export class ProcessTreeService {
     }
 
     if (root) {
-      this.previousTreeObjects.push(JSON.parse(JSON.stringify(root)));
+      this.previousTreeObjects.push(root.copy());
     } else {
       this.previousTreeObjects.push(null);
     }

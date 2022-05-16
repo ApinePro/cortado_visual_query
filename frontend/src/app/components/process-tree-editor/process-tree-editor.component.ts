@@ -368,13 +368,17 @@ export class ProcessTreeEditorComponent
         [],
         d3Node.data.id,
         currentNodeFrozen,
-        d3Node.data.performance
+        d3Node.data.performance,
+        null
       );
 
       if (d3Node.children) {
         d3Node.children.forEach((c) => {
           tree.children.push(this.getProcessTreeObject(c));
         });
+
+        tree.children.forEach((child) => child.parent = tree); 
+
       }
       return tree;
     } else {
