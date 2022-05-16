@@ -1066,14 +1066,8 @@ export class BpmnEditorComponent
 
   freezeSubtree() {
 
-  console.log('Before', this.selectedNode.datum()) 
-  console.log('Selection', d3.select(this.selectedNode))
-  console.log(this.selectedNode.datum().operator)
-  console.log(this.selectedNode.children)
-
   const markNodeAsFrozen = (node) => {
     node.frozen = true;
-    console.log('Setting Frozen'); 
     if (node.children) {
       node.children.forEach((child) => {
         markNodeAsFrozen(child);
@@ -1082,15 +1076,14 @@ export class BpmnEditorComponent
   };
 
   const markNodeAsNonFrozen = (node) => {
-    node.datum().frozen = false;
-    console.log('This Parent', node)
-    console.log('This ParentNode', node.parentNode)
-    if (node.parent && node.parent.data.frozen) {
+    node.frozen = false;
+
+    if (node.parent && node.parent.frozen) {
       markNodeAsNonFrozen(node.parent);
       return;
     }
-    if (node.datum().children) {
-      node.datum().children.forEach((child) => {
+    if (node.children) {
+      node.children.forEach((child) => {
         markNodeAsNonFrozen(child);
       });
     }
@@ -1098,9 +1091,8 @@ export class BpmnEditorComponent
   if (!this.selectedNode.datum().frozen) {
     markNodeAsFrozen(this.selectedNode.datum());
   } else {
-    markNodeAsNonFrozen(this.selectedNode);
+    markNodeAsNonFrozen(this.selectedNode.datum());
   }
-
 
   this.processTreeService.set_currentDisplayedProcessTree_with_Cache(this.currentTree)
 
