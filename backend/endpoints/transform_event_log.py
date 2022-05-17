@@ -238,7 +238,7 @@ def create_new_graph(trace):
         activity_map[new_name] = activity
         c[activity] += 1
                         
-    graph = cgroups_graph(unique_trace)                 
+    graph = cgroups_graph(unique_trace, load_event_log.cur_time_granularity)                 
     id_name_map = { name : id for id, name in enumerate(activity_map.keys())}         
     graph.restore_names(activity_map, id_name_map)
                 
