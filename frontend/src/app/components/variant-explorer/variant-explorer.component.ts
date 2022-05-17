@@ -45,6 +45,7 @@ import {
   isElementWithActivity,
   setParent,
   getLowestSelectableParent,
+  InfixType,
 } from './model';
 
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
@@ -63,6 +64,9 @@ import { VariantComponent } from './variant/variant.component';
 import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
+import { TimeUnit } from 'src/app/objects/TimeUnit';
+import { LogService } from 'src/app/services/logService/log.service';
+import { originalOrder } from 'src/app/utils/util';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -137,6 +141,7 @@ export class VariantExplorerComponent
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
     private backendService: BackendService,
+    private logService: LogService,
     private imageExportService: ImageExportService,
     private polygonDrawingService: PolygonDrawingService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
@@ -206,6 +211,12 @@ export class VariantExplorerComponent
 
   showConformanceDialogEvent: Subject<Variant> = new Subject<Variant>();
 
+  timeUnit = TimeUnit;
+
+  selectedGranularity = TimeUnit.SEC;
+
+  originalOrder = originalOrder;
+
   ngOnInit(): void {
     this.dropZoneConfig = new DropzoneConfig(
       '.xes',
@@ -226,6 +237,7 @@ export class VariantExplorerComponent
       v.isConformanceOutdated = true;
       v.userDefined = false;
       v.isTimeouted = false;
+      v.infixType = InfixType.NOT_AN_INFIX;
       setParent(v.variant);
     });
 
@@ -291,6 +303,7 @@ export class VariantExplorerComponent
 
     this.conformanceCheckingService.connect();
     this.subscribeForConformanceCheckingResults();
+    this.listenForLogGranularityChange();
   }
 
   @HostListener('window:keydown.control.q', ['$event'])
@@ -357,6 +370,7 @@ export class VariantExplorerComponent
       v.isConformanceOutdated = true;
       v.userDefined = false;
       v.isTimeouted = false;
+      v.infixType = InfixType.NOT_AN_INFIX;
       setParent(v.variant);
     });
 
@@ -836,6 +850,12 @@ export class VariantExplorerComponent
     if (element instanceof LeafNode) {
       color = this.colorMap.get(element.asLeafNode().activity[0]);
 
+      // in this case cuts were not applicable anymore.
+      // The resulting chevron is displayed in gray
+      if (element.activity.length > 1) {
+        color = '#d3d3d3'; // lightgray
+      }
+
       if (element.serviceTime?.mean !== undefined && this.performanceMode) {
         let stat = this.variantPerformanceService.serviceTimeStatistic;
         color = this.performanceColorMap(element.serviceTime[stat]);
@@ -1009,6 +1029,21 @@ export class VariantExplorerComponent
   toggleTraceInfixSelectionMode(): void {
     this.traceInfixSelectionMode = !this.traceInfixSelectionMode;
     this.redraw_components();
+  }
+
+  onGranularityChange(granularity): void {
+    this.selectedGranularity = granularity;
+    this.logService
+      .getLogPropsAndUpdateState({
+        timeGranularity: granularity,
+      })
+      .subscribe();
+  }
+
+  listenForLogGranularityChange() {
+    this.sharedDataService.logGranularity$.subscribe((granularity) => {
+      this.selectedGranularity = granularity;
+    });
   }
 }
 

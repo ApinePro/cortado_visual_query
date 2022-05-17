@@ -92,16 +92,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 app.include_router(api_router)
-
-def get_config_repo():
-    return ConfigurationRepositoryFactory.get_config_repository()
-
-
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
+def get_config_repo():
+    return ConfigurationRepositoryFactory.get_config_repository()
 
 @app.on_event("startup")
 async def startup_event():
@@ -124,7 +122,7 @@ async def create_upload_file(file: UploadFile = File(...),
     event_log = xes_importer.deserialize(content)
     log_cache.event_log = event_log 
     use_mp = len(event_log) > config_repo.get_configuration().min_traces_variant_detection_mp
-    info = calculate_event_log_properties(event_log, use_mp)
+    info = calculate_event_log_properties(event_log, use_mp=use_mp)
     return info
 
 class FilePathInput(BaseModel):
@@ -138,8 +136,10 @@ async def load_event_log_from_file_path(d: FilePathInput,
     pcache = {}
 
     event_log = xes_import(d.file_path)
+    log_cache.event_log = event_log
+
     use_mp = len(event_log) > config_repo.get_configuration().min_traces_variant_detection_mp
-    info = calculate_event_log_properties(event_log, use_mp)
+    info = calculate_event_log_properties(event_log, use_mp=use_mp)
     return info
 
 
@@ -545,7 +545,7 @@ async def save_configuration(config_dto: Configuration,
 @app.get("/getConfiguration")
 async def get_configuration(config_repo: ConfigurationRepository = Depends(get_config_repo)):
     config = config_repo.get_configuration()
-    config_dto = Configuration(timeout_cvariant_alignment_computation=config.timeout_cvariant_alignment_computation,
+    config_dto = Configuration(timeout_cvariant_alignment_computation=config.timeout_cvariant_alignment_computation, 
                                min_traces_variant_detection_mp=config.min_traces_variant_detection_mp)
     return config_dto
 

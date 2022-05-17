@@ -1,8 +1,10 @@
 from collections import Counter
 import json
 
-from cortado_core.performance.variant_performance import assign_variants_performances
-from cortado_core.utils.cvariants import get_concurrency_variants, get_detailed_variants
+from cortado_core.performance.variant_performance import \
+    assign_variants_performances
+from cortado_core.utils.cvariants import (get_concurrency_variants,
+                                          get_detailed_variants)
 from cortado_core.utils.split_graph import LeafGroup, SequenceGroup
 from cortado_core.utils.timestamp_utils import TimeUnit, get_time_granularity
 from pm4py.algo.filtering.log.attributes import attributes_filter
@@ -11,7 +13,8 @@ from pm4py.algo.filtering.log.start_activities import start_activities_filter
 from pm4py.algo.filtering.log.variants import variants_filter
 from pm4py.objects.log.obj import EventLog
 from pm4py.objects.log.util.interval_lifecycle import to_interval
-from pm4py.util.xes_constants import DEFAULT_START_TIMESTAMP_KEY, DEFAULT_TRANSITION_KEY
+from pm4py.util.xes_constants import (DEFAULT_START_TIMESTAMP_KEY,
+                                      DEFAULT_TRANSITION_KEY)
 
 variants_store = {}
 
@@ -73,8 +76,7 @@ def get_simple_variants(event_log: EventLog):
         })
 
     variants = {
-        SequenceGroup([LeafGroup([e]) for e in v.split(",")])
-        : variants[v]
+        SequenceGroup([LeafGroup([e]) for e in v.split(",")]): variants[v]
         for v in variants
     }
     return sorted(res_variants, key=lambda variant: variant['count'], reverse=True), variants
@@ -86,17 +88,17 @@ def get_c_variants(event_log: EventLog, use_mp: bool = False, time_granularity: 
     variants = get_concurrency_variants(event_log, use_mp, time_granularity)
     
     activites = set()
-    
+
     total_traces = len(event_log)
     res_variants = []
     for i, v in enumerate(variants):
-        
+
         activites = activites.union(v.graph.events)
-        
+
         variant = {
             'count': len(variants[v]),
             'variant': v.serialize(),
-            'bid' : i, 
+            'bid': i,
             'length': len(v),
             'number_of_activities': v.number_of_activities(),
             'percentage': round(len(variants[v]) / total_traces * 100, 2),
@@ -117,7 +119,8 @@ def get_c_variants(event_log: EventLog, use_mp: bool = False, time_granularity: 
         if 'leaf' in variant["variant"].keys() or 'parallel' in variant["variant"].keys():
             variant["variant"] = {'follows': [variant["variant"]]}
 
-        variant['sub_variants'] = sorted(variant['sub_variants'], key=lambda x: x['count'], reverse=True)
+        variant['sub_variants'] = sorted(
+            variant['sub_variants'], key=lambda x: x['count'], reverse=True)
         res_variants.append(variant)
 
     return sorted(res_variants, key=lambda variant: variant['count'], reverse=True), variants

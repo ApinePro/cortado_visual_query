@@ -369,7 +369,10 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       });
     }
 
-    const textcolor = textColorForBackgroundColor(color);
+    const textcolor = textColorForBackgroundColor(
+      color,
+      this.traceInfixSelectionMode && !element.selected
+    );
 
     const activityText = parent
       .append('text')

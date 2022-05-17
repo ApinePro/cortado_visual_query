@@ -1,7 +1,11 @@
 export function textColorForBackgroundColor(
-  backgroundColorInHex: string
+  backgroundColorInHex: string,
+  unselectedElementInTraceInfixSelectionMode: boolean = false
 ): string {
-  if (backgroundColorInHex === undefined) {
+  if (
+    backgroundColorInHex === undefined ||
+    unselectedElementInTraceInfixSelectionMode
+  ) {
     return 'white';
   }
   return isDarkColor(backgroundColorInHex) ? 'white' : 'black';

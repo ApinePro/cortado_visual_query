@@ -77,26 +77,26 @@
             </div>
           </div>
         </form>
-      </div>
-      <div class="modal-footer h-line-modal-top">
-        <button
-          id="close-modal"
-          type="button"
-          class="button"
-          data-bs-dismiss="modal"
-        >
-          <i class="bi bi-x btn-icon text-danger"></i>
-          close without save
-        </button>
-        <button
-          [disabled]="configForm.invalid || configForm.pristine"
-          type="button"
-          class="button"
-          (click)="saveChanges()"
-        >
-          <i class="bi bi-save btn-icon text-success"></i>
-          save
-        </button>
+        <div class="modal-footer h-line-modal-top">
+          <button
+            id="close-modal"
+            type="button"
+            class="button"
+            data-bs-dismiss="modal"
+          >
+            <i class="bi bi-x btn-icon text-danger"></i>
+            close without save
+          </button>
+          <button
+            [disabled]="configForm.invalid || configForm.pristine"
+            type="button"
+            class="button"
+            (click)="saveChanges()"
+          >
+            <i class="bi bi-save btn-icon text-success"></i>
+            save
+          </button>
+        </div>
       </div>
     </div>
   </div>
