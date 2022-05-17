@@ -7,7 +7,9 @@ from endpoints.transform_event_log import cache_current_data, rename_activities,
 
 import pm4py.objects.log.importer.xes.importer as xes_importer
 import pm4pycvxopt
+
 import uvicorn
+from cortado_core.utils.timestamp_utils import TimeUnit
 from cortado_core.freezing.reinsert_frozen_subtrees import post_process_tree
 from cortado_core.performance import tree_performance
 from cortado_core.performance import utils as performance_utils
@@ -43,7 +45,8 @@ from pm4py.objects.process_tree.obj import ProcessTree
 from pm4py.objects.process_tree.utils import generic as tree_util
 from pm4py.objects.process_tree.utils.generic import parse
 from pydantic import BaseModel, Field
-
+import cache.log_cache as log_cache
+from api.routes.api import router as api_router
 from backend_utilities.configuration.repository import \
     Configuration as DomainConfiguration
 from backend_utilities.configuration.repository import (
@@ -81,7 +84,7 @@ async def catch_exceptions_middleware(request: Request, call_next):
         return Response("Internal server error", status_code=500)
 
 
-app.middleware('http')(catch_exceptions_middleware)
+#app.middleware('http')(catch_exceptions_middleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -89,7 +92,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+app.include_router(api_router)
 
 def get_config_repo():
     return ConfigurationRepositoryFactory.get_config_repository()
@@ -105,10 +108,11 @@ async def startup_event():
     global pcache
     pcache = {} #pickle.load(open( "pcache.p", "rb" ))
     load_event_log.variants_store = pickle.load(open( "variants_store.p", "rb" ))
+    load_event_log.cur_time_granularity = min(TimeUnit)
     load_event_log.variants = pickle.load(open( "variants.p", "rb" ))
     load_event_log.activites = pickle.load(open( "activities.p", "rb" ))
     load_event_log.lifecycle_available = True
-    load_event_log.log_info = pickle.load(open( "logInfo.p", "rb" ))
+    
     
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...),
@@ -118,6 +122,7 @@ async def create_upload_file(file: UploadFile = File(...),
 
     content = "".join([line.decode("UTF-8") for line in file.file])
     event_log = xes_importer.deserialize(content)
+    log_cache.event_log = event_log 
     use_mp = len(event_log) > config_repo.get_configuration().min_traces_variant_detection_mp
     info = calculate_event_log_properties(event_log, use_mp)
     return info

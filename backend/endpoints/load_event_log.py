@@ -4,6 +4,7 @@ import json
 from cortado_core.performance.variant_performance import assign_variants_performances
 from cortado_core.utils.cvariants import get_concurrency_variants, get_detailed_variants
 from cortado_core.utils.split_graph import LeafGroup, SequenceGroup
+from cortado_core.utils.timestamp_utils import TimeUnit, get_time_granularity
 from pm4py.algo.filtering.log.attributes import attributes_filter
 from pm4py.algo.filtering.log.end_activities import end_activities_filter
 from pm4py.algo.filtering.log.start_activities import start_activities_filter
@@ -15,8 +16,14 @@ from pm4py.util.xes_constants import DEFAULT_START_TIMESTAMP_KEY, DEFAULT_TRANSI
 variants_store = {}
 
 
-def calculate_event_log_properties(event_log: EventLog, use_mp: bool = False):
+def calculate_event_log_properties(event_log: EventLog, time_granularity: TimeUnit = None, use_mp: bool = False):
     global lifecycle_available 
+    global cur_time_granularity
+    
+    if time_granularity is None:
+        time_granularity = get_time_granularity(event_log)
+        
+    cur_time_granularity = time_granularity
     
     lifecycle_available = False
     # TODO: maybe implement more robust check if lifecycle/interval information is available
@@ -26,8 +33,8 @@ def calculate_event_log_properties(event_log: EventLog, use_mp: bool = False):
     else:
         lifecycle_available = True
 
-    res_variants, variants = get_c_variants(event_log, use_mp)
-    
+    res_variants, variants = get_c_variants(
+        event_log, use_mp, time_granularity)    
     assign_variants_performances(variants)
     
     
@@ -40,7 +47,8 @@ def calculate_event_log_properties(event_log: EventLog, use_mp: bool = False):
         "endActivities": end_activities,
         "activities": activities,
         "variants": res_variants,
-        "performanceInfoAvailable": lifecycle_available
+        "performanceInfoAvailable": lifecycle_available,
+        "timeGranularity": time_granularity
     }
  
     return res
@@ -71,12 +79,11 @@ def get_simple_variants(event_log: EventLog):
     }
     return sorted(res_variants, key=lambda variant: variant['count'], reverse=True), variants
 
-def get_c_variants(event_log: EventLog, use_mp: bool = False):
-    global log_info
+def get_c_variants(event_log: EventLog, use_mp: bool = False, time_granularity: TimeUnit = min(TimeUnit)):
     global variants
     global activites 
     
-    variants = get_concurrency_variants(event_log, use_mp)
+    variants = get_concurrency_variants(event_log, use_mp, time_granularity)
     
     activites = set()
     
@@ -94,7 +101,9 @@ def get_c_variants(event_log: EventLog, use_mp: bool = False):
             'number_of_activities': v.number_of_activities(),
             'percentage': round(len(variants[v]) / total_traces * 100, 2),
             'sub_variants': []}
-        sub_variants = get_detailed_variants(variants[v])
+        sub_variants = get_detailed_variants(
+            variants[v], time_granularity=time_granularity)
+        
         total_sub_traces = sum(len(sub_variants[v]) for v in sub_variants)
 
         for sub_v in sub_variants:
