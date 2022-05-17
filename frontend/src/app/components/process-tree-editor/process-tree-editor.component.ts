@@ -224,7 +224,7 @@ export class ProcessTreeEditorComponent
     this.processTreeService.currentDisplayedProcessTree$.subscribe((res) => {
       // If the tree was loaded via the process tree import or Drag&Drop that does not contain the current activites
 
-      if (res && this.currentlyDisplayedTreeInEditor !== res) {
+      if (res) {
         if (this.checkForLoadedTreeIntegrity(res).size > 0) {
           const unknownActivities = Array.from(
             this.checkForLoadedTreeIntegrity(res)
@@ -377,8 +377,7 @@ export class ProcessTreeEditorComponent
           tree.children.push(this.getProcessTreeObject(c));
         });
 
-        tree.children.forEach((child) => child.parent = tree); 
-
+        tree.children.forEach((child) => (child.parent = tree));
       }
       return tree;
     } else {

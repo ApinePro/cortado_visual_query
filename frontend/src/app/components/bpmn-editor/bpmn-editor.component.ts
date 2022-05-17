@@ -1,4 +1,3 @@
-
 import {
   NodeSeletionStrategy,
   ProcessTreeService,
@@ -184,6 +183,7 @@ export class BpmnEditorComponent
     this.unselectAll();
 
     const selected_node = this.mainGroup.select('[id="' + id + '"]');
+    console.log('Selected Node', selected_node);
     if (!selected_node.empty()) {
       this.selectedNode = selected_node;
       if ((selected_node.datum() as ProcessTree).operator) {
@@ -472,7 +472,9 @@ export class BpmnEditorComponent
   deleteInactive() {
     return (
       this.selectedRootID == null ||
-      this.nodeSelectionStrategy == this.NodeSeletionStrategy.NODE
+      (this.nodeSelectionStrategy == this.NodeSeletionStrategy.NODE &&
+        this.selectedNode &&
+        this.selectedNode.datum().children.length > 0)
     );
   }
 
@@ -902,6 +904,20 @@ export class BpmnEditorComponent
       .append('path')
       .attr('d', 'M 0 0 6 3 0 6 1.5 3')
       .attr('fill', 'red');
+
+    d3.select(this.svgElem.nativeElement)
+      .append('svg:defs')
+      .append('svg:marker')
+      .attr('id', 'arrow-frozen')
+      .attr('refX', 3)
+      .attr('refY', 3)
+      .attr('markerWidth', 10)
+      .attr('markerHeight', 10)
+      .attr('orient', 'auto')
+      .attr('markerUnits', 'strokeWidth')
+      .append('path')
+      .attr('d', 'M 0 0 6 3 0 6 1.5 3')
+      .attr('fill', '#425bbf');
   }
 
   drawLine(selection, x1, y1, x2, y2, outBound = false, frozen = false) {
@@ -926,7 +942,7 @@ export class BpmnEditorComponent
       .attr('stroke-width', '1')
       .attr('stroke', BPMN_Constant.bpmn_stroke_color)
       .style('stroke-linejoin', 'round')
-      .attr('marker-end', 'url(#arrow-grey)')
+      .attr('marker-end', frozen ? 'url(#arrow-frozen)' : 'url(#arrow-grey)')
       .classed('frozen-edge', frozen);
   }
 
@@ -962,7 +978,7 @@ export class BpmnEditorComponent
       .attr('stroke-width', '1')
       .attr('stroke', BPMN_Constant.bpmn_stroke_color)
       .style('stroke-linejoin', 'round')
-      .attr('marker-end', 'url(#arrow-grey)')
+      .attr('marker-end', frozen ? 'url(#arrow-frozen)' : 'url(#arrow-grey)')
       .classed('frozen-edge', frozen);
 
     line.datum(model._pt);
@@ -1065,43 +1081,44 @@ export class BpmnEditorComponent
   }
 
   freezeSubtree() {
+    const markNodeAsFrozen = (node) => {
+      node.frozen = true;
+      if (node.children) {
+        node.children.forEach((child) => {
+          markNodeAsFrozen(child);
+        });
+      }
+    };
 
-  const markNodeAsFrozen = (node) => {
-    node.frozen = true;
-    if (node.children) {
-      node.children.forEach((child) => {
-        markNodeAsFrozen(child);
-      });
+    const markNodeAsNonFrozen = (node) => {
+      node.frozen = false;
+
+      if (node.parent && node.parent.frozen) {
+        markNodeAsNonFrozen(node.parent);
+        return;
+      }
+      if (node.children) {
+        node.children.forEach((child) => {
+          markNodeAsNonFrozen(child);
+        });
+      }
+    };
+    if (!this.selectedNode.datum().frozen) {
+      markNodeAsFrozen(this.selectedNode.datum());
+    } else {
+      markNodeAsNonFrozen(this.selectedNode.datum());
     }
-  };
 
-  const markNodeAsNonFrozen = (node) => {
-    node.frozen = false;
-
-    if (node.parent && node.parent.frozen) {
-      markNodeAsNonFrozen(node.parent);
-      return;
-    }
-    if (node.children) {
-      node.children.forEach((child) => {
-        markNodeAsNonFrozen(child);
-      });
-    }
-  };
-  if (!this.selectedNode.datum().frozen) {
-    markNodeAsFrozen(this.selectedNode.datum());
-  } else {
-    markNodeAsNonFrozen(this.selectedNode.datum());
-  }
-
-  this.processTreeService.set_currentDisplayedProcessTree_with_Cache(this.currentTree)
-
+    this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+      this.currentTree
+    );
+    this.processTreeService.selectedRootNodeID = null;
   }
 
   buttonFreezeSubtreeDisabled() {
     return (
       this.selectedRootID == null ||
-      this.nodeSelectionStrategy == this.NodeSeletionStrategy.NODE
+      (this.selectedNode && this.selectedNode.datum().children.length === 0)
     );
   }
 

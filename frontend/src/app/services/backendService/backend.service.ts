@@ -12,6 +12,7 @@ import {
 } from 'src/app/components/variant-explorer/model';
 import { Configuration } from 'src/app/components/settings/model';
 import * as objectHash from 'object-hash';
+import { ProcessTree } from 'src/app/objects/ProcessTree';
 
 @Injectable({
   providedIn: 'root',
@@ -102,6 +103,7 @@ export class BackendService {
       })
       .pipe(
         tap((tree) => {
+          console.log('Parsing Tree after Request');
           this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
             tree
           );
@@ -109,9 +111,11 @@ export class BackendService {
       );
   }
 
-  computeTreeString(tree): void {
+  computeTreeString(tree: ProcessTree): void {
     this.httpClient
-      .post(this.backendUrl + 'computeTreeStringFromTree', { pt: tree })
+      .post(this.backendUrl + 'computeTreeStringFromTree', {
+        pt: tree.copy(false),
+      })
       .subscribe((tree) => {
         this.processTreeService.currentTreeString = tree;
       });
@@ -130,7 +134,7 @@ export class BackendService {
         this.httpClient
           .post(
             this.backendUrl + 'convertPtToBPMN',
-            { pt: tree },
+            { pt: tree.copy(false) },
             { responseType: 'blob' }
           )
           .subscribe((blob) => {
@@ -146,7 +150,7 @@ export class BackendService {
         this.httpClient
           .post(
             this.backendUrl + 'convertPtToPTML',
-            { pt: tree },
+            { pt: tree.copy(false) },
             { responseType: 'blob' }
           )
           .subscribe((blob) => {
@@ -162,7 +166,7 @@ export class BackendService {
         this.httpClient
           .post(
             this.backendUrl + 'convertPtToPNML',
-            { pt: tree },
+            { pt: tree.copy(false) },
             { responseType: 'blob' }
           )
           .subscribe((blob) => {
@@ -176,7 +180,9 @@ export class BackendService {
       .pipe(take(1))
       .subscribe((tree) => {
         this.httpClient
-          .post(this.backendUrl + 'applyReductionRulesToTree', { pt: tree })
+          .post(this.backendUrl + 'applyReductionRulesToTree', {
+            pt: tree.copy(false),
+          })
           .subscribe((tree) =>
             this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
               tree
@@ -191,7 +197,7 @@ export class BackendService {
     explicitlyAddedVariants: any[]
   ): void {
     const body = {
-      pt: this.processTreeService.currentDisplayedProcessTree,
+      pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
       variants_to_add: variantsToAdd,
       fitting_variants: explicitlyAddedVariants,
     };
@@ -207,7 +213,7 @@ export class BackendService {
     remove?: Variant[]
   ): Observable<any> {
     const body = {
-      pt: this.processTreeService.currentDisplayedProcessTree,
+      pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
       variants: variants.map((v) => v.serialize()),
       delete: remove?.map((v) => v.variant.serialize()),
     };
@@ -223,7 +229,7 @@ export class BackendService {
     variantsInModelLanguage: VariantElement[]
   ): Observable<any> {
     const body = {
-      pt: this.processTreeService.currentDisplayedProcessTree,
+      pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
       variants_to_add: variantsToAdd.map((v) => v.serialize()),
       fitting_variants: variantsInModelLanguage.map((v) => v.serialize()),
     };
@@ -243,7 +249,7 @@ export class BackendService {
     selectedVariants: VariantElement[]
   ): Observable<any> {
     const body = {
-      pt: this.processTreeService.currentDisplayedProcessTree,
+      pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
       selected_variants: selectedVariants.map((v) => v.serialize()),
     };
     return this.httpClient

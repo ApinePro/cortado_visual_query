@@ -6,6 +6,7 @@ import { BackgroundTaskInfoService } from '../backgroundTaskInfoService/backgrou
 import { ConformanceCheckingResult } from './model';
 import Swal from 'sweetalert2';
 import { SharedDataService } from '../sharedDataService/shared-data.service';
+import { ProcessTree } from 'src/app/objects/ProcessTree';
 export const WS_ENDPOINT = 'ws://127.0.0.1:41211/conformancews';
 
 @Injectable({
@@ -69,7 +70,7 @@ export class ConformanceCheckingService {
 
   public calculateConformance(
     id: string,
-    pt: any,
+    pt: ProcessTree,
     variant: any,
     timeout: number
   ): boolean {
@@ -78,7 +79,12 @@ export class ConformanceCheckingService {
       this.cancelConformanceCheckingRequests()
     );
     this.runningRequests.push(rid);
-    this.socket.next({ id: id, pt: pt, variant: variant, timeout: timeout });
+    this.socket.next({
+      id: id,
+      pt: pt.copy(false),
+      variant: variant,
+      timeout: timeout,
+    });
 
     return resubscribe;
   }

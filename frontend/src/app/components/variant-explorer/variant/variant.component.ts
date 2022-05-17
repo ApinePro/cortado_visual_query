@@ -158,7 +158,6 @@ export class VariantComponent implements AfterViewInit {
         return;
       }
       if (this.processTreeService.currentDisplayedProcessTree === undefined) {
-
       } else {
         this.performanceService.updatePerformance([variant]);
       }
