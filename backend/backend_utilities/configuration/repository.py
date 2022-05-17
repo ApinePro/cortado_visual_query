@@ -7,7 +7,7 @@ import errno
 
 CONFIG_FILENAME = 'config.json'
 DEFAULT_TIMEOUT = 2
-DEFAULT_MIN_TRACES_VARIANT_DETECTION_MULTIPROCESSING = 1000;
+DEFAULT_MIN_TRACES_VARIANT_DETECTION_MULTIPROCESSING = 1000
 APP_NAME = 'cortado'
 COMPANY_NAME = 'Fraunhofer'
 
@@ -20,7 +20,6 @@ class Configuration:
                  min_traces_variant_detection_mp=DEFAULT_MIN_TRACES_VARIANT_DETECTION_MULTIPROCESSING):
         self.timeout_cvariant_alignment_computation = timeout_cvariant_alignment_computation
         self.min_traces_variant_detection_mp = min_traces_variant_detection_mp
-
 
 class ConfigurationRepository(abc.ABC):
     @abc.abstractmethod
@@ -57,8 +56,10 @@ class FileBasedConfigurationRepository(ConfigurationRepository):
                                                       if "timeout_cvariant_alignment_computation" in data 
                                                       else DEFAULT_TIMEOUT)
 
+
             return Configuration(timeout_cvariant_alignment_computation=timeout_cvariant_alignment_computation,
                                  min_traces_variant_detection_mp=min_traces_variant_detection_mp)
+           
 
     # see https://stackoverflow.com/questions/12517451/automatically-creating-directories-with-file-output
     @staticmethod

@@ -121,7 +121,10 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
       this.redraw();
       this.setInspectVariant();
-    } else if (changes.traceInfixSelectionMode) {
+    } else if (
+      changes.traceInfixSelectionMode &&
+      (!changes.variant || !changes.variant.firstChange)
+    ) {
       this.redraw();
     }
   }
@@ -366,7 +369,10 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       });
     }
 
-    const textcolor = textColorForBackgroundColor(color);
+    const textcolor = textColorForBackgroundColor(
+      color,
+      this.traceInfixSelectionMode && !element.selected
+    );
 
     const activityText = parent
       .append('text')

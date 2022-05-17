@@ -302,6 +302,39 @@
 
     <span class="vl"></span>
 
+    <div
+      class="dropdown"
+      data-bs-toggle="tooltip"
+      data-bs-html="true"
+      title="Select the time granularity"
+    >
+      <button
+        class="button dropdown-toggle"
+        type="button"
+        id="granularityDropdown"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        <i class="bi bi-clock btn-icon"></i>
+      </button>
+
+      <ul class="dropdown-menu" aria-labelledby="granularityDropdown">
+        <li *ngFor="let unit of timeUnit | keyvalue: originalOrder">
+          <button
+            (click)="onGranularityChange(unit.value)"
+            [ngClass]="{
+              'selected-dropdown-item': selectedGranularity === unit.value
+            }"
+            class="dropdown-item"
+          >
+            {{ unit.value }}
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <span class="vl"></span>
+
     <button
       class="button"
       data-bs-toggle="tooltip"
@@ -317,6 +350,7 @@
   <div
     class="variant-query-button"
     [@openCloseQuery]="queryActive ? 'openQuery' : 'closeQuery'"
+    style="z-index: 9999"
   >
     <div class="query-header query-button d-flex" (click)="toggleQuery()">
       <i class="bi bi-search"></i>

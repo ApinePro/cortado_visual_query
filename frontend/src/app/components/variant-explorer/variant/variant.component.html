@@ -100,7 +100,10 @@
         style="display: inline-block; font-size: 23px; vertical-align: middle"
       >
         <div
-          *ngIf="variant.isTraceInfix"
+          *ngIf="
+            variant.infixType === infixType.PROPER_INFIX ||
+            variant.infixType === infixType.POSTFIX
+          "
           style="display: inline-block; font-size: 23px; vertical-align: middle"
         >
           <i class="bi bi-three-dots"></i>
@@ -122,7 +125,10 @@
         style="display: inline-block; font-size: 23px; vertical-align: middle"
       >
         <div
-          *ngIf="variant.isTraceInfix"
+          *ngIf="
+            variant.infixType === infixType.PROPER_INFIX ||
+            variant.infixType === infixType.PREFIX
+          "
           style="display: inline-block; font-size: 23px; vertical-align: middle"
         >
           <i class="bi bi-three-dots"></i>
@@ -130,55 +136,65 @@
       </div>
     </div>
   </td>
-  <td *ngIf="traceInfixSelectionMode">
-    <button
-      class="bi bi-x-lg text-secondary align-middle font-large btn shadow-none"
-      (click)="resetSelectionStatus()"
-      title="Reset trace infix selection of this variant"
-      data-bs-toggle="tooltip"
-    ></button>
-  </td>
-  <td *ngIf="traceInfixSelectionMode">
-    <button
-      class="bi bi-arrow-down text-secondary align-middle font-large btn shadow-none"
-      (click)="addSelectedTraceInfix()"
-      title="Add the currently selected infix to the variant explorer"
-      data-bs-toggle="tooltip"
-    ></button>
-  </td>
-  <td *ngIf="traceInfixSelectionMode">
-    <button
-      class="bi bi-arrow-counterclockwise text-secondary align-middle btn font-large shadow-none"
-      (click)="undoSelection()"
-      title="Undo last selection"
-      data-bs-toggle="tooltip"
-      style="padding-right: 0px"
-    ></button>
-  </td>
-
-  <td></td>
-  <td *ngIf="traceInfixSelectionMode">
-    <span class="text-secondary" style="padding-right: 5px"
-      >({{ variant.variant.currentIdxSelectionHistory }})</span
-    >
-  </td>
-  <td *ngIf="traceInfixSelectionMode">
-    <button
-      class="bi bi-arrow-clockwise text-secondary align-middle font-large btn shadow-none"
-      (click)="redoSelection()"
-      title="Redo"
-      data-bs-toggle="tooltip"
-      style="padding-right: 0px"
-    ></button>
-  </td>
-  <td *ngIf="traceInfixSelectionMode">
-    <span class="text-secondary" style="padding-right: 5px"
-      >({{
-        variant.variant.selectionHistory.length -
-          variant.variant.currentIdxSelectionHistory -
-          1
-      }})</span
-    >
+  <td class="infix-selection-buttons-panel" *ngIf="traceInfixSelectionMode">
+    <div>
+      <td>
+        <button
+          class="button"
+          (click)="resetSelectionStatus()"
+          title="Reset trace infix selection of this variant"
+          data-bs-toggle="tooltip"
+        >
+          <i class="bi bi-x-lg text-secondary align-middle font-large"></i>
+        </button>
+      </td>
+      <td>
+        <button
+          class="button"
+          (click)="addSelectedTraceInfix()"
+          title="Add the currently selected infix to the variant explorer"
+          data-bs-toggle="tooltip"
+        >
+          <i
+            class="bi bi-arrow-down text-secondary align-middle font-large"
+          ></i>
+        </button>
+      </td>
+      <td>
+        <button
+          class="shadow-none button btn-fixed-width"
+          (click)="undoSelection()"
+          title="Undo last selection"
+          data-bs-toggle="tooltip"
+        >
+          <i
+            class="bi bi-arrow-counterclockwise text-secondary align-middle font-large"
+          ></i>
+          <span class="text-secondary"
+            >({{ variant.variant.currentIdxSelectionHistory }})</span
+          >
+        </button>
+      </td>
+      <td>
+        <button
+          class="button"
+          (click)="redoSelection()"
+          title="Redo"
+          data-bs-toggle="tooltip"
+        >
+          <i
+            class="bi bi-arrow-clockwise text-secondary align-middle font-large"
+          ></i>
+          <span class="text-secondary"
+            >({{
+              variant.variant.selectionHistory.length -
+                variant.variant.currentIdxSelectionHistory -
+                1
+            }})</span
+          >
+        </button>
+      </td>
+    </div>
   </td>
 </ng-container>
 

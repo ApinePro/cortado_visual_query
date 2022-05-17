@@ -63,6 +63,8 @@ export class BackendService {
 
     this.sharedDataService.loadedEventLog = filePath;
     this.sharedDataService.performanceInfoAvailable = true;
+    this.sharedDataService.timeGranularity = res['timeGranularity'];
+    this.sharedDataService.logGranularity = res['timeGranularity'];
   }
 
   loadProcessTreeFromFilePath(filePath: string): void {

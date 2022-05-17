@@ -146,6 +146,13 @@ export class Constants {
   public static INTERVAL_LENGTH = 60;
 }
 
+export enum InfixType {
+  PROPER_INFIX,
+  PREFIX,
+  POSTFIX,
+  NOT_AN_INFIX,
+}
+
 export class Variant {
   id: string;
   bid: number;
@@ -164,7 +171,6 @@ export class Variant {
   deviation: any | undefined;
   isTimeouted: boolean;
   isConformanceOutdated: boolean;
-  isTraceInfix: boolean;
   sub_variants:
     | {
         count: number;
@@ -176,6 +182,7 @@ export class Variant {
         deviation: any | undefined;
       }[]
     | undefined;
+  infixType: InfixType;
 
   constructor(
     count: number,
@@ -188,7 +195,7 @@ export class Variant {
     isTimeouted: boolean,
     isConformanceOutdated: boolean,
     sub_variants,
-    isTraceInfix: boolean
+    infixType: InfixType = InfixType.NOT_AN_INFIX
   ) {
     this.count = count;
     this.variant = variant;
@@ -200,7 +207,7 @@ export class Variant {
     this.isTimeouted = isTimeouted;
     this.isConformanceOutdated = isConformanceOutdated;
     this.sub_variants = sub_variants;
-    this.isTraceInfix = isTraceInfix;
+    this.infixType = infixType;
   }
 }
 

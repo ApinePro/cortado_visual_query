@@ -4,6 +4,7 @@ import { ProcessTree } from 'src/app/objects/ProcessTree';
 import * as dummyBackendResponse from './dummy_backend_response.js';
 import { Variant } from '../../components/variant-explorer/model';
 import { dummy_tree } from './debug_tree.js';
+import { TimeUnit } from 'src/app/objects/TimeUnit';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,16 @@ export class SharedDataService {
 
   public computedTextLengthCache = new Map<string, number>();
   public performanceInfoAvailable = false;
+  private _timeGranularity: Subject<TimeUnit> = new Subject();
+  private _logGranularity: BehaviorSubject<TimeUnit> = new BehaviorSubject(
+    TimeUnit.SEC
+  );
+  public get logGranularity$(): Observable<TimeUnit> {
+    return this._logGranularity.asObservable();
+  }
+  public set logGranularity(value: TimeUnit) {
+    this._logGranularity.next(value);
+  }
 
   private _loadedEventLog = new Subject<string>();
   private _treePerformance = new BehaviorSubject<Object>({});
@@ -214,6 +225,13 @@ export class SharedDataService {
 
   set nodeWidthCache(map: Map<string, number>) {
     this._nodeWidthCache.next(map);
+  }
+
+  public get timeGranularity$(): Observable<TimeUnit> {
+    return this._timeGranularity.asObservable();
+  }
+  public set timeGranularity(value: TimeUnit) {
+    this._timeGranularity.next(value);
   }
 
   // TODO move somewhere else
