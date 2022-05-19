@@ -62,6 +62,32 @@
             </select>
           </div>
 
+          <div
+            class="form-element"
+            *ngIf="
+              variantMinerConfigInput.value.frequent_mining_algo ===
+              FrequentMiningAlgorithm.ClosedMaximalMiner
+            "
+          >
+            <label for="cm_tree_strategy" class="input-label"
+              >Type:
+            </label>
+            <select
+              formControlName="cm_tree_strategy"
+              class="form-select input-selector"
+            >
+              <option
+                [ngValue]="FrequentMiningCMStrategy.ClosedMaximal"
+                selected
+              >
+                Closed and Maximal
+              </option>
+              <option [ngValue]="FrequentMiningCMStrategy.OnlyMaximal">
+                Only Maximal
+              </option>
+            </select>
+          </div>
+
           <div class="form-element">
             <label for="k" class="input-label">K: </label>
             <input id="k" type="text" formControlName="k" class="input-field" />

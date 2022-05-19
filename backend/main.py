@@ -44,6 +44,7 @@ from pm4py.objects.process_tree.utils import generic as tree_util
 from pm4py.objects.process_tree.utils.generic import parse
 from pm4py.objects.bpmn.exporter.variants.etree import get_xml_string as generate_bpmn_xml
 from error_handlers import exception_handler, http_exception_handler, validation_exception_handler
+
 from cortado_core.subprocess_discovery.subtree_mining.treebank import create_treebank_from_cv_variants
 from cortado_core.subprocess_discovery.subtree_mining.right_most_path_extension.min_sub_mining import min_sub_mining
 from cortado_core.subprocess_discovery.subtree_mining.freq_counting import FrequencyCountingStrategy
@@ -585,8 +586,8 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
     print('Closed in RMO', df.closed.value_counts())
     print()
     
-    #print("Mining CM K Patterns")
-    #k_patterns = cm_min_sub_mining(treeBank, load_event_log.variants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True)
+    print("Mining CM K Patterns")
+    k_patterns = cm_min_sub_mining(treeBank, load_event_log.variants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True)
     
     #print("Computing Confidence")
     #df = dataframe_from_k_patterns(k_patterns)

@@ -61,6 +61,7 @@ export class VariantMinerComponent
 
   FrequentMiningStrategy = FrequentMiningStrategy;
   FrequentMiningAlgorithm = FrequentMiningAlgorithm;
+  FrequentMiningCMStrategy = FrequentMiningCMStrategy;
   VariantSortKey = VariantSortKey;
   currentSortKey: VariantSortKey;
 
@@ -162,21 +163,25 @@ export class VariantMinerComponent
     );
 
     this.variantMinerConfigInput = new FormGroup({
-      k: new FormControl('', {
+      k: new FormControl(20, {
         updateOn: 'change',
       }),
 
-      min_sup: new FormControl('', {
+      min_sup: new FormControl(1000, {
         updateOn: 'change',
       }),
 
-      loop: new FormControl('', {
+      loop: new FormControl(2, {
         updateOn: 'change',
       }),
 
-      frequent_mining_algo: new FormControl('', {
-        updateOn: 'change',
+      frequent_mining_algo: new FormControl(this.FrequentMiningAlgorithm.ValidTreeMiner, {
+          updateOn: 'change',
       }),
+
+      cm_tree_strategy: new FormControl(this.FrequentMiningCMStrategy.ClosedMaximal, {
+        updateOn: 'change',
+    }),
 
       frequent_mining_strat: new FormControl(
         this.FrequentMiningStrategy.TraceTransaction,
@@ -439,6 +444,11 @@ export enum FrequentMiningStrategy {
   VariantTransaction = 2,
   TraceOccurence = 3,
   VariantOccurence = 4,
+}
+
+export enum FrequentMiningCMStrategy {
+  ClosedMaximal = 1,
+  OnlyMaximal = 2
 }
 
 export enum FrequentMiningAlgorithm {

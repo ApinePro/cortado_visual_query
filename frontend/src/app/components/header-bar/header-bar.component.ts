@@ -167,8 +167,8 @@ export class HeaderBarComponent {
       id: componentID,
       type: 'component',
       title: 'Variant Miner',
-      isClosable: false,
-      reorderEnabled: false,
+      isClosable: true,
+      reorderEnabled: true,
       header: {
         show: false,
       },
