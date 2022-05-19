@@ -6,6 +6,10 @@ const kill = require("tree-kill")
 const ChildProcess = require('child_process');
 const Store = require('electron-store');
 const executablePath = app.getPath('exe');
+const backendWorkDirWindows = executablePath.substring(0, executablePath.lastIndexOf("\\")) +
+"\\cortado-backend";
+const backendWorkDirLinux = executablePath.substring(0, executablePath.lastIndexOf("/")) +
+  "/cortado-backend";
 const backendExecutablePathWindows = executablePath.substring(0, executablePath.lastIndexOf("\\")) +
   "\\cortado-backend\\cortado-backend.exe";
 const backendExecutablePathLinux = executablePath.substring(0, executablePath.lastIndexOf("/")) +
@@ -19,9 +23,9 @@ let licenseDialog;
 function startBackend() {
   switch (process.platform) {
     case 'linux':
-      return ChildProcess.spawn(backendExecutablePathLinux, {shell: true, detached: true, windowsHide: false});
+      return ChildProcess.spawn(backendExecutablePathLinux, {shell: true, detached: true, windowsHide: false, cwd: backendWorkDirLinux});
     case 'win32':
-      return ChildProcess.spawn(backendExecutablePathWindows, {shell: true, detached: true, windowsHide: false});
+      return ChildProcess.spawn(backendExecutablePathWindows, {shell: true, detached: true, windowsHide: false, cwd: backendWorkDirWindows});
     default:
       return;
   }
