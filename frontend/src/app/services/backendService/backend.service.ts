@@ -44,6 +44,8 @@ export class BackendService {
       });
   }
 
+
+  // Refractor too Log Service
   private processEventLog(res, filePath = null) {
     this.sharedDataService.activitiesInEventLog = res['activities'];
     this.sharedDataService.startActivitiesInEventLog = new Set(
@@ -116,30 +118,6 @@ export class BackendService {
     return this.httpClient.post(this.backendUrl + 'parseStringToPT', {
       pt_string: treeString,
     });
-  }
-
-
-  propagateActivityNameChange( activityName, newActivityName ){
-
-    console.log('Propangating Change', activityName, newActivityName)
-
-    this.httpClient.post(this.backendUrl + 'changeActivityName', {
-      activityName: activityName,
-      newActivityName : newActivityName
-    }).subscribe((t) => console.log('Send', t));
-
-  }
-
-  propagateActivityDeletion( activityName ){
-
-    this.httpClient.post(this.backendUrl + 'deleteActivity', {
-      activityName: activityName,
-    }).subscribe((res) => this.processEventLog(res, this.sharedDataService.loadedEventLog));
-
-  }
-
-  revertChangeInBackend() {
-    this.httpClient.post(this.backendUrl + 'revertLastChange', {});
   }
 
   downloadCurrentTreeAsBPMN(): void {

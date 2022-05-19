@@ -1,5 +1,5 @@
+import { LogService } from 'src/app/services/logService/log.service';
 import { BackendService } from 'src/app/services/backendService/backend.service';
-import { element } from 'protractor';
 import {
   Component,
   OnInit,
@@ -13,7 +13,6 @@ import { SharedDataService } from '../../services/sharedDataService/shared-data.
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { VariantElement } from '../variant-explorer/model';
-import { ProcessTree } from 'src/app/objects/ProcessTree';
 
 @Component({
   selector: 'app-activity-overview',
@@ -27,7 +26,7 @@ export class ActivityOverviewComponent
   constructor(
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
-    private backendService : BackendService,
+    private logService : LogService, 
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
     elRef: ElementRef,
@@ -161,7 +160,7 @@ export class ActivityOverviewComponent
     this.editingActivityName = false;
 
 
-    this.backendService.propagateActivityDeletion(activity.activityName)
+    this.logService.propagateActivityDeletion(activity.activityName)
 
   }
   changeActivityColor(activityField: ActivityField, color: string) {
@@ -202,7 +201,7 @@ export class ActivityOverviewComponent
     newActivityName: string
   ): void {
     // build a mapping of old activity name => new activity name
-    this.backendService.propagateActivityNameChange( oldActivityName, newActivityName)
+    this.logService.propagateActivityNameChange( oldActivityName, newActivityName)
 
     let activityNameMapping: Map<string, string> = new Map();
     if (this.activityFields) {
