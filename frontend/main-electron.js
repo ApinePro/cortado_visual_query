@@ -10,8 +10,8 @@ const backendWorkDirWindows = executablePath.substring(0, executablePath.lastInd
 "\\cortado-backend";
 const backendWorkDirLinux = executablePath.substring(0, executablePath.lastIndexOf("/")) +
   "/cortado-backend";
-const backendExecutablePathWindows = executablePath.substring(0, executablePath.lastIndexOf("\\")) +
-  "\\cortado-backend\\cortado-backend.exe";
+const backendExecutablePathWindows = '"' + executablePath.substring(0, executablePath.lastIndexOf("\\")) +
+  "\\cortado-backend\\cortado-backend.exe" + '"';
 const backendExecutablePathLinux = executablePath.substring(0, executablePath.lastIndexOf("/")) +
   "/cortado-backend/cortado-backend";
 const lastAcceptedVersionKey = "lastAcceptedVersion";
