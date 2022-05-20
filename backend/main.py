@@ -54,7 +54,7 @@ from cortado_core. subprocess_discovery.subtree_mining.blanket_mining.cm_grow im
 
 from pydantic import BaseModel, Field
 
-import log_cache as log_cache
+import cache.log_cache as log_cache
 from api.routes.api import router as api_router
 from backend_utilities.configuration.repository import \
     Configuration as DomainConfiguration
@@ -69,7 +69,7 @@ from endpoints import load_event_log
 from endpoints.add_variants_to_process_model import \
     add_variants_to_process_model
 from endpoints.alignments import \
-    calculate_alignment as calculate_alignment_endpoint, InfixType
+    calculate_alignment as calculate_alignment_endpoint
 from endpoints.load_event_log import calculate_event_log_properties
 from endpoints.query_variant import evaluate_query_against_variant_graphs
 from error_handlers import (exception_handler, http_exception_handler,
@@ -93,7 +93,7 @@ async def catch_exceptions_middleware(request: Request, call_next):
         return Response("Internal server error", status_code=500)
 
 
-app.middleware('http')(catch_exceptions_middleware)
+#app.middleware('http')(catch_exceptions_middleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -448,17 +448,17 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             'fitness_values': variants_fitness}
 
 
-def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, infix_type: InfixType,  timeout: int):
+def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, timeout: int):
     try:
-        return execute_with_timeout(calculate_alignment_intern, timeout, args=(pt, c_variant, infix_type))
+        return execute_with_timeout(calculate_alignment_intern, timeout, args=(pt, c_variant))
     except TimeoutException:
         return {'isTimeout': True}
 
 
-def calculate_alignment_intern(pt: dict, c_variant: dict, infix_type: InfixType):
+def calculate_alignment_intern(pt: dict, c_variant: dict):
     all_variants = generate_variants(c_variant)
     for variant in all_variants:
-        alignment = calculate_alignment_endpoint(variant, pt, infix_type)
+        alignment = calculate_alignment_endpoint(variant, pt)
         if alignment['deviation']:
             return {'cost': alignment['cost'],
                     'deviation': alignment['deviation']}
@@ -503,7 +503,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 if data['timeout'] != 0:
                     timeout = data['timeout']
                 pool.apply_async(calculate_alignment_intern_with_timeout,
-                                 (data['pt'], data['variant'], InfixType(data['infixType']), timeout,),
+                                 (data['pt'], data['variant'], timeout,),
                                  callback=get_alignment_callback(data['id'], websocket))
     except WebSocketDisconnect:
         print('websocket disconnected')
@@ -596,7 +596,7 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
         print('Closed in RMO', df.closed.value_counts())
         print()
     
-    else: 
+    else:
         print("Mining CM K Patterns")
         k_patterns = cm_min_sub_mining(treeBank, load_event_log.variants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True)
         
@@ -611,7 +611,7 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
         df.obj = df.obj.apply(lambda x : x.to_concurrency_group().serialize(include_performance=False))
         df = df.replace({np.nan: None})
 
-    
+        
     print("Finished Computation")
     df_dict = df.to_dict(orient = 'records')
     
