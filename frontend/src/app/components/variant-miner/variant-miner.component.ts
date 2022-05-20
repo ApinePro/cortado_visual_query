@@ -435,7 +435,7 @@ export class MiningConfig {
   }
 
   serialize() {
-    return { k: this.k, min_sup: this.min_sup, strat: this.strat };
+    return { k: this.k, min_sup: this.min_sup, strat: this.strat, algo : this.algo, loop : this.loop, algo_type : 0 };
   }
 }
 
