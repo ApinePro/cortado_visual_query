@@ -567,7 +567,7 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
     
     print("K:", config.k)
     print("min_sup:", config.min_sup)
-    print("Strat:", config.strat)
+    print("Strat:", freq_strat_mapping[config.strat])
     
     if not treeBank: 
         treeBank = create_treebank_from_cv_variants(load_event_log.variants, True)
