@@ -39,7 +39,9 @@ export class VariantInfoComponent implements OnInit {
   isConformanceUpdatePossible(): boolean {
     return (
       !this.variant.calculationInProgress &&
-      (this.variant.isConformanceOutdated || this.variant.isTimeouted)
+      (this.variant.isConformanceOutdated ||
+        this.variant.isTimeouted ||
+        this.variant.deviation === undefined)
     );
   }
 }

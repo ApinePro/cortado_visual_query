@@ -455,6 +455,7 @@ export class VariantExplorerComponent
 
     const resubscribe = this.conformanceCheckingService.calculateConformance(
       variant.id,
+      variant.infixType,
       this.sharedDataService.currentDisplayedProcessTree,
       variant.variant.serialize(),
       timeout
