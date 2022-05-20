@@ -6,6 +6,7 @@ import { BackgroundTaskInfoService } from '../backgroundTaskInfoService/backgrou
 import { ConformanceCheckingResult } from './model';
 import Swal from 'sweetalert2';
 import { SharedDataService } from '../sharedDataService/shared-data.service';
+import { InfixType } from 'src/app/components/variant-explorer/model';
 export const WS_ENDPOINT = 'ws://127.0.0.1:41211/conformancews';
 
 @Injectable({
@@ -69,6 +70,7 @@ export class ConformanceCheckingService {
 
   public calculateConformance(
     id: string,
+    infixType: InfixType,
     pt: any,
     variant: any,
     timeout: number
@@ -78,7 +80,13 @@ export class ConformanceCheckingService {
       this.cancelConformanceCheckingRequests()
     );
     this.runningRequests.push(rid);
-    this.socket.next({ id: id, pt: pt, variant: variant, timeout: timeout });
+    this.socket.next({
+      id: id,
+      infixType: infixType,
+      pt: pt,
+      variant: variant,
+      timeout: timeout,
+    });
 
     return resubscribe;
   }

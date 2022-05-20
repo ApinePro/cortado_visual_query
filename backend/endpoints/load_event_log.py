@@ -1,17 +1,19 @@
 import json
 
-from cortado_core.performance.variant_performance import assign_variants_performances
-from cortado_core.utils.cvariants import get_concurrency_variants, get_detailed_variants
+from cortado_core.performance.variant_performance import \
+    assign_variants_performances
+from cortado_core.utils.cvariants import (get_concurrency_variants,
+                                          get_detailed_variants)
 from cortado_core.utils.split_graph import LeafGroup, SequenceGroup
-from cortado_core.utils.timestamp_utils import TimeUnit
-from pm4py.objects.log.util.sampling import sample_log 
+from cortado_core.utils.timestamp_utils import TimeUnit, get_time_granularity
 from pm4py.algo.filtering.log.attributes import attributes_filter
 from pm4py.algo.filtering.log.end_activities import end_activities_filter
 from pm4py.algo.filtering.log.start_activities import start_activities_filter
 from pm4py.algo.filtering.log.variants import variants_filter
 from pm4py.objects.log.obj import EventLog
 from pm4py.objects.log.util.interval_lifecycle import to_interval
-from pm4py.util.xes_constants import DEFAULT_START_TIMESTAMP_KEY, DEFAULT_TRANSITION_KEY, DEFAULT_TIMESTAMP_KEY
+from pm4py.util.xes_constants import (DEFAULT_START_TIMESTAMP_KEY,
+                                      DEFAULT_TRANSITION_KEY)
 
 variants_store = {}
 
@@ -31,7 +33,8 @@ def calculate_event_log_properties(event_log: EventLog, time_granularity: TimeUn
 
     res_variants, variants = get_c_variants(
         event_log, use_mp, time_granularity)
-    # assign_variants_performances(variants)
+    
+    assign_variants_performances(variants)
 
     variants = sorted(variants.keys(), key=lambda v: len(
         variants[v]), reverse=True)
@@ -127,22 +130,3 @@ def get_c_variants(event_log: EventLog, use_mp: bool = False, time_granularity: 
     variants_store = {json.dumps(v.serialize(include_performance=False)): t for v, t in variants.items()}
     
     return sorted(res_variants, key=lambda variant: variant['count'], reverse=True), variants
-
-
-def get_time_granularity(event_log: EventLog):
-    sample = sample_log(event_log, 500)
-    timestamps = [event[DEFAULT_TIMESTAMP_KEY]
-                  for trace in sample for event in trace]
-
-    if not all_non_zero(timestamps, 'second'):
-        return TimeUnit.SEC
-    elif not all_non_zero(timestamps, 'minute'):
-        return TimeUnit.MIN
-    elif not all_non_zero(timestamps, 'hour'):
-        return TimeUnit.HOUR
-    elif not all_non_zero(timestamps, 'day'):
-        return TimeUnit.DAY
-
-
-def all_non_zero(timestamps, time_unit_key):
-    return all(getattr(timestamp, time_unit_key) == 0 for timestamp in timestamps)

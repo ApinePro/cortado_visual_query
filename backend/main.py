@@ -69,7 +69,7 @@ from endpoints import load_event_log
 from endpoints.add_variants_to_process_model import \
     add_variants_to_process_model
 from endpoints.alignments import \
-    calculate_alignment as calculate_alignment_endpoint
+    calculate_alignment as calculate_alignment_endpoint, InfixType
 from endpoints.load_event_log import calculate_event_log_properties
 from endpoints.query_variant import evaluate_query_against_variant_graphs
 from error_handlers import (exception_handler, http_exception_handler,
@@ -448,17 +448,17 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             'fitness_values': variants_fitness}
 
 
-def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, timeout: int):
+def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, infix_type: InfixType,  timeout: int):
     try:
-        return execute_with_timeout(calculate_alignment_intern, timeout, args=(pt, c_variant))
+        return execute_with_timeout(calculate_alignment_intern, timeout, args=(pt, c_variant, infix_type))
     except TimeoutException:
         return {'isTimeout': True}
 
 
-def calculate_alignment_intern(pt: dict, c_variant: dict):
+def calculate_alignment_intern(pt: dict, c_variant: dict, infix_type: InfixType):
     all_variants = generate_variants(c_variant)
     for variant in all_variants:
-        alignment = calculate_alignment_endpoint(variant, pt)
+        alignment = calculate_alignment_endpoint(variant, pt, infix_type)
         if alignment['deviation']:
             return {'cost': alignment['cost'],
                     'deviation': alignment['deviation']}
@@ -503,7 +503,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 if data['timeout'] != 0:
                     timeout = data['timeout']
                 pool.apply_async(calculate_alignment_intern_with_timeout,
-                                 (data['pt'], data['variant'], timeout,),
+                                 (data['pt'], data['variant'], InfixType(data['infixType']), timeout,),
                                  callback=get_alignment_callback(data['id'], websocket))
     except WebSocketDisconnect:
         print('websocket disconnected')

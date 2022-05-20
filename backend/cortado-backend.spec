@@ -8,7 +8,6 @@ sys.setrecursionlimit(sys.getrecursionlimit() * 5)
 # https://stackoverflow.com/a/48068640
 import importlib
 packages_datas = [
-    ['pulp', [('*', '.')]],
     ['cvxopt', [('*', '.')]]
 ]
 
@@ -45,7 +44,6 @@ a = Analysis(['main.py'],
                             'uvicorn.protocols.websockets.auto',
                             'uvicorn.lifespan',
                             'uvicorn.lifespan.on',
-                            'pulp',
                             'OpenBLAS',
                             'sklearn.neighbors._partition_nodes',
                             'encodings',

@@ -53,6 +53,7 @@ import { VariantMinerPatternComponent } from './components/variant-miner/variant
 import { NgxSliderModule } from '@angular-slider/ngx-slider';
 import { VariantQueryComponent } from './components/variant-explorer/variant-query/variant-query.component';
 import { SyntaxHighlightedTextareaDirective } from './directives/syntax-highlighted-textarea.directive';
+import { ConformanceInfoBarComponent } from './components/variant-explorer/info-bar/conformance-info-bar.component';
 
 @NgModule({
   declarations: [
@@ -101,6 +102,7 @@ import { SyntaxHighlightedTextareaDirective } from './directives/syntax-highligh
     GoldenLayoutDummyComponent,
     VariantMinerComponent,
     VariantMinerPatternComponent,
+    ConformanceInfoBarComponent,
   ],
   imports: [
     BrowserModule,
