@@ -1,4 +1,5 @@
 from typing import List
+from tqdm import tqdm
 
 from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.objects.process_tree.obj import ProcessTree
@@ -26,13 +27,16 @@ def add_variants_to_process_model(pt_dict: dict, fitting_variants, variants_to_a
         t = variant_to_trace(v)
         traces_to_be_added.append(t)
 
-    for t in traces_to_be_added:
-        if len(frozen_subtrees) == 0:
-            print("ADDING VARIANTS TO PROCESS TREE WITHOUT FROZEN SUBTREES")
+    frozen_subtrees_are_present = len(frozen_subtrees) > 0
+
+    description = "adding variants to process tree without frozen subtrees"
+    if frozen_subtrees_are_present:
+        description = "adding variants to process tree including frozen subtrees"
+
+    for t in tqdm(traces_to_be_added, desc=description):
+        if not frozen_subtrees_are_present:
             pt = add_trace_to_pt_language(pt, fitting_variants_log, t, try_pulling_lca_down=True)
         else:
-            print("ADDING VARIANTS TO PROCESS TREE INCLUDING FROZEN SUBTREES")
-            print(type(pt))
             pt, frozen_subtrees = add_trace_to_pt_language_with_freezing(pt, frozen_subtrees, fitting_variants_log, t,
                                                                          try_pulling_lca_down=True)
         fitting_variants_log.append(t)
