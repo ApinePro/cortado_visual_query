@@ -1048,18 +1048,12 @@ export class BpmnEditorComponent
   centerContent(): void {}
 
   exportBPMN(svg: SVGGraphicsElement): void {
-    console.log('BPMN', svg);
-    console.log('Container', this.svgElem.nativeElement);
-    console.log('BPMN', this.mainGroup.node());
-
     // Copy the current tree
     const bpmn_copy = svg.cloneNode(true) as SVGGraphicsElement;
     const svgBBox = (this.mainGroup.node() as SVGGraphicsElement).getBBox();
 
     // Strip all the classed information
     const bpmn = d3.select(bpmn_copy);
-
-    console.log('BPMN Selected', bpmn);
 
     bpmn
       .selectAll('g')

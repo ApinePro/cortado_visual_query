@@ -815,8 +815,10 @@ export class VariantExplorerComponent
       this.variantPerformanceService.setSelectedVariantElement(element);
     } else if (this.traceInfixSelectionMode) {
       let lowestSelectableParent = getLowestSelectableParent(element);
+      console.log('Lowest Selectable Parent', lowestSelectableParent);
       if (lowestSelectableParent != variant) {
         lowestSelectableParent.setAllChildrenSelected();
+        console.log('Selected all Parents', lowestSelectableParent);
         variant.calculateSelectableElements();
         if (!variant.selectionStatusUnchangedFromLastSavedSelection()) {
           variant.saveCurrentSelectionToSelectionHistory();
@@ -827,8 +829,6 @@ export class VariantExplorerComponent
       variant.setExpanded(!variant.getExpanded());
       self.redraw();
     }
-    console.log(variant);
-    console.log(element);
   };
 
   computeActivityColor = (

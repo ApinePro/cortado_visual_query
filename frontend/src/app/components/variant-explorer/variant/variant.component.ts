@@ -104,8 +104,6 @@ export class VariantComponent implements AfterViewInit {
       this.rootElement,
       (isIntersecting) => (self.isVisible = isIntersecting)
     );
-
-    console.log(this.variant);
   }
 
   isExpanded(): boolean {
