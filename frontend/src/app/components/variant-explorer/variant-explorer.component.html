@@ -455,42 +455,15 @@
     </div>
   </div>
 
-  <div class="bg-dark info-bar ps-2 pe-2">
-    <span
-      class="float-start"
-      *ngIf="
-        (numberFittingTraces || numberFittingTraces >= 0) &&
-        (totalNumberTraces || totalNumberTraces > 0)
-      "
-    >
-      fitting traces:
-      <span [ngClass]="!isConformanceOutdated() ? '' : 'text-warning'">
-        {{ numberFittingTraces | number }}&nbsp;/&nbsp;{{
-          totalNumberTraces | number
-        }}
-        ({{ numberFittingTraces / totalNumberTraces | percent: ".1" }})</span
-      >
-    </span>
-
-    <span
-      class="float-start ms-4"
-      *ngIf="
-        (numberFittingVariants || numberFittingVariants >= 0) &&
-        (totalNumberVariants || totalNumberVariants > 0)
-      "
-    >
-      fitting variants:
-      <span [ngClass]="!isConformanceOutdated() ? '' : 'text-warning'">
-        {{ numberFittingVariants | number }}&nbsp;/&nbsp;{{
-          totalNumberVariants | number
-        }}
-        ({{ numberFittingVariants / totalNumberVariants | percent: ".1" }})
-      </span>
-    </span>
-
-    <span class="float-end">
-      selected variants: {{ getSelectedVariants().length | number }}
-    </span>
+  <div class="bg-dark">
+    <app-conformance-info-bar
+      [numberFittingVariants]="numberFittingVariants"
+      [numberFittingTraces]="numberFittingTraces"
+      [totalNumberTraces]="totalNumberTraces"
+      [totalNumberVariants]="totalNumberVariants"
+      [isConformanceOutdated]="this.isConformanceOutdated()"
+      [numSelectedVariants]="this.getSelectedVariants().length"
+    ></app-conformance-info-bar>
   </div>
 
   <div class="tooltip" role="tooltip" #tooltipContainer>
