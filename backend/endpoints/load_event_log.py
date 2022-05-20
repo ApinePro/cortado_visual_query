@@ -33,7 +33,7 @@ def calculate_event_log_properties(event_log: EventLog, time_granularity: TimeUn
 
     res_variants, variants = get_c_variants(
         event_log, use_mp, time_granularity)
-    # assign_variants_performances(variants)
+    assign_variants_performances(variants)
 
     variants = sorted(variants.keys(), key=lambda v: len(
         variants[v]), reverse=True)
