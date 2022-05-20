@@ -10,4 +10,3 @@ git+https://gitlab.fit.fraunhofer.de/cortado/cortado-core.git@master#egg=cortado
 cvxopt
 pm4pycvxopt
 pyinstaller
-pulp
