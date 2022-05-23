@@ -87,7 +87,6 @@ import { ConformanceInfoBarComponent } from './components/variant-explorer/info-
     TooltipDirective,
     VariantConformanceDialogComponent,
     TreeStringRendererComponent,
-    TooltipDirective,
     VariantEditorComponent,
     VariantDrawerDirective,
     SyntaxHighlightedTextareaDirective,
