@@ -9,7 +9,7 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-
+import { isDevMode } from '@angular/core';
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
 import {
   getSelectedChildren,
@@ -88,6 +88,10 @@ export class VariantComponent implements AfterViewInit {
   isVisible: boolean = false;
   // necessary because one cannot use it directly in the template file
   infixType = InfixType;
+
+  // TODO: this is needed because we want to disable the selection of trace infixes for the 1.6.0 release.
+  // Remove afterwards and re-enable selection.
+  isDevMode = isDevMode();
 
   constructor(
     private lazyLoadingService: LazyLoadingServiceService,
