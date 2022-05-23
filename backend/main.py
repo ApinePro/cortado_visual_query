@@ -93,7 +93,7 @@ async def catch_exceptions_middleware(request: Request, call_next):
         return Response("Internal server error", status_code=500)
 
 
-app.middleware('http')(catch_exceptions_middleware)
+#app.middleware('http')(catch_exceptions_middleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
