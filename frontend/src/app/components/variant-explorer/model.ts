@@ -147,10 +147,10 @@ export class Constants {
 }
 
 export enum InfixType {
-  PROPER_INFIX,
-  PREFIX,
-  POSTFIX,
-  NOT_AN_INFIX,
+  PROPER_INFIX = 1,
+  PREFIX = 2,
+  POSTFIX = 3,
+  NOT_AN_INFIX = 4,
 }
 
 export class Variant {
@@ -531,6 +531,9 @@ export class SequenceGroup extends VariantElement {
       if (onlyChild.selected) {
         this.selected = true;
       }
+
+      onlyChild.calculateSelectableElements();
+
       return;
     }
 
@@ -558,6 +561,7 @@ export class SequenceGroup extends VariantElement {
             this.elements[indexes[z]].disableSelectableAllChildren();
           }
         }
+
         elem.calculateSelectableElements();
         break;
       }
@@ -730,6 +734,7 @@ export class ParallelGroup extends VariantElement {
         break;
       }
     }
+
     if (partlySelected === -1) {
       // No partly selected child found
       // Then all unselected children are selectable, but only at this level

@@ -7,6 +7,7 @@ import { ConformanceCheckingResult } from './model';
 import Swal from 'sweetalert2';
 import { SharedDataService } from '../sharedDataService/shared-data.service';
 import { ProcessTree } from 'src/app/objects/ProcessTree';
+import { InfixType } from 'src/app/components/variant-explorer/model';
 export const WS_ENDPOINT = 'ws://127.0.0.1:41211/conformancews';
 
 @Injectable({
@@ -70,6 +71,7 @@ export class ConformanceCheckingService {
 
   public calculateConformance(
     id: string,
+    infixType: InfixType,
     pt: ProcessTree,
     variant: any,
     timeout: number
@@ -81,6 +83,7 @@ export class ConformanceCheckingService {
     this.runningRequests.push(rid);
     this.socket.next({
       id: id,
+      infixType: infixType,
       pt: pt.copy(false),
       variant: variant,
       timeout: timeout,

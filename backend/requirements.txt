@@ -1,9 +1,9 @@
 fastapi
 uvicorn
-cycler~=0.10.0
+cycler~=0.11.0
 networkx
 python-multipart
-git+https://gitlab.fit.fraunhofer.de/pm4py/pm4py-core.git@dedef73404bdef9d9ac8654e77d6d438fa730501#egg=pm4py
+git+https://gitlab.fit.fraunhofer.de/pm4py/pm4py-core.git@529ca0ce3d84f1d1231e7afa8b0bd6690cce551f#egg=pm4py
 appdirs
 websockets
 git+https://gitlab.fit.fraunhofer.de/cortado/cortado-core.git@master#egg=cortado_core

@@ -1,6 +1,25 @@
-import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
-import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostListener,
+  Inject,
+  OnInit,
+  QueryList,
+  Renderer2,
+  ViewChild,
+  ViewChildren,
+} from '@angular/core';
+import * as d3 from 'd3';
+import {
+  ComponentContainer,
   ComponentItem,
   ComponentItemConfig,
   GoldenLayout,
@@ -8,66 +27,41 @@ import {
   LogicalZIndex,
   Stack,
 } from 'golden-layout';
-import {
-  Component,
-  ElementRef,
-  Inject,
-  OnInit,
-  QueryList,
-  ViewChild,
-  ViewChildren,
-  Renderer2,
-  AfterViewInit,
-  HostListener,
-} from '@angular/core';
-
-import {
-  trigger,
-  style,
-  animate,
-  transition,
-  state,
-} from '@angular/animations';
-
-import { ComponentContainer } from 'golden-layout';
-import { ColorMapService } from '../../services/colorMapService/color-map.service';
-import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
-import { BackendService } from '../../services/backendService/backend.service';
-
+import * as objectHash from 'object-hash';
 import { Subject } from 'rxjs';
+import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
+import { TimeUnit } from 'src/app/objects/TimeUnit';
+import { HumanizeDurationPipe } from 'src/app/pipes/humanize-duration.pipe';
+import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
+import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
+import { LogService } from 'src/app/services/logService/log.service';
+import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
+import { PerformanceService } from 'src/app/services/performance.service';
+import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
+import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
+import { originalOrder } from 'src/app/utils/util';
+import { LayoutChangeDirective } from '../../directives/layout-change.directive';
+import { BackendService } from '../../services/backendService/backend.service';
+import { ColorMapService } from '../../services/colorMapService/color-map.service';
+import { ImageExportService } from '../../services/imageExportService/image-export-service';
+import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
+import { DropzoneConfig } from '../drop-zone/drop-zone.component';
+import { textColorForBackgroundColor } from './helper_functions';
 import {
   deserialize,
-  ParallelGroup,
-  SequenceGroup,
-  VariantElement,
-  Variant,
-  LeafNode,
-  isElementWithActivity,
-  setParent,
   getLowestSelectableParent,
   InfixType,
+  LeafNode,
+  ParallelGroup,
+  SequenceGroup,
+  setParent,
+  Variant,
+  VariantElement,
 } from './model';
-
-import { LayoutChangeDirective } from '../../directives/layout-change.directive';
-import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
-import { ImageExportService } from '../../services/imageExportService/image-export-service';
-import * as d3 from 'd3';
-import { PerformanceService } from 'src/app/services/performance.service';
-import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
-import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
-import { textColorForBackgroundColor } from './helper_functions';
-import { HumanizeDurationPipe } from 'src/app/pipes/humanize-duration.pipe';
-import { DropzoneConfig } from '../drop-zone/drop-zone.component';
-import { VariantSorter } from './variant-sorter';
-import * as objectHash from 'object-hash';
-import { VariantComponent } from './variant/variant.component';
 import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
-import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
-import { TimeUnit } from 'src/app/objects/TimeUnit';
-import { LogService } from 'src/app/services/logService/log.service';
-import { originalOrder } from 'src/app/utils/util';
-import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
+import { VariantSorter } from './variant-sorter';
+import { VariantComponent } from './variant/variant.component';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -457,6 +451,7 @@ export class VariantExplorerComponent
 
     const resubscribe = this.conformanceCheckingService.calculateConformance(
       variant.id,
+      variant.infixType,
       this.processTreeService.currentDisplayedProcessTree,
       variant.variant.serialize(),
       timeout
@@ -822,8 +817,10 @@ export class VariantExplorerComponent
       this.variantPerformanceService.setSelectedVariantElement(element);
     } else if (this.traceInfixSelectionMode) {
       let lowestSelectableParent = getLowestSelectableParent(element);
+      console.log('Lowest Selectable Parent', lowestSelectableParent);
       if (lowestSelectableParent != variant) {
         lowestSelectableParent.setAllChildrenSelected();
+        console.log('Selected all Parents', lowestSelectableParent);
         variant.calculateSelectableElements();
         if (!variant.selectionStatusUnchangedFromLastSavedSelection()) {
           variant.saveCurrentSelectionToSelectionHistory();
@@ -834,8 +831,6 @@ export class VariantExplorerComponent
       variant.setExpanded(!variant.getExpanded());
       self.redraw();
     }
-    console.log(variant);
-    console.log(element);
   };
 
   computeActivityColor = (

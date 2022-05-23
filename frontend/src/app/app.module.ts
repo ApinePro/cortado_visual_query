@@ -50,6 +50,7 @@ import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { DialogModule } from './components/dialogs/dialog.module';
 import { VariantQueryComponent } from './components/variant-explorer/variant-query/variant-query.component';
 import { SyntaxHighlightedTextareaDirective } from './directives/syntax-highlighted-textarea.directive';
+import { ConformanceInfoBarComponent } from './components/variant-explorer/info-bar/conformance-info-bar.component';
 
 @NgModule({
   declarations: [
@@ -96,6 +97,7 @@ import { SyntaxHighlightedTextareaDirective } from './directives/syntax-highligh
     SubVariantComponent,
     HeaderBarComponent,
     GoldenLayoutDummyComponent,
+    ConformanceInfoBarComponent,
   ],
   imports: [
     BrowserModule,

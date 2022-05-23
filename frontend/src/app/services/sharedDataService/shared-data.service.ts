@@ -35,8 +35,6 @@ export class SharedDataService {
   }
 
   set activityNamesChanged(activityNameMapping: Map<string, string>) {
-    console.log('Activity names have been changed');
-    console.log(activityNameMapping);
     this._activityNamesChanged.next(activityNameMapping);
   }
 
@@ -45,7 +43,6 @@ export class SharedDataService {
   }
 
   set loadedEventLog(name: string) {
-    console.log('set loadedEventLog:' + name);
     this._loadedEventLog.next(name);
   }
 
