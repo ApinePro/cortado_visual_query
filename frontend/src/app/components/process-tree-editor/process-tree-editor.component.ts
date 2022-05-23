@@ -258,7 +258,6 @@ export class ProcessTreeEditorComponent
         console.warn('update tree triggered by service');
         this.update(this.root);
         this.selectRootNodeFromID(this.selectedRootNodeId);
-
       } else if (res === null && this.mainSvgGroup) {
         this.selectedRootNode = null;
         this.root = null;
@@ -323,8 +322,7 @@ export class ProcessTreeEditorComponent
     this._goldenLayout = this.goldenLayoutComponentService.goldenLayout;
 
     this.processTreeService.selectedRootNodeID$.subscribe((id) => {
-
-      console.warn('Selected Root Node changed', id)
+      console.warn('Selected Root Node changed', id);
       // Change the Selection
       if (id) {
         this.selectRootNodeFromID(id);
@@ -478,9 +476,10 @@ export class ProcessTreeEditorComponent
         this.selectedRootNode.parent.children[idxInParentChildList - 1] =
           childToLeft;
 
-        this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(this.root);
+        this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(
+          this.root
+        );
         this.saveTreeInSharedDataService();
-
       }
     }
   }
@@ -503,10 +502,10 @@ export class ProcessTreeEditorComponent
         this.selectedRootNode.parent.children[idxInParentChildList] =
           childToLeft;
 
-
-        this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(this.root);
+        this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(
+          this.root
+        );
         this.saveTreeInSharedDataService();
-
       }
     }
   }
@@ -1022,13 +1021,14 @@ export class ProcessTreeEditorComponent
     this.afterInsertNode(newNode);
   }
 
-
-
   afterInsertNode(newNode: any): void {
     this.selectedRootNodeOnly = true;
-    this.update(this.root);
 
     this.processTreeService.selectedRootNodeID = this.selectedRootNode.data.id;
+
+    this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(this.root);
+    this.saveTreeInSharedDataService();
+
     this.searchText = undefined;
   }
 
@@ -1252,8 +1252,8 @@ export class ProcessTreeEditorComponent
 
     this.processTreeService.selectedRootNodeID = null;
     this.update(this.root);
-    this.processTreeService.currentDisplayedProcessTree = this.currentlyDisplayedTreeInEditor
-
+    this.processTreeService.currentDisplayedProcessTree =
+      this.currentlyDisplayedTreeInEditor;
   }
 
   clearSelection(): void {

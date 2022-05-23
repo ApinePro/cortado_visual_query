@@ -274,8 +274,8 @@ export class BpmnEditorComponent
         BPMN_Constant.START_END_RADIUS,
         0,
         BPMN_Constant.START_END_RADIUS + 2 * BPMN_Constant.HORIZONTALSPACING,
-        0, 
-        false, 
+        0,
+        false,
         model._pt.frozen
       );
 
@@ -301,8 +301,8 @@ export class BpmnEditorComponent
         -(BPMN_Constant.START_END_RADIUS + 2 * BPMN_Constant.HORIZONTALSPACING),
         0,
         -BPMN_Constant.START_END_RADIUS,
-        0, 
-        false, 
+        0,
+        false,
         model._pt.frozen
       );
 
@@ -1113,7 +1113,7 @@ export class BpmnEditorComponent
       markNodeAsNonFrozen(this.selectedNode.datum());
     }
 
-    this.processTreeService.currentDisplayedProcessTree = this.currentTree
+    this.processTreeService.currentDisplayedProcessTree = this.currentTree;
     this.processTreeService.selectedRootNodeID = null;
   }
 
