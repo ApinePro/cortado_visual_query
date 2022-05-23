@@ -11,6 +11,7 @@ import { SharedDataService } from 'src/app/services/sharedDataService/shared-dat
 import { Constants } from '../model';
 import { ActivateTooltipsService } from '../../../services/activateTooltipsService/activate-tooltips.service';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
+import { BackendService } from 'src/app/services/backendService/backend.service';
 
 @Component({
   selector: 'app-sub-variant',

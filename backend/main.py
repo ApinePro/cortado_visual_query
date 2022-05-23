@@ -12,8 +12,9 @@ from cortado_core.performance import tree_performance
 from cortado_core.performance import utils as performance_utils
 from cortado_core.performance.aggregators import avg, noop, stats
 from cortado_core.utils.alignment_utils import trace_fits_process_tree
-from cortado_core.utils.cvariants import generate_variants
+from cortado_core.utils.cvariants import generate_variants, get_detailed_variants
 from cortado_core.utils.process_tree import CortadoProcessTree, convert_tree
+from cortado_core.utils.timestamp_utils import TimeUnit
 from fastapi import (Depends, FastAPI, File, HTTPException, UploadFile,
                      WebSocket, WebSocketDisconnect)
 from fastapi.exceptions import RequestValidationError
@@ -97,18 +98,21 @@ app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
+
 def get_config_repo():
     return ConfigurationRepositoryFactory.get_config_repository()
+
 
 @app.on_event("startup")
 async def startup_event():
     global pcache
-    pcache = pickle.load(open( "pcache.p", "rb" ))
-    load_event_log.variants_store = pickle.load(open( "variants_store.p", "rb" ))
-    load_event_log.variants = pickle.load(open( "variants.p", "rb" ))
-    load_event_log.activites = pickle.load(open( "activities.p", "rb" ))
-    load_event_log.log_info = pickle.load(open( "logInfo.p", "rb" ))
-    
+    pcache = pickle.load(open("pcache.p", "rb"))
+    load_event_log.variants_store = pickle.load(open("variants_store.p", "rb"))
+    load_event_log.variants = pickle.load(open("variants.p", "rb"))
+    load_event_log.activites = pickle.load(open("activities.p", "rb"))
+    load_event_log.log_info = pickle.load(open("logInfo.p", "rb"))
+
+
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...),
                              config_repo: ConfigurationRepository = Depends(get_config_repo)):
@@ -117,13 +121,15 @@ async def create_upload_file(file: UploadFile = File(...),
 
     content = "".join([line.decode("UTF-8") for line in file.file])
     event_log = xes_importer.deserialize(content)
-    log_cache.event_log = event_log 
+    log_cache.event_log = event_log
     use_mp = len(event_log) > config_repo.get_configuration().min_traces_variant_detection_mp
     info = calculate_event_log_properties(event_log, use_mp=use_mp)
     return info
 
+
 class FilePathInput(BaseModel):
     file_path: str
+
 
 @app.post("/loadEventLog")
 async def load_event_log_from_file_path(d: FilePathInput,
@@ -170,6 +176,20 @@ def discover_process_model_from_variants(variants):
     pt: ProcessTree = inductive_miner(log)
     res = process_tree_to_dict(pt)
     return res
+
+
+class InputPerformanceSubvariant(BaseModel):
+    variant: Any
+
+
+@app.post("/performanceForSubvariants")
+async def performance_for_subvariants(data: InputPerformanceSubvariant,
+                                      config_repo: ConfigurationRepository = Depends(get_config_repo)):
+    variant_cache_key = json.dumps(data.variant)
+    variant_traces = load_event_log.variants_store[variant_cache_key]
+    # TODO time granularity
+    subvariants = get_detailed_variants(variant_traces)
+    print(subvariants)
 
 
 @app.post("/discoverProcessModelFromConcurrencyVariants")
@@ -310,6 +330,7 @@ async def download_pnml(d: ConvertPtToX):
 async def applyTreeReductionRules(d: ConvertPtToX):
     pt, frozen_subtrees = dict_to_process_tree(d.pt)
     return process_tree_to_dict(post_process_tree(pt, frozen_subtrees), frozen_subtrees)
+
 
 class InputCalculatePerformance(BaseModel):
     pt: dict
@@ -509,7 +530,7 @@ async def save_configuration(config_dto: Configuration,
 @app.get("/getConfiguration")
 async def get_configuration(config_repo: ConfigurationRepository = Depends(get_config_repo)):
     config = config_repo.get_configuration()
-    config_dto = Configuration(timeout_cvariant_alignment_computation=config.timeout_cvariant_alignment_computation, 
+    config_dto = Configuration(timeout_cvariant_alignment_computation=config.timeout_cvariant_alignment_computation,
                                min_traces_variant_detection_mp=config.min_traces_variant_detection_mp)
     return config_dto
 
@@ -529,12 +550,13 @@ def get_all_urls():
 class variantQuery(BaseModel):
     queryString: str
 
+
 @app.post("/variant-query")
-def variant_query(query : variantQuery): 
-    
-    res = evaluate_query_against_variant_graphs(query, load_event_log.variants, load_event_log.activites) 
-    
+def variant_query(query: variantQuery):
+    res = evaluate_query_against_variant_graphs(query, load_event_log.variants, load_event_log.activites)
+
     return res
+
 
 if __name__ == "__main__":
     # print(DEFAULT_LP_SOLVER_VARIANT)

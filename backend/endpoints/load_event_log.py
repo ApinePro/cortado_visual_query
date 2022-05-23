@@ -124,5 +124,5 @@ def get_c_variants(event_log: EventLog, use_mp: bool = False, time_granularity: 
         res_variants.append(variant)
 
     variants_store = {json.dumps(v.serialize(include_performance=False)): t for v, t in variants.items()}
-    
+
     return sorted(res_variants, key=lambda variant: variant['count'], reverse=True), variants

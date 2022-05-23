@@ -19,6 +19,7 @@ import { ImageExportService } from 'src/app/services/imageExportService/image-ex
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import * as d3 from 'd3';
 import { LeafNode } from '../model';
+import { BackendService } from 'src/app/services/backendService/backend.service';
 
 @Component({
   selector: 'app-subvariant-explorer',
@@ -49,7 +50,8 @@ export class SubvariantExplorerComponent
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
     private imageExportService: ImageExportService,
-    private polygonDrawingService: PolygonDrawingService
+    private polygonDrawingService: PolygonDrawingService,
+    private backendService: BackendService
   ) {
     super(elRef.nativeElement, renderer);
     this.mainVariant = this.container.initialState as Variant;
@@ -65,6 +67,11 @@ export class SubvariantExplorerComponent
       this.colorMap = cMap;
       this.mainvariantDrawer.redraw();
     });
+
+    console.log(this.mainVariant);
+    this.backendService
+      .performanceForSubvariants(this.mainVariant.variant)
+      .subscribe((r) => console.log(r));
   }
 
   // Implements responsive changes, such as triggering animations, if the layout and thus the components size changes
