@@ -5,6 +5,7 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
+
 import {
   AfterViewInit,
   Component,
@@ -39,6 +40,7 @@ import { LogService } from 'src/app/services/logService/log.service';
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
 import { PerformanceService } from 'src/app/services/performance.service';
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 import { originalOrder } from 'src/app/utils/util';
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';

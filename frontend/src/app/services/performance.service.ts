@@ -128,10 +128,15 @@ export class PerformanceService {
           variants.forEach((v) => this.availablePerformances.add(v));
           this.newValues.next(true);
 
+          console.log('TRIGGERED REDRAW AT PERFROMANCE SERVICE');
           this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
             performance.merged_performance_tree
           );
 
+          variants.forEach((v) => this.calculationInProgress.delete(v));
+
+          const meanPerformance =
+            this.mergedPerformance?.performance?.service_time?.mean;
           const meanButton = document.getElementById('performanceButtonMean');
           if (meanButton) {
             this.updateTooltip(meanButton, meanPerformance);
