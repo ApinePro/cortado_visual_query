@@ -267,7 +267,7 @@
 
     <button
       class="button"
-      (click)="selectNode()"
+      (click)="selectNodeButton()"
       [class.button-active]="
         nodeSelectionStrategy === NodeSeletionStrategy.NODE
       "
@@ -283,7 +283,7 @@
 
     <button
       class="button"
-      (click)="selectSubtree()"
+      (click)="selectSubtreeButton()"
       [class.button-active]="
         nodeSelectionStrategy === NodeSeletionStrategy.TREE
       "

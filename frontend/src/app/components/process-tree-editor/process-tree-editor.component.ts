@@ -256,12 +256,11 @@ export class ProcessTreeEditorComponent
         });
 
         console.warn('update tree triggered by service');
-        this.selectedRootNode = null;
-        this.selectedRootNodeOnly = false;
         this.update(this.root);
+        this.selectRootNodeFromID(this.selectedRootNodeId);
+
       } else if (res === null && this.mainSvgGroup) {
         this.selectedRootNode = null;
-        this.selectedRootNodeOnly = false;
         this.root = null;
         this.update(null);
       }
@@ -273,6 +272,7 @@ export class ProcessTreeEditorComponent
   }
 
   // Checks if a newly loaded tree contains an unknown activity
+  // @REFRACTOR INTO PROCESSTREE SERVICE
   checkForLoadedTreeIntegrity(tree): Set<string> {
     let unknownActivities = new Set<string>();
     for (let subtree of tree.children) {
@@ -323,6 +323,8 @@ export class ProcessTreeEditorComponent
     this._goldenLayout = this.goldenLayoutComponentService.goldenLayout;
 
     this.processTreeService.selectedRootNodeID$.subscribe((id) => {
+
+      console.warn('Selected Root Node changed', id)
       // Change the Selection
       if (id) {
         this.selectRootNodeFromID(id);
@@ -416,13 +418,13 @@ export class ProcessTreeEditorComponent
     );
   }
 
-  selectNode(): void {
+  selectNodeButton(): void {
     console.log('Set Node Selection Strategy in PT');
     this.processTreeService.selectedRootNodeID = null;
     this.processTreeService.selectionMode = NodeSeletionStrategy.NODE;
   }
 
-  selectSubtree(): void {
+  selectSubtreeButton(): void {
     console.log('Set Node Selection Strategy in PT');
     this.processTreeService.selectedRootNodeID = null;
     this.processTreeService.selectionMode = NodeSeletionStrategy.TREE;
@@ -461,6 +463,7 @@ export class ProcessTreeEditorComponent
     return !this.selectedRootNode || this.leafNodeSelected();
   }
 
+  // @REFRACTOR INTO PROCESSTREE SERVICE
   shiftSubtreeToLeft(): void {
     if (this.selectedRootNode.parent) {
       const idxInParentChildList =
@@ -474,12 +477,15 @@ export class ProcessTreeEditorComponent
           childToRight;
         this.selectedRootNode.parent.children[idxInParentChildList - 1] =
           childToLeft;
-        this.update(this.root);
+
+        this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(this.root);
         this.saveTreeInSharedDataService();
+
       }
     }
   }
 
+  // @REFRACTOR INTO PROCESSTREE SERVICE
   shiftSubtreeToRight(): void {
     if (this.selectedRootNode.parent) {
       const idxInParentChildList =
@@ -496,8 +502,11 @@ export class ProcessTreeEditorComponent
           childToRight;
         this.selectedRootNode.parent.children[idxInParentChildList] =
           childToLeft;
-        this.update(this.root);
+
+
+        this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(this.root);
         this.saveTreeInSharedDataService();
+
       }
     }
   }
@@ -848,6 +857,7 @@ export class ProcessTreeEditorComponent
     );
   }
 
+  // @REFRACTOR INTO PROCESSTREE SERVICE
   deleteSubtree(): void {
     if (this.root === this.selectedRootNode) {
       this.root = null;
@@ -861,6 +871,7 @@ export class ProcessTreeEditorComponent
     this.processTreeService.selectedRootNodeID = null;
   }
 
+  // @REFRACTOR INTO PROCESSTREE SERVICE
   deleteNodeAndChildren(tree, nodeToDelete): void {
     console.log('Tree in Delete', tree);
     if (tree.children) {
@@ -876,6 +887,7 @@ export class ProcessTreeEditorComponent
     }
   }
 
+  // @REFRACTOR INTO PROCESSTREE SERVICE
   changeSelectedNode(operator, label): void {
     // console.log(this.selectedRootNode);
     // console.log(operator, label);
@@ -890,6 +902,7 @@ export class ProcessTreeEditorComponent
     this.afterInsertNode(this.selectedRootNode);
   }
 
+  // @REFRACTOR INTO PROCESSTREE SERVICE
   insertNewNode(operator, label): void {
     if (this.root) {
       this.selectedMethod(operator, label);
@@ -905,6 +918,7 @@ export class ProcessTreeEditorComponent
     }
   }
 
+  // @REFRACTOR INTO PROCESSTREE SERVICE
   insertNewNodeLeft(operator, label): void {
     if (
       this.selectedRootNode.parent === null ||
@@ -931,6 +945,7 @@ export class ProcessTreeEditorComponent
     this.afterInsertNode(newNode);
   }
 
+  // @REFRACTOR INTO PROCESSTREE SERVICE
   insertNewNodeAbove(operator, label): void {
     const newNode = this.createNode(operator, label);
     // @ts-ignore
@@ -946,6 +961,7 @@ export class ProcessTreeEditorComponent
     this.afterInsertNode(newNode);
   }
 
+  // @REFRACTOR INTO PROCESSTREE SERVICE
   insertNewNodeBelow(operator, label): void {
     const newNode = this.createNode(operator, label);
     // @ts-ignore
@@ -1006,6 +1022,8 @@ export class ProcessTreeEditorComponent
     this.afterInsertNode(newNode);
   }
 
+
+
   afterInsertNode(newNode: any): void {
     this.selectedRootNodeOnly = true;
     this.update(this.root);
@@ -1014,6 +1032,7 @@ export class ProcessTreeEditorComponent
     this.searchText = undefined;
   }
 
+  // @REFRACTOR INTO PROCESSTREE SERVICE
   createNode(operator, label): d3.HierarchyNode<any> {
     // TODO make sure that IDs are unique!!!
     const nodeData = {
@@ -1203,6 +1222,7 @@ export class ProcessTreeEditorComponent
       });
   };
 
+  // @REFRACTOR INTO PROCESSTREE SERVICE
   freezeSubtree(): void {
     const markNodeAsFrozen = (node) => {
       node.data.frozen = true;
@@ -1230,8 +1250,10 @@ export class ProcessTreeEditorComponent
       markNodeAsNonFrozen(this.selectedRootNode);
     }
 
+    this.processTreeService.selectedRootNodeID = null;
     this.update(this.root);
-    this.saveTreeInSharedDataService();
+    this.processTreeService.currentDisplayedProcessTree = this.currentlyDisplayedTreeInEditor
+
   }
 
   clearSelection(): void {

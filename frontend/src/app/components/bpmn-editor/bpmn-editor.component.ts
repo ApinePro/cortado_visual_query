@@ -267,14 +267,16 @@ export class BpmnEditorComponent
           )},${BPMN_Constant.bpmn_node_height_width / 2})`
         );
 
-      this.drawStart(start);
+      this.drawStart(start, model._pt.frozen);
 
       this.drawLine(
         start,
         BPMN_Constant.START_END_RADIUS,
         0,
         BPMN_Constant.START_END_RADIUS + 2 * BPMN_Constant.HORIZONTALSPACING,
-        0
+        0, 
+        false, 
+        model._pt.frozen
       );
 
       const bpmn = this.mainGroup.append('g');
@@ -292,14 +294,16 @@ export class BpmnEditorComponent
           }, ${BPMN_Constant.bpmn_node_height_width / 2})`
         );
 
-      this.drawEnd(end);
+      this.drawEnd(end, model._pt.frozen);
 
       this.drawLine(
         end,
         -(BPMN_Constant.START_END_RADIUS + 2 * BPMN_Constant.HORIZONTALSPACING),
         0,
         -BPMN_Constant.START_END_RADIUS,
-        0
+        0, 
+        false, 
+        model._pt.frozen
       );
 
       this.activateTooltipsService.initializeChildren(this.svgElem);
@@ -1109,9 +1113,7 @@ export class BpmnEditorComponent
       markNodeAsNonFrozen(this.selectedNode.datum());
     }
 
-    this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
-      this.currentTree
-    );
+    this.processTreeService.currentDisplayedProcessTree = this.currentTree
     this.processTreeService.selectedRootNodeID = null;
   }
 
@@ -1122,7 +1124,7 @@ export class BpmnEditorComponent
     );
   }
 
-  drawStart(parent) {
+  drawStart(parent, frozen) {
     parent
       .classed('cursor-pointer', true)
       .attr('id', this.currentTree.id)
@@ -1133,7 +1135,8 @@ export class BpmnEditorComponent
       .attr('r', BPMN_Constant.START_END_RADIUS)
       .attr('fill', BPMN_Constant.bpmn_operator_color)
       .attr('stroke', BPMN_Constant.bpmn_stroke_color)
-      .attr('stroke-width', 1);
+      .attr('stroke-width', 1)
+      .classed('frozen-node-operator', frozen);
 
     parent.on(
       'click',
@@ -1149,7 +1152,7 @@ export class BpmnEditorComponent
     );
   }
 
-  drawEnd(parent) {
+  drawEnd(parent, frozen) {
     parent
       .classed('cursor-pointer', true)
       .attr('id', this.currentTree.id)
@@ -1160,14 +1163,16 @@ export class BpmnEditorComponent
       .attr('r', BPMN_Constant.START_END_RADIUS)
       .attr('fill', BPMN_Constant.bpmn_operator_color)
       .attr('stroke', BPMN_Constant.bpmn_stroke_color)
-      .attr('stroke-width', BPMN_Constant.bpmn_stroke_width);
+      .attr('stroke-width', BPMN_Constant.bpmn_stroke_width)
+      .classed('frozen-node-operator', frozen);
 
     parent
       .append('circle')
       .attr('r', BPMN_Constant.START_END_RADIUS - 2)
       .attr('fill', BPMN_Constant.bpmn_operator_color)
       .attr('stroke', BPMN_Constant.bpmn_stroke_color)
-      .attr('stroke-width', BPMN_Constant.bpmn_stroke_width);
+      .attr('stroke-width', BPMN_Constant.bpmn_stroke_width)
+      .classed('frozen-node-operator', frozen);
 
     parent.on(
       'click',
