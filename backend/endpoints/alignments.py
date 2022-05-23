@@ -4,7 +4,7 @@ from enum import Enum
 from pm4py.objects.log.obj import Trace, Event
 from pm4py.objects.petri_net.utils.align_utils import STD_MODEL_LOG_MOVE_COST
 from pm4py.objects.process_tree.obj import ProcessTree
-from backend.backend_utilities.process_tree_conversion import dict_to_process_tree
+from backend_utilities.process_tree_conversion import dict_to_process_tree
 from pm4py.algo.conformance.alignments.process_tree.variants import search_graph_pt as tree_alignment
 from cortado_core.alignments.infix_alignments import algorithm as infix_alignments
 from cortado_core.alignments.prefix_alignments import algorithm as prefix_alignments
