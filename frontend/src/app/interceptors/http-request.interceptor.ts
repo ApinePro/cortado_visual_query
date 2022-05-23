@@ -15,6 +15,8 @@ import { BackendInfoService } from '../services/backendInfoService/backend-info.
 
 @Injectable()
 export class HttpRequestInterceptor implements HttpInterceptor {
+  private excludedEndpointsForTaskCounter = ['info'];
+
   constructor(
     private backgroundTaskInfoService: BackgroundTaskInfoService,
     private backendService: BackendService,
@@ -29,9 +31,11 @@ export class HttpRequestInterceptor implements HttpInterceptor {
     const calledEndpoint = request.url
       .slice(this.backendService.backendUrl.length)
       .replace(/([a-z0-9])([A-Z])/g, '$1 $2');
-    const id = this.backgroundTaskInfoService.setRequest(
-      String(calledEndpoint)
-    );
+
+    let id;
+    if (!this.shouldIgnoreRequestForTaskCounter(calledEndpoint)) {
+      id = this.backgroundTaskInfoService.setRequest(String(calledEndpoint));
+    }
 
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
@@ -44,7 +48,9 @@ export class HttpRequestInterceptor implements HttpInterceptor {
         return throwError(error);
       }),
       finalize(() => {
-        this.backgroundTaskInfoService.removeRequest(id);
+        if (id) {
+          this.backgroundTaskInfoService.removeRequest(id);
+        }
       })
     );
   }
@@ -57,6 +63,10 @@ export class HttpRequestInterceptor implements HttpInterceptor {
       // info requests are made to show the backend state in the footer; therefore, we do not want to show the error dialog
       error.url.endsWith('/info')
     );
+  }
+
+  shouldIgnoreRequestForTaskCounter(endpoint: string): boolean {
+    return this.excludedEndpointsForTaskCounter.includes(endpoint);
   }
 
   setBackendRunningState(error: HttpErrorResponse): void {
