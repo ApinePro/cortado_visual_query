@@ -72,6 +72,7 @@
 
           <div
             class="dropdown-item"
+            *ngIf="insertPostitonBelowDisabled"
             [ngClass]="
               lastSelectedInsertMethod === insertNewNodeBelow
                 ? 'insertion-position-active'

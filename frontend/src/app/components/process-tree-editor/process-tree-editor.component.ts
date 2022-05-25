@@ -115,6 +115,7 @@ export class ProcessTreeEditorComponent
 
   insertPositionLeftRightDisabled = false;
   insertPositionAboveDisabled = false;
+  insertPostitonBelowDisabled = false;
 
   root: d3.HierarchyNode<any>;
   activitiesOccurringInLog: string[];
@@ -345,7 +346,13 @@ export class ProcessTreeEditorComponent
       this.setSelectedRootNode(node);
       this.selectSubtreeFromRoot(selectedRoot.node(), node);
       this.selectEdges();
+
+      this.insertPositionAboveDisabled =  Boolean(this.selectedRootNode.parent).valueOf();
+      this.insertPostitonBelowDisabled = Boolean(this.selectedRootNode.data.operator).valueOf();
+      console.log('After Node Select Root Only', this.selectedRootNodeOnly)
+
     }
+
   }
 
   saveTreeInSharedDataService(): void {
@@ -1170,7 +1177,7 @@ export class ProcessTreeEditorComponent
   private setSelectedRootNode = function (d) {
     this.selectedRootNode = d;
     this.selectedRootNodeOnly =
-      this.selectNodeActive || this.leafNodeSelected();
+    this.nodeSelectionStrategy == NodeSeletionStrategy.NODE || this.leafNodeSelected();
   };
 
   private selectSubtreeFromRoot = function (svgGroup, d) {
