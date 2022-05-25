@@ -6,6 +6,7 @@ import { SharedDataService } from './sharedDataService/shared-data.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { ActivateTooltipsService } from './activateTooltipsService/activate-tooltips.service';
 import { HumanizeDurationPipe } from '../pipes/humanize-duration.pipe';
+import { ProcessTreeService } from './processTreeService/process-tree.service';
 
 @Injectable({
   providedIn: 'root',
@@ -40,14 +41,15 @@ export class PerformanceService {
   constructor(
     private sharedDataService: SharedDataService,
     private backendService: BackendService,
-    private tooltipService: ActivateTooltipsService
+    private tooltipService: ActivateTooltipsService,
+    private processTreeService: ProcessTreeService
   ) {
-    this.currentPt = sharedDataService.currentDisplayedProcessTree;
+    this.currentPt = processTreeService.currentDisplayedProcessTree;
 
-    sharedDataService.variants$.subscribe((_variants) => {
+    this.sharedDataService.variants$.subscribe((_variants) => {
       this.clear();
     });
-    sharedDataService.currentDisplayedProcessTree$.subscribe((pt) => {
+    processTreeService.currentDisplayedProcessTree$.subscribe((pt) => {
       if (pt) {
         this.treeSelection.next(pt);
       } else {
@@ -126,8 +128,10 @@ export class PerformanceService {
           variants.forEach((v) => this.availablePerformances.add(v));
           this.newValues.next(true);
 
-          this.sharedDataService.currentDisplayedProcessTree =
-            performance.merged_performance_tree;
+          console.log('TRIGGERED REDRAW AT PERFROMANCE SERVICE');
+          this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+            performance.merged_performance_tree
+          );
 
           variants.forEach((v) => this.calculationInProgress.delete(v));
 
@@ -168,9 +172,11 @@ export class PerformanceService {
   }
 
   public unselectPerformance() {
-    this.sharedDataService.currentDisplayedProcessTree = this.clearProcessTree(
-      this.sharedDataService.currentDisplayedProcessTree
+    console.log('TRIGGERED REDRAW AT UNSELECT PERFORMANCE');
+    this.processTreeService.currentDisplayedProcessTree = this.clearProcessTree(
+      this.processTreeService.currentDisplayedProcessTree
     );
+
     this.activeVariant = null;
   }
 
@@ -231,8 +237,10 @@ export class PerformanceService {
   public setShownVariantPerformance(variant: Variant): void {
     this.activeVariant = variant;
     if (this.variantsPerformance.has(variant)) {
-      this.sharedDataService.currentDisplayedProcessTree =
-        this.variantsPerformance.get(variant);
+      console.log('TRIGGERED REDRAW AT SHOW VARIANT PERFORMANCE');
+      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+        this.variantsPerformance.get(variant)
+      );
     } else {
       console.error(`No performance values available: ${Variant}`);
     }

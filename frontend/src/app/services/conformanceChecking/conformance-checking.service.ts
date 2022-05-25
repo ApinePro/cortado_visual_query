@@ -6,6 +6,7 @@ import { BackgroundTaskInfoService } from '../backgroundTaskInfoService/backgrou
 import { ConformanceCheckingResult } from './model';
 import Swal from 'sweetalert2';
 import { SharedDataService } from '../sharedDataService/shared-data.service';
+import { ProcessTree } from 'src/app/objects/ProcessTree';
 import { InfixType } from 'src/app/components/variant-explorer/model';
 export const WS_ENDPOINT = 'ws://127.0.0.1:41211/conformancews';
 
@@ -71,7 +72,7 @@ export class ConformanceCheckingService {
   public calculateConformance(
     id: string,
     infixType: InfixType,
-    pt: any,
+    pt: ProcessTree,
     variant: any,
     timeout: number
   ): boolean {
@@ -83,7 +84,7 @@ export class ConformanceCheckingService {
     this.socket.next({
       id: id,
       infixType: infixType,
-      pt: pt,
+      pt: pt.copy(false),
       variant: variant,
       timeout: timeout,
     });

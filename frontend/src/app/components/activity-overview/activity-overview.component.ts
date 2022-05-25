@@ -11,7 +11,6 @@ import { SharedDataService } from '../../services/sharedDataService/shared-data.
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { VariantElement } from '../variant-explorer/model';
-import { ProcessTree } from 'src/app/objects/ProcessTree';
 
 @Component({
   selector: 'app-activity-overview',

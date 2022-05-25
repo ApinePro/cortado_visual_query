@@ -5,6 +5,7 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
+
 import {
   AfterViewInit,
   Component,
@@ -39,6 +40,7 @@ import { LogService } from 'src/app/services/logService/log.service';
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
 import { PerformanceService } from 'src/app/services/performance.service';
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 import { originalOrder } from 'src/app/utils/util';
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
@@ -141,6 +143,7 @@ export class VariantExplorerComponent
     private polygonDrawingService: PolygonDrawingService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
+    private processTreeService: ProcessTreeService,
     elRef: ElementRef,
     renderer: Renderer2,
     public performanceService: PerformanceService,
@@ -272,11 +275,11 @@ export class VariantExplorerComponent
       }
     });
 
-    this.sharedDataService.correctTreeSyntax$.subscribe((res) => {
+    this.processTreeService.correctTreeSyntax$.subscribe((res) => {
       this.correctTreeSyntax = res;
     });
 
-    this.sharedDataService.currentDisplayedProcessTree$.subscribe((tree) => {
+    this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
       this.currentlyDisplayedProcessTree = tree;
       const treeHasChanged = !this.sharedDataService.processTreesEqual(
         this.usedTreeForConformanceChecking,
@@ -451,7 +454,7 @@ export class VariantExplorerComponent
     const resubscribe = this.conformanceCheckingService.calculateConformance(
       variant.id,
       variant.infixType,
-      this.sharedDataService.currentDisplayedProcessTree,
+      this.processTreeService.currentDisplayedProcessTree,
       variant.variant.serialize(),
       timeout
     );
@@ -761,8 +764,9 @@ export class VariantExplorerComponent
       this.performanceService.unselectPerformance();
     } else {
       this.performanceService.activeVariant = undefined;
-      this.sharedDataService.currentDisplayedProcessTree =
-        this.performanceService.mergedPerformance;
+      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+        this.performanceService.mergedPerformance
+      );
     }
   }
 

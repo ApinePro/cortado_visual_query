@@ -72,6 +72,7 @@
 
           <div
             class="dropdown-item"
+            *ngIf="insertPostitonBelowDisabled"
             [ngClass]="
               lastSelectedInsertMethod === insertNewNodeBelow
                 ? 'insertion-position-active'
@@ -168,7 +169,9 @@
       <button
         class="button"
         [disabled]="
-          !selectedRootNode || (selectSubtreeActive && !singleNodeSelected())
+          !selectedRootNode ||
+          (nodeSelectionStrategy === NodeSeletionStrategy.TREE &&
+            !singleNodeSelected())
         "
         (click)="selectedMethod = changeSelectedNode"
         type="button"
@@ -233,12 +236,7 @@
     <button
       class="button btn-fixed-width"
       (click)="undo()"
-      [disabled]="
-        !(
-          previousTreeObjects.length - 1 > 0 &&
-          currentIdxPreviousTreeObjects !== 0
-        )
-      "
+      [disabled]="!(treeCacheLength - 1 > 0 && treeCacheIndex !== 0)"
       data-bs-toggle="tooltip"
       data-bs-placement="top"
       title="undo"
@@ -246,31 +244,23 @@
       <i class="bi bi-arrow-counterclockwise btn-icon"></i>
       <span
         class="text-secondary"
-        *ngIf="
-          previousTreeObjects.length - 1 > 0 &&
-          currentIdxPreviousTreeObjects !== 0
-        "
+        *ngIf="treeCacheLength - 1 > 0 && treeCacheIndex !== 0"
       >
-        ({{ currentIdxPreviousTreeObjects }})
+        ({{ treeCacheIndex }})
       </span>
     </button>
 
     <button
       class="button btn-fixed-width"
       (click)="redo()"
-      [disabled]="
-        !(currentIdxPreviousTreeObjects < previousTreeObjects.length - 1)
-      "
+      [disabled]="!(treeCacheIndex < treeCacheLength - 1)"
       data-bs-toggle="tooltip"
       data-bs-placement="top"
       title="redo"
     >
       <i class="bi bi-arrow-clockwise btn-icon"></i>
-      <span
-        class="text-secondary"
-        *ngIf="currentIdxPreviousTreeObjects < previousTreeObjects.length - 1"
-      >
-        ({{ previousTreeObjects.length - 1 - currentIdxPreviousTreeObjects }})
+      <span class="text-secondary" *ngIf="treeCacheIndex < treeCacheLength - 1">
+        ({{ treeCacheLength - 1 - treeCacheIndex }})
       </span>
     </button>
 
@@ -278,8 +268,10 @@
 
     <button
       class="button"
-      (click)="selectNode()"
-      [class.button-active]="selectNodeActive"
+      (click)="selectNodeButton()"
+      [class.button-active]="
+        nodeSelectionStrategy === NodeSeletionStrategy.NODE
+      "
       data-bs-toggle="tooltip"
       data-bs-placement="top"
       title="select node"
@@ -292,8 +284,10 @@
 
     <button
       class="button"
-      (click)="selectSubtree()"
-      [class.button-active]="selectSubtreeActive"
+      (click)="selectSubtreeButton()"
+      [class.button-active]="
+        nodeSelectionStrategy === NodeSeletionStrategy.TREE
+      "
       data-bs-toggle="tooltip"
       data-bs-placement="top"
       title="select subtree"
