@@ -51,6 +51,7 @@ import { DialogModule } from './components/dialogs/dialog.module';
 import { VariantQueryComponent } from './components/variant-explorer/variant-query/variant-query.component';
 import { SyntaxHighlightedTextareaDirective } from './directives/syntax-highlighted-textarea.directive';
 import { ConformanceInfoBarComponent } from './components/variant-explorer/info-bar/conformance-info-bar.component';
+import { VariantQueryInfoComponent } from './components/variant-explorer/variant-query-info/variant-query-info.component';
 
 @NgModule({
   declarations: [
@@ -97,6 +98,7 @@ import { ConformanceInfoBarComponent } from './components/variant-explorer/info-
     HeaderBarComponent,
     GoldenLayoutDummyComponent,
     ConformanceInfoBarComponent,
+    VariantQueryInfoComponent,
   ],
   imports: [
     BrowserModule,

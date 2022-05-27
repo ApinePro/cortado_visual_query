@@ -91,10 +91,6 @@ hr {
   width: 100%;
 }
 
-.green{
-  color : green;
-}
-
 .vl {
   border-left: 1px solid var(--line-color);
   height: 27px;
@@ -107,10 +103,6 @@ hr {
 .secondary-text {
   color: var(--text-secondary);
   font-size: var(--standard-font-size);
-}
-
-.logical-operator{
-  color :rgb(65, 141, 213);
 }
 
 .cursor-pointer {
@@ -229,6 +221,10 @@ th {
   stroke : #dc3545 !important;
 }
 
+.logical-operator{
+  color :rgb(65, 141, 213);
+}
+
 .syntax-info {
   background-color: rgba(0, 0, 0, 0.4);
   position: absolute;
@@ -327,12 +323,12 @@ th {
   font-size : small;
 }
 
-.form-select.styled-select { 
+.form-select.styled-select {
   background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
   color : var(--text-secondary);
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='white' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
 }
-  
+
 .tab-content {
   overflow: auto;
 }
