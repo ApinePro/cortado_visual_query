@@ -51,7 +51,9 @@ export class SubVariantComponent implements AfterViewInit {
 
     this.colorMapService.colorMap$.subscribe((cMap) => {
       this.colorMap = cMap;
-      //this.draw();
+      if (this._variant) {
+        this.draw();
+      }
     });
   }
 
@@ -76,19 +78,17 @@ export class SubVariantComponent implements AfterViewInit {
       .attr('y2', (d) => yScale(d[3]))
       .attr('stroke-width', (_) => 2 * Constants.POINT_RADIUS);
 
-    let circles_data = [];
-    data.forEach((d) => {
-      if (d[1] == d[2]) {
-        circles_data.push([d[0], d[1], d[3], true]);
-      } else {
-        circles_data.push([d[0], d[1], d[3], false]);
-        circles_data.push([d[0], d[2], d[3], false]);
-      }
-    });
-
     const circles = g
       .selectAll('circle')
-      .data(circles_data)
+      .data((d) => {
+        if (d[1] == d[2]) {
+          return [[d[0], d[1], d[3], true]];
+        }
+        return [
+          [d[0], d[1], d[3], false],
+          [d[0], d[2], d[3], false],
+        ];
+      })
       .enter()
       .append('circle')
       .attr('cx', (d) => xScale(d[1]))
