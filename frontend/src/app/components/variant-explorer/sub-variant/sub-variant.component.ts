@@ -30,6 +30,7 @@ export class SubVariantComponent implements AfterViewInit {
   }
 
   private _variant;
+  isPerformanceMode: boolean;
 
   @Input()
   private expanded = false;
@@ -67,16 +68,16 @@ export class SubVariantComponent implements AfterViewInit {
     const yScale = (y) =>
       4 * Constants.POINT_RADIUS + y * Constants.LEAF_HEIGHT * 1.5;
 
-    console.log(data);
     const g = this.svg.selectAll().data(data).join('g');
 
     g.append('line')
-      .style('stroke', (d) => this.colorMap.get(d[0]))
+      .style('stroke', (d) => this.colorMap.get(d[0].activity))
       .attr('x1', (d) => xScale(d[1]))
       .attr('x2', (d) => xScale(d[2]))
       .attr('y1', (d) => yScale(d[3]))
       .attr('y2', (d) => yScale(d[3]))
-      .attr('stroke-width', (_) => 2 * Constants.POINT_RADIUS);
+      .attr('stroke-width', (_) => 2 * Constants.POINT_RADIUS)
+      .on('click', (_, d) => console.log(d[0].performance_stats));
 
     const circles = g
       .selectAll('circle')
@@ -93,13 +94,13 @@ export class SubVariantComponent implements AfterViewInit {
       .append('circle')
       .attr('cx', (d) => xScale(d[1]))
       .attr('cy', (d) => yScale(d[2]))
-      .attr('fill', (d) => this.colorMap.get(d[0]))
+      .attr('fill', (d) => this.colorMap.get(d[0].activity))
       .attr('r', Constants.POINT_RADIUS);
 
     circles
       .filter((d) => d[3] === true)
       .attr('data-bs-toggle', 'tooltip')
-      .attr('title', (d) => d[0]);
+      .attr('title', (d) => d[0].activity);
 
     const texts = g
       .append('text')
@@ -107,7 +108,7 @@ export class SubVariantComponent implements AfterViewInit {
       .attr('y', (d) => yScale(d[3]) - Constants.POINT_RADIUS - 5)
       .style('text-anchor', 'middle')
       .style('fill', textColor)
-      .text((d) => d[0]);
+      .text((d) => d[0].activity);
 
     texts.each((a, b, c) => {
       const sel = d3.select(c[b]);
@@ -204,12 +205,7 @@ export class SubVariantComponent implements AfterViewInit {
         let startIndices =
           starts[subvariantNode.activity + subvariantNode.activity_instance];
 
-        data.push([
-          subvariantNode.activity,
-          startIndices[0],
-          xIndex,
-          startIndices[1],
-        ]);
+        data.push([subvariantNode, startIndices[0], xIndex, startIndices[1]]);
 
         usedYIndices.delete(startIndices[1]);
 
@@ -248,6 +244,11 @@ export class SubVariantComponent implements AfterViewInit {
 
   public toggleExpanded() {
     this.expanded = !this.expanded;
+    this.draw();
+  }
+
+  public performanceModeChanged(mode: boolean) {
+    this.isPerformanceMode = mode;
     this.draw();
   }
 }

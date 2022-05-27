@@ -101,6 +101,9 @@ export class SubvariantExplorerComponent
   ): void {}
 
   public toggleExpanded() {
+    if (this.isPerformanceMode) {
+      return;
+    }
     let expanded = this.mainvariantDrawer.isExpanded();
     this.mainvariantDrawer.setExpanded(!expanded);
     this.setExpandedSubVariants(!expanded);
@@ -308,8 +311,15 @@ export class SubvariantExplorerComponent
     return svgElement_copy;
   }
 
-  public setPerformanceMode(mode: boolean) {
-    this.isPerformanceMode = mode;
+  public setPerformanceMode(performanceMode: boolean) {
+    this.isPerformanceMode = performanceMode;
+    this.subVariantComponents.forEach((s) =>
+      s.performanceModeChanged(performanceMode)
+    );
+    if (performanceMode) {
+      this.mainvariantDrawer.setExpanded(true);
+      this.setExpandedSubVariants(true);
+    }
   }
 }
 
