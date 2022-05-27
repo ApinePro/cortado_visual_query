@@ -11,7 +11,6 @@ import { SharedDataService } from 'src/app/services/sharedDataService/shared-dat
 import { Constants } from '../model';
 import { ActivateTooltipsService } from '../../../services/activateTooltipsService/activate-tooltips.service';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
-import { BackendService } from 'src/app/services/backendService/backend.service';
 
 @Component({
   selector: 'app-sub-variant',
@@ -23,14 +22,14 @@ export class SubVariantComponent implements AfterViewInit {
   svgElement: ElementRef;
 
   @Input()
-  set variant(value: [string, string][][]) {
+  set variant(value) {
     this._variant = value;
     if (this.isLoaded) {
       this.draw();
     }
   }
 
-  private _variant: [string, string][][];
+  private _variant;
 
   @Input()
   private expanded = false;
@@ -52,7 +51,7 @@ export class SubVariantComponent implements AfterViewInit {
 
     this.colorMapService.colorMap$.subscribe((cMap) => {
       this.colorMap = cMap;
-      this.draw();
+      //this.draw();
     });
   }
 
@@ -61,50 +60,59 @@ export class SubVariantComponent implements AfterViewInit {
       ? Constants.INTERVAL_LENGTH
       : Constants.INTERVAL_LENGTH * 1.5;
     this.svg.selectAll('g').remove();
-    const [data, yLength] = this.buildData();
+    const data = this.buildData();
     const xScale = (x) => Constants.POINT_RADIUS + x * intervalWidth;
     const yScale = (y) =>
       4 * Constants.POINT_RADIUS + y * Constants.LEAF_HEIGHT * 1.5;
 
-    const groupedData = d3.group(data, (d) => d[4]);
-    const g = this.svg.selectAll().data(groupedData).join('g');
+    console.log(data);
+    const g = this.svg.selectAll().data(data).join('g');
 
     g.append('line')
-      .filter(([_, d]) => d.length === 2)
-      .style('stroke', ([_, d]) => this.colorMap.get(d[0][2]))
-      .attr('x1', ([_, d]) => xScale(d[0][0]))
-      .attr('x2', ([_, d]) => xScale(d[1][0]))
-      .attr('y1', ([_, d]) => yScale(d[0][1]))
-      .attr('y2', ([_, d]) => yScale(d[1][1]))
-      .attr('stroke-width', ([_, d]) => 2 * Constants.POINT_RADIUS);
+      .style('stroke', (d) => this.colorMap.get(d[0]))
+      .attr('x1', (d) => xScale(d[1]))
+      .attr('x2', (d) => xScale(d[2]))
+      .attr('y1', (d) => yScale(d[3]))
+      .attr('y2', (d) => yScale(d[3]))
+      .attr('stroke-width', (_) => 2 * Constants.POINT_RADIUS);
+
+    let circles_data = [];
+    data.forEach((d) => {
+      if (d[1] == d[2]) {
+        circles_data.push([d[0], d[1], d[3], true]);
+      } else {
+        circles_data.push([d[0], d[1], d[3], false]);
+        circles_data.push([d[0], d[2], d[3], false]);
+      }
+    });
 
     const circles = g
       .selectAll('circle')
-      .data(([_, d]) => d)
-      .join('circle')
-      .attr('cx', (d) => xScale(d[0]))
-      .attr('cy', (d) => yScale(d[1]))
-      .attr('fill', (d) => this.colorMap.get(d[2]))
+      .data(circles_data)
+      .enter()
+      .append('circle')
+      .attr('cx', (d) => xScale(d[1]))
+      .attr('cy', (d) => yScale(d[2]))
+      .attr('fill', (d) => this.colorMap.get(d[0]))
       .attr('r', Constants.POINT_RADIUS);
 
     circles
-      .filter((d) => d[3] === 'atomic')
+      .filter((d) => d[3] === true)
       .attr('data-bs-toggle', 'tooltip')
-      .attr('title', (d) => d[2]);
+      .attr('title', (d) => d[0]);
 
     const texts = g
-      .filter(([_, d]) => d.length === 2)
       .append('text')
-      .attr('x', ([_, d]) => xScale(d[0][0] + (d[1][0] - d[0][0]) / 2))
-      .attr('y', ([_, d]) => yScale(d[0][1]) - Constants.POINT_RADIUS - 5)
+      .attr('x', (d) => xScale(d[1] + (d[2] - d[1]) / 2))
+      .attr('y', (d) => yScale(d[3]) - Constants.POINT_RADIUS - 5)
       .style('text-anchor', 'middle')
       .style('fill', textColor)
-      .text(([_, d]) => d[0][2]);
+      .text((d) => d[0]);
 
     texts.each((a, b, c) => {
       const sel = d3.select(c[b]);
-      const xStart = xScale(a[1][0][0]);
-      const xEnd = xScale(a[1][1][0]);
+      const xStart = xScale(a[1]);
+      const xEnd = xScale(a[2]);
       this.wrapInnerLabelText(
         sel,
         sel.text(),
@@ -112,13 +120,16 @@ export class SubVariantComponent implements AfterViewInit {
       );
     });
 
+    const maxYIndex = Math.max(...data.map((d) => d[3]));
+
     this.svg.attr(
       'height',
-      yLength * Constants.LEAF_HEIGHT + 4 * Constants.POINT_RADIUS
+      (maxYIndex + 1) * Constants.LEAF_HEIGHT + 4 * Constants.POINT_RADIUS
     );
     this.svg.attr(
       'width',
-      this._variant.length * intervalWidth + 2 * Constants.POINT_RADIUS
+      this._variant.subvariant.length * intervalWidth +
+        2 * Constants.POINT_RADIUS
     );
 
     this.tooltipService.initializeChildren(this.svgElement);
@@ -163,67 +174,51 @@ export class SubVariantComponent implements AfterViewInit {
     return textLength;
   }
 
-  private buildData(): [any[], number] {
+  private buildData(): any[] {
     const intervalWidth = Constants.INTERVAL_LENGTH;
     const gapLength = (20 + Constants.POINT_RADIUS) / intervalWidth;
 
-    const yIndices: boolean[] = [];
-    const starts = new Map<string, [number, number][]>();
+    let usedYIndices = new Set<number>();
+    const starts = new Map<string, [number, number]>();
     const data = [];
     let xIndex = 0;
-    this._variant.forEach((group, _i) => {
-      group.sort();
-      let starting = group
-        .filter(([_a, l]) => l.toLowerCase() === 'start')
-        .map(([a, _l]) => a);
-      let completing = group
-        .filter(([_a, l]) => l.toLowerCase() === 'complete')
-        .map(([a, _l]) => a);
-      const atomic = completing.filter((a) => starting.includes(a));
-      starting = starting.filter((a) => !atomic.includes(a));
-      completing = completing.filter((a) => !atomic.includes(a));
+    this._variant.subvariant.forEach((group) => {
+      let starting = group.filter(
+        (subvariantNode) => subvariantNode.lifecycle === 'start'
+      );
+      let completing = group.filter(
+        (subvariantNode) => subvariantNode.lifecycle === 'complete'
+      );
 
-      starting.forEach((a) => {
-        let yIndex = 0;
-        while (yIndices[yIndex]) {
-          yIndex++;
-        }
-        yIndices[yIndex] = true;
-        const aStarts = starts.get(a) || [];
-        aStarts.push([xIndex, yIndex]);
-        starts.set(a, aStarts);
+      starting.forEach((subvariantNode) => {
+        let yIndex = this.getNextFreeYIndex(usedYIndices);
+        usedYIndices.add(yIndex);
 
-        const id = [xIndex, yIndex, a].join(';');
-        data.push([xIndex, yIndex, a, 'start', id]);
+        starts[subvariantNode.activity + subvariantNode.activity_instance] = [
+          xIndex,
+          yIndex,
+        ];
       });
 
-      const atomicYIndices = [];
-      atomic.forEach((a) => {
-        let yIndex = 0;
-        while (yIndices[yIndex]) {
-          yIndex++;
-        }
-        yIndices[yIndex] = true;
-        atomicYIndices.push(yIndex);
+      completing.forEach((subvariantNode) => {
+        let startIndices =
+          starts[subvariantNode.activity + subvariantNode.activity_instance];
 
-        const id = [xIndex, yIndex, a].join(';');
-        data.push([xIndex, yIndex, a, 'atomic', id]);
+        data.push([
+          subvariantNode.activity,
+          startIndices[0],
+          xIndex,
+          startIndices[1],
+        ]);
+
+        usedYIndices.delete(startIndices[1]);
+
+        starts.delete(
+          (subvariantNode.activity, subvariantNode.activity_instance)
+        );
       });
 
-      completing.forEach((a) => {
-        const [xStartIndex, yIndex] = starts.get(a).shift();
-        yIndices[yIndex] = false;
-        const id = [xStartIndex, yIndex, a].join(';');
-        data.push([xIndex, yIndex, a, 'complete', id]);
-      });
-
-      atomicYIndices.forEach((yIndex) => {
-        yIndices[yIndex] = false;
-      });
-
-      const nRunning = Array.from(starts.values())
-        .map((s) => s.length)
-        .reduce((a, b) => a + b, 0);
+      const nRunning = Array.from(starts.values()).length;
       if (nRunning <= 0) {
         xIndex += gapLength;
       } else {
@@ -231,7 +226,19 @@ export class SubVariantComponent implements AfterViewInit {
       }
     });
 
-    return [data, yIndices.length];
+    return data;
+  }
+
+  private getNextFreeYIndex(usedYIndices: Set<number>): number {
+    let index = 0;
+    while (true) {
+      if (usedYIndices.has(index)) {
+        index++;
+        continue;
+      }
+
+      return index;
+    }
   }
 
   public setExpanded(expanded: boolean): void {

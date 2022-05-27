@@ -273,13 +273,10 @@ export class BackendService {
     return this.httpClient.get(this.backendUrl + 'info');
   }
 
-  performanceForSubvariants(variant: any): Observable<any> {
+  getSubvariantsForVariant(variant: any): Observable<any> {
     let body = {
       variant: variant.serialize(),
     };
-    return this.httpClient.post(
-      this.backendUrl + 'performanceForSubvariants',
-      body
-    );
+    return this.httpClient.post(this.backendUrl + 'subvariants', body);
   }
 }

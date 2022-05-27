@@ -14,7 +14,7 @@ from cortado_core.performance.aggregators import avg, noop, stats
 from cortado_core.utils.alignment_utils import trace_fits_process_tree
 from cortado_core.utils.cvariants import generate_variants, get_detailed_variants
 from cortado_core.utils.process_tree import CortadoProcessTree, convert_tree
-from cortado_core.utils.timestamp_utils import TimeUnit
+from cortado_core.performance.subvariant_performance import calculate_subvariant_performance
 from fastapi import (Depends, FastAPI, File, HTTPException, UploadFile,
                      WebSocket, WebSocketDisconnect)
 from fastapi.exceptions import RequestValidationError
@@ -182,14 +182,27 @@ class InputPerformanceSubvariant(BaseModel):
     variant: Any
 
 
-@app.post("/performanceForSubvariants")
-async def performance_for_subvariants(data: InputPerformanceSubvariant,
-                                      config_repo: ConfigurationRepository = Depends(get_config_repo)):
+@app.post("/subvariants")
+async def get_subvariants(data: InputPerformanceSubvariant):
     variant_cache_key = json.dumps(data.variant)
     variant_traces = load_event_log.variants_store[variant_cache_key]
     # TODO time granularity
-    subvariants = get_detailed_variants(variant_traces)
-    print(subvariants)
+    sub_variants = get_detailed_variants(variant_traces)
+
+    result = []
+
+    total_sub_traces = sum(len(sub_variants[v]) for v in sub_variants)
+
+    for subvariant, traces in sub_variants.items():
+        subvariant_performance = calculate_subvariant_performance(subvariant, traces)
+        subvariant_response = {
+            'variant': subvariant_performance,
+            'count': len(traces),
+            'percentage': round(len(traces) / total_sub_traces * 100, 2)
+        }
+        result.append(subvariant_response)
+
+    return result
 
 
 @app.post("/discoverProcessModelFromConcurrencyVariants")

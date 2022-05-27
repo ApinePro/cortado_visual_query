@@ -6,6 +6,7 @@ import {
   Component,
   ElementRef,
   Inject,
+  OnInit,
   QueryList,
   Renderer2,
   ViewChild,
@@ -28,9 +29,10 @@ import { BackendService } from 'src/app/services/backendService/backend.service'
 })
 export class SubvariantExplorerComponent
   extends LayoutChangeDirective
-  implements AfterViewInit
+  implements AfterViewInit, OnInit
 {
   mainVariant: Variant;
+  subvariants;
   public colorMap: Map<string, string>;
 
   @ViewChild(VariantDrawerDirective)
@@ -62,16 +64,20 @@ export class SubvariantExplorerComponent
     this.svgRenderingInProgress = false;
   }
 
+  ngOnInit(): void {
+    this.backendService
+      .getSubvariantsForVariant(this.mainVariant.variant)
+      .subscribe((r) => {
+        this.subvariants = r;
+        console.log(this.subvariants[0]);
+      });
+  }
+
   ngAfterViewInit() {
     this.colorMapService.colorMap$.subscribe((cMap) => {
       this.colorMap = cMap;
       this.mainvariantDrawer.redraw();
     });
-
-    console.log(this.mainVariant);
-    this.backendService
-      .performanceForSubvariants(this.mainVariant.variant)
-      .subscribe((r) => console.log(r));
   }
 
   // Implements responsive changes, such as triggering animations, if the layout and thus the components size changes
@@ -141,7 +147,7 @@ export class SubvariantExplorerComponent
       } else return order;
     };
 
-    this.mainVariant.sub_variants.sort(subvariantSortFunction);
+    this.subvariants.sort(subvariantSortFunction);
   }
 
   exportSubvariantSVG(): void {
@@ -177,7 +183,7 @@ export class SubvariantExplorerComponent
     // Prepare frequency informations of the subvariants
     const counts = [];
     const percentages = [];
-    for (let subVariant of this.mainVariant.sub_variants) {
+    for (let subVariant of this.subvariants) {
       counts.push(subVariant.count);
       percentages.push(subVariant.percentage);
     }
