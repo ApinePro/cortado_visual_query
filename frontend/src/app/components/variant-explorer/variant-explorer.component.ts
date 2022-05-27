@@ -190,6 +190,7 @@ export class VariantExplorerComponent
   public isAscendingOrder: boolean = false;
   public sortingFeature: string = 'count';
   queryActive: boolean = false;
+  showQueryInfo: boolean = false;
 
   public traceInfixSelectionMode: boolean = false;
 
@@ -621,6 +622,11 @@ export class VariantExplorerComponent
     }
   }
 
+  removeAllFilters() {
+    this.displayed_variants = this.variants;
+    this.updateAllSubvariantWindows();
+  }
+
   getSelectedVariants(): Variant[] {
     return this.variants.filter((v) => v.isSelected);
   }
@@ -710,12 +716,12 @@ export class VariantExplorerComponent
     return !this.isAnyVariantSelected();
   }
 
-  areAllVariantsSelected(): boolean {
-    return this.getSelectedVariants().length >= this.totalNumberVariants;
+  areAllDisplayedVariantsSelected(): boolean {
+    return this.displayed_variants.every((v) => v.isSelected);
   }
 
   unSelectAllChanged(isSelected: boolean): void {
-    this.variants.forEach((v) => (v.isSelected = isSelected));
+    this.displayed_variants.forEach((v) => (v.isSelected = isSelected));
   }
 
   areAllVariantsExpanded(): boolean {
@@ -807,6 +813,11 @@ export class VariantExplorerComponent
       return 'white';
     }
     return textColorForBackgroundColor(this.variantPerformanceColor());
+  }
+
+  toggleQueryInfo(event: Event): void {
+    this.showQueryInfo = !this.showQueryInfo;
+    event.stopPropagation();
   }
 
   variantClickCallBack = (
