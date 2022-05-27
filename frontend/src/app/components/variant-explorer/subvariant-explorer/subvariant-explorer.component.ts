@@ -34,6 +34,7 @@ export class SubvariantExplorerComponent
   mainVariant: Variant;
   subvariants;
   public colorMap: Map<string, string>;
+  isPerformanceMode: boolean = false;
 
   @ViewChild(VariantDrawerDirective)
   mainvariantDrawer: VariantDrawerDirective;
@@ -305,6 +306,10 @@ export class SubvariantExplorerComponent
         .text('Parent');
     }
     return svgElement_copy;
+  }
+
+  public setPerformanceMode(mode: boolean) {
+    this.isPerformanceMode = mode;
   }
 }
 
