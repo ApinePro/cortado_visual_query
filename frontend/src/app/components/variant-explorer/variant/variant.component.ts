@@ -1,3 +1,4 @@
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 
 import {
@@ -9,7 +10,7 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-
+import { isDevMode } from '@angular/core';
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
 import {
   getSelectedChildren,
@@ -89,10 +90,15 @@ export class VariantComponent implements AfterViewInit {
   // necessary because one cannot use it directly in the template file
   infixType = InfixType;
 
+  // TODO: this is needed because we want to disable the selection of trace infixes for the 1.6.0 release.
+  // Remove afterwards and re-enable selection.
+  isDevMode = isDevMode();
+
   constructor(
     private lazyLoadingService: LazyLoadingServiceService,
     public performanceService: PerformanceService,
     public sharedDataService: SharedDataService,
+    private processTreeService: ProcessTreeService,
     private performanceColorService: ModelPerformanceColorScaleService
   ) {}
 
@@ -104,8 +110,6 @@ export class VariantComponent implements AfterViewInit {
       this.rootElement,
       (isIntersecting) => (self.isVisible = isIntersecting)
     );
-
-    console.log(this.variant);
   }
 
   isExpanded(): boolean {
@@ -155,8 +159,7 @@ export class VariantComponent implements AfterViewInit {
       if (this.performanceService.calculationInProgress.has(variant)) {
         return;
       }
-      if (this.sharedDataService.currentDisplayedProcessTree === undefined) {
-        //
+      if (this.processTreeService.currentDisplayedProcessTree === undefined) {
       } else {
         this.performanceService.updatePerformance([variant]);
       }
@@ -232,7 +235,7 @@ export class VariantComponent implements AfterViewInit {
         false,
         false,
         0,
-        undefined,
+        false,
         true,
         false,
         true,

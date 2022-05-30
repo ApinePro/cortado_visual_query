@@ -6,6 +6,7 @@
       [variant]="variant"
       (selectionChanged)="selectionChanged.emit($event)"
       (updateConformance)="updateConformance.emit($event)"
+      [selectable]="variant.infixType === infixType.NOT_AN_INFIX || isDevMode"
     >
     </app-variant-info>
   </td>

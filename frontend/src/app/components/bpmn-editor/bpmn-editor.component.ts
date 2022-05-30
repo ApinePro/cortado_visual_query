@@ -1,3 +1,7 @@
+import {
+  NodeSeletionStrategy,
+  ProcessTreeService,
+} from './../../services/processTreeService/process-tree.service';
 import { Subscription } from 'rxjs';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import {
@@ -46,7 +50,6 @@ export class BpmnEditorComponent
 {
   selectedNode: any;
   currentTree: ProcessTree;
-  synchronise: boolean = true;
 
   activityColorMap: Map<string, string>;
   performanceColorMap: Map<number, any>;
@@ -60,6 +63,11 @@ export class BpmnEditorComponent
   selectedStatistic: string;
   selectedPerformanceIndicator: string;
   zoom: d3.ZoomBehavior<Element, unknown>;
+
+  NodeSeletionStrategy = NodeSeletionStrategy;
+  nodeSelectionStrategy: NodeSeletionStrategy = NodeSeletionStrategy.TREE;
+  treeCacheLength: number = 0;
+  treeCacheIndex: number = 0;
 
   rootNodeIdSub: Subscription;
   curPTSub: Subscription;
@@ -75,6 +83,7 @@ export class BpmnEditorComponent
     private colorMapService: ColorMapService,
     private performanceColorScaleService: ModelPerformanceColorScaleService,
     private performanceService: PerformanceService,
+    private processTreeService: ProcessTreeService,
     private activateTooltipsService: ActivateTooltipsService,
     private imageExportService: ImageExportService
   ) {
@@ -83,13 +92,25 @@ export class BpmnEditorComponent
   }
 
   ngOnInit(): void {
-    this.sharedDataService.nodeWidthCache$.subscribe((cache) => {
+    this.processTreeService.nodeWidthCache$.subscribe((cache) => {
       this.nodeWidthCache = cache;
+    });
+
+    this.processTreeService.treeCacheIndex$.subscribe((idx) => {
+      this.treeCacheIndex = idx;
+    });
+
+    this.processTreeService.treeCacheLength$.subscribe((len) => {
+      this.treeCacheLength = len;
+    });
+
+    this.processTreeService.selectionMode$.subscribe((strategy) => {
+      this.nodeSelectionStrategy = strategy;
     });
   }
 
   ngAfterViewInit(): void {
-    this.nodeWidthCache = this.sharedDataService.nodeWidthCache;
+    this.nodeWidthCache = this.processTreeService.nodeWidthCache;
 
     this.mainGroup = d3
       .select(this.svgElem.nativeElement)
@@ -122,22 +143,20 @@ export class BpmnEditorComponent
       );
 
     this.curPTSub =
-      this.sharedDataService.currentDisplayedProcessTree$.subscribe((tree) => {
+      this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
         this.currentTree = tree;
         this.redraw();
       });
 
-    this.rootNodeIdSub = this.sharedDataService.selectedRootNodeID$.subscribe(
+    this.rootNodeIdSub = this.processTreeService.selectedRootNodeID$.subscribe(
       (id) => {
-        if (this.synchronise) {
-          if (id) {
-            this.selectBPMNNode(id);
-          } else {
-            this.unselectAll();
-          }
-
-          this.selectedRootID = id;
+        if (id) {
+          this.selectBPMNNode(id);
+        } else {
+          this.unselectAll();
         }
+
+        this.selectedRootID = id;
       }
     );
   }
@@ -164,7 +183,9 @@ export class BpmnEditorComponent
     this.unselectAll();
 
     const selected_node = this.mainGroup.select('[id="' + id + '"]');
+    console.log('Selected Node', selected_node);
     if (!selected_node.empty()) {
+      this.selectedNode = selected_node;
       if ((selected_node.datum() as ProcessTree).operator) {
         if (this.currentTree === selected_node.datum()) {
           this.mainGroup.classed('selected-bpmn-operator', true);
@@ -175,6 +196,26 @@ export class BpmnEditorComponent
         selected_node.classed('selected-bpmn-event', true);
       }
     }
+  }
+
+  selectNode(): void {
+    console.log('Set Selection Mode Node');
+    this.processTreeService.selectedRootNodeID = null;
+    this.processTreeService.selectionMode = NodeSeletionStrategy.NODE;
+  }
+
+  selectSubtree(): void {
+    console.log('Set Selection Mode Tree');
+    this.processTreeService.selectedRootNodeID = null;
+    this.processTreeService.selectionMode = NodeSeletionStrategy.TREE;
+  }
+
+  undo(): void {
+    this.processTreeService.undo();
+  }
+
+  redo(): void {
+    this.processTreeService.redo();
   }
 
   handleResponsiveChange(
@@ -196,6 +237,10 @@ export class BpmnEditorComponent
     logicalZIndex: LogicalZIndex,
     defaultZIndex: string
   ): void {}
+
+  clearSelection() {
+    this.processTreeService.selectedRootNodeID = null;
+  }
 
   redraw() {
     this.mainGroup.selectChildren().remove();
@@ -222,14 +267,16 @@ export class BpmnEditorComponent
           )},${BPMN_Constant.bpmn_node_height_width / 2})`
         );
 
-      this.drawStart(start);
+      this.drawStart(start, model._pt.frozen);
 
       this.drawLine(
         start,
         BPMN_Constant.START_END_RADIUS,
         0,
         BPMN_Constant.START_END_RADIUS + 2 * BPMN_Constant.HORIZONTALSPACING,
-        0
+        0,
+        false,
+        model._pt.frozen
       );
 
       const bpmn = this.mainGroup.append('g');
@@ -247,17 +294,20 @@ export class BpmnEditorComponent
           }, ${BPMN_Constant.bpmn_node_height_width / 2})`
         );
 
-      this.drawEnd(end);
+      this.drawEnd(end, model._pt.frozen);
 
       this.drawLine(
         end,
         -(BPMN_Constant.START_END_RADIUS + 2 * BPMN_Constant.HORIZONTALSPACING),
         0,
         -BPMN_Constant.START_END_RADIUS,
-        0
+        0,
+        false,
+        model._pt.frozen
       );
 
       this.activateTooltipsService.initializeChildren(this.svgElem);
+      this.selectBPMNNode(this.selectedRootID);
     }
   }
 
@@ -327,7 +377,9 @@ export class BpmnEditorComponent
           BPMN_Constant.rectDiagLen + interpolate.x,
           BPMN_Constant.bpmn_node_height_width / 2 + interpolate.y,
           offset_x + center,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y
+          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
+          false,
+          model._pt.frozen
         );
 
         this.drawLine(
@@ -339,7 +391,8 @@ export class BpmnEditorComponent
             2 * BPMN_Constant.HORIZONTALSPACING +
             interpolate.y,
           BPMN_Constant.bpmn_node_height_width / 2 + interpolate.y,
-          interpolate.y > 0
+          interpolate.y > 0,
+          model._pt.frozen
         );
 
         // Draw a skip-line in the tau case
@@ -353,7 +406,9 @@ export class BpmnEditorComponent
             model.core_width +
             2 * BPMN_Constant.HORIZONTALSPACING +
             interpolate.y,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y
+          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
+          false,
+          model._pt.frozen
         );
       }
 
@@ -366,7 +421,9 @@ export class BpmnEditorComponent
         2 * BPMN_Constant.rectDiagLen,
         BPMN_Constant.bpmn_node_height_width / 2,
         offset_x + BPMN_Constant.HORIZONTALSPACING,
-        BPMN_Constant.bpmn_node_height_width / 2
+        BPMN_Constant.bpmn_node_height_width / 2,
+        false,
+        model._pt.frozen
       );
     }
 
@@ -382,6 +439,47 @@ export class BpmnEditorComponent
       );
 
     this.drawOperatorNode(leave_operator, model);
+  }
+
+  deleteSelected() {
+    const delete_subtree = (tree: ProcessTree, tree_to_delete: ProcessTree) => {
+      if (tree === tree_to_delete) {
+        return;
+      } else {
+        if (tree.children) {
+          let child_list: Array<ProcessTree> = [];
+
+          for (let child of tree.children) {
+            let res = delete_subtree(child, tree_to_delete);
+
+            if (res) {
+              child_list.push(res);
+            }
+          }
+
+          tree.children = child_list;
+        }
+      }
+
+      return tree;
+    };
+
+    if (this.currentTree === this.selectedNode.datum()) {
+      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(null);
+    } else {
+      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+        delete_subtree(this.currentTree, this.selectedNode.datum())
+      );
+    }
+  }
+
+  deleteInactive() {
+    return (
+      this.selectedRootID == null ||
+      (this.nodeSelectionStrategy == this.NodeSeletionStrategy.NODE &&
+        this.selectedNode &&
+        this.selectedNode.datum().children.length > 0)
+    );
   }
 
   drawChoiceBlock(
@@ -431,7 +529,9 @@ export class BpmnEditorComponent
           BPMN_Constant.rectDiagLen + interpolate.x,
           BPMN_Constant.bpmn_node_height_width / 2 + interpolate.y,
           offset_x + center,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y
+          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
+          false,
+          model._pt.frozen
         );
 
         this.drawLine(
@@ -443,7 +543,8 @@ export class BpmnEditorComponent
             2 * BPMN_Constant.HORIZONTALSPACING +
             interpolate.y,
           BPMN_Constant.bpmn_node_height_width / 2 + interpolate.y,
-          interpolate.y > 0
+          interpolate.y > 0,
+          model._pt.frozen
         );
       } else {
         this.drawSkipLine(
@@ -455,7 +556,9 @@ export class BpmnEditorComponent
             model.core_width +
             2 * BPMN_Constant.HORIZONTALSPACING +
             interpolate.y,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y
+          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
+          false,
+          model._pt.frozen
         );
       }
 
@@ -468,7 +571,9 @@ export class BpmnEditorComponent
         2 * BPMN_Constant.rectDiagLen,
         BPMN_Constant.bpmn_node_height_width / 2,
         offset_x + BPMN_Constant.HORIZONTALSPACING,
-        BPMN_Constant.bpmn_node_height_width / 2
+        BPMN_Constant.bpmn_node_height_width / 2,
+        false,
+        model._pt.frozen
       );
     }
 
@@ -519,7 +624,9 @@ export class BpmnEditorComponent
           2 * BPMN_Constant.rectDiagLen,
           BPMN_Constant.bpmn_node_height_width / 2,
           offset_x + center,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y
+          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
+          false,
+          model._pt.frozen
         );
 
         this.drawLine(
@@ -529,7 +636,9 @@ export class BpmnEditorComponent
           2 * BPMN_Constant.rectDiagLen +
             model.core_width +
             2 * BPMN_Constant.HORIZONTALSPACING,
-          BPMN_Constant.bpmn_node_height_width / 2
+          BPMN_Constant.bpmn_node_height_width / 2,
+          false,
+          model._pt.frozen
         );
       } else {
         this.drawSkipLine(
@@ -540,7 +649,9 @@ export class BpmnEditorComponent
           2 * BPMN_Constant.rectDiagLen +
             model.core_width +
             2 * BPMN_Constant.HORIZONTALSPACING,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y
+          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
+          false,
+          model._pt.frozen
         );
       }
 
@@ -570,7 +681,8 @@ export class BpmnEditorComponent
             BPMN_Constant.rectDiagLen,
             BPMN_Constant.bpmn_node_height_width / 2 +
               BPMN_Constant.rectDiagLen,
-            true
+            true,
+            model._pt.frozen
           );
 
           this.drawLine(
@@ -581,7 +693,9 @@ export class BpmnEditorComponent
             BPMN_Constant.bpmn_node_height_width / 2 +
               BPMN_Constant.rectDiagLen,
             offset_x + center + redo_block.width + 6,
-            BPMN_Constant.bpmn_node_height_width / 2 + offset_y
+            BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
+            false,
+            model._pt.frozen
           );
         } else {
           this.drawSkipLine(
@@ -594,7 +708,8 @@ export class BpmnEditorComponent
               BPMN_Constant.rectDiagLen,
             BPMN_Constant.rectDiagLen,
             BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-            true
+            true,
+            model._pt.frozen
           );
         }
       }
@@ -606,7 +721,9 @@ export class BpmnEditorComponent
         2 * BPMN_Constant.rectDiagLen,
         BPMN_Constant.bpmn_node_height_width / 2,
         offset_x + BPMN_Constant.HORIZONTALSPACING,
-        BPMN_Constant.bpmn_node_height_width / 2
+        BPMN_Constant.bpmn_node_height_width / 2,
+        false,
+        model._pt.frozen
       );
     }
 
@@ -651,16 +768,17 @@ export class BpmnEditorComponent
       .attr(
         'transform-origin',
         `${BPMN_Constant.rectCenter} ${BPMN_Constant.rectCenter}`
-      );
+      )
+      .classed('frozen-node-operator', model._pt.frozen);
 
     parent.on(
       'click',
       function (e, d) {
         if (d.id === this.selectedRootID) {
-          this.sharedDataService.selectedRootNodeID = null;
+          this.processTreeService.selectedRootNodeID = null;
           this.performanceService.treeSelection.next(undefined);
         } else {
-          this.sharedDataService.selectedRootNodeID = d.id;
+          this.processTreeService.selectedRootNodeID = d.id;
           this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
         }
       }.bind(this)
@@ -753,7 +871,9 @@ export class BpmnEditorComponent
           offset_x,
           BPMN_Constant.bpmn_node_height_width / 2,
           offset_x + BPMN_Constant.HORIZONTALSPACING,
-          BPMN_Constant.bpmn_node_height_width / 2
+          BPMN_Constant.bpmn_node_height_width / 2,
+          false,
+          model._pt.frozen
         );
         offset_x += BPMN_Constant.HORIZONTALSPACING;
       }
@@ -788,10 +908,25 @@ export class BpmnEditorComponent
       .append('path')
       .attr('d', 'M 0 0 6 3 0 6 1.5 3')
       .attr('fill', 'red');
+
+    d3.select(this.svgElem.nativeElement)
+      .append('svg:defs')
+      .append('svg:marker')
+      .attr('id', 'arrow-frozen')
+      .attr('refX', 3)
+      .attr('refY', 3)
+      .attr('markerWidth', 10)
+      .attr('markerHeight', 10)
+      .attr('orient', 'auto')
+      .attr('markerUnits', 'strokeWidth')
+      .append('path')
+      .attr('d', 'M 0 0 6 3 0 6 1.5 3')
+      .attr('fill', '#425bbf');
   }
 
-  drawLine(selection, x1, y1, x2, y2, outBound = false) {
+  drawLine(selection, x1, y1, x2, y2, outBound = false, frozen = false) {
     // Compute a right-angled-cornered Line
+
     const lineData: Array<[number, number]> = outBound
       ? [
           [x1, y1],
@@ -811,10 +946,20 @@ export class BpmnEditorComponent
       .attr('stroke-width', '1')
       .attr('stroke', BPMN_Constant.bpmn_stroke_color)
       .style('stroke-linejoin', 'round')
-      .attr('marker-end', 'url(#arrow-grey)');
+      .attr('marker-end', frozen ? 'url(#arrow-frozen)' : 'url(#arrow-grey)')
+      .classed('frozen-edge', frozen);
   }
 
-  drawSkipLine(selection, model, x1, y1, x2, y2, outBound = false) {
+  drawSkipLine(
+    selection,
+    model,
+    x1,
+    y1,
+    x2,
+    y2,
+    outBound = false,
+    frozen = false
+  ) {
     // Compute a right-angled-cornered Line
     const lineData: Array<[number, number]> = outBound
       ? [
@@ -837,7 +982,8 @@ export class BpmnEditorComponent
       .attr('stroke-width', '1')
       .attr('stroke', BPMN_Constant.bpmn_stroke_color)
       .style('stroke-linejoin', 'round')
-      .attr('marker-end', 'url(#arrow-grey)');
+      .attr('marker-end', frozen ? 'url(#arrow-frozen)' : 'url(#arrow-grey)')
+      .classed('frozen-edge', frozen);
 
     line.datum(model._pt);
     line.attr('id', model._pt.id);
@@ -853,6 +999,7 @@ export class BpmnEditorComponent
 
     node.datum(model._pt);
 
+    node.classed('frozen-node-visible-activity', model._pt.frozen);
     selection.classed('cursor-pointer', true);
 
     let color;
@@ -880,7 +1027,7 @@ export class BpmnEditorComponent
     }
 
     const text_color =
-      model.eventName === ProcessTreeOperator.tau
+      model.eventName === ProcessTreeOperator.tau || model._pt.frozen
         ? 'White'
         : textColorForBackgroundColor(color);
 
@@ -902,10 +1049,10 @@ export class BpmnEditorComponent
       'click',
       function (e, d) {
         if (d.id === this.selectedRootID) {
-          this.sharedDataService.selectedRootNodeID = null;
+          this.processTreeService.selectedRootNodeID = null;
           this.performanceService.treeSelection.next(undefined);
         } else {
-          this.sharedDataService.selectedRootNodeID = d.id;
+          this.processTreeService.selectedRootNodeID = d.id;
           this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
         }
       }.bind(this)
@@ -937,7 +1084,47 @@ export class BpmnEditorComponent
     this.addToolTip(selection);
   }
 
-  drawStart(parent) {
+  freezeSubtree() {
+    const markNodeAsFrozen = (node) => {
+      node.frozen = true;
+      if (node.children) {
+        node.children.forEach((child) => {
+          markNodeAsFrozen(child);
+        });
+      }
+    };
+
+    const markNodeAsNonFrozen = (node) => {
+      node.frozen = false;
+
+      if (node.parent && node.parent.frozen) {
+        markNodeAsNonFrozen(node.parent);
+        return;
+      }
+      if (node.children) {
+        node.children.forEach((child) => {
+          markNodeAsNonFrozen(child);
+        });
+      }
+    };
+    if (!this.selectedNode.datum().frozen) {
+      markNodeAsFrozen(this.selectedNode.datum());
+    } else {
+      markNodeAsNonFrozen(this.selectedNode.datum());
+    }
+
+    this.processTreeService.currentDisplayedProcessTree = this.currentTree;
+    this.processTreeService.selectedRootNodeID = null;
+  }
+
+  buttonFreezeSubtreeDisabled() {
+    return (
+      this.selectedRootID == null ||
+      (this.selectedNode && this.selectedNode.datum().children.length === 0)
+    );
+  }
+
+  drawStart(parent, frozen) {
     parent
       .classed('cursor-pointer', true)
       .attr('id', this.currentTree.id)
@@ -948,23 +1135,24 @@ export class BpmnEditorComponent
       .attr('r', BPMN_Constant.START_END_RADIUS)
       .attr('fill', BPMN_Constant.bpmn_operator_color)
       .attr('stroke', BPMN_Constant.bpmn_stroke_color)
-      .attr('stroke-width', 1);
+      .attr('stroke-width', 1)
+      .classed('frozen-node-operator', frozen);
 
     parent.on(
       'click',
       function (e, d) {
         if (d.id === this.selectedRootID) {
-          this.sharedDataService.selectedRootNodeID = null;
+          this.processTreeService.selectedRootNodeID = null;
           this.performanceService.treeSelection.next(undefined);
         } else {
-          this.sharedDataService.selectedRootNodeID = d.id;
+          this.processTreeService.selectedRootNodeID = d.id;
           this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
         }
       }.bind(this)
     );
   }
 
-  drawEnd(parent) {
+  drawEnd(parent, frozen) {
     parent
       .classed('cursor-pointer', true)
       .attr('id', this.currentTree.id)
@@ -975,23 +1163,25 @@ export class BpmnEditorComponent
       .attr('r', BPMN_Constant.START_END_RADIUS)
       .attr('fill', BPMN_Constant.bpmn_operator_color)
       .attr('stroke', BPMN_Constant.bpmn_stroke_color)
-      .attr('stroke-width', BPMN_Constant.bpmn_stroke_width);
+      .attr('stroke-width', BPMN_Constant.bpmn_stroke_width)
+      .classed('frozen-node-operator', frozen);
 
     parent
       .append('circle')
       .attr('r', BPMN_Constant.START_END_RADIUS - 2)
       .attr('fill', BPMN_Constant.bpmn_operator_color)
       .attr('stroke', BPMN_Constant.bpmn_stroke_color)
-      .attr('stroke-width', BPMN_Constant.bpmn_stroke_width);
+      .attr('stroke-width', BPMN_Constant.bpmn_stroke_width)
+      .classed('frozen-node-operator', frozen);
 
     parent.on(
       'click',
       function (e, d) {
         if (d.id === this.selectedRootID) {
-          this.sharedDataService.selectedRootNodeID = null;
+          this.processTreeService.selectedRootNodeID = null;
           this.performanceService.treeSelection.next(undefined);
         } else {
-          this.sharedDataService.selectedRootNodeID = d.id;
+          this.processTreeService.selectedRootNodeID = d.id;
           this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
         }
       }.bind(this)
@@ -1041,25 +1231,15 @@ export class BpmnEditorComponent
       );
   }
 
-  setSynchronise(event) {
-    this.synchronise = event.currentTarget.checked;
-  }
-
   centerContent(): void {}
 
   exportBPMN(svg: SVGGraphicsElement): void {
-    console.log('BPMN', svg);
-    console.log('Container', this.svgElem.nativeElement);
-    console.log('BPMN', this.mainGroup.node());
-
     // Copy the current tree
     const bpmn_copy = svg.cloneNode(true) as SVGGraphicsElement;
     const svgBBox = (this.mainGroup.node() as SVGGraphicsElement).getBBox();
 
     // Strip all the classed information
     const bpmn = d3.select(bpmn_copy);
-
-    console.log('BPMN Selected', bpmn);
 
     bpmn
       .selectAll('g')

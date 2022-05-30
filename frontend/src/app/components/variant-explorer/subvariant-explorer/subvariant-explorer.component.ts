@@ -102,10 +102,17 @@ export class SubvariantExplorerComponent
     variant: Variant
   ) => {
     let color;
-    color = this.colorMap.get(element.asLeafNode().activity[0]);
+    let leafNode = element.asLeafNode();
+    color = this.colorMap.get(leafNode.activity[0]);
 
     if (!color) {
       color = '#d3d3d3'; // lightgrey
+    }
+
+    // in this case cuts were not applicable anymore.
+    // The resulting chevron is displayed in gray
+    if (leafNode.activity.length > 1) {
+      color = '#d3d3d3'; // lightgray
     }
 
     return color;

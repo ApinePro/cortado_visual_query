@@ -1,3 +1,4 @@
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { Variant } from '../model';
@@ -22,10 +23,13 @@ export class VariantInfoComponent implements OnInit {
 
   public processTreeIsPresent: boolean = false;
 
-  constructor(private sharedDataService: SharedDataService) {}
+  constructor(
+    private sharedDataService: SharedDataService,
+    private processTreeService: ProcessTreeService
+  ) {}
 
   ngOnInit(): void {
-    this.sharedDataService.currentDisplayedProcessTree$.subscribe((t) => {
+    this.processTreeService.currentDisplayedProcessTree$.subscribe((t) => {
       this.processTreeIsPresent = t !== undefined && t !== null;
     });
   }
@@ -39,7 +43,9 @@ export class VariantInfoComponent implements OnInit {
   isConformanceUpdatePossible(): boolean {
     return (
       !this.variant.calculationInProgress &&
-      (this.variant.isConformanceOutdated || this.variant.isTimeouted)
+      (this.variant.isConformanceOutdated ||
+        this.variant.isTimeouted ||
+        this.variant.deviation === undefined)
     );
   }
 }

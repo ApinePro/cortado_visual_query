@@ -40,11 +40,15 @@ def calculate_event_log_properties(event_log: EventLog, time_granularity: TimeUn
         event_log, use_mp, time_granularity)    
     assign_variants_performances(variants)
     
-    
     start_activities = set.union(*[set(v.graph.start_activities.keys()) for v in variants.keys()])
     end_activities = set.union(*[set(v.graph.end_activities.keys()) for v in variants.keys()])
     activities = dict(sum([Counter({ k : (len(ls) * len(variants[v])) for k, ls in v.graph.events.items()}) for v in variants], Counter()))
-        
+
+    variants = sorted(variants.keys(), key=lambda v: len(
+        variants[v]), reverse=True)
+    for res, v in zip(res_variants, variants):
+        res['variant'] = v.serialize()
+
     res = {
         "startActivities": start_activities,
         "endActivities": end_activities,

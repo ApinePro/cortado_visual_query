@@ -83,30 +83,15 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
   }
 
   onSubmit() {
-    console.log('QUERY:', this.variantQuery.value);
-
-    console.log(this.variantQuery.errors);
-    console.log(this.variantQuery.valid);
-    console.log(
-      (this.variantQuery.invalid &&
-        (this.variantQuery.dirty || this.variantQuery.touched)) ||
-        this.backendErrorMessage
-    );
-
     this.backendService
       .variantQuery(this.variantQuery.value)
       .subscribe((res) => {
         if (!res.error) {
           this.query_selection.emit(new Set(res.ids as Array<number>));
-          console.log('Ids', res.ids);
         } else {
-          console.log(res.error, res.error_index);
-
           this.variantQuery.setErrors({ backendError: res.error });
           this.backendErrorIndex = res.error_index;
         }
-
-        console.log('Errors', this.variantQuery.errors);
       });
   }
 

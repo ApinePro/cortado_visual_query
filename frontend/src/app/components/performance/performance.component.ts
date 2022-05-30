@@ -1,3 +1,4 @@
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -31,7 +32,7 @@ export class ModelPerformanceComponent implements OnInit {
 
   constructor(
     public performanceService: PerformanceService,
-    private sharedDataService: SharedDataService,
+    private processTreeService: ProcessTreeService,
     public performanceColorScaleService: ModelPerformanceColorScaleService,
     private changeDetectionRef: ChangeDetectorRef
   ) {
@@ -40,7 +41,7 @@ export class ModelPerformanceComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.sharedDataService.currentDisplayedProcessTree$.subscribe((tree) => {
+    this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
       this.performanceValues = [];
       if (tree && tree.performance) {
         this.nodePerformance(tree);
