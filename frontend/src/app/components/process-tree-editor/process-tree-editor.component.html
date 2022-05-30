@@ -28,6 +28,7 @@
       </button>
       <div
         class="dropdown-menu dropdown-node-insert"
+        [style.max-height.px]="currentEditorHeight"
         id="dropdownNewNode"
         aria-labelledby="addNodeDropdown"
       >
@@ -181,7 +182,11 @@
       >
         <i class="bi bi-pencil-square btn-icon"></i>
       </button>
-      <div class="dropdown-menu dropdown-node-insert" #dropdownChangeNode>
+      <div
+        class="dropdown-menu dropdown-node-insert"
+        [style.max-height.px]="currentEditorHeight"
+        #dropdownChangeNode
+      >
         <ng-template [ngTemplateOutlet]="operatorListDropdown"></ng-template>
         <ng-template [ngTemplateOutlet]="activityListDropdown"></ng-template>
       </div>
