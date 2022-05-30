@@ -1,3 +1,4 @@
+import { LogService } from 'src/app/services/logService/log.service';
 import { ProcessTree } from './../../../objects/ProcessTree';
 import { ProcessTreeService } from './../../../services/processTreeService/process-tree.service';
 import { BackendService } from 'src/app/services/backendService/backend.service';
@@ -85,7 +86,7 @@ export class ExpertModeComponent implements OnInit {
   currentlyDisplayedTreeInExpertMode;
 
   constructor(
-    private sharedDataService: SharedDataService,
+    private logService : LogService,
     private backendService: BackendService,
     private processTreeService: ProcessTreeService
   ) {}
@@ -290,7 +291,7 @@ export class ExpertModeComponent implements OnInit {
 
       const res = control.value.matchAll(this.activityNameRegEx);
       for (let match of res) {
-        if (!this.sharedDataService.activitiesInEventLog[match[1]]) {
+        if (!this.logService.activitiesInEventLog[match[1]]) {
           unknowActivities.add({ index: match.index, name: match[1] });
         }
       }

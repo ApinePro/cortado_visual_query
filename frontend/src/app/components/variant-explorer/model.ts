@@ -1,8 +1,3 @@
-import { some } from 'd3';
-import { NumberValue } from 'd3-scale';
-import { timeThursdays } from 'd3-time';
-import { from } from 'rxjs';
-
 export const isElementWithActivity = (elem: VariantElement) => {
   if (
     elem instanceof ParallelGroup ||
@@ -425,15 +420,56 @@ export abstract class VariantElement {
     }
   }
 
-
-  public abstract asString(): string
+  public abstract asString(): string;
+  public abstract deleteActivity(activityName: string);
+  public abstract renameActivity(activityName: string, newActivityName : string); 
 }
 
 export class SequenceGroup extends VariantElement {
 
+  public renameActivity(activityName: string, newActivityName: string) {
+    this.elements.forEach((e) => {e.renameActivity(activityName, newActivityName)}); 
+  }
+
+  public deleteActivity(activityName: string) {
+    const newElems = [];
+
+    for (let elem of this.elements) {
+      if (!(elem instanceof WaitingTimeNode)) {
+        const res = elem.deleteActivity(activityName);
+
+        if (res[1]) {
+          // Found a Fallthrough Stop Early
+          return [this, true];
+        } else {
+          // We append the result
+          if (res[0]) {
+            newElems.push(res[0]);
+          }
+        }
+      }
+    }
+
+    if (newElems.length > 1) {
+      this.elements = newElems;
+      return [this, false];
+    } else if (newElems.length === 1) {
+      return [newElems[0], false];
+    } else {
+      return [null, false];
+    }
+  }
 
   public asString(): string {
-    return '->(' + this.elements.map((v) => {return v.asString()}).join(', ') + ')';
+    return (
+      '->(' +
+      this.elements
+        .map((v) => {
+          return v.asString();
+        })
+        .join(', ') +
+      ')'
+    );
   }
 
   constructor(public elements: VariantElement[], performance: any = undefined) {
@@ -616,12 +652,57 @@ export class SequenceGroup extends VariantElement {
 }
 
 export class ParallelGroup extends VariantElement {
+
+  public renameActivity(activityName: string, newActivityName: string) {
+    this.elements.forEach((e) => {e.renameActivity(activityName, newActivityName)}); 
+  }
+
+  public deleteActivity(activityName: string) {
+    const newElems = [];
+
+    for (let elem of this.elements) {
+      if (!(elem instanceof WaitingTimeNode)) {
+        const res = elem.deleteActivity(activityName);
+
+        if (res[1]) {
+          // Found a Fallthrough Stop Early
+          return [this, true];
+        } else {
+          // We append the result
+          if (res[0]) {
+            newElems.push(res[0]);
+          }
+        }
+      }
+    }
+
+    if (newElems.length > 1) {
+      this.elements = newElems;
+      return [this, false];
+    } else if (newElems.length === 1) {
+      return [newElems[0], false];
+    } else {
+      return [null, false];
+    }
+  }
+
   constructor(public elements: VariantElement[], performance: any = undefined) {
     super(performance);
   }
 
   public asString(): string {
-    return '+(' + this.elements.filter((v) => {return !(v instanceof WaitingTimeNode)}).map((v) => {return v.asString()}).join(', ') + ')';
+    return (
+      '+(' +
+      this.elements
+        .filter((v) => {
+          return !(v instanceof WaitingTimeNode);
+        })
+        .map((v) => {
+          return v.asString();
+        })
+        .join(', ') +
+      ')'
+    );
   }
 
   public setExpanded(expanded: boolean) {
@@ -769,8 +850,24 @@ export class ParallelGroup extends VariantElement {
 }
 
 export class LeafNode extends VariantElement {
-  public textLength: number = 10;
 
+  public renameActivity(activityName: string, newActivityName: string) {
+    this.activity = this.activity.map((a) => { return a === activityName ? newActivityName : a})
+  }
+
+  public deleteActivity(activityName: string) {
+    if (this.activity.includes(activityName)) {
+      if (this.activity.length > 1) {
+        return [this, true];
+      } else {
+        return [null, false];
+      }
+    }
+
+    return [this, false];
+  }
+
+  public textLength: number = 10;
 
   public asString(): string {
     return this.activity.join(';');
@@ -843,8 +940,16 @@ export class LeafNode extends VariantElement {
 }
 
 export class WaitingTimeNode extends VariantElement {
+
+  public renameActivity(activityName: string, newActivityName: string) {
+  }
+
+  public deleteActivity(activityName: string) {
+    return [null, false];
+  }
+
   public asString(): string {
-    return ''
+    return '';
   }
 
   constructor(waitingTime: PerformanceStats) {
@@ -896,11 +1001,9 @@ export class WaitingTimeNode extends VariantElement {
 }
 
 export class InvisibleSequenceGroup extends SequenceGroup {
-
   public asString(): string {
     return this.elements[1].asString();
   }
-
 
   public getMarginX() {
     return 0;

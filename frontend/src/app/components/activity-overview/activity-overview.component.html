@@ -194,9 +194,7 @@
                     $event.target.value
                   )
                 "
-                (focusout)="
-                  $event.target.value = activityField.activityName;
-                "
+                (focusout)="$event.target.value = activityField.activityName"
                 (focus)="editingActivityName = true"
               />
             </td>

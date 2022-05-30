@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { BackendService } from 'src/app/services/backendService/backend.service';
+import { LogService } from 'src/app/services/logService/log.service';
 import { SettingsService } from 'src/app/services/settingsService/settings.service';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { Configuration } from './model';
@@ -25,7 +26,7 @@ export class SettingsComponent implements OnInit {
   constructor(
     private backendService: BackendService,
     private settingsService: SettingsService,
-    private dataService: SharedDataService,
+    private logService: LogService,
     private fb: FormBuilder
   ) {}
 
@@ -39,7 +40,7 @@ export class SettingsComponent implements OnInit {
   }
 
   onGranularityChange(event) {
-    this.dataService.timeGranularity = event;
+    this.logService.timeGranularity = event;
   }
 
   showModal(): void {

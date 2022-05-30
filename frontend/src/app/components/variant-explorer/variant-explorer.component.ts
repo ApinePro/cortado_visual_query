@@ -42,6 +42,7 @@ import { PerformanceService } from 'src/app/services/performance.service';
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
+import { VariantService } from 'src/app/services/variantService/variant.service';
 import { originalOrder } from 'src/app/utils/util';
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { BackendService } from '../../services/backendService/backend.service';
@@ -137,6 +138,7 @@ export class VariantExplorerComponent
   constructor(
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
+    private variantService : VariantService,
     private backendService: BackendService,
     private logService: LogService,
     private imageExportService: ImageExportService,
@@ -225,7 +227,7 @@ export class VariantExplorerComponent
     );
 
     // preload road traffic fine management process
-    this.variants = this.sharedDataService.variants;
+    this.variants = this.variantService.variants;
     this.displayed_variants = this.variants;
 
     this.variants.forEach((v, i) => {
@@ -240,46 +242,35 @@ export class VariantExplorerComponent
       setParent(v.variant);
     });
 
-    this.variantPerformanceService.injectWaitingTimeNodes(
-      this.variants.map((v) => v.variant)
-    );
     this.colorMap = this.colorMapService.getColorMap(
-      Object.keys(this.sharedDataService.activitiesInEventLog)
+      Object.keys(this.logService.activitiesInEventLog)
     );
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.colorMap = colorMap;
       this.redraw_components();
     });
-    this.sharedDataService.loadedEventLog = 'preload';
+    this.logService.loadedEventLog = 'preload';
 
-    console.log('Preloaded log', this.sharedDataService.loadedEventLog)
-
-    this.sharedDataService.activityNamesChanged$.subscribe(
-      (activityNameMapping) => {
-        this.activityNamesChanged();
-      }
-    );
+    console.log('Preloaded log', this.logService.loadedEventLog);
 
     const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
     this.variants.forEach((v) => {
       v.percentage = Number.parseFloat(((v.count / total) * 100).toFixed(2));
     });
 
-    this.variants.forEach((v) => console.log(v, 'String', v.variant.asString()))
-
     this.numberFittingVariants = undefined;
     this.totalNumberTraces = total;
     this.totalNumberVariants = this.variants.length;
 
-    this.sharedDataService.loadedEventLog$.subscribe((eventLog) => {
-      console.log('Event Log Changed', eventLog)
+    this.logService.loadedEventLog$.subscribe((eventLog) => {
+      console.log('Event Log Changed', eventLog);
       if (eventLog) {
         this.closeAllSubvariantWindows();
         this.performanceMode = false;
         this.variantPerformanceService.variantPerformanceMode.next(false);
         this.eventLogChanged();
 
-        console.log('Loaded Event Log')
+        console.log('Loaded Event Log');
       }
     });
 
@@ -289,7 +280,7 @@ export class VariantExplorerComponent
 
     this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
       this.currentlyDisplayedProcessTree = tree;
-      const treeHasChanged = !this.sharedDataService.processTreesEqual(
+      const treeHasChanged = !this.processTreeService.processTreesEqual(
         this.usedTreeForConformanceChecking,
         this.currentlyDisplayedProcessTree
       );
@@ -353,10 +344,10 @@ export class VariantExplorerComponent
 
   private eventLogChanged(): void {
     this.colorMap = this.colorMapService.getColorMap(
-      Object.keys(this.sharedDataService.activitiesInEventLog)
+      Object.keys(this.logService.activitiesInEventLog)
     );
 
-    this.variants = this.sharedDataService.variants;
+    this.variants = this.variantService.variants;
     console.log('Variants after Load', this.variants);
 
     this.displayed_variants = this.variants;
@@ -389,7 +380,7 @@ export class VariantExplorerComponent
 
   private activityNamesChanged(): void {
     // Changes to variants in shared data service are made in activity overview
-    this.variants = this.sharedDataService.variants;
+    this.variants = this.variantService.variants;
   }
 
   subscribeForConformanceCheckingResults(): void {
@@ -923,7 +914,7 @@ export class VariantExplorerComponent
 
     let leafnodes: LeafNode[] = [];
 
-    for (let activity in this.sharedDataService.activitiesInEventLog) {
+    for (let activity in this.logService.activitiesInEventLog) {
       leafnodes.push(new LeafNode([activity]));
     }
 
@@ -1054,7 +1045,7 @@ export class VariantExplorerComponent
   }
 
   listenForLogGranularityChange() {
-    this.sharedDataService.logGranularity$.subscribe((granularity) => {
+    this.logService.logGranularity$.subscribe((granularity) => {
       this.selectedGranularity = granularity;
     });
   }

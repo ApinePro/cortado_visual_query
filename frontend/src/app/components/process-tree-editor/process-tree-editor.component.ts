@@ -42,6 +42,7 @@ import {
   NodeSeletionStrategy,
   ProcessTreeService,
 } from 'src/app/services/processTreeService/process-tree.service';
+import { LogService } from 'src/app/services/logService/log.service';
 
 @Component({
   selector: 'app-process-tree-editor',
@@ -75,6 +76,7 @@ export class ProcessTreeEditorComponent
     private colorMapService: ColorMapService,
     private imageExportService: ImageExportService,
     private backendService: BackendService,
+    private logService : LogService, 
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     private performanceService: PerformanceService,
     private performanceColorScaleService: ModelPerformanceColorScaleService,
@@ -149,51 +151,6 @@ export class ProcessTreeEditorComponent
       '<large> Import <strong>Process Tree</strong> .ptml file</large>'
     );
 
-    this.sharedDataService.activityNamesChanged$.subscribe(
-      (activityNameMapping) => {
-        if (this.root && this.currentlyDisplayedTreeInEditor) {
-          // Function to relabel process tree
-          const relabelProcessTreeRecursive = function (
-            mapping: Map<string, string>,
-            tree: ProcessTree
-          ): void {
-            if (tree.label && tree.label !== ProcessTreeOperator.tau) {
-              tree.label = mapping.get(tree.label);
-            }
-            if (tree.children) {
-              for (let child of tree.children) {
-                relabelProcessTreeRecursive(mapping, child);
-              }
-            }
-          };
-
-          // Function to relabel the d3 tree
-          const relabelRootNodeRecursive = function (
-            mapping: Map<string, string>,
-            tree: d3.HierarchyNode<any>
-          ): void {
-            if (
-              tree.data.label &&
-              tree.data.label !== ProcessTreeOperator.tau
-            ) {
-              tree.data.label = mapping.get(tree.data.label);
-            }
-            if (tree.children) {
-              for (let child of tree.children) {
-                relabelRootNodeRecursive(mapping, child);
-              }
-            }
-          };
-
-          // Relabel the currently displayed tree
-          relabelRootNodeRecursive(activityNameMapping, this.root);
-
-          this.processTreeService.currentDisplayedProcessTree =
-            this.getProcessTreeObject(this.root);
-        }
-      }
-    );
-
     this.processTreeService.treeCacheIndex$.subscribe((idx) => {
       this.treeCacheIndex = idx;
     });
@@ -266,7 +223,7 @@ export class ProcessTreeEditorComponent
       }
     });
 
-    this.sharedDataService.activitiesInEventLog$.subscribe((activities) => {
+    this.logService.activitiesInEventLog$.subscribe((activities) => {
       this.activitiesOccurringInLog = Array.from(Object.keys(activities));
     });
   }
@@ -309,7 +266,7 @@ export class ProcessTreeEditorComponent
     // Calculate the initial Node width
     this.computeLeafNodeWidth(this.activitiesOccurringInLog);
     // Update the cached values if the activities change
-    this.sharedDataService.activitiesInEventLog$.subscribe((activities) => {
+    this.logService.activitiesInEventLog$.subscribe((activities) => {
       this.computeLeafNodeWidth(Array.from(Object.keys(activities)));
     });
 

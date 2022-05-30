@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Variant, VariantElement } from '../components/variant-explorer/model';
+import { Variant } from '../components/variant-explorer/model';
 import { ProcessTree, TreePerformance } from '../objects/ProcessTree';
 import { BackendService } from './backendService/backend.service';
-import { SharedDataService } from './sharedDataService/shared-data.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { ActivateTooltipsService } from './activateTooltipsService/activate-tooltips.service';
 import { HumanizeDurationPipe } from '../pipes/humanize-duration.pipe';
 import { ProcessTreeService } from './processTreeService/process-tree.service';
+import { VariantService } from './variantService/variant.service';
 
 @Injectable({
   providedIn: 'root',
@@ -39,14 +39,14 @@ export class PerformanceService {
   private currentPt: ProcessTree;
 
   constructor(
-    private sharedDataService: SharedDataService,
+    private variantService: VariantService,
     private backendService: BackendService,
     private tooltipService: ActivateTooltipsService,
     private processTreeService: ProcessTreeService
   ) {
     this.currentPt = processTreeService.currentDisplayedProcessTree;
 
-    this.sharedDataService.variants$.subscribe((_variants) => {
+    this.variantService.variants$.subscribe((_variants) => {
       this.clear();
     });
     processTreeService.currentDisplayedProcessTree$.subscribe((pt) => {
@@ -106,7 +106,10 @@ export class PerformanceService {
       .filter((v) => !this.availablePerformances.has(v))
       .forEach((v) => this.calculationInProgress.add(v));
     this.latestRequest = this.backendService
-      .getTreePerformance(variantBIDs, removeVariants?.map((v) =>  v.bid))
+      .getTreePerformance(
+        variantBIDs,
+        removeVariants?.map((v) => v.bid)
+      )
       .subscribe(
         (performance) => {
           this.mergedPerformance = ProcessTree.fromObj(

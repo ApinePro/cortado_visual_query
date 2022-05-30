@@ -7,12 +7,13 @@ import * as FileSaver from 'file-saver';
 import { take, tap } from 'rxjs/operators';
 import {
   deserialize,
-  Variant,
   VariantElement,
 } from 'src/app/components/variant-explorer/model';
 import { Configuration } from 'src/app/components/settings/model';
 import * as objectHash from 'object-hash';
 import { ProcessTree } from 'src/app/objects/ProcessTree';
+import { LogService } from '../logService/log.service';
+import { VariantService } from '../variantService/variant.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +21,8 @@ import { ProcessTree } from 'src/app/objects/ProcessTree';
 export class BackendService {
   constructor(
     private httpClient: HttpClient,
-    private sharedDataService: SharedDataService,
+    private logService : LogService, 
+    private variantService : VariantService,
     private processTreeService: ProcessTreeService
   ) {}
 
@@ -47,30 +49,29 @@ export class BackendService {
       });
   }
 
-
   // Refractor too Log Service
   private processEventLog(res, filePath = null) {
-    this.sharedDataService.activitiesInEventLog = res['activities'];
-    this.sharedDataService.startActivitiesInEventLog = new Set(
+    this.logService.activitiesInEventLog = res['activities'];
+    this.logService.startActivitiesInEventLog = new Set(
       Object.keys(res['startActivities'])
     );
-    this.sharedDataService.endActivitiesInEventLog = new Set(
+    this.logService.endActivitiesInEventLog = new Set(
       Object.keys(res['endActivities'])
     );
 
-    this.sharedDataService.variants = res['variants'];
+    this.variantService.variants = res['variants'];
 
-    this.sharedDataService.variants.forEach((variant, i) => {
+    this.variantService.variants.forEach((variant, i) => {
       variant['id'] = objectHash(variant['variant']);
       variant.number = i + 1;
       variant['variant'] = deserialize(variant.variant);
     });
 
-    this.sharedDataService.loadedEventLog = filePath;
+    this.logService.loadedEventLog = filePath;
 
-    this.sharedDataService.performanceInfoAvailable = true;
-    this.sharedDataService.timeGranularity = res['timeGranularity'];
-    this.sharedDataService.logGranularity = res['timeGranularity'];
+    this.logService.performanceInfoAvailable = true;
+    this.logService.timeGranularity = res['timeGranularity'];
+    this.logService.logGranularity = res['timeGranularity'];
   }
 
   loadProcessTreeFromFilePath(filePath: string): void {
@@ -211,10 +212,7 @@ export class BackendService {
       });
   }
 
-  getTreePerformance(
-    variants: number[],
-    remove?: number[]
-  ): Observable<any> {
+  getTreePerformance(variants: number[], remove?: number[]): Observable<any> {
     const body = {
       pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
       variants: variants,

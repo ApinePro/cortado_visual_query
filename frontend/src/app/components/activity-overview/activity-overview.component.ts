@@ -1,3 +1,4 @@
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { LogService } from 'src/app/services/logService/log.service';
 import { BackendService } from 'src/app/services/backendService/backend.service';
 import {
@@ -13,6 +14,7 @@ import { SharedDataService } from '../../services/sharedDataService/shared-data.
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { VariantElement } from '../variant-explorer/model';
+import { VariantService } from 'src/app/services/variantService/variant.service';
 
 @Component({
   selector: 'app-activity-overview',
@@ -26,7 +28,9 @@ export class ActivityOverviewComponent
   constructor(
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
-    private logService : LogService, 
+    private logService: LogService,
+    private variantService : VariantService,
+    private processTreeService : ProcessTreeService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
     elRef: ElementRef,
@@ -42,7 +46,7 @@ export class ActivityOverviewComponent
   endActivities: Set<string>;
   activitiesInLog: any;
   activityFields: ActivityField[];
-  editingActivityName : boolean = false;
+  editingActivityName: boolean = false;
 
   sortKey: string = 'activityName';
   ascending: boolean = false;
@@ -63,15 +67,15 @@ export class ActivityOverviewComponent
       this.activityColorMap = colorMap;
     });
 
-    this.sharedDataService.activitiesInCurrentTree$.subscribe(
+    this.processTreeService.activitiesInCurrentTree$.subscribe(
       (activitiesInTree) => {
         this.activitiesInTree = activitiesInTree;
       }
     );
 
-    this.activitiesInLog = this.sharedDataService.activitiesInEventLog;
-    this.startActivities = this.sharedDataService.startActivitiesInEventLog;
-    this.endActivities = this.sharedDataService.endActivitiesInEventLog;
+    this.activitiesInLog = this.logService.activitiesInEventLog;
+    this.startActivities = this.logService.startActivitiesInEventLog;
+    this.endActivities = this.logService.endActivitiesInEventLog;
 
     this.activityFields = [];
     for (let activity in this.activitiesInLog) {
@@ -88,7 +92,7 @@ export class ActivityOverviewComponent
     }
 
     // Handle change of current activies in the loaded model
-    this.sharedDataService.activitiesInCurrentTree$.subscribe(
+    this.processTreeService.activitiesInCurrentTree$.subscribe(
       (activitiesInTree) => {
         for (let field of this.activityFields) {
           field.inModel = activitiesInTree.has(field.activityName);
@@ -97,7 +101,7 @@ export class ActivityOverviewComponent
     );
 
     // Handle change of loaded log
-    this.sharedDataService.loadedEventLog$.subscribe((eventLogName) => {
+    this.logService.loadedEventLog$.subscribe((eventLogName) => {
       console.log(
         'new loadedEventLog$ in activity-overview.component:' + eventLogName
       );
@@ -107,9 +111,9 @@ export class ActivityOverviewComponent
   }
 
   resetActivityFields() {
-    this.startActivities = this.sharedDataService.startActivitiesInEventLog;
-    this.endActivities = this.sharedDataService.endActivitiesInEventLog;
-    this.activitiesInLog = this.sharedDataService.activitiesInEventLog;
+    this.startActivities = this.logService.startActivitiesInEventLog;
+    this.endActivities = this.logService.endActivitiesInEventLog;
+    this.activitiesInLog = this.logService.activitiesInEventLog;
 
     this.activityFields = [];
     for (let activity in this.activitiesInLog) {
@@ -154,14 +158,11 @@ export class ActivityOverviewComponent
       this.ascending = !this.ascending;
     }
   }
-  deleteActivity(activity : ActivityField){
-
+  deleteActivity(activity: ActivityField) {
     console.log(activity.activityName);
     this.editingActivityName = false;
 
-
-    this.logService.propagateActivityDeletion(activity.activityName)
-
+    this.logService.propagateActivityDeletion(activity.activityName);
   }
   changeActivityColor(activityField: ActivityField, color: string) {
     if (color) {
@@ -173,10 +174,9 @@ export class ActivityOverviewComponent
     }
   }
 
-
   resetActivityColors(): void {
     this.colorMapService.getColorMap(
-      Object.keys(this.sharedDataService.activitiesInEventLog)
+      Object.keys(this.logService.activitiesInEventLog)
     );
     if (this.activityFields) {
       for (let activityField of this.activityFields) {
@@ -201,7 +201,10 @@ export class ActivityOverviewComponent
     newActivityName: string
   ): void {
     // build a mapping of old activity name => new activity name
-    this.logService.propagateActivityNameChange( oldActivityName, newActivityName)
+    this.logService.propagateActivityNameChange(
+      oldActivityName,
+      newActivityName
+    );
 
     let activityNameMapping: Map<string, string> = new Map();
     if (this.activityFields) {
@@ -212,8 +215,6 @@ export class ActivityOverviewComponent
         );
       }
     }
-
-
 
     activityNameMapping.set(oldActivityName, newActivityName);
 
@@ -230,26 +231,26 @@ export class ActivityOverviewComponent
     // modifying related data in shared data service. Similar to processEventLog in backend service
     // relabeling activities
     let activities = {};
-    for (let activity in this.sharedDataService.activitiesInEventLog) {
+    for (let activity in this.logService.activitiesInEventLog) {
       let newActivityName = activityNameMapping.get(activity);
       if (!activities[newActivityName]) {
         activities[newActivityName] =
-          this.sharedDataService.activitiesInEventLog[activity];
+          this.logService.activitiesInEventLog[activity];
       } else {
         activities[newActivityName] +=
-          this.sharedDataService.activitiesInEventLog[activity];
+          this.logService.activitiesInEventLog[activity];
       }
     }
 
     // relabeling start activities
     let startActivities = new Set<string>();
-    for (let activity of this.sharedDataService.startActivitiesInEventLog) {
+    for (let activity of this.logService.startActivitiesInEventLog) {
       startActivities.add(activityNameMapping.get(activity));
     }
 
     // relabeling end activities
     let endActivities = new Set<string>();
-    for (let activity of this.sharedDataService.endActivitiesInEventLog) {
+    for (let activity of this.logService.endActivitiesInEventLog) {
       endActivities.add(activityNameMapping.get(activity));
     }
 
@@ -268,7 +269,7 @@ export class ActivityOverviewComponent
     };
 
     // relabeling variants
-    let variants = this.sharedDataService.variants;
+    let variants = this.variantService.variants;
     for (let variantIndex in variants) {
       // relabeling the sub variants
       for (let subVariantIndex in variants[variantIndex]['sub_variants']) {
@@ -291,10 +292,9 @@ export class ActivityOverviewComponent
     }
 
     // Apply necessary changes to shared data service
-    this.sharedDataService.activitiesInEventLog = activities;
-    this.sharedDataService.startActivitiesInEventLog = startActivities;
-    this.sharedDataService.endActivitiesInEventLog = endActivities;
-    this.sharedDataService.activityNamesChanged = activityNameMapping;
+    this.logService.activitiesInEventLog = activities;
+    this.logService.startActivitiesInEventLog = startActivities;
+    this.logService.endActivitiesInEventLog = endActivities;
     this.colorMapService.colorMap = newColorMap;
 
     // Changing activity field table

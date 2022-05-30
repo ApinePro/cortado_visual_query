@@ -1,16 +1,14 @@
-import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
+
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
 import { ProcessTree } from 'src/app/objects/ProcessTree';
-import { HierarchyNode } from 'd3';
-import { PerformanceService } from '../performance.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProcessTreeService {
-  constructor(private sharedDataService: SharedDataService) {}
+  constructor() {}
 
   private _selectedRootNodeID = new BehaviorSubject<number>(null);
 
@@ -94,12 +92,25 @@ export class ProcessTreeService {
     return this._currentDisplayedProcessTree.getValue();
   }
 
+
+  private _activitiesInCurrentTree = new BehaviorSubject<Set<string>>(
+    new Set()
+  );
+
+  get activitiesInCurrentTree$(): Observable<Set<string>> {
+    return this._activitiesInCurrentTree.asObservable();
+  }
+
+  set activitiesInCurrentTree(activities) {
+    this._activitiesInCurrentTree.next(activities);
+  }
+
   set currentDisplayedProcessTree(tree: any) {
     if (tree && !(tree instanceof ProcessTree)) {
       tree = ProcessTree.fromObj(tree);
     }
     this._currentDisplayedProcessTree.next(tree);
-    this.sharedDataService.activitiesInCurrentTree =
+    this.activitiesInCurrentTree =
       this.getSetOfActivities(tree);
   }
 
@@ -108,7 +119,7 @@ export class ProcessTreeService {
       tree = ProcessTree.fromObj(tree);
     }
     this._currentDisplayedProcessTree.next(tree);
-    this.sharedDataService.activitiesInCurrentTree =
+    this.activitiesInCurrentTree =
       this.getSetOfActivities(tree);
     this.cacheCurrentTree(tree);
   }
@@ -206,6 +217,33 @@ export class ProcessTreeService {
       this.currentDisplayedProcessTree = treeToLoad;
     }
   }
+
+
+    // TODO move somewhere else
+    processTreesEqual(pt1, pt2): boolean {
+      if (!pt1 || !pt2) {
+        return false;
+      }
+      if (
+        pt1['operator'] === pt2['operator'] &&
+        pt1['label'] === pt2['label'] &&
+        pt1['children'].length === pt2['children'].length
+      ) {
+        if (pt1['children'].length === 0) {
+          return true;
+        } else {
+          let res = true;
+          for (let i = 0; i < pt1['children'].length; i++) {
+            res =
+              res &&
+              this.processTreesEqual(pt1['children'][i], pt2['children'][i]);
+          }
+          return res;
+        }
+      } else {
+        return false;
+      }
+    }
 }
 
 export enum NodeSeletionStrategy {

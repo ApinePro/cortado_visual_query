@@ -21,11 +21,11 @@ import {
   VariantElement,
   InfixType,
 } from '../model';
-import { SharedDataService } from '../../../services/sharedDataService/shared-data.service';
 import { PerformanceService } from '../../../services/performance.service';
 import { ModelPerformanceColorScaleService } from '../../../services/performance-color-scale.service';
 import { textColorForBackgroundColor } from '../helper_functions';
 import * as objectHash from 'object-hash';
+import { VariantService } from 'src/app/services/variantService/variant.service';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -97,7 +97,7 @@ export class VariantComponent implements AfterViewInit {
   constructor(
     private lazyLoadingService: LazyLoadingServiceService,
     public performanceService: PerformanceService,
-    public sharedDataService: SharedDataService,
+    public variantService: VariantService,
     private processTreeService: ProcessTreeService,
     private performanceColorService: ModelPerformanceColorScaleService
   ) {}
@@ -243,7 +243,7 @@ export class VariantComponent implements AfterViewInit {
         infixType
       );
 
-      let currentVariants = this.sharedDataService.variants;
+      let currentVariants = this.variantService.variants;
 
       newVariant.alignment = undefined;
       newVariant.deviation = undefined;
@@ -253,7 +253,7 @@ export class VariantComponent implements AfterViewInit {
 
       if (!duplicate.includes(true)) {
         currentVariants.push(newVariant);
-        this.sharedDataService.variants = currentVariants;
+        this.variantService.variants = currentVariants;
       } else {
         // Will think about some warning mechanism later
       }

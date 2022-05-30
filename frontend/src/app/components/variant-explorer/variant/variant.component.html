@@ -20,7 +20,7 @@
     </div>
   </td>
   <td
-    *ngIf="sharedDataService.currentDisplayedProcessTree"
+    *ngIf="processTreeService.currentDisplayedProcessTree"
     style="text-align: center"
   >
     <div
@@ -219,7 +219,7 @@
     </div>
   </td>
 
-  <td *ngIf="sharedDataService.currentDisplayedProcessTree"></td>
+  <td *ngIf="processTreeService.currentDisplayedProcessTree"></td>
 
   <td>
     <tspan class="ms-2"> Performance not available </tspan>

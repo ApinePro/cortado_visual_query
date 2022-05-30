@@ -9,7 +9,8 @@ import {
   WaitingTimeNode,
 } from '../components/variant-explorer/model';
 import * as d3 from 'd3';
-import { SharedDataService } from './sharedDataService/shared-data.service';
+import { LogService } from './logService/log.service';
+import { VariantService } from './variantService/variant.service';
 
 // https://observablehq.com/@philippkoytek/celonis-data-visualization-colors
 export const COLORS_CYAN = [
@@ -97,8 +98,10 @@ export class VariantPerformanceService {
 
   public variantPerformanceMode = new BehaviorSubject<boolean>(false);
 
-  constructor(private sharedDataService: SharedDataService) {
-    this.sharedDataService.loadedEventLog$.subscribe((log) => {
+  constructor(private logService : LogService, private variantService : VariantService)
+             
+  {
+    this.logService.loadedEventLog$.subscribe((log) => {
       if (log !== undefined) {
         this.updateServiceTimeColorMap();
         this.updateWaitingTimeColorMap();
@@ -152,7 +155,7 @@ export class VariantPerformanceService {
     performanceIndicator,
     statistic
   ) {
-    let values = this.sharedDataService.variants
+    let values = this.variantService.variants
       .map((v) => v.variant)
       .map((v) => v[performanceIndicator][statistic]);
     let min = Math.min(...values);
@@ -199,7 +202,7 @@ export class VariantPerformanceService {
 
   getAllValues(performanceIndicator, value): number[] {
     let values = [];
-    this.sharedDataService.variants.forEach((variant) => {
+    this.variantService.variants.forEach((variant) => {
       let vElement = variant.variant;
       let vs = this.getAllValuesElement(vElement, performanceIndicator, value);
       values.push(...vs);

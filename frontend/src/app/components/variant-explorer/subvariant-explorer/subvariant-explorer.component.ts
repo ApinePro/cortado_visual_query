@@ -19,6 +19,7 @@ import { ImageExportService } from 'src/app/services/imageExportService/image-ex
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import * as d3 from 'd3';
 import { LeafNode } from '../model';
+import { LogService } from 'src/app/services/logService/log.service';
 
 @Component({
   selector: 'app-subvariant-explorer',
@@ -47,14 +48,14 @@ export class SubvariantExplorerComponent
     elRef: ElementRef,
     renderer: Renderer2,
     private colorMapService: ColorMapService,
-    private sharedDataService: SharedDataService,
+    private logService: LogService,
     private imageExportService: ImageExportService,
     private polygonDrawingService: PolygonDrawingService
   ) {
     super(elRef.nativeElement, renderer);
     this.mainVariant = this.container.initialState as Variant;
     this.colorMap = this.colorMapService.getColorMap(
-      Object.keys(this.sharedDataService.activitiesInEventLog)
+      Object.keys(this.logService.activitiesInEventLog)
     );
     this.sortAscending = false;
     this.svgRenderingInProgress = false;
@@ -196,7 +197,7 @@ export class SubvariantExplorerComponent
     // Draw the legend and insert it to the start of the svg array
     const legend = d3.create('svg').attr('x', '10').attr('y', '10');
     let leafnodes: LeafNode[] = [];
-    for (let activity in this.sharedDataService.activitiesInEventLog) {
+    for (let activity in this.logService.activitiesInEventLog) {
       leafnodes.push(new LeafNode([activity]));
     }
     this.polygonDrawingService.drawLegend(
