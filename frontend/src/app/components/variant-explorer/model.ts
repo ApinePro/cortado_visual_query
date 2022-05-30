@@ -424,9 +424,18 @@ export abstract class VariantElement {
       return unchanged;
     }
   }
+
+
+  public abstract asString(): string
 }
 
 export class SequenceGroup extends VariantElement {
+
+
+  public asString(): string {
+    return '->(' + this.elements.map((v) => {return v.asString()}).join(', ') + ')';
+  }
+
   constructor(public elements: VariantElement[], performance: any = undefined) {
     super(performance);
   }
@@ -611,6 +620,10 @@ export class ParallelGroup extends VariantElement {
     super(performance);
   }
 
+  public asString(): string {
+    return '+(' + this.elements.filter((v) => {return !(v instanceof WaitingTimeNode)}).map((v) => {return v.asString()}).join(', ') + ')';
+  }
+
   public setExpanded(expanded: boolean) {
     super.setExpanded(expanded);
 
@@ -758,6 +771,11 @@ export class ParallelGroup extends VariantElement {
 export class LeafNode extends VariantElement {
   public textLength: number = 10;
 
+
+  public asString(): string {
+    return this.activity.join(';');
+  }
+
   constructor(public activity: string[], performance: any = undefined) {
     super(performance);
   }
@@ -825,6 +843,10 @@ export class LeafNode extends VariantElement {
 }
 
 export class WaitingTimeNode extends VariantElement {
+  public asString(): string {
+    return ''
+  }
+
   constructor(waitingTime: PerformanceStats) {
     super({ wait_time: waitingTime });
   }
@@ -874,6 +896,12 @@ export class WaitingTimeNode extends VariantElement {
 }
 
 export class InvisibleSequenceGroup extends SequenceGroup {
+
+  public asString(): string {
+    return this.elements[1].asString();
+  }
+
+
   public getMarginX() {
     return 0;
   }

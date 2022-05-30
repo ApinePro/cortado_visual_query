@@ -265,6 +265,8 @@ export class VariantExplorerComponent
       v.percentage = Number.parseFloat(((v.count / total) * 100).toFixed(2));
     });
 
+    this.variants.forEach((v) => console.log(v, 'String', v.variant.asString()))
+
     this.numberFittingVariants = undefined;
     this.totalNumberTraces = total;
     this.totalNumberVariants = this.variants.length;
