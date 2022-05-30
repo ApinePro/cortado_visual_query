@@ -65,7 +65,20 @@ export class VariantMinerComponent
   VariantSortKey = VariantSortKey;
   currentSortKey: VariantSortKey;
 
+  math = Math; 
+
   showControls: boolean = true;
+  relSup = 25; 
+  supportSliderOptions: Options = {
+    floor: 0,
+    ceil: 200,
+    step: 0.01,
+    tickStep: 0.25,
+    showSelectionBar: true,
+    translate: (value: number): string => {
+      return +value.toFixed(1) + '%';
+    }
+  };
 
   kLow: number = 0;
   kHigh: number = 5;
@@ -144,6 +157,9 @@ export class VariantMinerComponent
   variantMinerResults: any;
   colorMap;
 
+  totalTraces : number; 
+  totalVariants : number; 
+
   showOnlyClosed: boolean = false;
   showOnlyMaximal: boolean = false;
 
@@ -162,14 +178,23 @@ export class VariantMinerComponent
       '<large> Import <strong>Event Log</strong> .xes file</large>'
     );
 
+
+    const rel_sup = new FormControl(1000, {
+      updateOn: 'change',
+    }); 
+
+    const min_sup = new FormControl(1000, {
+      updateOn: 'change',
+    }); 
+
+
     this.variantMinerConfigInput = new FormGroup({
       k: new FormControl(20, {
         updateOn: 'change',
       }),
 
-      min_sup: new FormControl(1000, {
-        updateOn: 'change',
-      }),
+      min_sup, 
+      rel_sup,
 
       loop: new FormControl(2, {
         updateOn: 'change',
@@ -190,6 +215,28 @@ export class VariantMinerComponent
         }
       ),
     });
+
+    rel_sup.valueChanges.subscribe((relSup) => {
+
+      const min_sup_update = this.variantMinerConfigInput.value.frequent_mining_strat === FrequentMiningStrategy.TraceTransaction ||
+      this.variantMinerConfigInput.value.frequent_mining_strat ===
+      FrequentMiningStrategy.TraceOccurence
+      ? Math.round((relSup / 100) * this.totalTraces)
+      : Math.round((relSup / 100) * this.totalVariants)
+
+      min_sup.setValue(min_sup_update)
+
+    })
+
+    this.sharedDataService.variants$.subscribe((variants) => {
+      console.log('Variants')
+      this.totalTraces = variants.map((variant) => {return variant.count}).reduce((a : number, b : number) => a + b)
+      this.totalVariants = variants.length; 
+
+      console.log('Total Traces', this.totalTraces)
+      console.log('Total Variants', this.totalVariants)
+
+    })
   }
 
   onSubmit() {
@@ -209,6 +256,7 @@ export class VariantMinerComponent
 
     this.minsup = form_values.min_sup;
   }
+
 
   handleFilterChange(event) {
     this.displayedVariantsPatterns = this.variantPatterns.filter((vp) => {
@@ -237,6 +285,7 @@ export class VariantMinerComponent
     this.colorMapService.colorMap$.subscribe((cMap) => {
       this.colorMap = cMap;
     });
+
 
     this.sharedDataService.frequentMiningResults$.subscribe((res) => {
       if (res) {

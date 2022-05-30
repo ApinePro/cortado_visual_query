@@ -13,7 +13,50 @@ $controls-width : 200px;
   border-left: 1px solid var(--thin-border-color);
 }
 
+.ngx-slider .ngx-slider-pointer {
+  width: 8px;
+  height: 16px;
+  top: auto; /* to remove the default positioning */
+  bottom: 0;
+  background-color: #333;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+::ng-deep { 
 
+  .sup-selector .ngx-slider .ngx-slider-bar {
+    background: #ffe4d1;
+    height: 2px;
+  }
+
+  .sup-selector .ngx-slider .ngx-slider-pointer {
+    width: 8px;
+    height: 16px;
+    top: auto; /* to remove the default positioning */
+    bottom: 0;
+    background-color: rgb(215, 213, 213);
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+  }
+
+  .sup-selector .ngx-slider .ngx-slider-pointer:after {
+    display: none;
+  }
+
+  .sup-selector .ngx-slider .ngx-slider-bubble {
+    bottom: 14px;
+  }
+
+  .sup-selector .ngx-slider .ngx-slider-tick {
+    width: 3px;
+    height: 10px;
+    margin-left: 4px;
+    border-radius: 0;
+    background: #ffe4d1;
+    top: -1px;
+  }
+
+}
 
 .pattern-table-container{
   color : var(--text-secondary);

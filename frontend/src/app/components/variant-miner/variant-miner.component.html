@@ -69,9 +69,7 @@
               FrequentMiningAlgorithm.ClosedMaximalMiner
             "
           >
-            <label for="cm_tree_strategy" class="input-label"
-              >Type:
-            </label>
+            <label for="cm_tree_strategy" class="input-label">Type: </label>
             <select
               formControlName="cm_tree_strategy"
               class="form-select input-selector"
@@ -90,17 +88,48 @@
 
           <div class="form-element">
             <label for="k" class="input-label">K: </label>
-            <input id="k" type="text" formControlName="k" class="input-field" />
+            <input id="k" type="text" formControlName="k" class="input-field" step="1" min="0" />
           </div>
 
           <div class="form-element">
             <label for="min_sup" class="input-label">Support: </label>
-            <input
-              id="min_sup"
-              type="text"
-              formControlName="min_sup"
-              class="input-field"
-            />
+
+            <div class="'rel-sup-input">
+              <input
+                type="number"
+                formControlName="rel_sup"
+                class="input-field"
+                type="number"
+                [(ngModel)]="relSup"
+                step=".01" min="0"
+              />
+              %
+              <div class="sup-selector">
+                <ngx-slider
+                  [(value)]="relSup"
+                  [options]="supportSliderOptions"
+                ></ngx-slider>
+              </div>
+            </div>
+
+            <div class="abs-sup-input">
+              <input
+                id="min_sup"
+                formControlName="min_sup"
+                class="input-field"
+                type="number"
+                step="1" min="0"
+              />
+              of
+              {{
+                variantMinerConfigInput.value.frequent_mining_strat ===
+                  FrequentMiningStrategy.TraceTransaction ||
+                variantMinerConfigInput.value.frequent_mining_strat ===
+                  FrequentMiningStrategy.TraceOccurence
+                  ? totalTraces
+                  : totalVariants
+              }}
+            </div>
           </div>
 
           <div class="form-element">
