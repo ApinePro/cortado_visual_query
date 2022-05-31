@@ -68,6 +68,9 @@ export class VariantComponent implements AfterViewInit {
     element: VariantElement
   ) => void;
 
+  @Input()
+  processTreeAvailable: boolean = false;
+
   @Output()
   public selectionChanged = new EventEmitter<boolean>();
 
@@ -98,7 +101,6 @@ export class VariantComponent implements AfterViewInit {
     private lazyLoadingService: LazyLoadingServiceService,
     public performanceService: PerformanceService,
     public sharedDataService: SharedDataService,
-    private processTreeService: ProcessTreeService,
     private performanceColorService: ModelPerformanceColorScaleService
   ) {}
 
@@ -159,8 +161,7 @@ export class VariantComponent implements AfterViewInit {
       if (this.performanceService.calculationInProgress.has(variant)) {
         return;
       }
-      if (this.processTreeService.currentDisplayedProcessTree === undefined) {
-      } else {
+      if (this.processTreeAvailable) {
         this.performanceService.updatePerformance([variant]);
       }
     }

@@ -469,6 +469,9 @@
             *ngFor="let variant of displayed_variants; let i = index"
             [index]="i"
             [variant]="variant"
+            [processTreeAvailable]="
+              processTreeService.currentDisplayedProcessTree
+            "
             (openSubvariantWindow)="createSubVariantView($event)"
             [onClickCbFc]="variantClickCallBack"
             [computeActivityColor]="computeActivityColor"
