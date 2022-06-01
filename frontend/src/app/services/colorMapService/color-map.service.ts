@@ -33,6 +33,10 @@ export class ColorMapService {
     return this._colorMap.asObservable();
   }
 
+  get colorMap() : Map<string, string>{
+    return this._colorMap.getValue();
+  }
+
   set colorMap(newColorMap: Map<string, string>) {
     this._colorMap.next(newColorMap);
   }
@@ -55,4 +59,19 @@ export class ColorMapService {
       '#' + (0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6);
     return color;
   }
+
+  public deleteActivityInColorMap(activityName : string){
+    this.colorMap.delete(activityName); 
+  }
+
+  public renameColorInActivityColorMap(activityName, newActivityName){
+
+    if(!this.colorMap.get(newActivityName)){
+      this.colorMap.set(newActivityName, this.colorMap.get(activityName)); 
+    } 
+
+    this.colorMap.delete(activityName)
+  }
+
+
 }

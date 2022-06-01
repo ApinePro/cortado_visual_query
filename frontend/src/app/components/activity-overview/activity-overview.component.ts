@@ -105,8 +105,6 @@ export class ActivityOverviewComponent
       console.log(
         'new loadedEventLog$ in activity-overview.component:' + eventLogName
       );
-
-      this.resetActivityFields();
     });
   }
 
@@ -161,9 +159,10 @@ export class ActivityOverviewComponent
   deleteActivity(activity: ActivityField) {
     console.log(activity.activityName);
     this.editingActivityName = false;
-
-    this.logService.propagateActivityDeletion(activity.activityName);
+    console.log('Deleting Activity', activity)
+    this.variantService.deleteActivity(activity.activityName);
   }
+
   changeActivityColor(activityField: ActivityField, color: string) {
     if (color) {
       activityField.color = color;
@@ -200,102 +199,10 @@ export class ActivityOverviewComponent
     oldActivityName: string,
     newActivityName: string
   ): void {
-    // build a mapping of old activity name => new activity name
-    this.logService.propagateActivityNameChange(
-      oldActivityName,
-      newActivityName
-    );
 
-    let activityNameMapping: Map<string, string> = new Map();
-    if (this.activityFields) {
-      for (let activityField of this.activityFields) {
-        activityNameMapping.set(
-          activityField.activityName,
-          activityField.activityName
-        );
-      }
-    }
 
-    activityNameMapping.set(oldActivityName, newActivityName);
-
-    // build correct color map
-    let newColorMap: Map<string, string> = new Map();
-    for (let activityField of this.activityFields) {
-      if (activityField.activityName !== oldActivityName) {
-        newColorMap.set(activityField.activityName, activityField.color);
-      } else {
-        newColorMap.set(newActivityName, activityField.color);
-      }
-    }
-
-    // modifying related data in shared data service. Similar to processEventLog in backend service
-    // relabeling activities
-    let activities = {};
-    for (let activity in this.logService.activitiesInEventLog) {
-      let newActivityName = activityNameMapping.get(activity);
-      if (!activities[newActivityName]) {
-        activities[newActivityName] =
-          this.logService.activitiesInEventLog[activity];
-      } else {
-        activities[newActivityName] +=
-          this.logService.activitiesInEventLog[activity];
-      }
-    }
-
-    // relabeling start activities
-    let startActivities = new Set<string>();
-    for (let activity of this.logService.startActivitiesInEventLog) {
-      startActivities.add(activityNameMapping.get(activity));
-    }
-
-    // relabeling end activities
-    let endActivities = new Set<string>();
-    for (let activity of this.logService.endActivitiesInEventLog) {
-      endActivities.add(activityNameMapping.get(activity));
-    }
-
-    // defining a function to relabel activities in variant elements recursively
-    const relabelVariantRecursive = function (
-      mapping: Map<string, string>,
-      variant: VariantElement
-    ): void {
-      if (variant['activity']) {
-        variant['activity'] = variant['activity'].map((x) => mapping.get(x));
-      } else if (variant['elements']) {
-        for (let elem of variant['elements']) {
-          relabelVariantRecursive(mapping, elem);
-        }
-      }
-    };
-
-    // relabeling variants
-    let variants = this.variantService.variants;
-    for (let variantIndex in variants) {
-      // relabeling the sub variants
-      for (let subVariantIndex in variants[variantIndex]['sub_variants']) {
-        let new_variant = [];
-        for (let activity of variants[variantIndex]['sub_variants'][
-          subVariantIndex
-        ]['variant']) {
-          new_variant.push([
-            [activityNameMapping.get(activity[0][0]), activity[0][1]],
-          ]);
-        }
-        variants[variantIndex]['sub_variants'][subVariantIndex]['variant'] =
-          new_variant;
-      }
-      // relabeling the concurrency group variants
-      relabelVariantRecursive(
-        activityNameMapping,
-        variants[variantIndex]['variant']
-      );
-    }
-
-    // Apply necessary changes to shared data service
-    this.logService.activitiesInEventLog = activities;
-    this.logService.startActivitiesInEventLog = startActivities;
-    this.logService.endActivitiesInEventLog = endActivities;
-    this.colorMapService.colorMap = newColorMap;
+    console.log(oldActivityName, newActivityName)
+    this.variantService.renameActivity(oldActivityName, newActivityName); 
 
     // Changing activity field table
     this.resetActivityFields();

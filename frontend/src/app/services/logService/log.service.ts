@@ -1,23 +1,13 @@
-
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { deserialize } from 'src/app/components/variant-explorer/model';
-import * as objectHash from 'object-hash';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import * as dummyBackendResponse from 'src/app/services/SharedDataService/dummy_backend_response.js';
-import { VariantService } from '../variantService/variant.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LogService {
-  backendUrl = 'http://127.0.0.1:41211/';
-
   constructor(
-    private httpClient: HttpClient,
-    private variantService : VariantService
   ) {}
 
   public performanceInfoAvailable = false;
@@ -43,7 +33,7 @@ export class LogService {
     this._loadedEventLog.next(name);
   }
 
-  private _activitiesInEventLog = new BehaviorSubject<any>(
+  private _activitiesInEventLog = new BehaviorSubject<Set<string>>(
     dummyBackendResponse.activitiesInLog
   );
 
@@ -55,20 +45,51 @@ export class LogService {
     this._activitiesInEventLog.next(activities);
   }
 
-  get activitiesInEventLog(): any {
+  get activitiesInEventLog():any {
     return this._activitiesInEventLog.getValue();
   }
 
-  public deleteActivityFromEventLog(activityName : string) : any {
-
+  public deleteActivityInEventLog(activityName : string) : any {
+    this.activitiesInEventLog.delete(activityName)
   }
 
-  public renameActivityFromEventLog(activityName : string, newActivityName : string) : any {
+  public renameActivitiesInEventLog(activityName : string, newActivityName : string) : any {
 
+   // modifying related data in shared data service. Similar to processEventLog in backend service
+   // relabeling activities
+
+   let activityNameMapping: Map<string, string> = new Map();
+    for (let activity in this.activitiesInEventLog) {
+       activityNameMapping.set(
+        activity,
+        activity
+      );
+    }
+   
+  activityNameMapping.set(activityName, newActivityName);
+  console.log(activityNameMapping)
+
+  let activities = {};
+  for (let activity in this.activitiesInEventLog) {
+    let newActivityName = activityNameMapping.get(activity);
+    if (!activities[newActivityName]) {
+      activities[newActivityName] =
+        this.activitiesInEventLog[activity];
+
+    } else {
+      activities[newActivityName] +=
+        this.activitiesInEventLog[activity];
+    }
   }
 
+  console.log(this.activitiesInEventLog)
 
+  if(this.endActivitiesInEventLog.delete(activityName)) this.endActivitiesInEventLog.add(newActivityName); 
+  if(this.startActivitiesInEventLog.delete(activityName)) this.startActivitiesInEventLog.add(newActivityName); 
 
+  this.activitiesInEventLog = activities
+
+  }
 
   public get timeGranularity$(): Observable<TimeUnit> {
     return this._timeGranularity.asObservable();
@@ -111,84 +132,4 @@ export class LogService {
   }
 
 
-  public getProperties(parameters): Observable<any> {
-    return this.httpClient.post(this.backendUrl + 'log/properties', parameters);
-  }
-
-  public getEventLog(): Observable<any> {
-    return this.httpClient.get(this.backendUrl + 'log');
-  }
-
-  public getLogPropsAndUpdateState(parameters): Observable<any> {
-    return this.getProperties(parameters).pipe(
-      tap((properties) => {
-        this.variantService.variants = properties['variants'];
-
-        this.variantService.variants.forEach((variant, i) => {
-          variant['id'] = objectHash(variant['variant']);
-          variant.number = i + 1;
-          variant['variant'] = deserialize(variant.variant);
-        });
-        // TODO changing loadedEventLog name triggers the changes in frontend
-        this.loadedEventLog = 'event-log';
-        this.performanceInfoAvailable = true;
-      })
-    );
-  }
-
-  public getLogGranularity(): Observable<TimeUnit> {
-    return this.httpClient.get<TimeUnit>(this.backendUrl + 'log/granularity');
-  }
-
-  propagateActivityNameChange(activityName, newActivityName) {
-    console.log('Propangating Change', activityName, newActivityName);
-
-    this.httpClient
-      .post(this.backendUrl + 'modifylog/' + 'changeActivityName', {
-        activityName: activityName,
-        newActivityName: newActivityName,
-      })
-      .subscribe((t) => console.log('Send', t));
-  }
-
-  propagateActivityDeletion(activityName) {
-    this.httpClient
-      .post(this.backendUrl + 'modifylog/' + 'deleteActivity', {
-        activityName: activityName,
-      })
-      .subscribe((res) =>
-        this.processEventLog(res, this.loadedEventLog)
-      );
-  }
-
-  revertChangeInBackend() {
-    this.httpClient.post(
-      this.backendUrl + 'modifylog/' + 'revertLastChange',
-      {}
-    );
-  }
-
-  private processEventLog(res, filePath = null) {
-    this.activitiesInEventLog = res['activities'];
-    this.startActivitiesInEventLog = new Set(
-      Object.keys(res['startActivities'])
-    );
-    this.endActivitiesInEventLog = new Set(
-      Object.keys(res['endActivities'])
-    );
-
-    this.variantService.variants = res['variants'];
-
-    this.variantService.variants.forEach((variant, i) => {
-      variant['id'] = objectHash(variant['variant']);
-      variant.number = i + 1;
-      variant['variant'] = deserialize(variant.variant);
-    });
-
-    this.loadedEventLog = filePath;
-
-    this.performanceInfoAvailable = true;
-    this.timeGranularity = res['timeGranularity'];
-    this.logGranularity = res['timeGranularity'];
-  }
 }

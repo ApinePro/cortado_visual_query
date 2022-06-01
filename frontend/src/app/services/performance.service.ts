@@ -153,7 +153,7 @@ export class PerformanceService {
           variants.forEach((v) => {
             // TODO: use currently selected performanceIndicator and statistic
             const performanceButton = document.getElementById(
-              `performanceButton${v.number}`
+              `performanceButton${v.bid}`
             );
             const vPerformance =
               this.variantsPerformance.get(v)?.performance?.service_time?.mean;

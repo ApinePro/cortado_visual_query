@@ -197,7 +197,7 @@ export class ModelPerformanceColorScaleService {
 
     this.performanceService.availablePerformances.forEach((v) => {
       const performanceButton = document.getElementById(
-        `performanceButton${v.number}`
+        `performanceButton${v.bid}`
       );
 
       let vP = this.performanceService.variantsPerformance.get(v).performance;

@@ -313,6 +313,7 @@ export abstract class VariantElement {
   public abstract serialize(): Object;
 
   public abstract calculateSelectableElements(): void;
+  public abstract getActivities(): Set<string>;
 
   public setSelectable(): void {
     this.selectable = true;
@@ -421,18 +422,27 @@ export abstract class VariantElement {
   }
 
   public abstract asString(): string;
-  public abstract deleteActivity(activityName: string);
-  public abstract renameActivity(activityName: string, newActivityName : string);
+  public abstract deleteActivity(activityName: string) : [VariantElement, boolean];
+  public abstract renameActivity(activityName: string, newActivityName : string) : void;
 }
 
 export class SequenceGroup extends VariantElement {
+
+
+  public getActivities(): Set<string> {
+    const res : Set<string> = new Set<string>();
+
+    this.elements.forEach((e) => e.getActivities().forEach((a) => res.add(a)))
+
+    return res
+  }
 
   public renameActivity(activityName: string, newActivityName: string) {
     this.elements.forEach((e) => {e.renameActivity(activityName, newActivityName)});
   }
 
-  public deleteActivity(activityName: string) {
-    const newElems = [];
+  public deleteActivity(activityName: string) : [VariantElement, boolean] {
+    const newElems : VariantElement[] = [];
 
     for (let elem of this.elements) {
       if (!(elem instanceof WaitingTimeNode)) {
@@ -464,7 +474,7 @@ export class SequenceGroup extends VariantElement {
   public asString(): string {
     return (
       '->(' +
-      this.elements
+      this.elements.filter((v) => {return !(v instanceof WaitingTimeNode)})
         .map((v) => {
           return v.asString();
         })
@@ -654,11 +664,19 @@ export class SequenceGroup extends VariantElement {
 
 export class ParallelGroup extends VariantElement {
 
+  public getActivities(): Set<string> {
+    const res : Set<string> = new Set<string>();
+
+    this.elements.forEach((e) => e.getActivities().forEach((a) => res.add(a)))
+
+    return res
+  }
+
   public renameActivity(activityName: string, newActivityName: string) {
     this.elements.forEach((e) => {e.renameActivity(activityName, newActivityName)});
   }
 
-  public deleteActivity(activityName: string) {
+  public deleteActivity(activityName: string) : [VariantElement, boolean] {
     const newElems = [];
 
     for (let elem of this.elements) {
@@ -852,11 +870,15 @@ export class ParallelGroup extends VariantElement {
 
 export class LeafNode extends VariantElement {
 
+  public getActivities(): Set<string> {
+    return new Set<string>(this.activity);
+  }
+
   public renameActivity(activityName: string, newActivityName: string) {
     this.activity = this.activity.map((a) => { return a === activityName ? newActivityName : a})
   }
 
-  public deleteActivity(activityName: string) {
+  public deleteActivity(activityName: string) : [VariantElement, boolean]{
     if (this.activity.includes(activityName)) {
       if (this.activity.length > 1) {
         return [this, true];
@@ -942,10 +964,14 @@ export class LeafNode extends VariantElement {
 
 export class WaitingTimeNode extends VariantElement {
 
+  public getActivities(): Set<string> {
+    return new Set<string>();
+  }
+
   public renameActivity(activityName: string, newActivityName: string) {
   }
 
-  public deleteActivity(activityName: string) {
+  public deleteActivity(activityName: string) : [VariantElement, boolean] {
     return [null, false];
   }
 
@@ -1042,7 +1068,7 @@ export function deserialize(obj: any): VariantElement {
       obj['performance']
     );
   } else {
-    return new LeafNode(obj['leaf'], obj['performance']);
+    return new LeafNode(obj['leaf'], obj['performance']) ;
   }
 }
 

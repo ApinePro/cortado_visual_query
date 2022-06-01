@@ -232,7 +232,6 @@ export class VariantExplorerComponent
 
     this.variants.forEach((v, i) => {
       v.id = objectHash(v.variant);
-      v.number = i + 1;
       v.bid = i;
       v.variant = deserialize(v.variant);
       v.isConformanceOutdated = true;
@@ -319,6 +318,8 @@ export class VariantExplorerComponent
 
     variantExplorerItem.focus();
 
+    this.variantService.variants$.subscribe(() => this.activityNamesChanged()); 
+
     this.variantPerformanceService.serviceTimeColorMap.subscribe((colorMap) => {
       if (colorMap !== undefined) {
         this.performanceColorMap = colorMap;
@@ -341,6 +342,10 @@ export class VariantExplorerComponent
       }
     }
   }
+
+
+
+
 
   private eventLogChanged(): void {
     this.colorMap = this.colorMapService.getColorMap(
@@ -381,6 +386,9 @@ export class VariantExplorerComponent
   private activityNamesChanged(): void {
     // Changes to variants in shared data service are made in activity overview
     this.variants = this.variantService.variants;
+    this.displayed_variants = this.variants
+    this.closeAllSubvariantWindows();
+    this.redraw_components();
   }
 
   subscribeForConformanceCheckingResults(): void {
@@ -515,6 +523,9 @@ export class VariantExplorerComponent
   }
 
   createSubVariantView(index) {
+
+    console.log('Opening Subvariant Window for Index', index); 
+
     const currently_maximized = this.maximized;
 
     const LocationSelectors: LayoutManager.LocationSelector[] = [
@@ -1037,7 +1048,7 @@ export class VariantExplorerComponent
 
   onGranularityChange(granularity): void {
     this.selectedGranularity = granularity;
-    this.logService
+    this.backendService
       .getLogPropsAndUpdateState({
         timeGranularity: granularity,
       })

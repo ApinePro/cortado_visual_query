@@ -82,13 +82,13 @@ export class ProcessTreeService {
     this._selectionMode.next(strategy);
   }
 
-  private _currentDisplayedProcessTree = new BehaviorSubject<any>(null);
+  private _currentDisplayedProcessTree = new BehaviorSubject<ProcessTree>(null);
 
-  get currentDisplayedProcessTree$(): Observable<any> {
+  get currentDisplayedProcessTree$(): Observable<ProcessTree> {
     return this._currentDisplayedProcessTree.asObservable();
   }
 
-  get currentDisplayedProcessTree(): any {
+  get currentDisplayedProcessTree(): ProcessTree {
     return this._currentDisplayedProcessTree.getValue();
   }
 
@@ -96,6 +96,29 @@ export class ProcessTreeService {
   private _activitiesInCurrentTree = new BehaviorSubject<Set<string>>(
     new Set()
   );
+
+  public deleteActivityFromEventLog(activityName : string) : any {
+    this.activitiesInCurrentTree.delete(activityName)
+  }
+
+  public renameActivityInProcessTree(activityName : string, newActivityName : string) : any {
+
+    if(this.activitiesInCurrentTree && this.activitiesInCurrentTree.delete(activityName)) this.activitiesInCurrentTree.add(newActivityName); 
+
+    this.currentDisplayedProcessTree = this.renameProcessTreeLeafs(this.currentDisplayedProcessTree, activityName, newActivityName)
+
+  }
+
+  private renameProcessTreeLeafs(tree : ProcessTree,  activityName : string , newActivityName : string){
+      
+    if (tree.label && tree.label === activityName){
+      tree.label = newActivityName
+    } else {
+      tree.children.forEach((c) => this.renameProcessTreeLeafs(c, activityName, newActivityName))
+    }
+
+    return tree
+  }
 
   get activitiesInCurrentTree$(): Observable<Set<string>> {
     return this._activitiesInCurrentTree.asObservable();

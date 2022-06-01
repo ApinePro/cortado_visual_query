@@ -14,6 +14,7 @@ import * as objectHash from 'object-hash';
 import { ProcessTree } from 'src/app/objects/ProcessTree';
 import { LogService } from '../logService/log.service';
 import { VariantService } from '../variantService/variant.service';
+import { TimeUnit } from 'src/app/objects/TimeUnit';
 
 @Injectable({
   providedIn: 'root',
@@ -290,4 +291,60 @@ export class BackendService {
   getInfo(): Observable<any> {
     return this.httpClient.get(this.backendUrl + 'info');
   }
+
+  public getProperties(parameters): Observable<any> {
+    return this.httpClient.post(this.backendUrl + 'log/properties', parameters);
+  }
+
+  public getEventLog(): Observable<any> {
+    return this.httpClient.get(this.backendUrl + 'log');
+  }
+
+  public getLogPropsAndUpdateState(parameters): Observable<any> {
+    return this.getProperties(parameters).pipe(
+      tap((properties) => {
+        this.variantService.variants = properties['variants'];
+
+        this.variantService.variants.forEach((variant, i) => {
+          variant['id'] = objectHash(variant['variant']);
+          variant.number = i + 1;
+          variant['variant'] = deserialize(variant.variant);
+        });
+        // TODO changing loadedEventLog name triggers the changes in frontend
+        this.logService.loadedEventLog = 'event-log';
+        this.logService.performanceInfoAvailable = true;
+      })
+    );
+  }
+
+  public getLogGranularity(): Observable<TimeUnit> {
+    return this.httpClient.get<TimeUnit>(this.backendUrl + 'log/granularity');
+  }
+
+  propagateActivityNameChange(activityName, newActivityName) {
+    console.log('Propangating Change', activityName, newActivityName);
+
+    this.httpClient
+      .post(this.backendUrl + 'modifylog/' + 'changeActivityName', {
+        activityName: activityName,
+        newActivityName: newActivityName,
+      })
+      .subscribe((t) => console.log('Send', t));
+  }
+
+  propagateActivityDeletion(activityName) {
+    this.httpClient
+      .post(this.backendUrl + 'modifylog/' + 'deleteActivity', {
+        activityName: activityName,
+      })
+      .subscribe((res) => {console.log(res)});
+  }
+
+  revertChangeInBackend() {
+    this.httpClient.post(
+      this.backendUrl + 'modifylog/' + 'revertLastChange',
+      {}
+    );
+  }
+
 }
