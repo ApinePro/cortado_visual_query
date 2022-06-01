@@ -26,4 +26,27 @@ export class VariantService {
   get variants(): Variant[] {
     return this._variants.getValue();
   }
+
+
+
+
+  public deleteActivity(activityName : string){
+
+    for(let variant of this.variants){
+
+
+      const res = variant.variant.deleteActivity(activityName);
+
+
+    }
+
+
+  }
+
+
+  public renameActivity(activityName : string, newActivityName : string){
+
+    this.variants = this.variants.map((v) => v.variant.renameActivity(activityName, newActivityName))
+
+  }
 }

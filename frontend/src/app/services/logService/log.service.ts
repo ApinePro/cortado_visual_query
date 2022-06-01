@@ -32,7 +32,7 @@ export class LogService {
   public set logGranularity(value: TimeUnit) {
     this._logGranularity.next(value);
   }
-  
+
   private _loadedEventLog = new BehaviorSubject<string>('preload');
 
   get loadedEventLog$(): Observable<string> {
@@ -58,6 +58,16 @@ export class LogService {
   get activitiesInEventLog(): any {
     return this._activitiesInEventLog.getValue();
   }
+
+  public deleteActivityFromEventLog(activityName : string) : any {
+
+  }
+
+  public renameActivityFromEventLog(activityName : string, newActivityName : string) : any {
+
+  }
+
+
 
 
   public get timeGranularity$(): Observable<TimeUnit> {

@@ -422,13 +422,13 @@ export abstract class VariantElement {
 
   public abstract asString(): string;
   public abstract deleteActivity(activityName: string);
-  public abstract renameActivity(activityName: string, newActivityName : string); 
+  public abstract renameActivity(activityName: string, newActivityName : string);
 }
 
 export class SequenceGroup extends VariantElement {
 
   public renameActivity(activityName: string, newActivityName: string) {
-    this.elements.forEach((e) => {e.renameActivity(activityName, newActivityName)}); 
+    this.elements.forEach((e) => {e.renameActivity(activityName, newActivityName)});
   }
 
   public deleteActivity(activityName: string) {
@@ -449,6 +449,7 @@ export class SequenceGroup extends VariantElement {
         }
       }
     }
+
 
     if (newElems.length > 1) {
       this.elements = newElems;
@@ -654,7 +655,7 @@ export class SequenceGroup extends VariantElement {
 export class ParallelGroup extends VariantElement {
 
   public renameActivity(activityName: string, newActivityName: string) {
-    this.elements.forEach((e) => {e.renameActivity(activityName, newActivityName)}); 
+    this.elements.forEach((e) => {e.renameActivity(activityName, newActivityName)});
   }
 
   public deleteActivity(activityName: string) {
