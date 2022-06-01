@@ -1063,7 +1063,8 @@ export class BpmnEditorComponent
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
       .attr('font-size', 12)
-      .attr('fill', text_color);
+      .attr('fill', text_color)
+      .classed('user-select-none', true);
 
     const tspan = activityText
       .append('tspan')
@@ -1221,8 +1222,7 @@ export class BpmnEditorComponent
       .call(
         this.zoom.transform,
         d3.zoomIdentity.translate(
-          -(this.bpmnContainerElem.nativeElement.offsetWidth / 2) +
-            3 * BPMN_Constant.HORIZONTALSPACING +
+          3 * BPMN_Constant.HORIZONTALSPACING +
             2 * BPMN_Constant.START_END_RADIUS,
           0
         )

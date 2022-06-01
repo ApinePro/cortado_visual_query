@@ -145,7 +145,7 @@ export class VariantExplorerComponent
     private polygonDrawingService: PolygonDrawingService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
-    private processTreeService: ProcessTreeService,
+    public processTreeService: ProcessTreeService,
     elRef: ElementRef,
     renderer: Renderer2,
     public performanceService: PerformanceService,

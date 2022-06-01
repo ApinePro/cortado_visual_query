@@ -19,10 +19,7 @@
       {{ variant.sub_variants.length }}
     </div>
   </td>
-  <td
-    *ngIf="processTreeService.currentDisplayedProcessTree"
-    style="text-align: center"
-  >
+  <td *ngIf="processTreeAvailable" style="text-align: center">
     <div
       style="
         display: flex;
@@ -219,7 +216,7 @@
     </div>
   </td>
 
-  <td *ngIf="processTreeService.currentDisplayedProcessTree"></td>
+  <td *ngIf="processTreeAvailable"></td>
 
   <td>
     <tspan class="ms-2"> Performance not available </tspan>

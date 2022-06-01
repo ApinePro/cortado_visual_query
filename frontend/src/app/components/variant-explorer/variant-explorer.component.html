@@ -10,7 +10,7 @@
     [ngClass]="!performanceMode ? 'active' : ''"
     (click)="setPerformanceMode(false)"
   >
-    <span class="sidebar-button-text"> Standard View</span>
+    <span class="sidebar-button-text user-select-none"> Standard View</span>
   </div>
 
   <div
@@ -18,7 +18,7 @@
     [ngClass]="performanceMode ? 'active' : ''"
     (click)="setPerformanceMode(true)"
   >
-    Performance View
+    <span class="sidebar-button-text user-select-none"> Performance View </span>
   </div>
 </div>
 
@@ -469,6 +469,9 @@
             *ngFor="let variant of displayed_variants; let i = index"
             [index]="i"
             [variant]="variant"
+            [processTreeAvailable]="
+              processTreeService.currentDisplayedProcessTree
+            "
             (openSubvariantWindow)="createSubVariantView($event)"
             [onClickCbFc]="variantClickCallBack"
             [computeActivityColor]="computeActivityColor"
@@ -485,7 +488,7 @@
     </div>
   </div>
 
-  <div class="bg-dark">
+  <div class="bg-dark user-select-none">
     <app-conformance-info-bar
       [numberFittingVariants]="numberFittingVariants"
       [numberFittingTraces]="numberFittingTraces"

@@ -100,6 +100,7 @@ export class ProcessTreeEditorComponent
   processTreeSyntaxInfo: ProcessTreeSyntaxInfo = undefined;
 
   resizeTimer;
+  currentEditorHeight;
 
   svg;
   mainSvgGroup;
@@ -358,6 +359,8 @@ export class ProcessTreeEditorComponent
     height: number
   ): void {
     this.collapse = width < 970;
+
+    this.currentEditorHeight = height;
   }
 
   handleVisibilityChange(visibile: boolean): void {
