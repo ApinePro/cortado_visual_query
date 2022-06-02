@@ -174,7 +174,7 @@ export class VariantExplorerComponent
   public numberFittingTraces: number = undefined;
   public numberFittingVariants: number = undefined;
   public totalNumberTraces: number = undefined;
-  public totalNumberVariants = 5;
+  public totalNumberVariants: number = undefined;
 
   public svgRenderingInProgress: boolean = false;
   public variantExplorerOutOfFocus: boolean = false;
