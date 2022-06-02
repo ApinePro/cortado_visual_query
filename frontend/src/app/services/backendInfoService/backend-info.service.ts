@@ -10,7 +10,7 @@ export class BackendInfoService {
     false
   );
 
-  private timer = timer(0, 10000);
+  private timer = timer(30000, 10000);
 
   constructor(private backendService: BackendService) {
     this.timer.subscribe((_) => {
