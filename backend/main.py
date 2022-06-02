@@ -572,8 +572,7 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
     print("Strat:", freq_strat_mapping[config.strat])
     print("Mining Algo:", config.algo)
     
-    if not treeBank: 
-        treeBank = create_treebank_from_cv_variants(load_event_log.variants, True)
+    treeBank = create_treebank_from_cv_variants(load_event_log.variants, True)
         
         
     if config.algo == 1: 
@@ -582,7 +581,7 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
         
         print("Setting Maximally Closed Patterns")
         set_maximaly_closed_patterns(k_patterns)
-        
+    
         df = dataframe_from_k_patterns(k_patterns)
 
         try: 

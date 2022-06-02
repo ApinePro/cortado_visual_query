@@ -65,16 +65,17 @@ export class VariantMinerComponent
   VariantSortKey = VariantSortKey;
   currentSortKey: VariantSortKey;
 
-  math = Math; 
+  math = Math;
 
   showControls: boolean = true;
-  relSup = 25; 
+  relSup = 25;
   supportSliderOptions: Options = {
     floor: 0,
-    ceil: 200,
+    ceil: 100,
     step: 0.01,
-    tickStep: 0.25,
+    tickStep: 25,
     showSelectionBar: true,
+    showTicks : true,
     translate: (value: number): string => {
       return +value.toFixed(1) + '%';
     }
@@ -157,8 +158,8 @@ export class VariantMinerComponent
   variantMinerResults: any;
   colorMap;
 
-  totalTraces : number; 
-  totalVariants : number; 
+  totalTraces : number;
+  totalVariants : number;
 
   showOnlyClosed: boolean = false;
   showOnlyMaximal: boolean = false;
@@ -181,11 +182,18 @@ export class VariantMinerComponent
 
     const rel_sup = new FormControl(1000, {
       updateOn: 'change',
-    }); 
+    });
 
     const min_sup = new FormControl(1000, {
       updateOn: 'change',
-    }); 
+    });
+
+    const frequent_mining_strat = new FormControl(
+      this.FrequentMiningStrategy.TraceTransaction,
+      {
+        updateOn: 'change',
+      }
+    );
 
 
     this.variantMinerConfigInput = new FormGroup({
@@ -193,8 +201,9 @@ export class VariantMinerComponent
         updateOn: 'change',
       }),
 
-      min_sup, 
+      min_sup,
       rel_sup,
+      frequent_mining_strat,
 
       loop: new FormControl(2, {
         updateOn: 'change',
@@ -207,14 +216,10 @@ export class VariantMinerComponent
       cm_tree_strategy: new FormControl(this.FrequentMiningCMStrategy.ClosedMaximal, {
         updateOn: 'change',
     }),
-
-      frequent_mining_strat: new FormControl(
-        this.FrequentMiningStrategy.TraceTransaction,
-        {
-          updateOn: 'change',
-        }
-      ),
     });
+
+
+
 
     rel_sup.valueChanges.subscribe((relSup) => {
 
@@ -228,10 +233,46 @@ export class VariantMinerComponent
 
     })
 
+
+    frequent_mining_strat.valueChanges.subscribe((strat) => {
+
+
+      if(strat == FrequentMiningStrategy.VariantTransaction || strat == FrequentMiningStrategy.TraceTransaction){
+        this.supportSliderOptions = {
+          floor: 0,
+          ceil: 100,
+          step: 0.01,
+          tickStep: 25,
+          showSelectionBar: true,
+          showTicks : true,
+          translate: (value: number): string => {
+            return +value.toFixed(1) + '%';
+          }
+        };
+
+
+      } else {
+
+        this.supportSliderOptions = {
+          floor: 0,
+          ceil: 150,
+          step: 0.01,
+          tickStep: 25,
+          showSelectionBar: true,
+          showTicks : true,
+          translate: (value: number): string => {
+            return +value.toFixed(1) + '%';
+          }
+        };
+
+      }
+
+    })
+
     this.sharedDataService.variants$.subscribe((variants) => {
       console.log('Variants')
       this.totalTraces = variants.map((variant) => {return variant.count}).reduce((a : number, b : number) => a + b)
-      this.totalVariants = variants.length; 
+      this.totalVariants = variants.length;
 
       console.log('Total Traces', this.totalTraces)
       console.log('Total Variants', this.totalVariants)
@@ -252,6 +293,7 @@ export class VariantMinerComponent
       form_values.frequent_mining_algo
     );
 
+    console.log(config)
     this.backendService.frequentSubtreeMining(config);
 
     this.minsup = form_values.min_sup;

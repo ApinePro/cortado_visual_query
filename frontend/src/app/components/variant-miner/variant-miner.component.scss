@@ -13,21 +13,8 @@ $controls-width : 200px;
   border-left: 1px solid var(--thin-border-color);
 }
 
-.ngx-slider .ngx-slider-pointer {
-  width: 8px;
-  height: 16px;
-  top: auto; /* to remove the default positioning */
-  bottom: 0;
-  background-color: #333;
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-}
-::ng-deep { 
+::ng-deep {
 
-  .sup-selector .ngx-slider .ngx-slider-bar {
-    background: #ffe4d1;
-    height: 2px;
-  }
 
   .sup-selector .ngx-slider .ngx-slider-pointer {
     width: 8px;
@@ -48,13 +35,15 @@ $controls-width : 200px;
   }
 
   .sup-selector .ngx-slider .ngx-slider-tick {
-    width: 3px;
-    height: 10px;
-    margin-left: 4px;
+    width: 3.5px;
+    height: 12px;
+    margin-left: 3px;
     border-radius: 0;
-    background: #ffe4d1;
+    background-color: #d7d5d5;
     top: -1px;
-  }
+    border-top-left-radius: 1px;
+    border-top-right-radius: 1px;
+}
 
 }
 
@@ -64,7 +53,11 @@ $controls-width : 200px;
   height : 100%;
   overflow: auto;
 }
-
+.form-check-input:focus {
+  border-color: none;
+  outline: 0;
+  box-shadow: none;
+}
 .pattern-table{
   color : var(--text-secondary);
   width : 100%;
@@ -131,6 +124,8 @@ $controls-width : 200px;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
+
+
 .control-button-container{
   position: absolute;
   bottom: 0px;
@@ -152,9 +147,24 @@ $controls-width : 200px;
 .filter-option-container{
   padding: 25px 5px;
 }
-
 .slider-container{
-  width : 500px;
+  width : 50vw;
+}
+
+.filter-drop-down{
+  padding: 0;
+  color: white;
+  border-radius: 0.25rem;
+  padding: 25px 45px 45px 45px;
+  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+}
+
+.filter-toggle-drop-down{
+  padding: 0;
+  color: white;
+  border-radius: 0.25rem;
+  padding: 10px;
+  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
 }
 
 .confidence-names{
