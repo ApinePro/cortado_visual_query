@@ -5,7 +5,6 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -29,9 +28,8 @@ import {
   LogicalZIndex,
   Stack,
 } from 'golden-layout';
-import * as objectHash from 'object-hash';
 import { Subject } from 'rxjs';
-import { mergeMap, tap } from 'rxjs/operators';
+import { delay, mergeMap, retryWhen, take, tap } from 'rxjs/operators';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
@@ -53,7 +51,6 @@ import { SharedDataService } from '../../services/sharedDataService/shared-data.
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { textColorForBackgroundColor } from './helper_functions';
 import {
-  deserialize,
   getLowestSelectableParent,
   InfixType,
   LeafNode,
@@ -282,8 +279,10 @@ export class VariantExplorerComponent
     this.displayed_variants = [];
     this.logService
       .resetLogCache() // for now show the sample log again on reload
+      .pipe(retryWhen((errors) => errors.pipe(delay(500), take(50)))) // backend might need some time to start up
       .pipe(
         mergeMap(() =>
+          // Time granularity is null because the granularity is determined in the backend
           this.logService.getLogPropsAndUpdateState(null, 'preload')
         )
       )
