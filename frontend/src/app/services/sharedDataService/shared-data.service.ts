@@ -4,6 +4,7 @@ import * as dummyBackendResponse from './dummy_backend_response.js';
 import { Variant } from '../../components/variant-explorer/model';
 import { dummy_tree } from './debug_tree.js';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
+import { skip } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +25,7 @@ export class SharedDataService {
     this._logGranularity.next(value);
   }
 
-  private _loadedEventLog = new Subject<string>();
+  private _loadedEventLog = new BehaviorSubject<string>('');
   private _treePerformance = new BehaviorSubject<Object>({});
   private _activityNamesChanged = new BehaviorSubject<Map<string, string>>(
     null
@@ -39,7 +40,11 @@ export class SharedDataService {
   }
 
   get loadedEventLog$(): Observable<string> {
-    return this._loadedEventLog.asObservable();
+    return this._loadedEventLog.asObservable().pipe(skip(1));
+  }
+
+  get loadedEventLog(): string {
+    return this._loadedEventLog.value;
   }
 
   set loadedEventLog(name: string) {
@@ -118,12 +123,10 @@ export class SharedDataService {
     return this._endActivitiesInEventLog.getValue();
   }
 
-  private _variants = new BehaviorSubject<Variant[]>(
-    dummyBackendResponse.variant
-  );
+  private _variants = new BehaviorSubject<Variant[]>([]);
 
   get variants$(): Observable<Variant[]> {
-    return this._variants.asObservable();
+    return this._variants.asObservable().pipe(skip(1)); // skip initial empty array
   }
 
   set variants(activities: Variant[]) {

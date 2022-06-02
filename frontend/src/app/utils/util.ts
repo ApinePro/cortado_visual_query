@@ -1,8 +1,27 @@
 import { KeyValue } from '@angular/common';
+import * as objectHash from 'object-hash';
+import { OperatorFunction } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { deserialize } from '../components/variant-explorer/model';
 
 export function originalOrder(
   a: KeyValue<number, string>,
   b: KeyValue<number, string>
 ): number {
   return 0;
+}
+
+export function transformVariants(properties) {
+  properties['variants'].forEach((variant, i) => {
+    variant['id'] = objectHash(variant['variant']);
+    variant.number = i + 1;
+    variant['variant'] = deserialize(variant.variant);
+  });
+  return properties;
+}
+
+export function mapVariants(): OperatorFunction<any, any> {
+  return map((result) => {
+    return transformVariants(result);
+  });
 }

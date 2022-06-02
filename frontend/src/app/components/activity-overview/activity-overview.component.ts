@@ -65,23 +65,7 @@ export class ActivityOverviewComponent
       }
     );
 
-    this.activitiesInLog = this.sharedDataService.activitiesInEventLog;
-    this.startActivities = this.sharedDataService.startActivitiesInEventLog;
-    this.endActivities = this.sharedDataService.endActivitiesInEventLog;
-
     this.activityFields = [];
-    for (let activity in this.activitiesInLog) {
-      this.activityFields.push(
-        new ActivityField(
-          activity,
-          this.activitiesInLog[activity],
-          this.activityColorMap.get(activity),
-          this.activitiesInTree.has(activity),
-          this.startActivities.has(activity),
-          this.endActivities.has(activity)
-        )
-      );
-    }
 
     // Handle change of current activies in the loaded model
     this.sharedDataService.activitiesInCurrentTree$.subscribe(

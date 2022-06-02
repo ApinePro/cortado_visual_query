@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import * as constants from './predefinedColors';
 
 @Injectable({
@@ -30,7 +31,7 @@ export class ColorMapService {
   private _colorMap = new BehaviorSubject<Map<string, string>>(null);
 
   get colorMap$(): Observable<Map<string, string>> {
-    return this._colorMap.asObservable();
+    return this._colorMap.asObservable().pipe(filter((map) => map !== null));
   }
 
   set colorMap(newColorMap: Map<string, string>) {
