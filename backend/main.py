@@ -63,8 +63,9 @@ from endpoints.alignments import \
     calculate_alignment as calculate_alignment_endpoint
 from endpoints.load_event_log import calculate_event_log_properties
 from endpoints.query_variant import evaluate_query_against_variant_graphs
-from error_handlers import (exception_handler, http_exception_handler,
+from error_handlers import (http_exception_handler,
                             validation_exception_handler)
+from middleware.http_middleware import http_middleware
 
 
 def get_application():
@@ -88,6 +89,7 @@ def add_event_handlers(app: FastAPI):
 
 
 def add_middleware(app: FastAPI):
+    app.middleware('http')(http_middleware)
     origins = [
         "http://localhost",
         "http://localhost:8080",
@@ -105,7 +107,7 @@ def add_middleware(app: FastAPI):
 
 def add_exception_handlers(app: FastAPI):
     app.add_exception_handler(HTTPException, http_exception_handler)
-    app.add_exception_handler(Exception, exception_handler)
+    # app.add_exception_handler(Exception, exception_handler)
     app.add_exception_handler(RequestValidationError,
                               validation_exception_handler)
 
