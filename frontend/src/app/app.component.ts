@@ -1,7 +1,10 @@
 import {
   AfterViewInit,
+  ApplicationInitStatus,
+  APP_INITIALIZER,
   Component,
   HostListener,
+  Inject,
   OnDestroy,
   ViewChild,
 } from '@angular/core';
@@ -26,7 +29,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   constructor(
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     private logService: LogService,
-    private sharedDataService: SharedDataService
+    private sharedDataService: SharedDataService,
+    @Inject(APP_INITIALIZER) public appInit: ApplicationInitStatus
   ) {}
 
   _sideBarWidth: number = 30;

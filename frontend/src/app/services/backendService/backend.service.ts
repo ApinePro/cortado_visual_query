@@ -1,18 +1,17 @@
-import { ProcessTreeService } from './../processTreeService/process-tree.service';
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { SharedDataService } from '../sharedDataService/shared-data.service';
+import { Injectable } from '@angular/core';
 import * as FileSaver from 'file-saver';
+import { Observable } from 'rxjs';
 import { take, tap } from 'rxjs/operators';
+import { Configuration } from 'src/app/components/settings/model';
 import {
-  deserialize,
   Variant,
   VariantElement,
 } from 'src/app/components/variant-explorer/model';
-import { Configuration } from 'src/app/components/settings/model';
-import * as objectHash from 'object-hash';
 import { ProcessTree } from 'src/app/objects/ProcessTree';
+import { mapVariants } from 'src/app/utils/util';
+import { SharedDataService } from '../sharedDataService/shared-data.service';
+import { ProcessTreeService } from './../processTreeService/process-tree.service';
 
 @Injectable({
   providedIn: 'root',
@@ -29,6 +28,7 @@ export class BackendService {
   loadEventLogFromFilePath(filePath: string): void {
     this.httpClient
       .post(this.backendUrl + 'loadEventLog', { file_path: filePath })
+      .pipe(mapVariants())
       .subscribe((res) => {
         this.processEventLog(res, filePath);
       });
@@ -41,6 +41,7 @@ export class BackendService {
 
     this.httpClient
       .post(this.backendUrl + 'uploadfile', formData)
+      .pipe(mapVariants())
       .subscribe((res) => {
         console.log('Event log ' + file.name + ' loaded');
         this.processEventLog(res, file.name);
@@ -57,13 +58,6 @@ export class BackendService {
     );
 
     this.sharedDataService.variants = res['variants'];
-
-    this.sharedDataService.variants.forEach((variant, i) => {
-      variant['id'] = objectHash(variant['variant']);
-      variant.number = i + 1;
-      variant['variant'] = deserialize(variant.variant);
-    });
-
     this.sharedDataService.loadedEventLog = filePath;
     this.sharedDataService.performanceInfoAvailable = true;
     this.sharedDataService.timeGranularity = res['timeGranularity'];

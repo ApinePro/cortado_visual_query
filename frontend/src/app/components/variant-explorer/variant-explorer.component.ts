@@ -8,6 +8,7 @@ import {
 
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   HostListener,
@@ -30,6 +31,7 @@ import {
 } from 'golden-layout';
 import * as objectHash from 'object-hash';
 import { Subject } from 'rxjs';
+import { mergeMap, tap } from 'rxjs/operators';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
@@ -150,7 +152,8 @@ export class VariantExplorerComponent
     private performanceColorService: ModelPerformanceColorScaleService,
     private variantPerformanceService: VariantPerformanceService,
     private conformanceCheckingService: ConformanceCheckingService,
-    private goldenLayoutComponentService: GoldenLayoutComponentService
+    private goldenLayoutComponentService: GoldenLayoutComponentService,
+    private ref: ChangeDetectorRef
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -224,77 +227,16 @@ export class VariantExplorerComponent
       '<large> Import <strong>Event Log</strong> .xes file</large>'
     );
 
-    // preload road traffic fine management process
-    this.variants = this.sharedDataService.variants;
-    this.displayed_variants = this.variants;
-
-    this.variants.forEach((v, i) => {
-      v.id = objectHash(v.variant);
-      v.number = i + 1;
-      v.bid = i;
-      v.variant = deserialize(v.variant);
-      v.isConformanceOutdated = true;
-      v.userDefined = false;
-      v.isTimeouted = false;
-      v.infixType = InfixType.NOT_AN_INFIX;
-      setParent(v.variant);
-    });
-
-    this.variantPerformanceService.injectWaitingTimeNodes(
-      this.variants.map((v) => v.variant)
-    );
-    this.colorMap = this.colorMapService.getColorMap(
-      Object.keys(this.sharedDataService.activitiesInEventLog)
-    );
-    this.colorMapService.colorMap$.subscribe((colorMap) => {
-      this.colorMap = colorMap;
-      this.redraw_components();
-    });
-    this.sharedDataService.loadedEventLog = 'preload';
-
-    this.sharedDataService.activityNamesChanged$.subscribe(
-      (activityNameMapping) => {
-        this.activityNamesChanged();
-      }
-    );
-
-    const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
-    this.variants.forEach((v) => {
-      v.percentage = Number.parseFloat(((v.count / total) * 100).toFixed(2));
-    });
-
-    this.numberFittingVariants = undefined;
-    this.totalNumberTraces = total;
-    this.totalNumberVariants = this.variants.length;
-
-    this.sharedDataService.loadedEventLog$.subscribe((eventLog) => {
-      if (eventLog) {
-        this.closeAllSubvariantWindows();
-        this.performanceMode = false;
-        this.variantPerformanceService.variantPerformanceMode.next(false);
-        this.eventLogChanged();
-      }
-    });
-
-    this.processTreeService.correctTreeSyntax$.subscribe((res) => {
-      this.correctTreeSyntax = res;
-    });
-
-    this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
-      this.currentlyDisplayedProcessTree = tree;
-      const treeHasChanged = !this.sharedDataService.processTreesEqual(
-        this.usedTreeForConformanceChecking,
-        this.currentlyDisplayedProcessTree
-      );
-
-      if (treeHasChanged) {
-        this.variants.forEach((v) => {
-          v.isAddedFittingVariant = false;
-          v.isConformanceOutdated = true;
-        });
-      }
-    });
-
+    // initialize variables and initial variants
+    this.init();
+    // update variant explorer on log change
+    this.listenForLogChange();
+    // redraw variants on color map change
+    this.listenForColorMapChange();
+    // update view when activity names change
+    this.listenForActivityNamesChange();
+    this.listenForCorrectSyntax();
+    this.listenForProcessTreeChange();
     this.conformanceCheckingService.connect();
     this.subscribeForConformanceCheckingResults();
     this.listenForLogGranularityChange();
@@ -336,6 +278,69 @@ export class VariantExplorerComponent
     });
   }
 
+  private init() {
+    this.displayed_variants = [];
+    this.logService
+      .resetLogCache() // for now show the sample log again on reload
+      .pipe(
+        mergeMap(() =>
+          this.logService.getLogPropsAndUpdateState(null, 'preload')
+        )
+      )
+      .subscribe();
+  }
+
+  private listenForProcessTreeChange() {
+    this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
+      this.currentlyDisplayedProcessTree = tree;
+      const treeHasChanged = !this.sharedDataService.processTreesEqual(
+        this.usedTreeForConformanceChecking,
+        this.currentlyDisplayedProcessTree
+      );
+
+      if (treeHasChanged) {
+        this.variants.forEach((v) => {
+          v.isAddedFittingVariant = false;
+          v.isConformanceOutdated = true;
+        });
+      }
+    });
+  }
+
+  private listenForCorrectSyntax() {
+    this.processTreeService.correctTreeSyntax$.subscribe((res) => {
+      this.correctTreeSyntax = res;
+    });
+  }
+
+  private listenForActivityNamesChange() {
+    this.sharedDataService.activityNamesChanged$.subscribe(
+      (activityNameMapping) => {
+        this.activityNamesChanged();
+      }
+    );
+  }
+
+  private listenForColorMapChange() {
+    this.colorMapService.colorMap$.subscribe((colorMap) => {
+      this.colorMap = colorMap;
+      this.redraw_components();
+    });
+  }
+
+  private listenForLogChange() {
+    this.sharedDataService.loadedEventLog$
+      .pipe(
+        tap(() => {
+          this.closeAllSubvariantWindows();
+          this.performanceMode = false;
+          this.variantPerformanceService.variantPerformanceMode.next(false);
+          this.eventLogChanged();
+        })
+      )
+      .subscribe();
+  }
+
   private redraw_components() {
     if (this.variantComponents) {
       for (let component of this.variantComponents) {
@@ -350,8 +355,6 @@ export class VariantExplorerComponent
     );
 
     this.variants = this.sharedDataService.variants;
-    console.log('Variants after Load', this.variants);
-
     this.displayed_variants = this.variants;
 
     this.variantPerformanceService.injectWaitingTimeNodes(
@@ -359,11 +362,11 @@ export class VariantExplorerComponent
     );
 
     this.variants.forEach((v, i) => {
-      v.isSelected = false;
-      v.isAddedFittingVariant = false;
       v.isConformanceOutdated = true;
       v.userDefined = false;
       v.isTimeouted = false;
+      v.isSelected = false;
+      v.isAddedFittingVariant = false;
       v.infixType = InfixType.NOT_AN_INFIX;
       setParent(v.variant);
     });
@@ -374,9 +377,14 @@ export class VariantExplorerComponent
     this.totalNumberTraces = this.variants
       .map((v) => v.count)
       .reduce((a, b) => a + b);
+
+    this.variants.forEach((v) => {
+      v.percentage = Number.parseFloat(
+        ((v.count / this.totalNumberTraces) * 100).toFixed(2)
+      );
+    });
     this.totalNumberVariants = this.variants.length;
     this.sort(this.sortingFeature);
-
     console.log('Variants after load:', this.variants);
   }
 
@@ -588,8 +596,6 @@ export class VariantExplorerComponent
 
   updateAllSubvariantWindows(): void {
     this._subvariantcomponentItemsMap.forEach((value) => {
-      console.log(value);
-
       if (value) {
         value.setTitle('Sub-Variant');
       }
@@ -1038,11 +1044,15 @@ export class VariantExplorerComponent
   }
 
   onGranularityChange(granularity): void {
+    if (this.processTreeService.currentDisplayedProcessTree)
+      this.performanceService.unselectPerformance();
+
     this.selectedGranularity = granularity;
     this.logService
-      .getLogPropsAndUpdateState({
-        timeGranularity: granularity,
-      })
+      .getLogPropsAndUpdateState(
+        granularity,
+        this.sharedDataService.loadedEventLog
+      )
       .subscribe();
   }
 
