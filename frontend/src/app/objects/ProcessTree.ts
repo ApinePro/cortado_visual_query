@@ -7,7 +7,8 @@ export class ProcessTree {
     public children: ProcessTree[],
     public id: number,
     public frozen: boolean,
-    public performance: TreePerformance
+    public performance: TreePerformance,
+    public parent: ProcessTree
   ) {}
 
   public equals(other: ProcessTree) {
@@ -35,14 +36,33 @@ export class ProcessTree {
       [],
       treeObj['id'],
       treeObj['frozen'],
-      treeObj['performance']
+      treeObj['performance'],
+      null
     );
     if (treeObj['children']) {
       treeObj['children'].forEach((c) => {
         tree.children.push(ProcessTree.fromObj(c));
       });
+
+      tree.children.forEach((child) => (child.parent = tree));
     }
     return tree;
+  }
+
+  public copy(parentRelation: boolean = true): ProcessTree {
+    const children = this.children.map((child) => child.copy(parentRelation));
+
+    const parent = parentRelation ? this.parent : null;
+
+    return new ProcessTree(
+      this.label,
+      this.operator,
+      children,
+      this.id,
+      this.frozen,
+      this.performance,
+      parent
+    );
   }
 
   toString() {

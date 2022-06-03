@@ -1,4 +1,5 @@
 import json
+import pickle
 
 from cortado_core.performance.variant_performance import \
     assign_variants_performances

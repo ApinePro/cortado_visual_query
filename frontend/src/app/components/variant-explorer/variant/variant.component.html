@@ -6,6 +6,7 @@
       [variant]="variant"
       (selectionChanged)="selectionChanged.emit($event)"
       (updateConformance)="updateConformance.emit($event)"
+      [selectable]="variant.infixType === infixType.NOT_AN_INFIX || isDevMode"
     >
     </app-variant-info>
   </td>
@@ -18,10 +19,7 @@
       {{ variant.sub_variants.length }}
     </div>
   </td>
-  <td
-    *ngIf="sharedDataService.currentDisplayedProcessTree"
-    style="text-align: center"
-  >
+  <td *ngIf="processTreeAvailable" style="text-align: center">
     <div
       style="
         display: flex;
@@ -218,7 +216,7 @@
     </div>
   </td>
 
-  <td *ngIf="sharedDataService.currentDisplayedProcessTree"></td>
+  <td *ngIf="processTreeAvailable"></td>
 
   <td>
     <tspan class="ms-2"> Performance not available </tspan>

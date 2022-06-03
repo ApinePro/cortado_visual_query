@@ -3,6 +3,7 @@
   width : 100%;
   height : 100%;
   border-bottom: 1px solid black;
+  overflow: hidden;
 }
 
 
@@ -31,3 +32,6 @@
   transform: rotate(270deg);
 }
 
+.button-text{
+  display : inline-block;
+}

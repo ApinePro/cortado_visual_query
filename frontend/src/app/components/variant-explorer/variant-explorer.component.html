@@ -10,7 +10,7 @@
     [ngClass]="!performanceMode ? 'active' : ''"
     (click)="setPerformanceMode(false)"
   >
-    <span class="sidebar-button-text"> Standard View</span>
+    <span class="sidebar-button-text user-select-none"> Standard View</span>
   </div>
 
   <div
@@ -18,7 +18,7 @@
     [ngClass]="performanceMode ? 'active' : ''"
     (click)="setPerformanceMode(true)"
   >
-    Performance View
+    <span class="sidebar-button-text user-select-none"> Performance View </span>
   </div>
 </div>
 
@@ -327,11 +327,32 @@
   <div
     class="variant-query-button"
     [@openCloseQuery]="queryActive ? 'openQuery' : 'closeQuery'"
-    style="z-index: 9999"
   >
-    <div class="query-header query-button d-flex" (click)="toggleQuery()">
-      <i class="bi bi-search"></i>
-      <span *ngIf="queryActive" class="ms-2">Variant Query</span>
+    <div class="query-header d-flex" (click)="toggleQuery()">
+      <div class="query-button me-auto">
+        <i
+          [ngClass]="{
+            'bi-arrows-angle-contract': queryActive,
+            'bi bi-search': !queryActive
+          }"
+          class=""
+        ></i>
+        <span *ngIf="queryActive" class="ms-2">Variant Query</span>
+      </div>
+      <div class="me-2">
+        <button
+          *ngIf="queryActive"
+          type="button"
+          class="query-info-button"
+          title="Variant Query Language"
+          (click)="toggleQueryInfo($event)"
+        >
+          <i
+            class="bi bi-question-circle-fill font-large secondary-text fs-6 cursor-help question-icon"
+          >
+          </i>
+        </button>
+      </div>
     </div>
     <div
       class="query-app-container"
@@ -361,7 +382,7 @@
             <th style="padding-right: 15px; padding-left: 5px">Nr.</th>
             <th style="display: flex; align-items: center">
               <app-variant-selection-button
-                [isSelected]="areAllVariantsSelected()"
+                [isSelected]="areAllDisplayedVariantsSelected()"
                 (selectionChanged)="unSelectAllChanged($event)"
                 tooltipText="(un)select all variants"
               >
@@ -424,7 +445,16 @@
             </th>
 
             <th class="text-start">
-              Variant <br />
+              Variant
+              <i
+                *ngIf="displayed_variants.length !== variants.length"
+                class="bi bi-funnel-fill text-primary"
+                data-bs-toggle="tooltip"
+                data-placement="bottom"
+                title="Filter active"
+                (dblclick)="removeAllFilters()"
+              ></i>
+              <br />
               <span class="variant-number"
                 >({{
                   displayed_variants.length === variants.length
@@ -439,6 +469,9 @@
             *ngFor="let variant of displayed_variants; let i = index"
             [index]="i"
             [variant]="variant"
+            [processTreeAvailable]="
+              processTreeService.currentDisplayedProcessTree
+            "
             (openSubvariantWindow)="createSubVariantView($event)"
             [onClickCbFc]="variantClickCallBack"
             [computeActivityColor]="computeActivityColor"
@@ -455,7 +488,7 @@
     </div>
   </div>
 
-  <div class="bg-dark">
+  <div class="bg-dark user-select-none">
     <app-conformance-info-bar
       [numberFittingVariants]="numberFittingVariants"
       [numberFittingTraces]="numberFittingTraces"
@@ -477,3 +510,5 @@
     updateConformanceForVariant($event.variant, $event.timeout)
   "
 ></app-variant-conformance-dialog>
+
+<app-variant-query-info [(showInfo)]="showQueryInfo"> </app-variant-query-info>

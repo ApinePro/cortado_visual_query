@@ -2,7 +2,6 @@
 from cortado_core.variant_query_language.parse_query import parse_query_to_query_tree
 from cortado_core.variant_query_language.error_handling import ParseError, LexerError
 from cortado_core.variant_query_language.check_query_tree_against_graph import check_query_tree
-from cortado_core.utils.parallel_utils import workload_split 
 
 
 def evaluate_query_against_variant_graphs(query, variants, activities): 

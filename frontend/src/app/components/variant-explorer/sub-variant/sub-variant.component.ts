@@ -113,12 +113,13 @@ export class SubVariantComponent implements AfterViewInit {
 
     this.svg.attr(
       'height',
-      yLength * Constants.LEAF_HEIGHT + 4 * Constants.POINT_RADIUS
+      yLength * Constants.LEAF_HEIGHT + 6 * Constants.POINT_RADIUS
     );
     this.svg.attr(
       'width',
       this._variant.length * intervalWidth + 2 * Constants.POINT_RADIUS
     );
+    this.svg.attr('overflow', 'visible');
 
     this.tooltipService.initializeChildren(this.svgElement);
   }

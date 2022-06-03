@@ -1,3 +1,5 @@
+import { ProcessTree } from './../../../objects/ProcessTree';
+import { ProcessTreeService } from './../../../services/processTreeService/process-tree.service';
 import { BackendService } from 'src/app/services/backendService/backend.service';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
@@ -84,7 +86,8 @@ export class ExpertModeComponent implements OnInit {
 
   constructor(
     private sharedDataService: SharedDataService,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private processTreeService: ProcessTreeService
   ) {}
 
   ngOnInit() {
@@ -111,12 +114,12 @@ export class ExpertModeComponent implements OnInit {
     */
 
     // If the tree changes and expert mode is open, compute the syntax tree string
-    this.sharedDataService.currentDisplayedProcessTree$.subscribe((tree) => {
+    this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
       this.collectCurrentTreeString(tree);
       this.backendErrorMessage = null;
     });
 
-    this.sharedDataService.currentTreeString$.subscribe((treeString) => {
+    this.processTreeService.currentTreeString$.subscribe((treeString) => {
       this.syntax_tree.setValue(treeString);
       this.highlightText();
     });
@@ -172,7 +175,9 @@ export class ExpertModeComponent implements OnInit {
     $pendingTreeParse.subscribe((result: any) => {
       if (!result.errors) {
         console.warn('Expert Mode Tree Update');
-        this.sharedDataService.currentDisplayedProcessTree = result.tree;
+        this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+          result.tree
+        );
         this.backendErrorMessage = null;
       } else {
         this.backendErrorMessage = result.errors;
@@ -202,7 +207,7 @@ export class ExpertModeComponent implements OnInit {
     console.log('Toogle Editor', this.editorActive);
     if (this.editorActive) {
       this.collectCurrentTreeString(
-        this.sharedDataService.currentDisplayedProcessTree
+        this.processTreeService.currentDisplayedProcessTree
       );
     }
   }

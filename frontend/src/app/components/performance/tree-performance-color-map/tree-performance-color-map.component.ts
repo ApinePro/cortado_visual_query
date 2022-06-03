@@ -1,3 +1,4 @@
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { Component, OnInit } from '@angular/core';
 import { ModelPerformanceColorScaleService } from '../../../services/performance-color-scale.service';
 import { SharedDataService } from '../../../services/sharedDataService/shared-data.service';
@@ -32,6 +33,7 @@ export class TreePerformanceColorMapComponent implements OnInit {
   constructor(
     public performanceColorScaleService: ModelPerformanceColorScaleService,
     private sharedDataService: SharedDataService,
+    private processTreeService: ProcessTreeService,
     private performanceService: PerformanceService
   ) {}
 
@@ -72,7 +74,7 @@ export class TreePerformanceColorMapComponent implements OnInit {
     this.modeLongHelpText = selected.longDescription;
     this.performanceColorScaleService.updateCurrentColorScale();
 
-    if (this.sharedDataService.currentDisplayedProcessTree?.performance) {
+    if (this.processTreeService.currentDisplayedProcessTree?.performance) {
       this.updateColorMapValues();
     }
   }

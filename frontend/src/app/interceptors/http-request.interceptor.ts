@@ -15,6 +15,8 @@ import { BackendInfoService } from '../services/backendInfoService/backend-info.
 
 @Injectable()
 export class HttpRequestInterceptor implements HttpInterceptor {
+  private excludedEndpointsForTaskCounter = ['info', 'log/reset Log Cache'];
+
   constructor(
     private backgroundTaskInfoService: BackgroundTaskInfoService,
     private backendService: BackendService,
@@ -29,9 +31,11 @@ export class HttpRequestInterceptor implements HttpInterceptor {
     const calledEndpoint = request.url
       .slice(this.backendService.backendUrl.length)
       .replace(/([a-z0-9])([A-Z])/g, '$1 $2');
-    const id = this.backgroundTaskInfoService.setRequest(
-      String(calledEndpoint)
-    );
+
+    let id;
+    if (!this.shouldIgnoreRequestForTaskCounter(calledEndpoint)) {
+      id = this.backgroundTaskInfoService.setRequest(String(calledEndpoint));
+    }
 
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
@@ -44,19 +48,27 @@ export class HttpRequestInterceptor implements HttpInterceptor {
         return throwError(error);
       }),
       finalize(() => {
-        this.backgroundTaskInfoService.removeRequest(id);
+        if (id) {
+          this.backgroundTaskInfoService.removeRequest(id);
+        }
       })
     );
   }
 
   shouldIgnoreError(error: HttpErrorResponse): boolean {
+    console.log('HTML Error', error);
     return (
       // ignore timeouts for alignment computations because they are handled in the variant explorer
       (error.status == 504 &&
         error.url.endsWith('calculateAlignmentsCVariant')) ||
       // info requests are made to show the backend state in the footer; therefore, we do not want to show the error dialog
-      error.url.endsWith('/info')
+      error.url.endsWith('/info') ||
+      error.url.endsWith('resetLogCache')
     );
+  }
+
+  shouldIgnoreRequestForTaskCounter(endpoint: string): boolean {
+    return this.excludedEndpointsForTaskCounter.includes(endpoint);
   }
 
   setBackendRunningState(error: HttpErrorResponse): void {
