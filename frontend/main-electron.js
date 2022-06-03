@@ -99,7 +99,7 @@ function killBackendProcess() {
     if (process.platform !== 'linux'){
       kill(backendProcess.pid);
     } else {
-      ChildProcess.execSync("pkill cortado-backend", {shell: '/bin/sh'});
+      ChildProcess.execSync("killall -9 cortado-backend", {shell: '/bin/sh'});
     }
   }
 }
