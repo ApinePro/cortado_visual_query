@@ -270,7 +270,6 @@ export class VariantMinerComponent
     })
 
     this.sharedDataService.variants$.subscribe((variants) => {
-      console.log('Variants')
       this.totalTraces = variants.map((variant) => {return variant.count}).reduce((a : number, b : number) => a + b)
       this.totalVariants = variants.length;
 
