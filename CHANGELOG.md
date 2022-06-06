@@ -1,6 +1,17 @@
 # Changelog of Cortado
 ---
 
+## [1.6.0] - 2022-06-03
+### Added
+* BPMN support [Frontend + Backend]
+* Alignment computation time out [Frontend + Backend]
+* Layout manager [Frontend]
+* Variant query language [Frontend + Backend]
+* Variant modeler [Frontend]
+
+### Fixed
+* Various bug fixes and stability improvements [Frontend + Backend]
+
 ## [1.5.0] - 2022-01-27
 ### Added
 * Temporal performance analysis functionality [Frontend + Backend]

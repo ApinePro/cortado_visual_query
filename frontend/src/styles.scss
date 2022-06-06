@@ -414,3 +414,26 @@ th {
   marker-end: url('#arrow-red');
 
 }
+
+
+.cortadoLogo {
+  animation: pulse 2s infinite ease-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.2);
+  }
+  50% {
+    transform: scale(0.3);
+  }
+  100% {
+    transform: scale(0.2);
+  }
+}
+
+.loadingIndicatorContainer {
+  width:100vw !important;
+  height: 100vh !important;
+  background-color: var(--box-background-color);
+}
