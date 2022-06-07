@@ -73,10 +73,6 @@ export class ActivityOverviewComponent
       }
     );
 
-    this.activitiesInLog = this.logService.activitiesInEventLog;
-    this.startActivities = this.logService.startActivitiesInEventLog;
-    this.endActivities = this.logService.endActivitiesInEventLog;
-
     this.activityFields = [];
 
     // Handle change of current activies in the loaded model
@@ -93,6 +89,8 @@ export class ActivityOverviewComponent
       console.log(
         'new loadedEventLog$ in activity-overview.component:' + eventLogName
       );
+
+      this.resetActivityFields();
     });
   }
 

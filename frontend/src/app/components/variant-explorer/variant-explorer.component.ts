@@ -233,7 +233,6 @@ export class VariantExplorerComponent
     // redraw variants on color map change
     this.listenForColorMapChange();
     // update view when activity names change
-    this.listenForActivityNamesChange();
     this.listenForCorrectSyntax();
     this.listenForProcessTreeChange();
     this.conformanceCheckingService.connect();
@@ -262,7 +261,7 @@ export class VariantExplorerComponent
 
     variantExplorerItem.focus();
 
-    this.variantService.variants$.subscribe(() => this.activityNamesChanged());
+    //this.variantService.variants$.subscribe(() => this.activityNamesChanged());
 
     this.variantPerformanceService.serviceTimeColorMap.subscribe((colorMap) => {
       if (colorMap !== undefined) {
@@ -280,6 +279,7 @@ export class VariantExplorerComponent
   }
 
   private init() {
+    console.warn('Running Init')
     this.displayed_variants = [];
     this.backendService
       .resetLogCache() // for now show the sample log again on reload
@@ -316,10 +316,6 @@ export class VariantExplorerComponent
     });
   }
 
-  private listenForActivityNamesChange() {
-    this.activityNamesChanged();
-  }
-
   private listenForColorMapChange() {
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.colorMap = colorMap;
@@ -335,6 +331,8 @@ export class VariantExplorerComponent
           this.performanceMode = false;
           this.variantPerformanceService.variantPerformanceMode.next(false);
           this.eventLogChanged();
+          console.log('Log Change')
+          console.log('This Displayed Variants', this.displayed_variants)
         })
       )
       .subscribe();
@@ -358,7 +356,7 @@ export class VariantExplorerComponent
     );
 
     this.variants = this.variantService.variants;
-    this.displayed_variants = this.variants;
+
 
     this.variantPerformanceService.injectWaitingTimeNodes(
       this.variants.map((v) => v.variant)
@@ -386,9 +384,14 @@ export class VariantExplorerComponent
         ((v.count / this.totalNumberTraces) * 100).toFixed(2)
       );
     });
+
+    this.displayed_variants = this.variants;
+
     this.totalNumberVariants = this.variants.length;
     this.sort(this.sortingFeature);
+
     console.log('Variants after load:', this.variants);
+    console.log('Displayed Variants after Load', this.displayed_variants)
   }
 
   private activityNamesChanged(): void {

@@ -101,9 +101,10 @@ export class VariantComponent implements AfterViewInit {
     private lazyLoadingService: LazyLoadingServiceService,
     public performanceService: PerformanceService,
     public variantService: VariantService,
-    private processTreeService: ProcessTreeService,
     private performanceColorService: ModelPerformanceColorScaleService
-  ) {}
+  ) {
+
+  }
 
   ngAfterViewInit(): void {
     const self = this;

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { skip, tap } from 'rxjs/operators';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import * as dummyBackendResponse from 'src/app/services/SharedDataService/dummy_backend_response.js';
 import { mapVariants } from 'src/app/utils/util';
@@ -28,10 +28,10 @@ export class LogService {
     this._logGranularity.next(value);
   }
 
-  private _loadedEventLog = new BehaviorSubject<string>('preload');
+  private _loadedEventLog = new BehaviorSubject<string>('');
 
   get loadedEventLog$(): Observable<string> {
-    return this._loadedEventLog.asObservable();
+    return this._loadedEventLog.asObservable().pipe(skip(1));
   }
 
   set loadedEventLog(name: string) {

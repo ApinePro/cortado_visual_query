@@ -6,6 +6,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Variant, VariantElement, InfixType } from 'src/app/components/variant-explorer/model';
 import * as dummyBackendResponse from '../SharedDataService/dummy_backend_response.js';
+import { skip } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -15,11 +16,11 @@ export class VariantService {
   constructor(private logService : LogService, private processTreeService : ProcessTreeService, private colorMapService : ColorMapService) { }
 
   private _variants = new BehaviorSubject<Variant[]>(
-    dummyBackendResponse.variant
+    []
   );
 
   get variants$(): Observable<Variant[]> {
-    return this._variants.asObservable();
+    return this._variants.asObservable().pipe(skip(1));
   }
 
   set variants(activities: Variant[]) {
@@ -29,9 +30,6 @@ export class VariantService {
   get variants(): Variant[] {
     return this._variants.getValue();
   }
-
-
-
 
   public deleteActivity(activityName : string){
 
@@ -45,20 +43,20 @@ export class VariantService {
 
         if (res[1]){
           fallthrough.push(variant);
-          continue; 
-        } 
+          continue;
+        }
 
       }
 
 
-      const tmp = variant.variant.asString(); 
+      const tmp = variant.variant.asString();
 
       if (updateMap.has(tmp)){
         updateMap.get(tmp).push(variant)
       } else {
         updateMap.set(tmp, [variant])
       }
-      
+
 
     }
 
@@ -68,42 +66,53 @@ export class VariantService {
 
   public renameActivity(activityName : string, newActivityName : string){
     const updateMap : Map<string, Variant[]> = new Map<string, Variant[]>();
+    const changedStrings : Set<string> = new Set<string>();
 
     for(let variant of this.variants){
 
+          let change : boolean = false;
+
           if (variant.variant.getActivities().has(activityName)){
             variant.variant.renameActivity(activityName, newActivityName);
+            change = true
           }
 
 
-          const tmp = variant.variant.asString(); 
+          const tmp = variant.variant.asString();
 
           if (updateMap.has(tmp)){
             updateMap.get(tmp).push(variant)
           } else {
             updateMap.set(tmp, [variant])
           }
-          
+
+
+          if (change){
+            changedStrings.add(tmp)
+          }
+
 
     }
-    
+
     const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
-    this.colorMapService.renameColorInActivityColorMap(activityName, newActivityName); 
+
+
+    const variants : Variant[] = [];
+    console.log('Update Map', updateMap);
+
+
     this.logService.renameActivitiesInEventLog(activityName, newActivityName);
-    this.processTreeService.renameActivityInProcessTree(activityName, newActivityName); 
-
+    this.processTreeService.renameActivityInProcessTree(activityName, newActivityName);
     
-    const variants : Variant[] = [];  
-    console.log('Update Map', updateMap); 
-
+    this.colorMapService.renameColorInActivityColorMap(activityName, newActivityName);
 
     for(let [key, ls] of updateMap.entries()){
 
-      console.log(ls); 
+      console.log(ls);
 
       if(ls.length > 1){
 
-        let count = 0 
+        let count = 0
         let subvariants = []
         let bids = []
         let selected = false
@@ -114,7 +123,7 @@ export class VariantService {
           count += variant.count
           subvariants.push(...variant.sub_variants)
           selected = selected || variant.isSelected;
-          userAdded = userAdded|| variant.isAddedFittingVariant;  
+          userAdded = userAdded|| variant.isAddedFittingVariant;
         }
 
 
@@ -134,18 +143,21 @@ export class VariantService {
 
     variants.forEach((v) => {
       v.percentage = Number.parseFloat(((v.count / total) * 100).toFixed(2));
-    }); 
+    });
 
     this.variants = variants
 
 
     console.log(variants)
 
-    // Propagate Backend Change
-    // Update Variants / Start/End Activity Sets
-    // Preserve Color Map
-    // Update Activity Names in Tree / Log 
 
+    // Propagate Backend Change
+    // Update Activity Names in Tree / Log
+
+
+    for (let change of changedStrings){
+      console.log('Changes', change, updateMap.get(change))
+    }
 
   }
 }

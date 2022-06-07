@@ -103,14 +103,17 @@ export class ProcessTreeService {
 
   public renameActivityInProcessTree(activityName : string, newActivityName : string) : any {
 
-    if(this.activitiesInCurrentTree && this.activitiesInCurrentTree.delete(activityName)) this.activitiesInCurrentTree.add(newActivityName); 
+    if(this.activitiesInCurrentTree && this.activitiesInCurrentTree.delete(activityName)) this.activitiesInCurrentTree.add(newActivityName);
 
-    this.currentDisplayedProcessTree = this.renameProcessTreeLeafs(this.currentDisplayedProcessTree, activityName, newActivityName)
+    if (this.currentDisplayedProcessTree){
+      this.currentDisplayedProcessTree = this.renameProcessTreeLeafs(this.currentDisplayedProcessTree, activityName, newActivityName)
+    }
 
   }
 
   private renameProcessTreeLeafs(tree : ProcessTree,  activityName : string , newActivityName : string){
-      
+
+
     if (tree.label && tree.label === activityName){
       tree.label = newActivityName
     } else {
