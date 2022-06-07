@@ -55,6 +55,9 @@ export class BackendService {
 
   // Refractor too Log Service
   private processEventLog(res, filePath = null) {
+
+    console.warn('Processing Event Log', res)
+
     this.logService.activitiesInEventLog = res['activities'];
     this.logService.startActivitiesInEventLog = new Set(
       Object.keys(res['startActivities'])
@@ -64,12 +67,6 @@ export class BackendService {
     );
 
     this.variantService.variants = res['variants'];
-
-    this.variantService.variants.forEach((variant, i) => {
-      variant['id'] = objectHash(variant['variant']);
-      variant.number = i + 1;
-      variant['variant'] = deserialize(variant.variant);
-    });
 
     this.logService.loadedEventLog = filePath;
 
@@ -299,34 +296,6 @@ export class BackendService {
     return this.httpClient.get(this.backendUrl + 'log');
   }
 
-  propagateActivityNameChange(activityName, newActivityName) {
-    console.log('Propangating Change', activityName, newActivityName);
-
-    this.httpClient
-      .post(this.backendUrl + 'modifylog/' + 'changeActivityName', {
-        activityName: activityName,
-        newActivityName: newActivityName,
-      })
-      .subscribe((t) => console.log('Send', t));
-  }
-
-  propagateActivityDeletion(activityName) {
-    this.httpClient
-      .post(this.backendUrl + 'modifylog/' + 'deleteActivity', {
-        activityName: activityName,
-      })
-      .subscribe((res) => {console.log(res)});
-  }
-
-  revertChangeInBackend() {
-    this.httpClient.post(
-      this.backendUrl + 'modifylog/' + 'revertLastChange',
-      {}
-    );
-  }
-
-
-
   /**
    * Fetches the properties of the log that is currently cached in the backend.
    * If no time granularity is provided the granularity of the log is computed in
@@ -360,6 +329,8 @@ export class BackendService {
       );
       this.variantService.variants = properties['variants'];
       this.logService.loadedEventLog = logName;
+
+      console.warn('Variants in Update State', properties['variants'])
     }
 
 

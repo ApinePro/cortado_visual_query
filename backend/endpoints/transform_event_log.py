@@ -106,62 +106,81 @@ def rename_activities_in_trace(trace, oldActivityName, newActivityName):
     return trace
 
 def rename_activities_in_variant_group(group, oldActivityName, newActivityName): 
-
-    change = False
     
     if isinstance(group, LeafGroup): 
         lst = group[:]
         if oldActivityName in group: 
-            change = True
             lst.remove(oldActivityName)
             lst.append(newActivityName)
             lst.sort()
            
-        return LeafGroup(lst), change
+        return LeafGroup(lst)
         
     else: 
-        children, changes = zip(*[rename_activities_in_variant_group(child, oldActivityName, newActivityName) for child in group])
+        children = [rename_activities_in_variant_group(child, oldActivityName, newActivityName) for child in group]
  
-        
         if isinstance(group, ParallelGroup):
-            return ParallelGroup(sorted(children)), any(changes)
+            return ParallelGroup(sorted(children))
         
         
         else: 
-            return SequenceGroup(children), any(changes)
+            return SequenceGroup(children)
     
             
     
-def rename_activities(oldActivityName, newActivityName): 
+def rename_activities(mergeList, renameList, activityName, newActivityName): 
     
-    if oldActivityName in load_event_log.activites:
-        load_event_log.activites.remove(oldActivityName)
+    if load_event_log.activites.discard(activityName):
         load_event_log.activites.add(newActivityName)  
     
     new_variant_dict = {}
     
-    for variant in load_event_log.variants: 
-
-        new_variant, changed = rename_activities_in_variant_group(variant, oldActivityName, newActivityName)
+    
+    for bid in renameList: 
         
-        if changed: 
-            
-            traces = [rename_activities_in_trace(trace, oldActivityName, newActivityName) for trace in load_event_log.variants[variant]]  
-            new_variant.graph = rename_merge_activities_in_graph(variant.graph, oldActivityName, newActivityName) 
-            
-            new_variant_dict[new_variant] = new_variant_dict.get(new_variant, []) + traces
+        (variant, traces)  = load_event_log.variants[bid]
 
-        else: 
-            
-            new_variant_dict[variant] = new_variant_dict.get(variant, []) + load_event_log.variants[variant]
+        renamed_variant = rename_activities_in_variant_group(variant, activityName, newActivityName)
+        renamed_variant.graph = rename_merge_activities_in_graph(variant.graph, activityName, newActivityName) 
         
+        renamed_traces = [rename_activities_in_trace(trace, activityName, newActivityName) for trace in traces]   
+       
+        new_variant_dict[bid] = (renamed_variant, renamed_traces)
+        
+        
+    for ls in mergeList: 
+        
+        (variant, _)  = load_event_log.variants[ls[0]]
+        renamed_variant = rename_activities_in_variant_group(variant, activityName, newActivityName)
+        renamed_variant.graph = rename_merge_activities_in_graph(variant.graph, activityName, newActivityName) 
+        
+        renamed_traces = []
+        
+        for bid in ls: 
+            
+            (_, traces)  = load_event_log.variants[bid]
+            
+            renamed_traces += [rename_activities_in_trace(trace, activityName, newActivityName) for trace in traces]   
+        
+        
+        new_variant_dict[min(ls)] = (renamed_variant, renamed_traces)
+            
+    flat_list = lambda lss : [x for ls in lss for x in ls]
+    
+    no_update = set(load_event_log.variants.keys()).difference(set(flat_list(mergeList) + renameList))
+
+    print('No Update', no_update)
+
+    for bid in no_update: 
+        new_variant_dict[bid] = load_event_log.variants[bid]
+        
+    for bid, (variant, traces) in new_variant_dict.items(): 
+        print(variant)
+    
     load_event_log.variants = new_variant_dict
     
     
-    
 def remove_activity_from_trace(trace, activityName): 
-    
-    
     
     for event in trace: 
         

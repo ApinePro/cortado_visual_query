@@ -7,13 +7,20 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Variant, VariantElement, InfixType } from 'src/app/components/variant-explorer/model';
 import * as dummyBackendResponse from '../SharedDataService/dummy_backend_response.js';
 import { skip } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VariantService {
 
-  constructor(private logService : LogService, private processTreeService : ProcessTreeService, private colorMapService : ColorMapService) { }
+
+  backendUrl = 'http://127.0.0.1:41211/';
+  constructor(private logService : LogService,
+              private httpClient: HttpClient,
+              private processTreeService : ProcessTreeService,
+              private colorMapService : ColorMapService,
+             ) { }
 
   private _variants = new BehaviorSubject<Variant[]>(
     []
@@ -98,17 +105,13 @@ export class VariantService {
 
 
     const variants : Variant[] = [];
-    console.log('Update Map', updateMap);
-
-
+    
     this.logService.renameActivitiesInEventLog(activityName, newActivityName);
     this.processTreeService.renameActivityInProcessTree(activityName, newActivityName);
     
     this.colorMapService.renameColorInActivityColorMap(activityName, newActivityName);
 
     for(let [key, ls] of updateMap.entries()){
-
-      console.log(ls);
 
       if(ls.length > 1){
 
@@ -147,17 +150,47 @@ export class VariantService {
 
     this.variants = variants
 
-
-    console.log(variants)
-
-
-    // Propagate Backend Change
-    // Update Activity Names in Tree / Log
-
+    let rename_list = []
+    let merge_list = []
 
     for (let change of changedStrings){
-      console.log('Changes', change, updateMap.get(change))
+
+      if (updateMap.get(change).length == 1){
+        rename_list.push(updateMap.get(change)[0].bid)
+      } else {
+        merge_list.push(updateMap.get(change).map(v =>{return v.bid}))
+      }
     }
+    this.propagateActivityNameChange(merge_list, rename_list, activityName, newActivityName)
 
   }
+
+
+  propagateActivityNameChange(mergeList, renameList, activityName, newActivityName) {
+
+    this.httpClient
+      .post(this.backendUrl + 'modifylog/' + 'changeActivityName', {
+        mergeList : mergeList,
+        renameList : renameList, 
+        activityName: activityName,
+        newActivityName: newActivityName,
+      })
+      .subscribe();
+  }
+
+  propagateActivityDeletion(activityName) {
+    this.httpClient
+      .post(this.backendUrl + 'modifylog/' + 'deleteActivity', {
+        activityName: activityName,
+      })
+      .subscribe();
+  }
+
+  revertChangeInBackend() {
+    this.httpClient.post(
+      this.backendUrl + 'modifylog/' + 'revertLastChange',
+      {}
+    );
+  }
+
 }

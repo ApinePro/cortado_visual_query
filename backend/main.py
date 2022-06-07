@@ -412,11 +412,11 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
     tree_cache_key = str(pt)
     variants_fitness = []
     
-    for bid, variant in enumerate(load_event_log.variants.keys()): 
+    for bid, (_, traces) in load_event_log.variants.items(): 
       
       if d.delete and bid in d.delete:
 
-        if tree_cache_key in cache.pcache and bid in cache.pcache[tree_cache_key]:
+        if tree_cache_key in pcache and bid in cache.pcache[tree_cache_key]:
           del cache.pcache[tree_cache_key][bid]
     
       elif bid in d.variants:
@@ -432,7 +432,7 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             
         else:
 
-            test_log = load_event_log.variants[variant]
+            test_log = traces
             test_log = EventLog(test_log)
             
             (service_times, idle_times, waiting_times, cycle_times), mean_fitness \

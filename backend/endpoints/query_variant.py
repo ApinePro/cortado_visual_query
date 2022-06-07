@@ -11,12 +11,12 @@ def evaluate_query_against_variant_graphs(query, variants, activities):
         
         qt = parse_query_to_query_tree(query.queryString)
         
-        for i, variant in enumerate(variants): 
+        for bid, (variant, _) in variants.items(): 
             
             b = check_query_tree(qt, variant, activities, True)
             
             if b: 
-                ids.append(i)
+                ids.append(bid)
                     
         
     except ParseError as PE: 

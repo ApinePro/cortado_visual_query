@@ -261,7 +261,7 @@ export class VariantExplorerComponent
 
     variantExplorerItem.focus();
 
-    //this.variantService.variants$.subscribe(() => this.activityNamesChanged());
+    this.variantService.variants$.subscribe(() => this.activityNamesChanged());
 
     this.variantPerformanceService.serviceTimeColorMap.subscribe((colorMap) => {
       if (colorMap !== undefined) {

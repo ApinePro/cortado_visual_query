@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -10,15 +11,21 @@ router = APIRouter(
 
 
 class ChangeActivityName(BaseModel):
+    mergeList : List[List[int]]
+    renameList : List[int]
     activityName: str
     newActivityName : str
+    
 
 @router.post("/changeActivityName")
 async def change_activity_name_in_log(d : ChangeActivityName):  
     
+    
+    print(d)
+    
     cache_current_data()
     
-    rename_activities(d.activityName, d.newActivityName)
+    rename_activities(d.mergeList, d.renameList, d.activityName, d.newActivityName)
 
     # TODO Return an Error if needed
     return True
