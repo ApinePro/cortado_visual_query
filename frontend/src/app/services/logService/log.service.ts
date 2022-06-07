@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import * as dummyBackendResponse from 'src/app/services/SharedDataService/dummy_backend_response.js';
+import { mapVariants } from 'src/app/utils/util';
+
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +22,8 @@ export class LogService {
   public get logGranularity$(): Observable<TimeUnit> {
     return this._logGranularity.asObservable();
   }
+
+
   public set logGranularity(value: TimeUnit) {
     this._logGranularity.next(value);
   }
@@ -65,7 +70,7 @@ export class LogService {
         activity
       );
     }
-   
+
   activityNameMapping.set(activityName, newActivityName);
   console.log(activityNameMapping)
 
@@ -84,8 +89,8 @@ export class LogService {
 
   console.log(this.activitiesInEventLog)
 
-  if(this.endActivitiesInEventLog.delete(activityName)) this.endActivitiesInEventLog.add(newActivityName); 
-  if(this.startActivitiesInEventLog.delete(activityName)) this.startActivitiesInEventLog.add(newActivityName); 
+  if(this.endActivitiesInEventLog.delete(activityName)) this.endActivitiesInEventLog.add(newActivityName);
+  if(this.startActivitiesInEventLog.delete(activityName)) this.startActivitiesInEventLog.add(newActivityName);
 
   this.activitiesInEventLog = activities
 

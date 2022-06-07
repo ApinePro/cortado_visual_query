@@ -1,6 +1,6 @@
 import { DropZoneComponent } from './components/drop-zone/drop-zone.component';
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { ActivityOverviewSortingPipe } from './pipes/activity-overview-sorting/activity-overview-sorting.pipe';
@@ -51,6 +51,7 @@ import { DialogModule } from './components/dialogs/dialog.module';
 import { VariantQueryComponent } from './components/variant-explorer/variant-query/variant-query.component';
 import { SyntaxHighlightedTextareaDirective } from './directives/syntax-highlighted-textarea.directive';
 import { ConformanceInfoBarComponent } from './components/variant-explorer/info-bar/conformance-info-bar.component';
+import { initApp, InitService } from './services/init.service';
 import { VariantQueryInfoComponent } from './components/variant-explorer/variant-query-info/variant-query-info.component';
 
 @NgModule({
@@ -115,6 +116,12 @@ import { VariantQueryInfoComponent } from './components/variant-explorer/variant
     {
       provide: HTTP_INTERCEPTORS,
       useClass: HttpRequestInterceptor,
+      multi: true,
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initApp,
+      deps: [InitService],
       multi: true,
     },
     GoldenLayoutComponentService,

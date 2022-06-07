@@ -78,18 +78,6 @@ export class ActivityOverviewComponent
     this.endActivities = this.logService.endActivitiesInEventLog;
 
     this.activityFields = [];
-    for (let activity in this.activitiesInLog) {
-      this.activityFields.push(
-        new ActivityField(
-          activity,
-          this.activitiesInLog[activity],
-          this.activityColorMap.get(activity),
-          this.activitiesInTree.has(activity),
-          this.startActivities.has(activity),
-          this.endActivities.has(activity)
-        )
-      );
-    }
 
     // Handle change of current activies in the loaded model
     this.processTreeService.activitiesInCurrentTree$.subscribe(
@@ -202,7 +190,7 @@ export class ActivityOverviewComponent
 
 
     console.log(oldActivityName, newActivityName)
-    this.variantService.renameActivity(oldActivityName, newActivityName); 
+    this.variantService.renameActivity(oldActivityName, newActivityName);
 
     // Changing activity field table
     this.resetActivityFields();

@@ -15,7 +15,7 @@ import { BackendInfoService } from '../services/backendInfoService/backend-info.
 
 @Injectable()
 export class HttpRequestInterceptor implements HttpInterceptor {
-  private excludedEndpointsForTaskCounter = ['info'];
+  private excludedEndpointsForTaskCounter = ['info', 'log/reset Log Cache'];
 
   constructor(
     private backgroundTaskInfoService: BackgroundTaskInfoService,
@@ -62,7 +62,8 @@ export class HttpRequestInterceptor implements HttpInterceptor {
       (error.status == 504 &&
         error.url.endsWith('calculateAlignmentsCVariant')) ||
       // info requests are made to show the backend state in the footer; therefore, we do not want to show the error dialog
-      error.url.endsWith('/info')
+      error.url.endsWith('/info') ||
+      error.url.endsWith('resetLogCache')
     );
   }
 

@@ -1,20 +1,21 @@
-import { ProcessTreeService } from './../processTreeService/process-tree.service';
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { SharedDataService } from '../sharedDataService/shared-data.service';
+import { Injectable } from '@angular/core';
 import * as FileSaver from 'file-saver';
+import { Observable } from 'rxjs';
 import { take, tap } from 'rxjs/operators';
+import { Configuration } from 'src/app/components/settings/model';
 import {
   deserialize,
+  Variant,
   VariantElement,
 } from 'src/app/components/variant-explorer/model';
-import { Configuration } from 'src/app/components/settings/model';
-import * as objectHash from 'object-hash';
 import { ProcessTree } from 'src/app/objects/ProcessTree';
+import { TimeUnit } from 'src/app/objects/TimeUnit';
+import { mapVariants } from 'src/app/utils/util';
 import { LogService } from '../logService/log.service';
 import { VariantService } from '../variantService/variant.service';
-import { TimeUnit } from 'src/app/objects/TimeUnit';
+import { ProcessTreeService } from './../processTreeService/process-tree.service';
+import * as objectHash from 'object-hash';
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +23,7 @@ import { TimeUnit } from 'src/app/objects/TimeUnit';
 export class BackendService {
   constructor(
     private httpClient: HttpClient,
-    private logService : LogService, 
+    private logService : LogService,
     private variantService : VariantService,
     private processTreeService: ProcessTreeService
   ) {}
@@ -32,6 +33,7 @@ export class BackendService {
   loadEventLogFromFilePath(filePath: string): void {
     this.httpClient
       .post(this.backendUrl + 'loadEventLog', { file_path: filePath })
+      .pipe(mapVariants())
       .subscribe((res) => {
         this.processEventLog(res, filePath);
       });
@@ -44,6 +46,7 @@ export class BackendService {
 
     this.httpClient
       .post(this.backendUrl + 'uploadfile', formData)
+      .pipe(mapVariants())
       .subscribe((res) => {
         console.log('Event log ' + file.name + ' loaded');
         this.processEventLog(res, file.name);
@@ -292,33 +295,8 @@ export class BackendService {
     return this.httpClient.get(this.backendUrl + 'info');
   }
 
-  public getProperties(parameters): Observable<any> {
-    return this.httpClient.post(this.backendUrl + 'log/properties', parameters);
-  }
-
   public getEventLog(): Observable<any> {
     return this.httpClient.get(this.backendUrl + 'log');
-  }
-
-  public getLogPropsAndUpdateState(parameters): Observable<any> {
-    return this.getProperties(parameters).pipe(
-      tap((properties) => {
-        this.variantService.variants = properties['variants'];
-
-        this.variantService.variants.forEach((variant, i) => {
-          variant['id'] = objectHash(variant['variant']);
-          variant.number = i + 1;
-          variant['variant'] = deserialize(variant.variant);
-        });
-        // TODO changing loadedEventLog name triggers the changes in frontend
-        this.logService.loadedEventLog = 'event-log';
-        this.logService.performanceInfoAvailable = true;
-      })
-    );
-  }
-
-  public getLogGranularity(): Observable<TimeUnit> {
-    return this.httpClient.get<TimeUnit>(this.backendUrl + 'log/granularity');
   }
 
   propagateActivityNameChange(activityName, newActivityName) {
@@ -347,4 +325,59 @@ export class BackendService {
     );
   }
 
-}
+
+
+  /**
+   * Fetches the properties of the log that is currently cached in the backend.
+   * If no time granularity is provided the granularity of the log is computed in
+   * the backend.
+   * @param timeGranularity
+   * @param logName
+   */
+     public getLogPropsAndUpdateState(
+      timeGranularity?: TimeUnit,
+      logName?: string
+    ): Observable<any> {
+      return this.getProperties(timeGranularity).pipe(
+        tap((properties) => {
+          this.updateState(properties, logName);
+        })
+      );
+    }
+
+    /**
+     * Updates the properties in sharedDataService (variants, activities, logName)
+     * @param properties
+     * @param logName
+     */
+    private updateState(properties: any, logName: string) {
+      this.logService.activitiesInEventLog = properties['activities'];
+      this.logService.startActivitiesInEventLog = new Set(
+        Object.keys(properties['startActivities'])
+      );
+      this.logService.endActivitiesInEventLog = new Set(
+        Object.keys(properties['endActivities'])
+      );
+      this.variantService.variants = properties['variants'];
+      this.logService.loadedEventLog = logName;
+    }
+
+
+    public getProperties(timeGranularity?: TimeUnit): Observable<any> {
+      return this.httpClient
+        .post(this.backendUrl + 'log/properties', {
+          timeGranularity: timeGranularity,
+        })
+        .pipe(mapVariants());
+    }
+
+    public getLogGranularity(): Observable<TimeUnit> {
+      return this.httpClient.get<TimeUnit>(this.backendUrl + 'log/granularity');
+    }
+
+    public resetLogCache(): Observable<any> {
+      return this.httpClient.get(this.backendUrl + 'log/resetLogCache');
+    }
+  }
+
+
