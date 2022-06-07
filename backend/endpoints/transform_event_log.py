@@ -1,6 +1,7 @@
 
 from collections import Counter
 import pickle
+from typing import List, Mapping, Tuple
 from cortado_core.utils.cvariants import get_concurrency_variants, get_detailed_variants
 from cortado_core.performance.variant_performance import assign_variants_performances
 from cortado_core.utils.split_graph import LeafGroup, SequenceGroup, ConcurrencyGroup, ParallelGroup
@@ -195,23 +196,20 @@ def remove_activity_from_trace(trace, activityName):
 def remove_activitiy_from_group(group, activity_name): 
     
     
-    fallthrough = False
-    
     if isinstance(group, LeafGroup): 
         lst = group[:]
         if activity_name in group and len(group) == 1: 
            
-           return None, fallthrough
+           return None
            
         elif activity_name in group and len(group) > 1: 
-            fallthrough = True
             lst.remove(activity_name)
             
-        return LeafGroup(lst), fallthrough
+        return LeafGroup(lst)
         
     else: 
         
-        children, fallthroughs = zip(*[remove_activitiy_from_group(child, activity_name) for child in group])
+        children = [remove_activitiy_from_group(child, activity_name) for child in group]
         children = [child for child in children if child]
         
         tmp = []
@@ -231,17 +229,17 @@ def remove_activitiy_from_group(group, activity_name):
         if len(children) > 1: 
             
             if isinstance(group, ParallelGroup):
-                return ParallelGroup(sorted(children)), any(fallthroughs)
+                return ParallelGroup(sorted(children))
         
             else: 
-                return SequenceGroup(children), any(fallthroughs)
+                return SequenceGroup(children)
               
         elif len(children) == 1: 
-            return children[0], any(fallthroughs)
+            return children[0]
             
         else: 
             
-          return None, any(fallthroughs)
+          return None
     
     
     
@@ -314,68 +312,81 @@ def recompute_log_statistics(variants, total_traces):
       
   return res_variants    
     
-def remove_activities(activityName): 
+def remove_activities(activityName, fallthrough, delete_member_list, merge_list, delete_variant_list): 
     
     print('Remove Activity')
     
-    new_log = {}
+    new_variants : Mapping[int, Tuple[ConcurrencyGroup, List ]]= {}
     
-    new_variants = []
+    for bid in delete_member_list: 
+        
+        (variant, traces) = load_event_log.variants[bid]
+        
+        new_variant = remove_activitiy_from_group(variant, activityName)
+        log = [apply_filter_copy(trace, activityName) for trace in traces]
+        new_variant.graph = create_new_graph(log[0])
+        new_variants[bid] = (new_variant, log)
+        
+    for ls in merge_list: 
+        
+        (variant, _)  = load_event_log.variants[ls[0]]
+        new_variant = remove_activitiy_from_group(variant, activityName)
+        
+        new_traces = []
+        
+        for bid in ls: 
+            
+            (_, traces)  = load_event_log.variants[bid]
+            new_traces += [apply_filter_copy(trace, activityName) for trace in traces]
+        
+        new_variant.graph =  create_new_graph(log[0])
+        
+        new_variants[min(ls)] = (new_variant, new_traces)
+        
+        
+    for bid in fallthrough: 
+        
+        (_, traces) = load_event_log.variants[bid]
+        log = EventLog([apply_filter_copy(trace, activityName) for trace in traces])
+            
+        c_variants = get_concurrency_variants(log, False) 
+                
+        print('Handling Fallthroughs')
+            
     
-    for bid, (variant, traces) in enumerate(load_event_log.variants.items()): 
+    flat_list = lambda lss : [x for ls in lss for x in ls]
+    
+    no_update = set(load_event_log.variants.keys()).difference(set(flat_list(merge_list) + fallthrough + delete_member_list + delete_variant_list))
 
-        if activityName in variant.graph.events: 
-            
-            new_variant, fallthrough = remove_activitiy_from_group(variant, activityName)
-            # If we detect a Fallthrough, Leaf with multiple Members, we recompute the cuts
-            if fallthrough: 
- 
-                log = EventLog([apply_filter_copy(trace, activityName) for trace in traces])
-            
-                c_variants = get_concurrency_variants(log, False) 
-                
-                for new_c_variant, new_traces in c_variants.items(): 
-                  
-                    new_log[new_c_variant] = new_log.get(new_c_variant, []) + new_traces
-                    new_variants.append(new_c_variant)
-            
-            else: 
-              
-                log = EventLog([apply_filter_copy(trace, activityName) for trace in traces])
-                
-                new_variant.graph = create_new_graph(log[0])
-                new_variants.append(new_variant)
-                
-                new_log[new_variant] = new_log.get(new_variant, []) + list(log)
-                
-                
-            
-        else: 
-            new_log[variant] = new_log.get(variant, []) + traces
-            
-    print('New Variant Log creation')
-    new_variants_log = {new_variant : new_log[new_variant] for new_variant in new_variants}
-    assign_variants_performances(new_variants_log)
+    print('No Update', no_update)
 
-    print('Computing Log Statistics')
-    total_traces = sum([len(v) for _, v in new_log.items()])
+    for bid in no_update: 
+        new_variants[bid] = load_event_log.variants[bid]
     
-    res_variants = recompute_log_statistics(new_log, total_traces)
     
-    start_activities = set.union(*[set(v.graph.start_activities.keys()) for v in new_log.keys()])
-    end_activities = set.union(*[set(v.graph.end_activities.keys()) for v in new_log.keys()])
-    activities = dict(sum([Counter({ k : (len(ls) * len(new_log[v])) for k, ls in v.graph.events.items()}) for v in new_log], Counter()))
+    start_activities = set.union(*[set(v.graph.start_activities.keys()) for (v , _ ) in new_variants.values()])
+    end_activities = set.union(*[set(v.graph.end_activities.keys()) for (v , _ ) in new_variants.values()])
+    activities = dict(sum([Counter({ k : (len(ls) * len(tr)) for k, ls in v.graph.events.items()}) for (v , tr) in new_variants.values()], Counter()))
     
     res = {
         "startActivities": list(start_activities),
         "endActivities": list(end_activities),
         "activities": activities,
-        "variants": res_variants,
         "performanceInfoAvailable": load_event_log.lifecycle_available
     }
     
     
-    load_event_log.variants = new_log
+    load_event_log.variants = new_variants
+    
+    
+    print(load_event_log.variants)
          
+         
+         
+    for bid, (variant, traces) in new_variants.items(): 
+        
+        print()
+        print('Graphs', variant.graph)
+        
     return res
     

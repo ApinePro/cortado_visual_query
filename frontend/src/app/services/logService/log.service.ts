@@ -55,7 +55,19 @@ export class LogService {
   }
 
   public deleteActivityInEventLog(activityName : string) : any {
-    this.activitiesInEventLog.delete(activityName)
+
+    let activities = {};
+    for (let activity in this.activitiesInEventLog) {
+   
+      if (activity !== activityName){
+        activities[activity] = this.activitiesInEventLog[activity]
+      }
+    }
+
+
+    this.activitiesInEventLog = activities
+
+    console.log(this.activitiesInEventLog)
   }
 
   public renameActivitiesInEventLog(activityName : string, newActivityName : string) : any {

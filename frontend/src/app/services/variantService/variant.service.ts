@@ -42,34 +42,131 @@ export class VariantService {
 
     const fallthrough = []
     const updateMap : Map<string, Variant[]> = new Map<string, Variant[]>();
+    const changedStrings : Set<string> = new Set<string>();
+    const delete_list = []
 
     for(let variant of this.variants){
 
+
+      let tmp; 
+
       if (variant.variant.getActivities().has(activityName)){
         const res = variant.variant.deleteActivity(activityName);
+
+        console.log('Variant Element after delete', res)
+        console.log('Variant after delete', variant)
 
         if (res[1]){
           fallthrough.push(variant);
           continue;
         }
 
-      }
+        if (res[0]){
+          tmp = res[0].asString();
+          changedStrings.add(tmp)
+
+          
+          if (updateMap.has(tmp)){
+            updateMap.get(tmp).push(variant)
+          } else {
+            updateMap.set(tmp, [variant])
+          }
+
+        } else {
+          delete_list.push(variant.bid);
+        }
 
 
-      const tmp = variant.variant.asString();
+        
+          
 
-      if (updateMap.has(tmp)){
-        updateMap.get(tmp).push(variant)
       } else {
-        updateMap.set(tmp, [variant])
+        tmp = variant.variant.asString();
+
+        if (updateMap.has(tmp)){
+          updateMap.get(tmp).push(variant)
+        } else {
+          updateMap.set(tmp, [variant])
+        }
+  
       }
 
 
     }
 
+    console.log('Update Map', updateMap)
+    console.log('Fallthrougs', fallthrough)
+    console.log('Delete Variant', delete_list)
+
+
+    this.logService.deleteActivityInEventLog(activityName);
+    this.colorMapService.deleteActivityInColorMap(activityName); 
+
+
+    this.variants = this.apply_update_map(updateMap);
+
+
+    let delete_member_list = []
+    let merge_list = []
+
+    for (let change of changedStrings){
+
+      if (updateMap.get(change).length == 1){
+        delete_member_list.push(updateMap.get(change)[0].bid)
+      } else {
+        merge_list.push(updateMap.get(change).map(v =>{return v.bid}))
+      }
+    }
+
+
+    this.propagateActivityDeletion(activityName, fallthrough, delete_member_list, merge_list, delete_list)
 
   }
 
+
+  private apply_update_map(updateMap: Map<string, Variant[]>) {
+    const variants: Variant[] = [];
+    const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
+
+    for (let [key, ls] of updateMap.entries()) {
+
+      if (ls.length > 1) {
+
+        let count = 0;
+        let subvariants = [];
+        let bids = [];
+        let selected = false;
+        let userAdded = false;
+
+        for (let variant of ls) {
+          bids.push(variant.bid);
+          count += variant.count;
+          subvariants.push(...variant.sub_variants);
+          selected = selected || variant.isSelected;
+          userAdded = userAdded || variant.isAddedFittingVariant;
+        }
+
+
+        const variant: Variant = new Variant(count, ls[0].variant, selected, userAdded, 0, false, false, false, true, subvariants, InfixType.NOT_AN_INFIX);
+        variant.bid = Math.min(...bids);
+        variant.id = objectHash(ls[0].variant);
+
+        variants.push(variant);
+
+      } else {
+
+        variants.push(ls[0]);
+
+      }
+    }
+
+    variants.forEach((v) => {
+      v.percentage = Number.parseFloat(((v.count / total) * 100).toFixed(2));
+    });
+
+
+    return variants
+  }
 
   public renameActivity(activityName : string, newActivityName : string){
     const updateMap : Map<string, Variant[]> = new Map<string, Variant[]>();
@@ -101,54 +198,12 @@ export class VariantService {
 
     }
 
-    const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
-
-
-    const variants : Variant[] = [];
-    
     this.logService.renameActivitiesInEventLog(activityName, newActivityName);
     this.processTreeService.renameActivityInProcessTree(activityName, newActivityName);
-    
     this.colorMapService.renameColorInActivityColorMap(activityName, newActivityName);
 
-    for(let [key, ls] of updateMap.entries()){
 
-      if(ls.length > 1){
-
-        let count = 0
-        let subvariants = []
-        let bids = []
-        let selected = false
-        let userAdded = false
-
-        for (let variant of ls){
-          bids.push(variant.bid)
-          count += variant.count
-          subvariants.push(...variant.sub_variants)
-          selected = selected || variant.isSelected;
-          userAdded = userAdded|| variant.isAddedFittingVariant;
-        }
-
-
-        const variant : Variant = new Variant(count, ls[0].variant, selected, userAdded, 0, false, false, false, true, subvariants, InfixType.NOT_AN_INFIX)
-        variant.bid = Math.min(...bids)
-        variant.id = objectHash(ls[0].variant)
-
-        variants.push(variant)
-
-      } else {
-
-        variants.push(ls[0])
-
-      }
-    }
-
-
-    variants.forEach((v) => {
-      v.percentage = Number.parseFloat(((v.count / total) * 100).toFixed(2));
-    });
-
-    this.variants = variants
+    this.variants = this.apply_update_map(updateMap);
 
     let rename_list = []
     let merge_list = []
@@ -178,10 +233,16 @@ export class VariantService {
       .subscribe();
   }
 
-  propagateActivityDeletion(activityName) {
+  propagateActivityDeletion(activityName, fallthrough, delete_member_list, merge_list, delete_variant_list) {
+
+
     this.httpClient
       .post(this.backendUrl + 'modifylog/' + 'deleteActivity', {
         activityName: activityName,
+        fallthrough : fallthrough, 
+        delete_member_list : delete_member_list, 
+        merge_list : merge_list, 
+        delete_variant_list : delete_variant_list
       })
       .subscribe();
   }

@@ -67,12 +67,6 @@ export class ActivityOverviewComponent
       this.activityColorMap = colorMap;
     });
 
-    this.processTreeService.activitiesInCurrentTree$.subscribe(
-      (activitiesInTree) => {
-        this.activitiesInTree = activitiesInTree;
-      }
-    );
-
     this.activityFields = [];
 
     // Handle change of current activies in the loaded model
@@ -99,6 +93,7 @@ export class ActivityOverviewComponent
     this.endActivities = this.logService.endActivitiesInEventLog;
     this.activitiesInLog = this.logService.activitiesInEventLog;
 
+    console.log('Activities in Log', this.activitiesInLog)
     this.activityFields = [];
     for (let activity in this.activitiesInLog) {
       this.activityFields.push(
@@ -145,8 +140,8 @@ export class ActivityOverviewComponent
   deleteActivity(activity: ActivityField) {
     console.log(activity.activityName);
     this.editingActivityName = false;
-    console.log('Deleting Activity', activity)
     this.variantService.deleteActivity(activity.activityName);
+    this.resetActivityFields(); 
   }
 
   changeActivityColor(activityField: ActivityField, color: string) {

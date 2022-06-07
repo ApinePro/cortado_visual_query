@@ -450,23 +450,28 @@ export class SequenceGroup extends VariantElement {
 
         if (res[1]) {
           // Found a Fallthrough Stop Early
+          console.warn('Found a Fallthrough')
           return [this, true];
         } else {
           // We append the result
           if (res[0]) {
             newElems.push(res[0]);
+            res[0].parent = this
           }
         }
       }
     }
 
 
-    if (newElems.length > 1) {
+    if (newElems.length > 1 || (newElems.length === 1 && !this.parent)) {
       this.elements = newElems;
+      console.log('Normal Case')
       return [this, false];
     } else if (newElems.length === 1) {
+      console.log('Remove Group Case', newElems)
       return [newElems[0], false];
     } else {
+      console.log('Delete Case')
       return [null, false];
     }
   }
@@ -690,6 +695,7 @@ export class ParallelGroup extends VariantElement {
           // We append the result
           if (res[0]) {
             newElems.push(res[0]);
+            res[0].parent = this; 
           }
         }
       }
