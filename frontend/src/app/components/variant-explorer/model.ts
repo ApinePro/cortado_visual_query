@@ -695,7 +695,7 @@ export class ParallelGroup extends VariantElement {
           // We append the result
           if (res[0]) {
             newElems.push(res[0]);
-            res[0].parent = this; 
+            res[0].parent = this;
           }
         }
       }
@@ -1094,6 +1094,55 @@ export class PerformanceStats {
       this.median = dict['median'];
       this.stdev = dict['stdev'] || 0;
       this.n = dict['n'];
+    }
+  }
+}
+
+
+
+export function injectWaitingTimeNodes(variants: VariantElement[]) {
+  variants.forEach((v) => injectWaitingTimeNodesVariant(v));
+}
+
+export function injectWaitingTimeNodesVariant(variant: VariantElement) {
+
+  if (variant instanceof SequenceGroup) {
+    variant
+      .asSequenceGroup()
+      .elements.filter((v) => !(v instanceof LeafNode))
+      .forEach((e) => injectWaitingTimeNodesVariant(e));
+
+    for (let i = 0; i < variant.asSequenceGroup().elements.length; i++) {
+      let v = variant.asSequenceGroup().elements[i];
+
+      if (v.waitingTime?.mean !== undefined) {
+        let wait = new WaitingTimeNode(v.waitingTime);
+        v.waitingTime = undefined;
+        variant.elements.splice(i, 0, wait);
+        i += 1;
+      }
+    }
+  }
+
+  if (variant instanceof ParallelGroup) {
+    variant
+      .asParallelGroup()
+      .elements.filter((v) => !(v instanceof LeafNode))
+      .forEach((e) => injectWaitingTimeNodesVariant(e));
+
+    for (let i = 0; i < variant.asSequenceGroup().elements.length; i++) {
+      let v = variant.asParallelGroup().elements[i];
+      let waitGroup = [v];
+      if (v.waitingTimeStart?.mean !== undefined) {
+        let wait = new WaitingTimeNode(v.waitingTimeStart);
+        waitGroup.splice(0, 0, wait);
+      }
+
+      if (v.waitingTimeEnd?.mean !== undefined) {
+        let wait = new WaitingTimeNode(v.waitingTimeEnd);
+        waitGroup.splice(waitGroup.length, 0, wait);
+      }
+      variant.elements[i] = new InvisibleSequenceGroup(waitGroup);
     }
   }
 }

@@ -99,7 +99,7 @@ export class VariantPerformanceService {
   public variantPerformanceMode = new BehaviorSubject<boolean>(false);
 
   constructor(private logService : LogService, private variantService : VariantService)
-             
+
   {
     this.logService.loadedEventLog$.subscribe((log) => {
       if (log !== undefined) {
@@ -238,49 +238,5 @@ export class VariantPerformanceService {
     return values;
   }
 
-  injectWaitingTimeNodes(variants: VariantElement[]) {
-    variants.forEach((v) => this.injectWaitingTimeNodesVariant(v));
-  }
 
-  injectWaitingTimeNodesVariant(variant: VariantElement) {
-    if (variant instanceof SequenceGroup) {
-      variant
-        .asParallelGroup()
-        .elements.filter((v) => !(v instanceof LeafNode))
-        .forEach((e) => this.injectWaitingTimeNodesVariant(e));
-
-      for (let i = 0; i < variant.asSequenceGroup().elements.length; i++) {
-        let v = variant.asParallelGroup().elements[i];
-
-        if (v.waitingTime?.mean !== undefined) {
-          let wait = new WaitingTimeNode(v.waitingTime);
-          v.waitingTime = undefined;
-          variant.elements.splice(i, 0, wait);
-          i += 1;
-        }
-      }
-    }
-
-    if (variant instanceof ParallelGroup) {
-      variant
-        .asParallelGroup()
-        .elements.filter((v) => !(v instanceof LeafNode))
-        .forEach((e) => this.injectWaitingTimeNodesVariant(e));
-
-      for (let i = 0; i < variant.asSequenceGroup().elements.length; i++) {
-        let v = variant.asParallelGroup().elements[i];
-        let waitGroup = [v];
-        if (v.waitingTimeStart?.mean !== undefined) {
-          let wait = new WaitingTimeNode(v.waitingTimeStart);
-          waitGroup.splice(0, 0, wait);
-        }
-
-        if (v.waitingTimeEnd?.mean !== undefined) {
-          let wait = new WaitingTimeNode(v.waitingTimeEnd);
-          waitGroup.splice(waitGroup.length, 0, wait);
-        }
-        variant.elements[i] = new InvisibleSequenceGroup(waitGroup);
-      }
-    }
-  }
 }

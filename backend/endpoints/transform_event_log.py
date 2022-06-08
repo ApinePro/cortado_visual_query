@@ -339,7 +339,7 @@ def remove_activities(activityName, fallthrough, delete_member_list, merge_list,
             (_, traces)  = load_event_log.variants[bid]
             new_traces += [apply_filter_copy(trace, activityName) for trace in traces]
         
-        new_variant.graph =  create_new_graph(log[0])
+        new_variant.graph =  create_new_graph(new_traces[0])
         
         new_variants[min(ls)] = (new_variant, new_traces)
         
@@ -378,15 +378,5 @@ def remove_activities(activityName, fallthrough, delete_member_list, merge_list,
     
     load_event_log.variants = new_variants
     
-    
-    print(load_event_log.variants)
-         
-         
-         
-    for bid, (variant, traces) in new_variants.items(): 
-        
-        print()
-        print('Graphs', variant.graph)
-        
     return res
     

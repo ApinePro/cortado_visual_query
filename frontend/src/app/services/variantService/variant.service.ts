@@ -4,7 +4,7 @@ import { LogService } from 'src/app/services/logService/log.service';
 import * as objectHash from 'object-hash';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Variant, VariantElement, InfixType } from 'src/app/components/variant-explorer/model';
+import { Variant, VariantElement, InfixType, injectWaitingTimeNodesVariant, injectWaitingTimeNodes } from 'src/app/components/variant-explorer/model';
 import * as dummyBackendResponse from '../SharedDataService/dummy_backend_response.js';
 import { skip } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
@@ -48,7 +48,7 @@ export class VariantService {
     for(let variant of this.variants){
 
 
-      let tmp; 
+      let tmp;
 
       if (variant.variant.getActivities().has(activityName)){
         const res = variant.variant.deleteActivity(activityName);
@@ -65,7 +65,7 @@ export class VariantService {
           tmp = res[0].asString();
           changedStrings.add(tmp)
 
-          
+
           if (updateMap.has(tmp)){
             updateMap.get(tmp).push(variant)
           } else {
@@ -77,8 +77,8 @@ export class VariantService {
         }
 
 
-        
-          
+
+
 
       } else {
         tmp = variant.variant.asString();
@@ -88,22 +88,18 @@ export class VariantService {
         } else {
           updateMap.set(tmp, [variant])
         }
-  
+
       }
 
 
     }
 
-    console.log('Update Map', updateMap)
-    console.log('Fallthrougs', fallthrough)
-    console.log('Delete Variant', delete_list)
-
 
     this.logService.deleteActivityInEventLog(activityName);
-    this.colorMapService.deleteActivityInColorMap(activityName); 
+    this.colorMapService.deleteActivityInColorMap(activityName);
 
 
-    this.variants = this.apply_update_map(updateMap);
+    const variants = this.apply_update_map(updateMap);
 
 
     let delete_member_list = []
@@ -118,8 +114,19 @@ export class VariantService {
       }
     }
 
+    const bids = delete_member_list.concat(merge_list.flat(1))
+
+    this.variants = variants
+
 
     this.propagateActivityDeletion(activityName, fallthrough, delete_member_list, merge_list, delete_list)
+
+
+
+
+    // Need to await new Performance Data from the Backend
+    injectWaitingTimeNodes(
+      variants.filter((v) => {return bids.includes(v.bid)}).map((v) => v.variant));
 
   }
 
@@ -226,7 +233,7 @@ export class VariantService {
     this.httpClient
       .post(this.backendUrl + 'modifylog/' + 'changeActivityName', {
         mergeList : mergeList,
-        renameList : renameList, 
+        renameList : renameList,
         activityName: activityName,
         newActivityName: newActivityName,
       })
@@ -239,9 +246,9 @@ export class VariantService {
     this.httpClient
       .post(this.backendUrl + 'modifylog/' + 'deleteActivity', {
         activityName: activityName,
-        fallthrough : fallthrough, 
-        delete_member_list : delete_member_list, 
-        merge_list : merge_list, 
+        fallthrough : fallthrough,
+        delete_member_list : delete_member_list,
+        merge_list : merge_list,
         delete_variant_list : delete_variant_list
       })
       .subscribe();
