@@ -281,7 +281,6 @@ export class ProcessTreeEditorComponent
     this._goldenLayout = this.goldenLayoutComponentService.goldenLayout;
 
     this.processTreeService.selectedRootNodeID$.subscribe((id) => {
-      console.warn('Selected Root Node changed', id);
       // Change the Selection
       if (id) {
         this.selectRootNodeFromID(id);
@@ -298,7 +297,6 @@ export class ProcessTreeEditorComponent
   private selectRootNodeFromID(id) {
     const selectedRoot = this.mainSvgGroup.select('[id="' + id + '"]');
     const node = selectedRoot.data()[0];
-    console.warn('Selected Root Node in PT');
 
     if (id && node) {
       this.setSelectedRootNode(node);
@@ -311,7 +309,6 @@ export class ProcessTreeEditorComponent
       this.insertPostitonBelowDisabled = Boolean(
         this.selectedRootNode.data.operator
       ).valueOf();
-      console.log('After Node Select Root Only', this.selectedRootNodeOnly);
     }
   }
 
@@ -386,13 +383,11 @@ export class ProcessTreeEditorComponent
   }
 
   selectNodeButton(): void {
-    console.log('Set Node Selection Strategy in PT');
     this.processTreeService.selectedRootNodeID = null;
     this.processTreeService.selectionMode = NodeSeletionStrategy.NODE;
   }
 
   selectSubtreeButton(): void {
-    console.log('Set Node Selection Strategy in PT');
     this.processTreeService.selectedRootNodeID = null;
     this.processTreeService.selectionMode = NodeSeletionStrategy.TREE;
   }
@@ -841,7 +836,6 @@ export class ProcessTreeEditorComponent
 
   // @REFRACTOR INTO PROCESSTREE SERVICE
   deleteNodeAndChildren(tree, nodeToDelete): void {
-    console.log('Tree in Delete', tree);
     if (tree.children) {
       tree.children = tree.children.filter((c) => c !== nodeToDelete);
       if (tree.children.length === 0) {
@@ -1077,10 +1071,6 @@ export class ProcessTreeEditorComponent
     dummy_select.remove();
 
     this.processTreeService.nodeWidthCache = this.nodeWidthCache;
-    console.warn(
-      'Updated Nodewidth Cache',
-      this.processTreeService.nodeWidthCache
-    );
   }
 
   addZoomFunctionality(): void {

@@ -54,9 +54,7 @@ export class SubvariantExplorerComponent
   ) {
     super(elRef.nativeElement, renderer);
     this.mainVariant = this.container.initialState as Variant;
-    this.colorMap = this.colorMapService.getColorMap(
-      Object.keys(this.logService.activitiesInEventLog)
-    );
+    this.colorMap = this.colorMapService.colorMap
     this.sortAscending = false;
     this.svgRenderingInProgress = false;
   }

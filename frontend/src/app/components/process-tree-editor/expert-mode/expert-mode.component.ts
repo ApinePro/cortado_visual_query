@@ -205,7 +205,6 @@ export class ExpertModeComponent implements OnInit {
 
   toggleExpertMode() {
     this.editorActive = !this.editorActive;
-    console.log('Toogle Editor', this.editorActive);
     if (this.editorActive) {
       this.collectCurrentTreeString(
         this.processTreeService.currentDisplayedProcessTree

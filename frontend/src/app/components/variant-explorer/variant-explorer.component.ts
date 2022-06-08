@@ -29,6 +29,7 @@ import {
   Stack,
 } from 'golden-layout';
 import { Subject } from 'rxjs';
+import { connectableObservableDescriptor } from 'rxjs/internal/observable/ConnectableObservable';
 import { delay, mergeMap, retryWhen, take, tap } from 'rxjs/operators';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
@@ -36,7 +37,7 @@ import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { HumanizeDurationPipe } from 'src/app/pipes/humanize-duration.pipe';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
 import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
-import { LogService } from 'src/app/services/logService/log.service';
+import { LogService, LogStats } from 'src/app/services/logService/log.service';
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
 import { PerformanceService } from 'src/app/services/performance.service';
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
@@ -134,7 +135,7 @@ export class VariantExplorerComponent
   extends LayoutChangeDirective
   implements OnInit, AfterViewInit
 {
-  displayed_variants: any;
+
   constructor(
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
@@ -162,7 +163,10 @@ export class VariantExplorerComponent
   maximized: boolean = false;
 
   public variants: Variant[] = [];
+  public displayed_variants: Variant[] = [];
   public colorMap: Map<string, string>;
+
+  public logStats : LogStats = null; 
 
   public currentlyDisplayedProcessTree;
   public usedTreeForConformanceChecking;
@@ -173,11 +177,6 @@ export class VariantExplorerComponent
   expansionState: Map<string, boolean> = new Map<string, boolean>();
   performanceColorMap: any;
   waitingColorMap: any;
-
-  public numberFittingTraces: number = undefined;
-  public numberFittingVariants: number = undefined;
-  public totalNumberTraces: number = undefined;
-  public totalNumberVariants: number = undefined;
 
   public svgRenderingInProgress: boolean = false;
   public variantExplorerOutOfFocus: boolean = false;
@@ -214,7 +213,7 @@ export class VariantExplorerComponent
   showConformanceDialogEvent: Subject<Variant> = new Subject<Variant>();
 
   public deletedVariants: Variant[][] = [];
-  
+
   timeUnit = TimeUnit;
 
   selectedGranularity = TimeUnit.SEC;
@@ -241,6 +240,7 @@ export class VariantExplorerComponent
     this.conformanceCheckingService.connect();
     this.subscribeForConformanceCheckingResults();
     this.listenForLogGranularityChange();
+    this.listenForLogStatChange(); 
   }
 
   @HostListener('window:keydown.control.q', ['$event'])
@@ -331,6 +331,18 @@ export class VariantExplorerComponent
     });
   }
 
+
+  private eventLogChanged(){
+    this.variants = this.variantService.variants;
+    this.displayed_variants = this.variants;
+
+    this.sort(this.sortingFeature);
+  }
+
+  private listenForLogStatChange(){
+    this.logService.logStatistics$.subscribe((logStat) => {this.logStats = logStat; console.log('New Logstats', logStat)})
+  }
+
   private listenForLogChange() {
     this.logService.loadedEventLog$
       .pipe(
@@ -350,51 +362,6 @@ export class VariantExplorerComponent
         component.redraw();
       }
     }
-  }
-
-
-
-
-  // @Refactor into Variant Service
-  private eventLogChanged(): void {
-    this.colorMap = this.colorMapService.getColorMap(
-      Object.keys(this.logService.activitiesInEventLog)
-    );
-
-    this.variants = this.variantService.variants;
-
-
-    injectWaitingTimeNodes(
-      this.variants.map((v) => v.variant)
-    );
-
-    this.variants.forEach((v, i) => {
-      v.isConformanceOutdated = true;
-      v.userDefined = false;
-      v.isTimeouted = false;
-      v.isSelected = false;
-      v.isAddedFittingVariant = false;
-      v.infixType = InfixType.NOT_AN_INFIX;
-      setParent(v.variant);
-    });
-
-    this.numberFittingVariants = undefined;
-    this.numberFittingTraces = undefined;
-
-    this.totalNumberTraces = this.variants
-      .map((v) => v.count)
-      .reduce((a, b) => a + b);
-
-    this.variants.forEach((v) => {
-      v.percentage = Number.parseFloat(
-        ((v.count / this.totalNumberTraces) * 100).toFixed(2)
-      );
-    });
-
-    this.displayed_variants = this.variants;
-
-    this.totalNumberVariants = this.variants.length;
-    this.sort(this.sortingFeature);
   }
 
   subscribeForConformanceCheckingResults(): void {
@@ -425,8 +392,7 @@ export class VariantExplorerComponent
 
   apply_query_filter(queryItems: Set<number>) {
     console.log('Changed Filter', queryItems);
-    console.log('Current Variants', this.variants);
-
+    
     if (!queryItems) {
       this.displayed_variants = this.variants;
     } else {
@@ -446,18 +412,21 @@ export class VariantExplorerComponent
     });
   }
 
+  // @ Refactor into Alignment Service
   updateAlignmentStatistics(): void {
     let numberFittingVariants = 0;
     let numberFittingTraces = 0;
 
+    
     this.variants.forEach((v) => {
       if (v.deviation !== undefined && !v.deviation) {
         numberFittingVariants++;
         numberFittingTraces += v.count;
       }
     });
-    this.numberFittingTraces = numberFittingTraces;
-    this.numberFittingVariants = numberFittingVariants;
+
+    console.log('Updating Statistics', numberFittingVariants, numberFittingTraces)
+    this.logService.update_log_stats(numberFittingTraces = numberFittingTraces, numberFittingVariants = numberFittingVariants)
   }
 
   updateConformanceForVariant(variant: Variant, timeout: number): void {
@@ -833,6 +802,11 @@ export class VariantExplorerComponent
     event.stopPropagation();
   }
 
+
+  deleteSelectedVariants(){
+    this.variantService.deleteVariants(this.displayed_variants.filter((v) => v.isSelected).map((v) => v.bid));
+  }
+
   variantClickCallBack = (
     self: VariantDrawerDirective,
     element: VariantElement,
@@ -1043,32 +1017,6 @@ export class VariantExplorerComponent
   onSortOrderChanged(isAscending: boolean): void {
     this.isAscendingOrder = isAscending;
     this.sort(this.sortingFeature);
-  }
-
-  deleteSelectedVariants(): void {
-    let kept = this.displayed_variants.filter((variant) => !variant.isSelected);
-    let deleted = this.displayed_variants.filter(
-      (variant) => variant.isSelected
-    );
-    for (let variant of deleted) {
-      variant.isSelected = false;
-    }
-
-    this.deletedVariants.push(deleted);
-    this.displayed_variants = kept;
-  }
-
-  noDeletedVariants(): boolean {
-    return this.deletedVariants.length == 0;
-  }
-
-  restoreLastDeletedVariants(): void {
-    if (this.deletedVariants.length > 0) {
-      this.displayed_variants = this.displayed_variants.concat(
-        this.deletedVariants.pop()
-      );
-      this.sort(this.sortingFeature);
-    }
   }
 
   toggleTraceInfixSelectionMode(): void {

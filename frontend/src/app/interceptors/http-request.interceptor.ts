@@ -56,7 +56,6 @@ export class HttpRequestInterceptor implements HttpInterceptor {
   }
 
   shouldIgnoreError(error: HttpErrorResponse): boolean {
-    console.log('HTML Error', error);
     return (
       // ignore timeouts for alignment computations because they are handled in the variant explorer
       (error.status == 504 &&

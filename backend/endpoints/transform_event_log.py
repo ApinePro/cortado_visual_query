@@ -380,3 +380,7 @@ def remove_activities(activityName, fallthrough, delete_member_list, merge_list,
     
     return res
     
+    
+def remove_variant(bids): 
+    
+    load_event_log.variants = {bid : (v, t) for bid, (v, t) in load_event_log.variants.items() if bid not in bids}

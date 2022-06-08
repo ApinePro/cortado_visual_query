@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
+import { LogStats } from 'src/app/services/logService/log.service';
 
 @Component({
   selector: 'app-conformance-info-bar',
@@ -8,17 +8,11 @@ import { SharedDataService } from 'src/app/services/sharedDataService/shared-dat
 })
 export class ConformanceInfoBarComponent {
   @Input()
-  numberFittingVariants: number;
-  @Input()
-  totalNumberVariants: number;
-  @Input()
-  numberFittingTraces: number;
-  @Input()
-  totalNumberTraces: number;
+  logStats: LogStats;
   @Input()
   isConformanceOutdated: boolean;
   @Input()
   numSelectedVariants: number;
 
-  constructor(private sharedDataService: SharedDataService) {}
+  constructor() {}
 }

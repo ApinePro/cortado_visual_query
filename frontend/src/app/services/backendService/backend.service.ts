@@ -6,6 +6,9 @@ import { take, tap } from 'rxjs/operators';
 import { Configuration } from 'src/app/components/settings/model';
 import {
   deserialize,
+  InfixType,
+  injectWaitingTimeNodes,
+  setParent,
   Variant,
   VariantElement,
 } from 'src/app/components/variant-explorer/model';
@@ -40,7 +43,6 @@ export class BackendService {
   }
 
   uploadEventLog(file: File) {
-    console.log(file);
     let formData = new FormData();
     formData.append('file', file);
 
@@ -66,7 +68,9 @@ export class BackendService {
       Object.keys(res['endActivities'])
     );
 
-    this.variantService.variants = res['variants'];
+    const variants = this.addVariantInformation(res['variants'])
+    this.computeLogStats(variants)
+    this.variantService.variants = variants;
 
     this.logService.loadedEventLog = filePath;
 
@@ -76,7 +80,6 @@ export class BackendService {
   }
 
   loadProcessTreeFromFilePath(filePath: string): void {
-    console.log(filePath);
     this.httpClient
       .post(this.backendUrl + 'loadProcessTreeFromPtmlFile', {
         file_path: filePath,
@@ -108,7 +111,6 @@ export class BackendService {
       })
       .pipe(
         tap((tree) => {
-          console.log('Parsing Tree after Request');
           this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
             tree
           );
@@ -262,7 +264,6 @@ export class BackendService {
       )
       .pipe(
         tap((res) => {
-          console.log('Tree Received from BackEnd Service', res);
           this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
             res
           );
@@ -327,7 +328,12 @@ export class BackendService {
       this.logService.endActivitiesInEventLog = new Set(
         Object.keys(properties['endActivities'])
       );
-      this.variantService.variants = properties['variants'];
+
+
+      const variants = this.addVariantInformation(properties['variants'])
+      this.computeLogStats(variants)
+      this.variantService.variants = variants;
+
       this.logService.loadedEventLog = logName;
 
       console.warn('Variants in Update State', properties['variants'])
@@ -348,6 +354,47 @@ export class BackendService {
 
     public resetLogCache(): Observable<any> {
       return this.httpClient.get(this.backendUrl + 'log/resetLogCache');
+    }
+
+
+    private addVariantInformation(variants : Variant[]) : Variant[] {
+
+      injectWaitingTimeNodes(
+        variants.map((v) => v.variant)
+      );
+  
+      variants.forEach((v, i) => {
+        v.isConformanceOutdated = true;
+        v.userDefined = false;
+        v.isTimeouted = false;
+        v.isSelected = false;
+        v.isAddedFittingVariant = false;
+        v.infixType = InfixType.NOT_AN_INFIX;
+        setParent(v.variant);
+      });
+  
+      return variants
+
+    }
+    
+    private computeLogStats(variants : Variant[]) : void {
+
+      const totalNumberTraces = variants
+        .map((v) => v.count)
+        .reduce((a, b) => a + b);
+  
+        variants.forEach((v) => {
+        v.percentage = Number.parseFloat(
+          ((v.count / totalNumberTraces) * 100).toFixed(2)
+        );
+      });
+      
+      const numberFittingVariants = 0;
+      const numberFittingTraces = 0;
+      const totalNumberVariants = variants.length;
+  
+      this.logService.update_log_stats(numberFittingTraces, numberFittingVariants, totalNumberTraces, totalNumberVariants)
+
     }
   }
 

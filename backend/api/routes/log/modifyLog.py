@@ -1,8 +1,7 @@
 from typing import List
 from fastapi import APIRouter
 from pydantic import BaseModel
-
-from endpoints.transform_event_log import cache_current_data, remove_activities, rename_activities
+from endpoints.transform_event_log import cache_current_data, remove_activities, rename_activities, remove_variant
 
 router = APIRouter(
     tags=["Log"],
@@ -48,3 +47,16 @@ async def remove_activity_name_in_log(d : removeActivityName):
     res = remove_activities(d.activityName, d.fallthrough, d.delete_member_list, d.merge_list, d.delete_variant_list)
 
     return res
+
+class removeVariants(BaseModel):
+    bids : List[int]
+
+@router.post("/deleteVariants")
+async def removeVariants(d : removeVariants):  
+    
+    print('Delete Request', d)
+    
+    cache_current_data()
+    
+    remove_variant(d.bids)
+

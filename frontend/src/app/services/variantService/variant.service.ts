@@ -4,7 +4,7 @@ import { LogService } from 'src/app/services/logService/log.service';
 import * as objectHash from 'object-hash';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Variant, VariantElement, InfixType, injectWaitingTimeNodesVariant, injectWaitingTimeNodes } from 'src/app/components/variant-explorer/model';
+import { Variant, InfixType, injectWaitingTimeNodes } from 'src/app/components/variant-explorer/model';
 import * as dummyBackendResponse from '../SharedDataService/dummy_backend_response.js';
 import { skip } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
@@ -20,7 +20,9 @@ export class VariantService {
               private httpClient: HttpClient,
               private processTreeService : ProcessTreeService,
               private colorMapService : ColorMapService,
-             ) { }
+             ) { 
+
+             }
 
   private _variants = new BehaviorSubject<Variant[]>(
     []
@@ -38,6 +40,27 @@ export class VariantService {
     return this._variants.getValue();
   }
 
+
+  public deleteVariants(bids : number[]): void {
+    const delVariants = this.variants.filter((v) => bids.includes(v.bid))
+
+    const nDelVar = bids.length
+    const nDelTrace = delVariants.map((v) => v.count).reduce((a, b) => a + b);
+    const nDelFittingVar = delVariants.filter((v) => v.deviation !== undefined && !v.deviation).length
+    const nDelFittingTraces = delVariants.filter((v) => v.deviation !== undefined && !v.deviation).map((v) => v.count).reduce((a, b) => a + b);
+
+    this.variants = this.variants.filter((v) => !bids.includes(v.bid))
+
+    this.propagateVariantDeletions(bids); 
+
+
+    const curStats = this.logService.logStatistics;
+    this.logService.update_log_stats(curStats.numberFittingTraces - nDelFittingTraces, curStats.numberFittingVariants - nDelFittingVar, curStats.totalNumberTraces - nDelTrace , curStats.totalNumberVariants - nDelVar)
+    
+
+  }
+
+
   public deleteActivity(activityName : string){
 
     const fallthrough = []
@@ -47,14 +70,10 @@ export class VariantService {
 
     for(let variant of this.variants){
 
-
       let tmp;
 
       if (variant.variant.getActivities().has(activityName)){
         const res = variant.variant.deleteActivity(activityName);
-
-        console.log('Variant Element after delete', res)
-        console.log('Variant after delete', variant)
 
         if (res[1]){
           fallthrough.push(variant);
@@ -76,10 +95,6 @@ export class VariantService {
           delete_list.push(variant.bid);
         }
 
-
-
-
-
       } else {
         tmp = variant.variant.asString();
 
@@ -91,16 +106,13 @@ export class VariantService {
 
       }
 
-
     }
 
 
     this.logService.deleteActivityInEventLog(activityName);
     this.colorMapService.deleteActivityInColorMap(activityName);
 
-
     const variants = this.apply_update_map(updateMap);
-
 
     let delete_member_list = []
     let merge_list = []
@@ -121,13 +133,18 @@ export class VariantService {
 
     this.propagateActivityDeletion(activityName, fallthrough, delete_member_list, merge_list, delete_list)
 
-
-
-
     // Need to await new Performance Data from the Backend
     injectWaitingTimeNodes(
       variants.filter((v) => {return bids.includes(v.bid)}).map((v) => v.variant));
 
+
+    const curStats = this.logService.logStatistics;
+
+    console.log(curStats.totalNumberVariants,  bids.length, merge_list.length, bids, merge_list)
+
+    const nVars = (curStats.totalNumberVariants - bids.length) + merge_list.length
+    this.logService.update_log_stats(null, null, null, nVars); 
+    
   }
 
 
@@ -241,8 +258,6 @@ export class VariantService {
   }
 
   propagateActivityDeletion(activityName, fallthrough, delete_member_list, merge_list, delete_variant_list) {
-
-
     this.httpClient
       .post(this.backendUrl + 'modifylog/' + 'deleteActivity', {
         activityName: activityName,
@@ -250,6 +265,14 @@ export class VariantService {
         delete_member_list : delete_member_list,
         merge_list : merge_list,
         delete_variant_list : delete_variant_list
+      })
+      .subscribe();
+  }
+
+  propagateVariantDeletions(bids : number[]) {
+    this.httpClient
+      .post(this.backendUrl + 'modifylog/' + 'deleteVariants', {
+        bids: bids,
       })
       .subscribe();
   }

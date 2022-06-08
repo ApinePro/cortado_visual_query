@@ -2,54 +2,71 @@
   <!-- In case conformance statistics are not available yet -->
   <span
     class="float-start"
-    *ngIf="totalNumberTraces && numberFittingTraces === undefined"
+    *ngIf="
+      logStats.totalNumberTraces && logStats.numberFittingTraces === undefined
+    "
   >
     fitting traces:
     <span>
-      -&nbsp;/&nbsp;{{ totalNumberTraces | number }} (&nbsp;-&nbsp;%)</span
+      -&nbsp;/&nbsp;{{
+        logStats.totalNumberTraces | number
+      }}
+      (&nbsp;-&nbsp;%)</span
     >
   </span>
 
   <span
     class="float-start"
     *ngIf="
-      (numberFittingTraces || numberFittingTraces >= 0) &&
-      (totalNumberTraces || totalNumberTraces > 0)
+      (logStats.numberFittingTraces || logStats.numberFittingTraces >= 0) &&
+      (logStats.totalNumberTraces || logStats.totalNumberTraces > 0)
     "
   >
     fitting traces:
     <span [ngClass]="!isConformanceOutdated ? '' : 'text-warning'">
-      {{ numberFittingTraces | number }}&nbsp;/&nbsp;{{
-        totalNumberTraces | number
+      {{ logStats.numberFittingTraces | number }}&nbsp;/&nbsp;{{
+        logStats.totalNumberTraces | number
       }}
-      ({{ numberFittingTraces / totalNumberTraces | percent: ".1" }})</span
+      ({{
+        logStats.numberFittingTraces / logStats.totalNumberTraces
+          | percent: ".1"
+      }})</span
     >
   </span>
 
   <!-- In case conformance statistics are not available yet -->
   <span
     class="float-start ms-4"
-    *ngIf="totalNumberVariants && numberFittingVariants === undefined"
+    *ngIf="
+      logStats.totalNumberVariants &&
+      logStats.numberFittingVariants === undefined
+    "
   >
     fitting variants:
     <span>
-      -&nbsp;/&nbsp;{{ totalNumberVariants | number }} (&nbsp;-&nbsp;%)</span
+      -&nbsp;/&nbsp;{{
+        logStats.totalNumberVariants | number
+      }}
+      (&nbsp;-&nbsp;%)</span
     >
   </span>
 
   <span
     class="float-start ms-4"
     *ngIf="
-      (numberFittingVariants || numberFittingVariants >= 0) &&
-      (totalNumberVariants || totalNumberVariants > 0)
+      (logStats.numberFittingVariants || logStats.numberFittingVariants >= 0) &&
+      (logStats.totalNumberVariants || logStats.totalNumberVariants > 0)
     "
   >
     fitting variants:
     <span [ngClass]="!isConformanceOutdated ? '' : 'text-warning'">
-      {{ numberFittingVariants | number }}&nbsp;/&nbsp;{{
-        totalNumberVariants | number
+      {{ logStats.numberFittingVariants | number }}&nbsp;/&nbsp;{{
+        logStats.totalNumberVariants | number
       }}
-      ({{ numberFittingVariants / totalNumberVariants | percent: ".1" }})
+      ({{
+        logStats.numberFittingVariants / logStats.totalNumberVariants
+          | percent: ".1"
+      }})
     </span>
   </span>
 

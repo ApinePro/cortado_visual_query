@@ -465,13 +465,10 @@ export class SequenceGroup extends VariantElement {
 
     if (newElems.length > 1 || (newElems.length === 1 && !this.parent)) {
       this.elements = newElems;
-      console.log('Normal Case')
       return [this, false];
     } else if (newElems.length === 1) {
-      console.log('Remove Group Case', newElems)
       return [newElems[0], false];
     } else {
-      console.log('Delete Case')
       return [null, false];
     }
   }

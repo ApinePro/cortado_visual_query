@@ -1,3 +1,4 @@
+
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -9,7 +10,9 @@ import * as constants from './predefinedColors';
 export class ColorMapService {
   constructor() {}
 
-  getColorMap(activities: string[]): Map<string, string> {
+
+
+  createColorMap(activities: string[]): void {
     //TODO: ensure activities are ordered based on frequency
     const colorMap: Map<string, string> = new Map();
     activities.sort();
@@ -17,14 +20,12 @@ export class ColorMapService {
       colorMap.set(a, this.get_color(i));
     });
     this._colorMap.next(colorMap);
-    return colorMap;
   }
 
-  changeActivityColor(activity: string, color: string): Map<string, string> {
+  changeActivityColor(activity: string, color: string): void{
     let colorMap: Map<string, string> = this._colorMap.getValue();
     colorMap.set(activity, color);
     this._colorMap.next(colorMap);
-    return colorMap;
   }
 
   // tslint:disable-next-line:variable-name

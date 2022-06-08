@@ -1,3 +1,4 @@
+import { ColorMapService } from './../colorMapService/color-map.service';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { skip, tap } from 'rxjs/operators';
@@ -10,11 +11,63 @@ import { mapVariants } from 'src/app/utils/util';
   providedIn: 'root',
 })
 export class LogService {
-  constructor(
+  constructor( private colorMapService : ColorMapService
   ) {}
 
   public performanceInfoAvailable = false;
   private _timeGranularity: Subject<TimeUnit> = new Subject();
+
+
+  private _numberFittingTraces: number = undefined;
+  private _numberFittingVariants: number = undefined;
+  private _totalNumberTraces: number = 0;
+  private _totalNumberVariants: number = 0;
+
+
+  private _logStatistics = new BehaviorSubject<LogStats>(new LogStats(this._numberFittingTraces, 
+    this._numberFittingVariants,
+    this._totalNumberTraces, 
+    this._totalNumberVariants
+    )
+  );
+
+  get logStatistics$(): Observable<LogStats> {
+    return this._logStatistics.asObservable();
+  }
+
+  set logStatistics(logStats: LogStats) {
+    this._logStatistics.next(logStats);
+  }
+
+  get logStatistics(): LogStats {
+    return this._logStatistics.getValue();
+  }
+
+
+  public update_log_stats(numberFittingTraces : number = null, numberFittingVariants : number = null, totalNumberTraces : number = null, totalNumberVariants : number = null) : void{
+    if (numberFittingTraces) this._numberFittingTraces = numberFittingTraces;
+    if (numberFittingVariants) this._numberFittingVariants= numberFittingVariants;
+    if (totalNumberTraces) this._totalNumberTraces= totalNumberTraces;
+    if (totalNumberVariants) this._totalNumberVariants= totalNumberVariants;
+    
+    this.logStatistics = new LogStats(this._numberFittingTraces, 
+      this._numberFittingVariants,
+      this._totalNumberTraces, 
+      this._totalNumberVariants
+    )
+  }
+
+
+  // Runs Code that should be run everytime the event log changes
+  private eventLogChanged(): void {
+
+    this.colorMapService.createColorMap(
+      Object.keys(this.activitiesInEventLog)
+    );
+
+  }
+
+
   private _logGranularity: BehaviorSubject<TimeUnit> = new BehaviorSubject(
     TimeUnit.SEC
   );
@@ -22,7 +75,6 @@ export class LogService {
   public get logGranularity$(): Observable<TimeUnit> {
     return this._logGranularity.asObservable();
   }
-
 
   public set logGranularity(value: TimeUnit) {
     this._logGranularity.next(value);
@@ -35,6 +87,8 @@ export class LogService {
   }
 
   set loadedEventLog(name: string) {
+    this.eventLogChanged(); 
+
     this._loadedEventLog.next(name);
   }
 
@@ -66,8 +120,6 @@ export class LogService {
 
 
     this.activitiesInEventLog = activities
-
-    console.log(this.activitiesInEventLog)
   }
 
   public renameActivitiesInEventLog(activityName : string, newActivityName : string) : any {
@@ -84,7 +136,6 @@ export class LogService {
     }
 
   activityNameMapping.set(activityName, newActivityName);
-  console.log(activityNameMapping)
 
   let activities = {};
   for (let activity in this.activitiesInEventLog) {
@@ -98,8 +149,6 @@ export class LogService {
         this.activitiesInEventLog[activity];
     }
   }
-
-  console.log(this.activitiesInEventLog)
 
   if(this.endActivitiesInEventLog.delete(activityName)) this.endActivitiesInEventLog.add(newActivityName);
   if(this.startActivitiesInEventLog.delete(activityName)) this.startActivitiesInEventLog.add(newActivityName);
@@ -150,3 +199,19 @@ export class LogService {
 
 
 }
+
+export class LogStats {
+  numberFittingTraces : number  
+  numberFittingVariants : number 
+  totalNumberTraces : number 
+  totalNumberVariants : number
+
+
+  constructor(numberFittingTraces : number, numberFittingVariants : number, totalNumberTraces : number, totalNumberVariants : number){
+    this.numberFittingTraces = numberFittingTraces
+    this.numberFittingVariants = numberFittingVariants
+    this.totalNumberTraces = totalNumberTraces
+    this.totalNumberVariants = totalNumberVariants
+
+  }
+} 
