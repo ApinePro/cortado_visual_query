@@ -65,6 +65,15 @@ export class ActivityOverviewComponent
 
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.activityColorMap = colorMap;
+
+
+      if (this.activityFields) {
+        for (let activityField of this.activityFields) {
+          activityField.color = this.activityColorMap.get(
+            activityField.activityName
+          );
+        }
+      }
     });
 
     this.activityFields = [];
@@ -141,7 +150,7 @@ export class ActivityOverviewComponent
     console.log(activity.activityName);
     this.editingActivityName = false;
     this.variantService.deleteActivity(activity.activityName);
-    this.resetActivityFields(); 
+    this.resetActivityFields();
   }
 
   changeActivityColor(activityField: ActivityField, color: string) {
@@ -155,16 +164,9 @@ export class ActivityOverviewComponent
   }
 
   resetActivityColors(): void {
-    this.colorMapService.getColorMap(
+    this.colorMapService.createColorMap(
       Object.keys(this.logService.activitiesInEventLog)
     );
-    if (this.activityFields) {
-      for (let activityField of this.activityFields) {
-        activityField.color = this.activityColorMap.get(
-          activityField.activityName
-        );
-      }
-    }
   }
 
   resetActivityNames(): void {

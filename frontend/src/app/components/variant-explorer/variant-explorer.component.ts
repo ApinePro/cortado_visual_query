@@ -213,6 +213,8 @@ export class VariantExplorerComponent
 
   showConformanceDialogEvent: Subject<Variant> = new Subject<Variant>();
 
+  public deletedVariants: Variant[][] = [];
+  
   timeUnit = TimeUnit;
 
   selectedGranularity = TimeUnit.SEC;
@@ -1041,6 +1043,32 @@ export class VariantExplorerComponent
   onSortOrderChanged(isAscending: boolean): void {
     this.isAscendingOrder = isAscending;
     this.sort(this.sortingFeature);
+  }
+
+  deleteSelectedVariants(): void {
+    let kept = this.displayed_variants.filter((variant) => !variant.isSelected);
+    let deleted = this.displayed_variants.filter(
+      (variant) => variant.isSelected
+    );
+    for (let variant of deleted) {
+      variant.isSelected = false;
+    }
+
+    this.deletedVariants.push(deleted);
+    this.displayed_variants = kept;
+  }
+
+  noDeletedVariants(): boolean {
+    return this.deletedVariants.length == 0;
+  }
+
+  restoreLastDeletedVariants(): void {
+    if (this.deletedVariants.length > 0) {
+      this.displayed_variants = this.displayed_variants.concat(
+        this.deletedVariants.pop()
+      );
+      this.sort(this.sortingFeature);
+    }
   }
 
   toggleTraceInfixSelectionMode(): void {

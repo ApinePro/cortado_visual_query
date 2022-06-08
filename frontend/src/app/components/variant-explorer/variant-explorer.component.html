@@ -123,6 +123,29 @@
     <span class="vl"></span>
 
     <span class="vl ms-auto"></span>
+    <button
+      class="button"
+      data-bs-toggle="tooltip"
+      title="Delete selected variants"
+      [disabled]="isNoVariantSelected() || isAlignmentCalculationInProgress()"
+      (click)="deleteSelectedVariants()"
+    >
+      <i class="bi bi-trash"></i>
+    </button>
+
+    <span class="vl"></span>
+
+    <button
+      class="button"
+      data-bs-toggle="tooltip"
+      title="Restore last deleted variants"
+      [disabled]="noDeletedVariants()"
+      (click)="restoreLastDeletedVariants()"
+    >
+      <i class="bi bi-arrow-counterclockwise"></i>
+    </button>
+
+    <span class="vl"></span>
     <div
       class="btn-group align-baseline dropDownParent dropdown"
       data-bs-toggle="tooltip"

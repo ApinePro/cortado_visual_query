@@ -268,6 +268,49 @@ async def parseStringToPT(d: InputTreeFromTreeString):
     return res
 
 
+@app.post("/changeActivityName")
+async def parseStringToPT(d: InputTreeFromTreeString):
+    res = dict()
+    try:
+        d.pt_string = d.pt_string.replace('*tau*', 'τ')
+        pt = parse(d.pt_string)
+        res["tree"] = process_tree_to_dict(pt)
+        res["errors"] = None
+    except:
+        res["tree"] = None
+        res["errors"] = "Error occurred during backend parsing"
+
+    return res
+
+@app.post("/deleteActivity")
+async def parseStringToPT(d: InputTreeFromTreeString):
+    res = dict()
+    try:
+        d.pt_string = d.pt_string.replace('*tau*', 'τ')
+        pt = parse(d.pt_string)
+        res["tree"] = process_tree_to_dict(pt)
+        res["errors"] = None
+    except:
+        res["tree"] = None
+        res["errors"] = "Error occurred during backend parsing"
+
+    return res
+
+@app.post("/deleteVariant")
+async def parseStringToPT(d: InputTreeFromTreeString):
+    res = dict()
+    try:
+        d.pt_string = d.pt_string.replace('*tau*', 'τ')
+        pt = parse(d.pt_string)
+        res["tree"] = process_tree_to_dict(pt)
+        res["errors"] = None
+    except:
+        res["tree"] = None
+        res["errors"] = "Error occurred during backend parsing"
+
+    return res
+
+
 @app.get("/variants")
 async def get_variants_from_event_log():
     log = await meta.get_event_log()
