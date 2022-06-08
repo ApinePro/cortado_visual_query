@@ -327,6 +327,13 @@ export class VariantMinerComponent
       this.colorMap = cMap;
     });
 
+    this.sharedDataService.loadedEventLog$.subscribe((log) => {
+      console.log('Log Changed', log)
+      this.variantPatterns = [];
+      this.displayedVariantsPatterns = [];
+
+    })
+
 
     this.sharedDataService.frequentMiningResults$.subscribe((res) => {
       if (res) {

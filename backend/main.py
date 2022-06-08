@@ -624,9 +624,11 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
     else:
         print("Mining CM K Patterns")
         k_patterns = cm_min_sub_mining(treeBank, load_event_log.variants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True)
+        set_maximaly_closed_patterns(k_patterns)
+        
         
         df = dataframe_from_k_patterns(k_patterns)
-        
+               
         try: 
             df.obj = df.obj.apply(lambda x : x.to_concurrency_group().serialize(include_performance=False))
             df = df.replace({np.nan: None}) 
