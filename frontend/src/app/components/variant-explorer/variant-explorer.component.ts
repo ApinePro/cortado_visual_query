@@ -426,7 +426,7 @@ export class VariantExplorerComponent
     });
 
     console.log('Updating Statistics', numberFittingVariants, numberFittingTraces)
-    this.logService.update_log_stats(numberFittingTraces = numberFittingTraces, numberFittingVariants = numberFittingVariants)
+    this.logService.update_log_stats(numberFittingTraces, numberFittingVariants)
   }
 
   updateConformanceForVariant(variant: Variant, timeout: number): void {

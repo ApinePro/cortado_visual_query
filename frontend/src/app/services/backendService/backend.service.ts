@@ -383,11 +383,10 @@ export class BackendService {
         .map((v) => v.count)
         .reduce((a, b) => a + b);
   
-        variants.forEach((v) => {
+      variants.forEach((v) => {
         v.percentage = Number.parseFloat(
           ((v.count / totalNumberTraces) * 100).toFixed(2)
-        );
-      });
+        );});
       
       const numberFittingVariants = 0;
       const numberFittingTraces = 0;

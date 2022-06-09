@@ -6,7 +6,6 @@ import { TimeUnit } from 'src/app/objects/TimeUnit';
 import * as dummyBackendResponse from 'src/app/services/SharedDataService/dummy_backend_response.js';
 import { mapVariants } from 'src/app/utils/util';
 
-
 @Injectable({
   providedIn: 'root',
 })
