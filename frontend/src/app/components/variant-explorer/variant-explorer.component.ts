@@ -166,7 +166,7 @@ export class VariantExplorerComponent
   public displayed_variants: Variant[] = [];
   public colorMap: Map<string, string>;
 
-  public logStats : LogStats = null; 
+  public logStats : LogStats = null;
 
   public currentlyDisplayedProcessTree;
   public usedTreeForConformanceChecking;
@@ -240,7 +240,7 @@ export class VariantExplorerComponent
     this.conformanceCheckingService.connect();
     this.subscribeForConformanceCheckingResults();
     this.listenForLogGranularityChange();
-    this.listenForLogStatChange(); 
+    this.listenForLogStatChange();
   }
 
   @HostListener('window:keydown.control.q', ['$event'])
@@ -391,8 +391,8 @@ export class VariantExplorerComponent
   }
 
   apply_query_filter(queryItems: Set<number>) {
-    console.log('Changed Filter', queryItems);
-    
+
+
     if (!queryItems) {
       this.displayed_variants = this.variants;
     } else {
@@ -417,7 +417,7 @@ export class VariantExplorerComponent
     let numberFittingVariants = 0;
     let numberFittingTraces = 0;
 
-    
+
     this.variants.forEach((v) => {
       if (v.deviation !== undefined && !v.deviation) {
         numberFittingVariants++;
@@ -817,11 +817,8 @@ export class VariantExplorerComponent
       this.variantPerformanceService.setSelectedVariantElement(element);
     } else if (this.traceInfixSelectionMode) {
       let lowestSelectableParent = getLowestSelectableParent(element);
-      console.log('Lowest Selectable Parent', lowestSelectableParent);
       if (lowestSelectableParent != variant) {
-        lowestSelectableParent.setAllChildrenSelected();
-        console.log('Selected all Parents', lowestSelectableParent);
-        variant.calculateSelectableElements();
+        lowestSelectableParent.setAllChildrenSelected();        variant.calculateSelectableElements();
         if (!variant.selectionStatusUnchangedFromLastSavedSelection()) {
           variant.saveCurrentSelectionToSelectionHistory();
         }
@@ -999,7 +996,6 @@ export class VariantExplorerComponent
   }
 
   toggleQuery() {
-    console.log('Toggle Query:', this.queryActive);
     this.queryActive = !this.queryActive;
   }
 

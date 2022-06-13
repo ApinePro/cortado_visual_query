@@ -463,7 +463,7 @@ export class SequenceGroup extends VariantElement {
     }
 
 
-    if (newElems.length > 1 || (newElems.length === 1 && !this.parent)) {
+    if (newElems.length > 1 || (newElems.length === 1 && !this.parent && !(this instanceof InvisibleSequenceGroup))) {
       this.elements = newElems;
       return [this, false];
     } else if (newElems.length === 1) {
@@ -1031,6 +1031,7 @@ export class WaitingTimeNode extends VariantElement {
 }
 
 export class InvisibleSequenceGroup extends SequenceGroup {
+
   public asString(): string {
     return this.elements[1].asString();
   }

@@ -20,7 +20,7 @@ export class VariantService {
               private httpClient: HttpClient,
               private processTreeService : ProcessTreeService,
               private colorMapService : ColorMapService,
-             ) { 
+             ) {
 
              }
 
@@ -46,17 +46,29 @@ export class VariantService {
 
     const nDelVar = bids.length
     const nDelTrace = delVariants.map((v) => v.count).reduce((a, b) => a + b);
-    const nDelFittingVar = delVariants.filter((v) => v.deviation !== undefined && !v.deviation).length
-    const nDelFittingTraces = delVariants.filter((v) => v.deviation !== undefined && !v.deviation).map((v) => v.count).reduce((a, b) => a + b);
+
+
+    const fittingVariants = delVariants.filter((v) => v.deviation !== undefined && !v.deviation)
+    let nDelFittingVar = 0
+    let nDelFittingTraces = 0
+
+    if(fittingVariants.length > 0){
+
+      nDelFittingVar = fittingVariants.length
+      nDelFittingTraces = fittingVariants.map((v) => v.count).reduce((a, b) => a + b);
+    }
 
     this.variants = this.variants.filter((v) => !bids.includes(v.bid))
 
-    this.propagateVariantDeletions(bids); 
+    this.propagateVariantDeletions(bids);
 
 
     const curStats = this.logService.logStatistics;
     this.logService.update_log_stats(curStats.numberFittingTraces - nDelFittingTraces, curStats.numberFittingVariants - nDelFittingVar, curStats.totalNumberTraces - nDelTrace , curStats.totalNumberVariants - nDelVar)
-    
+
+
+
+    // Count deleted Activites, Recompute if an Activity is a Start or End Activity.
 
   }
 
@@ -134,17 +146,12 @@ export class VariantService {
     this.propagateActivityDeletion(activityName, fallthrough, delete_member_list, merge_list, delete_list)
 
     // Need to await new Performance Data from the Backend
-    injectWaitingTimeNodes(
-      variants.filter((v) => {return bids.includes(v.bid)}).map((v) => v.variant));
+    //injectWaitingTimeNodes(
+    //  variants.filter((v) => {return bids.includes(v.bid)}).map((v) => v.variant));
 
 
-    const curStats = this.logService.logStatistics;
+    this.logService.update_log_stats(null, null, null, updateMap.size);
 
-    console.log(curStats.totalNumberVariants,  bids.length, merge_list.length, bids, merge_list)
-
-    const nVars = (curStats.totalNumberVariants - bids.length) + merge_list.length
-    this.logService.update_log_stats(null, null, null, nVars); 
-    
   }
 
 
@@ -242,6 +249,8 @@ export class VariantService {
     }
     this.propagateActivityNameChange(merge_list, rename_list, activityName, newActivityName)
 
+
+    this.logService.update_log_stats(null, null, null, updateMap.size);
   }
 
 
