@@ -4,4 +4,5 @@ export class SubvariantVisualization {
   xEnd: number;
   yIndex: number;
   performanceStats;
+  isWaitingTimeNode: boolean = false;
 }

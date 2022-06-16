@@ -12,6 +12,7 @@ import { Constants } from '../model';
 import { ActivateTooltipsService } from '../../../services/activateTooltipsService/activate-tooltips.service';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { SubvariantVisualization } from './model';
+import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 
 @Component({
   selector: 'app-sub-variant',
@@ -40,21 +41,37 @@ export class SubVariantComponent implements AfterViewInit {
 
   svg: Selection<any, any, any, any>;
   public colorMap: Map<string, string>;
+  public serviceTimeColorMap: any;
+  public waitingTimeColorMap: any;
 
   constructor(
     private sharedDataService: SharedDataService,
     private colorMapService: ColorMapService,
-    private tooltipService: ActivateTooltipsService
+    private tooltipService: ActivateTooltipsService,
+    private variantPerformanceService: VariantPerformanceService
   ) {}
 
   ngAfterViewInit(): void {
     this.svg = d3.select(this.svgElement.nativeElement);
     this.isLoaded = true;
-    console.log(this._variant);
 
     this.colorMapService.colorMap$.subscribe((cMap) => {
       this.colorMap = cMap;
       if (this._variant) {
+        this.draw();
+      }
+    });
+
+    this.variantPerformanceService.serviceTimeColorMap.subscribe((colorMap) => {
+      if (colorMap !== undefined) {
+        this.serviceTimeColorMap = colorMap;
+        this.draw();
+      }
+    });
+
+    this.variantPerformanceService.waitingTimeColorMap.subscribe((colorMap) => {
+      if (colorMap !== undefined) {
+        this.waitingTimeColorMap = colorMap;
         this.draw();
       }
     });
@@ -67,7 +84,10 @@ export class SubVariantComponent implements AfterViewInit {
     this.svg.selectAll('g').remove();
     const data = this.buildData();
     let dataArray = Array.from(data.values());
-    dataArray = dataArray.concat(this.buildWaitingTimeData(data));
+
+    if (this.isPerformanceMode) {
+      dataArray = dataArray.concat(this.buildWaitingTimeData(data));
+    }
     const xScale = (x) => Constants.POINT_RADIUS + x * intervalWidth;
     const yScale = (y) =>
       4 * Constants.POINT_RADIUS + y * Constants.LEAF_HEIGHT * 1.5;
@@ -75,30 +95,36 @@ export class SubVariantComponent implements AfterViewInit {
     const g = this.svg.selectAll().data(dataArray).join('g');
 
     g.append('line')
-      .style('stroke', (d) => this.colorMap.get(d.activity))
+      .style('stroke', (d) => this.computeActivityColor(d))
       .attr('x1', (d) => xScale(d.xStart))
       .attr('x2', (d) => xScale(d.xEnd))
       .attr('y1', (d) => yScale(d.yIndex))
       .attr('y2', (d) => yScale(d.yIndex))
       .attr('stroke-width', (_) => 2 * Constants.POINT_RADIUS)
-      .on('click', (_, d) => console.log(d.performanceStats));
+      .on('click', (_, d) =>
+        this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
+          d.performanceStats,
+          true
+        )
+      );
 
     const circles = g
       .selectAll('circle')
       .data((d) => {
+        const color = this.computeActivityColor(d);
         if (d.xStart == d.xEnd) {
-          return [[d.activity, d.xStart, d.yIndex, true]];
+          return [[d.activity, d.xStart, d.yIndex, true, color]];
         }
         return [
-          [d.activity, d.xStart, d.yIndex, false],
-          [d.activity, d.xEnd, d.yIndex, false],
+          [d.activity, d.xStart, d.yIndex, false, color],
+          [d.activity, d.xEnd, d.yIndex, false, color],
         ];
       })
       .enter()
       .append('circle')
       .attr('cx', (d) => xScale(d[1]))
       .attr('cy', (d) => yScale(d[2]))
-      .attr('fill', (d) => this.colorMap.get(String(d[0])))
+      .attr('fill', (d) => d[4])
       .attr('r', Constants.POINT_RADIUS);
 
     circles
@@ -108,6 +134,7 @@ export class SubVariantComponent implements AfterViewInit {
 
     const texts = g
       .append('text')
+      .filter((d) => !d.isWaitingTimeNode)
       .attr('x', (d) => xScale(d.xStart + (d.xEnd - d.xStart) / 2))
       .attr('y', (d) => yScale(d.yIndex) - Constants.POINT_RADIUS - 5)
       .style('text-anchor', 'middle')
@@ -137,14 +164,20 @@ export class SubVariantComponent implements AfterViewInit {
         2 * Constants.POINT_RADIUS
     );
 
-    this.drawWaitingTimeNodes(data);
-
     this.tooltipService.initializeChildren(this.svgElement);
   }
 
-  private drawWaitingTimeNodes(nodeData: Map<string, SubvariantVisualization>) {
-    const data = this.buildWaitingTimeData(nodeData);
-    console.log(data);
+  private computeActivityColor(subvariantData: SubvariantVisualization) {
+    if (!this.isPerformanceMode) {
+      return this.colorMap.get(subvariantData.activity);
+    }
+    if (!subvariantData.isWaitingTimeNode) {
+      let stat = this.variantPerformanceService.serviceTimeStatistic;
+      return this.serviceTimeColorMap(subvariantData.performanceStats[stat]);
+    }
+
+    let stat = this.variantPerformanceService.waitingTimeStatistic;
+    return this.waitingTimeColorMap(subvariantData.performanceStats[stat]);
   }
 
   private wrapInnerLabelText(
@@ -222,6 +255,7 @@ export class SubVariantComponent implements AfterViewInit {
         m.xStart = startIndices[0];
         m.xEnd = xIndex;
         m.yIndex = startIndices[1];
+        m.isWaitingTimeNode = false;
 
         data.set(subvariantNode.activity + subvariantNode.activity_instance, m);
 
@@ -281,11 +315,12 @@ export class SubVariantComponent implements AfterViewInit {
       ).yIndex;
 
       let m = new SubvariantVisualization();
-      m.activity = 'place order';
+      m.activity = 'WAITING TIME NODE';
       m.performanceStats = waitingTimeEvent.performance_stats;
-      m.xStart = xStart;
-      m.xEnd = xEnd;
+      m.xStart = xStart + 0.3;
+      m.xEnd = xEnd - 0.3;
       m.yIndex = yIndex;
+      m.isWaitingTimeNode = true;
 
       result.push(m);
     });
