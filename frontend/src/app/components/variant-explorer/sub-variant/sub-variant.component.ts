@@ -12,7 +12,6 @@ import { Constants } from '../model';
 import { ActivateTooltipsService } from '../../../services/activateTooltipsService/activate-tooltips.service';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { SubvariantVisualization } from './model';
-import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
 
 @Component({
   selector: 'app-sub-variant',
@@ -67,7 +66,8 @@ export class SubVariantComponent implements AfterViewInit {
       : Constants.INTERVAL_LENGTH * 1.5;
     this.svg.selectAll('g').remove();
     const data = this.buildData();
-    const dataArray = Array.from(data.values());
+    let dataArray = Array.from(data.values());
+    dataArray = dataArray.concat(this.buildWaitingTimeData(data));
     const xScale = (x) => Constants.POINT_RADIUS + x * intervalWidth;
     const yScale = (y) =>
       4 * Constants.POINT_RADIUS + y * Constants.LEAF_HEIGHT * 1.5;
@@ -137,7 +137,14 @@ export class SubVariantComponent implements AfterViewInit {
         2 * Constants.POINT_RADIUS
     );
 
+    this.drawWaitingTimeNodes(data);
+
     this.tooltipService.initializeChildren(this.svgElement);
+  }
+
+  private drawWaitingTimeNodes(nodeData: Map<string, SubvariantVisualization>) {
+    const data = this.buildWaitingTimeData(nodeData);
+    console.log(data);
   }
 
   private wrapInnerLabelText(
@@ -234,6 +241,56 @@ export class SubVariantComponent implements AfterViewInit {
     });
 
     return data;
+  }
+
+  private buildWaitingTimeData(
+    nodesData: Map<string, SubvariantVisualization>
+  ): SubvariantVisualization[] {
+    let result = [];
+
+    this._variant.waiting_time_events.forEach((waitingTimeEvent) => {
+      console.log(waitingTimeEvent);
+      let xStart = 0;
+      let xEnd = 0;
+      let yIndex = 0;
+      if (waitingTimeEvent.start.lifecycle == 'start') {
+        xStart = nodesData.get(
+          waitingTimeEvent.start.activity +
+            waitingTimeEvent.start.activity_instance
+        ).xStart;
+      } else {
+        xStart = nodesData.get(
+          waitingTimeEvent.start.activity +
+            waitingTimeEvent.start.activity_instance
+        ).xEnd;
+      }
+      if (waitingTimeEvent.complete.lifecycle == 'start') {
+        xEnd = nodesData.get(
+          waitingTimeEvent.complete.activity +
+            waitingTimeEvent.complete.activity_instance
+        ).xStart;
+      } else {
+        xEnd = nodesData.get(
+          waitingTimeEvent.complete.activity +
+            waitingTimeEvent.complete.activity_instance
+        ).xEnd;
+      }
+      yIndex = nodesData.get(
+        waitingTimeEvent.complete.activity +
+          waitingTimeEvent.complete.activity_instance
+      ).yIndex;
+
+      let m = new SubvariantVisualization();
+      m.activity = 'place order';
+      m.performanceStats = waitingTimeEvent.performance_stats;
+      m.xStart = xStart;
+      m.xEnd = xEnd;
+      m.yIndex = yIndex;
+
+      result.push(m);
+    });
+
+    return result;
   }
 
   private getNextFreeYIndex(usedYIndices: Set<number>): number {
