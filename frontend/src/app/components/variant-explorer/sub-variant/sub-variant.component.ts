@@ -11,6 +11,8 @@ import { SharedDataService } from 'src/app/services/sharedDataService/shared-dat
 import { Constants } from '../model';
 import { ActivateTooltipsService } from '../../../services/activateTooltipsService/activate-tooltips.service';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
+import { SubvariantVisualization } from './model';
+import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
 
 @Component({
   selector: 'app-sub-variant',
@@ -49,6 +51,7 @@ export class SubVariantComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.svg = d3.select(this.svgElement.nativeElement);
     this.isLoaded = true;
+    console.log(this._variant);
 
     this.colorMapService.colorMap$.subscribe((cMap) => {
       this.colorMap = cMap;
@@ -64,56 +67,57 @@ export class SubVariantComponent implements AfterViewInit {
       : Constants.INTERVAL_LENGTH * 1.5;
     this.svg.selectAll('g').remove();
     const data = this.buildData();
+    const dataArray = Array.from(data.values());
     const xScale = (x) => Constants.POINT_RADIUS + x * intervalWidth;
     const yScale = (y) =>
       4 * Constants.POINT_RADIUS + y * Constants.LEAF_HEIGHT * 1.5;
 
-    const g = this.svg.selectAll().data(data).join('g');
+    const g = this.svg.selectAll().data(dataArray).join('g');
 
     g.append('line')
-      .style('stroke', (d) => this.colorMap.get(d[0].activity))
-      .attr('x1', (d) => xScale(d[1]))
-      .attr('x2', (d) => xScale(d[2]))
-      .attr('y1', (d) => yScale(d[3]))
-      .attr('y2', (d) => yScale(d[3]))
+      .style('stroke', (d) => this.colorMap.get(d.activity))
+      .attr('x1', (d) => xScale(d.xStart))
+      .attr('x2', (d) => xScale(d.xEnd))
+      .attr('y1', (d) => yScale(d.yIndex))
+      .attr('y2', (d) => yScale(d.yIndex))
       .attr('stroke-width', (_) => 2 * Constants.POINT_RADIUS)
-      .on('click', (_, d) => console.log(d[0].performance_stats));
+      .on('click', (_, d) => console.log(d.performanceStats));
 
     const circles = g
       .selectAll('circle')
       .data((d) => {
-        if (d[1] == d[2]) {
-          return [[d[0], d[1], d[3], true]];
+        if (d.xStart == d.xEnd) {
+          return [[d.activity, d.xStart, d.yIndex, true]];
         }
         return [
-          [d[0], d[1], d[3], false],
-          [d[0], d[2], d[3], false],
+          [d.activity, d.xStart, d.yIndex, false],
+          [d.activity, d.xEnd, d.yIndex, false],
         ];
       })
       .enter()
       .append('circle')
       .attr('cx', (d) => xScale(d[1]))
       .attr('cy', (d) => yScale(d[2]))
-      .attr('fill', (d) => this.colorMap.get(d[0].activity))
+      .attr('fill', (d) => this.colorMap.get(String(d[0])))
       .attr('r', Constants.POINT_RADIUS);
 
     circles
       .filter((d) => d[3] === true)
       .attr('data-bs-toggle', 'tooltip')
-      .attr('title', (d) => d[0].activity);
+      .attr('title', (d) => d[0]);
 
     const texts = g
       .append('text')
-      .attr('x', (d) => xScale(d[1] + (d[2] - d[1]) / 2))
-      .attr('y', (d) => yScale(d[3]) - Constants.POINT_RADIUS - 5)
+      .attr('x', (d) => xScale(d.xStart + (d.xEnd - d.xStart) / 2))
+      .attr('y', (d) => yScale(d.yIndex) - Constants.POINT_RADIUS - 5)
       .style('text-anchor', 'middle')
       .style('fill', textColor)
-      .text((d) => d[0].activity);
+      .text((d) => d.activity);
 
     texts.each((a, b, c) => {
       const sel = d3.select(c[b]);
-      const xStart = xScale(a[1]);
-      const xEnd = xScale(a[2]);
+      const xStart = xScale(a.xStart);
+      const xEnd = xScale(a.xEnd);
       this.wrapInnerLabelText(
         sel,
         sel.text(),
@@ -121,7 +125,7 @@ export class SubVariantComponent implements AfterViewInit {
       );
     });
 
-    const maxYIndex = Math.max(...data.map((d) => d[3]));
+    const maxYIndex = Math.max(...dataArray.map((d) => d.yIndex));
 
     this.svg.attr(
       'height',
@@ -175,13 +179,13 @@ export class SubVariantComponent implements AfterViewInit {
     return textLength;
   }
 
-  private buildData(): any[] {
+  private buildData(): Map<string, SubvariantVisualization> {
     const intervalWidth = Constants.INTERVAL_LENGTH;
     const gapLength = (20 + Constants.POINT_RADIUS) / intervalWidth;
 
     let usedYIndices = new Set<number>();
     const starts = new Map<string, [number, number]>();
-    const data = [];
+    const data = new Map<string, SubvariantVisualization>();
     let xIndex = 0;
     this._variant.subvariant.forEach((group) => {
       let starting = group.filter(
@@ -205,7 +209,14 @@ export class SubVariantComponent implements AfterViewInit {
         let startIndices =
           starts[subvariantNode.activity + subvariantNode.activity_instance];
 
-        data.push([subvariantNode, startIndices[0], xIndex, startIndices[1]]);
+        let m = new SubvariantVisualization();
+        m.activity = subvariantNode.activity;
+        m.performanceStats = subvariantNode.performance_stats;
+        m.xStart = startIndices[0];
+        m.xEnd = xIndex;
+        m.yIndex = startIndices[1];
+
+        data.set(subvariantNode.activity + subvariantNode.activity_instance, m);
 
         usedYIndices.delete(startIndices[1]);
 
