@@ -816,7 +816,18 @@ export class VariantExplorerComponent
   ) => {
     if (this.performanceMode) {
       self.changeSelected(element);
-      this.variantPerformanceService.setSelectedVariantElement(element);
+      if (element.serviceTime) {
+        this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
+          element.serviceTime,
+          true
+        );
+      }
+      if (element.waitingTime) {
+        this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
+          element.waitingTime,
+          false
+        );
+      }
     } else if (this.traceInfixSelectionMode) {
       let lowestSelectableParent = getLowestSelectableParent(element);
       if (lowestSelectableParent != variant) {
