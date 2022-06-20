@@ -7,6 +7,7 @@ import {
   ElementRef,
   Inject,
   Renderer2,
+  AfterViewInit,
 } from '@angular/core';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { ColorMapService } from '../../services/colorMapService/color-map.service';
@@ -23,7 +24,7 @@ import { VariantService } from 'src/app/services/variantService/variant.service'
 })
 export class ActivityOverviewComponent
   extends LayoutChangeDirective
-  implements OnInit
+  implements OnInit, AfterViewInit
 {
   constructor(
     private colorMapService: ColorMapService,
@@ -39,6 +40,7 @@ export class ActivityOverviewComponent
     super(elRef.nativeElement, renderer);
     const state = this.container.initialState;
   }
+
 
   activityColorMap: Map<string, string>;
   activitiesInTree: Set<string> = new Set<string>();
@@ -63,6 +65,20 @@ export class ActivityOverviewComponent
       '<large> Import <strong>Event Log</strong> .xes file</large>'
     );
 
+    this.activityFields = [];
+
+    // Handle change of loaded log
+    this.logService.loadedEventLog$.subscribe((eventLogName) => {
+      console.log(
+        'new loadedEventLog$ in activity-overview.component:' + eventLogName
+      );
+
+      this.resetActivityFields();
+    });
+
+  }
+
+  ngAfterViewInit(): void {
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.activityColorMap = colorMap;
 
@@ -74,35 +90,39 @@ export class ActivityOverviewComponent
           );
         }
       }
+
+      console.log('Got new ColorMap', colorMap)
     });
 
-    this.activityFields = [];
 
-    // Handle change of current activies in the loaded model
-    this.processTreeService.activitiesInCurrentTree$.subscribe(
-      (activitiesInTree) => {
-        for (let field of this.activityFields) {
-          field.inModel = activitiesInTree.has(field.activityName);
-        }
+  // Handle change of current activies in the loaded model
+  this.processTreeService.activitiesInCurrentTree$.subscribe(
+    (activitiesInTree) => {
+      for (let field of this.activityFields) {
+        field.inModel = activitiesInTree.has(field.activityName);
       }
-    );
 
-    // Handle change of loaded log
-    this.logService.loadedEventLog$.subscribe((eventLogName) => {
-      console.log(
-        'new loadedEventLog$ in activity-overview.component:' + eventLogName
-      );
+      console.log('Activiites in Tree', activitiesInTree);
+    }
 
-      this.resetActivityFields();
-    });
+  );
+
+
+  this.logService.startActivitiesInEventLog$.subscribe(() => {if (this.activityColorMap){this.resetActivityFields()}});
+
   }
 
   resetActivityFields() {
+
+
     this.startActivities = this.logService.startActivitiesInEventLog;
     this.endActivities = this.logService.endActivitiesInEventLog;
     this.activitiesInLog = this.logService.activitiesInEventLog;
+    this.activitiesInTree = this.processTreeService.activitiesInCurrentTree
 
-    console.log('Activities in Log', this.activitiesInLog)
+
+    console.log(this.activitiesInTree);
+
     this.activityFields = [];
     for (let activity in this.activitiesInLog) {
       this.activityFields.push(

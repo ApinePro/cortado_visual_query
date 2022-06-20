@@ -121,8 +121,8 @@ export class VariantService {
     }
 
     console.log('Updating Color Map')
-    this.logService.deleteActivityInEventLog(activityName);
-    this.colorMapService.deleteActivityInColorMap(activityName);
+
+
 
     const variants = this.apply_update_map(updateMap);
 
@@ -140,23 +140,42 @@ export class VariantService {
 
     const bids = delete_member_list.concat(merge_list.flat(1))
 
+    this.logService.deleteActivityInEventLog(activityName);
+    this.colorMapService.deleteActivityInColorMap(activityName);
+    this.processTreeService.deleteActivityFromProcessTreeActivities(activityName);
+
     console.log('Activity Name', activityName, 'Fallthrough', fallthrough, 'Delete_Member_list', delete_member_list, 'Delete_List', delete_list)
-    this.propagateActivityDeletion(activityName, fallthrough, delete_member_list, merge_list, delete_list)
+
+    this.propagateActivityDeletion(activityName, fallthrough, delete_member_list, merge_list, delete_list).subscribe(
+      (res) => {
+
+        console.log('Got result', res, res['startActivities'], res['endActivities'])
+
+
+
+        console.log('Deleted Activity')
+
+        this.logService.startActivitiesInEventLog = new Set(res['startActivities'])
+        this.logService.endActivitiesInEventLog = new Set(res['endActivities'])
+
+
+        console.log(this.logService.startActivitiesInEventLog, this.logService.endActivitiesInEventLog)
+        this.logService.update_log_stats(null, null, null, updateMap.size);
+        this.variants = variants
+      }
+    )
 
     // Need to await new Performance Data from the Backend
     //injectWaitingTimeNodes(
     //  variants.filter((v) => {return bids.includes(v.bid)}).map((v) => v.variant));
 
 
-    this.logService.update_log_stats(null, null, null, updateMap.size);
 
-    this.variants = variants
   }
 
 
   private apply_update_map(updateMap: Map<string, Variant[]>) {
     const variants: Variant[] = [];
-    const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
 
     for (let [key, ls] of updateMap.entries()) {
 
@@ -190,12 +209,18 @@ export class VariantService {
       }
     }
 
-    variants.forEach((v) => {
+    return variants
+  }
+
+
+  private update_variant_percentages(){
+
+    const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
+
+    this.variants.forEach((v) => {
       v.percentage = Number.parseFloat(((v.count / total) * 100).toFixed(2));
     });
 
-
-    return variants
   }
 
   public renameActivity(activityName : string, newActivityName : string){
@@ -266,7 +291,7 @@ export class VariantService {
   }
 
   propagateActivityDeletion(activityName, fallthrough, delete_member_list, merge_list, delete_variant_list) {
-    this.httpClient
+    return this.httpClient
       .post(this.backendUrl + 'modifylog/' + 'deleteActivity', {
         activityName: activityName,
         fallthrough : fallthrough,
@@ -274,7 +299,6 @@ export class VariantService {
         merge_list : merge_list,
         delete_variant_list : delete_variant_list
       })
-      .subscribe();
   }
 
   propagateVariantDeletions(bids : number[]) {
@@ -293,3 +317,11 @@ export class VariantService {
   }
 
 }
+function startActivites(activityName: string, startActivites: any, endActivites: any): void {
+  throw new Error('Function not implemented.');
+}
+
+function endActivites(activityName: string, startActivites: (activityName: string, startActivites: any, endActivites: any) => void, endActivites: any): void {
+  throw new Error('Function not implemented.');
+}
+

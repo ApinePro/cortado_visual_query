@@ -93,12 +93,14 @@ export class ProcessTreeService {
   }
 
 
-  private _activitiesInCurrentTree = new BehaviorSubject<Set<string>>(
-    new Set()
-  );
+  private _activitiesInCurrentTree = new BehaviorSubject<Set<string>>( new Set<string>());
 
-  public deleteActivityFromEventLog(activityName : string) : any {
-    this.activitiesInCurrentTree.delete(activityName)
+  public deleteActivityFromProcessTreeActivities(activityName : string) : any {
+
+    if(this.activitiesInCurrentTree){
+      this.activitiesInCurrentTree.delete(activityName)
+    }
+
   }
 
   public renameActivityInProcessTree(activityName : string, newActivityName : string) : any {
@@ -125,6 +127,10 @@ export class ProcessTreeService {
 
   get activitiesInCurrentTree$(): Observable<Set<string>> {
     return this._activitiesInCurrentTree.asObservable();
+  }
+
+  get activitiesInCurrentTree(): Set<string>{
+    return this._activitiesInCurrentTree.getValue();
   }
 
   set activitiesInCurrentTree(activities) {

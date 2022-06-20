@@ -1,10 +1,9 @@
 import { ColorMapService } from './../colorMapService/color-map.service';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { skip, tap } from 'rxjs/operators';
+import { skip } from 'rxjs/operators';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import * as dummyBackendResponse from 'src/app/services/SharedDataService/dummy_backend_response.js';
-import { mapVariants } from 'src/app/utils/util';
 
 @Injectable({
   providedIn: 'root',
@@ -23,9 +22,9 @@ export class LogService {
   private _totalNumberVariants: number = 0;
 
 
-  private _logStatistics = new BehaviorSubject<LogStats>(new LogStats(this._numberFittingTraces, 
+  private _logStatistics = new BehaviorSubject<LogStats>(new LogStats(this._numberFittingTraces,
     this._numberFittingVariants,
-    this._totalNumberTraces, 
+    this._totalNumberTraces,
     this._totalNumberVariants
     )
   );
@@ -48,10 +47,10 @@ export class LogService {
     if (numberFittingVariants) this._numberFittingVariants= numberFittingVariants;
     if (totalNumberTraces) this._totalNumberTraces= totalNumberTraces;
     if (totalNumberVariants) this._totalNumberVariants= totalNumberVariants;
-    
-    this.logStatistics = new LogStats(this._numberFittingTraces, 
+
+    this.logStatistics = new LogStats(this._numberFittingTraces,
       this._numberFittingVariants,
-      this._totalNumberTraces, 
+      this._totalNumberTraces,
       this._totalNumberVariants
     )
   }
@@ -86,7 +85,7 @@ export class LogService {
   }
 
   set loadedEventLog(name: string) {
-    this.eventLogChanged(); 
+    this.eventLogChanged();
 
     this._loadedEventLog.next(name);
   }
@@ -111,14 +110,16 @@ export class LogService {
 
     let activities = {};
     for (let activity in this.activitiesInEventLog) {
-   
+
       if (activity !== activityName){
         activities[activity] = this.activitiesInEventLog[activity]
       }
     }
 
 
-    this.activitiesInEventLog = activities
+    this.activitiesInEventLog = activities;
+
+    console.log('Activities after delete', this.activitiesInEventLog)
   }
 
   public renameActivitiesInEventLog(activityName : string, newActivityName : string) : any {
@@ -200,9 +201,9 @@ export class LogService {
 }
 
 export class LogStats {
-  numberFittingTraces : number  
-  numberFittingVariants : number 
-  totalNumberTraces : number 
+  numberFittingTraces : number
+  numberFittingVariants : number
+  totalNumberTraces : number
   totalNumberVariants : number
 
 
@@ -213,4 +214,4 @@ export class LogStats {
     this.totalNumberVariants = totalNumberVariants
 
   }
-} 
+}

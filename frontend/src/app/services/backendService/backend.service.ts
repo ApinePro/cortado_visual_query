@@ -62,10 +62,10 @@ export class BackendService {
 
     this.logService.activitiesInEventLog = res['activities'];
     this.logService.startActivitiesInEventLog = new Set(
-      Object.keys(res['startActivities'])
+      res['startActivities']
     );
     this.logService.endActivitiesInEventLog = new Set(
-      Object.keys(res['endActivities'])
+     res['endActivities']
     );
 
     const variants = this.addVariantInformation(res['variants'])
@@ -323,10 +323,10 @@ export class BackendService {
     private updateState(properties: any, logName: string) {
       this.logService.activitiesInEventLog = properties['activities'];
       this.logService.startActivitiesInEventLog = new Set(
-        Object.keys(properties['startActivities'])
+        properties['startActivities']
       );
       this.logService.endActivitiesInEventLog = new Set(
-        Object.keys(properties['endActivities'])
+       properties['endActivities']
       );
 
 
@@ -362,7 +362,7 @@ export class BackendService {
       injectWaitingTimeNodes(
         variants.map((v) => v.variant)
       );
-  
+
       variants.forEach((v, i) => {
         v.isConformanceOutdated = true;
         v.userDefined = false;
@@ -372,26 +372,26 @@ export class BackendService {
         v.infixType = InfixType.NOT_AN_INFIX;
         setParent(v.variant);
       });
-  
+
       return variants
 
     }
-    
+
     private computeLogStats(variants : Variant[]) : void {
 
       const totalNumberTraces = variants
         .map((v) => v.count)
         .reduce((a, b) => a + b);
-  
+
       variants.forEach((v) => {
         v.percentage = Number.parseFloat(
           ((v.count / totalNumberTraces) * 100).toFixed(2)
         );});
-      
+
       const numberFittingVariants = 0;
       const numberFittingTraces = 0;
       const totalNumberVariants = variants.length;
-  
+
       this.logService.update_log_stats(numberFittingTraces, numberFittingVariants, totalNumberTraces, totalNumberVariants)
 
     }

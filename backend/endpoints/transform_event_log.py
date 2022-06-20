@@ -8,7 +8,7 @@ from cortado_core.utils.split_graph import LeafGroup, SequenceGroup, Concurrency
 from cortado_core.utils.cgroups_graph import cgroups_graph
 from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.util.xes_constants import DEFAULT_NAME_KEY
-from endpoints.load_event_log import get_c_variants
+from endpoints.load_event_log import create_variant_object
 from endpoints import load_event_log
 from pm4py.algo.filtering.log.attributes.attributes_filter import apply_events, Parameters
 
@@ -367,9 +367,7 @@ def remove_activities(activityName, fallthrough, delete_member_list, merge_list,
         (_, traces) = load_event_log.variants[bid]
         log = EventLog([apply_filter_copy(trace, activityName) for trace in traces])
             
-            
-
-        c_res_variants, c_variants = get_c_variants(log, False, load_event_log.cur_time_granularity) 
+        c_variants =  get_concurrency_variants(log, False, load_event_log.cur_time_granularity)
         
         print('Handling Fallthroughs')
         
@@ -382,28 +380,50 @@ def remove_activities(activityName, fallthrough, delete_member_list, merge_list,
                     
                     print('Merging', c_variant, n_variant) 
                     new_variants[bid] = (n_variant, n_traces + c_traces)
+                    mergeVariants.append((bid, c_variant, c_traces))
+                    
                     break 
                 
                 
         for c_variant, c_traces in c_variants.items(): 
             
-            new_variants[load_event_log.nBids  + 1] = (c_variant, c_traces)
+            new_variants[load_event_log.nBids + 1] = (c_variant, c_traces)
+            newVariants.append((load_event_log.nBids + 1, c_variant, c_traces))
             load_event_log.nBids = load_event_log.nBids  + 1
-            newVariants
             
-            
-            
-        #for res, v in zip(res_variants, sorted_variants):
-        #    res['variant'] = v.serialize()   
+
+    new_res_variants = []
     
+    for bid, v, ts in newVariants: 
+      variant = create_variant_object(load_event_log.cur_time_granularity, 1, bid, v, ts)
+      new_res_variants.append(variant)
+    
+    update_res_variants = []
+    
+    for bid, v, ts in mergeVariants: 
+    
+      sub_variants = get_detailed_variants(
+        ts, time_granularity=load_event_log.cur_time_granularity)
+          
+      total_sub_traces = sum(len(sub_variants[v]) for v in sub_variants)
+
+      for sub_v in sub_variants:
+          variant['sub_variants'].append({
+                  'variant': sub_v,
+                  'count': len(sub_variants[sub_v]),
+                  'percentage': round(len(sub_variants[sub_v]) / total_sub_traces * 100, 2)
+              })
+          
+      update_res_variants.append({bid : {'count' : len(ts), 'sub_variants' : sub_variants}})
+  
     start_activities = set.union(*[set(v.graph.start_activities.keys()) for (v , _ ) in new_variants.values()])
     end_activities = set.union(*[set(v.graph.end_activities.keys()) for (v , _ ) in new_variants.values()])
-    activities = dict(sum([Counter({ k : (len(ls) * len(tr)) for k, ls in v.graph.events.items()}) for (v , tr) in new_variants.values()], Counter()))
     
     res = {
         "startActivities": list(start_activities),
         "endActivities": list(end_activities),
-        "activities": activities,
+        "new_variants" : new_res_variants, 
+        "update_variants" : update_res_variants
     }
     
     

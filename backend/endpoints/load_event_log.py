@@ -48,13 +48,8 @@ def calculate_event_log_properties(event_log: EventLog, time_granularity: TimeUn
 
     activites = set(nActivities.keys())
 
-    #sorted_variants = sorted(variants.keys(), key=lambda v: len(
-    #    variants[v]), reverse=True)
+    variants = {bid : (variant, traces) for bid, (variant, traces) in enumerate(variants.items())}
     
-    #for res, v in zip(res_variants, sorted_variants):
-    #   res['variant'] = v.serialize()
-
-
     res = {
         "startActivities": start_activities,
         "endActivities": end_activities,
@@ -64,7 +59,7 @@ def calculate_event_log_properties(event_log: EventLog, time_granularity: TimeUn
         "timeGranularity": time_granularity
     }
     
-    variants = {bid : (variant, traces) for bid, (variant, traces) in enumerate(variants.items())}
+    
     
     nBids = len(variants.keys())
     
@@ -101,34 +96,41 @@ def get_c_variants(event_log: EventLog, use_mp: bool = False, time_granularity: 
     
     total_traces = len(event_log)
     res_variants = []
-    for i, v in enumerate(variants):
+    for bid, (v, ts) in enumerate(variants.items()):
 
-        variant = {
-            'count': len(variants[v]),
+        variant = create_variant_object(time_granularity, total_traces, bid, v, ts)
+        res_variants.append(variant)
+        
+    return sorted(res_variants, key=lambda variant: variant['count'], reverse=True), variants
+
+
+
+def create_variant_object(time_granularity, total_traces, bid, v, ts):
+    variant = {
+            'count': len(ts),
             'variant': v.serialize(),
-            'bid': i,
+            'bid': bid,
             'length': len(v),
             'number_of_activities': v.number_of_activities(),
-            'percentage': round(len(variants[v]) / total_traces * 100, 2),
+            'percentage': round(len(ts) / total_traces * 100, 2),
             'sub_variants': []}
-        sub_variants = get_detailed_variants(
-            variants[v], time_granularity=time_granularity)
+    sub_variants = get_detailed_variants(
+            ts, time_granularity=time_granularity)
         
-        total_sub_traces = sum(len(sub_variants[v]) for v in sub_variants)
+    total_sub_traces = sum(len(sub_variants[v]) for v in sub_variants)
 
-        for sub_v in sub_variants:
-            variant['sub_variants'].append({
+    for sub_v in sub_variants:
+        variant['sub_variants'].append({
                 'variant': sub_v,
                 'count': len(sub_variants[sub_v]),
                 'percentage': round(len(sub_variants[sub_v]) / total_sub_traces * 100, 2)
             })
 
         # If the variant is only a single activity leaf, wrap it up as a sequence
-        if 'leaf' in variant["variant"].keys() or 'parallel' in variant["variant"].keys():
-            variant["variant"] = {'follows': [variant["variant"]]}
+    if 'leaf' in variant["variant"].keys() or 'parallel' in variant["variant"].keys():
+        variant["variant"] = {'follows': [variant["variant"]]}
 
-        variant['sub_variants'] = sorted(
+    variant['sub_variants'] = sorted(
             variant['sub_variants'], key=lambda x: x['count'], reverse=True)
-        res_variants.append(variant)
         
-    return sorted(res_variants, key=lambda variant: variant['count'], reverse=True), variants
+    return variant
