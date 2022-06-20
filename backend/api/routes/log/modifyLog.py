@@ -19,7 +19,6 @@ class ChangeActivityName(BaseModel):
 @router.post("/changeActivityName")
 async def change_activity_name_in_log(d : ChangeActivityName):  
     
-    
     print(d)
     
     cache_current_data()

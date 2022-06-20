@@ -194,6 +194,14 @@ export class VariantExplorerComponent
   queryActive: boolean = false;
   showQueryInfo: boolean = false;
 
+  contextMenu_xPos : number = 10;
+  contextMenu_yPos : number = 10;
+  contextMenu_element: VariantElement;
+  contextMenu_variant : VariantElement;
+  contextMenu_directive : VariantDrawerDirective;
+
+
+
   public traceInfixSelectionMode: boolean = false;
 
   @ViewChild('variantExplorer', { static: true })
@@ -802,11 +810,6 @@ export class VariantExplorerComponent
     event.stopPropagation();
   }
 
-
-  deleteSelectedVariants(){
-    this.variantService.deleteVariants(this.displayed_variants.filter((v) => v.isSelected).map((v) => v.bid));
-  }
-
   variantClickCallBack = (
     self: VariantDrawerDirective,
     element: VariantElement,
@@ -829,6 +832,24 @@ export class VariantExplorerComponent
       self.redraw();
     }
   };
+
+
+  openContextCallback = ( self: VariantDrawerDirective,
+    element: VariantElement,
+    variant: VariantElement,
+    event : PointerEvent) => {
+
+      console.log('Self', self)
+      console.log('Event', event)
+      console.log('Variant', variant)
+      console.log('Element', element)
+
+      this.contextMenu_xPos = event.clientX
+      this.contextMenu_yPos = event.clientY
+      this.contextMenu_variant = variant;
+      this.contextMenu_element = element;
+      this.contextMenu_directive = self;
+    }
 
   computeActivityColor = (
     self: VariantDrawerDirective,

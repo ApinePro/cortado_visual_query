@@ -85,15 +85,15 @@ export class VariantService {
       let tmp;
 
       if (variant.variant.getActivities().has(activityName)){
-        const res = variant.variant.deleteActivity(activityName);
+        const [variantElements, isFallthrough]  = variant.variant.deleteActivity(activityName);
 
-        if (res[1]){
-          fallthrough.push(variant);
+        if (isFallthrough){
+          fallthrough.push(variant.bid);
           continue;
         }
 
-        if (res[0]){
-          tmp = res[0].asString();
+        if (variantElements){
+          tmp = variantElements[0].asString();
           changedStrings.add(tmp)
 
 
@@ -120,7 +120,7 @@ export class VariantService {
 
     }
 
-
+    console.log('Updating Color Map')
     this.logService.deleteActivityInEventLog(activityName);
     this.colorMapService.deleteActivityInColorMap(activityName);
 
@@ -140,9 +140,7 @@ export class VariantService {
 
     const bids = delete_member_list.concat(merge_list.flat(1))
 
-    this.variants = variants
-
-
+    console.log('Activity Name', activityName, 'Fallthrough', fallthrough, 'Delete_Member_list', delete_member_list, 'Delete_List', delete_list)
     this.propagateActivityDeletion(activityName, fallthrough, delete_member_list, merge_list, delete_list)
 
     // Need to await new Performance Data from the Backend
@@ -152,6 +150,7 @@ export class VariantService {
 
     this.logService.update_log_stats(null, null, null, updateMap.size);
 
+    this.variants = variants
   }
 
 

@@ -422,7 +422,7 @@ export abstract class VariantElement {
   }
 
   public abstract asString(): string;
-  public abstract deleteActivity(activityName: string) : [VariantElement, boolean];
+  public abstract deleteActivity(activityName: string) : [VariantElement[], boolean];
   public abstract renameActivity(activityName: string, newActivityName : string) : void;
 }
 
@@ -441,22 +441,24 @@ export class SequenceGroup extends VariantElement {
     this.elements.forEach((e) => {e.renameActivity(activityName, newActivityName)});
   }
 
-  public deleteActivity(activityName: string) : [VariantElement, boolean] {
-    const newElems : VariantElement[] = [];
+  public deleteActivity(activityName: string) : [VariantElement[], boolean] {
+    let newElems : VariantElement[] = [];
 
     for (let elem of this.elements) {
       if (!(elem instanceof WaitingTimeNode)) {
-        const res = elem.deleteActivity(activityName);
+        const [variantElements, isFallthrough] = elem.deleteActivity(activityName);
 
-        if (res[1]) {
+        if (isFallthrough) {
           // Found a Fallthrough Stop Early
           console.warn('Found a Fallthrough')
-          return [this, true];
+          return [[], true];
+
         } else {
           // We append the result
-          if (res[0]) {
-            newElems.push(res[0]);
-            res[0].parent = this
+          if (variantElements) {
+            newElems = newElems.concat(variantElements);
+            variantElements.forEach((e) => e.parent = this)
+
           }
         }
       }
@@ -465,9 +467,18 @@ export class SequenceGroup extends VariantElement {
 
     if (newElems.length > 1 || (newElems.length === 1 && !this.parent && !(this instanceof InvisibleSequenceGroup))) {
       this.elements = newElems;
-      return [this, false];
+      return [[this], false];
     } else if (newElems.length === 1) {
-      return [newElems[0], false];
+
+      if (newElems[0] instanceof ParallelGroup){
+
+        return [newElems[0].elements , false]
+
+      } else {
+
+        return [newElems, false];
+      }
+
     } else {
       return [null, false];
     }
@@ -678,21 +689,22 @@ export class ParallelGroup extends VariantElement {
     this.elements.forEach((e) => {e.renameActivity(activityName, newActivityName)});
   }
 
-  public deleteActivity(activityName: string) : [VariantElement, boolean] {
-    const newElems = [];
+  public deleteActivity(activityName: string) : [VariantElement[], boolean] {
+    let newElems = [];
 
     for (let elem of this.elements) {
       if (!(elem instanceof WaitingTimeNode)) {
-        const res = elem.deleteActivity(activityName);
+        const [variantElements, isFallthrough] = elem.deleteActivity(activityName);
 
-        if (res[1]) {
+        if (isFallthrough) {
           // Found a Fallthrough Stop Early
-          return [this, true];
+          return [[], true];
         } else {
           // We append the result
-          if (res[0]) {
-            newElems.push(res[0]);
-            res[0].parent = this;
+          if (variantElements) {
+
+            newElems = newElems.concat(variantElements);
+            variantElements.forEach((e) => e.parent = this)
           }
         }
       }
@@ -700,9 +712,19 @@ export class ParallelGroup extends VariantElement {
 
     if (newElems.length > 1) {
       this.elements = newElems;
-      return [this, false];
+      return [[this], false];
+
     } else if (newElems.length === 1) {
-      return [newElems[0], false];
+
+
+      if (newElems[0] instanceof SequenceGroup){
+
+        return [newElems[0].elements , false]
+      } else {
+
+        return [newElems, false];
+      }
+
     } else {
       return [null, false];
     }
@@ -881,16 +903,16 @@ export class LeafNode extends VariantElement {
     this.activity = this.activity.map((a) => { return a === activityName ? newActivityName : a})
   }
 
-  public deleteActivity(activityName: string) : [VariantElement, boolean]{
+  public deleteActivity(activityName: string) : [VariantElement[], boolean]{
     if (this.activity.includes(activityName)) {
       if (this.activity.length > 1) {
-        return [this, true];
+        return [[this], true];
       } else {
         return [null, false];
       }
     }
 
-    return [this, false];
+    return [[this], false];
   }
 
   public textLength: number = 10;
@@ -974,7 +996,7 @@ export class WaitingTimeNode extends VariantElement {
   public renameActivity(activityName: string, newActivityName: string) {
   }
 
-  public deleteActivity(activityName: string) : [VariantElement, boolean] {
+  public deleteActivity(activityName: string) : [VariantElement[], boolean] {
     return [null, false];
   }
 
@@ -1097,7 +1119,6 @@ export class PerformanceStats {
 }
 
 
-
 export function injectWaitingTimeNodes(variants: VariantElement[]) {
   variants.forEach((v) => injectWaitingTimeNodesVariant(v));
 }
@@ -1144,3 +1165,7 @@ export function injectWaitingTimeNodesVariant(variant: VariantElement) {
     }
   }
 }
+
+
+
+

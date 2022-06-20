@@ -21,7 +21,8 @@ def calculate_event_log_properties(event_log: EventLog, time_granularity: TimeUn
     global lifecycle_available 
     global cur_time_granularity
     global variants
-
+    global nBids
+    global activites 
     
     if time_granularity is None:
         time_granularity = get_time_granularity(event_log)
@@ -43,28 +44,29 @@ def calculate_event_log_properties(event_log: EventLog, time_granularity: TimeUn
 
     start_activities = set.union(*[set(v.graph.start_activities.keys()) for v in variants.keys()])
     end_activities = set.union(*[set(v.graph.end_activities.keys()) for v in variants.keys()])
-    activities = dict(sum([Counter({ k : (len(ls) * len(variants[v])) for k, ls in v.graph.events.items()}) for v in variants], Counter()))
+    nActivities = dict(sum([Counter({ k : (len(ls) * len(variants[v])) for k, ls in v.graph.events.items()}) for v in variants], Counter()))
 
+    activites = set(nActivities.keys())
 
-
-    sorted_variants = sorted(variants.keys(), key=lambda v: len(
-        variants[v]), reverse=True)
+    #sorted_variants = sorted(variants.keys(), key=lambda v: len(
+    #    variants[v]), reverse=True)
     
-    for res, v in zip(res_variants, sorted_variants):
-        res['variant'] = v.serialize()
-
+    #for res, v in zip(res_variants, sorted_variants):
+    #   res['variant'] = v.serialize()
 
 
     res = {
         "startActivities": start_activities,
         "endActivities": end_activities,
-        "activities": activities,
+        "activities": nActivities,
         "variants": res_variants,
         "performanceInfoAvailable": lifecycle_available,
         "timeGranularity": time_granularity
     }
     
     variants = {bid : (variant, traces) for bid, (variant, traces) in enumerate(variants.items())}
+    
+    nBids = len(variants.keys())
     
     return res
 
@@ -94,17 +96,12 @@ def get_simple_variants(event_log: EventLog):
     return sorted(res_variants, key=lambda variant: variant['count'], reverse=True), variants
 
 def get_c_variants(event_log: EventLog, use_mp: bool = False, time_granularity: TimeUnit = min(TimeUnit)):
-    global activites 
     
     variants = get_concurrency_variants(event_log, use_mp, time_granularity)
     
-    activites = set()
-
     total_traces = len(event_log)
     res_variants = []
     for i, v in enumerate(variants):
-
-        activites = activites.union(v.graph.events)
 
         variant = {
             'count': len(variants[v]),

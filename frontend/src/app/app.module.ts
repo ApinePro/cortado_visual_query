@@ -53,6 +53,7 @@ import { SyntaxHighlightedTextareaDirective } from './directives/syntax-highligh
 import { ConformanceInfoBarComponent } from './components/variant-explorer/info-bar/conformance-info-bar.component';
 import { initApp, InitService } from './services/init.service';
 import { VariantQueryInfoComponent } from './components/variant-explorer/variant-query-info/variant-query-info.component';
+import { VariantExplorerContextMenuComponent } from './components/variant-explorer/variant-explorer-context-menu/variant-explorer-context-menu.component';
 
 @NgModule({
   declarations: [
@@ -100,6 +101,7 @@ import { VariantQueryInfoComponent } from './components/variant-explorer/variant
     GoldenLayoutDummyComponent,
     ConformanceInfoBarComponent,
     VariantQueryInfoComponent,
+    VariantExplorerContextMenuComponent,
   ],
   imports: [
     BrowserModule,

@@ -62,6 +62,15 @@ export class VariantComponent implements AfterViewInit {
     element: VariantElement
   ) => void;
 
+
+  @Input()
+  onRightMouseClickCbFc: (
+    drawerDirective: VariantDrawerDirective,
+    element: VariantElement,
+    variant: VariantElement,
+    event : Event,
+  ) => void;
+
   @Input()
   onMouseOverCbFc: (
     drawerDirective: VariantDrawerDirective,

@@ -122,16 +122,6 @@
 
     <span class="vl"></span>
 
-    <span class="vl ms-auto"></span>
-    <button
-      class="button"
-      data-bs-toggle="tooltip"
-      title="Delete selected variants"
-      [disabled]="isNoVariantSelected() || isAlignmentCalculationInProgress()"
-      (click)="deleteSelectedVariants()"
-    >
-      <i class="bi bi-trash"></i>
-    </button>
     <!--
     <span class="vl"></span>
 
@@ -147,7 +137,7 @@
 
     <span class="vl"></span>
     <div
-      class="btn-group align-baseline dropDownParent dropdown"
+      class="btn-group align-baseline dropDownParent dropdown ms-auto"
       data-bs-toggle="tooltip"
       data-bs-html="true"
       title='sort variants by one of the following attributes:
@@ -497,6 +487,7 @@
             "
             (openSubvariantWindow)="createSubVariantView($event)"
             [onClickCbFc]="variantClickCallBack"
+            [onRightMouseClickCbFc]="openContextCallback"
             [computeActivityColor]="computeActivityColor"
             [performanceMode]="performanceMode"
             (selectionChanged)="selectionChangedForVariant(variant, $event)"
@@ -532,3 +523,6 @@
 ></app-variant-conformance-dialog>
 
 <app-variant-query-info [(showInfo)]="showQueryInfo"> </app-variant-query-info>
+
+
+<app-variant-explorer-context-menu [xPos] = 'contextMenu_xPos' [yPos] = 'contextMenu_yPos'  [element] = 'contextMenu_element'  [variant] = 'contextMenu_variant'  [directive] = 'contextMenu_directive' ></app-variant-explorer-context-menu>

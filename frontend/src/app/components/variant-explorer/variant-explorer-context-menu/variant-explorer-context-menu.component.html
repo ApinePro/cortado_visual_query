@@ -1,0 +1,19 @@
+<div
+  class="context-menu"
+  [style.top.px]="yPos"
+  [style.left.px]="xPos"
+  *ngIf="displayMenu"
+>
+
+
+  <ul class="context-menu-list">
+    <li>
+      <button class="button align-bottom" (click)="deleteVariant($event)">
+        <div>
+          <i class="bi bi-diagram-2 btn-icon"></i>
+          <span><b>Delete</b> Variant</span>
+        </div>
+      </button>
+    </li>
+  </ul>
+</div>

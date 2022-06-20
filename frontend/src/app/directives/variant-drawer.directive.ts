@@ -77,6 +77,14 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     selection
   ) => void;
 
+  @Input()
+  onRightMouseClickCbFc: (
+    drawerDirective: VariantDrawerDirective,
+    element: VariantElement,
+    variant: VariantElement,
+    event : Event,
+  ) => void;
+
   @Output()
   selection = new EventEmitter<Selection<any, any, any, any>>();
 
@@ -250,6 +258,13 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     if (this.onMouseOverCbFc) {
       this.onMouseOverCbFc(this, element, this.variant, parent);
     }
+
+    if (this.onRightMouseClickCbFc){
+      parent.on('contextmenu', (e: PointerEvent) => {
+        this.onRightMouseClickCbFc(this, element, this.variant, e);
+        e.stopPropagation();
+      });
+    }
   }
 
   drawParallelGroup(
@@ -295,6 +310,13 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     if (this.onClickCbFc) {
       parent.on('click', (e: PointerEvent) => {
         this.onClickCbFc(this, element, this.variant);
+        e.stopPropagation();
+      });
+    }
+
+    if (this.onRightMouseClickCbFc){
+      parent.on('contextmenu', (e: PointerEvent) => {
+        this.onRightMouseClickCbFc(this, element, this.variant, e);
         e.stopPropagation();
       });
     }
@@ -443,6 +465,14 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     if (this.onClickCbFc) {
       parent.on('click', (e: PointerEvent) => {
         this.onClickCbFc(this, element, this.variant);
+        e.stopPropagation();
+      });
+    }
+
+    if (this.onRightMouseClickCbFc){
+
+      parent.on('contextmenu', (e: PointerEvent) => {
+        this.onRightMouseClickCbFc(this, element, this.variant, e);
         e.stopPropagation();
       });
     }
