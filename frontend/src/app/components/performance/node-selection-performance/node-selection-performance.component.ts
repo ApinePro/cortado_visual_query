@@ -33,7 +33,7 @@ export class NodeSelectionPerformanceComponent implements OnInit {
     public performanceService: PerformanceService,
     public performanceColorScaleService: ModelPerformanceColorScaleService,
     public sharedDataService: SharedDataService,
-    private variantService : VariantService, 
+    private variantService: VariantService,
     private changeDetectorRef: ChangeDetectorRef
   ) {
     const durationLang = new HumanizeDurationLanguage();

@@ -422,63 +422,66 @@ export abstract class VariantElement {
   }
 
   public abstract asString(): string;
-  public abstract deleteActivity(activityName: string) : [VariantElement[], boolean];
-  public abstract renameActivity(activityName: string, newActivityName : string) : void;
+  public abstract deleteActivity(
+    activityName: string
+  ): [VariantElement[], boolean];
+  public abstract renameActivity(
+    activityName: string,
+    newActivityName: string
+  ): void;
 }
 
 export class SequenceGroup extends VariantElement {
-
-
   public getActivities(): Set<string> {
-    const res : Set<string> = new Set<string>();
+    const res: Set<string> = new Set<string>();
 
-    this.elements.forEach((e) => e.getActivities().forEach((a) => res.add(a)))
+    this.elements.forEach((e) => e.getActivities().forEach((a) => res.add(a)));
 
-    return res
+    return res;
   }
 
   public renameActivity(activityName: string, newActivityName: string) {
-    this.elements.forEach((e) => {e.renameActivity(activityName, newActivityName)});
+    this.elements.forEach((e) => {
+      e.renameActivity(activityName, newActivityName);
+    });
   }
 
-  public deleteActivity(activityName: string) : [VariantElement[], boolean] {
-    let newElems : VariantElement[] = [];
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    let newElems: VariantElement[] = [];
 
     for (let elem of this.elements) {
       if (!(elem instanceof WaitingTimeNode)) {
-        const [variantElements, isFallthrough] = elem.deleteActivity(activityName);
+        const [variantElements, isFallthrough] =
+          elem.deleteActivity(activityName);
 
         if (isFallthrough) {
           // Found a Fallthrough Stop Early
-          console.warn('Found a Fallthrough')
+          console.warn('Found a Fallthrough');
           return [[], true];
-
         } else {
           // We append the result
           if (variantElements) {
             newElems = newElems.concat(variantElements);
-            variantElements.forEach((e) => e.parent = this)
-
+            variantElements.forEach((e) => (e.parent = this));
           }
         }
       }
     }
 
-
-    if (newElems.length > 1 || (newElems.length === 1 && !this.parent && !(this instanceof InvisibleSequenceGroup))) {
+    if (
+      newElems.length > 1 ||
+      (newElems.length === 1 &&
+        !this.parent &&
+        !(this instanceof InvisibleSequenceGroup))
+    ) {
       this.elements = newElems;
       return [[this], false];
     } else if (newElems.length === 1) {
-
-      if (newElems[0] instanceof ParallelGroup){
-
-        return [newElems[0].elements , false]
-
+      if (newElems[0] instanceof ParallelGroup) {
+        return [newElems[0].elements, false];
       } else {
-
         return [newElems, false];
       }
-
     } else {
       return [null, false];
     }
@@ -487,7 +490,10 @@ export class SequenceGroup extends VariantElement {
   public asString(): string {
     return (
       '->(' +
-      this.elements.filter((v) => {return !(v instanceof WaitingTimeNode)})
+      this.elements
+        .filter((v) => {
+          return !(v instanceof WaitingTimeNode);
+        })
         .map((v) => {
           return v.asString();
         })
@@ -676,25 +682,27 @@ export class SequenceGroup extends VariantElement {
 }
 
 export class ParallelGroup extends VariantElement {
-
   public getActivities(): Set<string> {
-    const res : Set<string> = new Set<string>();
+    const res: Set<string> = new Set<string>();
 
-    this.elements.forEach((e) => e.getActivities().forEach((a) => res.add(a)))
+    this.elements.forEach((e) => e.getActivities().forEach((a) => res.add(a)));
 
-    return res
+    return res;
   }
 
   public renameActivity(activityName: string, newActivityName: string) {
-    this.elements.forEach((e) => {e.renameActivity(activityName, newActivityName)});
+    this.elements.forEach((e) => {
+      e.renameActivity(activityName, newActivityName);
+    });
   }
 
-  public deleteActivity(activityName: string) : [VariantElement[], boolean] {
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
     let newElems = [];
 
     for (let elem of this.elements) {
       if (!(elem instanceof WaitingTimeNode)) {
-        const [variantElements, isFallthrough] = elem.deleteActivity(activityName);
+        const [variantElements, isFallthrough] =
+          elem.deleteActivity(activityName);
 
         if (isFallthrough) {
           // Found a Fallthrough Stop Early
@@ -702,9 +710,8 @@ export class ParallelGroup extends VariantElement {
         } else {
           // We append the result
           if (variantElements) {
-
             newElems = newElems.concat(variantElements);
-            variantElements.forEach((e) => e.parent = this)
+            variantElements.forEach((e) => (e.parent = this));
           }
         }
       }
@@ -713,18 +720,12 @@ export class ParallelGroup extends VariantElement {
     if (newElems.length > 1) {
       this.elements = newElems;
       return [[this], false];
-
     } else if (newElems.length === 1) {
-
-
-      if (newElems[0] instanceof SequenceGroup){
-
-        return [newElems[0].elements , false]
+      if (newElems[0] instanceof SequenceGroup) {
+        return [newElems[0].elements, false];
       } else {
-
         return [newElems, false];
       }
-
     } else {
       return [null, false];
     }
@@ -894,16 +895,17 @@ export class ParallelGroup extends VariantElement {
 }
 
 export class LeafNode extends VariantElement {
-
   public getActivities(): Set<string> {
     return new Set<string>(this.activity);
   }
 
   public renameActivity(activityName: string, newActivityName: string) {
-    this.activity = this.activity.map((a) => { return a === activityName ? newActivityName : a})
+    this.activity = this.activity.map((a) => {
+      return a === activityName ? newActivityName : a;
+    });
   }
 
-  public deleteActivity(activityName: string) : [VariantElement[], boolean]{
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
     if (this.activity.includes(activityName)) {
       if (this.activity.length > 1) {
         return [[this], true];
@@ -988,15 +990,13 @@ export class LeafNode extends VariantElement {
 }
 
 export class WaitingTimeNode extends VariantElement {
-
   public getActivities(): Set<string> {
     return new Set<string>();
   }
 
-  public renameActivity(activityName: string, newActivityName: string) {
-  }
+  public renameActivity(activityName: string, newActivityName: string) {}
 
-  public deleteActivity(activityName: string) : [VariantElement[], boolean] {
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
     return [null, false];
   }
 
@@ -1053,7 +1053,6 @@ export class WaitingTimeNode extends VariantElement {
 }
 
 export class InvisibleSequenceGroup extends SequenceGroup {
-
   public asString(): string {
     return this.elements[1].asString();
   }
@@ -1094,7 +1093,7 @@ export function deserialize(obj: any): VariantElement {
       obj['performance']
     );
   } else {
-    return new LeafNode(obj['leaf'], obj['performance']) ;
+    return new LeafNode(obj['leaf'], obj['performance']);
   }
 }
 
@@ -1118,13 +1117,11 @@ export class PerformanceStats {
   }
 }
 
-
 export function injectWaitingTimeNodes(variants: VariantElement[]) {
   variants.forEach((v) => injectWaitingTimeNodesVariant(v));
 }
 
 export function injectWaitingTimeNodesVariant(variant: VariantElement) {
-
   if (variant instanceof SequenceGroup) {
     variant
       .asSequenceGroup()
@@ -1165,7 +1162,3 @@ export function injectWaitingTimeNodesVariant(variant: VariantElement) {
     }
   }
 }
-
-
-
-

@@ -98,9 +98,10 @@ export class VariantPerformanceService {
 
   public variantPerformanceMode = new BehaviorSubject<boolean>(false);
 
-  constructor(private logService : LogService, private variantService : VariantService)
-
-  {
+  constructor(
+    private logService: LogService,
+    private variantService: VariantService
+  ) {
     this.logService.loadedEventLog$.subscribe((log) => {
       if (log !== undefined) {
         this.updateServiceTimeColorMap();
@@ -237,6 +238,4 @@ export class VariantPerformanceService {
     }
     return values;
   }
-
-
 }

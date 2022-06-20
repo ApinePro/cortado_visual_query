@@ -26,8 +26,8 @@ import * as objectHash from 'object-hash';
 export class BackendService {
   constructor(
     private httpClient: HttpClient,
-    private logService : LogService,
-    private variantService : VariantService,
+    private logService: LogService,
+    private variantService: VariantService,
     private processTreeService: ProcessTreeService
   ) {}
 
@@ -57,19 +57,14 @@ export class BackendService {
 
   // Refractor too Log Service
   private processEventLog(res, filePath = null) {
-
-    console.warn('Processing Event Log', res)
+    console.warn('Processing Event Log', res);
 
     this.logService.activitiesInEventLog = res['activities'];
-    this.logService.startActivitiesInEventLog = new Set(
-      res['startActivities']
-    );
-    this.logService.endActivitiesInEventLog = new Set(
-     res['endActivities']
-    );
+    this.logService.startActivitiesInEventLog = new Set(res['startActivities']);
+    this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
 
-    const variants = this.addVariantInformation(res['variants'])
-    this.computeLogStats(variants)
+    const variants = this.addVariantInformation(res['variants']);
+    this.computeLogStats(variants);
     this.variantService.variants = variants;
 
     this.logService.loadedEventLog = filePath;
@@ -304,97 +299,92 @@ export class BackendService {
    * @param timeGranularity
    * @param logName
    */
-     public getLogPropsAndUpdateState(
-      timeGranularity?: TimeUnit,
-      logName?: string
-    ): Observable<any> {
-      return this.getProperties(timeGranularity).pipe(
-        tap((properties) => {
-          this.updateState(properties, logName);
-        })
-      );
-    }
-
-    /**
-     * Updates the properties in sharedDataService (variants, activities, logName)
-     * @param properties
-     * @param logName
-     */
-    private updateState(properties: any, logName: string) {
-      this.logService.activitiesInEventLog = properties['activities'];
-      this.logService.startActivitiesInEventLog = new Set(
-        properties['startActivities']
-      );
-      this.logService.endActivitiesInEventLog = new Set(
-       properties['endActivities']
-      );
-
-
-      const variants = this.addVariantInformation(properties['variants'])
-      this.computeLogStats(variants)
-      this.variantService.variants = variants;
-
-      this.logService.loadedEventLog = logName;
-
-      console.warn('Variants in Update State', properties['variants'])
-    }
-
-
-    public getProperties(timeGranularity?: TimeUnit): Observable<any> {
-      return this.httpClient
-        .post(this.backendUrl + 'log/properties', {
-          timeGranularity: timeGranularity,
-        })
-        .pipe(mapVariants());
-    }
-
-    public getLogGranularity(): Observable<TimeUnit> {
-      return this.httpClient.get<TimeUnit>(this.backendUrl + 'log/granularity');
-    }
-
-    public resetLogCache(): Observable<any> {
-      return this.httpClient.get(this.backendUrl + 'log/resetLogCache');
-    }
-
-
-    private addVariantInformation(variants : Variant[]) : Variant[] {
-
-      injectWaitingTimeNodes(
-        variants.map((v) => v.variant)
-      );
-
-      variants.forEach((v, i) => {
-        v.isConformanceOutdated = true;
-        v.userDefined = false;
-        v.isTimeouted = false;
-        v.isSelected = false;
-        v.isAddedFittingVariant = false;
-        v.infixType = InfixType.NOT_AN_INFIX;
-        setParent(v.variant);
-      });
-
-      return variants
-
-    }
-
-    private computeLogStats(variants : Variant[]) : void {
-
-      const totalNumberTraces = variants
-        .map((v) => v.count)
-        .reduce((a, b) => a + b);
-
-      variants.forEach((v) => {
-        v.percentage = Number.parseFloat(
-          ((v.count / totalNumberTraces) * 100).toFixed(2)
-        );});
-
-      const numberFittingVariants = 0;
-      const numberFittingTraces = 0;
-      const totalNumberVariants = variants.length;
-
-      this.logService.update_log_stats(numberFittingTraces, numberFittingVariants, totalNumberTraces, totalNumberVariants)
-
-    }
+  public getLogPropsAndUpdateState(
+    timeGranularity?: TimeUnit,
+    logName?: string
+  ): Observable<any> {
+    return this.getProperties(timeGranularity).pipe(
+      tap((properties) => {
+        this.updateState(properties, logName);
+      })
+    );
   }
 
+  /**
+   * Updates the properties in sharedDataService (variants, activities, logName)
+   * @param properties
+   * @param logName
+   */
+  private updateState(properties: any, logName: string) {
+    this.logService.activitiesInEventLog = properties['activities'];
+    this.logService.startActivitiesInEventLog = new Set(
+      properties['startActivities']
+    );
+    this.logService.endActivitiesInEventLog = new Set(
+      properties['endActivities']
+    );
 
+    const variants = this.addVariantInformation(properties['variants']);
+    this.computeLogStats(variants);
+    this.variantService.variants = variants;
+
+    this.logService.loadedEventLog = logName;
+
+    console.warn('Variants in Update State', properties['variants']);
+  }
+
+  public getProperties(timeGranularity?: TimeUnit): Observable<any> {
+    return this.httpClient
+      .post(this.backendUrl + 'log/properties', {
+        timeGranularity: timeGranularity,
+      })
+      .pipe(mapVariants());
+  }
+
+  public getLogGranularity(): Observable<TimeUnit> {
+    return this.httpClient.get<TimeUnit>(this.backendUrl + 'log/granularity');
+  }
+
+  public resetLogCache(): Observable<any> {
+    return this.httpClient.get(this.backendUrl + 'log/resetLogCache');
+  }
+
+  private addVariantInformation(variants: Variant[]): Variant[] {
+    injectWaitingTimeNodes(variants.map((v) => v.variant));
+
+    variants.forEach((v, i) => {
+      v.isConformanceOutdated = true;
+      v.userDefined = false;
+      v.isTimeouted = false;
+      v.isSelected = false;
+      v.isAddedFittingVariant = false;
+      v.infixType = InfixType.NOT_AN_INFIX;
+      setParent(v.variant);
+    });
+
+    return variants;
+  }
+
+  private computeLogStats(variants: Variant[]): void {
+    const totalNumberTraces = variants
+      .map((v) => v.count)
+      .reduce((a, b) => a + b);
+
+    variants.forEach((v) => {
+      v.percentage = Number.parseFloat(
+        ((v.count / totalNumberTraces) * 100).toFixed(2)
+      );
+    });
+
+    const numberFittingVariants = 0;
+    const numberFittingTraces = 0;
+    const totalNumberVariants = variants.length;
+
+    this.logService.update_log_stats(
+      numberFittingTraces,
+      numberFittingVariants,
+      totalNumberTraces,
+      totalNumberVariants
+    );
+  }
+}

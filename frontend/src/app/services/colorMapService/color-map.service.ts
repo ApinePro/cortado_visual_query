@@ -1,4 +1,3 @@
-
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -10,8 +9,6 @@ import * as constants from './predefinedColors';
 export class ColorMapService {
   constructor() {}
 
-
-
   createColorMap(activities: string[]): void {
     //TODO: ensure activities are ordered based on frequency
     const colorMap: Map<string, string> = new Map();
@@ -22,7 +19,7 @@ export class ColorMapService {
     this._colorMap.next(colorMap);
   }
 
-  changeActivityColor(activity: string, color: string): void{
+  changeActivityColor(activity: string, color: string): void {
     let colorMap: Map<string, string> = this._colorMap.getValue();
     colorMap.set(activity, color);
     this._colorMap.next(colorMap);
@@ -35,7 +32,7 @@ export class ColorMapService {
     return this._colorMap.asObservable().pipe(filter((map) => map !== null));
   }
 
-  get colorMap() : Map<string, string>{
+  get colorMap(): Map<string, string> {
     return this._colorMap.getValue();
   }
 
@@ -62,18 +59,15 @@ export class ColorMapService {
     return color;
   }
 
-  public deleteActivityInColorMap(activityName : string){
-    this.colorMap.delete(activityName); 
+  public deleteActivityInColorMap(activityName: string) {
+    this.colorMap.delete(activityName);
   }
 
-  public renameColorInActivityColorMap(activityName, newActivityName){
+  public renameColorInActivityColorMap(activityName, newActivityName) {
+    if (!this.colorMap.get(newActivityName)) {
+      this.colorMap.set(newActivityName, this.colorMap.get(activityName));
+    }
 
-    if(!this.colorMap.get(newActivityName)){
-      this.colorMap.set(newActivityName, this.colorMap.get(activityName)); 
-    } 
-
-    this.colorMap.delete(activityName)
+    this.colorMap.delete(activityName);
   }
-
-
 }

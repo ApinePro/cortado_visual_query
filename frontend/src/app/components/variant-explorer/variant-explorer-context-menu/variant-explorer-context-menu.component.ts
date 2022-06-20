@@ -1,18 +1,20 @@
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
-import { Component, HostListener, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  Input,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { VariantElement } from '../model';
 import { VariantService } from 'src/app/services/variantService/variant.service';
 
 @Component({
   selector: 'app-variant-explorer-context-menu',
   templateUrl: './variant-explorer-context-menu.component.html',
-  styleUrls: ['./variant-explorer-context-menu.component.css']
+  styleUrls: ['./variant-explorer-context-menu.component.css'],
 })
-export class VariantExplorerContextMenuComponent implements OnInit, OnChanges {
-
-
-
-
+export class VariantExplorerContextMenuComponent implements OnChanges {
   @Input()
   xPos: number;
 
@@ -28,32 +30,23 @@ export class VariantExplorerContextMenuComponent implements OnInit, OnChanges {
   @Input()
   directive: VariantDrawerDirective;
 
-  displayMenu : boolean = false;
+  displayMenu: boolean = false;
 
-  constructor(private variantService : VariantService) { }
+  constructor(private variantService: VariantService) {}
   ngOnChanges(changes: SimpleChanges): void {
     this.displayMenu = true;
   }
 
-  ngOnInit(): void {
-  }
-
-
   @HostListener('window:click', ['$event'])
   public onClick(event: any): void {
     this.displayMenu = false;
-
   }
 
-
-
-  deleteVariant(e : Event){
-
-
-
-    const bids = this.variantService.variants.filter((v) => (v.variant === this.variant)).map((v) => v.bid);
+  deleteVariant(e: Event) {
+    const bids = this.variantService.variants
+      .filter((v) => v.variant === this.variant)
+      .map((v) => v.bid);
 
     this.variantService.deleteVariants(bids);
-
   }
 }

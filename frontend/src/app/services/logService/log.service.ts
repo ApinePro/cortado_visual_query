@@ -9,23 +9,22 @@ import * as dummyBackendResponse from 'src/app/services/SharedDataService/dummy_
   providedIn: 'root',
 })
 export class LogService {
-  constructor( private colorMapService : ColorMapService
-  ) {}
+  constructor(private colorMapService: ColorMapService) {}
 
   public performanceInfoAvailable = false;
   private _timeGranularity: Subject<TimeUnit> = new Subject();
-
 
   private _numberFittingTraces: number = undefined;
   private _numberFittingVariants: number = undefined;
   private _totalNumberTraces: number = 0;
   private _totalNumberVariants: number = 0;
 
-
-  private _logStatistics = new BehaviorSubject<LogStats>(new LogStats(this._numberFittingTraces,
-    this._numberFittingVariants,
-    this._totalNumberTraces,
-    this._totalNumberVariants
+  private _logStatistics = new BehaviorSubject<LogStats>(
+    new LogStats(
+      this._numberFittingTraces,
+      this._numberFittingVariants,
+      this._totalNumberTraces,
+      this._totalNumberVariants
     )
   );
 
@@ -41,30 +40,30 @@ export class LogService {
     return this._logStatistics.getValue();
   }
 
-
-  public update_log_stats(numberFittingTraces : number = null, numberFittingVariants : number = null, totalNumberTraces : number = null, totalNumberVariants : number = null) : void{
+  public update_log_stats(
+    numberFittingTraces: number = null,
+    numberFittingVariants: number = null,
+    totalNumberTraces: number = null,
+    totalNumberVariants: number = null
+  ): void {
     if (numberFittingTraces) this._numberFittingTraces = numberFittingTraces;
-    if (numberFittingVariants) this._numberFittingVariants= numberFittingVariants;
-    if (totalNumberTraces) this._totalNumberTraces= totalNumberTraces;
-    if (totalNumberVariants) this._totalNumberVariants= totalNumberVariants;
+    if (numberFittingVariants)
+      this._numberFittingVariants = numberFittingVariants;
+    if (totalNumberTraces) this._totalNumberTraces = totalNumberTraces;
+    if (totalNumberVariants) this._totalNumberVariants = totalNumberVariants;
 
-    this.logStatistics = new LogStats(this._numberFittingTraces,
+    this.logStatistics = new LogStats(
+      this._numberFittingTraces,
       this._numberFittingVariants,
       this._totalNumberTraces,
       this._totalNumberVariants
-    )
+    );
   }
-
 
   // Runs Code that should be run everytime the event log changes
   private eventLogChanged(): void {
-
-    this.colorMapService.createColorMap(
-      Object.keys(this.activitiesInEventLog)
-    );
-
+    this.colorMapService.createColorMap(Object.keys(this.activitiesInEventLog));
   }
-
 
   private _logGranularity: BehaviorSubject<TimeUnit> = new BehaviorSubject(
     TimeUnit.SEC
@@ -102,59 +101,53 @@ export class LogService {
     this._activitiesInEventLog.next(activities);
   }
 
-  get activitiesInEventLog():any {
+  get activitiesInEventLog(): any {
     return this._activitiesInEventLog.getValue();
   }
 
-  public deleteActivityInEventLog(activityName : string) : any {
-
+  public deleteActivityInEventLog(activityName: string): any {
     let activities = {};
     for (let activity in this.activitiesInEventLog) {
-
-      if (activity !== activityName){
-        activities[activity] = this.activitiesInEventLog[activity]
+      if (activity !== activityName) {
+        activities[activity] = this.activitiesInEventLog[activity];
       }
     }
 
-
     this.activitiesInEventLog = activities;
 
-    console.log('Activities after delete', this.activitiesInEventLog)
+    console.log('Activities after delete', this.activitiesInEventLog);
   }
 
-  public renameActivitiesInEventLog(activityName : string, newActivityName : string) : any {
+  public renameActivitiesInEventLog(
+    activityName: string,
+    newActivityName: string
+  ): any {
+    // modifying related data in shared data service. Similar to processEventLog in backend service
+    // relabeling activities
 
-   // modifying related data in shared data service. Similar to processEventLog in backend service
-   // relabeling activities
-
-   let activityNameMapping: Map<string, string> = new Map();
+    let activityNameMapping: Map<string, string> = new Map();
     for (let activity in this.activitiesInEventLog) {
-       activityNameMapping.set(
-        activity,
-        activity
-      );
+      activityNameMapping.set(activity, activity);
     }
 
-  activityNameMapping.set(activityName, newActivityName);
+    activityNameMapping.set(activityName, newActivityName);
 
-  let activities = {};
-  for (let activity in this.activitiesInEventLog) {
-    let newActivityName = activityNameMapping.get(activity);
-    if (!activities[newActivityName]) {
-      activities[newActivityName] =
-        this.activitiesInEventLog[activity];
-
-    } else {
-      activities[newActivityName] +=
-        this.activitiesInEventLog[activity];
+    let activities = {};
+    for (let activity in this.activitiesInEventLog) {
+      let newActivityName = activityNameMapping.get(activity);
+      if (!activities[newActivityName]) {
+        activities[newActivityName] = this.activitiesInEventLog[activity];
+      } else {
+        activities[newActivityName] += this.activitiesInEventLog[activity];
+      }
     }
-  }
 
-  if(this.endActivitiesInEventLog.delete(activityName)) this.endActivitiesInEventLog.add(newActivityName);
-  if(this.startActivitiesInEventLog.delete(activityName)) this.startActivitiesInEventLog.add(newActivityName);
+    if (this.endActivitiesInEventLog.delete(activityName))
+      this.endActivitiesInEventLog.add(newActivityName);
+    if (this.startActivitiesInEventLog.delete(activityName))
+      this.startActivitiesInEventLog.add(newActivityName);
 
-  this.activitiesInEventLog = activities
-
+    this.activitiesInEventLog = activities;
   }
 
   public get timeGranularity$(): Observable<TimeUnit> {
@@ -163,7 +156,6 @@ export class LogService {
   public set timeGranularity(value: TimeUnit) {
     this._timeGranularity.next(value);
   }
-
 
   private _startActivitiesInEventLog = new BehaviorSubject<Set<string>>(
     dummyBackendResponse.startActivities
@@ -196,22 +188,23 @@ export class LogService {
   get endActivitiesInEventLog(): Set<string> {
     return this._endActivitiesInEventLog.getValue();
   }
-
-
 }
 
 export class LogStats {
-  numberFittingTraces : number
-  numberFittingVariants : number
-  totalNumberTraces : number
-  totalNumberVariants : number
+  numberFittingTraces: number;
+  numberFittingVariants: number;
+  totalNumberTraces: number;
+  totalNumberVariants: number;
 
-
-  constructor(numberFittingTraces : number, numberFittingVariants : number, totalNumberTraces : number, totalNumberVariants : number){
-    this.numberFittingTraces = numberFittingTraces
-    this.numberFittingVariants = numberFittingVariants
-    this.totalNumberTraces = totalNumberTraces
-    this.totalNumberVariants = totalNumberVariants
-
+  constructor(
+    numberFittingTraces: number,
+    numberFittingVariants: number,
+    totalNumberTraces: number,
+    totalNumberVariants: number
+  ) {
+    this.numberFittingTraces = numberFittingTraces;
+    this.numberFittingVariants = numberFittingVariants;
+    this.totalNumberTraces = totalNumberTraces;
+    this.totalNumberVariants = totalNumberVariants;
   }
 }

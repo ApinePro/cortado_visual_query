@@ -86,7 +86,7 @@ export class ExpertModeComponent implements OnInit {
   currentlyDisplayedTreeInExpertMode;
 
   constructor(
-    private logService : LogService,
+    private logService: LogService,
     private backendService: BackendService,
     private processTreeService: ProcessTreeService
   ) {}

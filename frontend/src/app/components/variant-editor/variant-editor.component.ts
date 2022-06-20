@@ -110,8 +110,8 @@ export class VariantEditorComponent
 
   constructor(
     private sharedDataService: SharedDataService,
-    private logService : LogService, 
-    private variantService : VariantService, 
+    private logService: LogService,
+    private variantService: VariantService,
     private colorMapService: ColorMapService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,

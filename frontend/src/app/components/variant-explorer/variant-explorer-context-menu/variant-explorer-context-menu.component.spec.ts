@@ -8,9 +8,8 @@ describe('VariantExplorerContextMenuComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ VariantExplorerContextMenuComponent ]
-    })
-    .compileComponents();
+      declarations: [VariantExplorerContextMenuComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

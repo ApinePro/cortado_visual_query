@@ -524,5 +524,10 @@
 
 <app-variant-query-info [(showInfo)]="showQueryInfo"> </app-variant-query-info>
 
-
-<app-variant-explorer-context-menu [xPos] = 'contextMenu_xPos' [yPos] = 'contextMenu_yPos'  [element] = 'contextMenu_element'  [variant] = 'contextMenu_variant'  [directive] = 'contextMenu_directive' ></app-variant-explorer-context-menu>
+<app-variant-explorer-context-menu
+  [xPos]="contextMenu_xPos"
+  [yPos]="contextMenu_yPos"
+  [element]="contextMenu_element"
+  [variant]="contextMenu_variant"
+  [directive]="contextMenu_directive"
+></app-variant-explorer-context-menu>

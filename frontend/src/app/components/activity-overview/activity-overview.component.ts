@@ -30,8 +30,8 @@ export class ActivityOverviewComponent
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
     private logService: LogService,
-    private variantService : VariantService,
-    private processTreeService : ProcessTreeService,
+    private variantService: VariantService,
+    private processTreeService: ProcessTreeService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
     elRef: ElementRef,
@@ -40,7 +40,6 @@ export class ActivityOverviewComponent
     super(elRef.nativeElement, renderer);
     const state = this.container.initialState;
   }
-
 
   activityColorMap: Map<string, string>;
   activitiesInTree: Set<string> = new Set<string>();
@@ -75,13 +74,11 @@ export class ActivityOverviewComponent
 
       this.resetActivityFields();
     });
-
   }
 
   ngAfterViewInit(): void {
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.activityColorMap = colorMap;
-
 
       if (this.activityFields) {
         for (let activityField of this.activityFields) {
@@ -91,35 +88,32 @@ export class ActivityOverviewComponent
         }
       }
 
-      console.log('Got new ColorMap', colorMap)
+      console.log('Got new ColorMap', colorMap);
     });
 
+    // Handle change of current activies in the loaded model
+    this.processTreeService.activitiesInCurrentTree$.subscribe(
+      (activitiesInTree) => {
+        for (let field of this.activityFields) {
+          field.inModel = activitiesInTree.has(field.activityName);
+        }
 
-  // Handle change of current activies in the loaded model
-  this.processTreeService.activitiesInCurrentTree$.subscribe(
-    (activitiesInTree) => {
-      for (let field of this.activityFields) {
-        field.inModel = activitiesInTree.has(field.activityName);
+        console.log('Activiites in Tree', activitiesInTree);
       }
+    );
 
-      console.log('Activiites in Tree', activitiesInTree);
-    }
-
-  );
-
-
-  this.logService.startActivitiesInEventLog$.subscribe(() => {if (this.activityColorMap){this.resetActivityFields()}});
-
+    this.logService.startActivitiesInEventLog$.subscribe(() => {
+      if (this.activityColorMap) {
+        this.resetActivityFields();
+      }
+    });
   }
 
   resetActivityFields() {
-
-
     this.startActivities = this.logService.startActivitiesInEventLog;
     this.endActivities = this.logService.endActivitiesInEventLog;
     this.activitiesInLog = this.logService.activitiesInEventLog;
-    this.activitiesInTree = this.processTreeService.activitiesInCurrentTree
-
+    this.activitiesInTree = this.processTreeService.activitiesInCurrentTree;
 
     console.log(this.activitiesInTree);
 
@@ -202,9 +196,7 @@ export class ActivityOverviewComponent
     oldActivityName: string,
     newActivityName: string
   ): void {
-
-
-    console.log(oldActivityName, newActivityName)
+    console.log(oldActivityName, newActivityName);
     this.variantService.renameActivity(oldActivityName, newActivityName);
 
     // Changing activity field table

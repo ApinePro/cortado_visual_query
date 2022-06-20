@@ -76,7 +76,7 @@ export class ProcessTreeEditorComponent
     private colorMapService: ColorMapService,
     private imageExportService: ImageExportService,
     private backendService: BackendService,
-    private logService : LogService, 
+    private logService: LogService,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     private performanceService: PerformanceService,
     private performanceColorScaleService: ModelPerformanceColorScaleService,

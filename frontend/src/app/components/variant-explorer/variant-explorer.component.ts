@@ -135,11 +135,10 @@ export class VariantExplorerComponent
   extends LayoutChangeDirective
   implements OnInit, AfterViewInit
 {
-
   constructor(
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
-    private variantService : VariantService,
+    private variantService: VariantService,
     private backendService: BackendService,
     private logService: LogService,
     private imageExportService: ImageExportService,
@@ -166,7 +165,7 @@ export class VariantExplorerComponent
   public displayed_variants: Variant[] = [];
   public colorMap: Map<string, string>;
 
-  public logStats : LogStats = null;
+  public logStats: LogStats = null;
 
   public currentlyDisplayedProcessTree;
   public usedTreeForConformanceChecking;
@@ -194,13 +193,11 @@ export class VariantExplorerComponent
   queryActive: boolean = false;
   showQueryInfo: boolean = false;
 
-  contextMenu_xPos : number = 10;
-  contextMenu_yPos : number = 10;
+  contextMenu_xPos: number = 10;
+  contextMenu_yPos: number = 10;
   contextMenu_element: VariantElement;
-  contextMenu_variant : VariantElement;
-  contextMenu_directive : VariantDrawerDirective;
-
-
+  contextMenu_variant: VariantElement;
+  contextMenu_directive: VariantDrawerDirective;
 
   public traceInfixSelectionMode: boolean = false;
 
@@ -274,7 +271,7 @@ export class VariantExplorerComponent
 
     this.variantService.variants$.subscribe(() => {
       this.variants = this.variantService.variants;
-      this.displayed_variants = this.variants
+      this.displayed_variants = this.variants;
       this.closeAllSubvariantWindows();
       this.redraw_components();
     });
@@ -295,7 +292,7 @@ export class VariantExplorerComponent
   }
 
   private init() {
-    console.warn('Running Init')
+    console.warn('Running Init');
     this.displayed_variants = [];
     this.backendService
       .resetLogCache() // for now show the sample log again on reload
@@ -339,16 +336,18 @@ export class VariantExplorerComponent
     });
   }
 
-
-  private eventLogChanged(){
+  private eventLogChanged() {
     this.variants = this.variantService.variants;
     this.displayed_variants = this.variants;
 
     this.sort(this.sortingFeature);
   }
 
-  private listenForLogStatChange(){
-    this.logService.logStatistics$.subscribe((logStat) => {this.logStats = logStat; console.log('New Logstats', logStat)})
+  private listenForLogStatChange() {
+    this.logService.logStatistics$.subscribe((logStat) => {
+      this.logStats = logStat;
+      console.log('New Logstats', logStat);
+    });
   }
 
   private listenForLogChange() {
@@ -399,8 +398,6 @@ export class VariantExplorerComponent
   }
 
   apply_query_filter(queryItems: Set<number>) {
-
-
     if (!queryItems) {
       this.displayed_variants = this.variants;
     } else {
@@ -425,7 +422,6 @@ export class VariantExplorerComponent
     let numberFittingVariants = 0;
     let numberFittingTraces = 0;
 
-
     this.variants.forEach((v) => {
       if (v.deviation !== undefined && !v.deviation) {
         numberFittingVariants++;
@@ -433,8 +429,15 @@ export class VariantExplorerComponent
       }
     });
 
-    console.log('Updating Statistics', numberFittingVariants, numberFittingTraces)
-    this.logService.update_log_stats(numberFittingTraces, numberFittingVariants)
+    console.log(
+      'Updating Statistics',
+      numberFittingVariants,
+      numberFittingTraces
+    );
+    this.logService.update_log_stats(
+      numberFittingTraces,
+      numberFittingVariants
+    );
   }
 
   updateConformanceForVariant(variant: Variant, timeout: number): void {
@@ -506,7 +509,6 @@ export class VariantExplorerComponent
   }
 
   createSubVariantView(index) {
-
     console.log('Opening Subvariant Window for Index', index);
 
     const currently_maximized = this.maximized;
@@ -821,7 +823,8 @@ export class VariantExplorerComponent
     } else if (this.traceInfixSelectionMode) {
       let lowestSelectableParent = getLowestSelectableParent(element);
       if (lowestSelectableParent != variant) {
-        lowestSelectableParent.setAllChildrenSelected();        variant.calculateSelectableElements();
+        lowestSelectableParent.setAllChildrenSelected();
+        variant.calculateSelectableElements();
         if (!variant.selectionStatusUnchangedFromLastSavedSelection()) {
           variant.saveCurrentSelectionToSelectionHistory();
         }
@@ -833,23 +836,23 @@ export class VariantExplorerComponent
     }
   };
 
-
-  openContextCallback = ( self: VariantDrawerDirective,
+  openContextCallback = (
+    self: VariantDrawerDirective,
     element: VariantElement,
     variant: VariantElement,
-    event : PointerEvent) => {
+    event: PointerEvent
+  ) => {
+    console.log('Self', self);
+    console.log('Event', event);
+    console.log('Variant', variant);
+    console.log('Element', element);
 
-      console.log('Self', self)
-      console.log('Event', event)
-      console.log('Variant', variant)
-      console.log('Element', element)
-
-      this.contextMenu_xPos = event.clientX
-      this.contextMenu_yPos = event.clientY
-      this.contextMenu_variant = variant;
-      this.contextMenu_element = element;
-      this.contextMenu_directive = self;
-    }
+    this.contextMenu_xPos = event.clientX;
+    this.contextMenu_yPos = event.clientY;
+    this.contextMenu_variant = variant;
+    this.contextMenu_element = element;
+    this.contextMenu_directive = self;
+  };
 
   computeActivityColor = (
     self: VariantDrawerDirective,
@@ -1047,10 +1050,7 @@ export class VariantExplorerComponent
 
     this.selectedGranularity = granularity;
     this.backendService
-      .getLogPropsAndUpdateState(
-        granularity,
-        this.logService.loadedEventLog
-      )
+      .getLogPropsAndUpdateState(granularity, this.logService.loadedEventLog)
       .subscribe();
   }
 

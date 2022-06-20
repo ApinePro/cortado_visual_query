@@ -82,7 +82,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
     variant: VariantElement,
-    event : Event,
+    event: Event
   ) => void;
 
   @Output()
@@ -259,7 +259,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       this.onMouseOverCbFc(this, element, this.variant, parent);
     }
 
-    if (this.onRightMouseClickCbFc){
+    if (this.onRightMouseClickCbFc) {
       parent.on('contextmenu', (e: PointerEvent) => {
         this.onRightMouseClickCbFc(this, element, this.variant, e);
         e.stopPropagation();
@@ -314,7 +314,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       });
     }
 
-    if (this.onRightMouseClickCbFc){
+    if (this.onRightMouseClickCbFc) {
       parent.on('contextmenu', (e: PointerEvent) => {
         this.onRightMouseClickCbFc(this, element, this.variant, e);
         e.stopPropagation();
@@ -469,8 +469,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       });
     }
 
-    if (this.onRightMouseClickCbFc){
-
+    if (this.onRightMouseClickCbFc) {
       parent.on('contextmenu', (e: PointerEvent) => {
         this.onRightMouseClickCbFc(this, element, this.variant, e);
         e.stopPropagation();

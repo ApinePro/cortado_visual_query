@@ -62,13 +62,12 @@ export class VariantComponent implements AfterViewInit {
     element: VariantElement
   ) => void;
 
-
   @Input()
   onRightMouseClickCbFc: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
     variant: VariantElement,
-    event : Event,
+    event: Event
   ) => void;
 
   @Input()
@@ -111,9 +110,7 @@ export class VariantComponent implements AfterViewInit {
     public performanceService: PerformanceService,
     public variantService: VariantService,
     private performanceColorService: ModelPerformanceColorScaleService
-  ) {
-
-  }
+  ) {}
 
   ngAfterViewInit(): void {
     const self = this;
