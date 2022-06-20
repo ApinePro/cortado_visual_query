@@ -600,45 +600,39 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
         
     if config.algo == 1: 
         print("Mining K Patterns")
-        k_patterns = min_sub_mining(treeBank, load_event_log.variants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True)
+        k_patterns = min_sub_mining(treeBank, load_event_log.variants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True, fold_loops = 2)
         
         print("Setting Maximally Closed Patterns")
         set_maximaly_closed_patterns(k_patterns)
     
         df = dataframe_from_k_patterns(k_patterns)
 
-        try: 
-            df = add_confidence_information_to_df(k_patterns, df)
-            df.obj = df.obj.apply(lambda x : x.to_concurrency_group().serialize(include_performance=False))
-            df = df.replace({np.nan: None})
-            print()   
-            print('Closed in RMO', df.closed.value_counts())
-            print()
-            
-        except: 
-            print('Empty result')
+        print('Adding Confidence Information')
+        df = add_confidence_information_to_df(k_patterns, df)
+        print('Finished Confidence')
+        df.obj = df.obj.apply(lambda x : x.to_concurrency_group().serialize(include_performance=False))
+        df = df.replace({np.nan: None})
+        print()   
+        print('Closed in RMO', df.closed.value_counts())
+        print()
 
-        
-
-    
     else:
+        
         print("Mining CM K Patterns")
         k_patterns = cm_min_sub_mining(treeBank, load_event_log.variants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True)
         set_maximaly_closed_patterns(k_patterns)
         
         
         df = dataframe_from_k_patterns(k_patterns)
-               
-        try: 
-            df.obj = df.obj.apply(lambda x : x.to_concurrency_group().serialize(include_performance=False))
-            df = df.replace({np.nan: None}) 
-        except: 
-            print('Empty result')
+
+        df.obj = df.obj.apply(lambda x : x.to_concurrency_group().serialize(include_performance=False))
+        df = df.replace({np.nan: None}) 
 
         
     print("Finished Computation")
     df_dict = df.to_dict(orient = 'records')
     
+    print('Sending Results')
     return df_dict
 
 class variantQuery(BaseModel):
