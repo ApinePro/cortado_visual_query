@@ -181,7 +181,6 @@ export class BpmnEditorComponent
     this.unselectAll();
 
     const selected_node = this.mainGroup.select('[id="' + id + '"]');
-    console.log('Selected Node', selected_node);
     if (!selected_node.empty()) {
       this.selectedNode = selected_node;
       if ((selected_node.datum() as ProcessTree).operator) {
@@ -197,13 +196,11 @@ export class BpmnEditorComponent
   }
 
   selectNode(): void {
-    console.log('Set Selection Mode Node');
     this.processTreeService.selectedRootNodeID = null;
     this.processTreeService.selectionMode = NodeSeletionStrategy.NODE;
   }
 
   selectSubtree(): void {
-    console.log('Set Selection Mode Tree');
     this.processTreeService.selectedRootNodeID = null;
     this.processTreeService.selectionMode = NodeSeletionStrategy.TREE;
   }

@@ -272,6 +272,7 @@ export class VariantExplorerComponent
     this.variantService.variants$.subscribe(() => {
       this.variants = this.variantService.variants;
       this.displayed_variants = this.variants;
+      this.sort(this.sortingFeature);
       this.closeAllSubvariantWindows();
       this.redraw_components();
     });
@@ -336,17 +337,9 @@ export class VariantExplorerComponent
     });
   }
 
-  private eventLogChanged() {
-    this.variants = this.variantService.variants;
-    this.displayed_variants = this.variants;
-
-    this.sort(this.sortingFeature);
-  }
-
   private listenForLogStatChange() {
     this.logService.logStatistics$.subscribe((logStat) => {
       this.logStats = logStat;
-      console.log('New Logstats', logStat);
     });
   }
 
@@ -357,7 +350,6 @@ export class VariantExplorerComponent
           this.closeAllSubvariantWindows();
           this.performanceMode = false;
           this.variantPerformanceService.variantPerformanceMode.next(false);
-          this.eventLogChanged();
         })
       )
       .subscribe();
@@ -400,12 +392,19 @@ export class VariantExplorerComponent
   apply_query_filter(queryItems: Set<number>) {
     if (!queryItems) {
       this.displayed_variants = this.variants;
+      this.variants.forEach((v) => (v.isDisplayed = true));
     } else {
-      this.displayed_variants = this.variants.filter((variant) => {
-        return queryItems.has(variant.bid);
+      const displayed_variants = [];
+
+      this.displayed_variants = this.variants.filter((v) => {
+        if (queryItems.has(v.bid)) {
+          v.isDisplayed = true;
+          return true;
+        } else {
+          v.isDisplayed = false;
+        }
       });
     }
-
     this.updateAllSubvariantWindows();
   }
 
@@ -509,8 +508,6 @@ export class VariantExplorerComponent
   }
 
   createSubVariantView(index) {
-    console.log('Opening Subvariant Window for Index', index);
-
     const currently_maximized = this.maximized;
 
     const LocationSelectors: LayoutManager.LocationSelector[] = [
@@ -616,6 +613,7 @@ export class VariantExplorerComponent
 
   removeAllFilters() {
     this.displayed_variants = this.variants;
+    this.variants.forEach((v) => (v.isDisplayed = true));
     this.updateAllSubvariantWindows();
   }
 
@@ -842,11 +840,6 @@ export class VariantExplorerComponent
     variant: VariantElement,
     event: PointerEvent
   ) => {
-    console.log('Self', self);
-    console.log('Event', event);
-    console.log('Variant', variant);
-    console.log('Element', element);
-
     this.contextMenu_xPos = event.clientX;
     this.contextMenu_yPos = event.clientY;
     this.contextMenu_variant = variant;

@@ -157,6 +157,7 @@ export class Variant {
   number_of_activities: number;
   variant: VariantElement;
   isSelected: boolean;
+  isDisplayed: boolean;
   isAddedFittingVariant: boolean;
   percentage: number;
   calculationInProgress: boolean | undefined;
@@ -166,23 +167,14 @@ export class Variant {
   deviation: any | undefined;
   isTimeouted: boolean;
   isConformanceOutdated: boolean;
-  sub_variants:
-    | {
-        count: number;
-        variant: [string, string][][];
-        percentage: number;
-        calculationInProgress: boolean | undefined;
-        // TODO alignment is unused it will not be returned by calculateAlignmentsCVariant backend endpoint
-        alignment: any | undefined;
-        deviation: any | undefined;
-      }[]
-    | undefined;
+  sub_variants: Subvariant[] | undefined;
   infixType: InfixType;
 
   constructor(
     count: number,
     variant: VariantElement,
     isSelected: boolean,
+    isDisplayed: boolean,
     isAddedFittingVariant: boolean,
     percentage: number,
     calculationInProgress: boolean | undefined,
@@ -195,6 +187,7 @@ export class Variant {
     this.count = count;
     this.variant = variant;
     this.isSelected = isSelected;
+    this.isDisplayed = isDisplayed;
     this.isAddedFittingVariant = isAddedFittingVariant;
     this.percentage = percentage;
     this.calculationInProgress = calculationInProgress;
@@ -204,6 +197,17 @@ export class Variant {
     this.sub_variants = sub_variants;
     this.infixType = infixType;
   }
+}
+
+export class Subvariant {
+  count: number;
+  variant: [string, string][][];
+  percentage: number;
+  calculationInProgress: boolean | undefined;
+
+  // TODO alignment is unused it will not be returned by calculateAlignmentsCVariant backend endpoint
+  alignment: any | undefined;
+  deviation: any | undefined;
 }
 
 export abstract class VariantElement {
@@ -1054,7 +1058,19 @@ export class WaitingTimeNode extends VariantElement {
 
 export class InvisibleSequenceGroup extends SequenceGroup {
   public asString(): string {
-    return this.elements[1].asString();
+    return this.elements
+      .filter((e) => {
+        return !(e instanceof WaitingTimeNode);
+      })[0]
+      .asString();
+  }
+
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    return this.elements
+      .filter((e) => {
+        return !(e instanceof WaitingTimeNode);
+      })[0]
+      .deleteActivity(activityName);
   }
 
   public getMarginX() {

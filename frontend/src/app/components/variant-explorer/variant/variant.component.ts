@@ -242,6 +242,7 @@ export class VariantComponent implements AfterViewInit {
         1,
         reducedInfix,
         false,
+        true,
         false,
         0,
         false,

@@ -4,14 +4,7 @@ import * as FileSaver from 'file-saver';
 import { Observable } from 'rxjs';
 import { take, tap } from 'rxjs/operators';
 import { Configuration } from 'src/app/components/settings/model';
-import {
-  deserialize,
-  InfixType,
-  injectWaitingTimeNodes,
-  setParent,
-  Variant,
-  VariantElement,
-} from 'src/app/components/variant-explorer/model';
+import { VariantElement } from 'src/app/components/variant-explorer/model';
 import { ProcessTree } from 'src/app/objects/ProcessTree';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { mapVariants } from 'src/app/utils/util';
@@ -33,6 +26,19 @@ export class BackendService {
 
   backendUrl = 'http://127.0.0.1:41211/';
 
+  exportEventLogFromLog(bids: number[]) {
+    this.httpClient
+      .post(
+        this.backendUrl + 'exportLogVariants',
+        { bids: bids },
+        { responseType: 'blob' }
+      )
+      .pipe(take(1))
+      .subscribe((blob) => {
+        FileSaver.saveAs(blob, 'log.xes');
+      });
+  }
+
   loadEventLogFromFilePath(filePath: string): void {
     this.httpClient
       .post(this.backendUrl + 'loadEventLog', { file_path: filePath })
@@ -50,7 +56,6 @@ export class BackendService {
       .post(this.backendUrl + 'uploadfile', formData)
       .pipe(mapVariants())
       .subscribe((res) => {
-        console.log('Event log ' + file.name + ' loaded');
         this.processEventLog(res, file.name);
       });
   }
@@ -63,9 +68,9 @@ export class BackendService {
     this.logService.startActivitiesInEventLog = new Set(res['startActivities']);
     this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
 
-    const variants = this.addVariantInformation(res['variants']);
-    this.computeLogStats(variants);
+    const variants = this.variantService.addVariantInformation(res['variants']);
     this.variantService.variants = variants;
+    this.logService.computeLogStats(variants);
 
     this.logService.loadedEventLog = filePath;
 
@@ -236,7 +241,6 @@ export class BackendService {
       .post(this.backendUrl + 'addConcurrencyVariantsToProcessModel', body)
       .pipe(
         tap((res) => {
-          console.log('Tree Received from BackEnd Service', res);
           this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
             res
           );
@@ -324,8 +328,10 @@ export class BackendService {
       properties['endActivities']
     );
 
-    const variants = this.addVariantInformation(properties['variants']);
-    this.computeLogStats(variants);
+    const variants = this.variantService.addVariantInformation(
+      properties['variants']
+    );
+    this.logService.computeLogStats(variants);
     this.variantService.variants = variants;
 
     this.logService.loadedEventLog = logName;
@@ -347,44 +353,5 @@ export class BackendService {
 
   public resetLogCache(): Observable<any> {
     return this.httpClient.get(this.backendUrl + 'log/resetLogCache');
-  }
-
-  private addVariantInformation(variants: Variant[]): Variant[] {
-    injectWaitingTimeNodes(variants.map((v) => v.variant));
-
-    variants.forEach((v, i) => {
-      v.isConformanceOutdated = true;
-      v.userDefined = false;
-      v.isTimeouted = false;
-      v.isSelected = false;
-      v.isAddedFittingVariant = false;
-      v.infixType = InfixType.NOT_AN_INFIX;
-      setParent(v.variant);
-    });
-
-    return variants;
-  }
-
-  private computeLogStats(variants: Variant[]): void {
-    const totalNumberTraces = variants
-      .map((v) => v.count)
-      .reduce((a, b) => a + b);
-
-    variants.forEach((v) => {
-      v.percentage = Number.parseFloat(
-        ((v.count / totalNumberTraces) * 100).toFixed(2)
-      );
-    });
-
-    const numberFittingVariants = 0;
-    const numberFittingTraces = 0;
-    const totalNumberVariants = variants.length;
-
-    this.logService.update_log_stats(
-      numberFittingTraces,
-      numberFittingVariants,
-      totalNumberTraces,
-      totalNumberVariants
-    );
   }
 }

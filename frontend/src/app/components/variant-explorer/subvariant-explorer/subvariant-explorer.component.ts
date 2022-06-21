@@ -208,7 +208,7 @@ export class SubvariantExplorerComponent
 
     // Export to an SVG file
     this.imageExportService.export(
-      `subvariants-for-${this.mainVariant.number}`,
+      `subvariants-for-${this.mainVariant.bid}`,
       0,
       0,
       ...svgs

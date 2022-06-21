@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { skip } from 'rxjs/operators';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import * as dummyBackendResponse from 'src/app/services/SharedDataService/dummy_backend_response.js';
+import { Variant } from 'src/app/components/variant-explorer/model';
 
 @Injectable({
   providedIn: 'root',
@@ -114,8 +115,6 @@ export class LogService {
     }
 
     this.activitiesInEventLog = activities;
-
-    console.log('Activities after delete', this.activitiesInEventLog);
   }
 
   public renameActivitiesInEventLog(
@@ -187,6 +186,29 @@ export class LogService {
 
   get endActivitiesInEventLog(): Set<string> {
     return this._endActivitiesInEventLog.getValue();
+  }
+
+  public computeLogStats(variants: Variant[]): void {
+    const totalNumberTraces = variants
+      .map((v) => v.count)
+      .reduce((a, b) => a + b);
+
+    variants.forEach((v) => {
+      v.percentage = Number.parseFloat(
+        ((v.count / totalNumberTraces) * 100).toFixed(2)
+      );
+    });
+
+    const numberFittingVariants = 0;
+    const numberFittingTraces = 0;
+    const totalNumberVariants = variants.length;
+
+    this.update_log_stats(
+      numberFittingTraces,
+      numberFittingVariants,
+      totalNumberTraces,
+      totalNumberVariants
+    );
   }
 }
 

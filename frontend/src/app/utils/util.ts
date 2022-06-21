@@ -14,7 +14,6 @@ export function originalOrder(
 export function transformVariants(properties) {
   properties['variants'].forEach((variant, i) => {
     variant['id'] = objectHash(variant['variant']);
-    variant.number = i + 1;
     variant['variant'] = deserialize(variant.variant);
   });
   return properties;

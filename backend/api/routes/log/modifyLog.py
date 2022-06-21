@@ -19,8 +19,6 @@ class ChangeActivityName(BaseModel):
 @router.post("/changeActivityName")
 async def change_activity_name_in_log(d : ChangeActivityName):  
     
-    print(d)
-    
     cache_current_data()
     
     rename_activities(d.mergeList, d.renameList, d.activityName, d.newActivityName)
@@ -38,9 +36,6 @@ class removeActivityName(BaseModel):
 @router.post("/deleteActivity")
 async def remove_activity_name_in_log(d : removeActivityName):  
     
-    
-    print('Delete Request', d)
-    
     cache_current_data()
     
     res = remove_activities(d.activityName, d.fallthrough, d.delete_member_list, d.merge_list, d.delete_variant_list)
@@ -53,9 +48,8 @@ class removeVariants(BaseModel):
 @router.post("/deleteVariants")
 async def removeVariants(d : removeVariants):  
     
-    print('Delete Request', d)
-    
     cache_current_data()
     
-    remove_variant(d.bids)
+    res = remove_variant(d.bids)
 
+    return res 

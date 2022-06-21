@@ -702,6 +702,7 @@ export class VariantEditorComponent
       1,
       copyCurrent,
       false,
+      true,
       false,
       0,
       undefined,

@@ -1,15 +1,15 @@
 from collections import Counter
 import json
 import pickle
-
+from typing import Mapping, Tuple
 from cortado_core.performance.variant_performance import \
     assign_variants_performances
 from cortado_core.utils.cvariants import (get_concurrency_variants,
                                           get_detailed_variants)
-from cortado_core.utils.split_graph import LeafGroup, SequenceGroup
+from cortado_core.utils.split_graph import LeafGroup, SequenceGroup, Group
 from cortado_core.utils.timestamp_utils import TimeUnit, get_time_granularity
 from pm4py.algo.filtering.log.variants import variants_filter
-from pm4py.objects.log.obj import EventLog
+from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.objects.log.util.interval_lifecycle import to_interval
 from pm4py.util.xes_constants import (DEFAULT_START_TIMESTAMP_KEY,
                                       DEFAULT_TRANSITION_KEY)
@@ -23,7 +23,7 @@ def calculate_event_log_properties(event_log: EventLog, time_granularity: TimeUn
     global variants
     global nBids
     global activites 
-    
+
     if time_granularity is None:
         time_granularity = get_time_granularity(event_log)
         
@@ -42,13 +42,11 @@ def calculate_event_log_properties(event_log: EventLog, time_granularity: TimeUn
     
     assign_variants_performances(variants)
 
-    start_activities = set.union(*[set(v.graph.start_activities.keys()) for v in variants.keys()])
-    end_activities = set.union(*[set(v.graph.end_activities.keys()) for v in variants.keys()])
-    nActivities = dict(sum([Counter({ k : (len(ls) * len(variants[v])) for k, ls in v.graph.events.items()}) for v in variants], Counter()))
-
-    activites = set(nActivities.keys())
-
     variants = {bid : (variant, traces) for bid, (variant, traces) in enumerate(variants.items())}
+    
+    start_activities, end_activities, nActivities = compute_log_stats(variants)
+    
+    activites = set(nActivities.keys())
     
     res = {
         "startActivities": start_activities,
@@ -64,6 +62,13 @@ def calculate_event_log_properties(event_log: EventLog, time_granularity: TimeUn
     nBids = len(variants.keys())
     
     return res
+
+def compute_log_stats(variants : Mapping[int, Tuple[Group, Trace]]):
+    start_activities = set.union(*[set(v.graph.start_activities.keys()) for  (v, _) in variants.values()])
+    end_activities = set.union(*[set(v.graph.end_activities.keys()) for (v, _) in variants.values()])
+    nActivities = dict(sum([Counter({ k : (len(ls) * len(ts)) for k, ls in v.graph.events.items()}) for (v, ts) in variants.values()], Counter()))
+    
+    return start_activities, end_activities, nActivities
 
 
 def get_simple_variants(event_log: EventLog):

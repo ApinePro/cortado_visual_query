@@ -3,6 +3,7 @@
   <div class="dropdown">
     <button
       class="button header-button"
+      data-bs-auto-close="outside"
       type="button"
       id="Files"
       data-bs-toggle="dropdown"
@@ -10,7 +11,10 @@
     >
       Files
     </button>
-    <ul class="dropdown-menu tool-bar-dropdown" aria-labelledby="Files">
+    <ul
+      class="dropdown-menu tool-bar-drop tool-bar-dropdown"
+      aria-labelledby="Files"
+    >
       <li>
         <button class="button align-bottom" (click)="importEventLog()">
           <div>
@@ -31,7 +35,7 @@
           </div>
         </button>
       </li>
-      <hr />
+      <li><hr class="dropdown-divider" /></li>
       <li>
         <button class="button align-bottom" (click)="exportTreeAsPTML()">
           <div>
@@ -71,6 +75,107 @@
             >
           </div>
         </button>
+      </li>
+      <li>
+        <div class="dropend">
+          <button
+            type="button"
+            class="button align-bottom dropdown-toggle"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <div class="dropright-header">
+              <i class="bi bi-file-earmark-arrow-down-fill btn-icon"></i>
+              <span
+                ><b>Export</b> Log as XES (<samp class="text-primary fw-bold"
+                  >.xes</samp
+                >)</span
+              >
+            </div>
+          </button>
+          <ul class="dropdown-menu tool-bar-drop tool-bar-dropright">
+            <li>
+              <button
+                class="button align-bottom"
+                (click)="exportVariantsAsLog(exportVariant.ALL)"
+              >
+                <div>
+                  <i class="bi bi-file-earmark-arrow-down-fill btn-icon"></i>
+                  <span
+                    ><b>Export</b> all Traces (<samp
+                      class="text-primary fw-bold"
+                      >.xes</samp
+                    >)</span
+                  >
+                </div>
+              </button>
+            </li>
+            <li>
+              <button
+                class="button align-bottom"
+                (click)="exportVariantsAsLog(exportVariant.SELECTED)"
+              >
+                <div>
+                  <i class="bi bi-file-earmark-arrow-down-fill btn-icon"></i>
+                  <span
+                    ><b>Export</b> selected Traces (<samp
+                      class="text-primary fw-bold"
+                      >.xes</samp
+                    >)</span
+                  >
+                </div>
+              </button>
+            </li>
+            <li>
+              <button
+                class="button align-bottom"
+                (click)="exportVariantsAsLog(exportVariant.FITTING)"
+              >
+                <div>
+                  <i class="bi bi-file-earmark-arrow-down-fill btn-icon"></i>
+                  <span
+                    ><b>Export</b> fitting Traces (<samp
+                      class="text-primary fw-bold"
+                      >.xes</samp
+                    >)</span
+                  >
+                </div>
+              </button>
+            </li>
+            <li>
+              <button
+                class="button align-bottom"
+                (click)="exportVariantsAsLog(exportVariant.NONFITTING)"
+              >
+                <div>
+                  <i class="bi bi-file-earmark-arrow-down-fill btn-icon"></i>
+                  <span
+                    ><b>Export</b> non-fitting Traces (<samp
+                      class="text-primary fw-bold"
+                      >.xes</samp
+                    >)</span
+                  >
+                </div>
+              </button>
+            </li>
+            <li>
+              <button
+                class="button align-bottom"
+                (click)="exportVariantsAsLog(exportVariant.DISPLAYED)"
+              >
+                <div>
+                  <i class="bi bi-file-earmark-arrow-down-fill btn-icon"></i>
+                  <span
+                    ><b>Export</b> displayed Traces (<samp
+                      class="text-primary fw-bold"
+                      >.xes</samp
+                    >)</span
+                  >
+                </div>
+              </button>
+            </li>
+          </ul>
+        </div>
       </li>
     </ul>
   </div>

@@ -167,7 +167,6 @@ export class PerformanceService {
           });
         },
         (error) => {
-          console.log(error);
           variants.forEach((v) => this.calculationInProgress.clear());
         }
       );

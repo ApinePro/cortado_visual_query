@@ -87,8 +87,6 @@ export class ActivityOverviewComponent
           );
         }
       }
-
-      console.log('Got new ColorMap', colorMap);
     });
 
     // Handle change of current activies in the loaded model
@@ -97,8 +95,6 @@ export class ActivityOverviewComponent
         for (let field of this.activityFields) {
           field.inModel = activitiesInTree.has(field.activityName);
         }
-
-        console.log('Activiites in Tree', activitiesInTree);
       }
     );
 
@@ -114,8 +110,6 @@ export class ActivityOverviewComponent
     this.endActivities = this.logService.endActivitiesInEventLog;
     this.activitiesInLog = this.logService.activitiesInEventLog;
     this.activitiesInTree = this.processTreeService.activitiesInCurrentTree;
-
-    console.log(this.activitiesInTree);
 
     this.activityFields = [];
     for (let activity in this.activitiesInLog) {
@@ -161,7 +155,6 @@ export class ActivityOverviewComponent
     }
   }
   deleteActivity(activity: ActivityField) {
-    console.log(activity.activityName);
     this.editingActivityName = false;
     this.variantService.deleteActivity(activity.activityName);
     this.resetActivityFields();
@@ -196,7 +189,6 @@ export class ActivityOverviewComponent
     oldActivityName: string,
     newActivityName: string
   ): void {
-    console.log(oldActivityName, newActivityName);
     this.variantService.renameActivity(oldActivityName, newActivityName);
 
     // Changing activity field table

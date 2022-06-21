@@ -1,4 +1,5 @@
 import asyncio
+import itertools
 import json
 import pickle
 from multiprocessing import Pool, cpu_count, freeze_support
@@ -70,6 +71,7 @@ from error_handlers import (http_exception_handler,
                             validation_exception_handler)
 from middleware.http_middleware import http_middleware
 
+from pm4py.objects.log.exporter.xes.variants.line_by_line import export_log_as_string as generate_xes_xml
 
 def get_application():
     app = FastAPI()
@@ -345,6 +347,20 @@ async def download_pnml(d: ConvertPtToX):
     pt, frozen_subtrees = dict_to_process_tree(d.pt)
     net, im, fm = convert_pt(pt)
     return Response(content=generate_pnml_xml(net, im, fm), media_type="application/xml")
+
+
+class ExportLogXes(BaseModel):
+    bids: list
+
+@app.post("/exportLogVariants")
+async def download_xes(d: ExportLogXes):
+    
+    traces = list(itertools.chain(*[ts for bid, (_ , ts) in load_event_log.variants.items() if bid in d.bids]))   
+    log = EventLog(traces)
+    
+    # TODO Perserve the Loaded Log Attributes via Variables
+    return Response(content=generate_xes_xml(log), media_type="application/xml")
+ 
 
 
 @app.post("/applyReductionRulesToTree")

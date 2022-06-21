@@ -8,9 +8,8 @@ from cortado_core.utils.split_graph import LeafGroup, SequenceGroup, Concurrency
 from cortado_core.utils.cgroups_graph import cgroups_graph
 from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.util.xes_constants import DEFAULT_NAME_KEY
-from endpoints.load_event_log import create_variant_object
+from endpoints.load_event_log import create_variant_object, compute_log_stats
 from endpoints import load_event_log
-from pm4py.algo.filtering.log.attributes.attributes_filter import apply_events, Parameters
 
 def cache_current_data(): 
         
@@ -315,8 +314,6 @@ def recompute_log_statistics(variants, total_traces):
     
 def remove_activities(activityName, fallthrough, delete_member_list, merge_list, delete_variant_list): 
     
-    print('Remove Activity')
-    
     new_variants : Mapping[int, Tuple[ConcurrencyGroup, List ]]= {}
     
     for bid in delete_member_list: 
@@ -344,81 +341,78 @@ def remove_activities(activityName, fallthrough, delete_member_list, merge_list,
         
         new_variants[min(ls)] = (new_variant, new_traces)
         
-        
 
-            
-    
     flat_list = lambda lss : [x for ls in lss for x in ls]
     
     no_update = set(load_event_log.variants.keys()).difference(set(flat_list(merge_list) + fallthrough + delete_member_list + delete_variant_list))
 
-    print('No Update', no_update)
-
     for bid in no_update: 
         new_variants[bid] = load_event_log.variants[bid]
-    
-    
     
     mergeVariants = []
     newVariants = []
     
-    for bid in fallthrough: 
-        
+    if len(fallthrough) > 0:
+           
+      print('Handling Fallthroughs')
+      
+      cLog = []
+      for bid in fallthrough: 
         (_, traces) = load_event_log.variants[bid]
-        log = EventLog([apply_filter_copy(trace, activityName) for trace in traces])
-            
-        c_variants =  get_concurrency_variants(log, False, load_event_log.cur_time_granularity)
+        cLog.extend([apply_filter_copy(trace, activityName) for trace in traces]) 
+      
+      log = EventLog(cLog)
+      
+      c_variants = get_concurrency_variants(log, False, load_event_log.cur_time_granularity)
         
-        print('Handling Fallthroughs')
+      for c_variant, c_traces in c_variants.items(): 
         
-        for bid, (n_variant, n_traces) in new_variants.items(): 
-                
-            for c_variant in c_variants.keys(): 
-            
-                if str(n_variant) == str(c_variant): 
-                    c_traces = c_variants.pop(c_variant)
-                    
-                    print('Merging', c_variant, n_variant) 
-                    new_variants[bid] = (n_variant, n_traces + c_traces)
-                    mergeVariants.append((bid, c_variant, c_traces))
-                    
-                    break 
-                
-                
-        for c_variant, c_traces in c_variants.items(): 
-            
+          foundMatch = False
+          for n_bid, (n_variant, n_traces) in new_variants.items(): 
+                  
+            if str(n_variant) == str(c_variant): 
+                mergeVariants.append((n_bid, c_variant, n_traces+c_traces))
+                foundMatch = True 
+                break 
+                  
+          if foundMatch: 
+            new_variants[n_bid] = (n_variant, n_traces + c_traces)
+
+          else: 
             new_variants[load_event_log.nBids + 1] = (c_variant, c_traces)
             newVariants.append((load_event_log.nBids + 1, c_variant, c_traces))
             load_event_log.nBids = load_event_log.nBids  + 1
-            
-
+    
     new_res_variants = []
     
     for bid, v, ts in newVariants: 
       variant = create_variant_object(load_event_log.cur_time_granularity, 1, bid, v, ts)
       new_res_variants.append(variant)
     
-    update_res_variants = []
+    update_res_variants = {}
     
     for bid, v, ts in mergeVariants: 
     
-      sub_variants = get_detailed_variants(
+        sub_variants = get_detailed_variants(
         ts, time_granularity=load_event_log.cur_time_granularity)
-          
-      total_sub_traces = sum(len(sub_variants[v]) for v in sub_variants)
+            
+        total_sub_traces = sum(len(sub_variants[v]) for v in sub_variants)
 
-      for sub_v in sub_variants:
-          variant['sub_variants'].append({
-                  'variant': sub_v,
-                  'count': len(sub_variants[sub_v]),
-                  'percentage': round(len(sub_variants[sub_v]) / total_sub_traces * 100, 2)
-              })
-          
-      update_res_variants.append({bid : {'count' : len(ts), 'sub_variants' : sub_variants}})
-  
-    start_activities = set.union(*[set(v.graph.start_activities.keys()) for (v , _ ) in new_variants.values()])
-    end_activities = set.union(*[set(v.graph.end_activities.keys()) for (v , _ ) in new_variants.values()])
+        sub_ls = []
+        for sub_v in sub_variants:
+            sub_ls.append({
+                    'variant': sub_v,
+                    'count': len(sub_variants[sub_v]),
+                    'percentage': round(len(sub_variants[sub_v]) / total_sub_traces * 100, 2)
+                })
+            
+        sub_ls = sorted(
+            sub_ls, key=lambda x: x['count'], reverse=True)
+        update_res_variants[bid]  = {'count' : len(ts), 'sub_variants' : sub_ls}
     
+
+    start_activities, end_activities, _ = compute_log_stats(new_variants) 
+        
     res = {
         "startActivities": list(start_activities),
         "endActivities": list(end_activities),
@@ -431,7 +425,16 @@ def remove_activities(activityName, fallthrough, delete_member_list, merge_list,
     
     return res
     
-    
 def remove_variant(bids): 
-    
+
     load_event_log.variants = {bid : (v, t) for bid, (v, t) in load_event_log.variants.items() if bid not in bids}
+
+    start_activities, end_activities, nActivities = compute_log_stats(load_event_log.variants)
+    
+    res = {
+      "startActivities": list(start_activities),
+      "endActivities": list(end_activities),
+      "activities": nActivities,
+    }
+    
+    return res  

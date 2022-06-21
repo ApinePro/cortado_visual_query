@@ -8,10 +8,13 @@ import {
   Variant,
   InfixType,
   injectWaitingTimeNodes,
+  setParent,
+  deserialize,
 } from 'src/app/components/variant-explorer/model';
 import * as dummyBackendResponse from '../SharedDataService/dummy_backend_response.js';
 import { skip } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
+import { transformVariants } from 'src/app/utils/util';
 
 @Injectable({
   providedIn: 'root',
@@ -60,15 +63,15 @@ export class VariantService {
 
     this.variants = this.variants.filter((v) => !bids.includes(v.bid));
 
-    this.propagateVariantDeletions(bids);
-
-    const curStats = this.logService.logStatistics;
-    this.logService.update_log_stats(
-      curStats.numberFittingTraces - nDelFittingTraces,
-      curStats.numberFittingVariants - nDelFittingVar,
-      curStats.totalNumberTraces - nDelTrace,
-      curStats.totalNumberVariants - nDelVar
-    );
+    this.propagateVariantDeletions(bids).subscribe((res) => {
+      console.log(res);
+      this.logService.activitiesInEventLog = res['activities'];
+      this.logService.startActivitiesInEventLog = new Set(
+        res['startActivities']
+      );
+      this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
+      this.logService.computeLogStats(this.variants);
+    });
 
     // Count deleted Activites, Recompute if an Activity is a Start or End Activity.
   }
@@ -101,7 +104,7 @@ export class VariantService {
             updateMap.set(tmp, [variant]);
           }
         } else {
-          delete_list.push(variant.bid);
+          delete_list.push(variant);
         }
       } else {
         tmp = variant.variant.asString();
@@ -113,8 +116,6 @@ export class VariantService {
         }
       }
     }
-
-    console.log('Updating Color Map');
 
     const variants = this.apply_update_map(updateMap);
 
@@ -137,27 +138,13 @@ export class VariantService {
 
     this.logService.deleteActivityInEventLog(activityName);
     this.colorMapService.deleteActivityInColorMap(activityName);
-    this.processTreeService.deleteActivityFromProcessTreeActivities(
-      activityName
-    );
-
-    console.log(
-      'Activity Name',
-      activityName,
-      'Fallthrough',
-      fallthrough,
-      'Delete_Member_list',
-      delete_member_list,
-      'Delete_List',
-      delete_list
-    );
 
     this.propagateActivityDeletion(
       activityName,
       fallthrough,
       delete_member_list,
       merge_list,
-      delete_list
+      delete_list.map((v) => v.bid)
     ).subscribe((res) => {
       console.log(
         'Got result',
@@ -166,24 +153,34 @@ export class VariantService {
         res['endActivities']
       );
 
-      console.log('Deleted Activity');
-
       this.logService.startActivitiesInEventLog = new Set(
         res['startActivities']
       );
       this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
 
-      console.log(
-        this.logService.startActivitiesInEventLog,
-        this.logService.endActivitiesInEventLog
-      );
-      this.logService.update_log_stats(null, null, null, updateMap.size);
-      this.variants = variants;
-    });
+      variants.forEach((v) => {
+        for (let bid of Object.keys(res['update_variants'])) {
+          if (v.bid.toString() === bid) {
+            v.sub_variants = res['update_variants'][v.bid]['sub_variants'];
+            v.count = res['update_variants'][v.bid]['count'];
+          }
+        }
+      });
 
-    // Need to await new Performance Data from the Backend
-    //injectWaitingTimeNodes(
-    //  variants.filter((v) => {return bids.includes(v.bid)}).map((v) => v.variant));
+      res['new_variants'].forEach((variant) => {
+        variant['id'] = objectHash(variant['variant']);
+        variant['variant'] = deserialize(variant.variant);
+      });
+
+      const new_variants = this.addVariantInformation(res['new_variants']);
+
+      variants.push(...new_variants);
+
+      this.logService.computeLogStats(variants);
+      this.variants = variants;
+
+      console.log('Variants after', this.variants.length);
+    });
   }
 
   private apply_update_map(updateMap: Map<string, Variant[]>) {
@@ -209,6 +206,7 @@ export class VariantService {
           count,
           ls[0].variant,
           selected,
+          true,
           userAdded,
           0,
           false,
@@ -228,14 +226,6 @@ export class VariantService {
     }
 
     return variants;
-  }
-
-  private update_variant_percentages() {
-    const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
-
-    this.variants.forEach((v) => {
-      v.percentage = Number.parseFloat(((v.count / total) * 100).toFixed(2));
-    });
   }
 
   public renameActivity(activityName: string, newActivityName: string) {
@@ -335,11 +325,12 @@ export class VariantService {
   }
 
   propagateVariantDeletions(bids: number[]) {
-    this.httpClient
-      .post(this.backendUrl + 'modifylog/' + 'deleteVariants', {
+    return this.httpClient.post(
+      this.backendUrl + 'modifylog/' + 'deleteVariants',
+      {
         bids: bids,
-      })
-      .subscribe();
+      }
+    );
   }
 
   revertChangeInBackend() {
@@ -348,23 +339,21 @@ export class VariantService {
       {}
     );
   }
-}
-function startActivites(
-  activityName: string,
-  startActivites: any,
-  endActivites: any
-): void {
-  throw new Error('Function not implemented.');
-}
 
-function endActivites(
-  activityName: string,
-  startActivites: (
-    activityName: string,
-    startActivites: any,
-    endActivites: any
-  ) => void,
-  endActivites: any
-): void {
-  throw new Error('Function not implemented.');
+  public addVariantInformation(variants: Variant[]): Variant[] {
+    injectWaitingTimeNodes(variants.map((v) => v.variant));
+
+    variants.forEach((v, i) => {
+      v.isConformanceOutdated = true;
+      v.userDefined = false;
+      v.isTimeouted = false;
+      v.isSelected = false;
+      v.isDisplayed = true;
+      v.isAddedFittingVariant = false;
+      v.infixType = InfixType.NOT_AN_INFIX;
+      setParent(v.variant);
+    });
+
+    return variants;
+  }
 }

@@ -65,7 +65,7 @@ export class NodeSelectionPerformanceComponent implements OnInit {
             perf.cycle_time
         );
 
-        availableVariants.sort((a, b) => a[0].number - b[0].number);
+        availableVariants.sort((a, b) => a[0].bid - b[0].bid);
         this.variants = availableVariants.map((v) => v[0]);
         availableVariants
           .map(
