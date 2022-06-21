@@ -71,7 +71,7 @@ from error_handlers import (http_exception_handler,
                             validation_exception_handler)
 from middleware.http_middleware import http_middleware
 
-from pm4py.objects.log.exporter.xes.variants.line_by_line import export_log_as_string as generate_xes_xml
+from pm4py.objects.log.exporter.xes.variants.etree_xes_exp import export_log_as_string as generate_xes_xml
 
 def get_application():
     app = FastAPI()
