@@ -195,7 +195,10 @@
     >
       Editors
     </button>
-    <ul class="dropdown-menu tool-bar-dropdown" aria-labelledby="Files">
+    <ul
+      class="dropdown-menu tool-bar-drop tool-bar-dropdown"
+      aria-labelledby="Files"
+    >
       <li>
         <button class="button align-bottom" (click)="openProcessTreeEditor()">
           <div>
@@ -222,30 +225,7 @@
       </li>
     </ul>
   </div>
-
-  <!-- Window Control Buttons
-      <button
-        class="button ms-auto"
-        (click)="toggleHide()"
-      >
-      <i class="bi bi-dash"></i>
-      </button>
-
-      <button
-        class="button"
-        (click)="toggleMaximization()"
-      >
-        <i class="bi bi-window-fullscreen"></i>
-      </button>
-
-      <button
-        class="button"
-        (click)="closeApp()"
-      >
-        <i class="bi bi-x-lg"></i>
-      </button>
-    -->
-
+  
   <input
     #fileUploadEventLog
     type="file"
