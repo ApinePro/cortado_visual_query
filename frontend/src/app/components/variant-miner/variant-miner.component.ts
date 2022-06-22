@@ -67,6 +67,12 @@ export class VariantMinerComponent
 
   math = Math;
 
+  maxSup : number; 
+  maxK : number; 
+  nClosed : number; 
+  nValid : number; 
+  nMaximal : number; 
+
   showControls: boolean = true;
   relSup = 25;
   supportSliderOptions: Options = {
@@ -205,6 +211,10 @@ export class VariantMinerComponent
       rel_sup,
       frequent_mining_strat,
 
+
+      fold_loop : new FormControl(false, {
+        updateOn: 'change'
+      }),
       loop: new FormControl(2, {
         updateOn: 'change',
       }),
@@ -279,16 +289,35 @@ export class VariantMinerComponent
     })
   }
 
+
+  onCheckFoldLoops(e) {
+    console.log(e)
+
+    if(e.target.checked){
+      this.variantMinerConfigInput.value.fold_loop
+
+    } else {
+
+
+    }
+
+  }
+
   onSubmit() {
     console.log('SUBMIT', this.variantMinerConfigInput.value);
 
     const form_values = this.variantMinerConfigInput.value;
 
+    let loop = 0;
+    if (form_values.fold_loop){
+      loop = form_values.loop
+    }
+
     const config = new MiningConfig(
       form_values.k,
       form_values.min_sup,
       form_values.frequent_mining_strat,
-      form_values.loop,
+      loop,
       form_values.frequent_mining_algo
     );
 
@@ -361,6 +390,13 @@ export class VariantMinerComponent
           }
         });
 
+        this.maxSup = Math.max(...this.variantPatterns.map((v) => v.support))
+        this.maxK =  Math.max(...this.variantPatterns.map((v) => v.k))
+        this.nClosed =this.variantPatterns.filter((v) => v.closed).length
+        this.nValid =this.variantPatterns.filter((v) => v.valid).length
+        this.nMaximal =  this.variantPatterns.filter((v) => v.maximal).length
+
+        this.variantPatterns.map((v) => v.support)
         this.showOnlyMaximal = false;
         this.showOnlyClosed = false;
         this.displayedVariantsPatterns = this.variantPatterns;

@@ -141,11 +141,26 @@
             </div>
           </div>
 
-          <div class="form-element d-none">
-            <label for="loop" class="input-label">Loop: </label>
+          <div class="form-element">
+            <label for="fold_loop" class="input-label">Fold Loops: </label>
+            <input
+              id="fold_loop"
+              type="checkbox"
+              formControlName="fold_loop"
+              class="input-field"
+            />
+          </div>
+
+          <div
+            class="form-element"
+            *ngIf="this.variantMinerConfigInput.value.fold_loop"
+          >
+            <label for="loop" class="input-label">Tau: </label>
             <input
               id="loop"
-              type="text"
+              type="number"
+              min="1"
+              step="1"
               formControlName="loop"
               class="input-field"
             />
@@ -157,6 +172,29 @@
             </button>
           </div>
         </form>
+        <div *ngIf="variantPatterns.length > 0" class="mining-result-overview">
+          <span class="result-span">
+            Total Patterns:
+            {{ nValid }}
+          </span>
+          <span class="result-span">
+            Closed Patterns:
+            {{ nClosed }}</span
+          >
+          <span class="result-span">
+            Maximal Patterns:
+            {{ nMaximal }}
+          </span>
+          <span></span>
+          <span class="result-span">
+            Maximal Support:
+            {{ maxSup }}</span
+          >
+          <span class="result-span">
+            Maximal Size:
+            {{  maxK }}</span
+          >
+        </div>
       </div>
     </div>
 

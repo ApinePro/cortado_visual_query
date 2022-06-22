@@ -595,12 +595,13 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
     print("Strat:", freq_strat_mapping[config.strat])
     print("Mining Algo:", config.algo)
     
+    
     treeBank = create_treebank_from_cv_variants(load_event_log.variants, True)
         
         
     if config.algo == 1: 
         print("Mining K Patterns")
-        k_patterns = min_sub_mining(treeBank, load_event_log.variants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True, fold_loops = 2)
+        k_patterns = min_sub_mining(treeBank, load_event_log.variants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True, fold_loops = config.loop)
         
         print("Setting Maximally Closed Patterns")
         set_maximaly_closed_patterns(k_patterns)

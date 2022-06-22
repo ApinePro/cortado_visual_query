@@ -824,6 +824,50 @@ export class LeafNode extends VariantElement {
   }
 }
 
+export class LeafLoopNode extends VariantElement{
+
+  public setExpanded(expanded: boolean) {
+    super.setExpanded(expanded);
+    this.leafNode.setExpanded(expanded)
+  }
+
+  public getWidth(includeWaiting: any): number {
+    return this.leafNode.getWidth()
+
+  }
+  public recalculateWidth(includeWaiting: any): number {
+    return this.leafNode.recalculateWidth();
+  }
+  public updateWidth(includeWaiting: any) {
+
+  }
+
+  public serialize(): Object {
+    return this.leafNode.serialize();
+  }
+
+
+  public calculateSelectableElements(): void {
+  }
+
+  leafNode : LeafNode;
+
+
+  constructor(activity: string) {
+    super();
+    this.leafNode = new LeafNode([activity], null)
+  }
+
+  public getHeight(): number {
+
+    return this.leafNode.getHeight() + 30;
+  }
+
+  public recalculateHeight(): number {
+    return Constants.LEAF_HEIGHT + 30;
+  }
+}
+
 export class WaitingTimeNode extends VariantElement {
   constructor(waitingTime: PerformanceStats) {
     super({ wait_time: waitingTime });
@@ -966,7 +1010,12 @@ export function deserialize(obj: any): VariantElement {
   } else if ('end' in obj) {
     return new EndGroup();
   } else {
-    return new LeafNode(obj['leaf'], obj['performance']);
+
+    if (obj['leaf'][0].includes('_LOOP')){
+      return new LeafLoopNode(obj['leaf'][0].replace('_LOOP', ''))
+    } else {
+      return new LeafNode(obj['leaf'], obj['performance']);
+    }
   }
 }
 

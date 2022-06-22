@@ -63,6 +63,17 @@ $controls-width : 200px;
   width : 100%;
 }
 
+
+.mining-result-overview{
+  color: whitesmoke;
+  font-size: small;
+  display: flex;
+  flex-direction: column;
+  align-content: space-around;
+  justify-content: flex-end;
+}
+
+
 .variant-header{
   display: flex;
   align-content: flex-start !important;
@@ -214,10 +225,13 @@ $controls-width : 200px;
   align-items: flex-start;
   flex-wrap: nowrap;
   align-content: space-around;
-  height: 50%;
+  height: 70%;
   width: 100%;
 }
 
+.result-span{
+  user-select: none;
+}
 
 .control-container{
   width : $controls-width;
@@ -227,7 +241,7 @@ $controls-width : 200px;
   display: flex;
   flex-direction: column;
   align-content: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
   color : whitesmoke;
