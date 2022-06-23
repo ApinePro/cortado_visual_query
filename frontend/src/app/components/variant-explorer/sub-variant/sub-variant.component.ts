@@ -13,6 +13,7 @@ import { ActivateTooltipsService } from '../../../services/activateTooltipsServi
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { SubvariantVisualization } from './model';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
+import { map } from 'lodash';
 
 @Component({
   selector: 'app-sub-variant',
@@ -232,6 +233,7 @@ export class SubVariantComponent implements AfterViewInit {
     let usedYIndices = new Set<number>();
     const starts = new Map<string, [number, number]>();
     const data = new Map<string, SubvariantVisualization>();
+
     let xIndex = 0;
     this._variant.subvariant.forEach((group) => {
       let starting = group.filter(
@@ -289,49 +291,92 @@ export class SubVariantComponent implements AfterViewInit {
     let result = [];
 
     this._variant.waiting_time_events.forEach((waitingTimeEvent) => {
-      console.log(waitingTimeEvent);
       let xStart = 0;
       let xEnd = 0;
       let yIndex = 0;
-      if (waitingTimeEvent.start.lifecycle == 'start') {
-        xStart = nodesData.get(
-          waitingTimeEvent.start.activity +
-            waitingTimeEvent.start.activity_instance
-        ).xStart;
-      } else {
-        xStart = nodesData.get(
-          waitingTimeEvent.start.activity +
-            waitingTimeEvent.start.activity_instance
-        ).xEnd;
-      }
-      if (waitingTimeEvent.complete.lifecycle == 'start') {
-        xEnd = nodesData.get(
-          waitingTimeEvent.complete.activity +
-            waitingTimeEvent.complete.activity_instance
-        ).xStart;
-      } else {
-        xEnd = nodesData.get(
-          waitingTimeEvent.complete.activity +
-            waitingTimeEvent.complete.activity_instance
-        ).xEnd;
-      }
-      yIndex = nodesData.get(
+
+      let startActivityData = nodesData.get(
+        waitingTimeEvent.start.activity +
+          waitingTimeEvent.start.activity_instance
+      );
+      let completeActivityData = nodesData.get(
         waitingTimeEvent.complete.activity +
           waitingTimeEvent.complete.activity_instance
-      ).yIndex;
+      );
+
+      if (waitingTimeEvent.start.lifecycle == 'start') {
+        xStart = startActivityData.xStart;
+      } else {
+        xStart = startActivityData.xEnd;
+      }
+      if (waitingTimeEvent.complete.lifecycle == 'start') {
+        xEnd = completeActivityData.xStart;
+      } else {
+        xEnd = completeActivityData.xEnd;
+      }
+
+      if (waitingTimeEvent.anchor == 'start') {
+        yIndex = startActivityData.yIndex;
+      } else {
+        yIndex = completeActivityData.yIndex;
+      }
 
       let m = new SubvariantVisualization();
       m.activity = 'WAITING TIME NODE';
       m.performanceStats = waitingTimeEvent.performance_stats;
-      m.xStart = xStart + 0.3;
-      m.xEnd = xEnd - 0.3;
+      m.xStart = xStart;
+      m.xEnd = xEnd;
       m.yIndex = yIndex;
       m.isWaitingTimeNode = true;
 
       result.push(m);
     });
 
+    // find duplicates in x-positions between Waiting Time Nodes and Subvariant Nodes; then, introduce gaps
+    const yData = this.getSubvariantVisualizationsXPositionMapPerYIndex(
+      Array.from(nodesData.values())
+    );
+
+    for (let [i, wtEvent] of result.entries()) {
+      if (yData.get(wtEvent.yIndex).indexOf(wtEvent.xStart) > -1) {
+        result[i].xStart += 0.2;
+      }
+
+      if (yData.get(wtEvent.yIndex).indexOf(wtEvent.xEnd) > -1) {
+        result[i].xEnd -= 0.2;
+      }
+    }
+
     return result;
+  }
+
+  private getSubvariantVisualizationsXPositionMapPerYIndex(
+    data: SubvariantVisualization[]
+  ): Map<number, number[]> {
+    const yData = new Map<number, number[]>();
+    data.forEach((subvariant: SubvariantVisualization) => {
+      if (!yData.has(subvariant.yIndex)) {
+        yData.set(subvariant.yIndex, []);
+      }
+
+      let yDataForIndex = yData.get(subvariant.yIndex);
+      yDataForIndex.push(subvariant.xStart);
+      yDataForIndex.push(subvariant.xEnd);
+      yData.set(subvariant.yIndex, yDataForIndex);
+    });
+
+    return yData;
+  }
+
+  private findDuplicates(arr: any[]): any[] {
+    let sorted_arr = arr.slice().sort();
+    let results = [];
+    for (let i = 0; i < sorted_arr.length - 1; i++) {
+      if (sorted_arr[i + 1] == sorted_arr[i]) {
+        results.push(sorted_arr[i]);
+      }
+    }
+    return results;
   }
 
   private getNextFreeYIndex(usedYIndices: Set<number>): number {

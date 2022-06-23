@@ -131,44 +131,6 @@ export class SubvariantExplorerComponent
     this.subVariantComponents.forEach((svc) => svc.setExpanded(expanded));
   }
 
-  computeActivityColor = (
-    self: VariantDrawerDirective,
-    element: VariantElement,
-    variant: Variant
-  ) => {
-    let color;
-
-    if (element instanceof LeafNode) {
-      color = this.colorMap.get(element.asLeafNode().activity[0]);
-
-      // in this case cuts were not applicable anymore.
-      // The resulting chevron is displayed in gray
-      if (element.activity.length > 1) {
-        color = '#d3d3d3'; // lightgray
-      }
-
-      if (element.serviceTime?.mean !== undefined && this.isPerformanceMode) {
-        let stat = this.variantPerformanceService.serviceTimeStatistic;
-        color = this.serviceTimeColorMap(element.serviceTime[stat]);
-        if (color == undefined) {
-          color = '#d3d3d3'; // lightgrey
-        }
-      } else if (this.isPerformanceMode && variant.variant?.serviceTime) {
-        color = '#d3d3d3';
-      }
-    } else {
-      if (this.isPerformanceMode && element.waitingTime?.mean !== undefined) {
-        let stat = this.variantPerformanceService.waitingTimeStatistic;
-        color = this.waitingTimeColorMap(element.waitingTime[stat]);
-      }
-    }
-
-    if (!color) {
-      color = '#d3d3d3'; // lightgrey
-    }
-
-    return color;
-  };
 
   subvariantClickCallBack = (
     drawer: VariantDrawerDirective,
@@ -378,6 +340,45 @@ export class SubvariantExplorerComponent
       this.setExpandedSubVariants(true);
     }
   }
+
+  computeActivityColor = (
+    self: VariantDrawerDirective,
+    element: VariantElement,
+    variant: Variant
+  ) => {
+    let color;
+
+    if (element instanceof LeafNode) {
+      color = this.colorMap.get(element.asLeafNode().activity[0]);
+
+      // in this case cuts were not applicable anymore.
+      // The resulting chevron is displayed in gray
+      if (element.activity.length > 1) {
+        color = '#d3d3d3'; // lightgray
+      }
+
+      if (element.serviceTime?.mean !== undefined && this.isPerformanceMode) {
+        let stat = this.variantPerformanceService.serviceTimeStatistic;
+        color = this.serviceTimeColorMap(element.serviceTime[stat]);
+        if (color == undefined) {
+          color = '#d3d3d3'; // lightgrey
+        }
+      } else if (this.isPerformanceMode && variant.variant?.serviceTime) {
+        color = '#d3d3d3';
+      }
+    } else {
+      if (this.isPerformanceMode && element.waitingTime?.mean !== undefined) {
+        let stat = this.variantPerformanceService.waitingTimeStatistic;
+        color = this.waitingTimeColorMap(element.waitingTime[stat]);
+      }
+    }
+
+    if (!color) {
+      color = '#d3d3d3'; // lightgrey
+    }
+
+    return color;
+  };
 }
 
 export namespace SubvariantExplorerComponent {
