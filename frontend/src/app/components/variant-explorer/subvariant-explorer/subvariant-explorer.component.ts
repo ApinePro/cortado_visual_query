@@ -21,6 +21,7 @@ import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service'
 import * as d3 from 'd3';
 import { LeafNode } from '../model';
 import { BackendService } from 'src/app/services/backendService/backend.service';
+import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 
 @Component({
   selector: 'app-subvariant-explorer',
@@ -34,6 +35,8 @@ export class SubvariantExplorerComponent
   mainVariant: Variant;
   subvariants;
   public colorMap: Map<string, string>;
+  public serviceTimeColorMap: any;
+  public waitingTimeColorMap: any;
   isPerformanceMode: boolean = false;
 
   @ViewChild(VariantDrawerDirective)
@@ -54,7 +57,8 @@ export class SubvariantExplorerComponent
     private sharedDataService: SharedDataService,
     private imageExportService: ImageExportService,
     private polygonDrawingService: PolygonDrawingService,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private variantPerformanceService: VariantPerformanceService
   ) {
     super(elRef.nativeElement, renderer);
     this.mainVariant = this.container.initialState as Variant;
@@ -78,6 +82,20 @@ export class SubvariantExplorerComponent
     this.colorMapService.colorMap$.subscribe((cMap) => {
       this.colorMap = cMap;
       this.mainvariantDrawer.redraw();
+    });
+
+    this.variantPerformanceService.serviceTimeColorMap.subscribe((colorMap) => {
+      if (colorMap !== undefined) {
+        this.serviceTimeColorMap = colorMap;
+        this.mainvariantDrawer.redraw();
+      }
+    });
+
+    this.variantPerformanceService.waitingTimeColorMap.subscribe((colorMap) => {
+      if (colorMap !== undefined) {
+        this.waitingTimeColorMap = colorMap;
+        this.mainvariantDrawer.redraw();
+      }
     });
   }
 
@@ -119,7 +137,31 @@ export class SubvariantExplorerComponent
     variant: Variant
   ) => {
     let color;
-    color = this.colorMap.get(element.asLeafNode().activity[0]);
+
+    if (element instanceof LeafNode) {
+      color = this.colorMap.get(element.asLeafNode().activity[0]);
+
+      // in this case cuts were not applicable anymore.
+      // The resulting chevron is displayed in gray
+      if (element.activity.length > 1) {
+        color = '#d3d3d3'; // lightgray
+      }
+
+      if (element.serviceTime?.mean !== undefined && this.isPerformanceMode) {
+        let stat = this.variantPerformanceService.serviceTimeStatistic;
+        color = this.serviceTimeColorMap(element.serviceTime[stat]);
+        if (color == undefined) {
+          color = '#d3d3d3'; // lightgrey
+        }
+      } else if (this.isPerformanceMode && variant.variant?.serviceTime) {
+        color = '#d3d3d3';
+      }
+    } else {
+      if (this.isPerformanceMode && element.waitingTime?.mean !== undefined) {
+        let stat = this.variantPerformanceService.waitingTimeStatistic;
+        color = this.waitingTimeColorMap(element.waitingTime[stat]);
+      }
+    }
 
     if (!color) {
       color = '#d3d3d3'; // lightgrey
@@ -129,11 +171,26 @@ export class SubvariantExplorerComponent
   };
 
   subvariantClickCallBack = (
-    self: VariantDrawerDirective,
+    drawer: VariantDrawerDirective,
     element: VariantElement,
     variant: VariantElement
   ) => {
     this.toggleExpanded();
+    if (this.isPerformanceMode) {
+      drawer.changeSelected(element);
+      if (element.serviceTime) {
+        this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
+          element.serviceTime,
+          true
+        );
+      }
+      if (element.waitingTime) {
+        this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
+          element.waitingTime,
+          false
+        );
+      }
+    }
   };
 
   toggleSortOrder(): void {

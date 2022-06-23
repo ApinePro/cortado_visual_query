@@ -104,7 +104,7 @@ export class SubVariantComponent implements AfterViewInit {
       .on('click', (_, d) =>
         this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
           d.performanceStats,
-          true
+          !d.isWaitingTimeNode
         )
       );
 
@@ -113,24 +113,30 @@ export class SubVariantComponent implements AfterViewInit {
       .data((d) => {
         const color = this.computeActivityColor(d);
         if (d.xStart == d.xEnd) {
-          return [[d.activity, d.xStart, d.yIndex, true, color]];
+          return [[d, d.xStart, true, color]];
         }
         return [
-          [d.activity, d.xStart, d.yIndex, false, color],
-          [d.activity, d.xEnd, d.yIndex, false, color],
+          [d, d.xStart, false, color],
+          [d, d.xEnd, false, color],
         ];
       })
       .enter()
       .append('circle')
       .attr('cx', (d) => xScale(d[1]))
-      .attr('cy', (d) => yScale(d[2]))
-      .attr('fill', (d) => d[4])
-      .attr('r', Constants.POINT_RADIUS);
+      .attr('cy', (d) => yScale(d[0].yIndex))
+      .attr('fill', (d) => d[3])
+      .attr('r', Constants.POINT_RADIUS)
+      .on('click', (_, d) =>
+        this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
+          d[0].performanceStats,
+          !d[0].isWaitingTimeNode
+        )
+      );
 
     circles
-      .filter((d) => d[3] === true)
+      .filter((d) => d[2] === true)
       .attr('data-bs-toggle', 'tooltip')
-      .attr('title', (d) => d[0]);
+      .attr('title', (d) => d[0].activity);
 
     const texts = g
       .append('text')

@@ -810,12 +810,12 @@ export class VariantExplorerComponent
   }
 
   variantClickCallBack = (
-    self: VariantDrawerDirective,
+    drawer: VariantDrawerDirective,
     element: VariantElement,
     variant: VariantElement
   ) => {
     if (this.performanceMode) {
-      self.changeSelected(element);
+      drawer.changeSelected(element);
       if (element.serviceTime) {
         this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
           element.serviceTime,
@@ -836,11 +836,11 @@ export class VariantExplorerComponent
         if (!variant.selectionStatusUnchangedFromLastSavedSelection()) {
           variant.saveCurrentSelectionToSelectionHistory();
         }
-        self.redraw();
+        drawer.redraw();
       }
     } else {
       variant.setExpanded(!variant.getExpanded());
-      self.redraw();
+      drawer.redraw();
     }
     console.log(variant);
     console.log(element);
