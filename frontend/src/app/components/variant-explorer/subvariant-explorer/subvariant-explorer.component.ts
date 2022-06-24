@@ -71,7 +71,10 @@ export class SubvariantExplorerComponent
 
   ngOnInit(): void {
     this.backendService
-      .getSubvariantsForVariant(this.mainVariant.variant)
+      .getSubvariantsForVariant(
+        this.mainVariant.variant,
+        this.sharedDataService.currentTimeGranularity
+      )
       .subscribe((r) => {
         this.subvariants = r;
         console.log(this.subvariants[0]);

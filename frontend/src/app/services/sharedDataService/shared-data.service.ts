@@ -14,6 +14,8 @@ export class SharedDataService {
 
   public computedTextLengthCache = new Map<string, number>();
   public performanceInfoAvailable = false;
+
+  public currentTimeGranularity: TimeUnit = TimeUnit.SEC;
   private _timeGranularity: Subject<TimeUnit> = new Subject();
   private _logGranularity: BehaviorSubject<TimeUnit> = new BehaviorSubject(
     TimeUnit.SEC
@@ -231,6 +233,7 @@ export class SharedDataService {
     return this._timeGranularity.asObservable();
   }
   public set timeGranularity(value: TimeUnit) {
+    this.currentTimeGranularity = value;
     this._timeGranularity.next(value);
   }
 

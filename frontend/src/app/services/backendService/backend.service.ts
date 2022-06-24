@@ -11,6 +11,7 @@ import {
 } from 'src/app/components/variant-explorer/model';
 import { Configuration } from 'src/app/components/settings/model';
 import * as objectHash from 'object-hash';
+import { TimeUnit } from 'src/app/objects/TimeUnit';
 
 @Injectable({
   providedIn: 'root',
@@ -273,9 +274,13 @@ export class BackendService {
     return this.httpClient.get(this.backendUrl + 'info');
   }
 
-  getSubvariantsForVariant(variant: any): Observable<any> {
+  getSubvariantsForVariant(
+    variant: any,
+    timeGranularity: TimeUnit
+  ): Observable<any> {
     let body = {
       variant: variant.serialize(),
+      timeGranularity: timeGranularity,
     };
     return this.httpClient.post(this.backendUrl + 'subvariants', body);
   }

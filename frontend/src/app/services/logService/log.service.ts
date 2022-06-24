@@ -39,6 +39,7 @@ export class LogService {
         // TODO changing loadedEventLog name triggers the changes in frontend
         this.sharedDataService.loadedEventLog = 'event-log';
         this.sharedDataService.performanceInfoAvailable = true;
+        this.sharedDataService.timeGranularity = parameters.timeGranularity;
       })
     );
   }

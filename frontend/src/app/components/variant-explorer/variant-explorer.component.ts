@@ -298,7 +298,6 @@ export class VariantExplorerComponent
 
     this.conformanceCheckingService.connect();
     this.subscribeForConformanceCheckingResults();
-    this.listenForLogGranularityChange();
   }
 
   @HostListener('window:keydown.control.q', ['$event'])
@@ -1056,12 +1055,6 @@ export class VariantExplorerComponent
         timeGranularity: granularity,
       })
       .subscribe();
-  }
-
-  listenForLogGranularityChange() {
-    this.sharedDataService.logGranularity$.subscribe((granularity) => {
-      this.selectedGranularity = granularity;
-    });
   }
 }
 

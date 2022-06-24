@@ -15,6 +15,7 @@ from cortado_core.utils.alignment_utils import trace_fits_process_tree
 from cortado_core.utils.cvariants import generate_variants, get_detailed_variants
 from cortado_core.utils.process_tree import CortadoProcessTree, convert_tree
 from cortado_core.performance.subvariant_performance import calculate_subvariant_performance
+from cortado_core.utils.timestamp_utils import TimeUnit
 from fastapi import (Depends, FastAPI, File, HTTPException, UploadFile,
                      WebSocket, WebSocketDisconnect)
 from fastapi.exceptions import RequestValidationError
@@ -180,21 +181,21 @@ def discover_process_model_from_variants(variants):
 
 class InputPerformanceSubvariant(BaseModel):
     variant: Any
+    time_granularity: TimeUnit = Field(alias='timeGranularity')
 
 
 @app.post("/subvariants")
 async def get_subvariants(data: InputPerformanceSubvariant):
     variant_cache_key = json.dumps(data.variant)
     variant_traces = load_event_log.variants_store[variant_cache_key]
-    # TODO time granularity
-    sub_variants = get_detailed_variants(variant_traces)
+    sub_variants = get_detailed_variants(variant_traces, data.time_granularity)
 
     result = []
 
     total_sub_traces = sum(len(sub_variants[v]) for v in sub_variants)
 
     for subvariant, traces in sub_variants.items():
-        subvariant_performance = calculate_subvariant_performance(subvariant, traces)
+        subvariant_performance = calculate_subvariant_performance(subvariant, traces, data.time_granularity)
         subvariant_response = {
             'variant': subvariant_performance,
             'count': len(traces),
