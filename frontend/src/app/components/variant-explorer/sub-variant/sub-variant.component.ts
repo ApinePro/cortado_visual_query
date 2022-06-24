@@ -75,6 +75,13 @@ export class SubVariantComponent implements AfterViewInit {
         this.draw();
       }
     });
+
+    this.variantPerformanceService.variantPerformanceMode.subscribe(
+      (isPerformanceModeActive: boolean) => {
+        this.isPerformanceMode = isPerformanceModeActive;
+        this.draw();
+      }
+    );
   }
 
   draw(textColor: string = 'whitesmoke'): void {
@@ -404,11 +411,6 @@ export class SubVariantComponent implements AfterViewInit {
 
   public toggleExpanded() {
     this.expanded = !this.expanded;
-    this.draw();
-  }
-
-  public performanceModeChanged(mode: boolean) {
-    this.isPerformanceMode = mode;
     this.draw();
   }
 }

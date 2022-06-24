@@ -97,6 +97,11 @@ export class SubvariantExplorerComponent
         this.mainvariantDrawer.redraw();
       }
     });
+
+    this.variantPerformanceService.variantPerformanceMode.subscribe(
+      (isPerformanceModeActive) =>
+        this.setPerformanceMode(isPerformanceModeActive, false)
+    );
   }
 
   // Implements responsive changes, such as triggering animations, if the layout and thus the components size changes
@@ -130,7 +135,6 @@ export class SubvariantExplorerComponent
   public setExpandedSubVariants(expanded) {
     this.subVariantComponents.forEach((svc) => svc.setExpanded(expanded));
   }
-
 
   subvariantClickCallBack = (
     drawer: VariantDrawerDirective,
@@ -330,11 +334,18 @@ export class SubvariantExplorerComponent
     return svgElement_copy;
   }
 
-  public setPerformanceMode(performanceMode: boolean) {
+  public setPerformanceMode(
+    performanceMode: boolean,
+    forwardUpdate: boolean = true
+  ) {
     this.isPerformanceMode = performanceMode;
-    this.subVariantComponents.forEach((s) =>
-      s.performanceModeChanged(performanceMode)
-    );
+
+    if (forwardUpdate) {
+      this.variantPerformanceService.variantPerformanceMode.next(
+        performanceMode
+      );
+    }
+
     if (performanceMode) {
       this.mainvariantDrawer.setExpanded(true);
       this.setExpandedSubVariants(true);
