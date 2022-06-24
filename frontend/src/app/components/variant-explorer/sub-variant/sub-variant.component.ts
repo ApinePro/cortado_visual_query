@@ -13,7 +13,6 @@ import { ActivateTooltipsService } from '../../../services/activateTooltipsServi
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { SubvariantVisualization } from './model';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
-import { map } from 'lodash';
 
 @Component({
   selector: 'app-sub-variant',
@@ -161,10 +160,7 @@ export class SubVariantComponent implements AfterViewInit {
 
     const maxYIndex = Math.max(...dataArray.map((d) => d.yIndex));
 
-    this.svg.attr(
-      'height',
-      (maxYIndex + 1) * Constants.LEAF_HEIGHT + 4 * Constants.POINT_RADIUS
-    );
+    this.svg.attr('height', yScale(maxYIndex + 1));
     this.svg.attr(
       'width',
       this._variant.subvariant.length * intervalWidth +
@@ -307,10 +303,10 @@ export class SubVariantComponent implements AfterViewInit {
       if (waitingTimeEvent.start.lifecycle == 'start') {
         xStart = startActivityData.xStart;
       } else {
-        xStart = startActivityData.xEnd;
+        xStart = startActivityData.xEnd + 0.2;
       }
       if (waitingTimeEvent.complete.lifecycle == 'start') {
-        xEnd = completeActivityData.xStart;
+        xEnd = completeActivityData.xStart - 0.2;
       } else {
         xEnd = completeActivityData.xEnd;
       }
@@ -330,8 +326,6 @@ export class SubVariantComponent implements AfterViewInit {
       m.isWaitingTimeNode = true;
 
       if (waitingTimeEvent.is_reference_event) {
-        m.xStart += 0.2;
-        m.xEnd -= 0.2;
         m.yIndex = 0;
       }
 
