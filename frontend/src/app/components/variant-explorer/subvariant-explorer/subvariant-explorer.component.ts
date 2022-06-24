@@ -126,6 +126,10 @@ export class SubvariantExplorerComponent
     defaultZIndex: string
   ): void {}
 
+  subvariantClickCallBack() {
+    this.mainvariantDrawer.changeSelected(null);
+  }
+
   public toggleExpanded() {
     if (this.isPerformanceMode) {
       return;
@@ -139,7 +143,7 @@ export class SubvariantExplorerComponent
     this.subVariantComponents.forEach((svc) => svc.setExpanded(expanded));
   }
 
-  subvariantClickCallBack = (
+  variantClickCallBack = (
     drawer: VariantDrawerDirective,
     element: VariantElement,
     variant: VariantElement

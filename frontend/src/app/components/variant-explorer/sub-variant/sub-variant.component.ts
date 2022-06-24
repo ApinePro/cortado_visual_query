@@ -37,6 +37,9 @@ export class SubVariantComponent implements AfterViewInit {
   @Input()
   private expanded = false;
 
+  @Input()
+  onClickCbFc: () => void;
+
   private isLoaded = false;
 
   svg: Selection<any, any, any, any>;
@@ -108,12 +111,16 @@ export class SubVariantComponent implements AfterViewInit {
       .attr('y1', (d) => yScale(d.yIndex))
       .attr('y2', (d) => yScale(d.yIndex))
       .attr('stroke-width', (_) => 2 * Constants.POINT_RADIUS)
-      .on('click', (_, d) =>
+      .on('click', (a, d) => {
+        if (this.onClickCbFc) {
+          this.onClickCbFc();
+        }
+
         this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
           d.performanceStats,
           !d.isWaitingTimeNode
-        )
-      );
+        );
+      });
 
     const circles = g
       .selectAll('circle')
