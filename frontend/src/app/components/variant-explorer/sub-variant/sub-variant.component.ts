@@ -329,6 +329,12 @@ export class SubVariantComponent implements AfterViewInit {
       m.yIndex = yIndex;
       m.isWaitingTimeNode = true;
 
+      if (waitingTimeEvent.is_reference_event) {
+        m.xStart += 0.2;
+        m.xEnd -= 0.2;
+        m.yIndex = 0;
+      }
+
       result.push(m);
     });
 
@@ -344,6 +350,23 @@ export class SubVariantComponent implements AfterViewInit {
 
       if (yData.get(wtEvent.yIndex).indexOf(wtEvent.xEnd) > -1) {
         result[i].xEnd -= 0.2;
+      }
+    }
+
+    // handle remaining overlapping waiting time events
+    for (let r1 of result) {
+      for (let [j, r2] of result.entries()) {
+        if (r1 === r2) {
+          continue;
+        }
+
+        if (r1.y != r2.y) {
+          continue;
+        }
+
+        if (r1.xEnd === r2.xStart) {
+          result[j].xStart += 0.2;
+        }
       }
     }
 
@@ -366,17 +389,6 @@ export class SubVariantComponent implements AfterViewInit {
     });
 
     return yData;
-  }
-
-  private findDuplicates(arr: any[]): any[] {
-    let sorted_arr = arr.slice().sort();
-    let results = [];
-    for (let i = 0; i < sorted_arr.length - 1; i++) {
-      if (sorted_arr[i + 1] == sorted_arr[i]) {
-        results.push(sorted_arr[i]);
-      }
-    }
-    return results;
   }
 
   private getNextFreeYIndex(usedYIndices: Set<number>): number {
