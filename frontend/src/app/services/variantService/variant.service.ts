@@ -11,7 +11,6 @@ import {
   setParent,
   deserialize,
 } from 'src/app/components/variant-explorer/model';
-import * as dummyBackendResponse from '../SharedDataService/dummy_backend_response.js';
 import { skip } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { mapVariants } from 'src/app/utils/util';
