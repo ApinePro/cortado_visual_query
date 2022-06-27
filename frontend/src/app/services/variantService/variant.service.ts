@@ -55,15 +55,14 @@ export class VariantService {
     return this._cachedChange.getValue();
   }
 
-  public nUserVariants : number = 0; 
+  public nUserVariants: number = 0;
 
   public deleteVariants(bids: number[]): void {
     const delVariants = this.variants.filter((v) => bids.includes(v.bid));
 
-    if(delVariants.every((v) => v.userDefined)){
+    if (delVariants.every((v) => v.userDefined)) {
       this.variants = this.variants.filter((v) => !bids.includes(v.bid));
     } else {
-
       const nDelVar = bids.length;
       const nDelTrace = delVariants.map((v) => v.count).reduce((a, b) => a + b);
 
@@ -90,9 +89,6 @@ export class VariantService {
         this.variants = this.variants.filter((v) => !bids.includes(v.bid));
         this.cachedChange = true;
       });
-
-      
-      
     }
 
     // Count deleted Activites, Recompute if an Activity is a Start or End Activity.
@@ -191,9 +187,11 @@ export class VariantService {
 
       variants.push(...new_variants);
 
-      const userDefinedVariants = this.variants.filter((v) => v.userDefined)
-      userDefinedVariants.forEach((v) => v.variant.deleteActivity(activityName)); 
-      variants.push(...userDefinedVariants)
+      const userDefinedVariants = this.variants.filter((v) => v.userDefined);
+      userDefinedVariants.forEach((v) =>
+        v.variant.deleteActivity(activityName)
+      );
+      variants.push(...userDefinedVariants);
 
       this.cachedChange = true;
 
@@ -283,11 +281,13 @@ export class VariantService {
       newActivityName
     );
 
-    const user_defined_variants = this.variants.filter((v) => v.userDefined)
-    user_defined_variants.forEach((v) => v.variant.renameActivity(activityName, newActivityName))
+    const user_defined_variants = this.variants.filter((v) => v.userDefined);
+    user_defined_variants.forEach((v) =>
+      v.variant.renameActivity(activityName, newActivityName)
+    );
     const variants = this.apply_update_map(updateMap);
-    variants.push(...user_defined_variants); 
-    this.variants = variants
+    variants.push(...user_defined_variants);
+    this.variants = variants;
 
     let rename_list = [];
     let merge_list = [];

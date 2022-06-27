@@ -259,8 +259,8 @@ export class VariantComponent implements AfterViewInit {
       newVariant.deviation = undefined;
       newVariant.id = objectHash(newVariant);
 
-      this.variantService.nUserVariants += 1; 
-      newVariant.bid = -this.variantService.nUserVariants 
+      this.variantService.nUserVariants += 1;
+      newVariant.bid = -this.variantService.nUserVariants;
 
       const duplicate = currentVariants.map((v) => v.id === newVariant.id);
 
