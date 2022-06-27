@@ -8,6 +8,7 @@ interactive-process-mining-angular-app/node_modules/
 interactive-process-mining-angular-app/cortado-win32-x64/
 interactive-process-mining-angular-app/cortado-linux-x64/
 
+backend/tmp
 
 backend/build
 backend/dist
