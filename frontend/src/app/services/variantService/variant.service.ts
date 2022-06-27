@@ -83,9 +83,7 @@ export class VariantService {
       this.logService.computeLogStats(this.variants);
 
       this.variants = this.variants.filter((v) => !bids.includes(v.bid));
-
     });
-
 
     this.cachedChange = true;
     // Count deleted Activites, Recompute if an Activity is a Start or End Activity.
@@ -161,7 +159,6 @@ export class VariantService {
       merge_list,
       delete_list.map((v) => v.bid)
     ).subscribe((res) => {
-
       this.logService.startActivitiesInEventLog = new Set(
         res['startActivities']
       );
@@ -185,11 +182,9 @@ export class VariantService {
 
       variants.push(...new_variants);
 
-
-      this.cachedChange = true; 
+      this.cachedChange = true;
 
       this.logService.computeLogStats(variants);
-
 
       this.variants = variants;
     });
@@ -300,7 +295,7 @@ export class VariantService {
     );
 
     this.logService.update_log_stats(null, null, null, updateMap.size);
-    this.cachedChange = true; 
+    this.cachedChange = true;
   }
 
   propagateActivityNameChange(
@@ -348,29 +343,30 @@ export class VariantService {
   }
 
   revertChangeInBackend() {
-    this.httpClient.post(
-      this.backendUrl + 'modifylog/' + 'revertLastChange',
-      {}
-    ).pipe(mapVariants()).subscribe(res => {
+    this.httpClient
+      .post(this.backendUrl + 'modifylog/' + 'revertLastChange', {})
+      .pipe(mapVariants())
+      .subscribe((res) => {
+        this.logService.activitiesInEventLog = res['activities'];
+        this.logService.startActivitiesInEventLog = new Set(
+          res['startActivities']
+        );
+        this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
 
-      this.logService.activitiesInEventLog = res['activities'];
-      this.logService.startActivitiesInEventLog = new Set(res['startActivities']);
-      this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
+        this.logService.performanceInfoAvailable = true;
+        this.logService.timeGranularity = res['timeGranularity'];
+        this.logService.logGranularity = res['timeGranularity'];
 
-      this.logService.performanceInfoAvailable = true;
-      this.logService.timeGranularity = res['timeGranularity'];
-      this.logService.logGranularity = res['timeGranularity'];
+        this.colorMapService.createColorMap(
+          Object.keys(this.logService.activitiesInEventLog)
+        );
 
-      this.colorMapService.createColorMap(Object.keys(this.logService.activitiesInEventLog))
+        this.cachedChange = false;
 
-      this.cachedChange = false;
-      
-
-      const variants = this.addVariantInformation(res['variants']);
-      this.variants = variants;
-      this.logService.computeLogStats(variants);
-
-    });
+        const variants = this.addVariantInformation(res['variants']);
+        this.variants = variants;
+        this.logService.computeLogStats(variants);
+      });
   }
 
   public addVariantInformation(variants: Variant[]): Variant[] {

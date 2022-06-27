@@ -33,7 +33,7 @@ export class ActivityOverviewComponent
     private logService: LogService,
     private variantService: VariantService,
     private processTreeService: ProcessTreeService,
-    private ref: ChangeDetectorRef, 
+    private ref: ChangeDetectorRef,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
     elRef: ElementRef,
@@ -58,8 +58,8 @@ export class ActivityOverviewComponent
 
   dropZoneConfig: DropzoneConfig;
 
-  resetAvailable : boolean = false 
-  focusOutTimeout; 
+  resetAvailable: boolean = false;
+  focusOutTimeout;
 
   ngOnInit(): void {
     this.dropZoneConfig = new DropzoneConfig(
@@ -81,8 +81,8 @@ export class ActivityOverviewComponent
     });
 
     this.variantService.cachedChange$.subscribe((change) => {
-      this.resetAvailable = change; 
-    })
+      this.resetAvailable = change;
+    });
   }
 
   ngAfterViewInit(): void {
@@ -111,7 +111,7 @@ export class ActivityOverviewComponent
       if (this.activityColorMap) {
         this.resetActivityFields();
       }
-    })
+    });
   }
 
   resetActivityFields() {
@@ -163,8 +163,7 @@ export class ActivityOverviewComponent
       this.ascending = !this.ascending;
     }
   }
-  deleteActivity(e : Event, activity: ActivityField) {
-
+  deleteActivity(e: Event, activity: ActivityField) {
     this.editingActivityName = false;
     this.variantService.deleteActivity(activity.activityName);
     this.resetActivityFields();
@@ -180,18 +179,18 @@ export class ActivityOverviewComponent
     }
   }
 
-  focusOut(){
+  focusOut() {
     this.focusOutTimeout = setTimeout(() => {
       this.editingActivityName = false;
-      this.ref.markForCheck(); 
-    }, 150) 
+      this.ref.markForCheck();
+    }, 150);
   }
 
-  startEditing(){
-    clearTimeout(this.focusOutTimeout)
+  startEditing() {
+    clearTimeout(this.focusOutTimeout);
     this.editingActivityName = true;
   }
-  
+
   resetActivityColors(): void {
     this.colorMapService.createColorMap(
       Object.keys(this.logService.activitiesInEventLog)
@@ -211,21 +210,18 @@ export class ActivityOverviewComponent
     oldActivityName: string,
     newActivityName: string
   ): void {
+    this.editingActivityName = false;
 
-    this.editingActivityName = false; 
-
-    if(oldActivityName !== newActivityName){
+    if (oldActivityName !== newActivityName) {
       this.variantService.renameActivity(oldActivityName, newActivityName);
-          // Changing activity field table
+      // Changing activity field table
       this.resetActivityFields();
     }
-    
   }
 
-
-  revertLastChange(e : Event){
+  revertLastChange(e: Event) {
     e.stopPropagation();
-    this.resetAvailable = false; 
+    this.resetAvailable = false;
     this.variantService.revertChangeInBackend();
   }
 }
