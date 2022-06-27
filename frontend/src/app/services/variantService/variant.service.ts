@@ -55,37 +55,46 @@ export class VariantService {
     return this._cachedChange.getValue();
   }
 
+  public nUserVariants : number = 0; 
+
   public deleteVariants(bids: number[]): void {
     const delVariants = this.variants.filter((v) => bids.includes(v.bid));
 
-    const nDelVar = bids.length;
-    const nDelTrace = delVariants.map((v) => v.count).reduce((a, b) => a + b);
+    if(delVariants.every((v) => v.userDefined)){
+      this.variants = this.variants.filter((v) => !bids.includes(v.bid));
+    } else {
 
-    const fittingVariants = delVariants.filter(
-      (v) => v.deviation !== undefined && !v.deviation
-    );
-    let nDelFittingVar = 0;
-    let nDelFittingTraces = 0;
+      const nDelVar = bids.length;
+      const nDelTrace = delVariants.map((v) => v.count).reduce((a, b) => a + b);
 
-    if (fittingVariants.length > 0) {
-      nDelFittingVar = fittingVariants.length;
-      nDelFittingTraces = fittingVariants
-        .map((v) => v.count)
-        .reduce((a, b) => a + b);
+      const fittingVariants = delVariants.filter(
+        (v) => v.deviation !== undefined && !v.deviation
+      );
+      let nDelFittingVar = 0;
+      let nDelFittingTraces = 0;
+
+      if (fittingVariants.length > 0) {
+        nDelFittingVar = fittingVariants.length;
+        nDelFittingTraces = fittingVariants
+          .map((v) => v.count)
+          .reduce((a, b) => a + b);
+      }
+
+      this.propagateVariantDeletions(bids).subscribe((res) => {
+        this.logService.activitiesInEventLog = res['activities'];
+        this.logService.startActivitiesInEventLog = new Set(
+          res['startActivities']
+        );
+        this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
+        this.logService.computeLogStats(this.variants);
+        this.variants = this.variants.filter((v) => !bids.includes(v.bid));
+        this.cachedChange = true;
+      });
+
+      
+      
     }
 
-    this.propagateVariantDeletions(bids).subscribe((res) => {
-      this.logService.activitiesInEventLog = res['activities'];
-      this.logService.startActivitiesInEventLog = new Set(
-        res['startActivities']
-      );
-      this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
-      this.logService.computeLogStats(this.variants);
-
-      this.variants = this.variants.filter((v) => !bids.includes(v.bid));
-    });
-
-    this.cachedChange = true;
     // Count deleted Activites, Recompute if an Activity is a Start or End Activity.
   }
 
@@ -95,7 +104,7 @@ export class VariantService {
     const changedStrings: Set<string> = new Set<string>();
     const delete_list = [];
 
-    for (let variant of this.variants) {
+    for (let variant of this.variants.filter((v) => !v.userDefined)) {
       let tmp;
 
       if (variant.variant.getActivities().has(activityName)) {
@@ -181,6 +190,7 @@ export class VariantService {
       const new_variants = this.addVariantInformation(res['new_variants']);
 
       variants.push(...new_variants);
+      variants.push(...this.variants.filter((v) => v.userDefined)); 
 
       this.cachedChange = true;
 
@@ -239,7 +249,7 @@ export class VariantService {
     const updateMap: Map<string, Variant[]> = new Map<string, Variant[]>();
     const changedStrings: Set<string> = new Set<string>();
 
-    for (let variant of this.variants) {
+    for (let variant of this.variants.filter((v) => !v.userDefined)) {
       let change: boolean = false;
 
       if (variant.variant.getActivities().has(activityName)) {
@@ -270,7 +280,10 @@ export class VariantService {
       newActivityName
     );
 
-    this.variants = this.apply_update_map(updateMap);
+    const user_defined_variants = this.variants.filter((v) => v.userDefined)
+    const variants = this.apply_update_map(updateMap);
+    variants.push(...user_defined_variants); 
+    this.variants = variants
 
     let rename_list = [];
     let merge_list = [];

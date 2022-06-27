@@ -150,7 +150,7 @@ export enum InfixType {
 
 export class Variant {
   id: string;
-  bid: number;
+  bid: number; //Positive Numbers indicate Log Variants, Negative Number User Variants 
   number: number;
   count: number;
   length: number;

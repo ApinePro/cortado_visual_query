@@ -716,6 +716,9 @@ export class VariantEditorComponent
     newVariant.deviation = undefined;
     newVariant.id = objectHash(newVariant);
 
+    this.variantService.nUserVariants += 1; 
+    newVariant.bid = -this.variantService.nUserVariants 
+
     const duplicate = currentVariants.map((v) => v.id === newVariant.id);
 
     if (!duplicate.includes(true)) {
