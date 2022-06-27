@@ -190,7 +190,10 @@ export class VariantService {
       const new_variants = this.addVariantInformation(res['new_variants']);
 
       variants.push(...new_variants);
-      variants.push(...this.variants.filter((v) => v.userDefined)); 
+
+      const userDefinedVariants = this.variants.filter((v) => v.userDefined)
+      userDefinedVariants.forEach((v) => v.variant.deleteActivity(activityName)); 
+      variants.push(...userDefinedVariants)
 
       this.cachedChange = true;
 
@@ -281,6 +284,7 @@ export class VariantService {
     );
 
     const user_defined_variants = this.variants.filter((v) => v.userDefined)
+    user_defined_variants.forEach((v) => v.variant.renameActivity(activityName, newActivityName))
     const variants = this.apply_update_map(updateMap);
     variants.push(...user_defined_variants); 
     this.variants = variants
