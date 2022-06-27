@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { skip } from 'rxjs/operators';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
-import * as dummyBackendResponse from 'src/app/services/SharedDataService/dummy_backend_response.js';
 import { Variant } from 'src/app/components/variant-explorer/model';
 
 @Injectable({
@@ -90,9 +89,7 @@ export class LogService {
     this._loadedEventLog.next(name);
   }
 
-  private _activitiesInEventLog = new BehaviorSubject<Set<string>>(
-    dummyBackendResponse.activitiesInLog
-  );
+  private _activitiesInEventLog = new BehaviorSubject<Set<string>>(new Set());
 
   get activitiesInEventLog$(): Observable<any> {
     return this._activitiesInEventLog.asObservable();
@@ -157,7 +154,7 @@ export class LogService {
   }
 
   private _startActivitiesInEventLog = new BehaviorSubject<Set<string>>(
-    dummyBackendResponse.startActivities
+    new Set()
   );
 
   get startActivitiesInEventLog$(): Observable<Set<string>> {
@@ -173,7 +170,7 @@ export class LogService {
   }
 
   private _endActivitiesInEventLog = new BehaviorSubject<Set<string>>(
-    dummyBackendResponse.endActivities
+    new Set()
   );
 
   get endActivitiesInEventLog$(): Observable<Set<string>> {
