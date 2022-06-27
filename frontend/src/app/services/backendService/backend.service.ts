@@ -70,13 +70,14 @@ export class BackendService {
 
     const variants = this.variantService.addVariantInformation(res['variants']);
     this.variantService.variants = variants;
+    this.variantService.cachedChange = false; 
+
     this.logService.computeLogStats(variants);
-
     this.logService.loadedEventLog = filePath;
-
     this.logService.performanceInfoAvailable = true;
     this.logService.timeGranularity = res['timeGranularity'];
     this.logService.logGranularity = res['timeGranularity'];
+
   }
 
   loadProcessTreeFromFilePath(filePath: string): void {

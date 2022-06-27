@@ -15,12 +15,12 @@ def create_start_app_handler(
 ) -> Callable:
     async def start_app() -> None:
         logger.info("---------- Handling startup ----------")
-        cache.pcache = pickle.load(open("./resources/pcache.p", "rb"))
-        load_event_log.variants_store = pickle.load(
-            open("./resources/variants_store.p", "rb"))
-        load_event_log.variants = pickle.load(open("./resources/variants.p", "rb"))
-        load_event_log.activites = pickle.load(open("./resources/activities.p", "rb"))
-        load_event_log.log_info = pickle.load(open("./resources/logInfo.p", "rb"))
+        cache.pcache = {}
+        cache.variants = pickle.load(open("./resources/variants.p", "rb"))
+        cache.parameters = pickle.load(open("./resources/parameters.p", "rb"))
+        
+        print('loaded parameters', cache.parameters)
+        
         cache.event_log = pickle.load(
             open("./resources/sample_log.p", "rb"))
     return start_app

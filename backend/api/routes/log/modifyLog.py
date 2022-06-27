@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter
 from pydantic import BaseModel
-from endpoints.transform_event_log import cache_current_data, remove_activities, rename_activities, remove_variant
+from endpoints.transform_event_log import cache_current_data, remove_activities, rename_activities, remove_variant, reset_last_transaction
 
 router = APIRouter(
     tags=["Log"],
@@ -51,5 +51,13 @@ async def removeVariants(d : removeVariants):
     cache_current_data()
     
     res = remove_variant(d.bids)
+
+    return res
+
+
+@router.post("/revertLastChange")
+async def removeVariants():  
+    
+    res = reset_last_transaction()
 
     return res 

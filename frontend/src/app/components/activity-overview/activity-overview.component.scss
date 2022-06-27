@@ -43,6 +43,16 @@ thead th {
   border-color: var(--line-color)!important;
 }
 
+.reset-button{
+  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+  color: var(--text-secondary);
+  border: none;
+}
+
+.reset-button:hover{
+  color: whitesmoke;
+}
+
 /*th {
   font-weight: normal;
 }*/

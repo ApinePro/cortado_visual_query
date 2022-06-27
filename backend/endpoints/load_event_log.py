@@ -14,52 +14,57 @@ from pm4py.objects.log.util.interval_lifecycle import to_interval
 from pm4py.util.xes_constants import (DEFAULT_START_TIMESTAMP_KEY,
                                       DEFAULT_TRANSITION_KEY)
 
-variants_store = {}
 
+import cache.cache as cache
 
 def calculate_event_log_properties(event_log: EventLog, time_granularity: TimeUnit = None, use_mp: bool = False):
-    global lifecycle_available 
-    global cur_time_granularity
-    global variants
-    global nBids
-    global activites 
-
+    
     if time_granularity is None:
         time_granularity = get_time_granularity(event_log)
-        
-    cur_time_granularity = time_granularity
     
-    lifecycle_available = False
+    cache.parameters['cur_time_granularity'] = time_granularity
+    
+    cache.parameters['log_info'] = {'extensions' : event_log._get_extensions(),
+                                    #'omni_present' : event_log._get_omni(),
+                                    #'attributes' : event_log._get_attributes(),
+                                    'classifiers' :  event_log._get_classifiers(),
+                                    'properties' : event_log._get_properties(), 
+                                    }
+    
+    cache.parameters['lifecycle_available'] = False
+    
     # TODO: maybe implement more robust check if lifecycle/interval information is available
     if DEFAULT_TRANSITION_KEY not in event_log[0][0] \
             and DEFAULT_START_TIMESTAMP_KEY not in event_log[0][0]:
         event_log = to_interval(event_log)
     else:
-        lifecycle_available = True
+        cache.parameters['lifecycle_available'] = True
 
-    res_variants, variants = get_c_variants(
+    res_variants, cache.variants = get_c_variants(
         event_log, use_mp, time_granularity)    
     
-    assign_variants_performances(variants)
+    assign_variants_performances(cache.variants)
 
-    variants = {bid : (variant, traces) for bid, (variant, traces) in enumerate(variants.items())}
+    cache.variants = {bid : (variant, traces) for bid, (variant, traces) in enumerate(cache.variants.items())}
     
-    start_activities, end_activities, nActivities = compute_log_stats(variants)
+    start_activities, end_activities, nActivities = compute_log_stats(cache.variants)
     
-    activites = set(nActivities.keys())
+    cache.parameters['activites'] = set(nActivities.keys())
     
     res = {
         "startActivities": start_activities,
         "endActivities": end_activities,
         "activities": nActivities,
         "variants": res_variants,
-        "performanceInfoAvailable": lifecycle_available,
+        "performanceInfoAvailable": cache.parameters['lifecycle_available'],
         "timeGranularity": time_granularity
     }
     
     
+    cache.parameters['nBids'] = len(cache.variants.keys())
     
-    nBids = len(variants.keys())
+    #pickle.dump(cache.variants,  open( "./resources/variants.p", "wb" ))
+    #pickle.dump(cache.parameters,  open( "./resources/parameters.p", "wb" ))
     
     return res
 

@@ -11,11 +11,39 @@ from pm4py.util.xes_constants import DEFAULT_NAME_KEY
 from endpoints.load_event_log import create_variant_object, compute_log_stats
 from endpoints import load_event_log
 
+import cache.cache as cache
+
 def cache_current_data(): 
-        
-    pickle.dump(load_event_log.activites, open( "tmp/activities_cache.p", "wb" ))
-    pickle.dump(load_event_log.variants,  open( "tmp/variants_cache.p", "wb" ))
+    pickle.dump(cache.parameters, open( "tmp/parameters_cache.p", "wb" ))
+    pickle.dump(cache.variants,  open( "tmp/variants_cache.p", "wb" ))
     
+def reset_last_transaction(): 
+    
+    cache.variants = pickle.load(open("tmp/variants_cache.p", "rb"))
+    cache.parameters = pickle.load(open("tmp/parameters_cache.p", "rb"))
+    
+    total_traces = sum([len(ts) for (_, ts) in cache.variants.values()])
+    res_variants = []
+    
+    for bid, (v, ts) in cache.variants.items():
+
+        variant = create_variant_object(cache.parameters['cur_time_granularity'], total_traces, bid, v, ts)
+        res_variants.append(variant)
+        
+    res_variants = sorted(res_variants, key=lambda variant: variant['count'], reverse=True)
+    
+    start_activities, end_activities, nActivities = compute_log_stats(cache.variants)
+    
+    res = {
+        "startActivities": start_activities,
+        "endActivities": end_activities,
+        "activities": nActivities,
+        "variants": res_variants,
+        "performanceInfoAvailable": cache.parameters['lifecycle_available'],
+        "timeGranularity": cache.parameters['cur_time_granularity']
+    }    
+        
+    return res 
 
 def rename_merge_activities_in_graph(graph : ConcurrencyGroup, oldActivityName, newActivityName): 
     
@@ -131,15 +159,15 @@ def rename_activities_in_variant_group(group, oldActivityName, newActivityName):
     
 def rename_activities(mergeList, renameList, activityName, newActivityName): 
     
-    if load_event_log.activites.discard(activityName):
-        load_event_log.activites.add(newActivityName)  
+    if cache.parameters['activites'].discard(activityName):
+        cache.parameters['activites'].add(newActivityName)  
     
     new_variant_dict = {}
     
     
     for bid in renameList: 
         
-        (variant, traces)  = load_event_log.variants[bid]
+        (variant, traces)  = cache.variants[bid]
 
         renamed_variant = rename_activities_in_variant_group(variant, activityName, newActivityName)
         renamed_variant.graph = rename_merge_activities_in_graph(variant.graph, activityName, newActivityName) 
@@ -151,7 +179,7 @@ def rename_activities(mergeList, renameList, activityName, newActivityName):
         
     for ls in mergeList: 
         
-        (variant, _)  = load_event_log.variants[ls[0]]
+        (variant, _)  = cache.variants[ls[0]]
         renamed_variant = rename_activities_in_variant_group(variant, activityName, newActivityName)
         renamed_variant.graph = rename_merge_activities_in_graph(variant.graph, activityName, newActivityName) 
         
@@ -159,7 +187,7 @@ def rename_activities(mergeList, renameList, activityName, newActivityName):
         
         for bid in ls: 
             
-            (_, traces)  = load_event_log.variants[bid]
+            (_, traces)  = cache.variants[bid]
             
             renamed_traces += [rename_activities_in_trace(trace, activityName, newActivityName) for trace in traces]   
         
@@ -168,12 +196,12 @@ def rename_activities(mergeList, renameList, activityName, newActivityName):
             
     flat_list = lambda lss : [x for ls in lss for x in ls]
     
-    no_update = set(load_event_log.variants.keys()).difference(set(flat_list(mergeList) + renameList))
+    no_update = set(cache.variants.keys()).difference(set(flat_list(mergeList) + renameList))
 
     print('No Update', no_update)
 
     for bid in no_update: 
-        new_variant_dict[bid] = load_event_log.variants[bid]
+        new_variant_dict[bid] = cache.variants[bid]
         
     for bid, (variant, traces) in new_variant_dict.items(): 
         print(variant)
@@ -255,7 +283,7 @@ def create_new_graph(trace):
         activity_map[new_name] = activity
         c[activity] += 1
                         
-    graph = cgroups_graph(unique_trace, load_event_log.cur_time_granularity)                 
+    graph = cgroups_graph(unique_trace, cache.parameters['cur_time_granularity'])                 
     id_name_map = { name : id for id, name in enumerate(activity_map.keys())}         
     graph.restore_names(activity_map, id_name_map)
                 
@@ -318,7 +346,7 @@ def remove_activities(activityName, fallthrough, delete_member_list, merge_list,
     
     for bid in delete_member_list: 
         
-        (variant, traces) = load_event_log.variants[bid]
+        (variant, traces) = cache.variants[bid]
         
         new_variant = remove_activitiy_from_group(variant, activityName)
         log = [apply_filter_copy(trace, activityName) for trace in traces]
@@ -327,14 +355,14 @@ def remove_activities(activityName, fallthrough, delete_member_list, merge_list,
         
     for ls in merge_list: 
         
-        (variant, _)  = load_event_log.variants[ls[0]]
+        (variant, _)  = cache.variants[ls[0]]
         new_variant = remove_activitiy_from_group(variant, activityName)
         
         new_traces = []
         
         for bid in ls: 
             
-            (_, traces)  = load_event_log.variants[bid]
+            (_, traces)  = cache.variants[bid]
             new_traces += [apply_filter_copy(trace, activityName) for trace in traces]
         
         new_variant.graph =  create_new_graph(new_traces[0])
@@ -344,10 +372,10 @@ def remove_activities(activityName, fallthrough, delete_member_list, merge_list,
 
     flat_list = lambda lss : [x for ls in lss for x in ls]
     
-    no_update = set(load_event_log.variants.keys()).difference(set(flat_list(merge_list) + fallthrough + delete_member_list + delete_variant_list))
+    no_update = set(cache.variants.keys()).difference(set(flat_list(merge_list) + fallthrough + delete_member_list + delete_variant_list))
 
     for bid in no_update: 
-        new_variants[bid] = load_event_log.variants[bid]
+        new_variants[bid] = cache.variants[bid]
     
     mergeVariants = []
     newVariants = []
@@ -358,12 +386,12 @@ def remove_activities(activityName, fallthrough, delete_member_list, merge_list,
       
       cLog = []
       for bid in fallthrough: 
-        (_, traces) = load_event_log.variants[bid]
+        (_, traces) = cache.variants[bid]
         cLog.extend([apply_filter_copy(trace, activityName) for trace in traces]) 
       
       log = EventLog(cLog)
       
-      c_variants = get_concurrency_variants(log, False, load_event_log.cur_time_granularity)
+      c_variants = get_concurrency_variants(log, False, cache.parameters['cur_time_granularity'])
         
       for c_variant, c_traces in c_variants.items(): 
         
@@ -379,14 +407,14 @@ def remove_activities(activityName, fallthrough, delete_member_list, merge_list,
             new_variants[n_bid] = (n_variant, n_traces + c_traces)
 
           else: 
-            new_variants[load_event_log.nBids + 1] = (c_variant, c_traces)
-            newVariants.append((load_event_log.nBids + 1, c_variant, c_traces))
-            load_event_log.nBids = load_event_log.nBids  + 1
+            new_variants[cache.parameters['nBids'] + 1] = (c_variant, c_traces)
+            newVariants.append((cache.parameters['nBids'] + 1, c_variant, c_traces))
+            cache.parameters['nBids'] = cache.parameters['nBids']  + 1
     
     new_res_variants = []
     
     for bid, v, ts in newVariants: 
-      variant = create_variant_object(load_event_log.cur_time_granularity, 1, bid, v, ts)
+      variant = create_variant_object(cache.parameters['cur_time_granularity'], 1, bid, v, ts)
       new_res_variants.append(variant)
     
     update_res_variants = {}
@@ -394,7 +422,7 @@ def remove_activities(activityName, fallthrough, delete_member_list, merge_list,
     for bid, v, ts in mergeVariants: 
     
         sub_variants = get_detailed_variants(
-        ts, time_granularity=load_event_log.cur_time_granularity)
+        ts, time_granularity = cache.parameters['cur_time_granularity'])
             
         total_sub_traces = sum(len(sub_variants[v]) for v in sub_variants)
 
@@ -421,15 +449,15 @@ def remove_activities(activityName, fallthrough, delete_member_list, merge_list,
     }
     
     
-    load_event_log.variants = new_variants
+    cache.variants = new_variants
     
     return res
     
 def remove_variant(bids): 
 
-    load_event_log.variants = {bid : (v, t) for bid, (v, t) in load_event_log.variants.items() if bid not in bids}
+    cache.variants = {bid : (v, t) for bid, (v, t) in cache.variants.items() if bid not in bids}
 
-    start_activities, end_activities, nActivities = compute_log_stats(load_event_log.variants)
+    start_activities, end_activities, nActivities = compute_log_stats(cache.variants)
     
     res = {
       "startActivities": list(start_activities),

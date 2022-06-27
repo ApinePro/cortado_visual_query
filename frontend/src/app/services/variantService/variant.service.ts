@@ -14,8 +14,7 @@ import {
 import * as dummyBackendResponse from '../SharedDataService/dummy_backend_response.js';
 import { skip } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
-import { transformVariants } from 'src/app/utils/util';
-
+import { mapVariants } from 'src/app/utils/util';
 @Injectable({
   providedIn: 'root',
 })
@@ -42,6 +41,20 @@ export class VariantService {
     return this._variants.getValue();
   }
 
+  private _cachedChange = new BehaviorSubject<boolean>(false);
+
+  get cachedChange$(): Observable<boolean> {
+    return this._cachedChange.asObservable();
+  }
+
+  set cachedChange(change: boolean) {
+    this._cachedChange.next(change);
+  }
+
+  get cachedChange(): boolean {
+    return this._cachedChange.getValue();
+  }
+
   public deleteVariants(bids: number[]): void {
     const delVariants = this.variants.filter((v) => bids.includes(v.bid));
 
@@ -61,18 +74,20 @@ export class VariantService {
         .reduce((a, b) => a + b);
     }
 
-    this.variants = this.variants.filter((v) => !bids.includes(v.bid));
-
     this.propagateVariantDeletions(bids).subscribe((res) => {
-      console.log(res);
       this.logService.activitiesInEventLog = res['activities'];
       this.logService.startActivitiesInEventLog = new Set(
         res['startActivities']
       );
       this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
       this.logService.computeLogStats(this.variants);
+
+      this.variants = this.variants.filter((v) => !bids.includes(v.bid));
+
     });
 
+
+    this.cachedChange = true;
     // Count deleted Activites, Recompute if an Activity is a Start or End Activity.
   }
 
@@ -146,12 +161,6 @@ export class VariantService {
       merge_list,
       delete_list.map((v) => v.bid)
     ).subscribe((res) => {
-      console.log(
-        'Got result',
-        res,
-        res['startActivities'],
-        res['endActivities']
-      );
 
       this.logService.startActivitiesInEventLog = new Set(
         res['startActivities']
@@ -176,10 +185,13 @@ export class VariantService {
 
       variants.push(...new_variants);
 
-      this.logService.computeLogStats(variants);
-      this.variants = variants;
 
-      console.log('Variants after', this.variants.length);
+      this.cachedChange = true; 
+
+      this.logService.computeLogStats(variants);
+
+
+      this.variants = variants;
     });
   }
 
@@ -279,6 +291,7 @@ export class VariantService {
         );
       }
     }
+
     this.propagateActivityNameChange(
       merge_list,
       rename_list,
@@ -287,6 +300,7 @@ export class VariantService {
     );
 
     this.logService.update_log_stats(null, null, null, updateMap.size);
+    this.cachedChange = true; 
   }
 
   propagateActivityNameChange(
@@ -337,7 +351,26 @@ export class VariantService {
     this.httpClient.post(
       this.backendUrl + 'modifylog/' + 'revertLastChange',
       {}
-    );
+    ).pipe(mapVariants()).subscribe(res => {
+
+      this.logService.activitiesInEventLog = res['activities'];
+      this.logService.startActivitiesInEventLog = new Set(res['startActivities']);
+      this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
+
+      this.logService.performanceInfoAvailable = true;
+      this.logService.timeGranularity = res['timeGranularity'];
+      this.logService.logGranularity = res['timeGranularity'];
+
+      this.colorMapService.createColorMap(Object.keys(this.logService.activitiesInEventLog))
+
+      this.cachedChange = false;
+      
+
+      const variants = this.addVariantInformation(res['variants']);
+      this.variants = variants;
+      this.logService.computeLogStats(variants);
+
+    });
   }
 
   public addVariantInformation(variants: Variant[]): Variant[] {

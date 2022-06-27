@@ -59,7 +59,6 @@ from backend_utilities.timeout.helper_functions import (TimeoutException,
                                                         execute_with_timeout)
 from backend_utilities.variant_trace_conversion import variant_to_trace
 from core.events import create_start_app_handler, create_stop_app_handler
-from endpoints import load_event_log
 from endpoints.add_variants_to_process_model import \
     add_variants_to_process_model
 from endpoints.alignments import InfixType
@@ -288,35 +287,6 @@ async def get_variants_from_event_log():
         res['variants'], key=lambda variant: variant['count'], reverse=True)
     return res
 
-class ChangeActivityName(BaseModel):
-    activityName: str
-    newActivityName : str
-
-@app.post("/changeActivityName")
-async def change_activity_name_in_log(d : ChangeActivityName):  
-    
-    cache_current_data()
-    
-    rename_activities(d.activityName, d.newActivityName)
-
-    # TODO Return an Error if needed
-    return True
-
-class removeActivityName(BaseModel):
-    activityName: str
-    
-@app.post("/deleteActivity")
-async def remove_activity_name_in_log(d : removeActivityName):  
-    
-    
-    print('Delete Request', d)
-    
-    cache_current_data()
-    
-    res = remove_activities(d.activityName)
-
-    return res
-
 class ConvertPtToX(BaseModel):
     pt: dict
 
@@ -355,8 +325,8 @@ class ExportLogXes(BaseModel):
 @app.post("/exportLogVariants")
 async def download_xes(d: ExportLogXes):
     
-    traces = list(itertools.chain(*[ts for bid, (_ , ts) in load_event_log.variants.items() if bid in d.bids]))   
-    log = EventLog(traces)
+    traces = list(itertools.chain(*[ts for bid, (_ , ts) in cache.variants.items() if bid in d.bids]))   
+    log = EventLog(traces, **cache.parameters['log_info'])
     
     # TODO Perserve the Loaded Log Attributes via Variables
     return Response(content=generate_xes_xml(log), media_type="application/xml")
@@ -427,7 +397,7 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
     tree_cache_key = str(pt)
     variants_fitness = []
     
-    for bid, (_, traces) in load_event_log.variants.items(): 
+    for bid, (_, traces) in cache.variants.items(): 
       
       if d.delete and bid in d.delete:
 
@@ -488,9 +458,6 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
 
       else: 
         continue
-
-    # pickle.dump( pcache, open( "pcache.p", "wb" ))
-    # pickle.dump(load_event_log.variants_store,  open( "variants_store.p", "wb" ))
 
     pt_dict = get_merged_performances(pt)
     
@@ -608,7 +575,7 @@ class variantQuery(BaseModel):
 def variant_query(query: variantQuery):
 
     res = evaluate_query_against_variant_graphs(
-        query, load_event_log.variants, load_event_log.activites)
+        query, cache.variants, cache.parameters['activites'])
 
     return res
 

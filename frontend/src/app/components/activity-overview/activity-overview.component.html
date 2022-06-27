@@ -46,16 +46,30 @@
             (click)="toggleSort('activityName')"
             colspan="2"
           >
-            <em class="user-select-none">Activity name</em>
-            <br />
-            <i
-              class="bi"
-              *ngIf="sortKey === 'activityName'"
-              [ngClass]="{
-                'bi-sort-alpha-down': !ascending,
-                'bi-sort-alpha-down-alt': ascending
-              }"
-            ></i>
+            <div class="d-flex justify-content-between">
+              <div>
+                <em class="user-select-none">Activity name</em>
+                <br />
+                <i
+                  class="bi"
+                  *ngIf="sortKey === 'activityName'"
+                  [ngClass]="{
+                    'bi-sort-alpha-down': !ascending,
+                    'bi-sort-alpha-down-alt': ascending
+                  }"
+                ></i>
+              </div>
+
+              <div class="p-2">
+                <button
+                  class="reset-button"
+                  (click)="revertLastChange($event)"
+                  *ngIf="resetAvailable"
+                >
+                  <i class="bi bi-arrow-counterclockwise btn-icon"></i>
+                </button>
+              </div>
+            </div>
           </th>
 
           <th
@@ -194,14 +208,15 @@
                     $event.target.value
                   )
                 "
-                (focusout)="$event.target.value = activityField.activityName"
-                (focus)="editingActivityName = true"
+                (click)="startEditing()"
+                (blur)="focusOut()"
               />
             </td>
             <td class="border-end border-color">
               <div
+                class="cursor-pointer"
                 *ngIf="editingActivityName"
-                (click)="deleteActivity(activityField)"
+                (click)="deleteActivity($event, activityField)"
               >
                 <i class="bi bi-trash"></i>
               </div>
