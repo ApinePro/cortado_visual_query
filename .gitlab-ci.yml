@@ -133,12 +133,12 @@ build-electron-app-linux:
     - mkdir $LINUX_BUILD_DIR
     - cp -R frontend/app-dist/linux-unpacked/* $LINUX_BUILD_DIR
     - cp -R cortado-backend $LINUX_BUILD_DIR
-    - cd $LINUX_BUILD_DIR
-    - chmod +x cortado
+    - chmod +x $LINUX_BUILD_DIR/cortado
+    - tar c $LINUX_BUILD_DIR | xz > $LINUX_BUILD_DIR.tar.xz
   dependencies:
     - build-backend-linux
   artifacts:
-    name: ${LINUX_BUILD_DIR//:}
+    name: $LINUX_BUILD_DIR.tar.xz
     paths:
-      - ${LINUX_BUILD_DIR//:}
+      - "*.tar.xz"
     expire_in: 1 week
