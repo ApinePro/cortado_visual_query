@@ -428,11 +428,6 @@ export class VariantExplorerComponent
       }
     });
 
-    console.log(
-      'Updating Statistics',
-      numberFittingVariants,
-      numberFittingTraces
-    );
     this.logService.update_log_stats(
       numberFittingTraces,
       numberFittingVariants
