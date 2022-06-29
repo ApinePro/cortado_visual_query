@@ -44,9 +44,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
     this.goldenLayoutComponentService.goldenLayoutHostComponent =
       this._goldenLayoutHostComponent;
-
   }
-
 
   // Put the dropzone in front if a File Drag enters
   @HostListener('window:dragenter', ['$event'])

@@ -94,8 +94,8 @@ export class VariantEditorComponent
   multiSelect = false;
   multipleSelected = false;
 
-  infixType = InfixType; 
-  curInfixType = InfixType.NOT_AN_INFIX; 
+  infixType = InfixType;
+  curInfixType = InfixType.NOT_AN_INFIX;
 
   newLeaf;
 
@@ -342,8 +342,8 @@ export class VariantEditorComponent
     }
   }
 
-  handleInfixButtonClick(infixtype : InfixType){
-    this.curInfixType = infixtype; 
+  handleInfixButtonClick(infixtype: InfixType) {
+    this.curInfixType = infixtype;
   }
 
   handleBehindInsert(variant: VariantElement, leaf: LeafNode, selectedElement) {
