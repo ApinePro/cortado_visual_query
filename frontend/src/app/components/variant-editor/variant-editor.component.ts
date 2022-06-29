@@ -10,6 +10,7 @@ import {
   Variant,
   ParallelGroup,
   setParent,
+  InfixType,
 } from './../variant-explorer/model';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import {
@@ -93,6 +94,9 @@ export class VariantEditorComponent
   multiSelect = false;
   multipleSelected = false;
 
+  infixType = InfixType; 
+  curInfixType = InfixType.NOT_AN_INFIX; 
+
   newLeaf;
 
   collapse: boolean = false;
@@ -165,7 +169,7 @@ export class VariantEditorComponent
     width: number,
     height: number
   ): void {
-    if (width < 850) this.collapse = true;
+    if (width < 1150) this.collapse = true;
     else {
       this.collapse = false;
     }
@@ -336,6 +340,10 @@ export class VariantEditorComponent
         }
       }
     }
+  }
+
+  handleInfixButtonClick(infixtype : InfixType){
+    this.curInfixType = infixtype; 
   }
 
   handleBehindInsert(variant: VariantElement, leaf: LeafNode, selectedElement) {
@@ -704,7 +712,8 @@ export class VariantEditorComponent
       true,
       false,
       true,
-      []
+      [],
+      this.curInfixType
     );
 
     newVariant.alignment = undefined;
