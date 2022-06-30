@@ -110,17 +110,7 @@ export class SubVariantComponent implements AfterViewInit {
       .attr('x2', (d) => xScale(d.xEnd))
       .attr('y1', (d) => yScale(d.yIndex))
       .attr('y2', (d) => yScale(d.yIndex))
-      .attr('stroke-width', (_) => 2 * Constants.POINT_RADIUS)
-      .on('click', (a, d) => {
-        if (this.onClickCbFc) {
-          this.onClickCbFc();
-        }
-
-        this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
-          d.performanceStats,
-          !d.isWaitingTimeNode
-        );
-      });
+      .attr('stroke-width', (_) => 2 * Constants.POINT_RADIUS);
 
     const circles = g
       .selectAll('circle')
@@ -139,13 +129,29 @@ export class SubVariantComponent implements AfterViewInit {
       .attr('cx', (d) => xScale(d[1]))
       .attr('cy', (d) => yScale(d[0].yIndex))
       .attr('fill', (d) => d[3])
-      .attr('r', Constants.POINT_RADIUS)
-      .on('click', (_, d) =>
+      .attr('r', Constants.POINT_RADIUS);
+
+    g.append('rect')
+      .classed('subvariant-rect', true)
+      .attr('x', (d) => xScale(d.xStart) - Constants.POINT_RADIUS)
+      .attr('y', (d) => yScale(d.yIndex) - Constants.POINT_RADIUS)
+      .attr(
+        'width',
+        (d) => xScale(d.xEnd) - xScale(d.xStart) + 2 * Constants.POINT_RADIUS
+      )
+      .attr('height', Constants.POINT_RADIUS * 2)
+      .on('click', (a, d) => {
+        if (this.onClickCbFc) {
+          this.onClickCbFc();
+        }
+
         this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
-          d[0].performanceStats,
-          !d[0].isWaitingTimeNode
-        )
-      );
+          d.performanceStats,
+          !d.isWaitingTimeNode
+        );
+        console.log(d, 'clicked');
+        this.changeSelection(d);
+      });
 
     circles
       .filter((d) => d[2] === true)
@@ -419,5 +425,12 @@ export class SubVariantComponent implements AfterViewInit {
   public toggleExpanded() {
     this.expanded = !this.expanded;
     this.draw();
+  }
+
+  changeSelection(sel: SubvariantVisualization) {
+    d3.selectAll('.subvariant-rect').classed(
+      'selected-subvariant',
+      (d) => sel === d
+    );
   }
 }
