@@ -116,6 +116,14 @@ export class SubVariantComponent implements AfterViewInit {
 
       this.svg
         .append('rect')
+        .classed('subvariant-rect', true)
+        .datum(() => {
+          let d = new SubvariantVisualization();
+          d.activity = 'GLOBAL';
+          d.performanceStats = this._variant.global_performance_stats;
+
+          return d;
+        })
         .style('fill', (d) => 'lightgrey')
         .attr('x', 0)
         .attr('y', 0)
@@ -123,7 +131,17 @@ export class SubVariantComponent implements AfterViewInit {
         .attr('height', height)
         .attr('fill-opacity', 0.5)
         .attr('rx', 8)
-        .attr('ry', 8);
+        .attr('ry', 8)
+        .on('click', (_, d) => {
+          if (this.onClickCbFc) {
+            this.onClickCbFc(d);
+          }
+
+          this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
+            d.performanceStats,
+            !d.isWaitingTimeNode
+          );
+        });
     }
 
     const g = this.svg.selectAll().data(dataArray).join('g');
