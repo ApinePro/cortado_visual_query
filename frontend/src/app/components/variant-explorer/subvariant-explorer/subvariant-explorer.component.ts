@@ -22,6 +22,7 @@ import * as d3 from 'd3';
 import { LeafNode } from '../model';
 import { BackendService } from 'src/app/services/backendService/backend.service';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
+import { SubvariantVisualization } from '../sub-variant/model';
 
 @Component({
   selector: 'app-subvariant-explorer',
@@ -126,8 +127,9 @@ export class SubvariantExplorerComponent
     defaultZIndex: string
   ): void {}
 
-  subvariantClickCallBack() {
+  subvariantClickCallBack(vis: SubvariantVisualization) {
     this.mainvariantDrawer.changeSelected(null);
+    this.subVariantComponents.forEach((svc) => svc.changeSelection(vis));
   }
 
   public toggleExpanded() {
@@ -151,6 +153,7 @@ export class SubvariantExplorerComponent
     this.toggleExpanded();
     if (this.isPerformanceMode) {
       drawer.changeSelected(element);
+      this.subVariantComponents.forEach((svc) => svc.changeSelection(null));
       if (element.serviceTime) {
         this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
           element.serviceTime,

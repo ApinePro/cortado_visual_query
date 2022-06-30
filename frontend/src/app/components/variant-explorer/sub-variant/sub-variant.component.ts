@@ -38,7 +38,7 @@ export class SubVariantComponent implements AfterViewInit {
   private expanded = false;
 
   @Input()
-  onClickCbFc: () => void;
+  onClickCbFc: (SubvariantVisualization) => void;
 
   private isLoaded = false;
 
@@ -91,16 +91,40 @@ export class SubVariantComponent implements AfterViewInit {
     const intervalWidth = !this.expanded
       ? Constants.INTERVAL_LENGTH
       : Constants.INTERVAL_LENGTH * 1.5;
+
     this.svg.selectAll('g').remove();
+    this.svg.selectAll('rect').remove();
+
     const data = this.buildData();
     let dataArray = Array.from(data.values());
 
-    if (this.isPerformanceMode) {
-      dataArray = dataArray.concat(this.buildWaitingTimeData(data));
-    }
-    const xScale = (x) => Constants.POINT_RADIUS + x * intervalWidth;
+    const xScale = (x) => Constants.POINT_RADIUS + x * intervalWidth + 5;
     const yScale = (y) =>
       4 * Constants.POINT_RADIUS + y * Constants.LEAF_HEIGHT * 1.5;
+
+    const maxYIndex = Math.max(...dataArray.map((d) => d.yIndex));
+    const maxXEnd = Math.max(...dataArray.map((d) => d.xEnd));
+
+    const height = yScale(maxYIndex + 1);
+    const width = xScale(maxXEnd) + Constants.POINT_RADIUS + 5;
+
+    this.svg.attr('height', height);
+    this.svg.attr('width', width);
+
+    if (this.isPerformanceMode) {
+      dataArray = dataArray.concat(this.buildWaitingTimeData(data));
+
+      this.svg
+        .append('rect')
+        .style('fill', (d) => 'lightgrey')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', width)
+        .attr('height', height)
+        .attr('fill-opacity', 0.5)
+        .attr('rx', 8)
+        .attr('ry', 8);
+    }
 
     const g = this.svg.selectAll().data(dataArray).join('g');
 
@@ -123,14 +147,13 @@ export class SubVariantComponent implements AfterViewInit {
       .attr('title', (d) => d.activity)
       .on('click', (_, d) => {
         if (this.onClickCbFc) {
-          this.onClickCbFc();
+          this.onClickCbFc(d);
         }
 
         this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
           d.performanceStats,
           !d.isWaitingTimeNode
         );
-        this.changeSelection(d);
       });
 
     const texts = g
@@ -152,15 +175,6 @@ export class SubVariantComponent implements AfterViewInit {
         xEnd - xStart - 2 * Constants.POINT_RADIUS
       );
     });
-
-    const maxYIndex = Math.max(...dataArray.map((d) => d.yIndex));
-
-    this.svg.attr('height', yScale(maxYIndex + 1));
-    this.svg.attr(
-      'width',
-      this._variant.subvariant.length * intervalWidth +
-        2 * Constants.POINT_RADIUS
-    );
 
     this.tooltipService.initializeChildren(this.svgElement);
   }
