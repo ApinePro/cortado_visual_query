@@ -104,43 +104,24 @@ export class SubVariantComponent implements AfterViewInit {
 
     const g = this.svg.selectAll().data(dataArray).join('g');
 
-    g.append('line')
-      .style('stroke', (d) => this.computeActivityColor(d))
-      .attr('x1', (d) => xScale(d.xStart))
-      .attr('x2', (d) => xScale(d.xEnd))
-      .attr('y1', (d) => yScale(d.yIndex))
-      .attr('y2', (d) => yScale(d.yIndex))
-      .attr('stroke-width', (_) => 2 * Constants.POINT_RADIUS);
-
-    const circles = g
-      .selectAll('circle')
-      .data((d) => {
-        const color = this.computeActivityColor(d);
-        if (d.xStart == d.xEnd) {
-          return [[d, d.xStart, true, color]];
-        }
-        return [
-          [d, d.xStart, false, color],
-          [d, d.xEnd, false, color],
-        ];
-      })
-      .enter()
-      .append('circle')
-      .attr('cx', (d) => xScale(d[1]))
-      .attr('cy', (d) => yScale(d[0].yIndex))
-      .attr('fill', (d) => d[3])
-      .attr('r', Constants.POINT_RADIUS);
-
     g.append('rect')
       .classed('subvariant-rect', true)
+      .style('fill', (d) => this.computeActivityColor(d))
       .attr('x', (d) => xScale(d.xStart) - Constants.POINT_RADIUS)
       .attr('y', (d) => yScale(d.yIndex) - Constants.POINT_RADIUS)
+      .attr('rx', 8)
+      .attr('ry', 8)
       .attr(
         'width',
         (d) => xScale(d.xEnd) - xScale(d.xStart) + 2 * Constants.POINT_RADIUS
       )
       .attr('height', Constants.POINT_RADIUS * 2)
-      .on('click', (a, d) => {
+      .attr('data-bs-toggle', (d) => {
+        if (d.isWaitingTimeNode) return null;
+        return 'tooltip';
+      })
+      .attr('title', (d) => d.activity)
+      .on('click', (_, d) => {
         if (this.onClickCbFc) {
           this.onClickCbFc();
         }
@@ -149,14 +130,8 @@ export class SubVariantComponent implements AfterViewInit {
           d.performanceStats,
           !d.isWaitingTimeNode
         );
-        console.log(d, 'clicked');
         this.changeSelection(d);
       });
-
-    circles
-      .filter((d) => d[2] === true)
-      .attr('data-bs-toggle', 'tooltip')
-      .attr('title', (d) => d[0].activity);
 
     const texts = g
       .append('text')
