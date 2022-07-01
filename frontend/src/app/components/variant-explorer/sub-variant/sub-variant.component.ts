@@ -352,10 +352,6 @@ export class SubVariantComponent implements AfterViewInit {
       m.yIndex = yIndex;
       m.isWaitingTimeNode = true;
 
-      if (waitingTimeEvent.is_reference_event) {
-        m.yIndex = 0;
-      }
-
       result.push(m);
     });
 
