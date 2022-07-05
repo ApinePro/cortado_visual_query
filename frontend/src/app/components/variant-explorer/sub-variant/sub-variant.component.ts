@@ -112,7 +112,7 @@ export class SubVariantComponent implements AfterViewInit {
     this.svg.attr('height', height);
     this.svg.attr('width', width);
 
-    const helpLineOpacity = this.isPerformanceMode ? 0.1 : 0.05;
+    const helpLineOpacity = this.isPerformanceMode ? 0.1 : 0.04;
 
     this.svg
       .selectAll('line')
