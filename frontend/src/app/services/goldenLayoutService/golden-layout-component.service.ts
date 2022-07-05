@@ -24,7 +24,6 @@ export class GoldenLayoutComponentService {
   private _componentTypeMap = new Map<string, Type<LayoutChangeDirective>>();
   private _goldenLayoutHostComponent: GoldenLayoutHostComponent;
   private _goldenLayout: GoldenLayout;
-  private _splitViewWindow: string = null;
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
 
@@ -130,7 +129,9 @@ export class GoldenLayoutComponentService {
     }
   }
 
-  createSplitViewWindow(componentID) {
+  createBPMNSplitViewWindow(splitParentID, componentID) {
+
+
     this._goldenLayout
       .findFirstComponentItemById(this._splitViewWindow)
       ?.close();
@@ -159,7 +160,6 @@ export class GoldenLayoutComponentService {
       };
 
       this._goldenLayout.addItemAtLocation(itemConfig, LocationSelectors);
-      this._splitViewWindow = componentID;
     }
   }
 }

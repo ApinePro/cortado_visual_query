@@ -26,7 +26,8 @@ import { GoldenLayoutComponentService } from '../../services/goldenLayoutService
 import { BpmnEditorComponent } from '../bpmn-editor/bpmn-editor.component';
 import { VariantEditorComponent } from '../variant-editor/variant-editor.component';
 import { InfoBoxComponent } from '../info-box/info-box.component';
-
+import { ModelPerformanceComponent } from '../performance/performance.component';
+import { VariantPerformanceComponent } from '../variant-performance/variant-performance.component';
 @Component({
   selector: 'app-golden-layout-host',
   templateUrl: './golden-layout-host.component.html',
@@ -74,6 +75,17 @@ export class GoldenLayoutHostComponent implements OnDestroy {
       ActivityOverviewComponent.componentName,
       ActivityOverviewComponent
     );
+
+    this.goldenLayoutComponentService.registerComponentType(
+      VariantPerformanceComponent.componentName,
+      VariantPerformanceComponent
+    );
+
+    this.goldenLayoutComponentService.registerComponentType(
+      ModelPerformanceComponent.componentName,
+      ModelPerformanceComponent
+    );
+
 
     this.goldenLayoutComponentService.registerComponentType(
       InfoBoxComponent.componentName,
@@ -143,6 +155,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
       componentType,
       container
     );
+
     const component = componentRef.instance;
     this._componentRefMap.set(container, componentRef);
 

@@ -11,6 +11,10 @@ import { ProcessTreeEditorComponent } from '../../process-tree-editor/process-tr
 import { VariantExplorerComponent } from '../../variant-explorer/variant-explorer.component';
 import { InfoBoxComponent } from '../../info-box/info-box.component';
 
+import { ActivityOverviewComponent } from '../../activity-overview/activity-overview.component';
+import { ModelPerformanceComponent } from '../../performance/performance.component';
+import { VariantPerformanceComponent } from '../../variant-performance/variant-performance.component';
+
 export const baseLayout: LayoutConfig = {
   dimensions: {
     borderWidth: 0.75,
@@ -74,16 +78,52 @@ export const baseLayout: LayoutConfig = {
             ],
           } as StackItemConfig,
           {
-            type: 'component',
-            header: {
-              show: false,
-            },
-            width: 38.197,
+            type: ItemType.stack,
+            height: 38.197,
             isClosable: true,
-            title: 'Info Box',
-            id: InfoBoxComponent.componentName,
-            componentType: InfoBoxComponent.componentName,
-          } as ComponentItemConfig,
+            width: 61.803,
+            content: [
+              {
+                type: 'component',
+                header: {
+                  show: false,
+                },
+                width: 38.197,
+                isClosable: false,
+                reorderEnabled: false,
+                title: 'Activity Overview',
+                id: ActivityOverviewComponent.componentName,
+                componentType: ActivityOverviewComponent.componentName,
+                componentState: { cssParentClass: 'info-box-stack' },
+              } as ComponentItemConfig,
+              {
+                type: 'component',
+                header: {
+                  show: false,
+                },
+                width: 38.197,
+                isClosable: true,
+                reorderEnabled: false,
+                title: 'Model Performance',
+                id: ModelPerformanceComponent.componentName,
+                componentType: ModelPerformanceComponent.componentName,
+                componentState: { cssParentClass: 'info-box-stack' },
+              } as ComponentItemConfig,
+              {
+                type: 'component',
+                header: {
+                  show: false,
+                },
+                width: 38.197,
+                isClosable: true,
+                reorderEnabled: false,
+                title: 'Variant Performane',
+                id: VariantPerformanceComponent.componentName,
+                componentType: VariantPerformanceComponent.componentName,
+                componentState: { cssParentClass: 'info-box-stack' },
+              } as ComponentItemConfig,
+            ],
+          } as StackItemConfig,
         ],
       } as RowOrColumnItemConfig,
     ],
