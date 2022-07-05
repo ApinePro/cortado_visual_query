@@ -1069,6 +1069,7 @@ export class VariantExplorerComponent
       this.performanceService.unselectPerformance();
 
     this.selectedGranularity = granularity;
+    this.sharedDataService.timeGranularity = granularity;
     this.logService
       .getLogPropsAndUpdateState(
         granularity,
