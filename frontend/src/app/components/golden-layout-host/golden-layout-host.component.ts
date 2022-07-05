@@ -28,6 +28,7 @@ import { VariantEditorComponent } from '../variant-editor/variant-editor.compone
 import { InfoBoxComponent } from '../info-box/info-box.component';
 import { ModelPerformanceComponent } from '../performance/performance.component';
 import { VariantPerformanceComponent } from '../variant-performance/variant-performance.component';
+import { thresholdSturges } from 'd3';
 @Component({
   selector: 'app-golden-layout-host',
   templateUrl: './golden-layout-host.component.html',
@@ -85,7 +86,6 @@ export class GoldenLayoutHostComponent implements OnDestroy {
       ModelPerformanceComponent.componentName,
       ModelPerformanceComponent
     );
-
 
     this.goldenLayoutComponentService.registerComponentType(
       InfoBoxComponent.componentName,
@@ -237,6 +237,32 @@ export class GoldenLayoutHostComponent implements OnDestroy {
       throw new Error(
         'handleContainerVirtualRectingRequiredEvent: ComponentRef not found'
       );
+    }
+
+
+    const parent = container.parent
+    const grand_parent = parent.parent;
+    const grand_parent_children_elements = grand_parent.element.children
+
+    if (width < 250 || height < 150){
+
+      for (let i = 0; i < grand_parent_children_elements.length; i++){
+        this.renderer.setStyle(grand_parent_children_elements[i], 'visibility', 'hidden')
+      }
+
+      this._componentRefMap.get(container).instance.setVisibility(false);
+      this.renderer.setAttribute(grand_parent.element, 'dots', '...');
+      this.renderer.addClass(grand_parent.element, 'collapsed-golden-layout-container');
+
+    } else {
+
+      for (let i = 0; i < grand_parent_children_elements.length; i++){
+        this.renderer.removeStyle(grand_parent_children_elements[i], 'visibility')
+      }
+
+      this._componentRefMap.get(container).instance.setVisibility(true);
+      this.renderer.removeClass(grand_parent.element, 'collapsed-golden-layout-container');
+      this.renderer.removeAttribute(grand_parent.element, 'dots', '...');
     }
 
     const component = componentRef.instance;

@@ -160,6 +160,7 @@ export class VariantExplorerComponent
 
   public variants: Variant[] = [];
   public colorMap: Map<string, string>;
+  public sidebarHeigth = 0;
 
   public currentlyDisplayedProcessTree;
   public usedTreeForConformanceChecking;
@@ -751,6 +752,8 @@ export class VariantExplorerComponent
     height: number
   ): void {
     this.collapse = width < 875;
+
+    this.sidebarHeigth = height
   }
 
   handleVisibilityChange(visibility: boolean): void {}

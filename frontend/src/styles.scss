@@ -12,6 +12,13 @@ $tooltip-max-width: 450px;
   font-size: var(--standard-font-size);
 }
 
+
+
+body {
+
+  overflow : hidden;
+}
+
 :root {
   --line-color: #485158;
   --box-background-color: #2b2b2b;
@@ -436,4 +443,19 @@ th {
   width:100vw !important;
   height: 100vh !important;
   background-color: var(--box-background-color);
+}
+
+
+
+.collapsed-golden-layout-container::after{
+  content : attr(dots);
+  position: absolute;
+  display: block;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  transform:translate(-50%, -50%);
+  color: white;
 }

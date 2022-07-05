@@ -20,7 +20,7 @@ export const baseLayout: LayoutConfig = {
     borderWidth: 0.75,
     borderGrabWidth: 10,
     minItemHeight: 30,
-    minItemWidth: 350,
+    minItemWidth: 30,
   },
   settings: {
     showPopoutIcon: false,
@@ -32,7 +32,9 @@ export const baseLayout: LayoutConfig = {
       {
         type: ItemType.row,
         height: 61.803,
-        isClosable: true,
+        isClosable: false,
+        reorderEnabled: false,
+        id: ProcessTreeEditorComponent.componentName + '_Container_Row',
         content: [
           {
             type: ItemType.stack,
@@ -62,8 +64,9 @@ export const baseLayout: LayoutConfig = {
           {
             type: ItemType.stack,
             height: 38.197,
-            isClosable: true,
+            isClosable: false,
             width: 61.803,
+            id: VariantExplorerComponent.componentName + '_Container_Stack',
             content: [
               {
                 id: VariantExplorerComponent.componentName,
@@ -80,8 +83,9 @@ export const baseLayout: LayoutConfig = {
           {
             type: ItemType.stack,
             height: 38.197,
-            isClosable: true,
+            isClosable: false,
             width: 61.803,
+            id: ActivityOverviewComponent.componentName + '_Container_Stack',
             content: [
               {
                 type: 'component',
@@ -103,7 +107,7 @@ export const baseLayout: LayoutConfig = {
                 },
                 width: 38.197,
                 isClosable: true,
-                reorderEnabled: false,
+                reorderEnabled: true,
                 title: 'Model Performance',
                 id: ModelPerformanceComponent.componentName,
                 componentType: ModelPerformanceComponent.componentName,
@@ -116,7 +120,7 @@ export const baseLayout: LayoutConfig = {
                 },
                 width: 38.197,
                 isClosable: true,
-                reorderEnabled: false,
+                reorderEnabled: true,
                 title: 'Variant Performane',
                 id: VariantPerformanceComponent.componentName,
                 componentType: VariantPerformanceComponent.componentName,
