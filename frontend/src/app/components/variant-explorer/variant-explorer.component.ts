@@ -1,6 +1,26 @@
-import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
-import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  HostListener,
+  Inject,
+  OnInit,
+  QueryList,
+  Renderer2,
+  ViewChild,
+  ViewChildren,
+} from '@angular/core';
+import * as d3 from 'd3';
+import {
+  ComponentContainer,
   ComponentItem,
   ComponentItemConfig,
   GoldenLayout,
@@ -8,65 +28,41 @@ import {
   LogicalZIndex,
   Stack,
 } from 'golden-layout';
-import {
-  Component,
-  ElementRef,
-  Inject,
-  OnInit,
-  QueryList,
-  ViewChild,
-  ViewChildren,
-  Renderer2,
-  AfterViewInit,
-  HostListener,
-} from '@angular/core';
-
-import {
-  trigger,
-  style,
-  animate,
-  transition,
-  state,
-} from '@angular/animations';
-
-import { ComponentContainer } from 'golden-layout';
-import { ColorMapService } from '../../services/colorMapService/color-map.service';
-import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
-import { BackendService } from '../../services/backendService/backend.service';
-
 import { Subject } from 'rxjs';
+import { delay, mergeMap, retryWhen, take, tap } from 'rxjs/operators';
+import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
+import { TimeUnit } from 'src/app/objects/TimeUnit';
+import { HumanizeDurationPipe } from 'src/app/pipes/humanize-duration.pipe';
+import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
+import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
+import { LogService } from 'src/app/services/logService/log.service';
+import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
+import { PerformanceService } from 'src/app/services/performance.service';
+import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
+import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
+import { originalOrder } from 'src/app/utils/util';
+import { LayoutChangeDirective } from '../../directives/layout-change.directive';
+import { BackendService } from '../../services/backendService/backend.service';
+import { ColorMapService } from '../../services/colorMapService/color-map.service';
+import { ImageExportService } from '../../services/imageExportService/image-export-service';
+import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
+import { DropzoneConfig } from '../drop-zone/drop-zone.component';
+import { textColorForBackgroundColor } from './helper_functions';
 import {
-  deserialize,
-  ParallelGroup,
-  SequenceGroup,
-  VariantElement,
-  Variant,
-  LeafNode,
-  isElementWithActivity,
-  setParent,
   getLowestSelectableParent,
   InfixType,
+  LeafNode,
+  ParallelGroup,
+  SequenceGroup,
+  setParent,
+  Variant,
+  VariantElement,
 } from './model';
-
-import { LayoutChangeDirective } from '../../directives/layout-change.directive';
-import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
-import { ImageExportService } from '../../services/imageExportService/image-export-service';
-import * as d3 from 'd3';
-import { PerformanceService } from 'src/app/services/performance.service';
-import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
-import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
-import { textColorForBackgroundColor } from './helper_functions';
-import { HumanizeDurationPipe } from 'src/app/pipes/humanize-duration.pipe';
-import { DropzoneConfig } from '../drop-zone/drop-zone.component';
-import { VariantSorter } from './variant-sorter';
-import * as objectHash from 'object-hash';
-import { VariantComponent } from './variant/variant.component';
 import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
-import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
-import { TimeUnit } from 'src/app/objects/TimeUnit';
-import { LogService } from 'src/app/services/logService/log.service';
-import { originalOrder } from 'src/app/utils/util';
+import { VariantSorter } from './variant-sorter';
+import { VariantComponent } from './variant/variant.component';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -146,13 +142,15 @@ export class VariantExplorerComponent
     private polygonDrawingService: PolygonDrawingService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
+    public processTreeService: ProcessTreeService,
     elRef: ElementRef,
     renderer: Renderer2,
     public performanceService: PerformanceService,
     private performanceColorService: ModelPerformanceColorScaleService,
     private variantPerformanceService: VariantPerformanceService,
     private conformanceCheckingService: ConformanceCheckingService,
-    private goldenLayoutComponentService: GoldenLayoutComponentService
+    private goldenLayoutComponentService: GoldenLayoutComponentService,
+    private ref: ChangeDetectorRef
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -176,7 +174,7 @@ export class VariantExplorerComponent
   public numberFittingTraces: number = undefined;
   public numberFittingVariants: number = undefined;
   public totalNumberTraces: number = undefined;
-  public totalNumberVariants = 5;
+  public totalNumberVariants: number = undefined;
 
   public svgRenderingInProgress: boolean = false;
   public variantExplorerOutOfFocus: boolean = false;
@@ -192,6 +190,7 @@ export class VariantExplorerComponent
   public isAscendingOrder: boolean = false;
   public sortingFeature: string = 'count';
   queryActive: boolean = false;
+  showQueryInfo: boolean = false;
 
   public traceInfixSelectionMode: boolean = false;
 
@@ -225,77 +224,16 @@ export class VariantExplorerComponent
       '<large> Import <strong>Event Log</strong> .xes file</large>'
     );
 
-    // preload road traffic fine management process
-    this.variants = this.sharedDataService.variants;
-    this.displayed_variants = this.variants;
-
-    this.variants.forEach((v, i) => {
-      v.id = objectHash(v.variant);
-      v.number = i + 1;
-      v.bid = i;
-      v.variant = deserialize(v.variant);
-      v.isConformanceOutdated = true;
-      v.userDefined = false;
-      v.isTimeouted = false;
-      v.infixType = InfixType.NOT_AN_INFIX;
-      setParent(v.variant);
-    });
-
-    this.variantPerformanceService.injectWaitingTimeNodes(
-      this.variants.map((v) => v.variant)
-    );
-    this.colorMap = this.colorMapService.getColorMap(
-      Object.keys(this.sharedDataService.activitiesInEventLog)
-    );
-    this.colorMapService.colorMap$.subscribe((colorMap) => {
-      this.colorMap = colorMap;
-      this.redraw_components();
-    });
-    this.sharedDataService.loadedEventLog = 'preload';
-
-    this.sharedDataService.activityNamesChanged$.subscribe(
-      (activityNameMapping) => {
-        this.activityNamesChanged();
-      }
-    );
-
-    const total = this.variants.map((v) => v.count).reduce((a, b) => a + b);
-    this.variants.forEach((v) => {
-      v.percentage = Number.parseFloat(((v.count / total) * 100).toFixed(2));
-    });
-
-    this.numberFittingVariants = undefined;
-    this.totalNumberTraces = total;
-    this.totalNumberVariants = this.variants.length;
-
-    this.sharedDataService.loadedEventLog$.subscribe((eventLog) => {
-      if (eventLog) {
-        this.closeAllSubvariantWindows();
-        this.performanceMode = false;
-        this.variantPerformanceService.variantPerformanceMode.next(false);
-        this.eventLogChanged();
-      }
-    });
-
-    this.sharedDataService.correctTreeSyntax$.subscribe((res) => {
-      this.correctTreeSyntax = res;
-    });
-
-    this.sharedDataService.currentDisplayedProcessTree$.subscribe((tree) => {
-      this.currentlyDisplayedProcessTree = tree;
-      const treeHasChanged = !this.sharedDataService.processTreesEqual(
-        this.usedTreeForConformanceChecking,
-        this.currentlyDisplayedProcessTree
-      );
-
-      if (treeHasChanged) {
-        this.variants.forEach((v) => {
-          v.isAddedFittingVariant = false;
-          v.isConformanceOutdated = true;
-        });
-      }
-    });
-
+    // initialize variables and initial variants
+    this.init();
+    // update variant explorer on log change
+    this.listenForLogChange();
+    // redraw variants on color map change
+    this.listenForColorMapChange();
+    // update view when activity names change
+    this.listenForActivityNamesChange();
+    this.listenForCorrectSyntax();
+    this.listenForProcessTreeChange();
     this.conformanceCheckingService.connect();
     this.subscribeForConformanceCheckingResults();
   }
@@ -341,6 +279,71 @@ export class VariantExplorerComponent
     );
   }
 
+  private init() {
+    this.displayed_variants = [];
+    this.logService
+      .resetLogCache() // for now show the sample log again on reload
+      .pipe(retryWhen((errors) => errors.pipe(delay(500), take(50)))) // backend might need some time to start up
+      .pipe(
+        mergeMap(() =>
+          // Time granularity is null because the granularity is determined in the backend
+          this.logService.getLogPropsAndUpdateState(null, 'preload')
+        )
+      )
+      .subscribe();
+  }
+
+  private listenForProcessTreeChange() {
+    this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
+      this.currentlyDisplayedProcessTree = tree;
+      const treeHasChanged = !this.sharedDataService.processTreesEqual(
+        this.usedTreeForConformanceChecking,
+        this.currentlyDisplayedProcessTree
+      );
+
+      if (treeHasChanged) {
+        this.variants.forEach((v) => {
+          v.isAddedFittingVariant = false;
+          v.isConformanceOutdated = true;
+        });
+      }
+    });
+  }
+
+  private listenForCorrectSyntax() {
+    this.processTreeService.correctTreeSyntax$.subscribe((res) => {
+      this.correctTreeSyntax = res;
+    });
+  }
+
+  private listenForActivityNamesChange() {
+    this.sharedDataService.activityNamesChanged$.subscribe(
+      (activityNameMapping) => {
+        this.activityNamesChanged();
+      }
+    );
+  }
+
+  private listenForColorMapChange() {
+    this.colorMapService.colorMap$.subscribe((colorMap) => {
+      this.colorMap = colorMap;
+      this.redraw_components();
+    });
+  }
+
+  private listenForLogChange() {
+    this.sharedDataService.loadedEventLog$
+      .pipe(
+        tap(() => {
+          this.closeAllSubvariantWindows();
+          this.performanceMode = false;
+          this.variantPerformanceService.variantPerformanceMode.next(false);
+          this.eventLogChanged();
+        })
+      )
+      .subscribe();
+  }
+
   private redraw_components() {
     if (this.variantComponents) {
       for (let component of this.variantComponents) {
@@ -355,8 +358,6 @@ export class VariantExplorerComponent
     );
 
     this.variants = this.sharedDataService.variants;
-    console.log('Variants after Load', this.variants);
-
     this.displayed_variants = this.variants;
 
     this.variantPerformanceService.injectWaitingTimeNodes(
@@ -364,11 +365,11 @@ export class VariantExplorerComponent
     );
 
     this.variants.forEach((v, i) => {
-      v.isSelected = false;
-      v.isAddedFittingVariant = false;
       v.isConformanceOutdated = true;
       v.userDefined = false;
       v.isTimeouted = false;
+      v.isSelected = false;
+      v.isAddedFittingVariant = false;
       v.infixType = InfixType.NOT_AN_INFIX;
       setParent(v.variant);
     });
@@ -379,9 +380,14 @@ export class VariantExplorerComponent
     this.totalNumberTraces = this.variants
       .map((v) => v.count)
       .reduce((a, b) => a + b);
+
+    this.variants.forEach((v) => {
+      v.percentage = Number.parseFloat(
+        ((v.count / this.totalNumberTraces) * 100).toFixed(2)
+      );
+    });
     this.totalNumberVariants = this.variants.length;
     this.sort(this.sortingFeature);
-
     console.log('Variants after load:', this.variants);
   }
 
@@ -459,7 +465,8 @@ export class VariantExplorerComponent
 
     const resubscribe = this.conformanceCheckingService.calculateConformance(
       variant.id,
-      this.sharedDataService.currentDisplayedProcessTree,
+      variant.infixType,
+      this.processTreeService.currentDisplayedProcessTree,
       variant.variant.serialize(),
       timeout
     );
@@ -592,8 +599,6 @@ export class VariantExplorerComponent
 
   updateAllSubvariantWindows(): void {
     this._subvariantcomponentItemsMap.forEach((value) => {
-      console.log(value);
-
       if (value) {
         value.setTitle('Sub-Variant');
       }
@@ -624,6 +629,11 @@ export class VariantExplorerComponent
         this._subvariantcomponentItemsMap.delete(id);
       }
     }
+  }
+
+  removeAllFilters() {
+    this.displayed_variants = this.variants;
+    this.updateAllSubvariantWindows();
   }
 
   getSelectedVariants(): Variant[] {
@@ -722,12 +732,12 @@ export class VariantExplorerComponent
     return !this.isAnyVariantSelected();
   }
 
-  areAllVariantsSelected(): boolean {
-    return this.getSelectedVariants().length >= this.totalNumberVariants;
+  areAllDisplayedVariantsSelected(): boolean {
+    return this.displayed_variants.every((v) => v.isSelected);
   }
 
   unSelectAllChanged(isSelected: boolean): void {
-    this.variants.forEach((v) => (v.isSelected = isSelected));
+    this.displayed_variants.forEach((v) => (v.isSelected = isSelected));
   }
 
   areAllVariantsExpanded(): boolean {
@@ -776,8 +786,9 @@ export class VariantExplorerComponent
       this.performanceService.unselectPerformance();
     } else {
       this.performanceService.activeVariant = undefined;
-      this.sharedDataService.currentDisplayedProcessTree =
-        this.performanceService.mergedPerformance;
+      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+        this.performanceService.mergedPerformance
+      );
     }
   }
 
@@ -820,6 +831,11 @@ export class VariantExplorerComponent
     return textColorForBackgroundColor(this.variantPerformanceColor());
   }
 
+  toggleQueryInfo(event: Event): void {
+    this.showQueryInfo = !this.showQueryInfo;
+    event.stopPropagation();
+  }
+
   variantClickCallBack = (
     drawer: VariantDrawerDirective,
     element: VariantElement,
@@ -841,8 +857,10 @@ export class VariantExplorerComponent
       }
     } else if (this.traceInfixSelectionMode) {
       let lowestSelectableParent = getLowestSelectableParent(element);
+      console.log('Lowest Selectable Parent', lowestSelectableParent);
       if (lowestSelectableParent != variant) {
         lowestSelectableParent.setAllChildrenSelected();
+        console.log('Selected all Parents', lowestSelectableParent);
         variant.calculateSelectableElements();
         if (!variant.selectionStatusUnchangedFromLastSavedSelection()) {
           variant.saveCurrentSelectionToSelectionHistory();
@@ -853,8 +871,6 @@ export class VariantExplorerComponent
       variant.setExpanded(!variant.getExpanded());
       drawer.redraw();
     }
-    console.log(variant);
-    console.log(element);
   };
 
   computeActivityColor = (
@@ -1049,11 +1065,15 @@ export class VariantExplorerComponent
   }
 
   onGranularityChange(granularity): void {
+    if (this.processTreeService.currentDisplayedProcessTree)
+      this.performanceService.unselectPerformance();
+
     this.selectedGranularity = granularity;
     this.logService
-      .getLogPropsAndUpdateState({
-        timeGranularity: granularity,
-      })
+      .getLogPropsAndUpdateState(
+        granularity,
+        this.sharedDataService.loadedEventLog
+      )
       .subscribe();
   }
 }

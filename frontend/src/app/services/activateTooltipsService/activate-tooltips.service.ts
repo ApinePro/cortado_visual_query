@@ -40,7 +40,12 @@ export class ActivateTooltipsService {
       sanitize: false,
     });
 
-    element.addEventListener('click', (_) => tooltip.hide());
+    element.addEventListener('click', (_) => {
+      $('[data-bs-toggle="tooltip"]').tooltip('hide');
+      setTimeout(() => {
+        tooltip.hide();
+      }, 500);
+    });
   }
 
   public closeAllPopover() {

@@ -8,7 +8,6 @@ sys.setrecursionlimit(sys.getrecursionlimit() * 5)
 # https://stackoverflow.com/a/48068640
 import importlib
 packages_datas = [
-    ['pulp', [('*', '.')]],
     ['cvxopt', [('*', '.')]]
 ]
 
@@ -19,8 +18,9 @@ for package, files in packages_datas:
     datas.extend((os.path.join(proot, source), os.path.join(package, target)) for (source, target) in files)
 
 
-if glob.glob('./*.p'):
-    datas.append(( './*.p', '.' ))
+if glob.glob('./resources/*.p'):
+    print('Adding Resources')
+    datas.append(( './resources/*.p', 'resources' ))
 
 if glob.glob('./*.ini'):
     datas.append(( './*.ini', '.' ))
@@ -45,7 +45,6 @@ a = Analysis(['main.py'],
                             'uvicorn.protocols.websockets.auto',
                             'uvicorn.lifespan',
                             'uvicorn.lifespan.on',
-                            'pulp',
                             'OpenBLAS',
                             'sklearn.neighbors._partition_nodes',
                             'encodings',

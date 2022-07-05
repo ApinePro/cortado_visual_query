@@ -161,7 +161,7 @@
             <!-- <th class="user-select-none" [ngStyle]="{'background-color': activityField.color}">&nbsp;</th> -->
             <td
               [ngStyle]="{ 'background-color': activityField.color }"
-              class="color-picker-cell"
+              class="color-picker-cell user-select-none"
             >
               <div
                 class="color-picker-div"
@@ -205,7 +205,7 @@
             <td class="border-end border-color text-center">
               <i class="bi bi-check2" *ngIf="activityField.isEnd"></i>
             </td>
-            <td class="text-center">
+            <td class="text-center user-select-none">
               {{ activityField.occurences }}
             </td>
           </tr>

@@ -45,7 +45,7 @@ from pm4py.objects.process_tree.utils import generic as tree_util
 from pm4py.objects.process_tree.utils.generic import parse
 from pydantic import BaseModel, Field
 
-import cache.log_cache as log_cache
+import cache.cache as cache
 from api.routes.api import router as api_router
 from backend_utilities.configuration.repository import \
     Configuration as DomainConfiguration
@@ -56,74 +56,82 @@ from backend_utilities.process_tree_conversion import (dict_to_process_tree,
 from backend_utilities.timeout.helper_functions import (TimeoutException,
                                                         execute_with_timeout)
 from backend_utilities.variant_trace_conversion import variant_to_trace
+from core.events import create_start_app_handler, create_stop_app_handler
 from endpoints import load_event_log
 from endpoints.add_variants_to_process_model import \
     add_variants_to_process_model
+from endpoints.alignments import InfixType
 from endpoints.alignments import \
     calculate_alignment as calculate_alignment_endpoint
 from endpoints.load_event_log import calculate_event_log_properties
 from endpoints.query_variant import evaluate_query_against_variant_graphs
-from error_handlers import (exception_handler, http_exception_handler,
+from error_handlers import (http_exception_handler,
                             validation_exception_handler)
-
-app = FastAPI()
-origins = [
-    "http://localhost",
-    "http://localhost:8080",
-    "http://localhost:4444"
-]
+from middleware.http_middleware import http_middleware
 
 
-# see https://github.com/tiangolo/fastapi/issues/775
-# Without this middleware, fastapi does not return the CORS headers if there is an uncaught exception.
-# Without the CORS headers, the browser does not forward the correct HTTP status code to the angular application.
-async def catch_exceptions_middleware(request: Request, call_next):
-    try:
-        return await call_next(request)
-    except:
-        return Response("Internal server error", status_code=500)
+def get_application():
+    app = FastAPI()
+    add_event_handlers(app)
+    add_middleware(app)
+    add_exception_handlers(app)
+    app.include_router(api_router)
+    return app
 
 
-app.middleware('http')(catch_exceptions_middleware)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+def add_event_handlers(app: FastAPI):
+    app.add_event_handler(
+        "startup",
+        create_start_app_handler(app),
+    )
+    app.add_event_handler(
+        "shutdown",
+        create_stop_app_handler(app),
+    )
 
-app.include_router(api_router)
 
-app.add_exception_handler(HTTPException, http_exception_handler)
-app.add_exception_handler(Exception, exception_handler)
-app.add_exception_handler(RequestValidationError, validation_exception_handler)
+def add_middleware(app: FastAPI):
+    app.middleware('http')(http_middleware)
+    origins = [
+        "http://localhost",
+        "http://localhost:8080",
+        "http://localhost:4444"
+    ]
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+
+def add_exception_handlers(app: FastAPI):
+    app.add_exception_handler(HTTPException, http_exception_handler)
+    # app.add_exception_handler(Exception, exception_handler)
+    app.add_exception_handler(RequestValidationError,
+                              validation_exception_handler)
+
+
+app = get_application()
+
 
 
 def get_config_repo():
     return ConfigurationRepositoryFactory.get_config_repository()
 
 
-@app.on_event("startup")
-async def startup_event():
-    global pcache
-    pcache = pickle.load(open("pcache.p", "rb"))
-    load_event_log.variants_store = pickle.load(open("variants_store.p", "rb"))
-    load_event_log.variants = pickle.load(open("variants.p", "rb"))
-    load_event_log.activites = pickle.load(open("activities.p", "rb"))
-    load_event_log.log_info = pickle.load(open("logInfo.p", "rb"))
-
-
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...),
                              config_repo: ConfigurationRepository = Depends(get_config_repo)):
-    global pcache
-    pcache = {}
+    cache.pcache = {}
 
     content = "".join([line.decode("UTF-8") for line in file.file])
     event_log = xes_importer.deserialize(content)
-    log_cache.event_log = event_log
-    use_mp = len(event_log) > config_repo.get_configuration().min_traces_variant_detection_mp
+    cache.event_log = event_log
+    use_mp = len(event_log) > config_repo.get_configuration(
+    ).min_traces_variant_detection_mp
     info = calculate_event_log_properties(event_log, use_mp=use_mp)
     return info
 
@@ -135,14 +143,12 @@ class FilePathInput(BaseModel):
 @app.post("/loadEventLog")
 async def load_event_log_from_file_path(d: FilePathInput,
                                         config_repo: ConfigurationRepository = Depends(get_config_repo)):
-    global event_log
-    global pcache
-    pcache = {}
-
+    cache.pcache = {}
     event_log = xes_import(d.file_path)
-    log_cache.event_log = event_log
+    cache.event_log = event_log
 
-    use_mp = len(event_log) > config_repo.get_configuration().min_traces_variant_detection_mp
+    use_mp = len(event_log) > config_repo.get_configuration(
+    ).min_traces_variant_detection_mp
     info = calculate_event_log_properties(event_log, use_mp=use_mp)
     return info
 
@@ -208,7 +214,8 @@ async def get_subvariants(data: InputPerformanceSubvariant):
 
 @app.post("/discoverProcessModelFromConcurrencyVariants")
 async def discover_process_model_from_cvariants(d: InputDiscoverProcessModelFromVariants):
-    all_variants = set([tuple(variant) for cvariant in d.variants for variant in generate_variants(cvariant)])
+    all_variants = set([tuple(
+        variant) for cvariant in d.variants for variant in generate_variants(cvariant)])
     print(f"nVariants: {len(all_variants)}")
     res = discover_process_model_from_variants(all_variants)
     return res
@@ -232,7 +239,8 @@ async def add_simple_variants_to_process_model(d: InputAddVariantsToProcessModel
 async def add_cvariants_to_process_model(d: InputAddVariantsToProcessModel):
     fitting_variants = set(
         [tuple(variant) for cvariant in d.fitting_variants for variant in generate_variants(cvariant)])
-    to_add = set([tuple(variant) for cvariant in d.variants_to_add for variant in generate_variants(cvariant)])
+    to_add = set([tuple(variant)
+                 for cvariant in d.variants_to_add for variant in generate_variants(cvariant)])
     return add_variants_to_process_model(d.pt, fitting_variants, to_add)
 
 
@@ -303,7 +311,8 @@ async def get_variants_from_event_log():
         for a in v.split(','):
             res["activities"].add(a)
 
-    res['variants'] = sorted(res['variants'], key=lambda variant: variant['count'], reverse=True)
+    res['variants'] = sorted(
+        res['variants'], key=lambda variant: variant['count'], reverse=True)
     return res
 
 
@@ -369,10 +378,14 @@ def get_merged_performances(pt: CortadoProcessTree):
     tree_nodes = performance_utils.get_all_nodes(pt)
     tree_cache_key = str(pt)
 
-    all_service_times = [pcache[tree_cache_key][k]["service_times"] for k in pcache[tree_cache_key]]
-    all_waiting_times = [pcache[tree_cache_key][k]["waiting_times"] for k in pcache[tree_cache_key]]
-    all_cycle_times = [pcache[tree_cache_key][k]["cycle_times"] for k in pcache[tree_cache_key]]
-    all_idle_times = [pcache[tree_cache_key][k]["idle_times"] for k in pcache[tree_cache_key]]
+    all_service_times = [cache.pcache[tree_cache_key][k]
+                         ["service_times"] for k in cache.pcache[tree_cache_key]]
+    all_waiting_times = [cache.pcache[tree_cache_key][k]
+                         ["waiting_times"] for k in cache.pcache[tree_cache_key]]
+    all_cycle_times = [cache.pcache[tree_cache_key][k]
+                       ["cycle_times"] for k in cache.pcache[tree_cache_key]]
+    all_idle_times = [cache.pcache[tree_cache_key][k]["idle_times"]
+                      for k in cache.pcache[tree_cache_key]]
 
     merged_service_times = merge_performance(all_service_times)
     merged_waiting_times = merge_performance(all_waiting_times)
@@ -392,7 +405,6 @@ def get_merged_performances(pt: CortadoProcessTree):
 
 @app.post("/calculateVariantsPerformance")
 async def calculate_variant_performance(d: InputCalculatePerformance):
-    global pcache
     pt, _ = dict_to_process_tree(d.pt)
     pt = convert_tree(pt)
     tree_nodes = performance_utils.get_all_nodes(pt)
@@ -404,16 +416,17 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
     if d.delete:
         for remove_variant in d.delete:
             delete_cache_key = json.dumps(remove_variant)
-            variants = [v for v in variants if json.dumps(v) != delete_cache_key]
+            variants = [v for v in variants if json.dumps(
+                v) != delete_cache_key]
 
-            if tree_cache_key in pcache and delete_cache_key in pcache[tree_cache_key]:
-                del pcache[tree_cache_key][delete_cache_key]
+            if tree_cache_key in cache.pcache and delete_cache_key in cache.pcache[tree_cache_key]:
+                del cache.pcache[tree_cache_key][delete_cache_key]
 
     variants_fitness = []
     for variant in variants:
         variant_cache_key = json.dumps(variant)
-        if tree_cache_key in pcache and variant_cache_key in pcache[tree_cache_key]:
-            p_values = pcache[tree_cache_key][variant_cache_key]
+        if tree_cache_key in cache.pcache and variant_cache_key in cache.pcache[tree_cache_key]:
+            p_values = cache.pcache[tree_cache_key][variant_cache_key]
             service_times_aggregated = p_values["service_times"]
             idle_times_aggregated = p_values["idle_times"]
             waiting_times_aggregated = p_values["waiting_times"]
@@ -429,10 +442,14 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
                 = tree_performance.get_tree_performance_intervals(pt, test_log,
                                                                   alignment_variant=net_alignment.Variants.VERSION_STATE_EQUATION_A_STAR)
 
-            service_times_aggregated = tree_performance.apply_aggregation(service_times, noop, avg, avg)
-            idle_times_aggregated = tree_performance.apply_aggregation(idle_times, noop, avg, avg)
-            waiting_times_aggregated = tree_performance.apply_aggregation(waiting_times, noop, avg, avg)
-            cycle_times_aggregated = tree_performance.apply_aggregation(cycle_times, noop, avg, avg)
+            service_times_aggregated = tree_performance.apply_aggregation(
+                service_times, noop, avg, avg)
+            idle_times_aggregated = tree_performance.apply_aggregation(
+                idle_times, noop, avg, avg)
+            waiting_times_aggregated = tree_performance.apply_aggregation(
+                waiting_times, noop, avg, avg)
+            cycle_times_aggregated = tree_performance.apply_aggregation(
+                cycle_times, noop, avg, avg)
 
         perf_stats = {str(t): {
             "service_time": stats(service_times_aggregated[t]) if t in service_times_aggregated else None,
@@ -447,13 +464,13 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
         variants_tree_performance.append(pt_dict_variant)
         variants_fitness.append(mean_fitness)
 
-        if tree_cache_key not in pcache:
-            pcache[tree_cache_key] = {}
-        pcache[tree_cache_key][variant_cache_key] = {"service_times": service_times_aggregated,
-                                                     "idle_times": idle_times_aggregated,
-                                                     "cycle_times": cycle_times_aggregated,
-                                                     "waiting_times": waiting_times_aggregated,
-                                                     "mean_fitness": mean_fitness}
+        if tree_cache_key not in cache.pcache:
+            cache.pcache[tree_cache_key] = {}
+        cache.pcache[tree_cache_key][variant_cache_key] = {"service_times": service_times_aggregated,
+                                                           "idle_times": idle_times_aggregated,
+                                                           "cycle_times": cycle_times_aggregated,
+                                                           "waiting_times": waiting_times_aggregated,
+                                                           "mean_fitness": mean_fitness}
 
     # pickle.dump( pcache, open( "pcache.p", "wb" ))
     # pickle.dump(load_event_log.variants_store,  open( "variants_store.p", "wb" ))
@@ -463,17 +480,17 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             'fitness_values': variants_fitness}
 
 
-def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, timeout: int):
+def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, infix_type: InfixType,  timeout: int):
     try:
-        return execute_with_timeout(calculate_alignment_intern, timeout, args=(pt, c_variant))
+        return execute_with_timeout(calculate_alignment_intern, timeout, args=(pt, c_variant, infix_type))
     except TimeoutException:
         return {'isTimeout': True}
 
 
-def calculate_alignment_intern(pt: dict, c_variant: dict):
+def calculate_alignment_intern(pt: dict, c_variant: dict, infix_type: InfixType):
     all_variants = generate_variants(c_variant)
     for variant in all_variants:
-        alignment = calculate_alignment_endpoint(variant, pt)
+        alignment = calculate_alignment_endpoint(variant, pt, infix_type)
         if alignment['deviation']:
             return {'cost': alignment['cost'],
                     'deviation': alignment['deviation']}
@@ -518,15 +535,18 @@ async def websocket_endpoint(websocket: WebSocket):
                 if data['timeout'] != 0:
                     timeout = data['timeout']
                 pool.apply_async(calculate_alignment_intern_with_timeout,
-                                 (data['pt'], data['variant'], timeout,),
+                                 (data['pt'], data['variant'], InfixType(
+                                     data['infixType']), timeout,),
                                  callback=get_alignment_callback(data['id'], websocket))
     except WebSocketDisconnect:
         print('websocket disconnected')
 
 
 class Configuration(BaseModel):
-    timeout_cvariant_alignment_computation: int = Field(alias='timeoutCVariantAlignmentComputation')
-    min_traces_variant_detection_mp: int = Field(alias="minTracesVariantDetectionMultiprocessing")
+    timeout_cvariant_alignment_computation: int = Field(
+        alias='timeoutCVariantAlignmentComputation')
+    min_traces_variant_detection_mp: int = Field(
+        alias="minTracesVariantDetectionMultiprocessing")
 
     class Config:
         allow_population_by_field_name = True
@@ -557,7 +577,8 @@ async def get_info():
 # Using FastAPI instance
 @app.get("/url-list")
 def get_all_urls():
-    url_list = [{"path": route.path, "name": route.name} for route in app.routes]
+    url_list = [{"path": route.path, "name": route.name}
+                for route in app.routes]
     return url_list
 
 
@@ -567,7 +588,8 @@ class variantQuery(BaseModel):
 
 @app.post("/variant-query")
 def variant_query(query: variantQuery):
-    res = evaluate_query_against_variant_graphs(query, load_event_log.variants, load_event_log.activites)
+    res = evaluate_query_against_variant_graphs(
+        query, load_event_log.variants, load_event_log.activites)
 
     return res
 

@@ -11,7 +11,6 @@ import { SharedDataService } from '../../services/sharedDataService/shared-data.
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { VariantElement } from '../variant-explorer/model';
-import { ProcessTree } from 'src/app/objects/ProcessTree';
 
 @Component({
   selector: 'app-activity-overview',
@@ -66,23 +65,7 @@ export class ActivityOverviewComponent
       }
     );
 
-    this.activitiesInLog = this.sharedDataService.activitiesInEventLog;
-    this.startActivities = this.sharedDataService.startActivitiesInEventLog;
-    this.endActivities = this.sharedDataService.endActivitiesInEventLog;
-
     this.activityFields = [];
-    for (let activity in this.activitiesInLog) {
-      this.activityFields.push(
-        new ActivityField(
-          activity,
-          this.activitiesInLog[activity],
-          this.activityColorMap.get(activity),
-          this.activitiesInTree.has(activity),
-          this.startActivities.has(activity),
-          this.endActivities.has(activity)
-        )
-      );
-    }
 
     // Handle change of current activies in the loaded model
     this.sharedDataService.activitiesInCurrentTree$.subscribe(
