@@ -94,8 +94,9 @@ export class SubVariantComponent implements AfterViewInit {
 
     this.svg.selectAll('g').remove();
     this.svg.selectAll('rect').remove();
+    this.svg.selectAll('line').remove();
 
-    const data = this.buildData();
+    const [data, xValues] = this.buildData();
     let dataArray = Array.from(data.values());
 
     const xScale = (x) => Constants.POINT_RADIUS + x * intervalWidth + 5;
@@ -110,6 +111,21 @@ export class SubVariantComponent implements AfterViewInit {
 
     this.svg.attr('height', height);
     this.svg.attr('width', width);
+
+    const helpLineOpacity = this.isPerformanceMode ? 0.1 : 0.05;
+
+    this.svg
+      .selectAll('line')
+      .data(xValues)
+      .enter()
+      .append('line')
+      .attr('x1', (x) => xScale(x))
+      .attr('x2', (x) => xScale(x))
+      .attr('y1', 0)
+      .attr('y2', height)
+      .attr('stroke', 'lightgrey')
+      .attr('stroke-width', 2 * Constants.POINT_RADIUS)
+      .attr('stroke-opacity', helpLineOpacity);
 
     if (this.isPerformanceMode) {
       dataArray = dataArray.concat(this.buildWaitingTimeData(data));
@@ -249,10 +265,11 @@ export class SubVariantComponent implements AfterViewInit {
     return textLength;
   }
 
-  private buildData(): Map<string, SubvariantVisualization> {
+  private buildData(): [Map<string, SubvariantVisualization>, Set<number>] {
     const intervalWidth = Constants.INTERVAL_LENGTH;
     const gapLength = (20 + Constants.POINT_RADIUS) / intervalWidth;
 
+    let xValues = new Set<number>();
     let usedYIndices = new Set<number>();
     const starts = new Map<string, [number, number]>();
     const data = new Map<string, SubvariantVisualization>();
@@ -288,6 +305,9 @@ export class SubVariantComponent implements AfterViewInit {
         m.yIndex = startIndices[1];
         m.isWaitingTimeNode = false;
 
+        xValues.add(m.xStart);
+        xValues.add(m.xEnd);
+
         data.set(subvariantNode.activity + subvariantNode.activity_instance, m);
 
         usedYIndices.delete(startIndices[1]);
@@ -305,7 +325,7 @@ export class SubVariantComponent implements AfterViewInit {
       }
     });
 
-    return data;
+    return [data, xValues];
   }
 
   private buildWaitingTimeData(
