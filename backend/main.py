@@ -117,7 +117,6 @@ def add_exception_handlers(app: FastAPI):
 app = get_application()
 
 
-
 def get_config_repo():
     return ConfigurationRepositoryFactory.get_config_repository()
 
@@ -209,7 +208,7 @@ async def get_subvariants(data: InputPerformanceSubvariant):
         }
         result.append(subvariant_response)
 
-    return result
+    return sorted(result, key=lambda x: x['count'], reverse=True)
 
 
 @app.post("/discoverProcessModelFromConcurrencyVariants")
@@ -240,7 +239,7 @@ async def add_cvariants_to_process_model(d: InputAddVariantsToProcessModel):
     fitting_variants = set(
         [tuple(variant) for cvariant in d.fitting_variants for variant in generate_variants(cvariant)])
     to_add = set([tuple(variant)
-                 for cvariant in d.variants_to_add for variant in generate_variants(cvariant)])
+                  for cvariant in d.variants_to_add for variant in generate_variants(cvariant)])
     return add_variants_to_process_model(d.pt, fitting_variants, to_add)
 
 
@@ -480,7 +479,7 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             'fitness_values': variants_fitness}
 
 
-def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, infix_type: InfixType,  timeout: int):
+def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, infix_type: InfixType, timeout: int):
     try:
         return execute_with_timeout(calculate_alignment_intern, timeout, args=(pt, c_variant, infix_type))
     except TimeoutException:
