@@ -14,6 +14,8 @@ from cortado_core.performance.aggregators import avg, noop, stats
 from cortado_core.utils.alignment_utils import trace_fits_process_tree
 from cortado_core.utils.cvariants import generate_variants
 from cortado_core.utils.process_tree import CortadoProcessTree, convert_tree
+from cortado_core.performance.variant_performance import assign_variants_performances
+from cortado_core.utils.split_graph import deserialize_variant
 from fastapi import (Depends, FastAPI, File, HTTPException, UploadFile,
                      WebSocket, WebSocketDisconnect)
 from fastapi.exceptions import RequestValidationError
@@ -210,7 +212,7 @@ async def add_cvariants_to_process_model(d: InputAddVariantsToProcessModel):
     fitting_variants = set(
         [tuple(variant) for cvariant in d.fitting_variants for variant in generate_variants(cvariant)])
     to_add = set([tuple(variant)
-                 for cvariant in d.variants_to_add for variant in generate_variants(cvariant)])
+                  for cvariant in d.variants_to_add for variant in generate_variants(cvariant)])
     return add_variants_to_process_model(d.pt, fitting_variants, to_add)
 
 
@@ -373,6 +375,15 @@ def get_merged_performances(pt: CortadoProcessTree):
     return pt_dict
 
 
+@app.get("/logBasedPerformanceForVariants")
+async def calculate_log_based_performance():
+    variants = {deserialize_variant(json.loads(k)): v for k, v in load_event_log.variants_store.items()}
+
+    assign_variants_performances(variants)
+
+    return [v.serialize(include_performance=True) for v in variants.keys()]
+
+
 @app.post("/calculateVariantsPerformance")
 async def calculate_variant_performance(d: InputCalculatePerformance):
     pt, _ = dict_to_process_tree(d.pt)
@@ -450,7 +461,7 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             'fitness_values': variants_fitness}
 
 
-def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, infix_type: InfixType,  timeout: int):
+def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, infix_type: InfixType, timeout: int):
     try:
         return execute_with_timeout(calculate_alignment_intern, timeout, args=(pt, c_variant, infix_type))
     except TimeoutException:
@@ -558,7 +569,6 @@ class variantQuery(BaseModel):
 
 @app.post("/variant-query")
 def variant_query(query: variantQuery):
-
     res = evaluate_query_against_variant_graphs(
         query, load_event_log.variants, load_event_log.activites)
 
