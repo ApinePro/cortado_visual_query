@@ -1306,7 +1306,8 @@ export class ProcessTreeEditorComponent
 
   toggleBPMNEditor() {
     this.goldenLayoutComponentService.createBPMNSplitViewWindow(
-      ProcessTreeEditorComponent.componentName, BpmnEditorComponent.componentName
+      ProcessTreeEditorComponent.componentName,
+      BpmnEditorComponent.componentName
     );
   }
 

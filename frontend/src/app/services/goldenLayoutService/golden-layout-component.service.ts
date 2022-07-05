@@ -30,7 +30,6 @@ export class GoldenLayoutComponentService {
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
 
-
   splitViewIds = [];
 
   registerComponentType(
@@ -122,13 +121,12 @@ export class GoldenLayoutComponentService {
     // Destroy the split window instance, and register the creation after the semaphor fires TODO carry over the state
     // Issue, when in the Future multiple Editor might exist and can be closed in rapid succesion
 
-
     // TODO READD SPLIT WINDOW CHECK
-    if (editor && this.splitViewIds.includes(componentID)){
+    if (editor && this.splitViewIds.includes(componentID)) {
       editor.close();
 
-      this.splitViewIds.forEach( (item, index) => {
-        if(item === componentID) this.splitViewIds.splice(index,1);
+      this.splitViewIds.forEach((item, index) => {
+        if (item === componentID) this.splitViewIds.splice(index, 1);
       });
 
       createComponent(parentContainerID, itemConfig, LocationSelectors);
@@ -142,28 +140,17 @@ export class GoldenLayoutComponentService {
   }
 
   createBPMNSplitViewWindow(splitParentID, componentID) {
+    const parent = this._goldenLayout.findFirstComponentItemById(splitParentID);
 
-    const parent = this._goldenLayout.findFirstComponentItemById(splitParentID)
+    if (this.splitViewIds.includes(componentID)) {
+      this._goldenLayout.findFirstComponentItemById(componentID)?.close();
 
-
-    if (this.splitViewIds.includes(componentID)){
-
-      this._goldenLayout
-        .findFirstComponentItemById(componentID)
-       ?.close();
-
-
-      this.splitViewIds.forEach( (item, index) => {
-        if(item === componentID) this.splitViewIds.splice(index,1);
+      this.splitViewIds.forEach((item, index) => {
+        if (item === componentID) this.splitViewIds.splice(index, 1);
       });
-
-
     } else {
-
-      this.splitViewIds.push(componentID)
-      this._goldenLayout
-        .findFirstComponentItemById(componentID)
-       ?.close();
+      this.splitViewIds.push(componentID);
+      this._goldenLayout.findFirstComponentItemById(componentID)?.close();
 
       const itemConfig: ComponentItemConfig = {
         id: componentID,
@@ -176,35 +163,41 @@ export class GoldenLayoutComponentService {
         componentType: componentID,
       };
 
-      const pt_editor_row = findContentItemByUniqueID(splitParentID + '_Container_Row', this._goldenLayout.rootItem);
+      const pt_editor_row = findContentItemByUniqueID(
+        splitParentID + '_Container_Row',
+        this._goldenLayout.rootItem
+      );
 
-      (pt_editor_row as RowOrColumn).addItem(itemConfig, 1)
+      (pt_editor_row as RowOrColumn).addItem(itemConfig, 1);
     }
   }
 }
 
-function findContentItemByUniqueID(id : string, groundItem : ContentItem): ContentItem | undefined {
+function findContentItemByUniqueID(
+  id: string,
+  groundItem: ContentItem
+): ContentItem | undefined {
   const contentItems = groundItem.contentItems;
 
   const contentItemCount = contentItems.length;
   if (contentItemCount === 0) {
-      return undefined;
+    return undefined;
   } else {
-      for (let i = 0; i < contentItemCount; i++) {
-          const contentItem = contentItems[i];
-          if (contentItem.id === id) {
-              return contentItem;
-          }
+    for (let i = 0; i < contentItemCount; i++) {
+      const contentItem = contentItems[i];
+      if (contentItem.id === id) {
+        return contentItem;
       }
+    }
 
-      for (let i = 0; i < contentItemCount; i++) {
-          const contentItem = contentItems[i];
-          const foundContentItem = findContentItemByUniqueID(id, contentItem);
-          if (foundContentItem !== undefined) {
-              return foundContentItem;
-          }
+    for (let i = 0; i < contentItemCount; i++) {
+      const contentItem = contentItems[i];
+      const foundContentItem = findContentItemByUniqueID(id, contentItem);
+      if (foundContentItem !== undefined) {
+        return foundContentItem;
       }
+    }
 
-      return undefined;
+    return undefined;
   }
 }

@@ -1,4 +1,11 @@
-import { ChangeDetectorRef, Component, ElementRef, Inject, OnInit, Renderer2 } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  Inject,
+  OnInit,
+  Renderer2,
+} from '@angular/core';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 import { VariantElement } from '../variant-explorer/model';
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
@@ -9,8 +16,10 @@ import { ComponentContainer, LogicalZIndex } from 'golden-layout';
   templateUrl: './variant-performance.component.html',
   styleUrls: ['./variant-performance.component.scss'],
 })
-export class VariantPerformanceComponent extends LayoutChangeDirective implements OnInit {
-
+export class VariantPerformanceComponent
+  extends LayoutChangeDirective
+  implements OnInit
+{
   constructor(
     public variantPerformanceService: VariantPerformanceService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -53,7 +62,6 @@ export class VariantPerformanceComponent extends LayoutChangeDirective implement
     this.variantPerformanceService.variantPerformanceMode.next(performanceMode);
   }
 }
-
 
 export namespace VariantPerformanceComponent {
   export const componentName = 'VariantPerformanceComponent';

@@ -239,29 +239,38 @@ export class GoldenLayoutHostComponent implements OnDestroy {
       );
     }
 
-
-    const parent = container.parent
+    const parent = container.parent;
     const grand_parent = parent.parent;
-    const grand_parent_children_elements = grand_parent.element.children
+    const grand_parent_children_elements = grand_parent.element.children;
 
-    if (width < 250 || height < 150){
-
-      for (let i = 0; i < grand_parent_children_elements.length; i++){
-        this.renderer.setStyle(grand_parent_children_elements[i], 'visibility', 'hidden')
+    if (width < 250 || height < 150) {
+      for (let i = 0; i < grand_parent_children_elements.length; i++) {
+        this.renderer.setStyle(
+          grand_parent_children_elements[i],
+          'visibility',
+          'hidden'
+        );
       }
 
       this._componentRefMap.get(container).instance.setVisibility(false);
       this.renderer.setAttribute(grand_parent.element, 'dots', '...');
-      this.renderer.addClass(grand_parent.element, 'collapsed-golden-layout-container');
-
+      this.renderer.addClass(
+        grand_parent.element,
+        'collapsed-golden-layout-container'
+      );
     } else {
-
-      for (let i = 0; i < grand_parent_children_elements.length; i++){
-        this.renderer.removeStyle(grand_parent_children_elements[i], 'visibility')
+      for (let i = 0; i < grand_parent_children_elements.length; i++) {
+        this.renderer.removeStyle(
+          grand_parent_children_elements[i],
+          'visibility'
+        );
       }
 
       this._componentRefMap.get(container).instance.setVisibility(true);
-      this.renderer.removeClass(grand_parent.element, 'collapsed-golden-layout-container');
+      this.renderer.removeClass(
+        grand_parent.element,
+        'collapsed-golden-layout-container'
+      );
       this.renderer.removeAttribute(grand_parent.element, 'dots', '...');
     }
 

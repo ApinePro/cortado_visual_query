@@ -753,7 +753,7 @@ export class VariantExplorerComponent
   ): void {
     this.collapse = width < 875;
 
-    this.sidebarHeigth = height
+    this.sidebarHeigth = height;
   }
 
   handleVisibilityChange(visibility: boolean): void {}

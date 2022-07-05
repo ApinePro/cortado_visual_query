@@ -4,9 +4,9 @@ import {
   ChangeDetectorRef,
   Component,
   OnInit,
-  ElementRef, 
+  ElementRef,
   Inject,
-  Renderer2 
+  Renderer2,
 } from '@angular/core';
 
 import {
@@ -27,7 +27,10 @@ import { ComponentContainer, LogicalZIndex } from 'golden-layout';
   templateUrl: './performance.component.html',
   styleUrls: ['./performance.component.scss'],
 })
-export class ModelPerformanceComponent  extends LayoutChangeDirective implements OnInit {
+export class ModelPerformanceComponent
+  extends LayoutChangeDirective
+  implements OnInit
+{
   duration: HumanizeDuration;
 
   colorValues = [];
@@ -111,7 +114,6 @@ export class ModelPerformanceComponent  extends LayoutChangeDirective implements
     }
   }
 
-
   handleResponsiveChange(
     left: number,
     top: number,
@@ -126,8 +128,6 @@ export class ModelPerformanceComponent  extends LayoutChangeDirective implements
     defaultZIndex: string
   ): void {}
 }
-
-
 
 export namespace ModelPerformanceComponent {
   export const componentName = 'ModelPerformanceComponent';
