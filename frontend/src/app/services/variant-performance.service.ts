@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import {
+  deserialize,
   InvisibleSequenceGroup,
   LeafNode,
   ParallelGroup,
@@ -10,6 +11,8 @@ import {
 } from '../components/variant-explorer/model';
 import * as d3 from 'd3';
 import { SharedDataService } from './sharedDataService/shared-data.service';
+import { BackendService } from './backendService/backend.service';
+import { map, tap } from 'rxjs/operators';
 
 // https://observablehq.com/@philippkoytek/celonis-data-visualization-colors
 export const COLORS_CYAN = [
@@ -58,6 +61,8 @@ export class VariantPerformanceService {
   private _serviceTimeStatistic = 'mean';
   private _waitingTimeStatistic = 'mean';
 
+  private performanceInformationLoaded: boolean = false;
+
   get serviceTimeStatistic() {
     return this._serviceTimeStatistic;
   }
@@ -97,11 +102,15 @@ export class VariantPerformanceService {
 
   public variantPerformanceMode = new BehaviorSubject<boolean>(false);
 
-  constructor(private sharedDataService: SharedDataService) {
+  constructor(
+    private sharedDataService: SharedDataService,
+    private backendService: BackendService
+  ) {
     this.sharedDataService.loadedEventLog$.subscribe((log) => {
       if (log !== undefined) {
         this.updateServiceTimeColorMap();
         this.updateWaitingTimeColorMap();
+        this.performanceInformationLoaded = false;
       }
     });
 
@@ -279,5 +288,26 @@ export class VariantPerformanceService {
         variant.elements[i] = new InvisibleSequenceGroup(waitGroup);
       }
     }
+  }
+
+  addPerformanceInformationToVariants(): Observable<boolean> {
+    if (this.performanceInformationLoaded) {
+      return new Observable<boolean>((s) => s.next(false));
+    }
+
+    return this.backendService.getLogBasedPerformance().pipe(
+      tap((res) => {
+        this.sharedDataService.variants.forEach((v) => {
+          v.variant = deserialize(res[v.bid]);
+        });
+        this.updateServiceTimeColorMap();
+        this.updateWaitingTimeColorMap();
+        this.injectWaitingTimeNodes(
+          this.sharedDataService.variants.map((v) => v.variant)
+        );
+        this.performanceInformationLoaded = true;
+      }),
+      map((_) => true)
+    );
   }
 }

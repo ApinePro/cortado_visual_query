@@ -283,4 +283,10 @@ export class BackendService {
   getInfo(): Observable<any> {
     return this.httpClient.get(this.backendUrl + 'info');
   }
+
+  getLogBasedPerformance(): Observable<any> {
+    return this.httpClient.get(
+      this.backendUrl + 'logBasedPerformanceForVariants'
+    );
+  }
 }

@@ -356,10 +356,6 @@ export class VariantExplorerComponent
     this.variants = this.sharedDataService.variants;
     this.displayed_variants = this.variants;
 
-    this.variantPerformanceService.injectWaitingTimeNodes(
-      this.variants.map((v) => v.variant)
-    );
-
     this.variants.forEach((v, i) => {
       v.isConformanceOutdated = true;
       v.userDefined = false;
@@ -664,6 +660,13 @@ export class VariantExplorerComponent
 
   setPerformanceMode(performanceMode: boolean): void {
     if (performanceMode) {
+      this.variantPerformanceService
+        .addPerformanceInformationToVariants()
+        .subscribe((updateView) => {
+          if (updateView) {
+            this.redraw_components();
+          }
+        });
       this.variants.map((variant) => {
         this.expansionState.set(variant.id, variant.variant.getExpanded());
       });
