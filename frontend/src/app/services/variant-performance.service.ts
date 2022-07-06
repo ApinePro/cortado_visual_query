@@ -61,7 +61,8 @@ export class VariantPerformanceService {
   private _serviceTimeStatistic = 'mean';
   private _waitingTimeStatistic = 'mean';
 
-  private performanceInformationLoaded: boolean = false;
+  public performanceInformationLoaded: boolean = false;
+  private results = new Map<string, any>();
 
   get serviceTimeStatistic() {
     return this._serviceTimeStatistic;
@@ -290,19 +291,13 @@ export class VariantPerformanceService {
     }
   }
 
-  private results = new Map<string, any>();
-
-  addResult(res) {
-    for (const [k, v] of Object.entries(res)) {
+  addVariantPerformanceResults(chunkResult) {
+    for (const [k, v] of Object.entries(chunkResult)) {
       this.results.set(k, v);
     }
   }
 
   addPerformanceInformationToVariants(): Observable<number> {
-    if (this.performanceInformationLoaded) {
-      return of(10000);
-    }
-
     let chunks = [];
     const nVariants = this.sharedDataService.variants.length;
     for (let i = 0; i < nVariants; i += 100) {
@@ -313,11 +308,13 @@ export class VariantPerformanceService {
       concatMap((chunk) =>
         this.backendService.getLogBasedPerformance(chunk[0], chunk[1])
       ),
-      tap((res) => this.addResult(res)),
-      map((_) => this.results.size),
+      tap((res) => this.addVariantPerformanceResults(res)),
+      map((_) => this.results.size / nVariants),
       finalize(() => {
         this.sharedDataService.variants.forEach((v) => {
-          v.variant = deserialize(this.results.get(v.bid.toString()));
+          if (!v.userDefined) {
+            v.variant = deserialize(this.results.get(v.bid.toString()));
+          }
         });
         this.updateServiceTimeColorMap();
         this.updateWaitingTimeColorMap();

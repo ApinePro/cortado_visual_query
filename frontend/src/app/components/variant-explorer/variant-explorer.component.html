@@ -365,6 +365,12 @@
     </div>
   </div>
 
+  <app-performance-progress-bar
+    [isVisible]="performanceUpdateInProgress"
+    [progress]="performanceUpdateProgress"
+  >
+  </app-performance-progress-bar>
+
   <div class="main-variant-explorer flex-grow-1" #variantExplorer>
     <div *ngIf="svgRenderingInProgress" class="full-body-spinner">
       <div>

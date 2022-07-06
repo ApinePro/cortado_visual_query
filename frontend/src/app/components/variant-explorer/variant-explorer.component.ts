@@ -29,7 +29,14 @@ import {
   Stack,
 } from 'golden-layout';
 import { Subject } from 'rxjs';
-import { delay, mergeMap, retryWhen, take, tap } from 'rxjs/operators';
+import {
+  delay,
+  finalize,
+  mergeMap,
+  retryWhen,
+  take,
+  tap,
+} from 'rxjs/operators';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
@@ -178,6 +185,9 @@ export class VariantExplorerComponent
 
   public svgRenderingInProgress: boolean = false;
   public variantExplorerOutOfFocus: boolean = false;
+
+  public performanceUpdateInProgress: boolean = false;
+  public performanceUpdateProgress: number = 0;
 
   _goldenLayoutHostComponent: GoldenLayoutHostComponent;
   _goldenLayout: GoldenLayout;
@@ -658,16 +668,29 @@ export class VariantExplorerComponent
       });
   }
 
+  updatePerformanceInformation() {
+    this.performanceUpdateInProgress = true;
+    this.variantPerformanceService
+      .addPerformanceInformationToVariants()
+      .pipe(
+        finalize(() => {
+          this.performanceUpdateProgress = 1;
+          setTimeout(() => {
+            this.performanceUpdateInProgress = false;
+            this.performanceUpdateProgress = 0;
+          }, 1000);
+        })
+      )
+      .subscribe((progress) => {
+        this.performanceUpdateProgress = progress;
+      });
+  }
+
   setPerformanceMode(performanceMode: boolean): void {
     if (performanceMode) {
-      this.variantPerformanceService
-        .addPerformanceInformationToVariants()
-        .subscribe((already_loaded) => {
-          console.log(already_loaded);
-          // if (updateView) {
-          //   this.redraw_components();
-          // }
-        });
+      if (!this.variantPerformanceService.performanceInformationLoaded) {
+        this.updatePerformanceInformation();
+      }
       this.variants.map((variant) => {
         this.expansionState.set(variant.id, variant.variant.getExpanded());
       });
