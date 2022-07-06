@@ -662,10 +662,11 @@ export class VariantExplorerComponent
     if (performanceMode) {
       this.variantPerformanceService
         .addPerformanceInformationToVariants()
-        .subscribe((updateView) => {
-          if (updateView) {
-            this.redraw_components();
-          }
+        .subscribe((already_loaded) => {
+          console.log(already_loaded);
+          // if (updateView) {
+          //   this.redraw_components();
+          // }
         });
       this.variants.map((variant) => {
         this.expansionState.set(variant.id, variant.variant.getExpanded());

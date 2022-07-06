@@ -375,12 +375,19 @@ def get_merged_performances(pt: CortadoProcessTree):
     return pt_dict
 
 
-@app.get("/logBasedPerformanceForVariants")
-async def calculate_log_based_performance():
+class InputLogBasedVariantPerformance(BaseModel):
+    start: int
+    end: int
+
+
+@app.post("/logBasedPerformanceForVariants")
+async def calculate_log_based_performance(data: InputLogBasedVariantPerformance):
     variants = load_event_log.variants
+
+    variants = {k: variants[k] for i, k in enumerate(variants) if data.start <= i <= data.end}
     assign_variants_performances(variants)
 
-    return {i: v.serialize(include_performance=True) for i, v in
+    return {i + data.start: v.serialize(include_performance=True) for i, v in
             enumerate(variants)}
 
 

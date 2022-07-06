@@ -284,9 +284,11 @@ export class BackendService {
     return this.httpClient.get(this.backendUrl + 'info');
   }
 
-  getLogBasedPerformance(): Observable<any> {
-    return this.httpClient.get(
-      this.backendUrl + 'logBasedPerformanceForVariants'
+  getLogBasedPerformance(start: number, end: number): Observable<any> {
+    const body = { start: start, end: end };
+    return this.httpClient.post(
+      this.backendUrl + 'logBasedPerformanceForVariants',
+      body
     );
   }
 }

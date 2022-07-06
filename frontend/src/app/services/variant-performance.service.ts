@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, from, Observable, of } from 'rxjs';
 import {
   deserialize,
   InvisibleSequenceGroup,
@@ -12,7 +12,7 @@ import {
 import * as d3 from 'd3';
 import { SharedDataService } from './sharedDataService/shared-data.service';
 import { BackendService } from './backendService/backend.service';
-import { map, tap } from 'rxjs/operators';
+import { map, tap, concatMap, finalize } from 'rxjs/operators';
 
 // https://observablehq.com/@philippkoytek/celonis-data-visualization-colors
 export const COLORS_CYAN = [
@@ -290,15 +290,34 @@ export class VariantPerformanceService {
     }
   }
 
-  addPerformanceInformationToVariants(): Observable<boolean> {
+  private results = new Map<string, any>();
+
+  addResult(res) {
+    for (const [k, v] of Object.entries(res)) {
+      this.results.set(k, v);
+    }
+  }
+
+  addPerformanceInformationToVariants(): Observable<number> {
     if (this.performanceInformationLoaded) {
-      return new Observable<boolean>((s) => s.next(false));
+      return of(10000);
     }
 
-    return this.backendService.getLogBasedPerformance().pipe(
-      tap((res) => {
+    let chunks = [];
+    const nVariants = this.sharedDataService.variants.length;
+    for (let i = 0; i < nVariants; i += 100) {
+      chunks.push([i, Math.min(i + 99, nVariants - 1)]);
+    }
+
+    return from(chunks).pipe(
+      concatMap((chunk) =>
+        this.backendService.getLogBasedPerformance(chunk[0], chunk[1])
+      ),
+      tap((res) => this.addResult(res)),
+      map((_) => this.results.size),
+      finalize(() => {
         this.sharedDataService.variants.forEach((v) => {
-          v.variant = deserialize(res[v.bid]);
+          v.variant = deserialize(this.results.get(v.bid.toString()));
         });
         this.updateServiceTimeColorMap();
         this.updateWaitingTimeColorMap();
@@ -306,8 +325,7 @@ export class VariantPerformanceService {
           this.sharedDataService.variants.map((v) => v.variant)
         );
         this.performanceInformationLoaded = true;
-      }),
-      map((_) => true)
+      })
     );
   }
 }
