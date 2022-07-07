@@ -576,6 +576,7 @@ class VariantMinerConfig(BaseModel):
     algo : int
     loop : int 
     algo_type : int
+    artifical_start : bool
 
 freq_strat_mapping = {
     1 :  FrequencyCountingStrategy.TraceTransaction,
@@ -601,7 +602,7 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
         
     if config.algo == 1: 
         print("Mining K Patterns")
-        k_patterns = min_sub_mining(treeBank, load_event_log.variants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True, fold_loops = config.loop)
+        k_patterns = min_sub_mining(treeBank, load_event_log.variants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = config.artifical_start, fold_loops = config.loop)
         
         print("Setting Maximally Closed Patterns")
         set_maximaly_closed_patterns(k_patterns)
@@ -620,9 +621,8 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
     else:
         
         print("Mining CM K Patterns")
-        k_patterns = cm_min_sub_mining(treeBank, load_event_log.variants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = True)
+        k_patterns = cm_min_sub_mining(treeBank, load_event_log.variants, frequency_counting_strat = freq_strat_mapping[config.strat], k_it = config.k, min_sup = config.min_sup, artifical_start = config.artifical_start)
         set_maximaly_closed_patterns(k_patterns)
-        
         
         df = dataframe_from_k_patterns(k_patterns)
 
