@@ -194,6 +194,7 @@
   display: inline-block;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .query-info-button{
