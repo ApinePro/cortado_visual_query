@@ -56,11 +56,8 @@ def calculate_event_log_properties(event_log: EventLog, time_granularity: TimeUn
 
 def get_simple_variants(event_log: EventLog):
     global variants_store
-    global logVariants
     
     variants = variants_filter.get_variants(event_log)
-    logVariants = variants
-    
     total_traces = len(event_log)
     res_variants = []
     for v in variants:

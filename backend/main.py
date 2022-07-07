@@ -467,17 +467,17 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             'fitness_values': variants_fitness}
 
 
-def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, timeout: int):
+def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, infix_type : InfixType, timeout: int):
     try:
-        return execute_with_timeout(calculate_alignment_intern, timeout, args=(pt, c_variant))
+        return execute_with_timeout(calculate_alignment_intern, timeout, args=(pt, c_variant, infix_type))
     except TimeoutException:
         return {'isTimeout': True}
 
 
-def calculate_alignment_intern(pt: dict, c_variant: dict):
+def calculate_alignment_intern(pt: dict, c_variant: dict, infix_type : InfixType):
     all_variants = generate_variants(c_variant)
     for variant in all_variants:
-        alignment = calculate_alignment_endpoint(variant, pt)
+        alignment = calculate_alignment_endpoint(variant, pt, infix_type)
         if alignment['deviation']:
             return {'cost': alignment['cost'],
                     'deviation': alignment['deviation']}
