@@ -67,11 +67,11 @@ export class VariantMinerComponent
 
   math = Math;
 
-  maxSup : number; 
-  maxK : number; 
-  nClosed : number; 
-  nValid : number; 
-  nMaximal : number; 
+  maxSup : number;
+  maxK : number;
+  nClosed : number;
+  nValid : number;
+  nMaximal : number;
 
   showControls: boolean = true;
   relSup = 25;
@@ -211,6 +211,9 @@ export class VariantMinerComponent
       rel_sup,
       frequent_mining_strat,
 
+      artifical_start : new FormControl(false, {
+        updateOn: 'change'
+      }),
 
       fold_loop : new FormControl(false, {
         updateOn: 'change'
@@ -318,7 +321,8 @@ export class VariantMinerComponent
       form_values.min_sup,
       form_values.frequent_mining_strat,
       loop,
-      form_values.frequent_mining_algo
+      form_values.frequent_mining_algo,
+      form_values.artifical_start,
     );
 
     console.log(config)
@@ -522,6 +526,11 @@ export class VariantMinerComponent
 
     if (element instanceof LeafNode) {
       color = this.colorMap.get(element.asLeafNode().activity[0]);
+
+      if (element.activity.length > 1) {
+        color = '#d3d3d3'; // lightgray
+      }
+
     } else {
       color = '#d3d3d3';
     }
@@ -558,17 +567,20 @@ export class MiningConfig {
   strat: number;
   loop: number;
   algo: number;
+  artifical_start : boolean;
 
-  constructor(k, min_sup, strat, loop, algo) {
+  constructor(k, min_sup, strat, loop, algo, art_start) {
     this.k = k;
     this.min_sup = min_sup;
     this.strat = strat;
     this.loop = loop;
     this.algo = algo;
+    this.artifical_start = art_start;
+
   }
 
   serialize() {
-    return { k: this.k, min_sup: this.min_sup, strat: this.strat, algo : this.algo, loop : this.loop, algo_type : 0 };
+    return { k: this.k, min_sup: this.min_sup, strat: this.strat, algo : this.algo, loop : this.loop, algo_type : 0, artifical_start : this.artifical_start};
   }
 }
 

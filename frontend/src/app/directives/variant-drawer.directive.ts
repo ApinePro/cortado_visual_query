@@ -462,8 +462,6 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     .text('\u21BA');
 
     this.drawLeafNode(element.leafNode, group);
-
-
   }
 
 

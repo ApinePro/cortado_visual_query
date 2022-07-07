@@ -795,7 +795,8 @@ export class LeafNode extends VariantElement {
   public updateWidth() {}
 
   public recalculateHeight(): number {
-    this.height = Constants.LEAF_HEIGHT;
+    this.height =
+      this.activity.length * (Constants.FONT_SIZE + 2 * Constants.MARGIN_Y);
     return this.height;
   }
 
