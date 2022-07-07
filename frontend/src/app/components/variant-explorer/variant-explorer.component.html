@@ -4,6 +4,12 @@
   (fileOnHover)="toggleBlur($event)"
 ></app-drop-zone>
 
+<app-performance-progress-bar
+  [isVisible]="performanceUpdateInProgress"
+  [progress]="performanceUpdateProgress"
+>
+</app-performance-progress-bar>
+
 <div class="sidebar">
   <div
     class="sidebar-button"
@@ -25,7 +31,9 @@
 <div
   class="d-flex flex-column h-100 container-variant-explorer"
   #variantExplorerContainer
-  [class.blurOutOfFocus]="variantExplorerOutOfFocus"
+  [class.blurOutOfFocus]="
+    variantExplorerOutOfFocus || performanceUpdateInProgress
+  "
 >
   <div class="bg-dark btn-tool-bar">
     <i
@@ -364,12 +372,6 @@
       ></app-variant-query>
     </div>
   </div>
-
-  <app-performance-progress-bar
-    [isVisible]="performanceUpdateInProgress"
-    [progress]="performanceUpdateProgress"
-  >
-  </app-performance-progress-bar>
 
   <div class="main-variant-explorer flex-grow-1" #variantExplorer>
     <div *ngIf="svgRenderingInProgress" class="full-body-spinner">

@@ -678,6 +678,8 @@ export class VariantExplorerComponent
           setTimeout(() => {
             this.performanceUpdateInProgress = false;
             this.performanceUpdateProgress = 0;
+            this.performanceMode = true;
+            this.variantPerformanceService.variantPerformanceMode.next(true);
           }, 1000);
         })
       )
@@ -690,6 +692,11 @@ export class VariantExplorerComponent
     if (performanceMode) {
       if (!this.variantPerformanceService.performanceInformationLoaded) {
         this.updatePerformanceInformation();
+      } else {
+        this.performanceMode = performanceMode;
+        this.variantPerformanceService.variantPerformanceMode.next(
+          performanceMode
+        );
       }
       this.variants.map((variant) => {
         this.expansionState.set(variant.id, variant.variant.getExpanded());
@@ -699,10 +706,12 @@ export class VariantExplorerComponent
       this.variants.forEach((variant, i) =>
         variant.variant.setExpanded(this.expansionState.get(variant.id))
       );
-    }
 
-    this.performanceMode = performanceMode;
-    this.variantPerformanceService.variantPerformanceMode.next(performanceMode);
+      this.performanceMode = performanceMode;
+      this.variantPerformanceService.variantPerformanceMode.next(
+        performanceMode
+      );
+    }
   }
 
   addSelectedVariantsToModelForGivenConformance(
