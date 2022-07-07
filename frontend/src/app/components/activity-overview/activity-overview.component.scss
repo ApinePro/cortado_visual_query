@@ -86,7 +86,24 @@ thead th {
   height: 20px;
   width: 100%;
   color: var(--text-secondary);
-  border: none
+  border: none;
+  margin-right:10px;
+}
+
+.activtiy-name-cell:hover > div {
+  visibility: visible;
+}
+
+.remove-activity-button{
+  visibility: hidden;
+}
+
+.activtiy-name-cell{
+  display: flex;
+  justify-content: flex-end;
+  align-content: center;
+  align-items: center;
+  padding-right: 10px;
 }
 
 .color-picker-cell {

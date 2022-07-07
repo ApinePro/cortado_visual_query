@@ -59,7 +59,6 @@ export class ActivityOverviewComponent
   dropZoneConfig: DropzoneConfig;
 
   resetAvailable: boolean = false;
-  focusOutTimeout;
 
   ngOnInit(): void {
     this.dropZoneConfig = new DropzoneConfig(
@@ -179,15 +178,8 @@ export class ActivityOverviewComponent
     }
   }
 
-  focusOut() {
-    this.focusOutTimeout = setTimeout(() => {
-      this.editingActivityName = false;
-      this.ref.markForCheck();
-    }, 150);
-  }
 
   startEditing() {
-    clearTimeout(this.focusOutTimeout);
     this.editingActivityName = true;
   }
 

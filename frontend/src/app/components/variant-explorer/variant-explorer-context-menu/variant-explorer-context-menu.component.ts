@@ -1,5 +1,6 @@
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 import {
+  AfterViewInit,
   Component,
   HostListener,
   Input,
@@ -14,7 +15,7 @@ import { VariantService } from 'src/app/services/variantService/variant.service'
   templateUrl: './variant-explorer-context-menu.component.html',
   styleUrls: ['./variant-explorer-context-menu.component.css'],
 })
-export class VariantExplorerContextMenuComponent implements OnChanges {
+export class VariantExplorerContextMenuComponent implements OnChanges, AfterViewInit {
   @Input()
   xPos: number;
 
@@ -33,8 +34,13 @@ export class VariantExplorerContextMenuComponent implements OnChanges {
   displayMenu: boolean = false;
 
   constructor(private variantService: VariantService) {}
+
+  ngAfterViewInit(): void {
+    this.displayMenu = false;
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
-    this.displayMenu = true;
+      this.displayMenu = true;
   }
 
   @HostListener('window:click', ['$event'])

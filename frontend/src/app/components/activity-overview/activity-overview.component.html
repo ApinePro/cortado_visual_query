@@ -44,7 +44,6 @@
             scope="col"
             class="bg-dark border-end border-color toggle-select"
             (click)="toggleSort('activityName')"
-            colspan="2"
           >
             <div class="d-flex justify-content-between">
               <div>
@@ -197,7 +196,7 @@
                 &nbsp;&nbsp;&nbsp;&nbsp;
               </div>
             </td>
-            <td>
+            <td class="border-end border-color activtiy-name-cell">
               <input
                 class="activity-name-input"
                 type="text"
@@ -209,19 +208,14 @@
                   )
                 "
                 (click)="startEditing()"
-                (blur)="focusOut()"
               />
-            </td>
-            <td class="border-end border-color">
               <div
-                class="cursor-pointer"
-                *ngIf="editingActivityName"
+                class="cursor-pointer remove-activity-button"
                 (click)="deleteActivity($event, activityField)"
               >
                 <i class="bi bi-trash"></i>
               </div>
             </td>
-
             <td class="border-end border-color text-center">
               <i class="bi bi-check2" *ngIf="activityField.inModel"></i>
             </td>
