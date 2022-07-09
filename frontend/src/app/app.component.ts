@@ -13,7 +13,7 @@ import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 import { LogService } from './services/logService/log.service';
 import { SharedDataService } from './services/sharedDataService/shared-data.service';
-
+import * as d3 from 'd3';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
