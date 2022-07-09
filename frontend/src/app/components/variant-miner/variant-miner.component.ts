@@ -1,3 +1,4 @@
+import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
 import { InfixType } from 'src/app/components/variant-explorer/model';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
@@ -7,6 +8,7 @@ import {
   Component,
   ElementRef,
   Inject,
+  OnDestroy,
   OnInit,
   Renderer2,
   ViewChild,
@@ -47,7 +49,7 @@ import { ProcessTree } from 'src/app/objects/ProcessTree';
 })
 export class VariantMinerComponent
   extends LayoutChangeDirective
-  implements OnInit, AfterViewInit
+  implements OnInit, AfterViewInit, OnDestroy
 {
   constructor(
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
@@ -57,6 +59,7 @@ export class VariantMinerComponent
     private colorMapService: ColorMapService,
     private conformanceCheckingService: ConformanceCheckingService,
     private processTreeService : ProcessTreeService, 
+    private lazyLoadingServiceService : LazyLoadingServiceService,
     elRef: ElementRef,
     renderer: Renderer2
   ) {
@@ -626,6 +629,11 @@ export class VariantMinerComponent
         });
       }
     );
+  }
+
+  ngOnDestroy(): void {
+    this.sharedDataService.frequentMiningResults = null; 
+    this.lazyLoadingServiceService.destoryVariantMinerObserver();
   }
   
 }

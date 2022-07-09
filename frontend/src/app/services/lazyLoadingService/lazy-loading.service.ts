@@ -7,7 +7,7 @@ export class LazyLoadingServiceService {
   private intersectionObserver: any;
 
   private variantMinerMapping: Map<any, Function> = new Map<any, Function>();
-  private variantMinerIntersectionObserver: any;
+  private variantMinerIntersectionObserver: IntersectionObserver;
   private mapping: Map<any, Function> = new Map<any, Function>();
 
   private initialize(rootElement: ElementRef): void {
@@ -27,6 +27,10 @@ export class LazyLoadingServiceService {
         rootMargin: '2000px 2000px 2000px 2000px',
       }
     );
+  }
+
+  public destoryVariantMinerObserver(){
+    this.variantMinerIntersectionObserver = null;
   }
 
   private initializeVariantMiner(rootElement: ElementRef) {

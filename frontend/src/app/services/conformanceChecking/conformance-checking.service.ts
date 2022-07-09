@@ -55,7 +55,6 @@ export class ConformanceCheckingService {
           this.infoService.removeRequest(this.runningRequests.pop());
         }),
         map((result) => {
-          console.log('New Result', result)
           return new ConformanceCheckingResult(
             result['id'],
             result['type'],
