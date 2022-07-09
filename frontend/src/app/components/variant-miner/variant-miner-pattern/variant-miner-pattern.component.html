@@ -9,6 +9,51 @@
 
 <td class="border-start border-lightgrey">
   <div class="text-center">
+    <!-- check-square icon-->
+    <i
+      class="bi bi-check-square font-large text-success"
+      *ngIf="
+        pattern.deviation === false &&
+        pattern.calculationInProgress === false &&
+        !pattern.isConformanceOutdated
+      "
+    ></i>
+
+    <!-- x-square icon-->
+    <i
+      class="bi bi-x-square font-large text-danger"
+      *ngIf="
+        pattern.deviation &&
+        pattern.calculationInProgress === false &&
+        !pattern.isConformanceOutdated
+      "
+    >
+    </i>
+    <i
+      class="bi bi-x-square font-large text-warning"
+      *ngIf="
+        pattern.deviation &&
+        pattern.calculationInProgress === false &&
+        pattern.isConformanceOutdated
+      "
+    >
+    </i>
+
+    <!-- question mark icon-->
+    <i
+      class="bi bi-question-square text-secondary align-middle font-large"
+      *ngIf="
+        pattern.deviation === undefined &&
+        pattern.calculationInProgress === false &&
+        !pattern.isTimeouted
+      "
+    >
+    </i>
+  </div>
+</td>
+
+<td class="border-start border-lightgrey">
+  <div class="text-center">
     {{ pattern.support }}
   </div>
 </td>
@@ -18,6 +63,7 @@
     {{ pattern.child_parent_confidence }}
   </div>
 </td>
+<!--
 <td class="center-element">
   <div class="text-center">
 
@@ -28,6 +74,7 @@
 
   </div>
 </td>
+-->
 <td class="border-start border-lightgrey">
   <div class="text-center">
     <i class="bi bi-check2" *ngIf="pattern.maximal"></i>

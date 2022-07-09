@@ -7,6 +7,7 @@
 <div
   class="variant-miner-mainblock h-100 d-flex flex-column"
   [class.blurOutOfFocus]="variantMinerOutOfFocus"
+  [style]
 >
   <div class="variant-miner-container" #variantMiner>
     <div *ngIf="showControls" @collapse>
@@ -223,7 +224,7 @@
 
       <table class="pattern-table">
         <thead>
-          <tr class="user-select-none sticky-header-row" style="z-index: 100">
+          <tr class="user-select-none sticky-header-row">
             <!--<th
               style="padding-right: 2.5px; padding-left: 2.5px"
               class="text-center"
@@ -351,6 +352,72 @@
                     aria-labelledby="dropdownMenuButton1"
                   >
                     <div class="filter-option-container">
+                      <span>Align:</span>
+                      <div class="form-check form-switch" style="width: 250px">
+                        <label
+                          class="form-check-label"
+                          for="flexSwitchCheckChecked"
+                          >Only Fitting Patterns</label
+                        >
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="flexSwitchCheckChecked"
+                          (change)="
+                            showOnlyClosed = !showOnlyClosed;
+                            handleFilterChange($event)
+                          "
+                          [checked]="showOnlyClosed"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="header-text"
+                  (click)="sort(VariantSortKey.alignment)"
+                  [ngClass]="{
+                    'selected-header-text':
+                      currentSortKey === VariantSortKey.alignment
+                  }"
+                >
+                  Fitting
+                </div>
+                <button (click)="computeAlignments()" [disabled]="!processTree">
+                  <i class="bi bi-layers-fill btn-icon"></i>
+                </button>
+              </div>
+              <i
+                [ngClass]="{
+                  'bi-sort-numeric-down': ascending,
+                  'bi-sort-numeric-down-alt': !ascending,
+                  invisible: !(currentSortKey === VariantSortKey.alignment)
+                }"
+              ></i>
+            </th>
+            <th
+              style="padding-right: 2.5px; padding-left: 2.5px"
+              class="text-center border-start border-lightgrey"
+              rowspan="2"
+            >
+              <div class="header-text-container">
+                <div class="dropdown filter-button">
+                  <button
+                    class="filter-button"
+                    type="button"
+                    id="dropdownMenuButton1"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    data-bs-reference="parent"
+                    data-bs-auto-close="outside"
+                  >
+                    <i class="bi bi-filter"></i>
+                  </button>
+                  <div
+                    class="dropdown-menu filter-drop-down"
+                    aria-labelledby="dropdownMenuButton1"
+                  >
+                    <div class="filter-option-container">
                       <span>Sup:</span>
                       <div class="slider-container sup-selector">
                         <ngx-slider
@@ -384,8 +451,7 @@
             </th>
             <th
               class="text-center border-start border-lightgrey"
-              colspan="3"
-              style="padding-right: 50px; padding-left: 50px"
+              style="padding-right: 10px; padding-left: 10px"
             >
               <div class="header-text-container">
                 <div class="dropdown filter-button">
@@ -411,30 +477,6 @@
                           [(value)]="cpConfLow"
                           [(highValue)]="cpConfHigh"
                           [options]="cpConfOptions"
-                          (userChangeEnd)="handleFilterChange($event)"
-                        ></ngx-slider>
-                      </div>
-                    </div>
-
-                    <div class="filter-option-container">
-                      <span>Subpattern:</span>
-                      <div class="slider-container sup-selector">
-                        <ngx-slider
-                          [(value)]="spConfLow"
-                          [(highValue)]="spConfHigh"
-                          [options]="spConfOptions"
-                          (userChangeEnd)="handleFilterChange($event)"
-                        ></ngx-slider>
-                      </div>
-                    </div>
-
-                    <div class="filter-option-container">
-                      <span>K:</span>
-                      <div class="slider-container sup-selector">
-                        <ngx-slider
-                          [(value)]="crossConfLow"
-                          [(highValue)]="crossConfHigh"
-                          [options]="crossConfOptions"
                           (userChangeEnd)="handleFilterChange($event)"
                         ></ngx-slider>
                       </div>
@@ -633,6 +675,7 @@
                 Child-Parent
               </div>
             </th>
+            <!---
             <th class="confidence-names text-center">
               <div
                 (click)="sort(VariantSortKey.subpattern_confidence)"
@@ -656,7 +699,7 @@
               >
                 Cross-Support
               </div>
-            </th>
+            </th>-->
           </tr>
         </thead>
         <tbody>

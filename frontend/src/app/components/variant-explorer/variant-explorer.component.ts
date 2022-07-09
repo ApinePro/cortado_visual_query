@@ -1,3 +1,4 @@
+import { AlignmentType } from './../../services/conformanceChecking/conformance-checking.service';
 import {
   animate,
   state,
@@ -393,7 +394,7 @@ export class VariantExplorerComponent
   }
 
   subscribeForConformanceCheckingResults(): void {
-    this.conformanceCheckingService.results.subscribe(
+    this.conformanceCheckingService.varResults.subscribe(
       (res) => {
         const variant = this.variants.find((v) => v.id == res.id);
         variant.calculationInProgress = false;
@@ -463,8 +464,9 @@ export class VariantExplorerComponent
       variant.id,
       variant.infixType,
       this.processTreeService.currentDisplayedProcessTree,
-      variant.variant.serialize(),
-      timeout
+      variant.variant.serialize(1),
+      timeout,
+      AlignmentType.VariantAlignment,
     );
 
     if (resubscribe) {

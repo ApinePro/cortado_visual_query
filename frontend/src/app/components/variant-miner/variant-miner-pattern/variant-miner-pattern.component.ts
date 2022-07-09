@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 import { VariantElement } from '../../variant-explorer/model';
-import { SubvariantPattern } from '../variant-miner.component';
+import { SubvariantPattern } from '../variant-miner-types';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector

@@ -9,11 +9,11 @@ import {
   VariantElement,
 } from 'src/app/components/variant-explorer/model';
 import * as objectHash from 'object-hash';
-import { MiningConfig } from 'src/app/components/variant-miner/variant-miner.component';
 import { ProcessTree } from 'src/app/objects/ProcessTree';
 import { mapVariants } from 'src/app/utils/util';
 import { SharedDataService } from '../sharedDataService/shared-data.service';
 import { ProcessTreeService } from './../processTreeService/process-tree.service';
+import { MiningConfig } from 'src/app/components/variant-miner/variant-miner-types';
 
 @Injectable({
   providedIn: 'root',
@@ -92,7 +92,7 @@ export class BackendService {
   discoverProcessModelFromConcurrencyVariants(
     variants: VariantElement[]
   ): Observable<any> {
-    const variantsSerialized = variants.map((v) => v.serialize());
+    const variantsSerialized = variants.map((v) => v.serialize(1));
     return this.httpClient
       .post(this.backendUrl + 'discoverProcessModelFromConcurrencyVariants', {
         variants: variantsSerialized,
@@ -210,8 +210,8 @@ export class BackendService {
   ): Observable<any> {
     const body = {
       pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
-      variants: variants.map((v) => v.serialize()),
-      delete: remove?.map((v) => v.variant.serialize()),
+      variants: variants.map((v) => v.serialize(1)),
+      delete: remove?.map((v) => v.variant.serialize(1)),
     };
 
     return this.httpClient.post(
@@ -226,8 +226,8 @@ export class BackendService {
   ): Observable<any> {
     const body = {
       pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
-      variants_to_add: variantsToAdd.map((v) => v.serialize()),
-      fitting_variants: variantsInModelLanguage.map((v) => v.serialize()),
+      variants_to_add: variantsToAdd.map((v) => v.serialize(1)),
+      fitting_variants: variantsInModelLanguage.map((v) => v.serialize(1)),
     };
     return this.httpClient
       .post(this.backendUrl + 'addConcurrencyVariantsToProcessModel', body)
@@ -246,7 +246,7 @@ export class BackendService {
   ): Observable<any> {
     const body = {
       pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
-      selected_variants: selectedVariants.map((v) => v.serialize()),
+      selected_variants: selectedVariants.map((v) => v.serialize(1)),
     };
     return this.httpClient
       .post(

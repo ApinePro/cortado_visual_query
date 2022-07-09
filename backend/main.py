@@ -1,4 +1,5 @@
 import asyncio
+from enum import Enum
 import json
 import pickle
 from multiprocessing import Pool, cpu_count, freeze_support
@@ -485,10 +486,16 @@ def calculate_alignment_intern(pt: dict, c_variant: dict, infix_type : InfixType
     return {'cost': 0, 'deviation': False}
 
 
-def get_alignment_callback(idx: str, websocket: WebSocket):
+class AlignmentType(Enum):
+    VariantAlignment = 1
+    PatternAlignment = 2
+    
+
+def get_alignment_callback(idx: str, alignType : AlignmentType,  websocket: WebSocket):
     def callback(result):
         data = {
             'id': idx,
+            'type' : alignType, 
             'isTimeout': False,
             'cost': 0,
             'deviation': False,
@@ -524,7 +531,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 pool.apply_async(calculate_alignment_intern_with_timeout,
                                  (data['pt'], data['variant'], InfixType(
                                      data['infixType']), timeout,),
-                                 callback=get_alignment_callback(data['id'], websocket))
+                                 callback=get_alignment_callback(data['id'], data['alignType'], websocket))
     except WebSocketDisconnect:
         print('websocket disconnected')
 
@@ -598,7 +605,7 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
     print('Loop', config.loop)
     print('Artif. Start', config.artifical_start)
     
-    treeBank = create_treebank_from_cv_variants(load_event_log.variants, True)
+    treeBank = create_treebank_from_cv_variants(load_event_log.variants, config.artifical_start)
         
         
     if config.algo == 1: 
@@ -626,7 +633,10 @@ def mineFrequentSubtrees(config : VariantMinerConfig):
         set_maximaly_closed_patterns(k_patterns)
         
         df = dataframe_from_k_patterns(k_patterns)
-
+        
+        print('Adding Confidence Information')
+        df = add_confidence_information_to_df(k_patterns, df)
+        
         df.obj = df.obj.apply(lambda x : x.to_concurrency_group().serialize(include_performance=False))
         df = df.replace({np.nan: None}) 
 

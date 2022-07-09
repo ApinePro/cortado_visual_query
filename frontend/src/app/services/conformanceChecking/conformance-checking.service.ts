@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, partition } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { BackgroundTaskInfoService } from '../backgroundTaskInfoService/background-task-info.service';
@@ -21,12 +21,13 @@ export class ConformanceCheckingService {
 
   private socket: WebSocketSubject<any>;
   private runningRequests: number[] = [];
-  public results: Observable<ConformanceCheckingResult>;
+  public varResults: Observable<ConformanceCheckingResult>;
+  public patternResults: Observable<ConformanceCheckingResult>;
 
   public connect(): boolean {
     if (!this.socket || this.socket.closed) {
       this.socket = webSocket(WS_ENDPOINT);
-      this.results = this.socket.pipe(
+    const results = this.socket.pipe(
         catchError((error) => {
           this.runningRequests.forEach((r: number) =>
             this.infoService.removeRequest(r)
@@ -54,14 +55,17 @@ export class ConformanceCheckingService {
           this.infoService.removeRequest(this.runningRequests.pop());
         }),
         map((result) => {
+          console.log('New Result', result)
           return new ConformanceCheckingResult(
             result['id'],
+            result['type'],
             result['isTimeout'],
             result['cost'],
             result['deviation']
           );
-        })
+        }),
       );
+      [this.varResults, this.patternResults] =  partition(results, (ccr : ConformanceCheckingResult) => (ccr.type === 1))
 
       return true;
     }
@@ -74,7 +78,8 @@ export class ConformanceCheckingService {
     infixType: InfixType,
     pt: ProcessTree,
     variant: any,
-    timeout: number
+    timeout: number,
+    alignType : AlignmentType,
   ): boolean {
     const resubscribe = this.connect();
     const rid = this.infoService.setRequest('conformance checking', () =>
@@ -84,6 +89,7 @@ export class ConformanceCheckingService {
     this.socket.next({
       id: id,
       infixType: infixType,
+      alignType : alignType,
       pt: pt.copy(false),
       variant: variant,
       timeout: timeout,
@@ -104,3 +110,10 @@ export class ConformanceCheckingService {
     this.socket.unsubscribe();
   }
 }
+
+
+export enum AlignmentType{
+  VariantAlignment = 1,
+  PatternAlignment = 2
+}
+

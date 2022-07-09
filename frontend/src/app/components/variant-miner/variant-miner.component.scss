@@ -157,6 +157,7 @@ $controls-width : 200px;
 
 .filter-option-container{
   padding: 25px 5px;
+  z-index:12;
 }
 .slider-container{
   width : 50vw;
@@ -186,6 +187,7 @@ $controls-width : 200px;
 .sticky-header-row{
   position: sticky;
   top: 0px;
+  z-index : 10;
   background-color: var(--box-background-color);
 }
 

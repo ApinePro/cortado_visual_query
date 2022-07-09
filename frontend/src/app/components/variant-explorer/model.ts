@@ -315,7 +315,7 @@ export abstract class VariantElement {
 
   public abstract updateWidth(includeWaiting);
 
-  public abstract serialize(): Object;
+  public abstract serialize(l): Object;
 
   public abstract calculateSelectableElements(): void;
 
@@ -502,10 +502,10 @@ export class SequenceGroup extends VariantElement {
     return this.width;
   }
 
-  public serialize(): any {
+  public serialize(l = 1): any {
     return {
       follows: this.elements
-        .map((e) => e.serialize())
+        .map((e) => e.serialize(l))
         .flat()
         .filter((e) => e !== null),
     };
@@ -681,10 +681,10 @@ export class ParallelGroup extends VariantElement {
     return this.width;
   }
 
-  public serialize() {
+  public serialize(l = 1) {
     return {
       parallel: this.elements
-        .map((e) => e.serialize())
+        .map((e) => e.serialize(l))
         .flat()
         .filter((e) => e !== null),
     };
@@ -816,7 +816,7 @@ export class LeafNode extends VariantElement {
     return this.width;
   }
 
-  public serialize() {
+  public serialize(l = 1) {
     return { leaf: this.activity };
   }
 
@@ -843,8 +843,16 @@ export class LeafLoopNode extends VariantElement{
 
   }
 
-  public serialize(): Object {
-    return this.leafNode.serialize();
+  public serialize(l = 1): Object {
+    const leaf = this.leafNode.serialize(l)
+    const res = []
+
+    // Serialize it as l+1 many activites of the folded loop
+    for (let k; k < (l+1); k++){
+      res.push(leaf)
+    }
+
+    return res;
   }
 
 
@@ -909,7 +917,7 @@ export class WaitingTimeNode extends VariantElement {
     return this.width;
   }
 
-  public serialize() {
+  public serialize(l = 1) {
     return null;
   }
 
@@ -939,8 +947,8 @@ export class InvisibleSequenceGroup extends SequenceGroup {
     return this.width;
   }
 
-  public serialize() {
-    return this.elements.map((e) => e.serialize()).filter((e) => e !== null);
+  public serialize(l = 1) {
+    return this.elements.map((e) => e.serialize(l)).filter((e) => e !== null);
   }
 }
 
@@ -965,7 +973,7 @@ export class StartGroup extends VariantElement {
 
   public updateWidth(includeWaiting: any) {}
 
-  public serialize(): Object {
+  public serialize(l = 1): Object {
     return { start: true };
   }
 }
@@ -990,7 +998,7 @@ export class EndGroup extends VariantElement {
   }
   public updateWidth(includeWaiting: any) {}
 
-  public serialize(): Object {
+  public serialize(l = 1): Object {
     return { end: true };
   }
 }
