@@ -86,13 +86,21 @@
   </div>
 </td>
 
-<td class="border-start border-lightgrey ps-2" *ngIf="isVisible">
+<td class="border-start border-lightgrey ps-2 d-flex" *ngIf="isVisible">
+  <div
+    style="width: 35px"
+    *ngIf="
+      pattern.infixType === infixtype.PREFIX ||
+      pattern.infixType === infixtype.NOT_AN_INFIX
+    "
+  ></div>
   <svg
     appVariantDrawer
     #fragment
     [variant]="pattern.variant"
     [onClickCbFc]="onClickCbFc"
     [computeActivityColor]="computeActivityColor"
+    [infixType]="pattern.infixType"
     class="zoom-group-variant"
   ></svg>
 </td>

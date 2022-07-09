@@ -389,11 +389,26 @@ export class VariantMinerComponent
         res.forEach((p, i) => {
           if (p.valid) {
             const variant: VariantElement = deserialize(p.obj);
+            const [isPrefix, isSuffix] = this.checkInfix(p.obj); 
+            let infixtype : InfixType
+
+            if (isPrefix && isSuffix){
+              infixtype = InfixType.NOT_AN_INFIX
+            } else if (isPrefix) {
+              infixtype = InfixType.PREFIX
+            } else if (isSuffix) {
+              infixtype = InfixType.POSTFIX
+            } else {
+              infixtype = InfixType.PROPER_INFIX
+            }
+            console.log(isSuffix, isPrefix,  (+isSuffix) + (+isPrefix))
+            const k = p.k - ((+isSuffix) + (+isPrefix));
+
             variant.setExpanded(true);
 
             const pattern = new SubvariantPattern(
                       i,
-                      p.k,
+                      k,
                       variant,
                       p.sup,
                       p.child_parent_confidence,
@@ -401,7 +416,8 @@ export class VariantMinerComponent
                       p.cross_support_confidence,
                       p.maximal,
                       p.valid,
-                      p.closed
+                      p.closed,
+                      infixtype
                     )
 
             pattern.isConformanceOutdated = true;
@@ -484,6 +500,17 @@ export class VariantMinerComponent
         };
       }
     });
+  }
+
+  checkInfix(obj){
+
+    if ('follows' in obj) {
+      const isPrefix = ('start' in obj['follows'][0])
+      const isSuffix = ('end' in  obj['follows'][obj['follows'].length - 1])
+      return [isPrefix, isSuffix]
+    } 
+    return [false, false]
+    
   }
 
   sort(key: VariantSortKey) {

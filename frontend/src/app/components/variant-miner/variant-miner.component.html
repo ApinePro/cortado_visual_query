@@ -17,7 +17,7 @@
           (ngSubmit)="onSubmit()"
           class="mine-config-form"
         >
-          <div class="form-element">
+          <div class="form-select-element">
             <label for="frequent_mining_strat" class="input-label"
               >Support Counting Strategy:
             </label>
@@ -43,7 +43,7 @@
             </select>
           </div>
 
-          <div class="form-element">
+          <div class="form-select-element">
             <label for="frequent_mining_algo" class="input-label"
               >Algorithm:
             </label>
@@ -102,25 +102,26 @@
           <div class="form-element">
             <label for="min_sup" class="input-label">Support: </label>
 
-            <div class="'rel-sup-input">
-              <input
-                type="number"
-                formControlName="rel_sup"
-                class="input-field"
-                type="number"
-                [(ngModel)]="relSup"
-                step=".01"
-                min="0"
-              />
-              %
-              <div class="sup-selector">
-                <ngx-slider
-                  [(value)]="relSup"
-                  [options]="supportSliderOptions"
-                ></ngx-slider>
-              </div>
+            <input
+              type="number"
+              formControlName="rel_sup"
+              class="input-field"
+              type="number"
+              [(ngModel)]="relSup"
+              step=".01"
+              min="0"
+            />
+            %
+          </div>
+          <div class="rel-sup-input">
+            <div class="sup-selector">
+              <ngx-slider
+                [(value)]="relSup"
+                [options]="supportSliderOptions"
+              ></ngx-slider>
             </div>
-
+          </div>
+          <div class="form-element">
             <div class="abs-sup-input">
               <input
                 id="min_sup"
@@ -383,7 +384,11 @@
                 >
                   Fitting
                 </div>
-                <button (click)="computeAlignments()" [disabled]="!processTree">
+                <button
+                  (click)="computeAlignments()"
+                  [disabled]="!processTree"
+                  class="conformance-button"
+                >
                   <i class="bi bi-layers-fill btn-icon"></i>
                 </button>
               </div>

@@ -1,3 +1,4 @@
+import { InfixType } from 'src/app/components/variant-explorer/model';
 import { VariantElement } from "../variant-explorer/model";
 
 
@@ -85,6 +86,9 @@ export class SubvariantPattern {
   deviation;
   alignment; 
 
+
+  infixType : InfixType; 
+
   constructor(
     index: number,
     k: number,
@@ -95,7 +99,8 @@ export class SubvariantPattern {
     cross_support_confidence: number,
     maximal: boolean,
     valid: boolean,
-    closed: boolean
+    closed: boolean,
+    infixType : InfixType
   ) {
     this.index = index;
     this.k = k;
@@ -107,5 +112,6 @@ export class SubvariantPattern {
     this.maximal = maximal;
     this.valid = valid;
     this.closed = closed;
+    this.infixType = infixType;
   }
 }

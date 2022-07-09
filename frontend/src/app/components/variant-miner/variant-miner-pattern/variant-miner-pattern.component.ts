@@ -9,7 +9,7 @@ import {
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 import { VariantElement } from '../../variant-explorer/model';
 import { SubvariantPattern } from '../variant-miner-types';
-
+import { InfixType } from 'src/app/components/variant-explorer/model';
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: '[app-variant-miner-pattern]',
@@ -19,6 +19,7 @@ import { SubvariantPattern } from '../variant-miner-types';
 export class VariantMinerPatternComponent implements AfterViewInit {
   @Input()
   pattern: SubvariantPattern;
+  infixtype = InfixType; 
 
   @Input()
   computeActivityColor: (

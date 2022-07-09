@@ -1,5 +1,3 @@
-$controls-width : 200px;
-
 
 :host {
   position: absolute;
@@ -11,6 +9,18 @@ $controls-width : 200px;
   max-height: 100%;
   position: relative;
   border-left: 1px solid var(--thin-border-color);
+}
+
+.rel-sup-input{
+  width : 225px;
+}
+.form-select-element{
+  padding-left: 2.5px;
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  flex-wrap: wrap;
 }
 
 ::ng-deep {
@@ -83,12 +93,13 @@ $controls-width : 200px;
 
 .input-field{
   margin-left: 5px;
-  width: 75px;
+  width: -moz-fit-content;
+  width: 80px;
   border-radius: 3px;
   background-color: var(--box-background-color);
   box-shadow: none;
   border: none;
-  color : whitesmoke;
+  color: whitesmoke;
 }
 
 .input-label{
@@ -140,6 +151,7 @@ $controls-width : 200px;
 .control-button-container{
   position: absolute;
   bottom: 0px;
+  z-index:10;
 }
 
 .control-button{
@@ -153,6 +165,21 @@ $controls-width : 200px;
 
 .filter-button:hover{
   color : white;
+}
+.conformance-button{
+  background: inherit;
+  border: none;
+  color: var(--bs-gray-300);
+  cursor:pointer;
+}
+
+.conformance-button:disabled{
+  cursor:default;
+  color: var(--bs-gray-700);
+}
+
+.conformance-button:hover:enabled{
+  color: var(--bs-gray-100);
 }
 
 .filter-option-container{
@@ -209,6 +236,8 @@ $controls-width : 200px;
   color: whitesmoke;
   background-color: var(--box-background-color);
   border: none;
+  margin: 7px;
+  width : 150px; 
 }
 
 .variant-miner-submit-button{
@@ -223,12 +252,13 @@ $controls-width : 200px;
 .mine-config-form{
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  flex-wrap: nowrap;
+  justify-content: space-around;
   align-content: space-around;
-  height: 70%;
-  width: 100%;
+  height: fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  flex-wrap: nowrap;
+  align-items: flex-start;
 }
 
 .result-span{
@@ -236,17 +266,18 @@ $controls-width : 200px;
 }
 
 .control-container{
-  width : $controls-width;
-  height : 100%;
-  background-color: rgba(var(--bs-dark-rgb),var(--bs-bg-opacity));
+  width: fit-content;
+  height: fit-content;
+  min-height: 100%;
+  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
   padding: 20px;
   display: flex;
   flex-direction: column;
   align-content: center;
   justify-content: space-between;
   align-items: flex-start;
-  flex-wrap: wrap;
-  color : whitesmoke;
+  flex-wrap: nowrap;
+  color: whitesmoke;
   border-right: black 0.5px solid;
 }
 

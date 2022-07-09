@@ -847,7 +847,7 @@ export class LeafLoopNode extends VariantElement{
     const leaf = this.leafNode.serialize(l)
     const res = []
 
-    // Serialize it as l+1 many activites of the folded loop
+    // Serialize it as l+1 many activites of the folded loop, 
     for (let k; k < (l+1); k++){
       res.push(leaf)
     }
@@ -1006,20 +1006,15 @@ export class EndGroup extends VariantElement {
 export function deserialize(obj: any): VariantElement {
   if ('follows' in obj) {
     return new SequenceGroup(
-      obj['follows'].map((e: any) => deserialize(e)),
+      obj['follows'].map((e: any) => deserialize(e)).filter((e) => e),
       obj['performance']
     );
   } else if ('parallel' in obj) {
     return new ParallelGroup(
-      obj['parallel'].map((e: any) => deserialize(e)),
+      obj['parallel'].map((e: any) => deserialize(e)).filter((e) => e),
       obj['performance']
     );
-  } else if ('start' in obj) {
-    return new StartGroup();
-  } else if ('end' in obj) {
-    return new EndGroup();
-  } else {
-
+  } else if('leaf' in obj){
     if (obj['leaf'][0].includes('_LOOP')){
       return new LeafLoopNode(obj['leaf'][0].replace('_LOOP', ''))
     } else {
