@@ -300,8 +300,6 @@ export class VariantMinerComponent
       this.totalTraces = variants.map((variant) => {return variant.count}).reduce((a : number, b : number) => a + b)
       this.totalVariants = variants.length;
 
-      console.log('Total Traces', this.totalTraces)
-      console.log('Total Variants', this.totalVariants)
 
     })
   }
@@ -324,8 +322,6 @@ export class VariantMinerComponent
       form_values.frequent_mining_algo,
       form_values.artifical_start,
     );
-
-    console.log(this.currentConfig)
     this.backendService.frequentSubtreeMining(this.currentConfig);
 
     this.minsup = form_values.min_sup;
@@ -401,7 +397,6 @@ export class VariantMinerComponent
             } else {
               infixtype = InfixType.PROPER_INFIX
             }
-            console.log(isSuffix, isPrefix,  (+isSuffix) + (+isPrefix))
             const k = p.k - ((+isSuffix) + (+isPrefix));
 
             variant.setExpanded(true);
@@ -614,10 +609,7 @@ export class VariantMinerComponent
     this.conformanceCheckingService.patternResults.subscribe(
       (res) => {
         
-        console.log(res)
-        
         const pattern = this.variantPatterns.find((p) => p.index.toLocaleString() == (res.id));
-        console.log(pattern)
         pattern.calculationInProgress = false;
         pattern.isTimeouted = res.isTimeout;
         pattern.isConformanceOutdated = res.isTimeout; 

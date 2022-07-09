@@ -266,19 +266,23 @@
 }
 
 .control-container{
+  width: -moz-fit-content;
   width: fit-content;
-  height: fit-content;
+  height: -moz-fit-content;
+  height: 100%;
   min-height: 100%;
   background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
   padding: 20px;
   display: flex;
   flex-direction: column;
   align-content: center;
-  justify-content: space-between;
   align-items: flex-start;
   flex-wrap: nowrap;
   color: whitesmoke;
   border-right: black 0.5px solid;
+  overflow-y: scroll;
+  overflow-x: visible;
+  justify-content: space-between;
 }
 
 
