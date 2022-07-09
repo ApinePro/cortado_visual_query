@@ -4,7 +4,7 @@
   (fileOnHover)="toggleBlur($event)"
 ></app-drop-zone>
 
-<div class="sidebar">
+<div class="sidebar" [style.width.px]="sidebarHeigth">
   <div
     class="sidebar-button"
     [ngClass]="!performanceMode ? 'active' : ''"
