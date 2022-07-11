@@ -15,7 +15,9 @@ import { VariantService } from 'src/app/services/variantService/variant.service'
   templateUrl: './variant-explorer-context-menu.component.html',
   styleUrls: ['./variant-explorer-context-menu.component.css'],
 })
-export class VariantExplorerContextMenuComponent implements OnChanges, AfterViewInit {
+export class VariantExplorerContextMenuComponent
+  implements OnChanges, AfterViewInit
+{
   @Input()
   xPos: number;
 
@@ -40,7 +42,7 @@ export class VariantExplorerContextMenuComponent implements OnChanges, AfterView
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-      this.displayMenu = true;
+    this.displayMenu = true;
   }
 
   @HostListener('window:click', ['$event'])

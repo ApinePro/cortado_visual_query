@@ -178,7 +178,6 @@ export class ActivityOverviewComponent
     }
   }
 
-
   startEditing() {
     this.editingActivityName = true;
   }
