@@ -1,6 +1,5 @@
 import { InfixType } from 'src/app/components/variant-explorer/model';
-import { VariantElement } from "../variant-explorer/model";
-
+import { VariantElement } from '../variant-explorer/model';
 
 export class MiningConfig {
   k: number;
@@ -8,7 +7,7 @@ export class MiningConfig {
   strat: number;
   loop: number;
   algo: number;
-  artifical_start : boolean;
+  artifical_start: boolean;
 
   constructor(k, min_sup, strat, loop, algo, art_start) {
     this.k = k;
@@ -17,15 +16,20 @@ export class MiningConfig {
     this.loop = loop;
     this.algo = algo;
     this.artifical_start = art_start;
-
   }
 
   serialize() {
-    return { k: this.k, min_sup: this.min_sup, strat: this.strat, algo : this.algo, loop : this.loop, algo_type : 0, artifical_start : this.artifical_start};
+    return {
+      k: this.k,
+      min_sup: this.min_sup,
+      strat: this.strat,
+      algo: this.algo,
+      loop: this.loop,
+      algo_type: 0,
+      artifical_start: this.artifical_start,
+    };
   }
-
 }
-
 
 export enum FrequentMiningStrategy {
   TraceTransaction = 1,
@@ -36,7 +40,7 @@ export enum FrequentMiningStrategy {
 
 export enum FrequentMiningCMStrategy {
   ClosedMaximal = 1,
-  OnlyMaximal = 2
+  OnlyMaximal = 2,
 }
 
 export enum FrequentMiningAlgorithm {
@@ -60,7 +64,7 @@ export enum VariantFilterKey {
   k = 'k',
   support = 'support',
   index = 'index',
-  deviation = 'deviation', 
+  deviation = 'deviation',
   child_parent_confidence = 'child_parent_confidence',
   subpattern_confidence = 'subpattern_confidence',
   cross_support_confidence = 'cross_support_confidence',
@@ -81,13 +85,12 @@ export class SubvariantPattern {
   closed: boolean;
 
   calculationInProgress;
-  isConformanceOutdated; 
+  isConformanceOutdated;
   isTimeouted;
   deviation;
-  alignment; 
+  alignment;
 
-
-  infixType : InfixType; 
+  infixType: InfixType;
 
   constructor(
     index: number,
@@ -100,7 +103,7 @@ export class SubvariantPattern {
     maximal: boolean,
     valid: boolean,
     closed: boolean,
-    infixType : InfixType
+    infixType: InfixType
   ) {
     this.index = index;
     this.k = k;

@@ -467,7 +467,7 @@ export class VariantExplorerComponent
       this.processTreeService.currentDisplayedProcessTree,
       variant.variant.serialize(1),
       timeout,
-      AlignmentType.VariantAlignment,
+      AlignmentType.VariantAlignment
     );
 
     if (resubscribe) {

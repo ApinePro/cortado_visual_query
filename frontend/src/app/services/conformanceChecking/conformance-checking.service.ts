@@ -27,7 +27,7 @@ export class ConformanceCheckingService {
   public connect(): boolean {
     if (!this.socket || this.socket.closed) {
       this.socket = webSocket(WS_ENDPOINT);
-    const results = this.socket.pipe(
+      const results = this.socket.pipe(
         catchError((error) => {
           this.runningRequests.forEach((r: number) =>
             this.infoService.removeRequest(r)
@@ -62,9 +62,12 @@ export class ConformanceCheckingService {
             result['cost'],
             result['deviation']
           );
-        }),
+        })
       );
-      [this.varResults, this.patternResults] =  partition(results, (ccr : ConformanceCheckingResult) => (ccr.type === 1))
+      [this.varResults, this.patternResults] = partition(
+        results,
+        (ccr: ConformanceCheckingResult) => ccr.type === 1
+      );
 
       return true;
     }
@@ -78,7 +81,7 @@ export class ConformanceCheckingService {
     pt: ProcessTree,
     variant: any,
     timeout: number,
-    alignType : AlignmentType,
+    alignType: AlignmentType
   ): boolean {
     const resubscribe = this.connect();
     const rid = this.infoService.setRequest('conformance checking', () =>
@@ -88,7 +91,7 @@ export class ConformanceCheckingService {
     this.socket.next({
       id: id,
       infixType: infixType,
-      alignType : alignType,
+      alignType: alignType,
       pt: pt.copy(false),
       variant: variant,
       timeout: timeout,
@@ -110,9 +113,7 @@ export class ConformanceCheckingService {
   }
 }
 
-
-export enum AlignmentType{
+export enum AlignmentType {
   VariantAlignment = 1,
-  PatternAlignment = 2
+  PatternAlignment = 2,
 }
-

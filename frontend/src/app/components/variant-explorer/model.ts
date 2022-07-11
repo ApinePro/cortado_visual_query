@@ -825,50 +825,42 @@ export class LeafNode extends VariantElement {
   }
 }
 
-export class LeafLoopNode extends VariantElement{
-
+export class LeafLoopNode extends VariantElement {
   public setExpanded(expanded: boolean) {
     super.setExpanded(expanded);
-    this.leafNode.setExpanded(expanded)
+    this.leafNode.setExpanded(expanded);
   }
 
   public getWidth(includeWaiting: any): number {
-    return this.leafNode.getWidth()
-
+    return this.leafNode.getWidth();
   }
   public recalculateWidth(includeWaiting: any): number {
     return this.leafNode.recalculateWidth();
   }
-  public updateWidth(includeWaiting: any) {
-
-  }
+  public updateWidth(includeWaiting: any) {}
 
   public serialize(l = 1): Object {
-    const leaf = this.leafNode.serialize(l)
-    const res = []
+    const leaf = this.leafNode.serialize(l);
+    const res = [];
 
-    // Serialize it as l+1 many activites of the folded loop, 
-    for (let k; k < (l+1); k++){
-      res.push(leaf)
+    // Serialize it as l+1 many activites of the folded loop,
+    for (let k; k < l + 1; k++) {
+      res.push(leaf);
     }
 
     return res;
   }
 
+  public calculateSelectableElements(): void {}
 
-  public calculateSelectableElements(): void {
-  }
-
-  leafNode : LeafNode;
-
+  leafNode: LeafNode;
 
   constructor(activity: string) {
     super();
-    this.leafNode = new LeafNode([activity], null)
+    this.leafNode = new LeafNode([activity], null);
   }
 
   public getHeight(): number {
-
     return this.leafNode.getHeight() + 30;
   }
 
@@ -1014,9 +1006,9 @@ export function deserialize(obj: any): VariantElement {
       obj['parallel'].map((e: any) => deserialize(e)).filter((e) => e),
       obj['performance']
     );
-  } else if('leaf' in obj){
-    if (obj['leaf'][0].includes('_LOOP')){
-      return new LeafLoopNode(obj['leaf'][0].replace('_LOOP', ''))
+  } else if ('leaf' in obj) {
+    if (obj['leaf'][0].includes('_LOOP')) {
+      return new LeafLoopNode(obj['leaf'][0].replace('_LOOP', ''));
     } else {
       return new LeafNode(obj['leaf'], obj['performance']);
     }

@@ -27,8 +27,18 @@ import { ColorMapService } from 'src/app/services/colorMapService/color-map.serv
 import { FormControl, FormGroup } from '@angular/forms';
 import { Options } from '@angular-slider/ngx-slider';
 import { animate, style, transition, trigger } from '@angular/animations';
-import { AlignmentType, ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
-import { FrequentMiningAlgorithm, FrequentMiningCMStrategy, FrequentMiningStrategy, MiningConfig, SubvariantPattern, VariantSortKey } from './variant-miner-types';
+import {
+  AlignmentType,
+  ConformanceCheckingService,
+} from 'src/app/services/conformanceChecking/conformance-checking.service';
+import {
+  FrequentMiningAlgorithm,
+  FrequentMiningCMStrategy,
+  FrequentMiningStrategy,
+  MiningConfig,
+  SubvariantPattern,
+  VariantSortKey,
+} from './variant-miner-types';
 import { ProcessTree } from 'src/app/objects/ProcessTree';
 
 @Component({
@@ -58,8 +68,8 @@ export class VariantMinerComponent
     private sharedDataService: SharedDataService,
     private colorMapService: ColorMapService,
     private conformanceCheckingService: ConformanceCheckingService,
-    private processTreeService : ProcessTreeService, 
-    private lazyLoadingServiceService : LazyLoadingServiceService,
+    private processTreeService: ProcessTreeService,
+    private lazyLoadingServiceService: LazyLoadingServiceService,
     elRef: ElementRef,
     renderer: Renderer2
   ) {
@@ -75,19 +85,19 @@ export class VariantMinerComponent
   VariantSortKey = VariantSortKey;
   currentSortKey: VariantSortKey;
 
-  processTree : ProcessTree = null; 
-  conformanceCheckedTree : ProcessTree = null; 
+  processTree: ProcessTree = null;
+  conformanceCheckedTree: ProcessTree = null;
 
-  conformanceTimeout = 30; 
+  conformanceTimeout = 30;
   math = Math;
 
-  maxSup : number;
-  maxK : number;
-  nClosed : number;
-  nValid : number;
-  nMaximal : number;
+  maxSup: number;
+  maxK: number;
+  nClosed: number;
+  nValid: number;
+  nMaximal: number;
 
-  currentConfig : MiningConfig = null; 
+  currentConfig: MiningConfig = null;
 
   showControls: boolean = true;
   relSup = 25;
@@ -97,10 +107,10 @@ export class VariantMinerComponent
     step: 0.01,
     tickStep: 25,
     showSelectionBar: true,
-    showTicks : true,
+    showTicks: true,
     translate: (value: number): string => {
       return +value.toFixed(1) + '%';
-    }
+    },
   };
 
   kLow: number = 0;
@@ -180,8 +190,8 @@ export class VariantMinerComponent
   variantMinerResults: any;
   colorMap;
 
-  totalTraces : number;
-  totalVariants : number;
+  totalTraces: number;
+  totalVariants: number;
 
   showOnlyClosed: boolean = false;
   showOnlyMaximal: boolean = false;
@@ -218,7 +228,6 @@ export class VariantMinerComponent
       }
     );
 
-
     this.variantMinerConfigInput = new FormGroup({
       k: new FormControl(20, {
         updateOn: 'change',
@@ -228,83 +237,83 @@ export class VariantMinerComponent
       rel_sup,
       frequent_mining_strat,
 
-      artifical_start : new FormControl(false, {
-        updateOn: 'change'
+      artifical_start: new FormControl(false, {
+        updateOn: 'change',
       }),
 
-      fold_loop : new FormControl(false, {
-        updateOn: 'change'
+      fold_loop: new FormControl(false, {
+        updateOn: 'change',
       }),
       loop: new FormControl(2, {
         updateOn: 'change',
       }),
 
-      frequent_mining_algo: new FormControl(this.FrequentMiningAlgorithm.ValidTreeMiner, {
+      frequent_mining_algo: new FormControl(
+        this.FrequentMiningAlgorithm.ValidTreeMiner,
+        {
           updateOn: 'change',
-      }),
+        }
+      ),
 
-      cm_tree_strategy: new FormControl(this.FrequentMiningCMStrategy.ClosedMaximal, {
-        updateOn: 'change',
-    }),
+      cm_tree_strategy: new FormControl(
+        this.FrequentMiningCMStrategy.ClosedMaximal,
+        {
+          updateOn: 'change',
+        }
+      ),
     });
 
-
-
-
     rel_sup.valueChanges.subscribe((relSup) => {
+      const min_sup_update =
+        this.variantMinerConfigInput.value.frequent_mining_strat ===
+          FrequentMiningStrategy.TraceTransaction ||
+        this.variantMinerConfigInput.value.frequent_mining_strat ===
+          FrequentMiningStrategy.TraceOccurence
+          ? Math.round((relSup / 100) * this.totalTraces)
+          : Math.round((relSup / 100) * this.totalVariants);
 
-      const min_sup_update = this.variantMinerConfigInput.value.frequent_mining_strat === FrequentMiningStrategy.TraceTransaction ||
-      this.variantMinerConfigInput.value.frequent_mining_strat ===
-      FrequentMiningStrategy.TraceOccurence
-      ? Math.round((relSup / 100) * this.totalTraces)
-      : Math.round((relSup / 100) * this.totalVariants)
-
-      min_sup.setValue(min_sup_update)
-
-    })
-
+      min_sup.setValue(min_sup_update);
+    });
 
     frequent_mining_strat.valueChanges.subscribe((strat) => {
-
-
-      if(strat == FrequentMiningStrategy.VariantTransaction || strat == FrequentMiningStrategy.TraceTransaction){
+      if (
+        strat == FrequentMiningStrategy.VariantTransaction ||
+        strat == FrequentMiningStrategy.TraceTransaction
+      ) {
         this.supportSliderOptions = {
           floor: 0,
           ceil: 100,
           step: 0.01,
           tickStep: 25,
           showSelectionBar: true,
-          showTicks : true,
+          showTicks: true,
           translate: (value: number): string => {
             return +value.toFixed(1) + '%';
-          }
+          },
         };
-
-
       } else {
-
         this.supportSliderOptions = {
           floor: 0,
           ceil: 150,
           step: 0.01,
           tickStep: 25,
           showSelectionBar: true,
-          showTicks : true,
+          showTicks: true,
           translate: (value: number): string => {
             return +value.toFixed(1) + '%';
-          }
+          },
         };
-
       }
-
-    })
+    });
 
     this.sharedDataService.variants$.subscribe((variants) => {
-      this.totalTraces = variants.map((variant) => {return variant.count}).reduce((a : number, b : number) => a + b)
+      this.totalTraces = variants
+        .map((variant) => {
+          return variant.count;
+        })
+        .reduce((a: number, b: number) => a + b);
       this.totalVariants = variants.length;
-
-
-    })
+    });
   }
 
   onSubmit() {
@@ -313,8 +322,8 @@ export class VariantMinerComponent
     const form_values = this.variantMinerConfigInput.value;
 
     let loop = 0;
-    if (form_values.fold_loop){
-      loop = form_values.loop
+    if (form_values.fold_loop) {
+      loop = form_values.loop;
     }
 
     this.currentConfig = new MiningConfig(
@@ -323,13 +332,12 @@ export class VariantMinerComponent
       form_values.frequent_mining_strat,
       loop,
       form_values.frequent_mining_algo,
-      form_values.artifical_start,
+      form_values.artifical_start
     );
     this.backendService.frequentSubtreeMining(this.currentConfig);
 
     this.minsup = form_values.min_sup;
   }
-
 
   handleFilterChange(event) {
     this.displayedVariantsPatterns = this.variantPatterns.filter((vp) => {
@@ -356,13 +364,13 @@ export class VariantMinerComponent
     });
 
     this.sharedDataService.loadedEventLog$.subscribe((log) => {
-      console.log('Log Changed', log)
+      console.log('Log Changed', log);
       this.variantPatterns = [];
       this.displayedVariantsPatterns = [];
-    })
+    });
 
     this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
-      this.processTree = tree
+      this.processTree = tree;
 
       const treeHasChanged = !this.sharedDataService.processTreesEqual(
         this.conformanceCheckedTree,
@@ -373,12 +381,11 @@ export class VariantMinerComponent
         this.variantPatterns.forEach((v) => {
           v.isConformanceOutdated = true;
         });
-      }})
-
+      }
+    });
 
     this.backendService.getConfiguration().subscribe((config) => {
-      this.conformanceTimeout =
-        config.timeoutCVariantAlignmentComputation + 30;
+      this.conformanceTimeout = config.timeoutCVariantAlignmentComputation + 30;
     });
 
     this.sharedDataService.frequentMiningResults$.subscribe((res) => {
@@ -388,52 +395,50 @@ export class VariantMinerComponent
         res.forEach((p, i) => {
           if (p.valid) {
             const variant: VariantElement = deserialize(p.obj);
-            const [isPrefix, isSuffix] = this.checkInfix(p.obj); 
-            let infixtype : InfixType
+            const [isPrefix, isSuffix] = this.checkInfix(p.obj);
+            let infixtype: InfixType;
 
-            if (isPrefix && isSuffix){
-              infixtype = InfixType.NOT_AN_INFIX
+            if (isPrefix && isSuffix) {
+              infixtype = InfixType.NOT_AN_INFIX;
             } else if (isPrefix) {
-              infixtype = InfixType.PREFIX
+              infixtype = InfixType.PREFIX;
             } else if (isSuffix) {
-              infixtype = InfixType.POSTFIX
+              infixtype = InfixType.POSTFIX;
             } else {
-              infixtype = InfixType.PROPER_INFIX
+              infixtype = InfixType.PROPER_INFIX;
             }
-            const k = p.k - ((+isSuffix) + (+isPrefix));
+            const k = p.k - (+isSuffix + +isPrefix);
 
             variant.setExpanded(true);
 
             const pattern = new SubvariantPattern(
-                      i,
-                      k,
-                      variant,
-                      p.sup,
-                      p.child_parent_confidence,
-                      p.subpattern_confidence,
-                      p.cross_support_confidence,
-                      p.maximal,
-                      p.valid,
-                      p.closed,
-                      infixtype
-                    )
+              i,
+              k,
+              variant,
+              p.sup,
+              p.child_parent_confidence,
+              p.subpattern_confidence,
+              p.cross_support_confidence,
+              p.maximal,
+              p.valid,
+              p.closed,
+              infixtype
+            );
 
             pattern.isConformanceOutdated = true;
             pattern.isTimeouted = false;
 
-            this.variantPatterns.push(
-              pattern
-            );
+            this.variantPatterns.push(pattern);
           }
         });
 
-        this.maxSup = Math.max(...this.variantPatterns.map((v) => v.support))
-        this.maxK =  Math.max(...this.variantPatterns.map((v) => v.k))
-        this.nClosed =this.variantPatterns.filter((v) => v.closed).length
-        this.nValid =this.variantPatterns.filter((v) => v.valid).length
-        this.nMaximal =  this.variantPatterns.filter((v) => v.maximal).length
+        this.maxSup = Math.max(...this.variantPatterns.map((v) => v.support));
+        this.maxK = Math.max(...this.variantPatterns.map((v) => v.k));
+        this.nClosed = this.variantPatterns.filter((v) => v.closed).length;
+        this.nValid = this.variantPatterns.filter((v) => v.valid).length;
+        this.nMaximal = this.variantPatterns.filter((v) => v.maximal).length;
 
-        this.variantPatterns.map((v) => v.support)
+        this.variantPatterns.map((v) => v.support);
         this.showOnlyMaximal = false;
         this.showOnlyClosed = false;
         this.displayedVariantsPatterns = this.variantPatterns;
@@ -500,15 +505,13 @@ export class VariantMinerComponent
     });
   }
 
-  checkInfix(obj){
-
+  checkInfix(obj) {
     if ('follows' in obj) {
-      const isPrefix = ('start' in obj['follows'][0])
-      const isSuffix = ('end' in  obj['follows'][obj['follows'].length - 1])
-      return [isPrefix, isSuffix]
-    } 
-    return [false, false]
-    
+      const isPrefix = 'start' in obj['follows'][0];
+      const isSuffix = 'end' in obj['follows'][obj['follows'].length - 1];
+      return [isPrefix, isSuffix];
+    }
+    return [false, false];
   }
 
   sort(key: VariantSortKey) {
@@ -550,7 +553,6 @@ export class VariantMinerComponent
       if (element.activity.length > 1) {
         color = '#d3d3d3'; // lightgray
       }
-
     } else {
       color = '#d3d3d3';
     }
@@ -565,10 +567,7 @@ export class VariantMinerComponent
     height: number
   ): void {}
 
-  handleVisibilityChange(visibility: boolean): void {
-
-
-  }
+  handleVisibilityChange(visibility: boolean): void {}
 
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
@@ -579,27 +578,30 @@ export class VariantMinerComponent
     this.variantMinerOutOfFocus = event;
   }
 
+  computeAlignments() {
+    console.log('Requested Alignment!');
+    this.displayedVariantsPatterns.forEach((pattern) =>
+      this.updateConformanceForVariant(pattern, this.conformanceTimeout)
+    );
 
-  computeAlignments(){
-    console.log('Requested Alignment!')
-    this.displayedVariantsPatterns.forEach((pattern) => this.updateConformanceForVariant(pattern, this.conformanceTimeout))
-
-    this.conformanceCheckedTree = this.processTree; 
+    this.conformanceCheckedTree = this.processTree;
   }
 
-  updateConformanceForVariant(pattern: SubvariantPattern, timeout: number): void {
-
-    this.processTreeService.currentDisplayedProcessTree !== null
+  updateConformanceForVariant(
+    pattern: SubvariantPattern,
+    timeout: number
+  ): void {
+    this.processTreeService.currentDisplayedProcessTree !== null;
     //variant.calculationInProgress = true;
     //variant.deviation = undefined;
 
     const resubscribe = this.conformanceCheckingService.calculateConformance(
-      (pattern.index).toLocaleString(),
+      pattern.index.toLocaleString(),
       InfixType.PROPER_INFIX,
       this.processTreeService.currentDisplayedProcessTree,
       pattern.variant.serialize(this.currentConfig.loop),
       timeout,
-      AlignmentType.PatternAlignment,
+      AlignmentType.PatternAlignment
     );
 
     if (resubscribe) {
@@ -607,15 +609,15 @@ export class VariantMinerComponent
     }
   }
 
-
   subscribeForConformanceCheckingResults(): void {
     this.conformanceCheckingService.patternResults.subscribe(
       (res) => {
-        
-        const pattern = this.variantPatterns.find((p) => p.index.toLocaleString() == (res.id));
+        const pattern = this.variantPatterns.find(
+          (p) => p.index.toLocaleString() == res.id
+        );
         pattern.calculationInProgress = false;
         pattern.isTimeouted = res.isTimeout;
-        pattern.isConformanceOutdated = res.isTimeout; 
+        pattern.isConformanceOutdated = res.isTimeout;
 
         if (!res.isTimeout) {
           pattern.deviation = res.deviation;
@@ -632,13 +634,11 @@ export class VariantMinerComponent
   }
 
   ngOnDestroy(): void {
-    this.sharedDataService.frequentMiningResults = null; 
+    this.sharedDataService.frequentMiningResults = null;
     this.lazyLoadingServiceService.destoryVariantMinerObserver();
   }
-  
 }
 
 export namespace VariantMinerComponent {
   export const componentName = 'VariantMinerComponent';
 }
-

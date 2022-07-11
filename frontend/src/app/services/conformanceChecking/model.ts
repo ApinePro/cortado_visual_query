@@ -1,13 +1,13 @@
 export class ConformanceCheckingResult {
   id: string;
-  type : number;
+  type: number;
   isTimeout: boolean;
   cost: number;
   deviation: boolean;
 
   constructor(
     id: string,
-    type : number,
+    type: number,
     isTimeout: boolean,
     cost: number,
     deviation: boolean

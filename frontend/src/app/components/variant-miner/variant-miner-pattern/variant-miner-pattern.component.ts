@@ -19,7 +19,7 @@ import { InfixType } from 'src/app/components/variant-explorer/model';
 export class VariantMinerPatternComponent implements AfterViewInit {
   @Input()
   pattern: SubvariantPattern;
-  infixtype = InfixType; 
+  infixtype = InfixType;
 
   @Input()
   computeActivityColor: (

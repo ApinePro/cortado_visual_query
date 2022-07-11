@@ -117,10 +117,7 @@ export class ActivityOverviewComponent
     height: number
   ): void {}
 
-  handleVisibilityChange(visibility: boolean): void {
-
-    
-  }
+  handleVisibilityChange(visibility: boolean): void {}
 
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,

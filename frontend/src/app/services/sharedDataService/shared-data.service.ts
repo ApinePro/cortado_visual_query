@@ -130,7 +130,7 @@ export class SharedDataService {
   }
 
   set variants(variants: Variant[]) {
-    console.log('Setting Variants', variants)
+    console.log('Setting Variants', variants);
     this._variants.next(variants);
   }
 

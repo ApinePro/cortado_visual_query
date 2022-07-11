@@ -29,7 +29,7 @@ export class LazyLoadingServiceService {
     );
   }
 
-  public destoryVariantMinerObserver(){
+  public destoryVariantMinerObserver() {
     this.variantMinerIntersectionObserver = null;
   }
 
