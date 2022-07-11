@@ -3,16 +3,6 @@ import { VariantExplorerComponent } from './../variant-explorer/variant-explorer
 import { GoldenLayoutComponentService } from './../../services/goldenLayoutService/golden-layout-component.service';
 import { ColorMapService } from './../../services/colorMapService/color-map.service';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
-import { VariantDrawerDirective } from './../../directives/variant-drawer.directive';
-import {
-  SequenceGroup,
-  LeafNode,
-  VariantElement,
-  Variant,
-  ParallelGroup,
-  setParent,
-  InfixType,
-} from './../variant-explorer/model';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import {
   Component,
@@ -24,7 +14,6 @@ import {
   AfterViewInit,
   HostListener,
 } from '@angular/core';
-import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';
 
 import { cloneDeep } from 'lodash';
 import { Selection } from 'd3';
@@ -33,6 +22,11 @@ import { animate, transition, trigger, style } from '@angular/animations';
 import * as d3 from 'd3';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 import { LogService } from 'src/app/services/logService/log.service';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import { InfixType, setParent } from 'src/app/objects/Variants/infix_selection';
+import { Variant } from 'src/app/objects/Variants/variant';
+import { VariantElement, LeafNode, SequenceGroup, ParallelGroup } from 'src/app/objects/Variants/variant_element';
 
 @Component({
   selector: 'app-variant-editor',

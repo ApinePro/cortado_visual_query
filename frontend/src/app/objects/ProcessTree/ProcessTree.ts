@@ -1,11 +1,11 @@
-import { PerformanceStats } from '../components/variant-explorer/model';
+import { PerformanceStats } from "../Variants/variant_element";
 
 export class ProcessTree {
   constructor(
     public label: string,
     public operator: ProcessTreeOperator,
     public children: ProcessTree[],
-    public id: number,
+    public id : number,
     public frozen: boolean,
     public performance: TreePerformance,
     public parent: ProcessTree

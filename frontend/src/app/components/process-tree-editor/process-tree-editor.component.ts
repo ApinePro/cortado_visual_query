@@ -1,7 +1,8 @@
+import { PT_Constant } from './../../constants/process_tree_drawer_constants';
+
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
 import { BpmnEditorComponent } from './../bpmn-editor/bpmn-editor.component';
-import { ProcessTreeOperator } from 'src/app/objects/ProcessTree';
 import { BackendService } from './../../services/backendService/backend.service';
 import {
   Component,
@@ -17,32 +18,31 @@ import { trigger, style, animate, transition } from '@angular/animations';
 
 import { ComponentContainer, GoldenLayout, LogicalZIndex } from 'golden-layout';
 import * as d3 from 'd3';
-import * as constants from './constants_tree_d3';
-import Swal from 'sweetalert2';
 import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
-import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { ColorMapService } from '../../services/colorMapService/color-map.service';
+
 import { ImageExportService } from '../../services/imageExportService/image-export-service';
-import { flextree } from 'd3-flextree';
 
 declare var $;
 import { PerformanceService } from 'src/app/services/performance.service';
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
-import { getPerformanceTable } from './utils';
 
 import {
   ProcessTree,
   ProcessTreeSyntaxInfo,
   checkSyntax,
-} from '../../objects/ProcessTree';
-import { textColorForBackgroundColor } from '../variant-explorer/helper_functions';
+} from '../../objects/ProcessTree/ProcessTree';
+
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { ActivateTooltipsService } from '../../services/activateTooltipsService/activate-tooltips.service';
 import {
   NodeSeletionStrategy,
   ProcessTreeService,
 } from 'src/app/services/processTreeService/process-tree.service';
+
 import { LogService } from 'src/app/services/logService/log.service';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { ProcessTreeDrawerDirective } from 'src/app/directives/process-tree-drawer/process-tree-drawer.directive';
 
 @Component({
   selector: 'app-process-tree-editor',
@@ -70,6 +70,8 @@ export class ProcessTreeEditorComponent
   extends LayoutChangeDirective
   implements OnInit, AfterViewInit
 {
+  selectedPerformanceIndicator: string;
+  selectedStatistic: string;
   constructor(
     private sharedDataService: SharedDataService,
     private activateTooltipsService: ActivateTooltipsService,
@@ -92,6 +94,9 @@ export class ProcessTreeEditorComponent
   @ViewChild('d3svg') svgElem: ElementRef;
   @ViewChild('d3container') d3ContainerElem: ElementRef;
 
+  @ViewChild(ProcessTreeDrawerDirective)
+  processTreeDrawer: ProcessTreeDrawerDirective;
+
   currentlyDisplayedTreeInEditor;
 
   // used in dropdown search form
@@ -99,7 +104,6 @@ export class ProcessTreeEditorComponent
 
   processTreeSyntaxInfo: ProcessTreeSyntaxInfo = undefined;
 
-  resizeTimer;
   currentEditorHeight;
 
   svg;
@@ -121,7 +125,6 @@ export class ProcessTreeEditorComponent
   insertPostitonBelowDisabled = false;
 
   root: d3.HierarchyNode<any>;
-  activitiesOccurringInLog: string[];
 
   nodeWidthCache = new Map<string, number>();
 
@@ -130,7 +133,8 @@ export class ProcessTreeEditorComponent
   lastSelectedInsertMethod: Function = this.insertNewNodeBelow;
 
   activityColorMap: Map<string, string>;
-  performanceColorMap;
+  performanceColorMap : Map<number, any>;
+
   processEditorOutOfFocus: boolean = false;
 
   dropZoneConfig: DropzoneConfig;
@@ -166,16 +170,12 @@ export class ProcessTreeEditorComponent
 
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.activityColorMap = colorMap;
-      if (this.root) {
-        this.update(this.root);
-      }
     });
 
     this.performanceColorScaleService.currentColorScale.subscribe(
       (colorMap) => {
         if (colorMap && colorMap != this.performanceColorMap) {
           this.performanceColorMap = colorMap;
-          this.update(this.root);
         }
       }
     );
@@ -184,77 +184,38 @@ export class ProcessTreeEditorComponent
       // If the tree was loaded via the process tree import or Drag&Drop that does not contain the current activites
 
       if (res) {
-        if (this.checkForLoadedTreeIntegrity(res).size > 0) {
-          const unknownActivities = Array.from(
-            this.checkForLoadedTreeIntegrity(res)
-          );
-          this.computeLeafNodeWidth(unknownActivities);
 
-          Swal.fire({
-            title:
-              '<tspan class = "text-warning">Current process tree contains unkown activites</tspan>',
-            html:
-              '<b>Error Message: </b><br>' +
-              '<code> The loaded tree contains activities \
-                  that do not appear in the currently loaded log.\
-                  </code> <br> <br> Unknown Activites: ' +
-              '<tspan class = "text-danger">' +
-              unknownActivities.join(', ') +
-              '</tspan>',
-            icon: 'warning',
-            showCloseButton: false,
-            showConfirmButton: false,
-            showCancelButton: true,
-            cancelButtonText: 'close',
-          });
-        }
-
-        this.root = d3.hierarchy(res, (d) => {
-          // @ts-ignore
-          return d.children;
-        });
-
+        this.currentlyDisplayedTreeInEditor = res
         console.warn('update tree triggered by service');
-        this.update(this.root);
+
+        console.log(res)
+
+
         this.selectRootNodeFromID(this.selectedRootNodeId);
+
+
       } else if (res === null && this.mainSvgGroup) {
+        
         this.selectedRootNode = null;
         this.root = null;
-        this.update(null);
       }
     });
 
-    this.logService.activitiesInEventLog$.subscribe((activities) => {
-      this.activitiesOccurringInLog = Array.from(Object.keys(activities));
-    });
   }
 
-  // Checks if a newly loaded tree contains an unknown activity
-  // @REFRACTOR INTO PROCESSTREE SERVICE
-  checkForLoadedTreeIntegrity(tree): Set<string> {
-    let unknownActivities = new Set<string>();
-    for (let subtree of tree.children) {
-      // If it is a operator, recurse on the children
-      if (!subtree.label) {
-        unknownActivities = new Set<string>([
-          ...unknownActivities,
-          ...this.checkForLoadedTreeIntegrity(subtree),
-        ]);
+  redraw(tree){
 
-        // If it is a leaf with unkown label add it to the set
-      } else if (
-        !(
-          this.activitiesOccurringInLog.indexOf(subtree.label) > -1 ||
-          subtree.label === ProcessTreeOperator.tau
-        )
-      ) {
-        unknownActivities.add(subtree.label);
+    // add node groups that contain a rectangle and text
+    this.selectedStatistic = this.performanceColorScaleService.selectedColorScale.statistic;
+    this.selectedPerformanceIndicator = this.performanceColorScaleService.selectedColorScale.performanceIndicator;
+    this.performanceColorMap = this.performanceColorScaleService.getColorScale();
 
-        // Else continue
-      }
-    }
+    this.processTreeSyntaxInfo = checkSyntax(tree);
+    this.processTreeService.correctTreeSyntax = this.processTreeSyntaxInfo.correctSyntax;
 
-    return unknownActivities;
+    this.currentlyDisplayedTreeInEditor = tree 
+    
+
   }
 
   ngAfterViewInit(): void {
@@ -263,13 +224,6 @@ export class ProcessTreeEditorComponent
     this._goldenLayout = this.goldenLayoutComponentService.goldenLayout;
 
     this.initializeSvg();
-
-    // Calculate the initial Node width
-    this.computeLeafNodeWidth(this.activitiesOccurringInLog);
-    // Update the cached values if the activities change
-    this.logService.activitiesInEventLog$.subscribe((activities) => {
-      this.computeLeafNodeWidth(Array.from(Object.keys(activities)));
-    });
 
     // do not close the insert new node dropdown menu
     $(document).on('click', '#positionMethodSelection', function (e) {
@@ -315,38 +269,8 @@ export class ProcessTreeEditorComponent
   saveTreeInSharedDataService(): void {
     console.warn(this.currentlyDisplayedTreeInEditor);
     this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
-      this.currentlyDisplayedTreeInEditor
+      this.processTreeDrawer.getProcessTreeObject()
     );
-  }
-
-  getProcessTreeObject(d3Node: d3.HierarchyNode<any>): ProcessTree {
-    if (d3Node && 'data' in d3Node) {
-      let currentNodeFrozen = false;
-      if (d3Node.data.frozen && d3Node.data.frozen === true) {
-        currentNodeFrozen = true;
-      }
-
-      const tree = new ProcessTree(
-        d3Node.data.label,
-        d3Node.data.operator,
-        [],
-        d3Node.data.id,
-        currentNodeFrozen,
-        d3Node.data.performance,
-        null
-      );
-
-      if (d3Node.children) {
-        d3Node.children.forEach((c) => {
-          tree.children.push(this.getProcessTreeObject(c));
-        });
-
-        tree.children.forEach((child) => (child.parent = tree));
-      }
-      return tree;
-    } else {
-      return null;
-    }
   }
 
   handleResponsiveChange(
@@ -362,9 +286,6 @@ export class ProcessTreeEditorComponent
 
   handleVisibilityChange(visibile: boolean): void {
     if (this.root && visibile) {
-      clearTimeout(this.resizeTimer);
-
-      this.update(this.root);
       this.processTreeService.selectedRootNodeID = this.selectedRootNodeId;
     }
   }
@@ -427,51 +348,12 @@ export class ProcessTreeEditorComponent
 
   // @REFRACTOR INTO PROCESSTREE SERVICE
   shiftSubtreeToLeft(): void {
-    if (this.selectedRootNode.parent) {
-      const idxInParentChildList =
-        this.selectedRootNode.parent.children.indexOf(this.selectedRootNode);
-      if (idxInParentChildList > 0) {
-        const childToRight =
-          this.selectedRootNode.parent.children[idxInParentChildList - 1];
-        const childToLeft =
-          this.selectedRootNode.parent.children[idxInParentChildList];
-        this.selectedRootNode.parent.children[idxInParentChildList] =
-          childToRight;
-        this.selectedRootNode.parent.children[idxInParentChildList - 1] =
-          childToLeft;
-
-        this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(
-          this.root
-        );
-        this.saveTreeInSharedDataService();
-      }
-    }
+    this.processTreeService.shiftSubtreeToLeft(this.selectedRootNode.data)
   }
 
   // @REFRACTOR INTO PROCESSTREE SERVICE
   shiftSubtreeToRight(): void {
-    if (this.selectedRootNode.parent) {
-      const idxInParentChildList =
-        this.selectedRootNode.parent.children.indexOf(this.selectedRootNode);
-      if (
-        idxInParentChildList <
-        this.selectedRootNode.parent.children.length - 1
-      ) {
-        const childToRight =
-          this.selectedRootNode.parent.children[idxInParentChildList];
-        const childToLeft =
-          this.selectedRootNode.parent.children[idxInParentChildList + 1];
-        this.selectedRootNode.parent.children[idxInParentChildList + 1] =
-          childToRight;
-        this.selectedRootNode.parent.children[idxInParentChildList] =
-          childToLeft;
-
-        this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(
-          this.root
-        );
-        this.saveTreeInSharedDataService();
-      }
-    }
+    this.processTreeService.shiftSubtreeToRight(this.selectedRootNode.data)
   }
 
   undo(): void {
@@ -489,364 +371,12 @@ export class ProcessTreeEditorComponent
     );
   }
 
-  drawNodes(
-    node: d3.Selection<any, any, any, any>,
-    activityColorMap: Map<string, string>,
-    selectedPerformanceIndicator,
-    selectedStatistic
-  ) {
-    // add node groups
-    this.nodeEnter = node
-      .enter()
-      .append('g')
-      .attr('id', function (d) {
-        return d.data.id;
-      })
-      .attr('data-bs-toggle', 'tooltip')
-      .attr('data-bs-placement', 'top')
-      .attr('data-bs-title', (d) => {
-        if (
-          this.hasPerformance(d) &&
-          d.data.label !== ProcessTreeOperator.tau
-        ) {
-          return (
-            `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
-        <h6 style="flex: 1" class="performance-tooltip-header">` +
-            (d.data.label || d.data.operator) +
-            `</h6>
-      </div>` +
-            getPerformanceTable(
-              d.data.performance,
-              selectedPerformanceIndicator,
-              selectedStatistic
-            )
-          );
-        }
-
-        return d.data.label || d.data.operator;
-      })
-      .attr('data-bs-template', (d) => {
-        if (
-          this.hasPerformance(d) &&
-          d.data.label !== ProcessTreeOperator.tau
-        ) {
-          return `<div class="tooltip performance-tooltip" role="tooltip">
-                <div class="tooltip-arrow"></div>
-                <div class="tooltip-inner p-0" style="max-width: none;"></div>
-              </div>`;
-        }
-
-        return `<div class="tooltip" role="tooltip">
-              <div class="tooltip-arrow"></div>
-              <div class="tooltip-inner"></div>
-            </div>`;
-      })
-      .attr('data-bs-html', true);
-
-    // add nodes
-    this.nodeEnter
-      .append('rect')
-      .classed('node', true)
-      .attr('rx', constants.tree_corner_radius)
-      .attr('ry', constants.tree_corner_radius)
-      .attr('stroke', constants.tree_stroke_color)
-      .attr('stroke-width', constants.tree_stroke_width)
-      .merge(node.select('.node'))
-      .style('fill', (d) => {
-        if (
-          this.root.data.performance &&
-          d.data.label !== ProcessTreeOperator.tau
-        ) {
-          if (
-            this.performanceColorMap.has(d.data.id) &&
-            d.data.performance?.[selectedPerformanceIndicator]?.[
-              selectedStatistic
-            ] !== undefined
-          ) {
-            return this.performanceColorMap.get(d.data.id)(
-              d.data.performance[selectedPerformanceIndicator][
-                selectedStatistic
-              ]
-            );
-          } else {
-            return '#404040';
-          }
-        } else {
-          if (d.data.operator !== null) return constants.node_operator_color;
-          if (d.data.label !== null && d.data.label === ProcessTreeOperator.tau)
-            return constants.node_non_visible_activity_color;
-          const isVisibleActivity =
-            d.data.label !== null && d.data.label !== ProcessTreeOperator.tau;
-          return isVisibleActivity ? activityColorMap.get(d.data.label) : null;
-        }
-      })
-      .classed('node-operator', function (d: any) {
-        return d.data.operator !== null;
-      })
-      .classed('frozen-node-operator', function (d: any) {
-        return d.data.operator !== null && d.data.frozen === true;
-      })
-      .classed('node-visible-activity', function (d: any) {
-        return (
-          d.data.label !== null && d.data.label !== ProcessTreeOperator.tau
-        );
-      })
-      .classed('selected-node', function (d: any) {
-        return d.data.selected;
-      })
-      .classed('frozen-node-visible-activity', function (d: any) {
-        return (
-          d.data.label !== null &&
-          d.data.label !== ProcessTreeOperator.tau &&
-          d.data.frozen === true
-        );
-      })
-      .attr('fill', function (d: any) {
-        if (d.data.operator !== null) return constants.node_operator_color;
-        if (d.data.label !== null && d.data.label === ProcessTreeOperator.tau)
-          return constants.node_non_visible_activity_color;
-        const isVisibleActivity =
-          d.data.label !== null && d.data.label !== ProcessTreeOperator.tau;
-        return isVisibleActivity
-          ? activityColorMap.get(d.data.label) ||
-              constants.node_visible_activity_color
-          : null;
-      })
-      .classed('node-invisible-activity', (d: any) => {
-        return d.data.label === ProcessTreeOperator.tau;
-      })
-      .classed('frozen-node-invisible-activity', (d: any) => {
-        return (
-          d.data.label === ProcessTreeOperator.tau && d.data.frozen === true
-        );
-      })
-      .attr('width', constants.tree_node_height_width)
-      .attr('height', constants.tree_node_height_width)
-      .attr('font-size', (d: any) => {
-        if (d.data.label === ProcessTreeOperator.tau)
-          return constants.node_invisible_font_size;
-        return '';
-      })
-      .attr('x', function (d: any) {
-        return d.x - constants.tree_node_height_width / 2;
-      })
-      .attr('y', function (d: any) {
-        return d.y;
-      });
-
-    // add node text
-    this.nodeEnter
-      .append('text')
-      .classed('user-select-none', true)
-      .classed('node-text', true)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .merge(node.select('text'))
-      .attr('fill', (d) => {
-        if (
-          d.data.frozen ||
-          d.data.label === ProcessTreeOperator.tau ||
-          (d.data.performance == undefined &&
-            this.root.data.performance != undefined)
-        ) {
-          return 'white';
-        }
-
-        let nodeColor = activityColorMap.get(d.data.label);
-
-        if (
-          d.data.performance &&
-          this.performanceColorMap.has(d.data.id) &&
-          d.data.performance[selectedPerformanceIndicator]
-        ) {
-          nodeColor = this.performanceColorMap.get(d.data.id)(
-            d.data.performance[selectedPerformanceIndicator][selectedStatistic]
-          );
-        }
-
-        const isVisibleActivity =
-          (d.data.label !== null && d.data.label !== ProcessTreeOperator.tau) ||
-          (d.data.performance != undefined && nodeColor !== undefined);
-        return isVisibleActivity
-          ? textColorForBackgroundColor(nodeColor)
-          : 'white';
-      })
-      .attr('font-size', (d: any) => {
-        if (d.data.operator) {
-          return constants.node_operator_font_size;
-        }
-        return constants.node_visible_font_size;
-      })
-      .attr('x', function (d: any) {
-        return d.x;
-      })
-      .attr('y', function (d: any) {
-        return d.y + constants.tree_node_height_width / 2 + 3;
-      })
-      .text(function (d: any) {
-        if (d.data.operator) {
-          return d.data.operator;
-        }
-        if (d.data.label) {
-          // shorten text if it is too long
-          if (d.data.label.length <= 20) {
-            return d.data.label;
-          } else {
-            return d.data.label.substring(0, 20) + '...';
-          }
-        }
-      });
-
-    // resize leaf nodes if text is too long
-    this.nodeEnter
-      .merge(node)
-      .select('.node-visible-activity')
-      .attr('x', function (d) {
-        return (
-          d.x -
-          Math.max(
-            constants.tree_node_height_width,
-            this.nextSibling.getComputedTextLength() + 10
-          ) /
-            2
-        );
-      })
-      .attr('width', function () {
-        return Math.max(
-          constants.tree_node_height_width,
-          this.nextSibling.getComputedTextLength() + 10
-        );
-      });
-
-    // remove nodes
-    node.exit().transition().duration(50).remove();
-  }
-
-  drawEdges(root) {
-    const edges = this.mainSvgGroup.selectAll('line').data(root.links());
-
-    edges.classed('selected-edge', false);
-
-    // remove old edges
-    edges.exit().remove();
-
-    // add edges
-    edges
-      .enter()
-      .append('line')
-      .attr('class', 'link')
-      .merge(edges)
-      // .transition()
-      .attr('x1', function (d: any) {
-        return d.source.x;
-      })
-      .attr('y1', function (d: any) {
-        return d.source.y + constants.tree_node_height_width;
-      })
-      .attr('x2', function (d: any) {
-        return d.target.x;
-      })
-      .attr('y2', function (d: any) {
-        return d.target.y;
-      })
-      .attr('stroke', constants.tree_stroke_color)
-      .classed('frozen-edge', (d) => {
-        return d.source.data.frozen;
-      })
-      .classed('selected-edge', (e) => {
-        return e.source.data.selected;
-      });
-  }
-
-  update(root): void {
-    this.mainSvgGroup.selectAll('g').remove();
-
-    if (root) {
-      const selectedStatistic =
-        this.performanceColorScaleService.selectedColorScale.statistic;
-
-      const selectedPerformanceIndicator =
-        this.performanceColorScaleService.selectedColorScale
-          .performanceIndicator;
-
-      this.performanceColorMap =
-        this.performanceColorScaleService.getColorScale();
-
-      // add node groups that contain a rectangle and text
-      const activityColorMap = this.activityColorMap;
-
-      this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(root);
-      this.processTreeSyntaxInfo = checkSyntax(this.getProcessTreeObject(root));
-
-      this.processTreeService.correctTreeSyntax =
-        this.processTreeSyntaxInfo.correctSyntax;
-
-      this.calculateTreeLayout(root);
-
-      const node = this.mainSvgGroup
-        .selectAll('g')
-        .data(root.descendants(), function (d) {
-          return d.data.id;
-        });
-
-      // Draw Nodes
-      this.drawNodes(
-        node,
-        activityColorMap,
-        selectedPerformanceIndicator,
-        selectedStatistic
-      );
-
-      // Draw Edges
-      this.drawEdges(root);
-
-      this.addSelectionFunctionality();
-      this.activateTooltipsService.initializeChildren(this.svgElem);
-    } else {
-      this.selectedRootNode = null;
-      this.currentlyDisplayedTreeInEditor = null;
-      this.processTreeSyntaxInfo = null;
-      this.mainSvgGroup.selectAll('*').remove();
-    }
-  }
-
-  private hasPerformance(d) {
-    return (
-      d.data.performance?.service_time ||
-      d.data.performance?.cycle_time ||
-      d.data.performance?.waiting_time ||
-      d.data.performance?.idle_time
-    );
-  }
-
   // @REFRACTOR INTO PROCESSTREE SERVICE
   deleteSubtree(): void {
-    if (this.root === this.selectedRootNode) {
-      this.root = null;
-      this.update(null);
-      this.saveTreeInSharedDataService();
-    } else {
-      this.deleteNodeAndChildren(this.root, this.selectedRootNode);
-      this.update(this.root);
-      this.saveTreeInSharedDataService();
-    }
-    this.processTreeService.selectedRootNodeID = null;
+    this.processTreeService.deleteSelected(this.selectedRootNode.data); 
   }
 
-  // @REFRACTOR INTO PROCESSTREE SERVICE
-  deleteNodeAndChildren(tree, nodeToDelete): void {
-    if (tree.children) {
-      tree.children = tree.children.filter((c) => c !== nodeToDelete);
-      if (tree.children.length === 0) {
-        delete tree.children;
-      }
-      if (tree.children) {
-        tree.children.forEach((c) => {
-          this.deleteNodeAndChildren(c, nodeToDelete);
-        });
-      }
-    }
-  }
+
 
   // @REFRACTOR INTO PROCESSTREE SERVICE
   changeSelectedNode(operator, label): void {
@@ -860,7 +390,7 @@ export class ProcessTreeEditorComponent
       this.selectedRootNode.data.label = label;
       this.selectedRootNode.data.operator = null;
     }
-    this.afterInsertNode(this.selectedRootNode);
+    this.afterInsertNode();
   }
 
   // @REFRACTOR INTO PROCESSTREE SERVICE
@@ -875,7 +405,7 @@ export class ProcessTreeEditorComponent
       newNode.height = 0;
       newNode.children = null;
       this.root = newNode;
-      this.afterInsertNode(newNode);
+      this.afterInsertNode();
     }
   }
 
@@ -903,7 +433,7 @@ export class ProcessTreeEditorComponent
       );
       this.selectedRootNode.parent.children.splice(idx, 0, newNode);
     }
-    this.afterInsertNode(newNode);
+    this.afterInsertNode();
   }
 
   // @REFRACTOR INTO PROCESSTREE SERVICE
@@ -919,7 +449,7 @@ export class ProcessTreeEditorComponent
     this.selectedRootNode.parent = newNode;
     this.root = newNode;
     this.updateDepthAttributeOfNode(this.selectedRootNode);
-    this.afterInsertNode(newNode);
+    this.afterInsertNode();
   }
 
   // @REFRACTOR INTO PROCESSTREE SERVICE
@@ -939,7 +469,7 @@ export class ProcessTreeEditorComponent
       this.selectedRootNode.children = [newNode];
     }
     this.updateHeightAttributeOfNode(this.selectedRootNode);
-    this.afterInsertNode(newNode);
+    this.afterInsertNode();
   }
 
   updateHeightAttributeOfNode(node): void {
@@ -980,19 +510,18 @@ export class ProcessTreeEditorComponent
       );
       this.selectedRootNode.parent.children.splice(idx + 1, 0, newNode);
     }
-    this.afterInsertNode(newNode);
+    this.afterInsertNode();
   }
 
-  afterInsertNode(newNode: any): void {
+  afterInsertNode(): void {
     this.selectedRootNodeOnly = true;
-
     this.processTreeService.selectedRootNodeID = this.selectedRootNode.data.id;
 
-    this.currentlyDisplayedTreeInEditor = this.getProcessTreeObject(this.root);
     this.saveTreeInSharedDataService();
 
     this.searchText = undefined;
   }
+
 
   // @REFRACTOR INTO PROCESSTREE SERVICE
   createNode(operator, label): d3.HierarchyNode<any> {
@@ -1008,77 +537,8 @@ export class ProcessTreeEditorComponent
 
   // END - Inserting node functionality
 
-  calculateTreeLayout(root): void {
-    if (root) {
-      const flextreeLayout = flextree();
-      flextreeLayout.nodeSize((node) => {
-        if (node.data.operator || node.data.label === ProcessTreeOperator.tau) {
-          return [
-            constants.tree_node_height_width,
-            2 * constants.tree_node_height_width,
-          ];
-        }
 
-        return [
-          this.nodeWidthCache[node.data.label],
-          2 * constants.tree_node_height_width,
-        ];
-      });
-
-      // Specifies the spacing between two nodes
-      flextreeLayout.spacing((nodeA, nodeB) => {
-        return nodeA.parent === nodeB.parent
-          ? constants.nodeSpacing
-          : 2 * constants.nodeSpacing;
-      });
-
-      // calculate layout
-      flextreeLayout(root);
-    }
-  }
-
-  computeLeafNodeWidth(nodeActivityLabels: string[]): void {
-    const dummy_container = d3
-      .select('body')
-      .append('svg')
-      .style('top', '0px')
-      .style('left', '0px')
-      .style('position', 'absolute');
-
-    const dummy_select = dummy_container
-      .append('text')
-      .attr('font-size', '12px');
-
-    for (let nodeActivityLabel of nodeActivityLabels) {
-      // Compute the width by rendering a dummy node
-      dummy_select.text(function (d: any) {
-        if (nodeActivityLabel.length <= 20) {
-          return nodeActivityLabel;
-        } else {
-          return nodeActivityLabel.substring(0, 20) + '...';
-        }
-      });
-
-      // Retrieve the computed width
-      let rendered_width = dummy_select.node().getComputedTextLength();
-
-      // Compute the true node width as specified above
-      rendered_width = Math.max(
-        rendered_width + 10,
-        constants.tree_node_height_width
-      );
-
-      // Add to Cache
-      this.nodeWidthCache[nodeActivityLabel] = rendered_width;
-    }
-
-    // Delete the Dummy
-    dummy_select.remove();
-    dummy_container.remove();
-
-    this.processTreeService.nodeWidthCache = this.nodeWidthCache;
-  }
-
+  // Refactor to Directive with Variant Editor / BPMN Viewer
   addZoomFunctionality(): void {
     this.mainSvgGroup.attr(
       'transform',
@@ -1113,15 +573,11 @@ export class ProcessTreeEditorComponent
     );
   }
 
-  addSelectionFunctionality(): void {
-    let performanceService = this.performanceService;
-    this.nodeEnter.on('click', function (event, d) {
-      pushIDtoService(this, d),
-        performanceService.treeSelection.next(ProcessTree.fromObj(d.data));
-    });
-
-    const pushIDtoService = this.pushIDtoService;
+  selectNodeCallBack = (self, event, d) => {
+    this.pushIDtoService(self, d),
+    this.performanceService.treeSelection.next(ProcessTree.fromObj(d.data));
   }
+
 
   private pushIDtoService = (svg, d) => {
     // Activate Toogle by pushing Null to service
@@ -1188,38 +644,8 @@ export class ProcessTreeEditorComponent
       });
   };
 
-  // @REFRACTOR INTO PROCESSTREE SERVICE
   freezeSubtree(): void {
-    const markNodeAsFrozen = (node) => {
-      node.data.frozen = true;
-      if (node.children) {
-        node.children.forEach((child) => {
-          markNodeAsFrozen(child);
-        });
-      }
-    };
-    const markNodeAsNonFrozen = (node) => {
-      node.data.frozen = false;
-      if (node.parent && node.parent.data.frozen) {
-        markNodeAsNonFrozen(node.parent);
-        return;
-      }
-      if (node.children) {
-        node.children.forEach((child) => {
-          markNodeAsNonFrozen(child);
-        });
-      }
-    };
-    if (!this.selectedRootNode.data.frozen) {
-      markNodeAsFrozen(this.selectedRootNode);
-    } else {
-      markNodeAsNonFrozen(this.selectedRootNode);
-    }
-
-    this.processTreeService.selectedRootNodeID = null;
-    this.update(this.root);
-    this.processTreeService.currentDisplayedProcessTree =
-      this.currentlyDisplayedTreeInEditor;
+    this.processTreeService.freezeSubtree(this.selectedRootNode.data);
   }
 
   clearSelection(): void {
@@ -1245,7 +671,7 @@ export class ProcessTreeEditorComponent
   initializeSvg(): void {
     this.svg = d3.select('#d3-svg');
     // add svg group for zooming
-    this.mainSvgGroup = this.svg.append('g').attr('id', 'zoomGroup');
+    this.mainSvgGroup = this.svg.select('#zoomGroup')
 
     this.horizontallyCenterTree();
     this.addZoomFunctionality();
@@ -1294,7 +720,7 @@ export class ProcessTreeEditorComponent
     });
 
     const xLower = Math.min(...xCords);
-    const xOffset = Math.abs(xLower) + constants.export_offset;
+    const xOffset = Math.abs(xLower) + PT_Constant.export_offset;
 
     tree.selectAll('rect').attr('x', function (this: SVGGraphicsElement) {
       return shiftbyXOffset(this, xOffset, 'x');
@@ -1313,13 +739,13 @@ export class ProcessTreeEditorComponent
 
     tree
       .selectChild()
-      .attr('transform', `translate(0, ${constants.export_offset})`);
+      .attr('transform', `translate(0, ${PT_Constant.export_offset})`);
 
     // Export the tree
     this.imageExportService.export(
       'process_tree',
-      svgBBox.width + 2 * constants.export_offset,
-      svgBBox.height + constants.export_offset,
+      svgBBox.width + 2 * PT_Constant.export_offset,
+      svgBBox.height + PT_Constant.export_offset,
       tree_copy
     );
   }

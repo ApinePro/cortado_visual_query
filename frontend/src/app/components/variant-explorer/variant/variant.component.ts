@@ -1,5 +1,4 @@
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 
 import {
   AfterViewInit,
@@ -12,20 +11,16 @@ import {
 } from '@angular/core';
 import { isDevMode } from '@angular/core';
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
-import {
-  getSelectedChildren,
-  handleTreeLevelsWithOneChild,
-  SequenceGroup,
-  someChildrenSelected,
-  Variant,
-  VariantElement,
-  InfixType,
-} from '../model';
+
 import { PerformanceService } from '../../../services/performance.service';
 import { ModelPerformanceColorScaleService } from '../../../services/performance-color-scale.service';
-import { textColorForBackgroundColor } from '../helper_functions';
+import { textColorForBackgroundColor } from '../../../utils/helper_functions';
 import * as objectHash from 'object-hash';
 import { VariantService } from 'src/app/services/variantService/variant.service';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import { InfixType, someChildrenSelected, getSelectedChildren, handleTreeLevelsWithOneChild } from 'src/app/objects/Variants/infix_selection';
+import { Variant } from 'src/app/objects/Variants/variant';
+import { VariantElement, SequenceGroup } from 'src/app/objects/Variants/variant_element';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector

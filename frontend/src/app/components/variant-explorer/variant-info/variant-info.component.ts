@@ -1,7 +1,6 @@
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
-import { Variant } from '../model';
+import { Variant } from 'src/app/objects/Variants/variant';
 
 @Component({
   selector: 'app-variant-info',
@@ -24,7 +23,6 @@ export class VariantInfoComponent implements OnInit {
   public processTreeIsPresent: boolean = false;
 
   constructor(
-    private sharedDataService: SharedDataService,
     private processTreeService: ProcessTreeService
   ) {}
 

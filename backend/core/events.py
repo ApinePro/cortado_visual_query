@@ -20,9 +20,6 @@ def create_start_app_handler(
         cache.parameters = pickle.load(open("./resources/parameters.p", "rb"))
         
         print('loaded parameters', cache.parameters)
-        
-        cache.event_log = pickle.load(
-            open("./resources/sample_log.p", "rb"))
     return start_app
 
 

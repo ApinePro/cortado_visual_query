@@ -1,4 +1,4 @@
-import { Variant } from './model';
+import { Variant } from "src/app/objects/Variants/variant";
 
 export class VariantSorter {
   static sort(

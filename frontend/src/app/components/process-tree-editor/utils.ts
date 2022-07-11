@@ -1,6 +1,6 @@
 import { HumanizeDurationOptions } from 'humanize-duration-ts';
 import { HumanizeDurationPipe } from 'src/app/pipes/humanize-duration.pipe';
-import { TreePerformance } from '../../objects/ProcessTree';
+import { TreePerformance } from '../../objects/ProcessTree/ProcessTree';
 
 export function getPerformanceTable(
   performance: TreePerformance,

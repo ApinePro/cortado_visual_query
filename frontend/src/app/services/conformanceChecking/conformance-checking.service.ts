@@ -5,9 +5,9 @@ import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { BackgroundTaskInfoService } from '../backgroundTaskInfoService/background-task-info.service';
 import { ConformanceCheckingResult } from './model';
 import Swal from 'sweetalert2';
-import { ProcessTree } from 'src/app/objects/ProcessTree';
-import { InfixType } from 'src/app/components/variant-explorer/model';
+import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import { VariantService } from '../variantService/variant.service';
+import { InfixType } from 'src/app/objects/Variants/infix_selection';
 export const WS_ENDPOINT = 'ws://127.0.0.1:41211/conformancews';
 
 @Injectable({

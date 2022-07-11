@@ -1,9 +1,10 @@
+import { VARIANT_Constants } from './../constants/variant_element_drawer_constants';
 import { ElementRef, Injectable } from '@angular/core';
 import { Selection } from 'd3';
-import { Constants, LeafNode } from '../components/variant-explorer/model';
 import { PolygonGeneratorService } from './polygon-generator.service';
 import * as d3 from 'd3';
-import { textColorForBackgroundColor } from '../components/variant-explorer/helper_functions';
+import { LeafNode } from '../objects/Variants/variant_element';
+import { textColorForBackgroundColor } from '../utils/helper_functions';
 
 @Injectable({
   providedIn: 'root',
@@ -34,8 +35,8 @@ export class PolygonDrawingService {
     colorMap: Map<string, string>,
     textUnderLegend: string = 'Variants'
   ): void {
-    let offsetY = Constants.LEGEND_MARGIN_Y + 20;
-    let offsetX = Constants.LEGEND_MARGIN_X;
+    let offsetY = VARIANT_Constants.LEGEND_MARGIN_Y + 20;
+    let offsetX = VARIANT_Constants.LEGEND_MARGIN_X;
     let parent_width = 0;
 
     let width = Math.max(...elements.map((e) => e.getWidth(false, true)));
@@ -43,8 +44,8 @@ export class PolygonDrawingService {
 
     parent
       .append('line')
-      .attr('x1', Constants.LEGEND_MARGIN_X)
-      .attr('x2', (Constants.MAX_OFFSETWIDTH + width).toString())
+      .attr('x1', VARIANT_Constants.LEGEND_MARGIN_X)
+      .attr('x2', (VARIANT_Constants.MAX_OFFSETWIDTH + width).toString())
       .attr('y1', '20')
       .attr('y2', '20')
       .attr('stroke', 'black')
@@ -52,7 +53,7 @@ export class PolygonDrawingService {
 
     parent
       .append('text')
-      .attr('x', Constants.LEGEND_MARGIN_X)
+      .attr('x', VARIANT_Constants.LEGEND_MARGIN_X)
       .attr('y', '15')
       .attr('fill', 'black')
       .attr('font-size', '15')
@@ -79,7 +80,7 @@ export class PolygonDrawingService {
         .attr('transform', `translate(${offsetX}, ${offsetY})`)
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'middle')
-        .attr('font-size', Constants.FONT_SIZE)
+        .attr('font-size', VARIANT_Constants.FONT_SIZE)
         .attr('fill', textColorForBackgroundColor(color));
 
       activityText
@@ -87,30 +88,30 @@ export class PolygonDrawingService {
         .attr('x', width / 2)
         .attr('y', height / 2)
         .text(element.activity[0])
-        .attr('height', Constants.FONT_SIZE + Constants.MARGIN_Y);
+        .attr('height', VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y);
 
-      offsetX += width + Constants.LEGEND_MARGIN_X;
+      offsetX += width + VARIANT_Constants.LEGEND_MARGIN_X;
 
-      if (offsetX >= Constants.MAX_OFFSETWIDTH) {
+      if (offsetX >= VARIANT_Constants.MAX_OFFSETWIDTH) {
         parent_width = Math.max(parent_width, offsetX);
-        offsetX = Constants.LEGEND_MARGIN_X;
-        offsetY += height + Constants.LEGEND_MARGIN_Y;
+        offsetX = VARIANT_Constants.LEGEND_MARGIN_X;
+        offsetY += height + VARIANT_Constants.LEGEND_MARGIN_Y;
       }
     }
 
     offsetY =
-      offsetX === Constants.LEGEND_MARGIN_X
+      offsetX === VARIANT_Constants.LEGEND_MARGIN_X
         ? offsetY
-        : offsetY + height + Constants.LEGEND_MARGIN_Y;
+        : offsetY + height + VARIANT_Constants.LEGEND_MARGIN_Y;
 
     parent
       .attr('width', parent_width)
-      .attr('height', offsetY + Constants.MARGIN_Y + 40);
+      .attr('height', offsetY + VARIANT_Constants.MARGIN_Y + 40);
 
     parent
       .append('line')
-      .attr('x1', Constants.LEGEND_MARGIN_X)
-      .attr('x2', (Constants.MAX_OFFSETWIDTH + width).toString())
+      .attr('x1', VARIANT_Constants.LEGEND_MARGIN_X)
+      .attr('x2', (VARIANT_Constants.MAX_OFFSETWIDTH + width).toString())
       .attr('y1', offsetY)
       .attr('y2', offsetY)
       .attr('stroke', 'black')
@@ -118,7 +119,7 @@ export class PolygonDrawingService {
 
     parent
       .append('text')
-      .attr('x', Constants.LEGEND_MARGIN_X)
+      .attr('x', VARIANT_Constants.LEGEND_MARGIN_X)
       .attr('y', offsetY + 20)
       .attr('fill', 'black')
       .attr('font-size', '15')

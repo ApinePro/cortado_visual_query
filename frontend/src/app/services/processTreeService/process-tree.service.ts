@@ -1,13 +1,29 @@
+import { PT_Constant } from './../../constants/process_tree_drawer_constants';
+import { LogService } from 'src/app/services/logService/log.service';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
-import { ProcessTree } from 'src/app/objects/ProcessTree';
-
+import * as d3 from 'd3';
+import Swal from 'sweetalert2';
+import { ProcessTree, ProcessTreeOperator } from 'src/app/objects/ProcessTree/ProcessTree';
 @Injectable({
   providedIn: 'root',
 })
-export class ProcessTreeService {
-  constructor() {}
+export class ProcessTreeService{
+  constructor(private logService : LogService) {
+
+    console.log('Init Process Tree Service')
+    this.logService.activitiesInEventLog$.subscribe((activites) => {
+      this.computeLeafNodeWidth(Object.keys(activites));
+    })
+
+    this.logService.loadedEventLog$.subscribe((log) => {
+      console.log('Log Changed', log)
+      if(log !== 'preload'){
+        this.nodeWidthCache = new Map<string, number>()
+      }
+    })
+  }
 
   private _selectedRootNodeID = new BehaviorSubject<number>(null);
 
@@ -23,7 +39,7 @@ export class ProcessTreeService {
     return this._selectedRootNodeID.getValue();
   }
 
-  private _nodeWidthCache = new BehaviorSubject<Map<string, number>>(null);
+  private _nodeWidthCache = new BehaviorSubject<Map<string, number>>(new Map<string, number>());
 
   get nodeWidthCache$(): Observable<Map<string, number>> {
     return this._nodeWidthCache.asObservable();
@@ -148,12 +164,69 @@ export class ProcessTreeService {
     this._activitiesInCurrentTree.next(activities);
   }
 
+
+  checkForLoadedTreeIntegrity(tree): Set<string> {
+    let unknownActivities = new Set<string>();
+    const activities = Object.keys(this.logService.activitiesInEventLog)
+
+    for (let subtree of tree.children) {
+      // If it is a operator, recurse on the children
+      if (!subtree.label) {
+        unknownActivities = new Set<string>([
+          ...unknownActivities,
+          ...this.checkForLoadedTreeIntegrity(subtree),
+        ]);
+
+        // If it is a leaf with unkown label add it to the set
+      } else if (
+        !(
+          activities.indexOf(subtree.label) > -1 ||
+          subtree.label === ProcessTreeOperator.tau
+        )
+      ) {
+        unknownActivities.add(subtree.label);
+
+        // Else continue
+      }
+    }
+
+    return unknownActivities;
+  }
+
+
   set currentDisplayedProcessTree(tree: any) {
     if (tree && !(tree instanceof ProcessTree)) {
       tree = ProcessTree.fromObj(tree);
     }
-    this._currentDisplayedProcessTree.next(tree);
+
     this.activitiesInCurrentTree = this.getSetOfActivities(tree);
+    this._currentDisplayedProcessTree.next(tree);
+
+    if (this.checkForLoadedTreeIntegrity(tree).size > 0) {
+      const unknownActivities = Array.from(
+        this.checkForLoadedTreeIntegrity(tree)
+      );
+      this.computeLeafNodeWidth(unknownActivities);
+
+      Swal.fire({
+        title:
+          '<tspan class = "text-warning">Current process tree contains unkown activites</tspan>',
+        html:
+          '<b>Error Message: </b><br>' +
+          '<code> The loaded tree contains activities \
+              that do not appear in the currently loaded log.\
+              </code> <br> <br> Unknown Activites: ' +
+          '<tspan class = "text-danger">' +
+          unknownActivities.join(', ') +
+          '</tspan>',
+        icon: 'warning',
+        showCloseButton: false,
+        showConfirmButton: false,
+        showCancelButton: true,
+        cancelButtonText: 'close',
+      });
+    }
+
   }
 
   public set_currentDisplayedProcessTree_with_Cache(tree: any) {
@@ -284,6 +357,158 @@ export class ProcessTreeService {
       return false;
     }
   }
+
+
+  computeLeafNodeWidth(nodeActivityLabels: string[]): void {
+
+    const nodeWidthCache = this.nodeWidthCache
+
+    const dummy_container = d3
+      .select('body')
+      .append('svg')
+      .style('top', '0px')
+      .style('left', '0px')
+      .style('position', 'absolute');
+
+    const dummy_select = dummy_container
+      .append('text')
+      .attr('font-size', '12px');
+
+    for (let nodeActivityLabel of nodeActivityLabels) {
+      // Compute the width by rendering a dummy node
+      dummy_select.text(function (d: any) {
+        if (nodeActivityLabel.length <= 20) {
+          return nodeActivityLabel;
+        } else {
+          return nodeActivityLabel.substring(0, 20) + '...';
+        }
+      });
+
+      // Retrieve the computed width
+      let rendered_width = dummy_select.node().getComputedTextLength();
+
+      // Compute the true node width as specified above
+      rendered_width = Math.max(
+        rendered_width + 10,
+        PT_Constant.tree_node_height_width
+      );
+
+      // Add to Cache
+      nodeWidthCache[nodeActivityLabel] = rendered_width;
+    }
+
+    // Delete the Dummy
+    dummy_select.remove();
+    dummy_container.remove();
+
+    this.nodeWidthCache = nodeWidthCache;
+  }
+
+  freezeSubtree(node : ProcessTree) {
+    const markNodeAsFrozen = (node) => {
+      node.frozen = true;
+      if (node.children) {
+        node.children.forEach((child) => {
+          markNodeAsFrozen(child);
+        });
+      }
+    };
+
+    const markNodeAsNonFrozen = (node) => {
+      node.frozen = false;
+
+      if (node.parent && node.parent.frozen) {
+        markNodeAsNonFrozen(node.parent);
+        return;
+      }
+      if (node.children) {
+        node.children.forEach((child) => {
+          markNodeAsNonFrozen(child);
+        });
+      }
+    };
+
+    if (!node.frozen) {
+      markNodeAsFrozen(node);
+    } else {
+      markNodeAsNonFrozen(node);
+    }
+
+    this.currentDisplayedProcessTree = this.currentDisplayedProcessTree;
+    this.selectedRootNodeID = null;
+  }
+
+  shiftSubtreeToLeft(tree : ProcessTree): void {
+
+    if (tree.parent) {
+      const siblings = tree.parent.children
+      const idxInParentChildList = siblings.indexOf(tree);
+      if (idxInParentChildList > 0) {
+
+        const childToRight = siblings[idxInParentChildList - 1];
+        const childToLeft = siblings[idxInParentChildList];
+        siblings[idxInParentChildList] = childToRight;
+        siblings[idxInParentChildList - 1] = childToLeft;
+
+        this.currentDisplayedProcessTree = this.currentDisplayedProcessTree
+      }
+    }
+  }
+
+  shiftSubtreeToRight(tree : ProcessTree): void {
+
+    if (tree.parent) {
+      const siblings = tree.parent.children
+      const idxInParentChildList =
+      siblings.indexOf(tree);
+      if ( idxInParentChildList < siblings.length - 1) {
+        const childToRight = siblings[idxInParentChildList];
+        const childToLeft = siblings[idxInParentChildList + 1];
+        siblings[idxInParentChildList + 1] = childToRight;
+        siblings[idxInParentChildList] = childToLeft;
+        
+        this.currentDisplayedProcessTree = this.currentDisplayedProcessTree
+      }
+    }
+  }
+
+
+
+  deleteSelected(tree_to_delete : ProcessTree) {
+
+    const delete_subtree = (tree: ProcessTree, tree_to_delete: ProcessTree) => {
+      if (tree === tree_to_delete) {
+        return;
+      } else {
+        if (tree.children) {
+          let child_list: Array<ProcessTree> = [];
+
+          for (let child of tree.children) {
+            let res = delete_subtree(child, tree_to_delete);
+
+            if (res) {
+              child_list.push(res);
+            }
+          }
+
+          tree.children = child_list;
+        }
+      }
+
+      return tree;
+    };
+
+    if (this.currentDisplayedProcessTree === tree_to_delete) {
+      this.set_currentDisplayedProcessTree_with_Cache(null);
+    } else {
+      this.set_currentDisplayedProcessTree_with_Cache(
+        delete_subtree(this.currentDisplayedProcessTree, tree_to_delete)
+      );
+    }
+
+    this.selectedRootNodeID = null;
+  }
+
 }
 
 export enum NodeSeletionStrategy {

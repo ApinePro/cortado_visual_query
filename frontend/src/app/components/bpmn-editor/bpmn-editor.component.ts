@@ -1,3 +1,4 @@
+
 import {
   NodeSeletionStrategy,
   ProcessTreeService,
@@ -16,27 +17,15 @@ import {
 } from '@angular/core';
 import * as d3 from 'd3';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
-import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';
-import {
-  BPMN_Constant,
-  convertPTtoBlockstructuredBPMN,
-} from './block-structured-bpmn';
 
-import {
-  Block_Structured_BPMN,
-  LoopBlock,
-  ChoiceBlock,
-  SequenceBlock,
-  ParallelBlock,
-  Event,
-} from './block-structured-bpmn';
-import { ProcessTree, ProcessTreeOperator } from 'src/app/objects/ProcessTree';
-import { textColorForBackgroundColor } from '../variant-explorer/helper_functions';
+import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
-import { getPerformanceTable } from '../process-tree-editor/utils';
 import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
 import { ImageExportService } from 'src/app/services/imageExportService/image-export-service';
 import { PerformanceService } from 'src/app/services/performance.service';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { BPMN_Constant } from 'src/app/constants/bpmn_model_drawer_constants';
+import { BpmnDrawerDirective } from 'src/app/directives/bpmn-drawer/bpmn-drawer.directive';
 
 @Component({
   selector: 'app-bpmn-editor',
@@ -58,7 +47,10 @@ export class BpmnEditorComponent
 
   @ViewChild('bpmn') svgElem: ElementRef;
   @ViewChild('BPMNcontainer') bpmnContainerElem: ElementRef;
-  mainGroup: d3.Selection<SVGGElement, unknown, null, undefined>;
+  @ViewChild(BpmnDrawerDirective) bpmnDrawer: BpmnDrawerDirective;
+
+
+  mainGroup: d3.Selection<SVGGElement, any, any, any>;
   selectedStatistic: string;
   selectedPerformanceIndicator: string;
   zoom: d3.ZoomBehavior<Element, unknown>;
@@ -105,19 +97,23 @@ export class BpmnEditorComponent
     this.processTreeService.selectionMode$.subscribe((strategy) => {
       this.nodeSelectionStrategy = strategy;
     });
+
   }
 
   ngAfterViewInit(): void {
     this.nodeWidthCache = this.processTreeService.nodeWidthCache;
 
+
+    this.selectedStatistic = this.performanceColorScaleService.selectedColorScale.statistic
+    this.selectedPerformanceIndicator = this.performanceColorScaleService.selectedColorScale.performanceIndicator;
+
     this.mainGroup = d3
-      .select(this.svgElem.nativeElement)
-      .append('g')
-      .attr('id', 'bpmn-zoom-group');
+      .select('#bpmn-zoom-group')
+
+    this.createArrowHeadMarker();
 
     this.addZoomFunctionality();
     this.centerContent();
-    this.createArrowHeadMarker();
 
     this.colorMapSub = this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.activityColorMap = colorMap;
@@ -143,7 +139,7 @@ export class BpmnEditorComponent
     this.curPTSub =
       this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
         this.currentTree = tree;
-        this.redraw();
+        this.bpmnDrawer.redraw(tree);
       });
 
     this.rootNodeIdSub = this.processTreeService.selectedRootNodeID$.subscribe(
@@ -157,6 +153,74 @@ export class BpmnEditorComponent
         this.selectedRootID = id;
       }
     );
+  }
+
+
+  selectNodeCallBack = (self, event : PointerEvent, d) => {
+
+    event.stopPropagation();
+    event.preventDefault();
+    
+    if (d.id === this.selectedRootID) {
+        this.processTreeService.selectedRootNodeID = null;
+        this.performanceService.treeSelection.next(undefined);
+    } else {
+        this.processTreeService.selectedRootNodeID = d.id;
+        this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
+    }
+  }
+
+
+  createArrowHeadMarker() {
+
+    console.log(d3.select(this.svgElem.nativeElement))
+    d3.select(this.svgElem.nativeElement)
+      .append('svg:defs')
+      .append('svg:marker')
+      .attr('id', 'arrow-grey')
+      .attr('refX', 3)
+      .attr('refY', 3)
+      .attr('markerWidth', 10)
+      .attr('markerHeight', 10)
+      .attr('orient', 'auto')
+      .attr('markerUnits', 'strokeWidth')
+      .append('path')
+      .attr('d', 'M 0 0 6 3 0 6 1.5 3')
+      .attr('fill', BPMN_Constant.bpmn_stroke_color);
+
+    d3.select(this.svgElem.nativeElement)
+      .append('svg:defs')
+      .append('svg:marker')
+      .attr('id', 'arrow-red')
+      .attr('refX', 3)
+      .attr('refY', 3)
+      .attr('markerWidth', 10)
+      .attr('markerHeight', 10)
+      .attr('orient', 'auto')
+      .attr('markerUnits', 'strokeWidth')
+      .append('path')
+      .attr('d', 'M 0 0 6 3 0 6 1.5 3')
+      .attr('fill', 'red');
+
+    d3.select(this.svgElem.nativeElement)
+      .append('svg:defs')
+      .append('svg:marker')
+      .attr('id', 'arrow-frozen')
+      .attr('refX', 3)
+      .attr('refY', 3)
+      .attr('markerWidth', 10)
+      .attr('markerHeight', 10)
+      .attr('orient', 'auto')
+      .attr('markerUnits', 'strokeWidth')
+      .append('path')
+      .attr('d', 'M 0 0 6 3 0 6 1.5 3')
+      .attr('fill', '#425bbf');
+  }
+
+  redraw(){
+
+    this.activateTooltipsService.initializeChildren(this.svgElem);
+    this.selectBPMNNode(this.selectedRootID);
   }
 
   ngOnDestroy() {
@@ -175,6 +239,17 @@ export class BpmnEditorComponent
     this.mainGroup
       .selectAll('.selected-bpmn-operator')
       .classed('selected-bpmn-operator', false);
+  }
+
+  freezeSubtree() {
+    this.processTreeService.freezeSubtree(this.selectedNode.datum())
+  }
+
+  buttonFreezeSubtreeDisabled() {
+    return (
+      this.selectedRootID == null ||
+      (this.selectedNode && this.selectedNode.datum().children.length === 0)
+    );
   }
 
   selectBPMNNode(id: number) {
@@ -237,235 +312,8 @@ export class BpmnEditorComponent
     this.processTreeService.selectedRootNodeID = null;
   }
 
-  redraw() {
-    this.mainGroup.selectChildren().remove();
-
-    if (this.currentTree) {
-      this.selectedStatistic =
-        this.performanceColorScaleService.selectedColorScale.statistic;
-
-      this.selectedPerformanceIndicator =
-        this.performanceColorScaleService.selectedColorScale.performanceIndicator;
-
-      const model = convertPTtoBlockstructuredBPMN(
-        this.currentTree,
-        this.nodeWidthCache
-      );
-
-      const start = this.mainGroup
-        .append('g')
-        .attr(
-          'transform',
-          `translate(${-(
-            2 * BPMN_Constant.HORIZONTALSPACING +
-            BPMN_Constant.START_END_RADIUS
-          )},${BPMN_Constant.bpmn_node_height_width / 2})`
-        );
-
-      this.drawStart(start, model._pt.frozen);
-
-      this.drawLine(
-        start,
-        BPMN_Constant.START_END_RADIUS,
-        0,
-        BPMN_Constant.START_END_RADIUS + 2 * BPMN_Constant.HORIZONTALSPACING,
-        0,
-        false,
-        model._pt.frozen
-      );
-
-      const bpmn = this.mainGroup.append('g');
-
-      this.drawBlock(model, bpmn);
-
-      const end = this.mainGroup
-        .append('g')
-        .attr(
-          'transform',
-          `translate(${
-            model.width +
-            2 * BPMN_Constant.HORIZONTALSPACING +
-            BPMN_Constant.START_END_RADIUS
-          }, ${BPMN_Constant.bpmn_node_height_width / 2})`
-        );
-
-      this.drawEnd(end, model._pt.frozen);
-
-      this.drawLine(
-        end,
-        -(BPMN_Constant.START_END_RADIUS + 2 * BPMN_Constant.HORIZONTALSPACING),
-        0,
-        -BPMN_Constant.START_END_RADIUS,
-        0,
-        false,
-        model._pt.frozen
-      );
-
-      this.activateTooltipsService.initializeChildren(this.svgElem);
-      this.selectBPMNNode(this.selectedRootID);
-    }
-  }
-
-  drawBlock(model: Block_Structured_BPMN, selection) {
-    selection.datum(model._pt);
-    selection.attr('id', model._pt.id);
-
-    if (model instanceof SequenceBlock) {
-      this.drawSequenceBlock(model, selection);
-    } else if (model instanceof Event) {
-      this.drawEvent(model, selection);
-    } else if (model instanceof ParallelBlock) {
-      this.drawParallelBlock(model, selection);
-    } else if (model instanceof ChoiceBlock) {
-      this.drawChoiceBlock(model, selection);
-    } else if (model instanceof LoopBlock) {
-      this.drawLoopBlock(model, selection);
-    }
-  }
-
-  drawParallelBlock(
-    model: ParallelBlock,
-    selection: d3.Selection<any, any, any, any>
-  ) {
-    const parallel_block = selection;
-
-    const enter_operator = parallel_block.append('g');
-    this.drawOperatorNode(enter_operator, model);
-
-    let offset_x =
-      BPMN_Constant.HORIZONTALSPACING + 2 * BPMN_Constant.rectDiagLen;
-
-    let offset_y = 0;
-
-    let interpolate_along_diag;
-
-    if (model.members.length > 1) {
-      interpolate_along_diag = [...model.members.keys()].map((i) => {
-        return {
-          y:
-            BPMN_Constant.rectDiagLen -
-            (BPMN_Constant.rectDiagLen / (model.members.length - 1)) * i,
-          x: (BPMN_Constant.rectDiagLen / (model.members.length - 1)) * i,
-        };
-      });
-    } else {
-      interpolate_along_diag = [{ y: 0, x: BPMN_Constant.rectDiagLen }];
-    }
-
-    for (let block of model.members) {
-      const interpolate = interpolate_along_diag.pop();
-
-      const center = (model.core_width - block.width) / 2;
-
-      // General Case
-      if (
-        !(block instanceof Event && block.eventName === ProcessTreeOperator.tau)
-      ) {
-        const g = parallel_block
-          .append('g')
-          .attr('transform', `translate(${offset_x + center}, ${offset_y})`);
-
-        this.drawBlock(block, g);
-
-        this.drawLine(
-          parallel_block,
-          BPMN_Constant.rectDiagLen + interpolate.x,
-          BPMN_Constant.bpmn_node_height_width / 2 + interpolate.y,
-          offset_x + center,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-          false,
-          model._pt.frozen
-        );
-
-        this.drawLine(
-          parallel_block,
-          offset_x + center + block.width,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-          2 * BPMN_Constant.rectDiagLen +
-            model.core_width +
-            2 * BPMN_Constant.HORIZONTALSPACING +
-            interpolate.y,
-          BPMN_Constant.bpmn_node_height_width / 2 + interpolate.y,
-          interpolate.y > 0,
-          model._pt.frozen
-        );
-
-        // Draw a skip-line in the tau case
-      } else {
-        this.drawSkipLine(
-          parallel_block,
-          block,
-          BPMN_Constant.rectDiagLen + interpolate.x,
-          BPMN_Constant.bpmn_node_height_width / 2 + interpolate.y,
-          2 * BPMN_Constant.rectDiagLen +
-            model.core_width +
-            2 * BPMN_Constant.HORIZONTALSPACING +
-            interpolate.y,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-          false,
-          model._pt.frozen
-        );
-      }
-
-      offset_y += block.height + BPMN_Constant.VERTICALSPACING;
-    }
-
-    if (model.members.length === 0) {
-      this.drawLine(
-        parallel_block,
-        2 * BPMN_Constant.rectDiagLen,
-        BPMN_Constant.bpmn_node_height_width / 2,
-        offset_x + BPMN_Constant.HORIZONTALSPACING,
-        BPMN_Constant.bpmn_node_height_width / 2,
-        false,
-        model._pt.frozen
-      );
-    }
-
-    const leave_operator = parallel_block
-      .append('g')
-      .attr(
-        'transform',
-        `translate(${
-          model.core_width +
-          2 * BPMN_Constant.rectDiagLen +
-          2 * BPMN_Constant.HORIZONTALSPACING
-        }, 0)`
-      );
-
-    this.drawOperatorNode(leave_operator, model);
-  }
-
   deleteSelected() {
-    const delete_subtree = (tree: ProcessTree, tree_to_delete: ProcessTree) => {
-      if (tree === tree_to_delete) {
-        return;
-      } else {
-        if (tree.children) {
-          let child_list: Array<ProcessTree> = [];
-
-          for (let child of tree.children) {
-            let res = delete_subtree(child, tree_to_delete);
-
-            if (res) {
-              child_list.push(res);
-            }
-          }
-
-          tree.children = child_list;
-        }
-      }
-
-      return tree;
-    };
-
-    if (this.currentTree === this.selectedNode.datum()) {
-      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(null);
-    } else {
-      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
-        delete_subtree(this.currentTree, this.selectedNode.datum())
-      );
-    }
+    this.processTreeService.deleteSelected(this.selectedNode.datum()); 
   }
 
   deleteInactive() {
@@ -474,713 +322,6 @@ export class BpmnEditorComponent
       (this.nodeSelectionStrategy == this.NodeSeletionStrategy.NODE &&
         this.selectedNode &&
         this.selectedNode.datum().children.length > 0)
-    );
-  }
-
-  drawChoiceBlock(
-    model: ChoiceBlock,
-    selection: d3.Selection<any, any, any, any>
-  ) {
-    const choiceblock = selection;
-
-    const enter_operator = choiceblock.append('g');
-    this.drawOperatorNode(enter_operator, model);
-
-    let offset_x =
-      BPMN_Constant.HORIZONTALSPACING + 2 * BPMN_Constant.rectDiagLen;
-
-    let offset_y = 0;
-    let interpolate_along_diag;
-
-    if (model.members.length > 1) {
-      interpolate_along_diag = [...model.members.keys()].map((i) => {
-        return {
-          y:
-            BPMN_Constant.rectDiagLen -
-            (BPMN_Constant.rectDiagLen / (model.members.length - 1)) * i,
-          x: (BPMN_Constant.rectDiagLen / (model.members.length - 1)) * i,
-        };
-      });
-    } else {
-      interpolate_along_diag = [{ y: 0, x: BPMN_Constant.rectDiagLen }];
-    }
-
-    for (let block of model.members) {
-      const interpolate = interpolate_along_diag.pop();
-
-      const center = (model.core_width - block.width) / 2;
-
-      if (
-        !(block instanceof Event && block.eventName === ProcessTreeOperator.tau)
-      ) {
-        const g = choiceblock
-          .append('g')
-          .attr('transform', `translate(${offset_x + center}, ${offset_y})`);
-
-        this.drawBlock(block, g);
-
-        this.drawLine(
-          choiceblock,
-          BPMN_Constant.rectDiagLen + interpolate.x,
-          BPMN_Constant.bpmn_node_height_width / 2 + interpolate.y,
-          offset_x + center,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-          false,
-          model._pt.frozen
-        );
-
-        this.drawLine(
-          choiceblock,
-          offset_x + center + block.width,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-          2 * BPMN_Constant.rectDiagLen +
-            model.core_width +
-            2 * BPMN_Constant.HORIZONTALSPACING +
-            interpolate.y,
-          BPMN_Constant.bpmn_node_height_width / 2 + interpolate.y,
-          interpolate.y > 0,
-          model._pt.frozen
-        );
-      } else {
-        this.drawSkipLine(
-          choiceblock,
-          block,
-          BPMN_Constant.rectDiagLen + interpolate.x,
-          BPMN_Constant.bpmn_node_height_width / 2 + interpolate.y,
-          2 * BPMN_Constant.rectDiagLen +
-            model.core_width +
-            2 * BPMN_Constant.HORIZONTALSPACING +
-            interpolate.y,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-          false,
-          model._pt.frozen
-        );
-      }
-
-      offset_y += block.height + BPMN_Constant.VERTICALSPACING;
-    }
-
-    if (model.members.length === 0) {
-      this.drawLine(
-        choiceblock,
-        2 * BPMN_Constant.rectDiagLen,
-        BPMN_Constant.bpmn_node_height_width / 2,
-        offset_x + BPMN_Constant.HORIZONTALSPACING,
-        BPMN_Constant.bpmn_node_height_width / 2,
-        false,
-        model._pt.frozen
-      );
-    }
-
-    const leave_operator = choiceblock
-      .append('g')
-      .attr(
-        'transform',
-        `translate(${
-          model.core_width +
-          2 * BPMN_Constant.rectDiagLen +
-          2 * BPMN_Constant.HORIZONTALSPACING
-        }, 0)`
-      );
-
-    this.drawOperatorNode(leave_operator, model);
-  }
-
-  drawLoopBlock(model: LoopBlock, selection: d3.Selection<any, any, any, any>) {
-    const loop_block = selection;
-
-    const enter_operator = loop_block.append('g');
-    this.drawOperatorNode(enter_operator, model);
-
-    let offset_x =
-      BPMN_Constant.HORIZONTALSPACING + 2 * BPMN_Constant.rectDiagLen;
-
-    let offset_y = 0;
-
-    if (model.members.length > 0) {
-      const do_block = model.members[0];
-
-      let center = (model.core_width - do_block.width) / 2;
-
-      let g = loop_block
-        .append('g')
-        .attr('transform', `translate(${offset_x + center}, ${offset_y})`);
-
-      if (
-        !(
-          do_block instanceof Event &&
-          do_block.eventName === ProcessTreeOperator.tau
-        )
-      ) {
-        this.drawBlock(do_block, g);
-
-        this.drawLine(
-          loop_block,
-          2 * BPMN_Constant.rectDiagLen,
-          BPMN_Constant.bpmn_node_height_width / 2,
-          offset_x + center,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-          false,
-          model._pt.frozen
-        );
-
-        this.drawLine(
-          loop_block,
-          offset_x + center + do_block.width,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-          2 * BPMN_Constant.rectDiagLen +
-            model.core_width +
-            2 * BPMN_Constant.HORIZONTALSPACING,
-          BPMN_Constant.bpmn_node_height_width / 2,
-          false,
-          model._pt.frozen
-        );
-      } else {
-        this.drawSkipLine(
-          loop_block,
-          do_block,
-          2 * BPMN_Constant.rectDiagLen,
-          BPMN_Constant.bpmn_node_height_width / 2,
-          2 * BPMN_Constant.rectDiagLen +
-            model.core_width +
-            2 * BPMN_Constant.HORIZONTALSPACING,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-          false,
-          model._pt.frozen
-        );
-      }
-
-      offset_y += do_block.height + BPMN_Constant.VERTICALSPACING;
-
-      if (model.members.length > 1) {
-        const redo_block = model.members[1];
-
-        center = (model.core_width - redo_block.width) / 2;
-
-        if (
-          !(
-            redo_block instanceof Event &&
-            redo_block.eventName === ProcessTreeOperator.tau
-          )
-        ) {
-          g = loop_block
-            .append('g')
-            .attr('transform', `translate(${offset_x + center}, ${offset_y})`);
-
-          this.drawBlock(redo_block, g);
-
-          this.drawLine(
-            loop_block,
-            offset_x + center,
-            BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-            BPMN_Constant.rectDiagLen,
-            BPMN_Constant.bpmn_node_height_width / 2 +
-              BPMN_Constant.rectDiagLen,
-            true,
-            model._pt.frozen
-          );
-
-          this.drawLine(
-            loop_block,
-            3 * BPMN_Constant.rectDiagLen +
-              model.core_width +
-              2 * BPMN_Constant.HORIZONTALSPACING,
-            BPMN_Constant.bpmn_node_height_width / 2 +
-              BPMN_Constant.rectDiagLen,
-            offset_x + center + redo_block.width + 6,
-            BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-            false,
-            model._pt.frozen
-          );
-        } else {
-          this.drawSkipLine(
-            loop_block,
-            redo_block,
-            3 * BPMN_Constant.rectDiagLen +
-              model.core_width +
-              2 * BPMN_Constant.HORIZONTALSPACING,
-            BPMN_Constant.bpmn_node_height_width / 2 +
-              BPMN_Constant.rectDiagLen,
-            BPMN_Constant.rectDiagLen,
-            BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-            true,
-            model._pt.frozen
-          );
-        }
-      }
-    }
-
-    if (model.members.length === 0) {
-      this.drawLine(
-        loop_block,
-        2 * BPMN_Constant.rectDiagLen,
-        BPMN_Constant.bpmn_node_height_width / 2,
-        offset_x + BPMN_Constant.HORIZONTALSPACING,
-        BPMN_Constant.bpmn_node_height_width / 2,
-        false,
-        model._pt.frozen
-      );
-    }
-
-    const leave_operator = loop_block
-      .append('g')
-      .attr(
-        'transform',
-        `translate(${
-          model.core_width +
-          2 * BPMN_Constant.rectDiagLen +
-          2 * BPMN_Constant.HORIZONTALSPACING
-        }, 0)`
-      );
-
-    this.drawOperatorNode(leave_operator, model);
-  }
-
-  drawOperatorNode(parent, model: Block_Structured_BPMN) {
-    // Determine operator Label:
-
-    const label = model instanceof ParallelBlock ? '\u002b' : '\u2613';
-
-    parent.datum(model._pt).classed('cursor-pointer', true);
-
-    let color;
-
-    color = BPMN_Constant.bpmn_operator_color;
-
-    const op = parent
-      .append('rect')
-      .attr('width', BPMN_Constant.bpmn_node_height_width)
-      .attr('height', BPMN_Constant.bpmn_node_height_width)
-      .attr('fill', color)
-      .attr('stroke', BPMN_Constant.bpmn_stroke_color)
-      .attr('stroke-width', BPMN_Constant.bpmn_stroke_width)
-      .attr(
-        'transform',
-        `translate(${
-          BPMN_Constant.rectDiagLen - BPMN_Constant.rectCenter
-        },0), rotate(45)`
-      )
-      .attr(
-        'transform-origin',
-        `${BPMN_Constant.rectCenter} ${BPMN_Constant.rectCenter}`
-      )
-      .classed('frozen-node-operator', model._pt.frozen);
-
-    parent.on(
-      'click',
-      function (e, d) {
-        if (d.id === this.selectedRootID) {
-          this.processTreeService.selectedRootNodeID = null;
-          this.performanceService.treeSelection.next(undefined);
-        } else {
-          this.processTreeService.selectedRootNodeID = d.id;
-          this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
-        }
-      }.bind(this)
-    );
-
-    parent.on('contextmenu', function (e, d) {
-      console.warn('Right Click on:', e, d, this);
-    });
-
-    parent
-      .append('text')
-      .classed('user-select-none', true)
-      .attr(
-        'transform',
-        `translate(${BPMN_Constant.rectDiagLen}, ${BPMN_Constant.rectCenter})`
-      )
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr('font-size', BPMN_Constant.bpmn_operator_font_size)
-      .attr('fill', 'white')
-      .text(label);
-  }
-
-  private hasPerformance(d) {
-    return (
-      d.performance?.service_time ||
-      d.performance?.cycle_time ||
-      d.performance?.waiting_time ||
-      d.performance?.idle_time
-    );
-  }
-
-  addToolTip(node) {
-    node
-      .attr('data-bs-toggle', 'tooltip')
-      .attr('data-bs-placement', 'top')
-      .attr('data-bs-title', (d) => {
-        if (this.hasPerformance(d)) {
-          return (
-            `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
-      <h6 style="flex: 1" class="performance-tooltip-header">` +
-            (d.label || d.operator) +
-            `</h6>
-    </div>` +
-            getPerformanceTable(
-              d.performance,
-              this.selectedPerformanceIndicator,
-              this.selectedStatistic
-            )
-          );
-        }
-
-        return d.label || d.operator;
-      })
-      .attr('data-bs-template', (d) => {
-        if (this.hasPerformance(d)) {
-          return `<div class="tooltip performance-tooltip" role="tooltip">
-              <div class="tooltip-arrow"></div>
-              <div class="tooltip-inner p-0" style="max-width: none;"></div>
-            </div>`;
-        }
-
-        return `<div class="tooltip" role="tooltip">
-            <div class="tooltip-arrow"></div>
-            <div class="tooltip-inner"></div>
-          </div>`;
-      })
-      .attr('data-bs-html', true);
-  }
-
-  drawSequenceBlock(
-    model: SequenceBlock,
-    selection: d3.Selection<any, any, any, any>
-  ) {
-    const seq_block = selection;
-
-    let offset_x = 0;
-
-    model.members.forEach((block, index, array) => {
-      const g = seq_block
-        .append('g')
-        .attr('transform', `translate(${offset_x}, 0)`);
-
-      this.drawBlock(block, g);
-      offset_x += block.width;
-
-      if (index < array.length - 1) {
-        this.drawLine(
-          seq_block,
-          offset_x,
-          BPMN_Constant.bpmn_node_height_width / 2,
-          offset_x + BPMN_Constant.HORIZONTALSPACING,
-          BPMN_Constant.bpmn_node_height_width / 2,
-          false,
-          model._pt.frozen
-        );
-        offset_x += BPMN_Constant.HORIZONTALSPACING;
-      }
-    });
-  }
-
-  createArrowHeadMarker() {
-    d3.select(this.svgElem.nativeElement)
-      .append('svg:defs')
-      .append('svg:marker')
-      .attr('id', 'arrow-grey')
-      .attr('refX', 3)
-      .attr('refY', 3)
-      .attr('markerWidth', 10)
-      .attr('markerHeight', 10)
-      .attr('orient', 'auto')
-      .attr('markerUnits', 'strokeWidth')
-      .append('path')
-      .attr('d', 'M 0 0 6 3 0 6 1.5 3')
-      .attr('fill', BPMN_Constant.bpmn_stroke_color);
-
-    d3.select(this.svgElem.nativeElement)
-      .append('svg:defs')
-      .append('svg:marker')
-      .attr('id', 'arrow-red')
-      .attr('refX', 3)
-      .attr('refY', 3)
-      .attr('markerWidth', 10)
-      .attr('markerHeight', 10)
-      .attr('orient', 'auto')
-      .attr('markerUnits', 'strokeWidth')
-      .append('path')
-      .attr('d', 'M 0 0 6 3 0 6 1.5 3')
-      .attr('fill', 'red');
-
-    d3.select(this.svgElem.nativeElement)
-      .append('svg:defs')
-      .append('svg:marker')
-      .attr('id', 'arrow-frozen')
-      .attr('refX', 3)
-      .attr('refY', 3)
-      .attr('markerWidth', 10)
-      .attr('markerHeight', 10)
-      .attr('orient', 'auto')
-      .attr('markerUnits', 'strokeWidth')
-      .append('path')
-      .attr('d', 'M 0 0 6 3 0 6 1.5 3')
-      .attr('fill', '#425bbf');
-  }
-
-  drawLine(selection, x1, y1, x2, y2, outBound = false, frozen = false) {
-    // Compute a right-angled-cornered Line
-
-    const lineData: Array<[number, number]> = outBound
-      ? [
-          [x1, y1],
-          [x2, y1],
-          [x2, y2 + 3],
-        ]
-      : [
-          [x1, y1],
-          [x1, y2],
-          [x2 - 3, y2],
-        ];
-
-    const line = selection
-      .append('path')
-      .attr('d', d3.line()(lineData))
-      .attr('fill', 'None')
-      .attr('stroke-width', '1')
-      .attr('stroke', BPMN_Constant.bpmn_stroke_color)
-      .style('stroke-linejoin', 'round')
-      .attr('marker-end', frozen ? 'url(#arrow-frozen)' : 'url(#arrow-grey)')
-      .classed('frozen-edge', frozen);
-  }
-
-  drawSkipLine(
-    selection,
-    model,
-    x1,
-    y1,
-    x2,
-    y2,
-    outBound = false,
-    frozen = false
-  ) {
-    // Compute a right-angled-cornered Line
-    const lineData: Array<[number, number]> = outBound
-      ? [
-          [x1, y1],
-          [x1, y2],
-          [x2, y2],
-          [x2, y1 + 3],
-        ]
-      : [
-          [x1, y1],
-          [x1, y2],
-          [x2 - 3, y2],
-          [x2 - 3, y1],
-        ];
-
-    const line = selection
-      .append('path')
-      .attr('d', d3.line()(lineData))
-      .attr('fill', 'None')
-      .attr('stroke-width', '1')
-      .attr('stroke', BPMN_Constant.bpmn_stroke_color)
-      .style('stroke-linejoin', 'round')
-      .attr('marker-end', frozen ? 'url(#arrow-frozen)' : 'url(#arrow-grey)')
-      .classed('frozen-edge', frozen);
-
-    line.datum(model._pt);
-    line.attr('id', model._pt.id);
-  }
-
-  drawEvent(model: Event, selection) {
-    const node = selection
-      .append('rect')
-      .attr('stroke-width', 1)
-      .attr('stroke', BPMN_Constant.bpmn_stroke_color)
-      .attr('rx', 3)
-      .attr('ry', 3);
-
-    node.datum(model._pt);
-
-    node.classed('frozen-node-visible-activity', model._pt.frozen);
-    selection.classed('cursor-pointer', true);
-
-    let color;
-
-    if (this.currentTree.performance) {
-      if (
-        this.performanceColorMap.has(model._pt.id) &&
-        model._pt.performance?.[this.selectedPerformanceIndicator]?.[
-          this.selectedStatistic
-        ] !== undefined
-      ) {
-        color = this.performanceColorMap.get(model._pt.id)(
-          model._pt.performance[this.selectedPerformanceIndicator][
-            this.selectedStatistic
-          ]
-        );
-      } else {
-        color = '#404040';
-      }
-    } else {
-      color =
-        model._pt.label !== '\u03C4'
-          ? this.activityColorMap.get(model._pt.label)
-          : BPMN_Constant.bpmn_non_visible_activity_color;
-    }
-
-    const text_color =
-      model.eventName === ProcessTreeOperator.tau || model._pt.frozen
-        ? 'White'
-        : textColorForBackgroundColor(color);
-
-    const width = model.width;
-
-    if (model.eventName === ProcessTreeOperator.tau) {
-      node
-        .attr('width', width)
-        .attr('height', BPMN_Constant.bpmn_node_height_width)
-        .attr('fill', color);
-    } else {
-      node
-        .attr('width', width)
-        .attr('height', BPMN_Constant.bpmn_node_height_width)
-        .attr('fill', color);
-    }
-
-    selection.on(
-      'click',
-      function (e, d) {
-        if (d.id === this.selectedRootID) {
-          this.processTreeService.selectedRootNodeID = null;
-          this.performanceService.treeSelection.next(undefined);
-        } else {
-          this.processTreeService.selectedRootNodeID = d.id;
-          this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
-        }
-      }.bind(this)
-    );
-
-    const activityText = selection
-      .append('text')
-      .attr('x', width / 2)
-      .attr('y', BPMN_Constant.bpmn_node_height_width / 2)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr('font-size', 12)
-      .attr('fill', text_color)
-      .classed('user-select-none', true);
-
-    const tspan = activityText
-      .append('tspan')
-      .attr('x', width / 2)
-      .attr('y', BPMN_Constant.bpmn_node_height_width / 2);
-
-    if (model.eventName) {
-      // shorten text if it is too long
-      if (model.eventName.length <= 20) {
-        tspan.text(model.eventName);
-      } else {
-        tspan.text(model.eventName.substring(0, 20) + '...');
-      }
-    }
-
-    this.addToolTip(selection);
-  }
-
-  freezeSubtree() {
-    const markNodeAsFrozen = (node) => {
-      node.frozen = true;
-      if (node.children) {
-        node.children.forEach((child) => {
-          markNodeAsFrozen(child);
-        });
-      }
-    };
-
-    const markNodeAsNonFrozen = (node) => {
-      node.frozen = false;
-
-      if (node.parent && node.parent.frozen) {
-        markNodeAsNonFrozen(node.parent);
-        return;
-      }
-      if (node.children) {
-        node.children.forEach((child) => {
-          markNodeAsNonFrozen(child);
-        });
-      }
-    };
-    if (!this.selectedNode.datum().frozen) {
-      markNodeAsFrozen(this.selectedNode.datum());
-    } else {
-      markNodeAsNonFrozen(this.selectedNode.datum());
-    }
-
-    this.processTreeService.currentDisplayedProcessTree = this.currentTree;
-    this.processTreeService.selectedRootNodeID = null;
-  }
-
-  buttonFreezeSubtreeDisabled() {
-    return (
-      this.selectedRootID == null ||
-      (this.selectedNode && this.selectedNode.datum().children.length === 0)
-    );
-  }
-
-  drawStart(parent, frozen) {
-    parent
-      .classed('cursor-pointer', true)
-      .attr('id', this.currentTree.id)
-      .datum(this.currentTree);
-
-    parent
-      .append('circle')
-      .attr('r', BPMN_Constant.START_END_RADIUS)
-      .attr('fill', BPMN_Constant.bpmn_operator_color)
-      .attr('stroke', BPMN_Constant.bpmn_stroke_color)
-      .attr('stroke-width', 1)
-      .classed('frozen-node-operator', frozen);
-
-    parent.on(
-      'click',
-      function (e, d) {
-        if (d.id === this.selectedRootID) {
-          this.processTreeService.selectedRootNodeID = null;
-          this.performanceService.treeSelection.next(undefined);
-        } else {
-          this.processTreeService.selectedRootNodeID = d.id;
-          this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
-        }
-      }.bind(this)
-    );
-  }
-
-  drawEnd(parent, frozen) {
-    parent
-      .classed('cursor-pointer', true)
-      .attr('id', this.currentTree.id)
-      .datum(this.currentTree);
-
-    parent
-      .append('circle')
-      .attr('r', BPMN_Constant.START_END_RADIUS)
-      .attr('fill', BPMN_Constant.bpmn_operator_color)
-      .attr('stroke', BPMN_Constant.bpmn_stroke_color)
-      .attr('stroke-width', BPMN_Constant.bpmn_stroke_width)
-      .classed('frozen-node-operator', frozen);
-
-    parent
-      .append('circle')
-      .attr('r', BPMN_Constant.START_END_RADIUS - 2)
-      .attr('fill', BPMN_Constant.bpmn_operator_color)
-      .attr('stroke', BPMN_Constant.bpmn_stroke_color)
-      .attr('stroke-width', BPMN_Constant.bpmn_stroke_width)
-      .classed('frozen-node-operator', frozen);
-
-    parent.on(
-      'click',
-      function (e, d) {
-        if (d.id === this.selectedRootID) {
-          this.processTreeService.selectedRootNodeID = null;
-          this.performanceService.treeSelection.next(undefined);
-        } else {
-          this.processTreeService.selectedRootNodeID = d.id;
-          this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
-        }
-      }.bind(this)
     );
   }
 
@@ -1268,8 +409,4 @@ export class BpmnEditorComponent
 
 export namespace BpmnEditorComponent {
   export const componentName = 'BpmnEditorComponent';
-
-  export function drawSequenceBlock(model: SequenceBlock) {
-    throw new Error('Function not implemented.');
-  }
 }

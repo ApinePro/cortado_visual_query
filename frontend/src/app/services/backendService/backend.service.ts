@@ -4,14 +4,14 @@ import * as FileSaver from 'file-saver';
 import { Observable } from 'rxjs';
 import { take, tap } from 'rxjs/operators';
 import { Configuration } from 'src/app/components/settings/model';
-import { VariantElement } from 'src/app/components/variant-explorer/model';
-import { ProcessTree } from 'src/app/objects/ProcessTree';
+import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { mapVariants } from 'src/app/utils/util';
 import { LogService } from '../logService/log.service';
 import { VariantService } from '../variantService/variant.service';
 import { ProcessTreeService } from './../processTreeService/process-tree.service';
 import * as objectHash from 'object-hash';
+import { VariantElement } from 'src/app/objects/Variants/variant_element';
 
 @Injectable({
   providedIn: 'root',

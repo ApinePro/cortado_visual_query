@@ -32,13 +32,11 @@ import { PerformanceTableComponent } from './components/performance/performance-
 import { ColorMapComponent } from './components/performance/color-map/color-map.component';
 import { TreePerformanceColorMapComponent } from './components/performance/tree-performance-color-map/tree-performance-color-map.component';
 import { ExpertModeComponent } from './components/process-tree-editor/expert-mode/expert-mode.component';
-import { ContentEditableDirective } from './directives/content-editable-directive.directive';
 import { SettingsComponent } from './components/settings/settings.component';
 import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 import { TreeStringRendererComponent } from './components/tree-string-renderer/tree-string-renderer.component';
 import { TooltipDirective } from './directives/tooltip/tooltip.directive';
 import { VariantEditorComponent } from './components/variant-editor/variant-editor.component';
-import { VariantDrawerDirective } from './directives/variant-drawer.directive';
 import { VariantComponent } from './components/variant-explorer/variant/variant.component';
 import { VariantConformanceDialogComponent } from './components/variant-explorer/variant-conformance-dialog/variant-conformance-dialog.component';
 import { BpmnEditorComponent } from './components/bpmn-editor/bpmn-editor.component';
@@ -49,12 +47,15 @@ import { HeaderBarComponent } from './components/header-bar/header-bar.component
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { DialogModule } from './components/dialogs/dialog.module';
 import { VariantQueryComponent } from './components/variant-explorer/variant-query/variant-query.component';
-import { SyntaxHighlightedTextareaDirective } from './directives/syntax-highlighted-textarea.directive';
 import { ConformanceInfoBarComponent } from './components/variant-explorer/info-bar/conformance-info-bar.component';
 import { initApp, InitService } from './services/init.service';
 import { VariantQueryInfoComponent } from './components/variant-explorer/variant-query-info/variant-query-info.component';
 import { VariantExplorerContextMenuComponent } from './components/variant-explorer/variant-explorer-context-menu/variant-explorer-context-menu.component';
-
+import { ContentEditableDirective } from './directives/content-editable/content-editable.directive';
+import { SyntaxHighlightedTextareaDirective } from './directives/syntax-highlighted-textarea/syntax-highlighted-textarea.directive';
+import { VariantDrawerDirective } from './directives/variant-drawer/variant-drawer.directive';
+import { ProcessTreeDrawerDirective } from './directives/process-tree-drawer/process-tree-drawer.directive';
+import { BpmnDrawerDirective } from './directives/bpmn-drawer/bpmn-drawer.directive';
 @NgModule({
   declarations: [
     AppComponent,
@@ -102,6 +103,8 @@ import { VariantExplorerContextMenuComponent } from './components/variant-explor
     ConformanceInfoBarComponent,
     VariantQueryInfoComponent,
     VariantExplorerContextMenuComponent,
+    ProcessTreeDrawerDirective,
+    BpmnDrawerDirective,
   ],
   imports: [
     BrowserModule,

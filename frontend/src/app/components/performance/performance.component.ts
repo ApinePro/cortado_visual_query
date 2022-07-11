@@ -1,6 +1,5 @@
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import {
-  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   OnInit,
@@ -9,12 +8,10 @@ import {
   HumanizeDuration,
   HumanizeDurationLanguage,
 } from 'humanize-duration-ts';
-import { ProcessTree, TreePerformance } from 'src/app/objects/ProcessTree';
+import { ProcessTree, TreePerformance } from 'src/app/objects/ProcessTree/ProcessTree';
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
 import { PerformanceService } from 'src/app/services/performance.service';
-import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
-import { PerformanceStats } from '../variant-explorer/model';
-
+import { PerformanceStats } from 'src/app/objects/Variants/variant_element';
 @Component({
   selector: 'app-performance',
   templateUrl: './performance.component.html',

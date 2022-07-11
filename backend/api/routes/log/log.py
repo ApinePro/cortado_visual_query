@@ -1,10 +1,12 @@
+import itertools
 import pickle
 from typing import Optional
 import cache.cache as cache
-from cortado_core.utils.timestamp_utils import TimeUnit, get_time_granularity
+from cortado_core.utils.timestamp_utils import TimeUnit
 from endpoints.load_event_log import calculate_event_log_properties
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
+from pm4py.objects.log.obj import EventLog
 
 router = APIRouter(
     tags=["Log"],
@@ -18,22 +20,21 @@ class PropertiesParams(BaseModel):
 
 @router.post("/properties")
 async def get_event_log_properties(params: PropertiesParams):
+    
+    traces = list(itertools.chain(*[ts for _, (_ , ts) in cache.variants.items()]))   
+    log = EventLog(traces, **cache.parameters['log_info'])
+    
     properties = calculate_event_log_properties(
-        cache.event_log, params.time_granularity)
+        log, params.time_granularity)
     return properties
-
-
-@router.get("/")
-async def get_event_log():
-    return cache.event_log
 
 
 @router.get("/granularity")
 async def get_event_log():
-    return get_time_granularity(cache.event_log)
+    return cache.parameters['cur_time_granularity']
 
 
 @router.get("/resetLogCache")
 async def reset_log_cache():
-    cache.event_log = pickle.load(
-            open("./resources/sample_log.p", "rb"))
+    cache.variants = pickle.load(open("./resources/variants.p", "rb"))
+    cache.parameters = pickle.load(open("./resources/parameters.p", "rb"))

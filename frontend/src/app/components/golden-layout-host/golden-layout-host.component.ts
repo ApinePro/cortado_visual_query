@@ -17,7 +17,6 @@ import {
 } from 'golden-layout';
 
 import { baseLayout } from './LayoutTemplates/golden-layout-cortado-base';
-import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { ProcessTreeEditorComponent } from '../process-tree-editor/process-tree-editor.component';
 import { VariantExplorerComponent } from '../variant-explorer/variant-explorer.component';
 import { ActivityOverviewComponent } from '../activity-overview/activity-overview.component';
@@ -26,6 +25,7 @@ import { GoldenLayoutComponentService } from '../../services/goldenLayoutService
 import { BpmnEditorComponent } from '../bpmn-editor/bpmn-editor.component';
 import { VariantEditorComponent } from '../variant-editor/variant-editor.component';
 import { InfoBoxComponent } from '../info-box/info-box.component';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 
 @Component({
   selector: 'app-golden-layout-host',

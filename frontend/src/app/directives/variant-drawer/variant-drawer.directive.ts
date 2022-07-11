@@ -1,4 +1,5 @@
-import { InfixType } from 'src/app/components/variant-explorer/model';
+import { VARIANT_Constants } from './../../constants/variant_element_drawer_constants';
+
 import {
   Directive,
   EventEmitter,
@@ -9,20 +10,13 @@ import {
 import { AfterViewInit, ElementRef } from '@angular/core';
 import { Input } from '@angular/core';
 import * as d3 from 'd3';
-import { Selection, svg } from 'd3';
+import { Selection } from 'd3';
 import { PolygonGeneratorService } from 'src/app/services/polygon-generator.service';
-import { textColorForBackgroundColor } from '../components/variant-explorer/helper_functions';
-import {
-  Constants,
-  InvisibleSequenceGroup,
-  LeafNode,
-  ParallelGroup,
-  SequenceGroup,
-  VariantElement,
-  WaitingTimeNode,
-} from '../components/variant-explorer/model';
-import { ActivateTooltipsService } from '../services/activateTooltipsService/activate-tooltips.service';
-import { SharedDataService } from '../services/sharedDataService/shared-data.service';
+import { textColorForBackgroundColor } from 'src/app/utils/helper_functions';
+import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
+import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
+import { InfixType } from 'src/app/objects/Variants/infix_selection';
+import { VariantElement, SequenceGroup, ParallelGroup, LeafNode, WaitingTimeNode, InvisibleSequenceGroup } from 'src/app/objects/Variants/variant_element';
 
 @Directive({
   selector: '[appVariantDrawer]',
@@ -180,7 +174,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       .attr('width', width)
       .attr('height', height);
 
-    const height_offset = (height - 2 * Constants.MARGIN_Y) / 2 - 7.65;
+    const height_offset = (height - 2 * VARIANT_Constants.MARGIN_Y) / 2 - 7.65;
     switch (infixType) {
       case InfixType.NOT_AN_INFIX:
         break;
@@ -392,7 +386,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       });
     }
 
-    let y = Constants.MARGIN_Y;
+    let y = VARIANT_Constants.MARGIN_Y;
 
     for (const child of element.elements) {
       if (child instanceof WaitingTimeNode && !this.performanceMode) {
@@ -400,10 +394,10 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       }
 
       const height = child.getHeight();
-      const x = element.getHeadLength() + 0.5 * Constants.MARGIN_X;
+      const x = element.getHeadLength() + 0.5 * VARIANT_Constants.MARGIN_X;
       const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
       this.draw(child, g, false);
-      y += height + Constants.MARGIN_Y;
+      y += height + VARIANT_Constants.MARGIN_Y;
     }
 
     if (this.onMouseOverCbFc) {
@@ -474,7 +468,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       .classed('user-select-none', true)
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
-      .attr('font-size', Constants.FONT_SIZE)
+      .attr('font-size', VARIANT_Constants.FONT_SIZE)
       .attr('fill', textcolor)
       .classed('activity-text', true);
 
@@ -483,7 +477,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       y =
         height / 2 -
         ((element.activity.length - 1) / 2) *
-          (Constants.FONT_SIZE + Constants.MARGIN_Y);
+          (VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y);
     }
 
     let truncated = false;
@@ -496,11 +490,11 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
         .classed('cursor-pointer', true)
         .text(a);
 
-      dy += Constants.FONT_SIZE + Constants.MARGIN_Y;
-      tspan.attr('height', Constants.FONT_SIZE + Constants.MARGIN_Y);
+      dy += VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y;
+      tspan.attr('height', VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y);
 
       const maxWidth =
-        element.getWidth() - element.getHeadLength() * 2 - Constants.MARGIN_X;
+        element.getWidth() - element.getHeadLength() * 2 - VARIANT_Constants.MARGIN_X;
       const tr = this.wrapInnerLabelText(tspan, a, maxWidth);
       truncated ||= tr;
     });

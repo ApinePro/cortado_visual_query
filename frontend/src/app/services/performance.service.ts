@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Variant } from '../components/variant-explorer/model';
-import { ProcessTree, TreePerformance } from '../objects/ProcessTree';
+import { ProcessTree, TreePerformance } from '../objects/ProcessTree/ProcessTree';
 import { BackendService } from './backendService/backend.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { ActivateTooltipsService } from './activateTooltipsService/activate-tooltips.service';
 import { HumanizeDurationPipe } from '../pipes/humanize-duration.pipe';
 import { ProcessTreeService } from './processTreeService/process-tree.service';
 import { VariantService } from './variantService/variant.service';
+import { Variant } from '../objects/Variants/variant';
 
 @Injectable({
   providedIn: 'root',

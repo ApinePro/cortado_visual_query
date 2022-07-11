@@ -1,4 +1,4 @@
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
+
 import {
   AfterViewInit,
   Component,
@@ -7,8 +7,9 @@ import {
   OnChanges,
   SimpleChanges,
 } from '@angular/core';
-import { VariantElement } from '../model';
 import { VariantService } from 'src/app/services/variantService/variant.service';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import { VariantElement } from 'src/app/objects/Variants/variant_element';
 
 @Component({
   selector: 'app-variant-explorer-context-menu',

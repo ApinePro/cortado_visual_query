@@ -1,3 +1,4 @@
+import { VARIANT_Constants } from './../../../constants/variant_element_drawer_constants';
 import {
   AfterViewInit,
   Component,
@@ -8,7 +9,6 @@ import {
 import * as d3 from 'd3';
 import { Selection } from 'd3';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
-import { Constants } from '../model';
 import { ActivateTooltipsService } from '../../../services/activateTooltipsService/activate-tooltips.service';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 
@@ -57,13 +57,13 @@ export class SubVariantComponent implements AfterViewInit {
 
   draw(textColor: string = 'whitesmoke'): void {
     const intervalWidth = !this.expanded
-      ? Constants.INTERVAL_LENGTH
-      : Constants.INTERVAL_LENGTH * 1.5;
+      ? VARIANT_Constants.INTERVAL_LENGTH
+      : VARIANT_Constants.INTERVAL_LENGTH * 1.5;
     this.svg.selectAll('g').remove();
     const [data, yLength] = this.buildData();
-    const xScale = (x) => Constants.POINT_RADIUS + x * intervalWidth;
+    const xScale = (x) => VARIANT_Constants.POINT_RADIUS + x * intervalWidth;
     const yScale = (y) =>
-      4 * Constants.POINT_RADIUS + y * Constants.LEAF_HEIGHT * 1.5;
+      4 * VARIANT_Constants.POINT_RADIUS + y * VARIANT_Constants.LEAF_HEIGHT * 1.5;
 
     const groupedData = d3.group(data, (d) => d[4]);
     const g = this.svg.selectAll().data(groupedData).join('g');
@@ -75,7 +75,7 @@ export class SubVariantComponent implements AfterViewInit {
       .attr('x2', ([_, d]) => xScale(d[1][0]))
       .attr('y1', ([_, d]) => yScale(d[0][1]))
       .attr('y2', ([_, d]) => yScale(d[1][1]))
-      .attr('stroke-width', ([_, d]) => 2 * Constants.POINT_RADIUS);
+      .attr('stroke-width', ([_, d]) => 2 * VARIANT_Constants.POINT_RADIUS);
 
     const circles = g
       .selectAll('circle')
@@ -84,7 +84,7 @@ export class SubVariantComponent implements AfterViewInit {
       .attr('cx', (d) => xScale(d[0]))
       .attr('cy', (d) => yScale(d[1]))
       .attr('fill', (d) => this.colorMap.get(d[2]))
-      .attr('r', Constants.POINT_RADIUS);
+      .attr('r', VARIANT_Constants.POINT_RADIUS);
 
     circles
       .filter((d) => d[3] === 'atomic')
@@ -95,7 +95,7 @@ export class SubVariantComponent implements AfterViewInit {
       .filter(([_, d]) => d.length === 2)
       .append('text')
       .attr('x', ([_, d]) => xScale(d[0][0] + (d[1][0] - d[0][0]) / 2))
-      .attr('y', ([_, d]) => yScale(d[0][1]) - Constants.POINT_RADIUS - 5)
+      .attr('y', ([_, d]) => yScale(d[0][1]) - VARIANT_Constants.POINT_RADIUS - 5)
       .style('text-anchor', 'middle')
       .style('fill', textColor)
       .text(([_, d]) => d[0][2]);
@@ -107,17 +107,17 @@ export class SubVariantComponent implements AfterViewInit {
       this.wrapInnerLabelText(
         sel,
         sel.text(),
-        xEnd - xStart - 2 * Constants.POINT_RADIUS
+        xEnd - xStart - 2 * VARIANT_Constants.POINT_RADIUS
       );
     });
 
     this.svg.attr(
       'height',
-      yLength * Constants.LEAF_HEIGHT + 6 * Constants.POINT_RADIUS
+      yLength * VARIANT_Constants.LEAF_HEIGHT + 6 * VARIANT_Constants.POINT_RADIUS
     );
     this.svg.attr(
       'width',
-      this._variant.length * intervalWidth + 2 * Constants.POINT_RADIUS
+      this._variant.length * intervalWidth + 2 * VARIANT_Constants.POINT_RADIUS
     );
     this.svg.attr('overflow', 'visible');
 
@@ -164,8 +164,8 @@ export class SubVariantComponent implements AfterViewInit {
   }
 
   private buildData(): [any[], number] {
-    const intervalWidth = Constants.INTERVAL_LENGTH;
-    const gapLength = (20 + Constants.POINT_RADIUS) / intervalWidth;
+    const intervalWidth = VARIANT_Constants.INTERVAL_LENGTH;
+    const gapLength = (20 + VARIANT_Constants.POINT_RADIUS) / intervalWidth;
 
     const yIndices: boolean[] = [];
     const starts = new Map<string, [number, number][]>();

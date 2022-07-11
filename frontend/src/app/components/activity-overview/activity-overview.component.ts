@@ -1,6 +1,5 @@
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { LogService } from 'src/app/services/logService/log.service';
-import { BackendService } from 'src/app/services/backendService/backend.service';
 import {
   Component,
   OnInit,
@@ -12,11 +11,9 @@ import {
 } from '@angular/core';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { ColorMapService } from '../../services/colorMapService/color-map.service';
-import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
-import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
-import { VariantElement } from '../variant-explorer/model';
 import { VariantService } from 'src/app/services/variantService/variant.service';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 
 @Component({
   selector: 'app-activity-overview',
@@ -29,7 +26,6 @@ export class ActivityOverviewComponent
 {
   constructor(
     private colorMapService: ColorMapService,
-    private sharedDataService: SharedDataService,
     private logService: LogService,
     private variantService: VariantService,
     private processTreeService: ProcessTreeService,

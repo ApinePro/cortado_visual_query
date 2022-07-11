@@ -7,8 +7,9 @@ import {
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
 import { PerformanceService } from 'src/app/services/performance.service';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
-import { PerformanceStats, Variant } from '../../variant-explorer/model';
-import { TreePerformance } from '../../../objects/ProcessTree';
+import { TreePerformance } from '../../../objects/ProcessTree/ProcessTree';
+import { Variant } from 'src/app/objects/Variants/variant';
+import { PerformanceStats } from 'src/app/objects/Variants/variant_element';
 
 @Component({
   selector: 'app-node-selection-performance',

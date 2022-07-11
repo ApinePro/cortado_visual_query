@@ -15,7 +15,8 @@ import {
 } from 'golden-layout';
 import { take } from 'rxjs/operators';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
-import { LayoutChangeDirective } from '../../directives/layout-change.directive';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+
 
 @Injectable({
   providedIn: 'root',

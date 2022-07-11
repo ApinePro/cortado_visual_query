@@ -2,7 +2,7 @@ import { KeyValue } from '@angular/common';
 import * as objectHash from 'object-hash';
 import { OperatorFunction } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { deserialize } from '../components/variant-explorer/model';
+import { deserialize } from '../objects/Variants/variant_element';
 
 export function originalOrder(
   a: KeyValue<number, string>,

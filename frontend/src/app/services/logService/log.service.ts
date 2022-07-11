@@ -1,15 +1,18 @@
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { ColorMapService } from './../colorMapService/color-map.service';
-import { Injectable } from '@angular/core';
+import { Injectable, AfterViewInit, OnInit } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { skip } from 'rxjs/operators';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
-import { Variant } from 'src/app/components/variant-explorer/model';
+import { Variant } from 'src/app/objects/Variants/variant';
+
 
 @Injectable({
   providedIn: 'root',
 })
-export class LogService {
-  constructor(private colorMapService: ColorMapService) {}
+export class LogService{
+  constructor(private colorMapService: ColorMapService,
+) {}
 
   public performanceInfoAvailable = false;
   private _timeGranularity: Subject<TimeUnit> = new Subject();
@@ -207,6 +210,8 @@ export class LogService {
       totalNumberVariants
     );
   }
+
+
 }
 
 export class LogStats {

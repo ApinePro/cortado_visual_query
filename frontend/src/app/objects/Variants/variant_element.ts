@@ -1,213 +1,24 @@
-export const isElementWithActivity = (elem: VariantElement) => {
-  if (
-    elem instanceof ParallelGroup ||
-    elem instanceof SequenceGroup ||
-    elem instanceof LeafNode
-  ) {
-    return true;
-  } else {
-    return false;
-  }
-};
+import { VARIANT_Constants } from "src/app/constants/variant_element_drawer_constants";
+import { setParent, isElementWithActivity, someChildrenSelected, allChildrenSelected } from "./infix_selection";
 
-const allChildrenSelected = (elem: VariantElement, defaultRes: boolean) => {
-  if (elem instanceof LeafNode) {
-    return elem.selected;
-  } else if (elem instanceof ParallelGroup || elem instanceof SequenceGroup) {
-    let res = true;
-    for (let i = 0; i < elem.elements.length; i++) {
-      if (isElementWithActivity(elem.elements[i])) {
-        res =
-          res &&
-          allChildrenSelected(elem.elements[i], elem.elements[i].selected);
-      }
-    }
-    return res;
-  } else {
-    // Waiting Time Node, etc...
-    return defaultRes;
-  }
-};
+export class PerformanceStats {
+  public min: number;
+  public max: number;
+  public mean: number;
+  public median: number;
+  public stdev: number | undefined = 0;
+  public n: number;
 
-export const someChildrenSelected = (
-  elem: VariantElement,
-  defaultRes: boolean
-) => {
-  if (elem instanceof LeafNode) {
-    return elem.selected;
-  } else if (elem instanceof ParallelGroup || elem instanceof SequenceGroup) {
-    let res = false;
-    for (let i = 0; i < elem.elements.length; i++) {
-      if (isElementWithActivity(elem.elements[i])) {
-        res =
-          res ||
-          someChildrenSelected(elem.elements[i], elem.elements[i].selected);
-      }
-    }
-    return res;
-  } else {
-    // Waiting Time Node, etc...
-    return defaultRes;
-  }
-};
-
-export const setParent = (root: VariantElement) => {
-  if (root instanceof ParallelGroup || root instanceof SequenceGroup) {
-    for (let child of root.elements) {
-      child['parent'] = root;
-      setParent(child);
+  constructor(dict) {
+    if (dict) {
+      this.min = dict['min'];
+      this.max = dict['max'];
+      this.mean = dict['mean'];
+      this.median = dict['median'];
+      this.stdev = dict['stdev'] || 0;
+      this.n = dict['n'];
     }
   }
-};
-
-export const getLowestSelectableParent = (elem: VariantElement) => {
-  if (elem.selectable || elem.parent == null) {
-    // Selectable or root
-    return elem;
-  } else {
-    return getLowestSelectableParent(elem.parent);
-  }
-};
-
-export const getSelectedChildren = (elem: VariantElement) => {
-  if (elem instanceof LeafNode && elem.selected) {
-    let ret = elem.copy();
-    ret.selected = false;
-    ret.selectable = true;
-    return ret;
-  } else if (elem instanceof SequenceGroup || elem instanceof ParallelGroup) {
-    let copyElem;
-    if (elem instanceof SequenceGroup) {
-      copyElem = new SequenceGroup([]);
-    } else if (elem instanceof ParallelGroup) {
-      copyElem = new ParallelGroup([]);
-    }
-    copyElem.selected = false;
-    copyElem.selectable = true;
-    for (let child of elem.elements) {
-      if (
-        !(child instanceof WaitingTimeNode) &&
-        someChildrenSelected(child, true)
-      ) {
-        let newPushedChild;
-        if (!(child instanceof InvisibleSequenceGroup)) {
-          newPushedChild = child;
-        } else {
-          newPushedChild = child.elements[1]; // InvisibleSequenceGroup has one leaf child at this position
-        }
-        copyElem.elements.push(getSelectedChildren(newPushedChild));
-      }
-    }
-    setParent(copyElem);
-    return copyElem;
-  }
-};
-
-// Sometimes selecting trace infix creates variant elements with only one child on many tree levels
-// The following function fixes the problem by reducing tree levels
-export const handleTreeLevelsWithOneChild = (elem: VariantElement) => {
-  if (elem instanceof LeafNode) {
-    return elem;
-  } else if (elem instanceof SequenceGroup || elem instanceof ParallelGroup) {
-    if (elem.elements.length == 1) {
-      let onlyChild = handleTreeLevelsWithOneChild(elem.elements[0]);
-      return onlyChild;
-    } else {
-      let newChildren = elem.elements.map(handleTreeLevelsWithOneChild);
-      elem.setElements(newChildren);
-      return elem;
-    }
-  }
-};
-
-export class Constants {
-  public static LEAF_WIDTH = 40;
-  public static LEAF_WIDTH_EXPANDED = 120;
-  public static LEAF_HEIGHT = 23;
-  public static MARGIN_X = 8;
-  public static MARGIN_Y = 5;
-  public static SEQUENCEGROUP_Margin = 15;
-  public static ARROW_FEATHER_LENGTH = 10;
-  public static ARROW_HEAD_LENGTH = 12;
-  public static ARROW_HEAD_ANGLE = 20;
-  public static FONT_SIZE = 15;
-  public static WAITING_WIDTH = 5;
-  public static WAITING_WIDTH_EXPANDED = 10;
-  public static CHAR_WIDTH = 12;
-  public static MAX_OFFSETWIDTH = 800;
-  public static LEGEND_MARGIN_X = 10;
-  public static LEGEND_MARGIN_Y = 5;
-  public static POINT_RADIUS = 7;
-  public static INTERVAL_LENGTH = 60;
-}
-
-export enum InfixType {
-  PROPER_INFIX = 1,
-  PREFIX = 2,
-  POSTFIX = 3,
-  NOT_AN_INFIX = 4,
-}
-
-export class Variant {
-  id: string;
-  bid: number; //Positive Numbers indicate Log Variants, Negative Number User Variants
-  number: number;
-  count: number;
-  length: number;
-  number_of_activities: number;
-  variant: VariantElement;
-  isSelected: boolean;
-  isDisplayed: boolean;
-  isAddedFittingVariant: boolean;
-  percentage: number;
-  calculationInProgress: boolean | undefined;
-  userDefined: boolean;
-  // TODO alignment is unused it will not be returned by calculateAlignmentsCVariant backend endpoint
-  alignment: any | undefined;
-  deviation: any | undefined;
-  isTimeouted: boolean;
-  isConformanceOutdated: boolean;
-  sub_variants: Subvariant[] | undefined;
-  infixType: InfixType;
-
-  constructor(
-    count: number,
-    variant: VariantElement,
-    isSelected: boolean,
-    isDisplayed: boolean,
-    isAddedFittingVariant: boolean,
-    percentage: number,
-    calculationInProgress: boolean | undefined,
-    userDefined: boolean,
-    isTimeouted: boolean,
-    isConformanceOutdated: boolean,
-    sub_variants,
-    infixType: InfixType = InfixType.NOT_AN_INFIX
-  ) {
-    this.count = count;
-    this.variant = variant;
-    this.isSelected = isSelected;
-    this.isDisplayed = isDisplayed;
-    this.isAddedFittingVariant = isAddedFittingVariant;
-    this.percentage = percentage;
-    this.calculationInProgress = calculationInProgress;
-    this.userDefined = userDefined;
-    this.isTimeouted = isTimeouted;
-    this.isConformanceOutdated = isConformanceOutdated;
-    this.sub_variants = sub_variants;
-    this.infixType = infixType;
-  }
-}
-
-export class Subvariant {
-  count: number;
-  variant: [string, string][][];
-  percentage: number;
-  calculationInProgress: boolean | undefined;
-
-  // TODO alignment is unused it will not be returned by calculateAlignmentsCVariant backend endpoint
-  alignment: any | undefined;
-  deviation: any | undefined;
 }
 
 export abstract class VariantElement {
@@ -293,17 +104,17 @@ export abstract class VariantElement {
 
   public getHeadLength() {
     return (
-      Math.tan((Constants.ARROW_HEAD_ANGLE / 360) * Math.PI * 2) *
+      Math.tan((VARIANT_Constants.ARROW_HEAD_ANGLE / 360) * Math.PI * 2) *
       (this.getHeight() / 2)
     );
   }
 
   public getMarginX() {
-    return Constants.MARGIN_X;
+    return VARIANT_Constants.MARGIN_X;
   }
 
   public getMarginY() {
-    return Constants.MARGIN_Y;
+    return VARIANT_Constants.MARGIN_Y;
   }
 
   public abstract getHeight(): number;
@@ -793,7 +604,7 @@ export class ParallelGroup extends VariantElement {
   public updateWidth(includeWaiting) {
     let headLength = this.getHeadLength();
     for (let el of this.elements) {
-      el.width = this.width - Constants.MARGIN_X - 2 * headLength;
+      el.width = this.width - VARIANT_Constants.MARGIN_X - 2 * headLength;
     }
 
     for (let el of this.elements) {
@@ -806,7 +617,7 @@ export class ParallelGroup extends VariantElement {
     this.height =
       this.elements
         .map((el: VariantElement) => el.getHeight() + this.getMarginY())
-        .reduce((a: number, b: number) => a + b) + Constants.MARGIN_Y;
+        .reduce((a: number, b: number) => a + b) + VARIANT_Constants.MARGIN_Y;
     return this.height;
   }
 
@@ -819,7 +630,7 @@ export class ParallelGroup extends VariantElement {
           .filter((el) => !(el instanceof WaitingTimeNode) || includeWaiting)
           .map((el: VariantElement) => el.getWidth(includeWaiting))
       ) +
-      Constants.MARGIN_X +
+      VARIANT_Constants.MARGIN_X +
       2 * headLength;
     return this.width;
   }
@@ -933,7 +744,7 @@ export class LeafNode extends VariantElement {
 
   public getHeight(): number {
     this.height =
-      this.activity.length * (Constants.FONT_SIZE + 2 * Constants.MARGIN_Y);
+      this.activity.length * (VARIANT_Constants.FONT_SIZE + 2 * VARIANT_Constants.MARGIN_Y);
     return this.height;
   }
 
@@ -945,13 +756,13 @@ export class LeafNode extends VariantElement {
       return this.width;
     }
     if (this.expanded || includeWaiting) {
-      this.width = Constants.LEAF_WIDTH_EXPANDED;
+      this.width = VARIANT_Constants.LEAF_WIDTH_EXPANDED;
     } else if (full_text_width) {
-      this.width = this.activity[0].length * Constants.CHAR_WIDTH;
+      this.width = this.activity[0].length * VARIANT_Constants.CHAR_WIDTH;
     } else {
-      this.width = Constants.LEAF_WIDTH;
+      this.width = VARIANT_Constants.LEAF_WIDTH;
     }
-    this.width += Constants.MARGIN_X;
+    this.width += VARIANT_Constants.MARGIN_X;
 
     this.width = Math.max(
       this.width * 0.75 + this.getHeadLength() * 2,
@@ -964,7 +775,7 @@ export class LeafNode extends VariantElement {
   public updateWidth() {}
 
   public recalculateHeight(): number {
-    this.height = Constants.LEAF_HEIGHT;
+    this.height = VARIANT_Constants.LEAF_HEIGHT;
     return this.height;
   }
 
@@ -976,11 +787,11 @@ export class LeafNode extends VariantElement {
 
   public recalculateWidth(): number {
     if (this.expanded) {
-      this.width = Constants.LEAF_WIDTH_EXPANDED;
+      this.width = VARIANT_Constants.LEAF_WIDTH_EXPANDED;
     } else {
-      this.width = Constants.LEAF_WIDTH;
+      this.width = VARIANT_Constants.LEAF_WIDTH;
     }
-    this.width += Constants.MARGIN_X;
+    this.width += VARIANT_Constants.MARGIN_X;
     return this.width;
   }
 
@@ -992,6 +803,23 @@ export class LeafNode extends VariantElement {
     // pass
   }
 }
+
+export function deserialize(obj: any): VariantElement {
+  if ('follows' in obj) {
+    return new SequenceGroup(
+      obj['follows'].map((e: any) => deserialize(e)),
+      obj['performance']
+    );
+  } else if ('parallel' in obj) {
+    return new ParallelGroup(
+      obj['parallel'].map((e: any) => deserialize(e)),
+      obj['performance']
+    );
+  } else {
+    return new LeafNode(obj['leaf'], obj['performance']);
+  }
+}
+
 
 export class WaitingTimeNode extends VariantElement {
   public getActivities(): Set<string> {
@@ -1013,7 +841,7 @@ export class WaitingTimeNode extends VariantElement {
   }
 
   public getHeight(): number {
-    return Constants.LEAF_HEIGHT;
+    return VARIANT_Constants.LEAF_HEIGHT;
   }
 
   public getWidth(): number {
@@ -1021,11 +849,11 @@ export class WaitingTimeNode extends VariantElement {
       return this.width;
     }
     if (this.expanded) {
-      this.width = Constants.WAITING_WIDTH_EXPANDED;
+      this.width = VARIANT_Constants.WAITING_WIDTH_EXPANDED;
     } else {
-      this.width = Constants.WAITING_WIDTH;
+      this.width = VARIANT_Constants.WAITING_WIDTH;
     }
-    this.width += Constants.MARGIN_X;
+    this.width += VARIANT_Constants.MARGIN_X;
 
     return this.width;
   }
@@ -1033,17 +861,17 @@ export class WaitingTimeNode extends VariantElement {
   public updateWidth() {}
 
   public recalculateHeight(): number {
-    this.height = Constants.LEAF_HEIGHT;
+    this.height = VARIANT_Constants.LEAF_HEIGHT;
     return this.height;
   }
 
   public recalculateWidth(): number {
     if (this.expanded) {
-      this.width = Constants.LEAF_WIDTH_EXPANDED;
+      this.width = VARIANT_Constants.LEAF_WIDTH_EXPANDED;
     } else {
-      this.width = Constants.LEAF_WIDTH;
+      this.width = VARIANT_Constants.LEAF_WIDTH;
     }
-    this.width += Constants.MARGIN_X;
+    this.width += VARIANT_Constants.MARGIN_X;
     return this.width;
   }
 
@@ -1097,41 +925,7 @@ export class InvisibleSequenceGroup extends SequenceGroup {
     return this.elements.map((e) => e.serialize()).filter((e) => e !== null);
   }
 }
-export function deserialize(obj: any): VariantElement {
-  if ('follows' in obj) {
-    return new SequenceGroup(
-      obj['follows'].map((e: any) => deserialize(e)),
-      obj['performance']
-    );
-  } else if ('parallel' in obj) {
-    return new ParallelGroup(
-      obj['parallel'].map((e: any) => deserialize(e)),
-      obj['performance']
-    );
-  } else {
-    return new LeafNode(obj['leaf'], obj['performance']);
-  }
-}
 
-export class PerformanceStats {
-  public min: number;
-  public max: number;
-  public mean: number;
-  public median: number;
-  public stdev: number | undefined = 0;
-  public n: number;
-
-  constructor(dict) {
-    if (dict) {
-      this.min = dict['min'];
-      this.max = dict['max'];
-      this.mean = dict['mean'];
-      this.median = dict['median'];
-      this.stdev = dict['stdev'] || 0;
-      this.n = dict['n'];
-    }
-  }
-}
 
 export function injectWaitingTimeNodes(variants: VariantElement[]) {
   variants.forEach((v) => injectWaitingTimeNodesVariant(v));

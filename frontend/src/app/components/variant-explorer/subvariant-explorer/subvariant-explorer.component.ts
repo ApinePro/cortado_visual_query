@@ -1,6 +1,5 @@
-import { SharedDataService } from '../../../services/sharedDataService/shared-data.service';
+
 import { ColorMapService } from '../../../services/colorMapService/color-map.service';
-import { Variant, VariantElement } from '../model';
 import {
   AfterViewInit,
   Component,
@@ -12,14 +11,15 @@ import {
   ViewChildren,
 } from '@angular/core';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
-import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';
 import { SubVariantComponent } from '../sub-variant/sub-variant.component';
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 import { ImageExportService } from 'src/app/services/imageExportService/image-export-service';
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import * as d3 from 'd3';
-import { LeafNode } from '../model';
 import { LogService } from 'src/app/services/logService/log.service';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import { LeafNode, VariantElement } from 'src/app/objects/Variants/variant_element';
+import { Variant } from 'src/app/objects/Variants/variant';
 
 @Component({
   selector: 'app-subvariant-explorer',

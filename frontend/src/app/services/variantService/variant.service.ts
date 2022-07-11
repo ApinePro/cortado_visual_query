@@ -1,20 +1,18 @@
-import { Subvariant } from './../../components/variant-explorer/model';
+
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { LogService } from 'src/app/services/logService/log.service';
 import * as objectHash from 'object-hash';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import {
-  Variant,
-  InfixType,
-  injectWaitingTimeNodes,
-  setParent,
-  deserialize,
-} from 'src/app/components/variant-explorer/model';
 import { skip } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { mapVariants } from 'src/app/utils/util';
+import { InfixType, setParent } from 'src/app/objects/Variants/infix_selection';
+import { Subvariant } from 'src/app/objects/Variants/subvariant';
+import { Variant } from 'src/app/objects/Variants/variant';
+import { deserialize, injectWaitingTimeNodes } from 'src/app/objects/Variants/variant_element';
+
 @Injectable({
   providedIn: 'root',
 })

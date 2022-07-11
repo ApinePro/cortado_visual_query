@@ -1,13 +1,11 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   ElementRef,
 } from '@angular/core';
 import { Component, Input, ViewChild } from '@angular/core';
 import { Selection } from 'd3';
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
-import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
-import { VariantElement } from '../model';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import { VariantElement } from 'src/app/objects/Variants/variant_element';
 
 //@REFRACTOR THIS COMPONENT IS GOING TO BE DELETED SOON, CHECK OUT THE VARIANT DRAWER DIRECTIVE AND VARIANT COMPONENT
 @Component({

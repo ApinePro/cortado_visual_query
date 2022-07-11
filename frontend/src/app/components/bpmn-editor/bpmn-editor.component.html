@@ -127,6 +127,22 @@
   </div>
 
   <div #BPMNcontainer class="m-1 flex-grow-1 crosshair grid">
-    <svg #bpmn class="editor-zone"></svg>
+
+    <svg #bpmn class="editor-zone" width="100%" height="100%">
+      <g id="bpmn-zoom-group">
+        <g
+          #d3svgDirective
+          appBpmnDrawer
+          [activityColorMap]="activityColorMap"
+          [performanceColorMap]="performanceColorMap"
+          [selectedStatistic]="selectedStatistic"
+          [selectedPerformanceIndicator]="selectedPerformanceIndicator"
+          [onClickCallBack]="selectNodeCallBack"
+          id="d3-svg-directive"
+          width="100%"
+          height="100%"
+        ></g>
+      </g>
+    </svg>
   </div>
 </div>

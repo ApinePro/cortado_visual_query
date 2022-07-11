@@ -1,16 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import {
-  InvisibleSequenceGroup,
-  LeafNode,
-  ParallelGroup,
-  SequenceGroup,
-  VariantElement,
-  WaitingTimeNode,
-} from '../components/variant-explorer/model';
 import * as d3 from 'd3';
 import { LogService } from './logService/log.service';
 import { VariantService } from './variantService/variant.service';
+import { VariantElement, LeafNode, ParallelGroup, SequenceGroup, WaitingTimeNode } from '../objects/Variants/variant_element';
 
 // https://observablehq.com/@philippkoytek/celonis-data-visualization-colors
 export const COLORS_CYAN = [

@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ContentEditableDirective } from './content-editable-directive.directive';
+import { ContentEditableDirective } from './content-editable.directive';
 
 describe('Directive: ContentEditableDirective', () => {
   it('should create an instance', () => {

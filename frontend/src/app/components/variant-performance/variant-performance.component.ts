@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { VariantElement } from 'src/app/objects/Variants/variant_element';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
-import { VariantElement } from '../variant-explorer/model';
 
 @Component({
   selector: 'app-variant-performance',

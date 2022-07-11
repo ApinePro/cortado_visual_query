@@ -1,5 +1,5 @@
+import { VARIANT_Constants } from './../constants/variant_element_drawer_constants';
 import { Injectable } from '@angular/core';
-import { Constants } from '../components/variant-explorer/model';
 
 @Injectable({
   providedIn: 'root',
@@ -18,7 +18,7 @@ export class PolygonGeneratorService {
     let x = 0,
       y = 0;
     let headLength =
-      Math.tan((Constants.ARROW_HEAD_ANGLE / 360) * Math.PI * 2) * (height / 2);
+      Math.tan((VARIANT_Constants.ARROW_HEAD_ANGLE / 360) * Math.PI * 2) * (height / 2);
 
     width -= headLength;
 

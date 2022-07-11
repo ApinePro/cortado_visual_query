@@ -29,10 +29,11 @@ import {
   Stack,
 } from 'golden-layout';
 import { Subject } from 'rxjs';
-import { connectableObservableDescriptor } from 'rxjs/internal/observable/ConnectableObservable';
 import { delay, mergeMap, retryWhen, take, tap } from 'rxjs/operators';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
+
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { HumanizeDurationPipe } from 'src/app/pipes/humanize-duration.pipe';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
@@ -45,27 +46,18 @@ import { ProcessTreeService } from 'src/app/services/processTreeService/process-
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 import { VariantService } from 'src/app/services/variantService/variant.service';
 import { originalOrder } from 'src/app/utils/util';
-import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { BackendService } from '../../services/backendService/backend.service';
 import { ColorMapService } from '../../services/colorMapService/color-map.service';
 import { ImageExportService } from '../../services/imageExportService/image-export-service';
 import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
-import { textColorForBackgroundColor } from './helper_functions';
-import {
-  getLowestSelectableParent,
-  InfixType,
-  injectWaitingTimeNodes,
-  LeafNode,
-  ParallelGroup,
-  SequenceGroup,
-  setParent,
-  Variant,
-  VariantElement,
-} from './model';
+import { textColorForBackgroundColor } from '../../utils/helper_functions';
 import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
 import { VariantSorter } from './variant-sorter';
 import { VariantComponent } from './variant/variant.component';
+import { Variant } from 'src/app/objects/Variants/variant';
+import { getLowestSelectableParent } from 'src/app/objects/Variants/infix_selection';
+import { VariantElement, SequenceGroup, ParallelGroup, LeafNode } from 'src/app/objects/Variants/variant_element';
 
 @Component({
   selector: 'app-variant-explorer',

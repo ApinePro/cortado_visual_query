@@ -1,5 +1,5 @@
 import { LogService } from 'src/app/services/logService/log.service';
-import { ProcessTree } from './../../../objects/ProcessTree';
+import { ProcessTree } from '../../../objects/ProcessTree/ProcessTree';
 import { ProcessTreeService } from './../../../services/processTreeService/process-tree.service';
 import { BackendService } from 'src/app/services/backendService/backend.service';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
