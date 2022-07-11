@@ -43,16 +43,24 @@
   },
   "private": true,
   "dependencies": {
+    "colors": "^1.4.0",
+    "diff": "^5.1.0",
     "electron-store": "^8.0.1",
+    "findup-sync": "^5.0.0",
+    "glob": "^8.0.3",
     "humanize-duration-ts": "^2.1.1",
     "jquery": "^3.6.0",
     "lodash": "^4.17.21",
+    "minimist": "^1.2.6",
     "ngx-clipboard": "^15.0.1",
     "ngx-color-picker": "^11.0.0",
     "ngx-file-drop": "^13.0.0",
     "object-hash": "^2.2.0",
+    "optimist": "^0.6.1",
     "ora": "^6.1.2",
-    "tree-kill": "^1.2.2"
+    "tree-kill": "^1.2.2",
+    "underscore.string": "^3.3.6",
+    "wordwrap": "^1.0.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^13.1.2",
