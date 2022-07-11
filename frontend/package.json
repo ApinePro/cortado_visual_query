@@ -51,6 +51,7 @@
     "ngx-color-picker": "^11.0.0",
     "ngx-file-drop": "^13.0.0",
     "object-hash": "^2.2.0",
+    "ora": "^6.1.2",
     "tree-kill": "^1.2.2"
   },
   "devDependencies": {
