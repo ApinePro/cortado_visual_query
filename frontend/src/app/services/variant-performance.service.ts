@@ -9,7 +9,8 @@ import {
   WaitingTimeNode,
 } from '../components/variant-explorer/model';
 import * as d3 from 'd3';
-import { SharedDataService } from './sharedDataService/shared-data.service';
+import { LogService } from './logService/log.service';
+import { VariantService } from './variantService/variant.service';
 
 // https://observablehq.com/@philippkoytek/celonis-data-visualization-colors
 export const COLORS_CYAN = [
@@ -97,8 +98,11 @@ export class VariantPerformanceService {
 
   public variantPerformanceMode = new BehaviorSubject<boolean>(false);
 
-  constructor(private sharedDataService: SharedDataService) {
-    this.sharedDataService.loadedEventLog$.subscribe((log) => {
+  constructor(
+    private logService: LogService,
+    private variantService: VariantService
+  ) {
+    this.logService.loadedEventLog$.subscribe((log) => {
       if (log !== undefined) {
         this.updateServiceTimeColorMap();
         this.updateWaitingTimeColorMap();
@@ -152,7 +156,7 @@ export class VariantPerformanceService {
     performanceIndicator,
     statistic
   ) {
-    let values = this.sharedDataService.variants
+    let values = this.variantService.variants
       .map((v) => v.variant)
       .map((v) => v[performanceIndicator][statistic]);
     let min = Math.min(...values);
@@ -199,7 +203,7 @@ export class VariantPerformanceService {
 
   getAllValues(performanceIndicator, value): number[] {
     let values = [];
-    this.sharedDataService.variants.forEach((variant) => {
+    this.variantService.variants.forEach((variant) => {
       let vElement = variant.variant;
       let vs = this.getAllValuesElement(vElement, performanceIndicator, value);
       values.push(...vs);
@@ -233,51 +237,5 @@ export class VariantPerformanceService {
         .forEach((v) => values.push(...v));
     }
     return values;
-  }
-
-  injectWaitingTimeNodes(variants: VariantElement[]) {
-    variants.forEach((v) => this.injectWaitingTimeNodesVariant(v));
-  }
-
-  injectWaitingTimeNodesVariant(variant: VariantElement) {
-    if (variant instanceof SequenceGroup) {
-      variant
-        .asParallelGroup()
-        .elements.filter((v) => !(v instanceof LeafNode))
-        .forEach((e) => this.injectWaitingTimeNodesVariant(e));
-
-      for (let i = 0; i < variant.asSequenceGroup().elements.length; i++) {
-        let v = variant.asParallelGroup().elements[i];
-
-        if (v.waitingTime?.mean !== undefined) {
-          let wait = new WaitingTimeNode(v.waitingTime);
-          v.waitingTime = undefined;
-          variant.elements.splice(i, 0, wait);
-          i += 1;
-        }
-      }
-    }
-
-    if (variant instanceof ParallelGroup) {
-      variant
-        .asParallelGroup()
-        .elements.filter((v) => !(v instanceof LeafNode))
-        .forEach((e) => this.injectWaitingTimeNodesVariant(e));
-
-      for (let i = 0; i < variant.asSequenceGroup().elements.length; i++) {
-        let v = variant.asParallelGroup().elements[i];
-        let waitGroup = [v];
-        if (v.waitingTimeStart?.mean !== undefined) {
-          let wait = new WaitingTimeNode(v.waitingTimeStart);
-          waitGroup.splice(0, 0, wait);
-        }
-
-        if (v.waitingTimeEnd?.mean !== undefined) {
-          let wait = new WaitingTimeNode(v.waitingTimeEnd);
-          waitGroup.splice(waitGroup.length, 0, wait);
-        }
-        variant.elements[i] = new InvisibleSequenceGroup(waitGroup);
-      }
-    }
   }
 }

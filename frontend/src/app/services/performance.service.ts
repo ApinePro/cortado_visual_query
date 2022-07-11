@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Variant, VariantElement } from '../components/variant-explorer/model';
+import { Variant } from '../components/variant-explorer/model';
 import { ProcessTree, TreePerformance } from '../objects/ProcessTree';
 import { BackendService } from './backendService/backend.service';
-import { SharedDataService } from './sharedDataService/shared-data.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { ActivateTooltipsService } from './activateTooltipsService/activate-tooltips.service';
 import { HumanizeDurationPipe } from '../pipes/humanize-duration.pipe';
 import { ProcessTreeService } from './processTreeService/process-tree.service';
+import { VariantService } from './variantService/variant.service';
 
 @Injectable({
   providedIn: 'root',
@@ -39,14 +39,14 @@ export class PerformanceService {
   private currentPt: ProcessTree;
 
   constructor(
-    private sharedDataService: SharedDataService,
+    private variantService: VariantService,
     private backendService: BackendService,
     private tooltipService: ActivateTooltipsService,
     private processTreeService: ProcessTreeService
   ) {
     this.currentPt = processTreeService.currentDisplayedProcessTree;
 
-    this.sharedDataService.variants$.subscribe((_variants) => {
+    this.variantService.variants$.subscribe((_variants) => {
       this.clear();
     });
     processTreeService.currentDisplayedProcessTree$.subscribe((pt) => {
@@ -101,12 +101,15 @@ export class PerformanceService {
       }
     });
 
-    const variantElements: VariantElement[] = variants.map((v) => v.variant);
+    const variantBIDs: number[] = variants.map((v) => v.bid);
     variants
       .filter((v) => !this.availablePerformances.has(v))
       .forEach((v) => this.calculationInProgress.add(v));
     this.latestRequest = this.backendService
-      .getTreePerformance(variantElements, removeVariants)
+      .getTreePerformance(
+        variantBIDs,
+        removeVariants?.map((v) => v.bid)
+      )
       .subscribe(
         (performance) => {
           this.mergedPerformance = ProcessTree.fromObj(
@@ -128,7 +131,6 @@ export class PerformanceService {
           variants.forEach((v) => this.availablePerformances.add(v));
           this.newValues.next(true);
 
-          console.log('TRIGGERED REDRAW AT PERFROMANCE SERVICE');
           this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
             performance.merged_performance_tree
           );
@@ -150,7 +152,7 @@ export class PerformanceService {
           variants.forEach((v) => {
             // TODO: use currently selected performanceIndicator and statistic
             const performanceButton = document.getElementById(
-              `performanceButton${v.number}`
+              `performanceButton${v.bid}`
             );
             const vPerformance =
               this.variantsPerformance.get(v)?.performance?.service_time?.mean;
@@ -165,14 +167,12 @@ export class PerformanceService {
           });
         },
         (error) => {
-          console.log(error);
           variants.forEach((v) => this.calculationInProgress.clear());
         }
       );
   }
 
   public unselectPerformance() {
-    console.log('TRIGGERED REDRAW AT UNSELECT PERFORMANCE');
     this.processTreeService.currentDisplayedProcessTree = this.clearProcessTree(
       this.processTreeService.currentDisplayedProcessTree
     );
@@ -237,7 +237,6 @@ export class PerformanceService {
   public setShownVariantPerformance(variant: Variant): void {
     this.activeVariant = variant;
     if (this.variantsPerformance.has(variant)) {
-      console.log('TRIGGERED REDRAW AT SHOW VARIANT PERFORMANCE');
       this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
         this.variantsPerformance.get(variant)
       );

@@ -1,8 +1,3 @@
-import { some } from 'd3';
-import { NumberValue } from 'd3-scale';
-import { timeThursdays } from 'd3-time';
-import { from } from 'rxjs';
-
 export const isElementWithActivity = (elem: VariantElement) => {
   if (
     elem instanceof ParallelGroup ||
@@ -155,13 +150,14 @@ export enum InfixType {
 
 export class Variant {
   id: string;
-  bid: number;
+  bid: number; //Positive Numbers indicate Log Variants, Negative Number User Variants
   number: number;
   count: number;
   length: number;
   number_of_activities: number;
   variant: VariantElement;
   isSelected: boolean;
+  isDisplayed: boolean;
   isAddedFittingVariant: boolean;
   percentage: number;
   calculationInProgress: boolean | undefined;
@@ -171,23 +167,14 @@ export class Variant {
   deviation: any | undefined;
   isTimeouted: boolean;
   isConformanceOutdated: boolean;
-  sub_variants:
-    | {
-        count: number;
-        variant: [string, string][][];
-        percentage: number;
-        calculationInProgress: boolean | undefined;
-        // TODO alignment is unused it will not be returned by calculateAlignmentsCVariant backend endpoint
-        alignment: any | undefined;
-        deviation: any | undefined;
-      }[]
-    | undefined;
+  sub_variants: Subvariant[] | undefined;
   infixType: InfixType;
 
   constructor(
     count: number,
     variant: VariantElement,
     isSelected: boolean,
+    isDisplayed: boolean,
     isAddedFittingVariant: boolean,
     percentage: number,
     calculationInProgress: boolean | undefined,
@@ -200,6 +187,7 @@ export class Variant {
     this.count = count;
     this.variant = variant;
     this.isSelected = isSelected;
+    this.isDisplayed = isDisplayed;
     this.isAddedFittingVariant = isAddedFittingVariant;
     this.percentage = percentage;
     this.calculationInProgress = calculationInProgress;
@@ -209,6 +197,17 @@ export class Variant {
     this.sub_variants = sub_variants;
     this.infixType = infixType;
   }
+}
+
+export class Subvariant {
+  count: number;
+  variant: [string, string][][];
+  percentage: number;
+  calculationInProgress: boolean | undefined;
+
+  // TODO alignment is unused it will not be returned by calculateAlignmentsCVariant backend endpoint
+  alignment: any | undefined;
+  deviation: any | undefined;
 }
 
 export abstract class VariantElement {
@@ -318,6 +317,7 @@ export abstract class VariantElement {
   public abstract serialize(): Object;
 
   public abstract calculateSelectableElements(): void;
+  public abstract getActivities(): Set<string>;
 
   public setSelectable(): void {
     this.selectable = true;
@@ -424,9 +424,88 @@ export abstract class VariantElement {
       return unchanged;
     }
   }
+
+  public abstract asString(): string;
+  public abstract deleteActivity(
+    activityName: string
+  ): [VariantElement[], boolean];
+  public abstract renameActivity(
+    activityName: string,
+    newActivityName: string
+  ): void;
 }
 
 export class SequenceGroup extends VariantElement {
+  public getActivities(): Set<string> {
+    const res: Set<string> = new Set<string>();
+
+    this.elements.forEach((e) => e.getActivities().forEach((a) => res.add(a)));
+
+    return res;
+  }
+
+  public renameActivity(activityName: string, newActivityName: string) {
+    this.elements.forEach((e) => {
+      e.renameActivity(activityName, newActivityName);
+    });
+  }
+
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    let newElems: VariantElement[] = [];
+
+    for (let elem of this.elements) {
+      if (!(elem instanceof WaitingTimeNode)) {
+        const [variantElements, isFallthrough] =
+          elem.deleteActivity(activityName);
+
+        if (isFallthrough) {
+          // Found a Fallthrough Stop Early
+          console.warn('Found a Fallthrough');
+          return [[], true];
+        } else {
+          // We append the result
+          if (variantElements) {
+            newElems = newElems.concat(variantElements);
+            variantElements.forEach((e) => (e.parent = this));
+          }
+        }
+      }
+    }
+
+    if (
+      newElems.length > 1 ||
+      (newElems.length === 1 &&
+        !this.parent &&
+        !(this instanceof InvisibleSequenceGroup))
+    ) {
+      this.elements = newElems;
+      return [[this], false];
+    } else if (newElems.length === 1) {
+      if (newElems[0] instanceof ParallelGroup) {
+        return [newElems[0].elements, false];
+      } else {
+        return [newElems, false];
+      }
+    } else {
+      return [null, false];
+    }
+  }
+
+  public asString(): string {
+    return (
+      '->(' +
+      this.elements
+        .filter((v) => {
+          return !(v instanceof WaitingTimeNode);
+        })
+        .map((v) => {
+          return v.asString();
+        })
+        .join(', ') +
+      ')'
+    );
+  }
+
   constructor(public elements: VariantElement[], performance: any = undefined) {
     super(performance);
   }
@@ -607,8 +686,72 @@ export class SequenceGroup extends VariantElement {
 }
 
 export class ParallelGroup extends VariantElement {
+  public getActivities(): Set<string> {
+    const res: Set<string> = new Set<string>();
+
+    this.elements.forEach((e) => e.getActivities().forEach((a) => res.add(a)));
+
+    return res;
+  }
+
+  public renameActivity(activityName: string, newActivityName: string) {
+    this.elements.forEach((e) => {
+      e.renameActivity(activityName, newActivityName);
+    });
+  }
+
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    let newElems = [];
+
+    for (let elem of this.elements) {
+      if (!(elem instanceof WaitingTimeNode)) {
+        const [variantElements, isFallthrough] =
+          elem.deleteActivity(activityName);
+
+        if (isFallthrough) {
+          // Found a Fallthrough Stop Early
+          return [[], true];
+        } else {
+          // We append the result
+          if (variantElements) {
+            newElems = newElems.concat(variantElements);
+            variantElements.forEach((e) => (e.parent = this));
+          }
+        }
+      }
+    }
+
+    if (newElems.length > 1) {
+      this.elements = newElems;
+      return [[this], false];
+    } else if (newElems.length === 1) {
+      if (newElems[0] instanceof SequenceGroup) {
+        return [newElems[0].elements, false];
+      } else {
+        return [newElems, false];
+      }
+    } else {
+      return [null, false];
+    }
+  }
+
   constructor(public elements: VariantElement[], performance: any = undefined) {
     super(performance);
+  }
+
+  public asString(): string {
+    return (
+      '+(' +
+      this.elements
+        .filter((v) => {
+          return !(v instanceof WaitingTimeNode);
+        })
+        .map((v) => {
+          return v.asString();
+        })
+        .join(', ') +
+      ')'
+    );
   }
 
   public setExpanded(expanded: boolean) {
@@ -756,7 +899,33 @@ export class ParallelGroup extends VariantElement {
 }
 
 export class LeafNode extends VariantElement {
+  public getActivities(): Set<string> {
+    return new Set<string>(this.activity);
+  }
+
+  public renameActivity(activityName: string, newActivityName: string) {
+    this.activity = this.activity.map((a) => {
+      return a === activityName ? newActivityName : a;
+    });
+  }
+
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    if (this.activity.includes(activityName)) {
+      if (this.activity.length > 1) {
+        return [[this], true];
+      } else {
+        return [null, false];
+      }
+    }
+
+    return [[this], false];
+  }
+
   public textLength: number = 10;
+
+  public asString(): string {
+    return this.activity.join(';');
+  }
 
   constructor(public activity: string[], performance: any = undefined) {
     super(performance);
@@ -825,6 +994,20 @@ export class LeafNode extends VariantElement {
 }
 
 export class WaitingTimeNode extends VariantElement {
+  public getActivities(): Set<string> {
+    return new Set<string>();
+  }
+
+  public renameActivity(activityName: string, newActivityName: string) {}
+
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    return [null, false];
+  }
+
+  public asString(): string {
+    return '';
+  }
+
   constructor(waitingTime: PerformanceStats) {
     super({ wait_time: waitingTime });
   }
@@ -874,6 +1057,22 @@ export class WaitingTimeNode extends VariantElement {
 }
 
 export class InvisibleSequenceGroup extends SequenceGroup {
+  public asString(): string {
+    return this.elements
+      .filter((e) => {
+        return !(e instanceof WaitingTimeNode);
+      })[0]
+      .asString();
+  }
+
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    return this.elements
+      .filter((e) => {
+        return !(e instanceof WaitingTimeNode);
+      })[0]
+      .deleteActivity(activityName);
+  }
+
   public getMarginX() {
     return 0;
   }
@@ -930,6 +1129,52 @@ export class PerformanceStats {
       this.median = dict['median'];
       this.stdev = dict['stdev'] || 0;
       this.n = dict['n'];
+    }
+  }
+}
+
+export function injectWaitingTimeNodes(variants: VariantElement[]) {
+  variants.forEach((v) => injectWaitingTimeNodesVariant(v));
+}
+
+export function injectWaitingTimeNodesVariant(variant: VariantElement) {
+  if (variant instanceof SequenceGroup) {
+    variant
+      .asSequenceGroup()
+      .elements.filter((v) => !(v instanceof LeafNode))
+      .forEach((e) => injectWaitingTimeNodesVariant(e));
+
+    for (let i = 0; i < variant.asSequenceGroup().elements.length; i++) {
+      let v = variant.asSequenceGroup().elements[i];
+
+      if (v.waitingTime?.mean !== undefined) {
+        let wait = new WaitingTimeNode(v.waitingTime);
+        v.waitingTime = undefined;
+        variant.elements.splice(i, 0, wait);
+        i += 1;
+      }
+    }
+  }
+
+  if (variant instanceof ParallelGroup) {
+    variant
+      .asParallelGroup()
+      .elements.filter((v) => !(v instanceof LeafNode))
+      .forEach((e) => injectWaitingTimeNodesVariant(e));
+
+    for (let i = 0; i < variant.asSequenceGroup().elements.length; i++) {
+      let v = variant.asParallelGroup().elements[i];
+      let waitGroup = [v];
+      if (v.waitingTimeStart?.mean !== undefined) {
+        let wait = new WaitingTimeNode(v.waitingTimeStart);
+        waitGroup.splice(0, 0, wait);
+      }
+
+      if (v.waitingTimeEnd?.mean !== undefined) {
+        let wait = new WaitingTimeNode(v.waitingTimeEnd);
+        waitGroup.splice(waitGroup.length, 0, wait);
+      }
+      variant.elements[i] = new InvisibleSequenceGroup(waitGroup);
     }
   }
 }

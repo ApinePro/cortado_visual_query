@@ -5,9 +5,9 @@ import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { BackgroundTaskInfoService } from '../backgroundTaskInfoService/background-task-info.service';
 import { ConformanceCheckingResult } from './model';
 import Swal from 'sweetalert2';
-import { SharedDataService } from '../sharedDataService/shared-data.service';
 import { ProcessTree } from 'src/app/objects/ProcessTree';
 import { InfixType } from 'src/app/components/variant-explorer/model';
+import { VariantService } from '../variantService/variant.service';
 export const WS_ENDPOINT = 'ws://127.0.0.1:41211/conformancews';
 
 @Injectable({
@@ -16,7 +16,7 @@ export const WS_ENDPOINT = 'ws://127.0.0.1:41211/conformancews';
 export class ConformanceCheckingService {
   constructor(
     private infoService: BackgroundTaskInfoService,
-    private sharedDataService: SharedDataService
+    private variantService: VariantService
   ) {}
 
   private socket: WebSocketSubject<any>;
@@ -98,7 +98,7 @@ export class ConformanceCheckingService {
       this.infoService.removeRequest(r)
     );
     this.runningRequests = [];
-    this.sharedDataService.variants.forEach((v) => {
+    this.variantService.variants.forEach((v) => {
       v.calculationInProgress = false;
     });
     this.socket.unsubscribe();

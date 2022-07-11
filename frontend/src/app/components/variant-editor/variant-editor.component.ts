@@ -1,3 +1,4 @@
+import { VariantService } from './../../services/variantService/variant.service';
 import { VariantExplorerComponent } from './../variant-explorer/variant-explorer.component';
 import { GoldenLayoutComponentService } from './../../services/goldenLayoutService/golden-layout-component.service';
 import { ColorMapService } from './../../services/colorMapService/color-map.service';
@@ -30,6 +31,7 @@ import * as objectHash from 'object-hash';
 import { animate, transition, trigger, style } from '@angular/animations';
 import * as d3 from 'd3';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
+import { LogService } from 'src/app/services/logService/log.service';
 
 @Component({
   selector: 'app-variant-editor',
@@ -108,6 +110,8 @@ export class VariantEditorComponent
 
   constructor(
     private sharedDataService: SharedDataService,
+    private logService: LogService,
+    private variantService: VariantService,
     private colorMapService: ColorMapService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
@@ -117,7 +121,7 @@ export class VariantEditorComponent
     renderer: Renderer2
   ) {
     super(elRef.nativeElement, renderer);
-    const activitites = this.sharedDataService.activitiesInEventLog;
+    const activitites = this.logService.activitiesInEventLog;
 
     for (let activity in activitites) {
       this.activityNames.push(activity);
@@ -126,7 +130,7 @@ export class VariantEditorComponent
   }
 
   ngOnInit(): void {
-    this.sharedDataService.activitiesInEventLog$.subscribe((activities) => {
+    this.logService.activitiesInEventLog$.subscribe((activities) => {
       this.activityNames = [];
       for (let activity in activities) {
         this.activityNames.push(activity);
@@ -134,7 +138,7 @@ export class VariantEditorComponent
       }
     });
 
-    this.sharedDataService.loadedEventLog$.subscribe((newLog) => {
+    this.logService.loadedEventLog$.subscribe((newLog) => {
       if (newLog) {
         this.emptyVariant = true;
       }
@@ -689,7 +693,7 @@ export class VariantEditorComponent
   }
 
   addCurrentVariantToVariantList() {
-    let currentVariants = this.sharedDataService.variants;
+    let currentVariants = this.variantService.variants;
     const copyCurrent = cloneDeep(this.currentVariant);
     setParent(copyCurrent);
     copyCurrent.setExpanded(false);
@@ -698,6 +702,7 @@ export class VariantEditorComponent
       1,
       copyCurrent,
       false,
+      true,
       false,
       0,
       undefined,
@@ -711,11 +716,14 @@ export class VariantEditorComponent
     newVariant.deviation = undefined;
     newVariant.id = objectHash(newVariant);
 
+    this.variantService.nUserVariants += 1;
+    newVariant.bid = -this.variantService.nUserVariants;
+
     const duplicate = currentVariants.map((v) => v.id === newVariant.id);
 
     if (!duplicate.includes(true)) {
       currentVariants.push(newVariant);
-      this.sharedDataService.variants = currentVariants;
+      this.variantService.variants = currentVariants;
     } else {
       this.redundancyWarning = true;
       setTimeout(() => (this.redundancyWarning = false), 500);

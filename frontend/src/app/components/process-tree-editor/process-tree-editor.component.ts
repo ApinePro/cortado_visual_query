@@ -42,6 +42,7 @@ import {
   NodeSeletionStrategy,
   ProcessTreeService,
 } from 'src/app/services/processTreeService/process-tree.service';
+import { LogService } from 'src/app/services/logService/log.service';
 
 @Component({
   selector: 'app-process-tree-editor',
@@ -75,6 +76,7 @@ export class ProcessTreeEditorComponent
     private colorMapService: ColorMapService,
     private imageExportService: ImageExportService,
     private backendService: BackendService,
+    private logService: LogService,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     private performanceService: PerformanceService,
     private performanceColorScaleService: ModelPerformanceColorScaleService,
@@ -150,51 +152,6 @@ export class ProcessTreeEditorComponent
       '<large> Import <strong>Process Tree</strong> .ptml file</large>'
     );
 
-    this.sharedDataService.activityNamesChanged$.subscribe(
-      (activityNameMapping) => {
-        if (this.root && this.currentlyDisplayedTreeInEditor) {
-          // Function to relabel process tree
-          const relabelProcessTreeRecursive = function (
-            mapping: Map<string, string>,
-            tree: ProcessTree
-          ): void {
-            if (tree.label && tree.label !== ProcessTreeOperator.tau) {
-              tree.label = mapping.get(tree.label);
-            }
-            if (tree.children) {
-              for (let child of tree.children) {
-                relabelProcessTreeRecursive(mapping, child);
-              }
-            }
-          };
-
-          // Function to relabel the d3 tree
-          const relabelRootNodeRecursive = function (
-            mapping: Map<string, string>,
-            tree: d3.HierarchyNode<any>
-          ): void {
-            if (
-              tree.data.label &&
-              tree.data.label !== ProcessTreeOperator.tau
-            ) {
-              tree.data.label = mapping.get(tree.data.label);
-            }
-            if (tree.children) {
-              for (let child of tree.children) {
-                relabelRootNodeRecursive(mapping, child);
-              }
-            }
-          };
-
-          // Relabel the currently displayed tree
-          relabelRootNodeRecursive(activityNameMapping, this.root);
-
-          this.processTreeService.currentDisplayedProcessTree =
-            this.getProcessTreeObject(this.root);
-        }
-      }
-    );
-
     this.processTreeService.treeCacheIndex$.subscribe((idx) => {
       this.treeCacheIndex = idx;
     });
@@ -267,7 +224,7 @@ export class ProcessTreeEditorComponent
       }
     });
 
-    this.sharedDataService.activitiesInEventLog$.subscribe((activities) => {
+    this.logService.activitiesInEventLog$.subscribe((activities) => {
       this.activitiesOccurringInLog = Array.from(Object.keys(activities));
     });
   }
@@ -310,7 +267,7 @@ export class ProcessTreeEditorComponent
     // Calculate the initial Node width
     this.computeLeafNodeWidth(this.activitiesOccurringInLog);
     // Update the cached values if the activities change
-    this.sharedDataService.activitiesInEventLog$.subscribe((activities) => {
+    this.logService.activitiesInEventLog$.subscribe((activities) => {
       this.computeLeafNodeWidth(Array.from(Object.keys(activities)));
     });
 
@@ -324,7 +281,6 @@ export class ProcessTreeEditorComponent
     this._goldenLayout = this.goldenLayoutComponentService.goldenLayout;
 
     this.processTreeService.selectedRootNodeID$.subscribe((id) => {
-      console.warn('Selected Root Node changed', id);
       // Change the Selection
       if (id) {
         this.selectRootNodeFromID(id);
@@ -341,7 +297,6 @@ export class ProcessTreeEditorComponent
   private selectRootNodeFromID(id) {
     const selectedRoot = this.mainSvgGroup.select('[id="' + id + '"]');
     const node = selectedRoot.data()[0];
-    console.warn('Selected Root Node in PT');
 
     if (id && node) {
       this.setSelectedRootNode(node);
@@ -354,7 +309,6 @@ export class ProcessTreeEditorComponent
       this.insertPostitonBelowDisabled = Boolean(
         this.selectedRootNode.data.operator
       ).valueOf();
-      console.log('After Node Select Root Only', this.selectedRootNodeOnly);
     }
   }
 
@@ -429,13 +383,11 @@ export class ProcessTreeEditorComponent
   }
 
   selectNodeButton(): void {
-    console.log('Set Node Selection Strategy in PT');
     this.processTreeService.selectedRootNodeID = null;
     this.processTreeService.selectionMode = NodeSeletionStrategy.NODE;
   }
 
   selectSubtreeButton(): void {
-    console.log('Set Node Selection Strategy in PT');
     this.processTreeService.selectedRootNodeID = null;
     this.processTreeService.selectionMode = NodeSeletionStrategy.TREE;
   }
@@ -883,7 +835,6 @@ export class ProcessTreeEditorComponent
 
   // @REFRACTOR INTO PROCESSTREE SERVICE
   deleteNodeAndChildren(tree, nodeToDelete): void {
-    console.log('Tree in Delete', tree);
     if (tree.children) {
       tree.children = tree.children.filter((c) => c !== nodeToDelete);
       if (tree.children.length === 0) {
@@ -1126,10 +1077,6 @@ export class ProcessTreeEditorComponent
     dummy_container.remove();
 
     this.processTreeService.nodeWidthCache = this.nodeWidthCache;
-    console.warn(
-      'Updated Nodewidth Cache',
-      this.processTreeService.nodeWidthCache
-    );
   }
 
   addZoomFunctionality(): void {

@@ -17,7 +17,6 @@ import {
 import * as d3 from 'd3';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';
-import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import {
   BPMN_Constant,
   convertPTtoBlockstructuredBPMN,
@@ -79,7 +78,6 @@ export class BpmnEditorComponent
     private container: ComponentContainer,
     elRef: ElementRef,
     private renderer: Renderer2,
-    private sharedDataService: SharedDataService,
     private colorMapService: ColorMapService,
     private performanceColorScaleService: ModelPerformanceColorScaleService,
     private performanceService: PerformanceService,
@@ -183,7 +181,6 @@ export class BpmnEditorComponent
     this.unselectAll();
 
     const selected_node = this.mainGroup.select('[id="' + id + '"]');
-    console.log('Selected Node', selected_node);
     if (!selected_node.empty()) {
       this.selectedNode = selected_node;
       if ((selected_node.datum() as ProcessTree).operator) {
@@ -199,13 +196,11 @@ export class BpmnEditorComponent
   }
 
   selectNode(): void {
-    console.log('Set Selection Mode Node');
     this.processTreeService.selectedRootNodeID = null;
     this.processTreeService.selectionMode = NodeSeletionStrategy.NODE;
   }
 
   selectSubtree(): void {
-    console.log('Set Selection Mode Tree');
     this.processTreeService.selectedRootNodeID = null;
     this.processTreeService.selectionMode = NodeSeletionStrategy.TREE;
   }

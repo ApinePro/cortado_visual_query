@@ -29,6 +29,7 @@ import {
   Stack,
 } from 'golden-layout';
 import { Subject } from 'rxjs';
+import { connectableObservableDescriptor } from 'rxjs/internal/observable/ConnectableObservable';
 import { delay, mergeMap, retryWhen, take, tap } from 'rxjs/operators';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
@@ -36,12 +37,13 @@ import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { HumanizeDurationPipe } from 'src/app/pipes/humanize-duration.pipe';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
 import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
-import { LogService } from 'src/app/services/logService/log.service';
+import { LogService, LogStats } from 'src/app/services/logService/log.service';
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
 import { PerformanceService } from 'src/app/services/performance.service';
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
+import { VariantService } from 'src/app/services/variantService/variant.service';
 import { originalOrder } from 'src/app/utils/util';
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { BackendService } from '../../services/backendService/backend.service';
@@ -53,6 +55,7 @@ import { textColorForBackgroundColor } from './helper_functions';
 import {
   getLowestSelectableParent,
   InfixType,
+  injectWaitingTimeNodes,
   LeafNode,
   ParallelGroup,
   SequenceGroup,
@@ -132,10 +135,10 @@ export class VariantExplorerComponent
   extends LayoutChangeDirective
   implements OnInit, AfterViewInit
 {
-  displayed_variants: any;
   constructor(
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
+    private variantService: VariantService,
     private backendService: BackendService,
     private logService: LogService,
     private imageExportService: ImageExportService,
@@ -159,7 +162,10 @@ export class VariantExplorerComponent
   maximized: boolean = false;
 
   public variants: Variant[] = [];
+  public displayed_variants: Variant[] = [];
   public colorMap: Map<string, string>;
+
+  public logStats: LogStats = null;
 
   public currentlyDisplayedProcessTree;
   public usedTreeForConformanceChecking;
@@ -170,11 +176,6 @@ export class VariantExplorerComponent
   expansionState: Map<string, boolean> = new Map<string, boolean>();
   performanceColorMap: any;
   waitingColorMap: any;
-
-  public numberFittingTraces: number = undefined;
-  public numberFittingVariants: number = undefined;
-  public totalNumberTraces: number = undefined;
-  public totalNumberVariants: number = undefined;
 
   public svgRenderingInProgress: boolean = false;
   public variantExplorerOutOfFocus: boolean = false;
@@ -191,6 +192,12 @@ export class VariantExplorerComponent
   public sortingFeature: string = 'count';
   queryActive: boolean = false;
   showQueryInfo: boolean = false;
+
+  contextMenu_xPos: number = 10;
+  contextMenu_yPos: number = 10;
+  contextMenu_element: VariantElement;
+  contextMenu_variant: VariantElement;
+  contextMenu_directive: VariantDrawerDirective;
 
   public traceInfixSelectionMode: boolean = false;
 
@@ -209,6 +216,8 @@ export class VariantExplorerComponent
   public visibleVariantsHeight = 1000;
 
   showConformanceDialogEvent: Subject<Variant> = new Subject<Variant>();
+
+  public deletedVariants: Variant[][] = [];
 
   timeUnit = TimeUnit;
 
@@ -231,12 +240,12 @@ export class VariantExplorerComponent
     // redraw variants on color map change
     this.listenForColorMapChange();
     // update view when activity names change
-    this.listenForActivityNamesChange();
     this.listenForCorrectSyntax();
     this.listenForProcessTreeChange();
     this.conformanceCheckingService.connect();
     this.subscribeForConformanceCheckingResults();
     this.listenForLogGranularityChange();
+    this.listenForLogStatChange();
   }
 
   @HostListener('window:keydown.control.q', ['$event'])
@@ -260,6 +269,14 @@ export class VariantExplorerComponent
 
     variantExplorerItem.focus();
 
+    this.variantService.variants$.subscribe(() => {
+      this.variants = this.variantService.variants;
+      this.displayed_variants = this.variants;
+      this.sort(this.sortingFeature);
+      this.closeAllSubvariantWindows();
+      this.redraw_components();
+    });
+
     this.variantPerformanceService.serviceTimeColorMap.subscribe((colorMap) => {
       if (colorMap !== undefined) {
         this.performanceColorMap = colorMap;
@@ -276,14 +293,15 @@ export class VariantExplorerComponent
   }
 
   private init() {
+    console.warn('Running Init');
     this.displayed_variants = [];
-    this.logService
+    this.backendService
       .resetLogCache() // for now show the sample log again on reload
       .pipe(retryWhen((errors) => errors.pipe(delay(500), take(50)))) // backend might need some time to start up
       .pipe(
         mergeMap(() =>
           // Time granularity is null because the granularity is determined in the backend
-          this.logService.getLogPropsAndUpdateState(null, 'preload')
+          this.backendService.getLogPropsAndUpdateState(null, 'preload')
         )
       )
       .subscribe();
@@ -292,7 +310,7 @@ export class VariantExplorerComponent
   private listenForProcessTreeChange() {
     this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
       this.currentlyDisplayedProcessTree = tree;
-      const treeHasChanged = !this.sharedDataService.processTreesEqual(
+      const treeHasChanged = !this.processTreeService.processTreesEqual(
         this.usedTreeForConformanceChecking,
         this.currentlyDisplayedProcessTree
       );
@@ -312,14 +330,6 @@ export class VariantExplorerComponent
     });
   }
 
-  private listenForActivityNamesChange() {
-    this.sharedDataService.activityNamesChanged$.subscribe(
-      (activityNameMapping) => {
-        this.activityNamesChanged();
-      }
-    );
-  }
-
   private listenForColorMapChange() {
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.colorMap = colorMap;
@@ -327,14 +337,19 @@ export class VariantExplorerComponent
     });
   }
 
+  private listenForLogStatChange() {
+    this.logService.logStatistics$.subscribe((logStat) => {
+      this.logStats = logStat;
+    });
+  }
+
   private listenForLogChange() {
-    this.sharedDataService.loadedEventLog$
+    this.logService.loadedEventLog$
       .pipe(
         tap(() => {
           this.closeAllSubvariantWindows();
           this.performanceMode = false;
           this.variantPerformanceService.variantPerformanceMode.next(false);
-          this.eventLogChanged();
         })
       )
       .subscribe();
@@ -346,50 +361,6 @@ export class VariantExplorerComponent
         component.redraw();
       }
     }
-  }
-
-  private eventLogChanged(): void {
-    this.colorMap = this.colorMapService.getColorMap(
-      Object.keys(this.sharedDataService.activitiesInEventLog)
-    );
-
-    this.variants = this.sharedDataService.variants;
-    this.displayed_variants = this.variants;
-
-    this.variantPerformanceService.injectWaitingTimeNodes(
-      this.variants.map((v) => v.variant)
-    );
-
-    this.variants.forEach((v, i) => {
-      v.isConformanceOutdated = true;
-      v.userDefined = false;
-      v.isTimeouted = false;
-      v.isSelected = false;
-      v.isAddedFittingVariant = false;
-      v.infixType = InfixType.NOT_AN_INFIX;
-      setParent(v.variant);
-    });
-
-    this.numberFittingVariants = undefined;
-    this.numberFittingTraces = undefined;
-
-    this.totalNumberTraces = this.variants
-      .map((v) => v.count)
-      .reduce((a, b) => a + b);
-
-    this.variants.forEach((v) => {
-      v.percentage = Number.parseFloat(
-        ((v.count / this.totalNumberTraces) * 100).toFixed(2)
-      );
-    });
-    this.totalNumberVariants = this.variants.length;
-    this.sort(this.sortingFeature);
-    console.log('Variants after load:', this.variants);
-  }
-
-  private activityNamesChanged(): void {
-    // Changes to variants in shared data service are made in activity overview
-    this.variants = this.sharedDataService.variants;
   }
 
   subscribeForConformanceCheckingResults(): void {
@@ -419,17 +390,21 @@ export class VariantExplorerComponent
   }
 
   apply_query_filter(queryItems: Set<number>) {
-    console.log('Changed Filter', queryItems);
-    console.log('Current Variants', this.variants);
-
     if (!queryItems) {
       this.displayed_variants = this.variants;
+      this.variants.forEach((v) => (v.isDisplayed = true));
     } else {
-      this.displayed_variants = this.variants.filter((variant) => {
-        return queryItems.has(variant.bid);
+      const displayed_variants = [];
+
+      this.displayed_variants = this.variants.filter((v) => {
+        if (queryItems.has(v.bid)) {
+          v.isDisplayed = true;
+          return true;
+        } else {
+          v.isDisplayed = false;
+        }
       });
     }
-
     this.updateAllSubvariantWindows();
   }
 
@@ -441,6 +416,7 @@ export class VariantExplorerComponent
     });
   }
 
+  // @ Refactor into Alignment Service
   updateAlignmentStatistics(): void {
     let numberFittingVariants = 0;
     let numberFittingTraces = 0;
@@ -451,8 +427,11 @@ export class VariantExplorerComponent
         numberFittingTraces += v.count;
       }
     });
-    this.numberFittingTraces = numberFittingTraces;
-    this.numberFittingVariants = numberFittingVariants;
+
+    this.logService.update_log_stats(
+      numberFittingTraces,
+      numberFittingVariants
+    );
   }
 
   updateConformanceForVariant(variant: Variant, timeout: number): void {
@@ -629,6 +608,7 @@ export class VariantExplorerComponent
 
   removeAllFilters() {
     this.displayed_variants = this.variants;
+    this.variants.forEach((v) => (v.isDisplayed = true));
     this.updateAllSubvariantWindows();
   }
 
@@ -835,10 +815,8 @@ export class VariantExplorerComponent
       this.variantPerformanceService.setSelectedVariantElement(element);
     } else if (this.traceInfixSelectionMode) {
       let lowestSelectableParent = getLowestSelectableParent(element);
-      console.log('Lowest Selectable Parent', lowestSelectableParent);
       if (lowestSelectableParent != variant) {
         lowestSelectableParent.setAllChildrenSelected();
-        console.log('Selected all Parents', lowestSelectableParent);
         variant.calculateSelectableElements();
         if (!variant.selectionStatusUnchangedFromLastSavedSelection()) {
           variant.saveCurrentSelectionToSelectionHistory();
@@ -849,6 +827,19 @@ export class VariantExplorerComponent
       variant.setExpanded(!variant.getExpanded());
       self.redraw();
     }
+  };
+
+  openContextCallback = (
+    self: VariantDrawerDirective,
+    element: VariantElement,
+    variant: VariantElement,
+    event: PointerEvent
+  ) => {
+    this.contextMenu_xPos = event.clientX;
+    this.contextMenu_yPos = event.clientY;
+    this.contextMenu_variant = variant;
+    this.contextMenu_element = element;
+    this.contextMenu_directive = self;
   };
 
   computeActivityColor = (
@@ -921,7 +912,7 @@ export class VariantExplorerComponent
 
     let leafnodes: LeafNode[] = [];
 
-    for (let activity in this.sharedDataService.activitiesInEventLog) {
+    for (let activity in this.logService.activitiesInEventLog) {
       leafnodes.push(new LeafNode([activity]));
     }
 
@@ -1017,7 +1008,6 @@ export class VariantExplorerComponent
   }
 
   toggleQuery() {
-    console.log('Toggle Query:', this.queryActive);
     this.queryActive = !this.queryActive;
   }
 
@@ -1047,16 +1037,13 @@ export class VariantExplorerComponent
       this.performanceService.unselectPerformance();
 
     this.selectedGranularity = granularity;
-    this.logService
-      .getLogPropsAndUpdateState(
-        granularity,
-        this.sharedDataService.loadedEventLog
-      )
+    this.backendService
+      .getLogPropsAndUpdateState(granularity, this.logService.loadedEventLog)
       .subscribe();
   }
 
   listenForLogGranularityChange() {
-    this.sharedDataService.logGranularity$.subscribe((granularity) => {
+    this.logService.logGranularity$.subscribe((granularity) => {
       this.selectedGranularity = granularity;
     });
   }

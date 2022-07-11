@@ -1,12 +1,16 @@
 import asyncio
+import itertools
 import json
 import pickle
 from multiprocessing import Pool, cpu_count, freeze_support
 from typing import Any, List, Optional
+from endpoints.transform_event_log import cache_current_data, rename_activities, remove_activities
 
 import pm4py.objects.log.importer.xes.importer as xes_importer
 import pm4pycvxopt
+
 import uvicorn
+from cortado_core.utils.timestamp_utils import TimeUnit
 from cortado_core.freezing.reinsert_frozen_subtrees import post_process_tree
 from cortado_core.performance import tree_performance
 from cortado_core.performance import utils as performance_utils
@@ -55,7 +59,6 @@ from backend_utilities.timeout.helper_functions import (TimeoutException,
                                                         execute_with_timeout)
 from backend_utilities.variant_trace_conversion import variant_to_trace
 from core.events import create_start_app_handler, create_stop_app_handler
-from endpoints import load_event_log
 from endpoints.add_variants_to_process_model import \
     add_variants_to_process_model
 from endpoints.alignments import InfixType
@@ -67,6 +70,7 @@ from error_handlers import (http_exception_handler,
                             validation_exception_handler)
 from middleware.http_middleware import http_middleware
 
+from pm4py.objects.log.exporter.xes.variants.etree_xes_exp import export_log_as_string as generate_xes_xml
 
 def get_application():
     app = FastAPI()
@@ -117,7 +121,6 @@ app = get_application()
 
 def get_config_repo():
     return ConfigurationRepositoryFactory.get_config_repository()
-
 
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...),
@@ -265,7 +268,6 @@ async def parseStringToPT(d: InputTreeFromTreeString):
 
     return res
 
-
 @app.get("/variants")
 async def get_variants_from_event_log():
     log = await meta.get_event_log()
@@ -285,10 +287,8 @@ async def get_variants_from_event_log():
         res['variants'], key=lambda variant: variant['count'], reverse=True)
     return res
 
-
 class ConvertPtToX(BaseModel):
     pt: dict
-
 
 @app.post("/convertPtToBPMN")
 async def download_ptml(d: ConvertPtToX):
@@ -319,6 +319,20 @@ async def download_pnml(d: ConvertPtToX):
     return Response(content=generate_pnml_xml(net, im, fm), media_type="application/xml")
 
 
+class ExportLogXes(BaseModel):
+    bids: list
+
+@app.post("/exportLogVariants")
+async def download_xes(d: ExportLogXes):
+    
+    traces = list(itertools.chain(*[ts for bid, (_ , ts) in cache.variants.items() if bid in d.bids]))   
+    log = EventLog(traces, **cache.parameters['log_info'])
+    
+    # TODO Perserve the Loaded Log Attributes via Variables
+    return Response(content=generate_xes_xml(log), media_type="application/xml")
+ 
+
+
 @app.post("/applyReductionRulesToTree")
 async def applyTreeReductionRules(d: ConvertPtToX):
     pt, frozen_subtrees = dict_to_process_tree(d.pt)
@@ -327,8 +341,8 @@ async def applyTreeReductionRules(d: ConvertPtToX):
 
 class InputCalculatePerformance(BaseModel):
     pt: dict
-    variants: List[dict]
-    delete: Optional[List[dict]]
+    variants: List[int]
+    delete: Optional[List[int]]
 
 
 pcache = {}
@@ -381,33 +395,31 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
     variants_tree_performance = []
 
     tree_cache_key = str(pt)
-
-    variants = d.variants
-    if d.delete:
-        for remove_variant in d.delete:
-            delete_cache_key = json.dumps(remove_variant)
-            variants = [v for v in variants if json.dumps(
-                v) != delete_cache_key]
-
-            if tree_cache_key in cache.pcache and delete_cache_key in cache.pcache[tree_cache_key]:
-                del cache.pcache[tree_cache_key][delete_cache_key]
-
     variants_fitness = []
-    for variant in variants:
-        variant_cache_key = json.dumps(variant)
-        if tree_cache_key in cache.pcache and variant_cache_key in cache.pcache[tree_cache_key]:
-            p_values = cache.pcache[tree_cache_key][variant_cache_key]
+    
+    for bid, (_, traces) in cache.variants.items(): 
+      
+      if d.delete and bid in d.delete:
+
+        if tree_cache_key in pcache and bid in cache.pcache[tree_cache_key]:
+          del cache.pcache[tree_cache_key][bid]
+    
+      elif bid in d.variants:
+        
+        if tree_cache_key in cache.pcache and bid in cache.pcache[tree_cache_key]:
+              
+            p_values = cache.pcache[tree_cache_key][bid]
             service_times_aggregated = p_values["service_times"]
             idle_times_aggregated = p_values["idle_times"]
             waiting_times_aggregated = p_values["waiting_times"]
             cycle_times_aggregated = p_values["cycle_times"]
             mean_fitness = p_values["mean_fitness"]
+            
         else:
-            if not variant_cache_key in load_event_log.variants_store:
-                raise HTTPException(status_code=409,
-                                    detail="Detailled variant information are not in the backend's cache. Please (re)upload the log file.")
-            test_log = load_event_log.variants_store[variant_cache_key]
+
+            test_log = traces
             test_log = EventLog(test_log)
+            
             (service_times, idle_times, waiting_times, cycle_times), mean_fitness \
                 = tree_performance.get_tree_performance_intervals(pt, test_log,
                                                                   alignment_variant=net_alignment.Variants.VERSION_STATE_EQUATION_A_STAR)
@@ -422,10 +434,10 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
                 cycle_times, noop, avg, avg)
 
         perf_stats = {str(t): {
-            "service_time": stats(service_times_aggregated[t]) if t in service_times_aggregated else None,
-            "cycle_time": stats(cycle_times_aggregated[t]) if t in cycle_times_aggregated else None,
-            "waiting_time": stats(waiting_times_aggregated[t]) if t in waiting_times_aggregated else None,
-            "idle_time": stats(idle_times_aggregated[t]) if t in idle_times_aggregated else None,
+                "service_time": stats(service_times_aggregated[t]) if t in service_times_aggregated else None,
+                "cycle_time": stats(cycle_times_aggregated[t]) if t in cycle_times_aggregated else None,
+                "waiting_time": stats(waiting_times_aggregated[t]) if t in waiting_times_aggregated else None,
+                "idle_time": stats(idle_times_aggregated[t]) if t in idle_times_aggregated else None,
         } for t in tree_nodes}
 
         tau_0_values(tree_nodes, perf_stats)
@@ -435,17 +447,20 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
         variants_fitness.append(mean_fitness)
 
         if tree_cache_key not in cache.pcache:
+                
             cache.pcache[tree_cache_key] = {}
-        cache.pcache[tree_cache_key][variant_cache_key] = {"service_times": service_times_aggregated,
-                                                           "idle_times": idle_times_aggregated,
-                                                           "cycle_times": cycle_times_aggregated,
-                                                           "waiting_times": waiting_times_aggregated,
-                                                           "mean_fitness": mean_fitness}
+                
+        cache.pcache[tree_cache_key][bid] = {"service_times": service_times_aggregated,
+                                       "idle_times": idle_times_aggregated,
+                                       "cycle_times": cycle_times_aggregated,
+                                       "waiting_times": waiting_times_aggregated,
+                                       "mean_fitness": mean_fitness}
 
-    # pickle.dump( pcache, open( "pcache.p", "wb" ))
-    # pickle.dump(load_event_log.variants_store,  open( "variants_store.p", "wb" ))
+      else: 
+        continue
 
     pt_dict = get_merged_performances(pt)
+    
     return {'merged_performance_tree': pt_dict, 'variants_tree_performance': variants_tree_performance,
             'fitness_values': variants_fitness}
 
@@ -560,7 +575,7 @@ class variantQuery(BaseModel):
 def variant_query(query: variantQuery):
 
     res = evaluate_query_against_variant_graphs(
-        query, load_event_log.variants, load_event_log.activites)
+        query, cache.variants, cache.parameters['activites'])
 
     return res
 

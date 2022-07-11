@@ -1,16 +1,13 @@
-import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
 import { ProcessTree } from 'src/app/objects/ProcessTree';
-import { HierarchyNode } from 'd3';
-import { PerformanceService } from '../performance.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProcessTreeService {
-  constructor(private sharedDataService: SharedDataService) {}
+  constructor() {}
 
   private _selectedRootNodeID = new BehaviorSubject<number>(null);
 
@@ -84,14 +81,71 @@ export class ProcessTreeService {
     this._selectionMode.next(strategy);
   }
 
-  private _currentDisplayedProcessTree = new BehaviorSubject<any>(null);
+  private _currentDisplayedProcessTree = new BehaviorSubject<ProcessTree>(null);
 
-  get currentDisplayedProcessTree$(): Observable<any> {
+  get currentDisplayedProcessTree$(): Observable<ProcessTree> {
     return this._currentDisplayedProcessTree.asObservable();
   }
 
-  get currentDisplayedProcessTree(): any {
+  get currentDisplayedProcessTree(): ProcessTree {
     return this._currentDisplayedProcessTree.getValue();
+  }
+
+  private _activitiesInCurrentTree = new BehaviorSubject<Set<string>>(
+    new Set<string>()
+  );
+
+  public deleteActivityFromProcessTreeActivities(activityName: string): any {
+    if (this.activitiesInCurrentTree) {
+      this.activitiesInCurrentTree.delete(activityName);
+    }
+  }
+
+  public renameActivityInProcessTree(
+    activityName: string,
+    newActivityName: string
+  ): any {
+    if (
+      this.activitiesInCurrentTree &&
+      this.activitiesInCurrentTree.delete(activityName)
+    )
+      this.activitiesInCurrentTree.add(newActivityName);
+
+    if (this.currentDisplayedProcessTree) {
+      this.currentDisplayedProcessTree = this.renameProcessTreeLeafs(
+        this.currentDisplayedProcessTree,
+        activityName,
+        newActivityName
+      );
+    }
+  }
+
+  private renameProcessTreeLeafs(
+    tree: ProcessTree,
+    activityName: string,
+    newActivityName: string
+  ) {
+    if (tree.label && tree.label === activityName) {
+      tree.label = newActivityName;
+    } else {
+      tree.children.forEach((c) =>
+        this.renameProcessTreeLeafs(c, activityName, newActivityName)
+      );
+    }
+
+    return tree;
+  }
+
+  get activitiesInCurrentTree$(): Observable<Set<string>> {
+    return this._activitiesInCurrentTree.asObservable();
+  }
+
+  get activitiesInCurrentTree(): Set<string> {
+    return this._activitiesInCurrentTree.getValue();
+  }
+
+  set activitiesInCurrentTree(activities) {
+    this._activitiesInCurrentTree.next(activities);
   }
 
   set currentDisplayedProcessTree(tree: any) {
@@ -99,8 +153,7 @@ export class ProcessTreeService {
       tree = ProcessTree.fromObj(tree);
     }
     this._currentDisplayedProcessTree.next(tree);
-    this.sharedDataService.activitiesInCurrentTree =
-      this.getSetOfActivities(tree);
+    this.activitiesInCurrentTree = this.getSetOfActivities(tree);
   }
 
   public set_currentDisplayedProcessTree_with_Cache(tree: any) {
@@ -108,8 +161,7 @@ export class ProcessTreeService {
       tree = ProcessTree.fromObj(tree);
     }
     this._currentDisplayedProcessTree.next(tree);
-    this.sharedDataService.activitiesInCurrentTree =
-      this.getSetOfActivities(tree);
+    this.activitiesInCurrentTree = this.getSetOfActivities(tree);
     this.cacheCurrentTree(tree);
   }
 
@@ -204,6 +256,32 @@ export class ProcessTreeService {
       this.selectedRootNodeID = null;
 
       this.currentDisplayedProcessTree = treeToLoad;
+    }
+  }
+
+  // TODO move somewhere else
+  processTreesEqual(pt1, pt2): boolean {
+    if (!pt1 || !pt2) {
+      return false;
+    }
+    if (
+      pt1['operator'] === pt2['operator'] &&
+      pt1['label'] === pt2['label'] &&
+      pt1['children'].length === pt2['children'].length
+    ) {
+      if (pt1['children'].length === 0) {
+        return true;
+      } else {
+        let res = true;
+        for (let i = 0; i < pt1['children'].length; i++) {
+          res =
+            res &&
+            this.processTreesEqual(pt1['children'][i], pt2['children'][i]);
+        }
+        return res;
+      }
+    } else {
+      return false;
     }
   }
 }

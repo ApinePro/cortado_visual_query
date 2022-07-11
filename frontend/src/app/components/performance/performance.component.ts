@@ -76,7 +76,7 @@ export class ModelPerformanceComponent implements OnInit {
           ]);
         }
         Array.from(this.performanceService.allValues.get(tree.id).entries())
-          .map(([v, p]) => <[number, TreePerformance]>[v.number, p])
+          .map(([v, p]) => <[number, TreePerformance]>[v.bid, p])
           .filter(([v, p]) => p.service_time)
           .sort((a, b) => (a[0] = b[0]))
           .forEach(([v, p]) => {
