@@ -88,7 +88,7 @@
     "concurrently": "^6.4.0",
     "d3": "^7.3.0",
     "d3-flextree": "^2.1.2",
-    "electron": "^19.0.8",
+    "electron": "^6.1.12",
     "electron-builder": "^5.5.0",
     "electron-packager": "^13.1.1",
     "eslint": "^8.4.1",
