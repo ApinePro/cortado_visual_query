@@ -18,7 +18,7 @@ import {
 import * as d3 from 'd3';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 
-import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
+import { ProcessTree, ProcessTreeOperator } from 'src/app/objects/ProcessTree/ProcessTree';
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
 import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
 import { ImageExportService } from 'src/app/services/imageExportService/image-export-service';
@@ -26,6 +26,8 @@ import { PerformanceService } from 'src/app/services/performance.service';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { BPMN_Constant } from 'src/app/constants/bpmn_model_drawer_constants';
 import { BpmnDrawerDirective } from 'src/app/directives/bpmn-drawer/bpmn-drawer.directive';
+import { getPerformanceTable } from '../process-tree-editor/utils';
+import { textColorForBackgroundColor } from 'src/app/utils/helper_functions';
 
 @Component({
   selector: 'app-bpmn-editor',
@@ -102,8 +104,6 @@ export class BpmnEditorComponent
 
   ngAfterViewInit(): void {
     this.nodeWidthCache = this.processTreeService.nodeWidthCache;
-
-
     this.selectedStatistic = this.performanceColorScaleService.selectedColorScale.statistic
     this.selectedPerformanceIndicator = this.performanceColorScaleService.selectedColorScale.performanceIndicator;
 
@@ -119,7 +119,7 @@ export class BpmnEditorComponent
       this.activityColorMap = colorMap;
 
       if (this.currentTree) {
-        this.redraw();
+        this.redraw(this.currentTree);
       }
     });
 
@@ -130,7 +130,7 @@ export class BpmnEditorComponent
             this.performanceColorMap = colorMap;
 
             if (this.currentTree) {
-              this.redraw();
+              this.redraw(this.currentTree);
             }
           }
         }
@@ -139,7 +139,7 @@ export class BpmnEditorComponent
     this.curPTSub =
       this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
         this.currentTree = tree;
-        this.bpmnDrawer.redraw(tree);
+        this.redraw(tree); 
       });
 
     this.rootNodeIdSub = this.processTreeService.selectedRootNodeID$.subscribe(
@@ -168,12 +168,10 @@ export class BpmnEditorComponent
         this.processTreeService.selectedRootNodeID = d.id;
         this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
     }
+
   }
 
-
   createArrowHeadMarker() {
-
-    console.log(d3.select(this.svgElem.nativeElement))
     d3.select(this.svgElem.nativeElement)
       .append('svg:defs')
       .append('svg:marker')
@@ -217,10 +215,67 @@ export class BpmnEditorComponent
       .attr('fill', '#425bbf');
   }
 
-  redraw(){
+  redraw(tree : ProcessTree){
+
+    this.bpmnDrawer.redraw(tree);
 
     this.activateTooltipsService.initializeChildren(this.svgElem);
     this.selectBPMNNode(this.selectedRootID);
+  }
+
+  tooltipContent = (d : ProcessTree) => {
+    if (
+      d.hasPerformance() &&
+      d.label !== ProcessTreeOperator.tau
+    ) {
+      return (
+            `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
+        <h6 style="flex: 1" class="performance-tooltip-header">` +
+            (d.label || d.operator) +
+            `</h6>
+      </div>` +
+        getPerformanceTable(
+          d.performance,
+          this.selectedPerformanceIndicator,
+          this.selectedStatistic
+        )
+      );
+    }
+    return d.label || d.operator;
+  }
+
+  computeNodeColor = (root, pt : ProcessTree) => {
+    let color;  
+
+    if (root.performance) {
+      if (
+        this.performanceColorMap.has(pt.id) &&
+        pt.performance?.[this.selectedPerformanceIndicator]?.[
+          this.selectedStatistic
+        ] !== undefined
+      ) {
+        color = this.performanceColorMap.get(pt.id)(
+          pt.performance[this.selectedPerformanceIndicator][
+            this.selectedStatistic
+          ]
+        );
+      } else {
+        color = '#404040';
+      }
+    } else {
+      color =
+      pt.label !== '\u03C4'
+          ? this.activityColorMap.get(pt.label)
+          : BPMN_Constant.bpmn_non_visible_activity_color;
+    }
+
+    return color
+  }
+
+  computeTextColor = (root, pt : ProcessTree) => {
+    return (pt.label === ProcessTreeOperator.tau || pt.frozen)
+      ? 'White'
+      : textColorForBackgroundColor(this.computeNodeColor(root, pt));
   }
 
   ngOnDestroy() {
@@ -298,8 +353,7 @@ export class BpmnEditorComponent
   handleVisibilityChange(visibile: boolean): void {
     if (this.currentTree && visibile) {
       this.reset_zoom(false);
-      this.redraw();
-      this.selectBPMNNode(this.selectedRootID);
+      this.redraw(this.currentTree);
     }
   }
 

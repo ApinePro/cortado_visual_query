@@ -76,6 +76,15 @@ export class ProcessTree {
         : "'" + this.label + "'" + ',';
     }
   }
+
+  public hasPerformance() {
+    return (
+      this.performance?.service_time ||
+      this.performance?.cycle_time ||
+      this.performance?.waiting_time ||
+      this.performance?.idle_time
+    );
+  }
 }
 
 export class TreePerformance {

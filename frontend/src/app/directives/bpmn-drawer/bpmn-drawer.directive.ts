@@ -13,25 +13,22 @@ import { textColorForBackgroundColor } from 'src/app/utils/helper_functions';
 export class BpmnDrawerDirective{
 
   @Input()
-  activityColorMap : Map<string, string>
+  computeNodeColor
 
   @Input()
-  performanceColorMap : Map<number, any>
+  computeTextColor
 
   @Input()
-  selectedStatistic
+  computeFillColor
 
   @Input()
-  selectedPerformanceIndicator
+  tooltipText
 
   @Input()
   onClickCallBack
 
-  @Input()
-  currentTree
-
-  performanceActive : boolean = false; 
-  mainGroup 
+  mainGroup
+  root 
 
   constructor(
     elRef: ElementRef,
@@ -43,11 +40,9 @@ export class BpmnDrawerDirective{
   redraw(tree) {
     this.mainGroup.selectChildren().remove();
 
-    
+    this.root = tree
 
     if (tree) {
-
-      this.performanceActive = tree.performance
 
       const model = convertPTtoBlockstructuredBPMN(
         tree,
@@ -545,39 +540,13 @@ export class BpmnDrawerDirective{
       .text(label);
   }
 
-  private hasPerformance(d) {
-    return (
-      d.performance?.service_time ||
-      d.performance?.cycle_time ||
-      d.performance?.waiting_time ||
-      d.performance?.idle_time
-    );
-  }
-
   addToolTip(node) {
     node
       .attr('data-bs-toggle', 'tooltip')
       .attr('data-bs-placement', 'top')
-      .attr('data-bs-title', (d) => {
-        if (this.hasPerformance(d)) {
-          return (
-            `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
-      <h6 style="flex: 1" class="performance-tooltip-header">` +
-            (d.label || d.operator) +
-            `</h6>
-    </div>` +
-            getPerformanceTable(
-              d.performance,
-              this.selectedPerformanceIndicator,
-              this.selectedStatistic
-            )
-          );
-        }
-
-        return d.label || d.operator;
-      })
+      .attr('data-bs-title', (d) => this.tooltipText(d))
       .attr('data-bs-template', (d) => {
-        if (this.hasPerformance(d)) {
+        if (d.hasPerformance()) {
           return `<div class="tooltip performance-tooltip" role="tooltip">
               <div class="tooltip-arrow"></div>
               <div class="tooltip-inner p-0" style="max-width: none;"></div>
@@ -701,34 +670,8 @@ export class BpmnDrawerDirective{
     node.classed('frozen-node-visible-activity', model._pt.frozen);
     selection.classed('cursor-pointer', true);
 
-    let color;
-
-    if (this.performanceActive) {
-      if (
-        this.performanceColorMap.has(model._pt.id) &&
-        model._pt.performance?.[this.selectedPerformanceIndicator]?.[
-          this.selectedStatistic
-        ] !== undefined
-      ) {
-        color = this.performanceColorMap.get(model._pt.id)(
-          model._pt.performance[this.selectedPerformanceIndicator][
-            this.selectedStatistic
-          ]
-        );
-      } else {
-        color = '#404040';
-      }
-    } else {
-      color =
-        model._pt.label !== '\u03C4'
-          ? this.activityColorMap.get(model._pt.label)
-          : BPMN_Constant.bpmn_non_visible_activity_color;
-    }
-
-    const text_color =
-      model.eventName === ProcessTreeOperator.tau || model._pt.frozen
-        ? 'White'
-        : textColorForBackgroundColor(color);
+    const color = this.computeNodeColor(this.root, model._pt);
+    const text_color = this.computeTextColor(this.root, model._pt)
 
     const width = model.width;
 

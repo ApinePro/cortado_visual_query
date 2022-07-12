@@ -31,18 +31,22 @@ import {
   ProcessTree,
   ProcessTreeSyntaxInfo,
   checkSyntax,
+  ProcessTreeOperator,
 } from '../../objects/ProcessTree/ProcessTree';
 
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { ActivateTooltipsService } from '../../services/activateTooltipsService/activate-tooltips.service';
 import {
   NodeSeletionStrategy,
+  NodeInsertionStrategy,
   ProcessTreeService,
 } from 'src/app/services/processTreeService/process-tree.service';
 
 import { LogService } from 'src/app/services/logService/log.service';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { ProcessTreeDrawerDirective } from 'src/app/directives/process-tree-drawer/process-tree-drawer.directive';
+import { textColorForBackgroundColor } from 'src/app/utils/helper_functions';
+import { getPerformanceTable } from './utils';
 
 @Component({
   selector: 'app-process-tree-editor',
@@ -114,6 +118,9 @@ export class ProcessTreeEditorComponent
   NodeSeletionStrategy = NodeSeletionStrategy;
   nodeSelectionStrategy: NodeSeletionStrategy = NodeSeletionStrategy.TREE;
 
+  NodeInsertionStrategy = NodeInsertionStrategy;
+  nodeInsertionStrategy: NodeInsertionStrategy = NodeInsertionStrategy.BELOW;
+
   selectedRootNodeId: number;
   selectedRootNode: d3.HierarchyNode<any>;
 
@@ -127,10 +134,6 @@ export class ProcessTreeEditorComponent
   root: d3.HierarchyNode<any>;
 
   nodeWidthCache = new Map<string, number>();
-
-  // Inserting node functionality
-  selectedMethod: Function = this.insertNewNodeBelow;
-  lastSelectedInsertMethod: Function = this.insertNewNodeBelow;
 
   activityColorMap: Map<string, string>;
   performanceColorMap : Map<number, any>;
@@ -147,6 +150,8 @@ export class ProcessTreeEditorComponent
 
   treeCacheLength: number = 0;
   treeCacheIndex: number = 0;
+
+  activitiesOccurringInLog : string[]; 
 
   ngOnInit(): void {
     this.dropZoneConfig = new DropzoneConfig(
@@ -170,34 +175,44 @@ export class ProcessTreeEditorComponent
 
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.activityColorMap = colorMap;
+      
+      if(this.currentlyDisplayedTreeInEditor){
+        this.redraw(this.currentlyDisplayedTreeInEditor); 
+      }
     });
 
     this.performanceColorScaleService.currentColorScale.subscribe(
       (colorMap) => {
         if (colorMap && colorMap != this.performanceColorMap) {
           this.performanceColorMap = colorMap;
+          this.redraw(this.currentlyDisplayedTreeInEditor); 
         }
       }
     );
+
+
+    this.logService.activitiesInEventLog$.subscribe((activties) => {
+      this.activitiesOccurringInLog = Object.keys(activties); 
+    })
 
     this.processTreeService.currentDisplayedProcessTree$.subscribe((res) => {
       // If the tree was loaded via the process tree import or Drag&Drop that does not contain the current activites
 
       if (res) {
 
-        this.currentlyDisplayedTreeInEditor = res
         console.warn('update tree triggered by service');
+        this.currentlyDisplayedTreeInEditor = res
 
-        console.log(res)
+        this.processTreeSyntaxInfo = checkSyntax(res);
+        this.processTreeService.correctTreeSyntax = this.processTreeSyntaxInfo.correctSyntax;    
 
-
-        this.selectRootNodeFromID(this.selectedRootNodeId);
+        this.redraw(res)
 
 
       } else if (res === null && this.mainSvgGroup) {
-        
+
+        this.processTreeDrawer.redraw(null); 
         this.selectedRootNode = null;
-        this.root = null;
       }
     });
 
@@ -205,17 +220,14 @@ export class ProcessTreeEditorComponent
 
   redraw(tree){
 
-    // add node groups that contain a rectangle and text
     this.selectedStatistic = this.performanceColorScaleService.selectedColorScale.statistic;
     this.selectedPerformanceIndicator = this.performanceColorScaleService.selectedColorScale.performanceIndicator;
     this.performanceColorMap = this.performanceColorScaleService.getColorScale();
 
-    this.processTreeSyntaxInfo = checkSyntax(tree);
-    this.processTreeService.correctTreeSyntax = this.processTreeSyntaxInfo.correctSyntax;
+    this.processTreeDrawer.redraw(tree); 
 
-    this.currentlyDisplayedTreeInEditor = tree 
-    
-
+    this.selectRootNodeFromID(this.selectedRootNodeId);
+    this.activateTooltipsService.initializeChildren(this.svgElem);
   }
 
   ngAfterViewInit(): void {
@@ -266,13 +278,6 @@ export class ProcessTreeEditorComponent
     }
   }
 
-  saveTreeInSharedDataService(): void {
-    console.warn(this.currentlyDisplayedTreeInEditor);
-    this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
-      this.processTreeDrawer.getProcessTreeObject()
-    );
-  }
-
   handleResponsiveChange(
     left: number,
     top: number,
@@ -285,8 +290,11 @@ export class ProcessTreeEditorComponent
   }
 
   handleVisibilityChange(visibile: boolean): void {
-    if (this.root && visibile) {
-      this.processTreeService.selectedRootNodeID = this.selectedRootNodeId;
+    if (visibile) {
+
+      if(this.currentlyDisplayedTreeInEditor){
+        this.redraw(this.currentlyDisplayedTreeInEditor);
+      }
     }
   }
 
@@ -298,8 +306,8 @@ export class ProcessTreeEditorComponent
   insertNewNodeButtonDisabled(): boolean {
     return (
       (!this.singleNodeSelected() || !this.selectedRootNode) &&
-      this.root !== null &&
-      this.root !== undefined
+      this.currentlyDisplayedTreeInEditor !== null &&
+      this.currentlyDisplayedTreeInEditor !== undefined
     );
   }
 
@@ -367,158 +375,22 @@ export class ProcessTreeEditorComponent
   horizontallyCenterTree(): void {
     this.mainSvgGroup.attr(
       'transform',
-      'translate(' + this.d3ContainerElem.nativeElement.offsetWidth / 2 + ',0)'
+      'translate(' + this.d3ContainerElem.nativeElement.offsetWidth / 2 + ', 0)'
     );
   }
 
   // @REFRACTOR INTO PROCESSTREE SERVICE
   deleteSubtree(): void {
-    this.processTreeService.deleteSelected(this.selectedRootNode.data); 
+    this.processTreeService.deleteSelected(this.selectedRootNode.data);
   }
 
-
-
-  // @REFRACTOR INTO PROCESSTREE SERVICE
-  changeSelectedNode(operator, label): void {
-    // console.log(this.selectedRootNode);
-    // console.log(operator, label);
-    if (operator) {
-      // console.log('change operator');
-      this.selectedRootNode.data.operator = operator;
-      this.selectedRootNode.data.label = null;
-    } else if (label) {
-      this.selectedRootNode.data.label = label;
-      this.selectedRootNode.data.operator = null;
-    }
-    this.afterInsertNode();
-  }
-
-  // @REFRACTOR INTO PROCESSTREE SERVICE
-  insertNewNode(operator, label): void {
-    if (this.root) {
-      this.selectedMethod(operator, label);
-    } else {
-      // empty tree - just add a single node
-      const newNode = this.createNode(operator, label);
-      newNode.parent = null;
-      // @ts-ignore
-      newNode.height = 0;
-      newNode.children = null;
-      this.root = newNode;
-      this.afterInsertNode();
-    }
-  }
-
-  // @REFRACTOR INTO PROCESSTREE SERVICE
-  insertNewNodeLeft(operator, label): void {
-    if (
-      this.selectedRootNode.parent === null ||
-      this.selectedRootNode.parent === undefined
-    ) {
-      return;
-    }
-
-    const newNode = this.createNode(operator, label);
-    // @ts-ignore
-    newNode.depth = this.selectedRootNode.depth;
-    newNode.parent = this.selectedRootNode.parent;
-    // @ts-ignore
-    newNode.height = this.selectedRootNode.height;
-    newNode.children = null;
-    // console.log(newNode);
-
-    if (this.selectedRootNode.parent) {
-      const idx: number = this.selectedRootNode.parent.children.indexOf(
-        this.selectedRootNode
-      );
-      this.selectedRootNode.parent.children.splice(idx, 0, newNode);
-    }
-    this.afterInsertNode();
-  }
-
-  // @REFRACTOR INTO PROCESSTREE SERVICE
-  insertNewNodeAbove(operator, label): void {
-    const newNode = this.createNode(operator, label);
-    // @ts-ignore
-    newNode.depth = 0;
-    newNode.parent = null;
-    // @ts-ignore
-    newNode.height = this.selectedRootNode.height + 1;
-    newNode.children = [this.selectedRootNode];
-    // console.log(newNode);
-    this.selectedRootNode.parent = newNode;
-    this.root = newNode;
-    this.updateDepthAttributeOfNode(this.selectedRootNode);
-    this.afterInsertNode();
-  }
-
-  // @REFRACTOR INTO PROCESSTREE SERVICE
-  insertNewNodeBelow(operator, label): void {
-    const newNode = this.createNode(operator, label);
-    // @ts-ignore
-    newNode.depth = this.selectedRootNode.depth + 1;
-    newNode.children = null;
-    newNode.parent = this.selectedRootNode;
-    // @ts-ignore
-    newNode.height = 0;
-    // console.log(newNode);
-
-    if (this.selectedRootNode.children) {
-      this.selectedRootNode.children.push(newNode);
-    } else {
-      this.selectedRootNode.children = [newNode];
-    }
-    this.updateHeightAttributeOfNode(this.selectedRootNode);
-    this.afterInsertNode();
-  }
-
-  updateHeightAttributeOfNode(node): void {
-    node.height += 1;
-    if (node.parent) {
-      this.updateHeightAttributeOfNode(node.parent);
-    }
-  }
-
-  updateDepthAttributeOfNode(node): void {
-    node.depth += 1;
-    if (node.children) {
-      node.children.forEach((n) => {
-        this.updateDepthAttributeOfNode(n);
-      });
-    }
-  }
-
-  insertNewNodeRight(operator, label): void {
-    if (
-      this.selectedRootNode.parent === null ||
-      this.selectedRootNode.parent === undefined
-    ) {
-      return;
-    }
-
-    const newNode = this.createNode(operator, label);
-    // @ts-ignore
-    newNode.depth = this.selectedRootNode.depth;
-    newNode.parent = this.selectedRootNode.parent;
-    // @ts-ignore
-    newNode.height = this.selectedRootNode.height;
-    newNode.children = null;
-
-    if (this.selectedRootNode.parent) {
-      const idx: number = this.selectedRootNode.parent.children.indexOf(
-        this.selectedRootNode
-      );
-      this.selectedRootNode.parent.children.splice(idx + 1, 0, newNode);
-    }
-    this.afterInsertNode();
+  insertNewNode(operator, label){
+    this.processTreeService.insertNewNode(this.selectedRootNode?.data, this.nodeInsertionStrategy, operator, label)
+    this.afterInsertNode()
   }
 
   afterInsertNode(): void {
     this.selectedRootNodeOnly = true;
-    this.processTreeService.selectedRootNodeID = this.selectedRootNode.data.id;
-
-    this.saveTreeInSharedDataService();
-
     this.searchText = undefined;
   }
 
@@ -535,6 +407,102 @@ export class ProcessTreeEditorComponent
     return d3.hierarchy(nodeData);
   }
 
+  computeNodeColor = (root, d : d3.HierarchyNode<ProcessTree>) => {
+    if (
+      root.data.performance &&
+      d.data.label !== ProcessTreeOperator.tau
+    ) {
+      if (
+        this.performanceColorMap.has(d.data.id) &&
+        d.data.performance?.[this.selectedPerformanceIndicator]?.[
+          this.selectedStatistic
+        ] !== undefined
+      ) {
+        return this.performanceColorMap.get(d.data.id)(
+          d.data.performance[this.selectedPerformanceIndicator][
+            this.selectedStatistic
+          ]
+        );
+      } else {
+        return '#404040';
+      }
+    } else {
+      if (d.data.operator !== null) return PT_Constant.node_operator_color;
+      if (d.data.label !== null && d.data.label === ProcessTreeOperator.tau)
+        return PT_Constant.node_non_visible_activity_color;
+      const isVisibleActivity =
+        d.data.label !== null && d.data.label !== ProcessTreeOperator.tau;
+      return isVisibleActivity ? this.activityColorMap.get(d.data.label) : null;
+    }
+  }
+
+
+  tooltipContent = (d : d3.HierarchyNode<ProcessTree>) => {
+    if (
+      d.data.hasPerformance() &&
+      d.data.label !== ProcessTreeOperator.tau
+    ) {
+      return (
+            `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
+        <h6 style="flex: 1" class="performance-tooltip-header">` +
+            (d.data.label || d.data.operator) +
+            `</h6>
+      </div>` +
+        getPerformanceTable(
+          d.data.performance,
+          this.selectedPerformanceIndicator,
+          this.selectedStatistic
+        )
+      );
+    }
+    return d.data.label || d.data.operator;
+  }
+
+
+  computeFillColor = (d : d3.HierarchyNode<ProcessTree>) => {
+    if (d.data.operator !== null) return PT_Constant.node_operator_color;
+    if (d.data.label !== null && d.data.label === ProcessTreeOperator.tau)
+      return PT_Constant.node_non_visible_activity_color;
+    const isVisibleActivity =
+      d.data.label !== null && d.data.label !== ProcessTreeOperator.tau;
+    return isVisibleActivity
+      ? this.activityColorMap.get(d.data.label) ||
+          PT_Constant.node_visible_activity_color
+      : null;
+  }
+
+
+  computeTextColor = (root, d : d3.HierarchyNode<ProcessTree>) => {
+
+    if (
+      d.data.frozen ||
+      d.data.label === ProcessTreeOperator.tau ||
+      (d.data.performance == undefined &&
+        root.data.performance != undefined)
+    ) {
+      return 'white';
+    }
+
+    let nodeColor = this.activityColorMap.get(d.data.label);
+
+    if (
+      d.data.performance &&
+      this.performanceColorMap.has(d.data.id) &&
+      d.data.performance[this.selectedPerformanceIndicator]
+    ) {
+      nodeColor = this.performanceColorMap.get(d.data.id)(
+        d.data.performance[this.selectedPerformanceIndicator][this.selectedStatistic]
+      );
+    }
+
+    const isVisibleActivity =
+      (d.data.label !== null && d.data.label !== ProcessTreeOperator.tau) ||
+      (d.data.performance != undefined && nodeColor !== undefined);
+    return isVisibleActivity
+      ? textColorForBackgroundColor(nodeColor)
+      : 'white';
+  }
+
   // END - Inserting node functionality
 
 
@@ -547,7 +515,6 @@ export class ProcessTreeEditorComponent
     const zooming = function (event) {
       // .translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0) is needed to center the tree
       // otherwise center is at (0,0)
-      // console.log(event)
       this.mainSvgGroup.attr(
         'transform',
         event.transform.translate(
@@ -568,7 +535,10 @@ export class ProcessTreeEditorComponent
           .transition()
           .duration(250)
           .ease(d3.easeExpInOut)
-          .call(zoom.transform, d3.zoomIdentity);
+          .call(zoom.transform, d3.zoomIdentity.translate(
+            0,
+            30
+          ));
       }.bind(this)
     );
   }
@@ -590,9 +560,7 @@ export class ProcessTreeEditorComponent
 
   private setSelectedRootNode = function (d) {
     this.selectedRootNode = d;
-    this.selectedRootNodeOnly =
-      this.nodeSelectionStrategy == NodeSeletionStrategy.NODE ||
-      this.leafNodeSelected();
+    this.selectedRootNodeOnly = this.nodeSelectionStrategy == NodeSeletionStrategy.NODE || this.leafNodeSelected();
   };
 
   private selectSubtreeFromRoot = function (svgGroup, d) {

@@ -56,6 +56,8 @@ import { SyntaxHighlightedTextareaDirective } from './directives/syntax-highligh
 import { VariantDrawerDirective } from './directives/variant-drawer/variant-drawer.directive';
 import { ProcessTreeDrawerDirective } from './directives/process-tree-drawer/process-tree-drawer.directive';
 import { BpmnDrawerDirective } from './directives/bpmn-drawer/bpmn-drawer.directive';
+import { ZoomAreaDirective } from './directives/zoom-area/zoom-area.directive'
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -86,6 +88,7 @@ import { BpmnDrawerDirective } from './directives/bpmn-drawer/bpmn-drawer.direct
     ExpertModeComponent,
     ContentEditableDirective,
     SettingsComponent,
+    ZoomAreaDirective, 
     DropZoneComponent,
     DropZoneDirective,
     TooltipDirective,

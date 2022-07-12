@@ -1,6 +1,6 @@
 import { PT_Constant } from './../../constants/process_tree_drawer_constants';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
-import { Directive, ElementRef, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Directive, ElementRef, Input } from '@angular/core';
 import { getPerformanceTable } from 'src/app/components/process-tree-editor/utils';
 import { textColorForBackgroundColor } from 'src/app/utils/helper_functions';
 import { ProcessTree, ProcessTreeOperator } from 'src/app/objects/ProcessTree/ProcessTree';
@@ -11,7 +11,7 @@ import * as d3 from 'd3';
 @Directive({
   selector: '[appProcessTreeDrawer]'
 })
-export class ProcessTreeDrawerDirective implements OnChanges{
+export class ProcessTreeDrawerDirective{
 
 
   nodeEnter: any;
@@ -29,49 +29,35 @@ export class ProcessTreeDrawerDirective implements OnChanges{
     this.mainSvgGroup = d3.select(elRef.nativeElement);
   }
 
+  @Input()
+  computeNodeColor
 
   @Input()
-  activityColorMap : Map<string, string>
+  computeTextColor
 
   @Input()
-  performanceColorMap : Map<number, any>
-
-  @Input()
-  selectedStatistic
-
-  @Input()
-  selectedPerformanceIndicator
+  tooltipText
 
   @Input()
   onClickCallBack
 
-  @Input()
-  currentlyDisplayedTree
+  redraw(tree : ProcessTree){
 
-  ngOnChanges(changes: SimpleChanges): void {
-
-    console.log(changes)
-
-    if (changes?.currentlyDisplayedTree?.currentValue){
-      this.root = d3.hierarchy(this.currentlyDisplayedTree, (d) => {
+    if (tree){
+      this.root = d3.hierarchy(tree, (d) => {
         // @ts-ignore
         return d.children;
       });
+
     } else {
       this.root = null;
     }
 
-    console.log(this.root);
-
-    console.log('NodeWidthCache', this.processTreeService.nodeWidthCache);
     this.update(this.root);
   }
 
   drawNodes(
-    node: d3.Selection<any, any, any, any>,
-    activityColorMap: Map<string, string>,
-    selectedPerformanceIndicator,
-    selectedStatistic
+    node: d3.Selection<any, any, any, any>
   ) {
     // add node groups
     this.nodeEnter = node
@@ -82,30 +68,10 @@ export class ProcessTreeDrawerDirective implements OnChanges{
       })
       .attr('data-bs-toggle', 'tooltip')
       .attr('data-bs-placement', 'top')
-      .attr('data-bs-title', (d) => {
-        if (
-          this.hasPerformance(d) &&
-          d.data.label !== ProcessTreeOperator.tau
-        ) {
-          return (
-            `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
-        <h6 style="flex: 1" class="performance-tooltip-header">` +
-            (d.data.label || d.data.operator) +
-            `</h6>
-      </div>` +
-            getPerformanceTable(
-              d.data.performance,
-              selectedPerformanceIndicator,
-              selectedStatistic
-            )
-          );
-        }
-
-        return d.data.label || d.data.operator;
-      })
+      .attr('data-bs-title', (d) => this.tooltipText(d))
       .attr('data-bs-template', (d) => {
         if (
-          this.hasPerformance(d) &&
+          d.data.hasPerformance() &&
           d.data.label !== ProcessTreeOperator.tau
         ) {
           return `<div class="tooltip performance-tooltip" role="tooltip">
@@ -130,34 +96,7 @@ export class ProcessTreeDrawerDirective implements OnChanges{
       .attr('stroke', PT_Constant.tree_stroke_color)
       .attr('stroke-width', PT_Constant.tree_stroke_width)
       .merge(node.select('.node'))
-      .style('fill', (d) => {
-        if (
-          this.root.data.performance &&
-          d.data.label !== ProcessTreeOperator.tau
-        ) {
-          if (
-            this.performanceColorMap.has(d.data.id) &&
-            d.data.performance?.[selectedPerformanceIndicator]?.[
-              selectedStatistic
-            ] !== undefined
-          ) {
-            return this.performanceColorMap.get(d.data.id)(
-              d.data.performance[selectedPerformanceIndicator][
-                selectedStatistic
-              ]
-            );
-          } else {
-            return '#404040';
-          }
-        } else {
-          if (d.data.operator !== null) return PT_Constant.node_operator_color;
-          if (d.data.label !== null && d.data.label === ProcessTreeOperator.tau)
-            return PT_Constant.node_non_visible_activity_color;
-          const isVisibleActivity =
-            d.data.label !== null && d.data.label !== ProcessTreeOperator.tau;
-          return isVisibleActivity ? activityColorMap.get(d.data.label) : null;
-        }
-      })
+      .style('fill', (d) => this.computeNodeColor(this.root, d))
       .classed('node-operator', function (d: any) {
         return d.data.operator !== null;
       })
@@ -178,17 +117,6 @@ export class ProcessTreeDrawerDirective implements OnChanges{
           d.data.label !== ProcessTreeOperator.tau &&
           d.data.frozen === true
         );
-      })
-      .attr('fill', function (d: any) {
-        if (d.data.operator !== null) return PT_Constant.node_operator_color;
-        if (d.data.label !== null && d.data.label === ProcessTreeOperator.tau)
-          return PT_Constant.node_non_visible_activity_color;
-        const isVisibleActivity =
-          d.data.label !== null && d.data.label !== ProcessTreeOperator.tau;
-        return isVisibleActivity
-          ? activityColorMap.get(d.data.label) ||
-              PT_Constant.node_visible_activity_color
-          : null;
       })
       .classed('node-invisible-activity', (d: any) => {
         return d.data.label === ProcessTreeOperator.tau;
@@ -220,35 +148,7 @@ export class ProcessTreeDrawerDirective implements OnChanges{
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
       .merge(node.select('text'))
-      .attr('fill', (d) => {
-        if (
-          d.data.frozen ||
-          d.data.label === ProcessTreeOperator.tau ||
-          (d.data.performance == undefined &&
-            this.root.data.performance != undefined)
-        ) {
-          return 'white';
-        }
-
-        let nodeColor = activityColorMap.get(d.data.label);
-
-        if (
-          d.data.performance &&
-          this.performanceColorMap.has(d.data.id) &&
-          d.data.performance[selectedPerformanceIndicator]
-        ) {
-          nodeColor = this.performanceColorMap.get(d.data.id)(
-            d.data.performance[selectedPerformanceIndicator][selectedStatistic]
-          );
-        }
-
-        const isVisibleActivity =
-          (d.data.label !== null && d.data.label !== ProcessTreeOperator.tau) ||
-          (d.data.performance != undefined && nodeColor !== undefined);
-        return isVisibleActivity
-          ? textColorForBackgroundColor(nodeColor)
-          : 'white';
-      })
+      .attr('fill', (d) => this.computeTextColor(this.root, d))
       .attr('font-size', (d: any) => {
         if (d.data.operator) {
           return PT_Constant.node_operator_font_size;
@@ -342,7 +242,6 @@ export class ProcessTreeDrawerDirective implements OnChanges{
     if (root) {
 
       // add node groups that contain a rectangle and text
-      const activityColorMap = this.activityColorMap;
 
       this.calculateTreeLayout(root);
 
@@ -353,15 +252,11 @@ export class ProcessTreeDrawerDirective implements OnChanges{
         });
 
       // Draw Nodes
-      this.drawNodes(
-        node,
-        activityColorMap,
-        this.selectedPerformanceIndicator,
-        this.selectedStatistic
-      );
+      this.drawNodes(node);
 
       // Draw Edges
       this.drawEdges(root);
+
       this.addSelectionFunctionality();
 
     } else{
@@ -369,16 +264,6 @@ export class ProcessTreeDrawerDirective implements OnChanges{
       this.mainSvgGroup.selectAll('*').remove();
     }
   }
-
-  private hasPerformance(d) {
-    return (
-      d.data.performance?.service_time ||
-      d.data.performance?.cycle_time ||
-      d.data.performance?.waiting_time ||
-      d.data.performance?.idle_time
-    );
-  }
-
 
   createNode(operator, label): d3.HierarchyNode<any> {
     // TODO make sure that IDs are unique!!!
@@ -421,49 +306,12 @@ export class ProcessTreeDrawerDirective implements OnChanges{
     }
   }
 
-
   addSelectionFunctionality(): void {
     this.nodeEnter.on('click',  
     (e: PointerEvent, data) => {
-      e.stopPropagation();
       this.onClickCallBack(this, e, data);
+      e.stopPropagation();
     });
   }
-
-  getProcessTreeObject(){
-    this._getProcessTreeObject(this.root)
-  }
-
-
-  private _getProcessTreeObject(d3Node : d3.HierarchyNode<ProcessTree>): ProcessTree {
-    if (d3Node && 'data' in d3Node) {
-      let currentNodeFrozen = false;
-      if (d3Node.data.frozen && d3Node.data.frozen === true) {
-        currentNodeFrozen = true;
-      }
-
-      const tree = new ProcessTree(
-        d3Node.data.label,
-        d3Node.data.operator,
-        [],
-        d3Node.data.id,
-        currentNodeFrozen,
-        d3Node.data.performance,
-        null
-      );
-
-      if (d3Node.children) {
-        d3Node.children.forEach((c) => {
-          tree.children.push(this._getProcessTreeObject(c));
-        });
-
-        tree.children.forEach((child) => (child.parent = tree));
-      }
-      return tree;
-    } else {
-      return null;
-    }
-  }
-
 
 }

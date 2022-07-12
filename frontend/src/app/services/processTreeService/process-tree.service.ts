@@ -293,7 +293,7 @@ export class ProcessTreeService{
     }
 
     if (root) {
-      this.previousTreeObjects.push(root.copy());
+      this.previousTreeObjects.push(root.copy(true));
     } else {
       this.previousTreeObjects.push(null);
     }
@@ -440,6 +440,8 @@ export class ProcessTreeService{
 
   shiftSubtreeToLeft(tree : ProcessTree): void {
 
+    this.cacheCurrentTree(this.currentDisplayedProcessTree)
+
     if (tree.parent) {
       const siblings = tree.parent.children
       const idxInParentChildList = siblings.indexOf(tree);
@@ -457,6 +459,8 @@ export class ProcessTreeService{
 
   shiftSubtreeToRight(tree : ProcessTree): void {
 
+    this.cacheCurrentTree(this.currentDisplayedProcessTree)
+
     if (tree.parent) {
       const siblings = tree.parent.children
       const idxInParentChildList =
@@ -466,7 +470,7 @@ export class ProcessTreeService{
         const childToLeft = siblings[idxInParentChildList + 1];
         siblings[idxInParentChildList + 1] = childToRight;
         siblings[idxInParentChildList] = childToLeft;
-        
+
         this.currentDisplayedProcessTree = this.currentDisplayedProcessTree
       }
     }
@@ -475,10 +479,14 @@ export class ProcessTreeService{
 
 
   deleteSelected(tree_to_delete : ProcessTree) {
+    this.cacheCurrentTree(this.currentDisplayedProcessTree);
+    const newTree = this.currentDisplayedProcessTree;
 
     const delete_subtree = (tree: ProcessTree, tree_to_delete: ProcessTree) => {
       if (tree === tree_to_delete) {
+        console.log('Found Tree to Delete!');
         return;
+
       } else {
         if (tree.children) {
           let child_list: Array<ProcessTree> = [];
@@ -502,16 +510,88 @@ export class ProcessTreeService{
       this.set_currentDisplayedProcessTree_with_Cache(null);
     } else {
       this.set_currentDisplayedProcessTree_with_Cache(
-        delete_subtree(this.currentDisplayedProcessTree, tree_to_delete)
+        delete_subtree(newTree, tree_to_delete)
       );
     }
 
+    console.log('After Delete', this.currentDisplayedProcessTree)
     this.selectedRootNodeID = null;
   }
 
+
+
+
+  insertNewNode(selectedNode : ProcessTree, strat : NodeInsertionStrategy, operator : ProcessTreeOperator, label : string){
+
+    let newNode : ProcessTree
+    newNode = new ProcessTree(label, operator, [], Math.floor(1000000000 + Math.random() * 900000000), false, null, null)
+
+    if (this.currentDisplayedProcessTree) {
+
+      this.cacheCurrentTree(this.currentDisplayedProcessTree)
+
+      switch(strat){
+        case NodeInsertionStrategy.BELOW: {
+          selectedNode.children.push(newNode);
+          newNode.parent = selectedNode;
+          break;
+        }
+
+        case NodeInsertionStrategy.ABOVE: {
+          newNode.children = [selectedNode]
+          selectedNode.parent = newNode
+          break;
+        }
+
+        case NodeInsertionStrategy.LEFT: {
+          const idx: number = selectedNode.parent.children.indexOf(selectedNode);
+          selectedNode.parent.children.splice(idx, 0, newNode);
+          newNode.parent = selectedNode.parent;
+          break;
+        }
+
+        case NodeInsertionStrategy.RIGHT: {
+          const idx: number = selectedNode.parent.children.indexOf(selectedNode);
+          selectedNode.parent.children.splice(idx + 1, 0, newNode);
+          newNode.parent = selectedNode.parent;
+          break;
+        }
+
+        case NodeInsertionStrategy.CHANGE: {
+          if (operator) {
+            // console.log('change operator');
+            selectedNode.operator = operator;
+            selectedNode.label = null;
+          } else if (label) {
+            selectedNode.label = label;
+            selectedNode.operator = null;
+          }
+          break;
+        }
+      }
+
+      this.currentDisplayedProcessTree = this.currentDisplayedProcessTree
+      this.selectedRootNodeID = selectedNode.id;
+    } else {
+      // empty tree - just add a single node
+      this.currentDisplayedProcessTree = newNode
+      this.selectedRootNodeID = newNode.id;
+    }
+
+    
+  }
 }
 
 export enum NodeSeletionStrategy {
   NODE = 'Node',
   TREE = 'Tree',
 }
+
+export enum NodeInsertionStrategy {
+  LEFT = 'Left',
+  RIGHT = 'Right',
+  ABOVE = 'Above',
+  BELOW = 'Below',
+  CHANGE = 'Change'
+}
+
