@@ -195,21 +195,10 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
     if (
       this.traceInfixSelectionMode &&
+      element.parent &&
       !(element instanceof InvisibleSequenceGroup)
     ) {
-      if (element.selected && element.parent && !element.parent.selected) {
-        polygon.attr('stroke', '#ff0000').attr('stroke-width', '1px');
-      }
-      if (!element.selected && element.selectable && element.parent) {
-        polygon
-          .attr('stroke', '#ff0000')
-          .attr('stroke-width', '1px')
-          .attr('stroke-dasharray', '4')
-          .attr('fill', '#999999');
-      }
-      if (!element.selected && !element.selectable) {
-        polygon.attr('fill', '#555555');
-      }
+      this.addInfixSelectionAttributes(element, polygon, false);
     }
 
     if (element instanceof InvisibleSequenceGroup) {
@@ -271,22 +260,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       this.traceInfixSelectionMode &&
       !(element instanceof InvisibleSequenceGroup)
     ) {
-      if (
-        element.selected &&
-        ((element.parent && !element.parent.selected) || !element.parent)
-      ) {
-        polygon.attr('stroke', '#ff0000').attr('stroke-width', '1px');
-      }
-      if (!element.selected && element.selectable) {
-        polygon
-          .attr('stroke', '#ff0000')
-          .attr('stroke-width', '1px')
-          .attr('stroke-dasharray', '4')
-          .style('fill', '#999999');
-      }
-      if (!element.selected && !element.selectable) {
-        polygon.style('fill', '#555555');
-      }
+      this.addInfixSelectionAttributes(element, polygon, false);
     }
 
     if (this.onClickCbFc) {
@@ -340,23 +314,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       .classed('variant-polygon', true);
 
     if (this.traceInfixSelectionMode) {
-      if (
-        element.selected &&
-        ((element.parent && !element.parent.selected) || !element.parent)
-      ) {
-        polygon
-          .attr('stroke', '#ff0000')
-          .attr('stroke-width', '4px')
-          .attr('stroke-opacity', '0.5');
-      } else if (!element.selected && element.selectable) {
-        polygon
-          .style('fill-opacity', '0.2')
-          .attr('stroke', '#ff0000')
-          .attr('stroke-width', '1px')
-          .attr('stroke-dasharray', 4);
-      } else if (!element.selected && !element.selectable) {
-        polygon.style('fill-opacity', '0.1');
-      }
+      this.addInfixSelectionAttributes(element, polygon, true);
     }
 
     if (this.onClickCbFc) {
@@ -417,6 +375,34 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
     if (this.onMouseOverCbFc) {
       this.onMouseOverCbFc(this, element, this.variant, parent);
+    }
+  }
+
+  private addInfixSelectionAttributes(
+    element: VariantElement,
+    polygon: any,
+    isLeafNode: boolean
+  ) {
+    if (element.selected) {
+      polygon
+        .attr('stroke', '#ff0000')
+        .attr('stroke-width', '4px')
+        .attr('stroke-opacity', '0.5');
+    } else {
+      if (element.selectable) {
+        polygon
+          .attr('stroke', '#ff0000')
+          .attr('stroke-width', '1px')
+          .attr('stroke-dasharray', 4);
+
+        if (isLeafNode) {
+          polygon.style('fill-opacity', '0.2');
+        } else {
+          polygon.style('fill', '#999999');
+        }
+      } else {
+        polygon.style('fill-opacity', '0.1');
+      }
     }
   }
 
