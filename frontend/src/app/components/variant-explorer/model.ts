@@ -38,6 +38,51 @@ const areAllChildrenSelected = (elem: VariantElement) => {
   }
 };
 
+const updateSelectionAttributesForGroups = (
+  group: any,
+  setSelectableFn: Function
+) => {
+  let children = group.elements.filter((c) => isElementWithActivity(c));
+
+  // Update selected flag for parents
+  for (let child of children) {
+    child.selected = areAllChildrenSelected(child);
+  }
+
+  // is selected and therefore no longer selectable
+  group.setNotSelectable();
+
+  // Handling the InvisibleSequenceGroup case
+  if (group instanceof InvisibleSequenceGroup) {
+    let onlyChild = children[0];
+    if (onlyChild.selected) {
+      group.selected = true;
+    }
+
+    onlyChild.updateSelectionAttributes();
+
+    return;
+  }
+
+  // Check which children are selectable
+
+  // First, check if a child is only partly selected
+  // If yes, set all other children to be not selectable and call this function on that child
+  for (let child of children) {
+    if (child.selected || !someChildrenSelected(child)) {
+      continue;
+    }
+
+    if (someChildrenSelected(child)) {
+      child.setNotSelectable();
+      child.updateSelectionAttributes();
+      return;
+    }
+  }
+
+  setSelectableFn(children);
+};
+
 export const someChildrenSelected = (elem: VariantElement) => {
   if (elem instanceof LeafNode) {
     return elem.selected;
@@ -434,44 +479,10 @@ export class SequenceGroup extends VariantElement {
   }
 
   public updateSelectionAttributes(): void {
-    let children = this.elements.filter((c) => isElementWithActivity(c));
+    updateSelectionAttributesForGroups(this, this.setSelectableElements);
+  }
 
-    // Update selected flag TODO auslagern
-    for (let child of children) {
-      child.selected = areAllChildrenSelected(child);
-    }
-
-    // is selected and therefore no longer selectable
-    this.setNotSelectable();
-
-    // Handling the InvisibleSequenceGroup case
-    if (this instanceof InvisibleSequenceGroup) {
-      let onlyChild = children[0];
-      if (onlyChild.selected) {
-        this.selected = true;
-      }
-
-      onlyChild.updateSelectionAttributes();
-
-      return;
-    }
-
-    // Check which children are selectable
-
-    // First, check if a child is only partly selected
-    // If yes, set all other children to be not selectable and call this function on that child
-    for (let child of children) {
-      if (child.selected || !someChildrenSelected(child)) {
-        continue;
-      }
-
-      if (someChildrenSelected(child)) {
-        child.setNotSelectable();
-        child.updateSelectionAttributes();
-        return;
-      }
-    }
-
+  private setSelectableElements(children: VariantElement[]): void {
     // If no children is partly selected, then selection happens on this level
     // Then calculate the next selectable elements
     let first = -1;
@@ -592,61 +603,9 @@ export class ParallelGroup extends VariantElement {
   }
 
   public updateSelectionAttributes(): void {
-    // Get all variant element containing activities
-    let indexes = [];
-    for (let i = 0; i < this.elements.length; i++) {
-      if (isElementWithActivity(this.elements[i])) {
-        indexes.push(i);
-        // Set correct selected status
-        this.elements[i].selected = areAllChildrenSelected(this.elements[i]);
-      }
-      // Handling InvisibleSequenceGroup
-      if (this.elements[i] instanceof InvisibleSequenceGroup) {
-        this.elements[i].updateSelectionAttributes();
-      }
-    }
-
-    // Check if the parent element is itself selected
-    let selected = true;
-    for (let k = 0; k < indexes.length; k++) {
-      selected = selected && this.elements[indexes[k]].selected;
-    }
-    this.selected = selected;
-
-    // Check which children are selectable
-    // First check if there is a partly selected child. If yes, only allow selection within that child
-    let partlySelected = -1;
-    for (let p = 0; p < indexes.length; p++) {
-      let elem = this.elements[indexes[p]];
-      if (someChildrenSelected(elem) && !areAllChildrenSelected(elem)) {
-        partlySelected = p;
-        for (let z = 0; z < indexes.length; z++) {
-          if (z != partlySelected) {
-            this.elements[indexes[z]].setNotSelectable();
-          }
-        }
-        elem.updateSelectionAttributes();
-        break;
-      }
-    }
-
-    if (partlySelected === -1) {
-      // No partly selected child found
-      // Then all unselected children are selectable, but only at this level
-      for (let child of this.elements) {
-        if (!child.selected) {
-          child.setNotSelectable();
-          child.setSelectable();
-        }
-        if (child instanceof InvisibleSequenceGroup) {
-          for (let i = 0; i < child.elements.length; i++) {
-            if (isElementWithActivity(child.elements[i])) {
-              child.elements[i].setSelectable();
-            }
-          }
-        }
-      }
-    }
+    updateSelectionAttributesForGroups(this, (children) =>
+      children.forEach((c) => c.setSelectable())
+    );
   }
 }
 
@@ -775,6 +734,16 @@ export class InvisibleSequenceGroup extends SequenceGroup {
 
   public getMarginY() {
     return 0;
+  }
+
+  public setSelectable(): void {
+    this.selectable = true;
+
+    for (let child of this.elements) {
+      if (isElementWithActivity(child)) {
+        child.setSelectable();
+      }
+    }
   }
 
   public updateWidth(includeWaiting = false) {

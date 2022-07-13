@@ -51,7 +51,7 @@ import { SharedDataService } from '../../services/sharedDataService/shared-data.
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { textColorForBackgroundColor } from './helper_functions';
 import {
-  getLowestSelectableParent,
+  getLowestSelectableParent as getLowestSelectableElement,
   InfixType,
   LeafNode,
   ParallelGroup,
@@ -834,10 +834,10 @@ export class VariantExplorerComponent
       self.changeSelected(element);
       this.variantPerformanceService.setSelectedVariantElement(element);
     } else if (this.traceInfixSelectionMode) {
-      let lowestSelectableParent = getLowestSelectableParent(element);
+      let lowestSelectableNode = getLowestSelectableElement(element);
 
-      if (lowestSelectableParent != variant) {
-        lowestSelectableParent.setAllChildrenSelected();
+      if (lowestSelectableNode != variant) {
+        lowestSelectableNode.setAllChildrenSelected();
         variant.updateSelectionAttributes();
         self.redraw();
       }
