@@ -252,30 +252,32 @@
 
     <span class="vl"></span>
 
-    <button
-      *ngIf="!traceInfixSelectionMode"
-      class="button"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      data-bs-trigger="hover"
-      title="Enter trace infix selection mode"
-      (click)="toggleTraceInfixSelectionMode()"
-    >
-      <i class="bi bi-ui-checks-grid"></i>
-    </button>
+    <div *ngIf="!performanceMode">
+      <button
+        *ngIf="!traceInfixSelectionMode"
+        class="button"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        data-bs-trigger="hover"
+        title="Enter trace infix selection mode"
+        (click)="toggleTraceInfixSelectionMode()"
+      >
+        <i class="bi bi-ui-checks-grid"></i>
+      </button>
 
-    <button
-      *ngIf="traceInfixSelectionMode"
-      class="button"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      data-bs-trigger="hover"
-      title="Exit trace infix selection mode"
-      style="color: green"
-      (click)="toggleTraceInfixSelectionMode()"
-    >
-      <i class="bi bi-ui-checks-grid"></i>
-    </button>
+      <button
+        *ngIf="traceInfixSelectionMode"
+        class="button"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        data-bs-trigger="hover"
+        title="Exit trace infix selection mode"
+        style="color: green"
+        (click)="toggleTraceInfixSelectionMode()"
+      >
+        <i class="bi bi-ui-checks-grid"></i>
+      </button>
+    </div>
 
     <span class="vl"></span>
 
