@@ -838,7 +838,7 @@ export class VariantExplorerComponent
 
       if (lowestSelectableParent != variant) {
         lowestSelectableParent.setAllChildrenSelected();
-        variant.calculateSelectableElements();
+        variant.updateSelectionAttributes();
         self.redraw();
       }
     } else {

@@ -210,10 +210,7 @@ export class VariantComponent implements AfterViewInit {
   }
 
   addSelectedTraceInfix(): void {
-    let thereAreSelectedChildren = someChildrenSelected(
-      this.variant.variant,
-      true
-    );
+    let thereAreSelectedChildren = someChildrenSelected(this.variant.variant);
     if (thereAreSelectedChildren && !this.variant.variant.selected) {
       let infixType;
       let children = this.variant.variant.getElements();
