@@ -47,9 +47,6 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
   variant: VariantElement;
 
   @Input()
-  highlightOnMouseover;
-
-  @Input()
   performanceMode: boolean = false;
 
   @Input()

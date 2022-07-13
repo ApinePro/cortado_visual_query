@@ -158,40 +158,6 @@
           ></i>
         </button>
       </td>
-      <td>
-        <button
-          class="shadow-none button btn-fixed-width"
-          (click)="undoSelection()"
-          title="Undo last selection"
-          data-bs-toggle="tooltip"
-        >
-          <i
-            class="bi bi-arrow-counterclockwise text-secondary align-middle font-large"
-          ></i>
-          <span class="text-secondary"
-            >({{ variant.variant.currentIdxSelectionHistory }})</span
-          >
-        </button>
-      </td>
-      <td>
-        <button
-          class="button"
-          (click)="redoSelection()"
-          title="Redo"
-          data-bs-toggle="tooltip"
-        >
-          <i
-            class="bi bi-arrow-clockwise text-secondary align-middle font-large"
-          ></i>
-          <span class="text-secondary"
-            >({{
-              variant.variant.selectionHistory.length -
-                variant.variant.currentIdxSelectionHistory -
-                1
-            }})</span
-          >
-        </button>
-      </td>
     </div>
   </td>
 </ng-container>

@@ -227,9 +227,6 @@ export abstract class VariantElement {
 
   public parent;
 
-  public selectionHistory = [{ selected: false, selectable: true }]; // contains JSON objects {"selectable": boolean, "selected": boolean}
-  public currentIdxSelectionHistory = 0;
-
   constructor(performance: any = undefined) {
     this.serviceTime = performance?.service_time;
     this.waitingTime = performance?.wait_time;
@@ -344,84 +341,10 @@ export abstract class VariantElement {
   public resetSelectionStatus(): void {
     this.selected = false;
     this.selectable = true;
-    this.selectionHistory = [{ selected: false, selectable: true }];
-    this.currentIdxSelectionHistory = 0;
     if (this instanceof SequenceGroup || this instanceof ParallelGroup) {
       for (let child of this.elements) {
         child.resetSelectionStatus();
       }
-    }
-  }
-
-  public applySelectionHistory(): void {
-    let toBeApplied = this.selectionHistory[this.currentIdxSelectionHistory];
-    this.selected = toBeApplied['selected'];
-    this.selectable = toBeApplied['selectable'];
-  }
-
-  public saveCurrentSelectionToSelectionHistory(): void {
-    let toBeInserted = {
-      selected: this.selected,
-      selectable: this.selectable,
-    };
-    this.selectionHistory.splice(
-      this.currentIdxSelectionHistory + 1,
-      this.selectionHistory.length - this.currentIdxSelectionHistory - 1,
-      toBeInserted
-    );
-    this.currentIdxSelectionHistory++;
-    if (this instanceof SequenceGroup || this instanceof ParallelGroup) {
-      for (let child of this.getElements()) {
-        if (isElementWithActivity(child)) {
-          child.saveCurrentSelectionToSelectionHistory();
-        }
-      }
-    }
-  }
-
-  public undoSelection(): void {
-    if (this.currentIdxSelectionHistory > 0) {
-      this.currentIdxSelectionHistory--;
-      this.applySelectionHistory();
-      if (this instanceof SequenceGroup || this instanceof ParallelGroup) {
-        for (let child of this.getElements()) {
-          if (isElementWithActivity(child)) {
-            child.undoSelection();
-          }
-        }
-      }
-    }
-  }
-
-  public redoSelection(): void {
-    if (this.currentIdxSelectionHistory < this.selectionHistory.length - 1) {
-      this.currentIdxSelectionHistory++;
-      this.applySelectionHistory();
-      if (this instanceof SequenceGroup || this instanceof ParallelGroup) {
-        for (let child of this.getElements()) {
-          if (isElementWithActivity(child)) {
-            child.redoSelection();
-          }
-        }
-      }
-    }
-  }
-
-  public selectionStatusUnchangedFromLastSavedSelection(): boolean {
-    let checkpoint = this.selectionHistory[this.currentIdxSelectionHistory];
-    let unchanged =
-      this.selected == checkpoint['selected'] &&
-      this.selectable == checkpoint['selectable'];
-    if (this instanceof LeafNode) {
-      return unchanged;
-    } else if (this instanceof ParallelGroup || this instanceof SequenceGroup) {
-      for (let child of this.getElements()) {
-        if (isElementWithActivity(child)) {
-          unchanged =
-            unchanged && child.selectionStatusUnchangedFromLastSavedSelection();
-        }
-      }
-      return unchanged;
     }
   }
 }

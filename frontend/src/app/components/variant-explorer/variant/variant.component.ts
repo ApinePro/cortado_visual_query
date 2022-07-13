@@ -260,14 +260,4 @@ export class VariantComponent implements AfterViewInit {
       }
     }
   }
-
-  undoSelection(): void {
-    this.variant.variant.undoSelection();
-    this.variantDrawer.redraw();
-  }
-
-  redoSelection(): void {
-    this.variant.variant.redoSelection();
-    this.variantDrawer.redraw();
-  }
 }
