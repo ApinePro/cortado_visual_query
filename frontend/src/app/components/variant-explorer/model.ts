@@ -1,6 +1,7 @@
 import { some } from 'd3';
 import { NumberValue } from 'd3-scale';
 import { timeThursdays } from 'd3-time';
+import { stubFalse } from 'lodash';
 import { from } from 'rxjs';
 
 export const isElementWithActivity = (elem: VariantElement) => {
@@ -15,22 +16,26 @@ export const isElementWithActivity = (elem: VariantElement) => {
   }
 };
 
-const allChildrenSelected = (elem: VariantElement, defaultRes: boolean) => {
+const areAllChildrenSelected = (elem: VariantElement) => {
   if (elem instanceof LeafNode) {
     return elem.selected;
-  } else if (elem instanceof ParallelGroup || elem instanceof SequenceGroup) {
+  }
+
+  if (elem instanceof ParallelGroup || elem instanceof SequenceGroup) {
     let res = true;
-    for (let i = 0; i < elem.elements.length; i++) {
-      if (isElementWithActivity(elem.elements[i])) {
-        res =
-          res &&
-          allChildrenSelected(elem.elements[i], elem.elements[i].selected);
+    for (let e of elem.elements) {
+      if (!isElementWithActivity(e)) {
+        continue;
+      }
+      if (!areAllChildrenSelected(e)) {
+        return false;
       }
     }
-    return res;
+
+    return true;
   } else {
     // Waiting Time Node, etc...
-    return defaultRes;
+    return true;
   }
 };
 
@@ -441,10 +446,7 @@ export class SequenceGroup extends VariantElement {
       if (isElementWithActivity(this.elements[i])) {
         indexes.push(i);
         // Set correct selected status
-        this.elements[i].selected = allChildrenSelected(
-          this.elements[i],
-          this.elements[i].selected
-        );
+        this.elements[i].selected = areAllChildrenSelected(this.elements[i]);
       }
     }
 
@@ -476,7 +478,7 @@ export class SequenceGroup extends VariantElement {
       let elem = this.elements[indexes[p]];
       if (
         someChildrenSelected(elem, elem.selected) &&
-        !allChildrenSelected(elem, elem.selected)
+        !areAllChildrenSelected(elem)
       ) {
         partlySelected = p;
         for (let z = 0; z < indexes.length; z++) {
@@ -620,10 +622,7 @@ export class ParallelGroup extends VariantElement {
       if (isElementWithActivity(this.elements[i])) {
         indexes.push(i);
         // Set correct selected status
-        this.elements[i].selected = allChildrenSelected(
-          this.elements[i],
-          this.elements[i].selected
-        );
+        this.elements[i].selected = areAllChildrenSelected(this.elements[i]);
       }
       // Handling InvisibleSequenceGroup
       if (this.elements[i] instanceof InvisibleSequenceGroup) {
@@ -645,7 +644,7 @@ export class ParallelGroup extends VariantElement {
       let elem = this.elements[indexes[p]];
       if (
         someChildrenSelected(elem, elem.selected) &&
-        !allChildrenSelected(elem, elem.selected)
+        !areAllChildrenSelected(elem)
       ) {
         partlySelected = p;
         for (let z = 0; z < indexes.length; z++) {
