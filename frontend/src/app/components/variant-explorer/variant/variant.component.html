@@ -139,22 +139,28 @@
       <td>
         <button
           class="button"
+          [disabled]="true"
           (click)="resetSelectionStatus()"
           title="Reset trace infix selection of this variant"
           data-bs-toggle="tooltip"
         >
-          <i class="bi bi-x-lg text-secondary align-middle font-large"></i>
+          <i
+            class="bi bi-x-lg align-middle font-large"
+            [ngClass]="true ? 'text-light' : 'text-secondary'"
+          ></i>
         </button>
       </td>
       <td>
         <button
           class="button"
+          [disabled]="true"
           (click)="addSelectedTraceInfix()"
           title="Add the currently selected infix to the variant explorer"
           data-bs-toggle="tooltip"
         >
           <i
-            class="bi bi-arrow-down text-secondary align-middle font-large"
+            class="bi bi-arrow-down align-middle font-large"
+            [ngClass]="true ? 'text-light' : 'text-secondary'"
           ></i>
         </button>
       </td>

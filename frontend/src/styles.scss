@@ -448,5 +448,9 @@ th {
 }
 
 .variant-element-group:hover >.activity-text {
-  display: none;
+  fill: rgba($color: lightgrey, $alpha: 0.2);
+}
+
+.variant-element-group:hover >.variant-polygon {
+  opacity: 0.1;
 }

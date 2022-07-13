@@ -14,7 +14,7 @@ import { isDevMode } from '@angular/core';
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
 import {
   getSelectedChildren,
-  handleTreeLevelsWithOneChild,
+  removeIntermediateGroupsWithSingleElements,
   SequenceGroup,
   someChildrenSelected,
   Variant,
@@ -211,50 +211,57 @@ export class VariantComponent implements AfterViewInit {
 
   addSelectedTraceInfix(): void {
     let thereAreSelectedChildren = someChildrenSelected(this.variant.variant);
-    if (thereAreSelectedChildren && !this.variant.variant.selected) {
-      let infixType;
-      let children = this.variant.variant.getElements();
-      if (children[0].selected) {
-        infixType = InfixType.PREFIX;
-      } else if (children[children.length - 1].selected) {
-        infixType = InfixType.POSTFIX;
-      } else {
-        infixType = InfixType.PROPER_INFIX;
-      }
-      let newInfix = getSelectedChildren(this.variant.variant);
-      let reducedInfix = handleTreeLevelsWithOneChild(newInfix);
-      if (!(reducedInfix instanceof SequenceGroup)) {
-        // Every variant should be a sequence group
-        reducedInfix = new SequenceGroup([reducedInfix]);
-      }
-      const newVariant = new Variant(
-        1,
-        reducedInfix,
-        false,
-        false,
-        0,
-        false,
-        true,
-        false,
-        true,
-        [],
-        infixType
-      );
 
-      let currentVariants = this.sharedDataService.variants;
+    if (!thereAreSelectedChildren) return;
 
-      newVariant.alignment = undefined;
-      newVariant.deviation = undefined;
-      newVariant.id = objectHash(newVariant);
+    let infixType: InfixType = this.getInfixType();
 
-      const duplicate = currentVariants.map((v) => v.id === newVariant.id);
-
-      if (!duplicate.includes(true)) {
-        currentVariants.push(newVariant);
-        this.sharedDataService.variants = currentVariants;
-      } else {
-        // Will think about some warning mechanism later
-      }
+    let newInfix = getSelectedChildren(this.variant.variant);
+    let reducedInfix = removeIntermediateGroupsWithSingleElements(newInfix);
+    if (!(reducedInfix instanceof SequenceGroup)) {
+      // Every variant should be a sequence group
+      reducedInfix = new SequenceGroup([reducedInfix]);
     }
+    const newVariant = new Variant(
+      1,
+      reducedInfix,
+      false,
+      false,
+      0,
+      false,
+      true,
+      false,
+      true,
+      [],
+      infixType
+    );
+
+    let currentVariants = this.sharedDataService.variants;
+
+    newVariant.alignment = undefined;
+    newVariant.deviation = undefined;
+    newVariant.id = objectHash(newVariant);
+
+    const containsDuplicate = currentVariants.filter(
+      (v) => v.id === newVariant.id
+    );
+
+    if (!containsDuplicate) {
+      currentVariants.push(newVariant);
+      this.sharedDataService.variants = currentVariants;
+    }
+  }
+
+  private getInfixType(): InfixType {
+    let children = this.variant.variant.getElements();
+    if (children[0].selected) {
+      return InfixType.PREFIX;
+    }
+
+    if (children[children.length - 1].selected) {
+      return InfixType.POSTFIX;
+    }
+
+    return InfixType.PROPER_INFIX;
   }
 }

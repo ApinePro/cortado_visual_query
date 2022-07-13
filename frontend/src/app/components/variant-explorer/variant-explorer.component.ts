@@ -826,12 +826,12 @@ export class VariantExplorerComponent
   }
 
   variantClickCallBack = (
-    self: VariantDrawerDirective,
+    drawer: VariantDrawerDirective,
     element: VariantElement,
     variant: VariantElement
   ) => {
     if (this.performanceMode) {
-      self.changeSelected(element);
+      drawer.changeSelected(element);
       this.variantPerformanceService.setSelectedVariantElement(element);
     } else if (this.traceInfixSelectionMode) {
       let lowestSelectableNode = getLowestSelectableElement(element);
@@ -839,11 +839,11 @@ export class VariantExplorerComponent
       if (lowestSelectableNode != variant) {
         lowestSelectableNode.setAllChildrenSelected();
         variant.updateSelectionAttributes();
-        self.redraw();
+        drawer.redraw();
       }
     } else {
       variant.setExpanded(!variant.getExpanded());
-      self.redraw();
+      drawer.redraw();
     }
   };
 

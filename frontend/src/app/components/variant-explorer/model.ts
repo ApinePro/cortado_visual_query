@@ -154,15 +154,21 @@ export const getSelectedChildren = (elem: VariantElement) => {
 
 // Sometimes selecting trace infix creates variant elements with only one child on many tree levels
 // The following function fixes the problem by reducing tree levels
-export const handleTreeLevelsWithOneChild = (elem: VariantElement) => {
+export const removeIntermediateGroupsWithSingleElements = (
+  elem: VariantElement
+) => {
   if (elem instanceof LeafNode) {
     return elem;
   } else if (elem instanceof SequenceGroup || elem instanceof ParallelGroup) {
     if (elem.elements.length == 1) {
-      let onlyChild = handleTreeLevelsWithOneChild(elem.elements[0]);
+      let onlyChild = removeIntermediateGroupsWithSingleElements(
+        elem.elements[0]
+      );
       return onlyChild;
     } else {
-      let newChildren = elem.elements.map(handleTreeLevelsWithOneChild);
+      let newChildren = elem.elements.map(
+        removeIntermediateGroupsWithSingleElements
+      );
       elem.setElements(newChildren);
       return elem;
     }
