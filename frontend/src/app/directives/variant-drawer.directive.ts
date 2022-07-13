@@ -388,21 +388,23 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
         .attr('stroke', '#ff0000')
         .attr('stroke-width', '4px')
         .attr('stroke-opacity', '0.5');
-    } else {
-      if (element.selectable) {
-        polygon
-          .attr('stroke', '#ff0000')
-          .attr('stroke-width', '1px')
-          .attr('stroke-dasharray', 4);
+      return;
+    }
 
-        if (isLeafNode) {
-          polygon.style('fill-opacity', '0.2');
-        } else {
-          polygon.style('fill', '#999999');
-        }
-      } else {
-        polygon.style('fill-opacity', '0.1');
-      }
+    if (!element.selectable) {
+      polygon.style('fill-opacity', '0.1');
+      return;
+    }
+
+    polygon
+      .attr('stroke', '#ff0000')
+      .attr('stroke-width', '1px')
+      .attr('stroke-dasharray', 4);
+
+    if (isLeafNode) {
+      polygon.style('fill-opacity', '0.2');
+    } else {
+      polygon.style('fill', '#999999');
     }
   }
 
