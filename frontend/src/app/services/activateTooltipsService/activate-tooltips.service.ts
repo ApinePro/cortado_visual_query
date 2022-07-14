@@ -54,6 +54,7 @@ export class ActivateTooltipsService {
 
   public destroyTooltip(element: any): void {
     const tooltip = bootstrap.Tooltip.getInstance(element);
+    tooltip.hide();
     tooltip.dispose();
   }
 }
