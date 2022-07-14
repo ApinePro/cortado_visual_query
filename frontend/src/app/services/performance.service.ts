@@ -200,6 +200,7 @@ export class PerformanceService {
     tooltipText = `${tooltipText}<hr class="performance-tooltip-hr">click to visualize performance of this variant on model`;
 
     button.setAttribute('title', tooltipText);
+    this.tooltipService.destroyTooltip(button);
     this.tooltipService.initializeTooltip(button);
   }
 
@@ -242,7 +243,7 @@ export class PerformanceService {
         this.variantsPerformance.get(variant)
       );
     } else {
-      console.error(`No performance values available: ${Variant}`);
+      console.error(`No performance values available: ${variant}`);
     }
   }
 
