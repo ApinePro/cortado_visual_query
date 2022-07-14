@@ -210,9 +210,10 @@ export class VariantComponent implements AfterViewInit {
   }
 
   addSelectedTraceInfix(): void {
-    let thereAreSelectedChildren = someChildrenSelected(this.variant.variant);
+    let isAnyElementSelected = someChildrenSelected(this.variant.variant);
+    let isWholeVariantSelected = this.variant.variant.selected;
 
-    if (!thereAreSelectedChildren) return;
+    if (!isAnyElementSelected || isWholeVariantSelected) return;
 
     let infixType: InfixType = this.getInfixType();
 
@@ -242,9 +243,8 @@ export class VariantComponent implements AfterViewInit {
     newVariant.deviation = undefined;
     newVariant.id = objectHash(newVariant);
 
-    const containsDuplicate = currentVariants.filter(
-      (v) => v.id === newVariant.id
-    );
+    const containsDuplicate =
+      currentVariants.filter((v) => v.id === newVariant.id).length > 0;
 
     if (!containsDuplicate) {
       currentVariants.push(newVariant);

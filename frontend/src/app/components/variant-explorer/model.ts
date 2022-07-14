@@ -1,9 +1,3 @@
-import { some } from 'd3';
-import { NumberValue } from 'd3-scale';
-import { timeThursdays } from 'd3-time';
-import { stubFalse } from 'lodash';
-import { from } from 'rxjs';
-
 export const isElementWithActivity = (elem: VariantElement) => {
   if (
     elem instanceof ParallelGroup ||
@@ -38,49 +32,58 @@ const areAllChildrenSelected = (elem: VariantElement) => {
   }
 };
 
-const updateSelectionAttributesForGroups = (
+const updateSelectionAttributesForGroup = (
   group: any,
-  setSelectableFn: Function
+  surroundingSelectableFn: Function
 ) => {
+  updateSelectedAttributesForGroup(group);
+  updateSelectableAttributesForGroup(group, surroundingSelectableFn);
+};
+
+const updateSelectedAttributesForGroup = (group: any) => {
   let children = group.elements.filter((c) => isElementWithActivity(c));
 
+  let allChildrenSelected: boolean = true;
   // Update selected flag for parents
   for (let child of children) {
     child.selected = areAllChildrenSelected(child);
+    allChildrenSelected = allChildrenSelected && child.selected;
   }
 
-  // is selected and therefore no longer selectable
-  group.setNotSelectable();
+  if (allChildrenSelected) {
+    group.selected = true;
+  }
 
-  // Handling the InvisibleSequenceGroup case
-  if (group instanceof InvisibleSequenceGroup) {
-    let onlyChild = children[0];
-    if (onlyChild.selected) {
-      group.selected = true;
+  for (let child of children) {
+    if (!(child instanceof LeafNode)) {
+      updateSelectedAttributesForGroup(child);
     }
-
-    onlyChild.updateSelectionAttributes();
-
-    return;
   }
+};
 
-  // Check which children are selectable
+const updateSelectableAttributesForGroup = (
+  group: any,
+  surroundingSelectableFn: Function
+) => {
+  let children = group.elements.filter((c) => isElementWithActivity(c));
 
   // First, check if a child is only partly selected
   // If yes, set all other children to be not selectable and call this function on that child
   for (let child of children) {
-    if (child.selected || !someChildrenSelected(child)) {
+    let childIsCompletelySelected: boolean = child.selected;
+    if (childIsCompletelySelected || !someChildrenSelected(child)) {
       continue;
     }
 
     if (someChildrenSelected(child)) {
+      group.setSelectable();
       child.setNotSelectable();
-      child.updateSelectionAttributes();
+      updateSelectableAttributesForGroup(child, surroundingSelectableFn);
       return;
     }
   }
 
-  setSelectableFn(children);
+  surroundingSelectableFn(children);
 };
 
 export const someChildrenSelected = (elem: VariantElement) => {
@@ -485,7 +488,7 @@ export class SequenceGroup extends VariantElement {
   }
 
   public updateSelectionAttributes(): void {
-    updateSelectionAttributesForGroups(this, this.setSelectableElements);
+    updateSelectionAttributesForGroup(this, this.setSelectableElements);
   }
 
   private setSelectableElements(children: VariantElement[]): void {
@@ -609,7 +612,7 @@ export class ParallelGroup extends VariantElement {
   }
 
   public updateSelectionAttributes(): void {
-    updateSelectionAttributesForGroups(this, (children) =>
+    updateSelectionAttributesForGroup(this, (children) =>
       children.forEach((c) => c.setSelectable())
     );
   }
