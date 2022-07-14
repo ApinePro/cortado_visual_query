@@ -44,7 +44,7 @@ const updateSelectedAttributesForGroup = (group: any) => {
   let children = group.elements.filter((c) => isElementWithActivity(c));
 
   let allChildrenSelected: boolean = true;
-  // Update selected flag for parents
+
   for (let child of children) {
     child.selected = areAllChildrenSelected(child);
     allChildrenSelected = allChildrenSelected && child.selected;
@@ -67,6 +67,11 @@ const updateSelectableAttributesForGroup = (
 ) => {
   let children = group.elements.filter((c) => isElementWithActivity(c));
 
+  // initialize all elements with not selectable state
+  for (let child of children) {
+    child.setNotSelectable();
+  }
+
   // First, check if a child is only partly selected
   // If yes, set all other children to be not selectable and call this function on that child
   for (let child of children) {
@@ -76,8 +81,7 @@ const updateSelectableAttributesForGroup = (
     }
 
     if (someChildrenSelected(child)) {
-      group.setSelectable();
-      child.setNotSelectable();
+      child.setSelectable();
       updateSelectableAttributesForGroup(child, surroundingSelectableFn);
       return;
     }
