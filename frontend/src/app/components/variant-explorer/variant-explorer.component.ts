@@ -236,7 +236,6 @@ export class VariantExplorerComponent
     this.listenForProcessTreeChange();
     this.conformanceCheckingService.connect();
     this.subscribeForConformanceCheckingResults();
-    this.listenForLogGranularityChange();
   }
 
   @HostListener('window:keydown.control.q', ['$event'])
@@ -273,6 +272,11 @@ export class VariantExplorerComponent
         this.redraw_components();
       }
     });
+
+    this.variantPerformanceService.variantPerformanceMode.subscribe(
+      (isPerformanceModeActive) =>
+        this.setPerformanceMode(isPerformanceModeActive, false)
+    );
   }
 
   private init() {
@@ -662,7 +666,10 @@ export class VariantExplorerComponent
       });
   }
 
-  setPerformanceMode(performanceMode: boolean): void {
+  setPerformanceMode(
+    performanceMode: boolean,
+    forwardUpdate: boolean = true
+  ): void {
     if (performanceMode) {
       this.variants.map((variant) => {
         this.expansionState.set(variant.id, variant.variant.getExpanded());
@@ -675,7 +682,11 @@ export class VariantExplorerComponent
     }
 
     this.performanceMode = performanceMode;
-    this.variantPerformanceService.variantPerformanceMode.next(performanceMode);
+    if (forwardUpdate) {
+      this.variantPerformanceService.variantPerformanceMode.next(
+        performanceMode
+      );
+    }
   }
 
   addSelectedVariantsToModelForGivenConformance(
@@ -826,13 +837,24 @@ export class VariantExplorerComponent
   }
 
   variantClickCallBack = (
-    self: VariantDrawerDirective,
+    drawer: VariantDrawerDirective,
     element: VariantElement,
     variant: VariantElement
   ) => {
     if (this.performanceMode) {
-      self.changeSelected(element);
-      this.variantPerformanceService.setSelectedVariantElement(element);
+      drawer.changeSelected(element);
+      if (element.serviceTime) {
+        this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
+          element.serviceTime,
+          true
+        );
+      }
+      if (element.waitingTime) {
+        this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
+          element.waitingTime,
+          false
+        );
+      }
     } else if (this.traceInfixSelectionMode) {
       let lowestSelectableParent = getLowestSelectableParent(element);
       console.log('Lowest Selectable Parent', lowestSelectableParent);
@@ -843,11 +865,11 @@ export class VariantExplorerComponent
         if (!variant.selectionStatusUnchangedFromLastSavedSelection()) {
           variant.saveCurrentSelectionToSelectionHistory();
         }
-        self.redraw();
+        drawer.redraw();
       }
     } else {
       variant.setExpanded(!variant.getExpanded());
-      self.redraw();
+      drawer.redraw();
     }
   };
 
@@ -1047,18 +1069,13 @@ export class VariantExplorerComponent
       this.performanceService.unselectPerformance();
 
     this.selectedGranularity = granularity;
+    this.sharedDataService.timeGranularity = granularity;
     this.logService
       .getLogPropsAndUpdateState(
         granularity,
         this.sharedDataService.loadedEventLog
       )
       .subscribe();
-  }
-
-  listenForLogGranularityChange() {
-    this.sharedDataService.logGranularity$.subscribe((granularity) => {
-      this.selectedGranularity = granularity;
-    });
   }
 }
 

@@ -1,3 +1,21 @@
+<div class="sidebar">
+  <div
+    class="sidebar-button"
+    [ngClass]="!isPerformanceMode ? 'active' : ''"
+    (click)="setPerformanceMode(false)"
+  >
+    <span class="sidebar-button-text"> Standard View</span>
+  </div>
+
+  <div
+    class="sidebar-button"
+    [ngClass]="isPerformanceMode ? 'active' : ''"
+    (click)="setPerformanceMode(true)"
+  >
+    Performance View
+  </div>
+</div>
+
 <div class="d-flex flex-column h-100 container-variant-explorer">
   <div class="main-variant-explorer flex-grow-1">
     <div class="bg-dark btn-tool-bar">
@@ -88,16 +106,14 @@
                   appVariantDrawer
                   #fragment
                   [variant]="mainVariant['variant']"
-                  [onClickCbFc]="subvariantClickCallBack"
-                  [performanceMode]="false"
+                  [onClickCbFc]="variantClickCallBack"
+                  [performanceMode]="isPerformanceMode"
                   [computeActivityColor]="computeActivityColor"
                 ></svg>
               </div>
             </td>
           </tr>
-          <tr
-            *ngFor="let subVariant of mainVariant.sub_variants; let j = index"
-          >
+          <tr *ngFor="let subVariant of subvariants; let j = index">
             <td style="padding-right: 15px; padding-left: 5px">
               {{ mainVariant.number }}.{{ j + 1 }}
             </td>
@@ -126,6 +142,7 @@
                 [expanded]="mainVariant.variant.expanded"
                 [variant]="subVariant.variant"
                 [colorMap]="colorMap"
+                [onClickCbFc]="subvariantClickCallBack.bind(this)"
               >
               </app-sub-variant>
             </td>
