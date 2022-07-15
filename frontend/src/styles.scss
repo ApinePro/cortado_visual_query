@@ -415,6 +415,15 @@ th {
 
 }
 
+.selected-subvariant {
+  stroke-width: 3 !important;
+}
+
+.subvariant-rect {
+  stroke-width: 0;
+  stroke: white;
+  stroke-dasharray: 2 1;
+}
 
 .cortadoLogo {
   animation: pulse 2s infinite ease-out;

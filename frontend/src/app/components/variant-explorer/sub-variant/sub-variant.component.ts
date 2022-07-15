@@ -11,6 +11,8 @@ import { SharedDataService } from 'src/app/services/sharedDataService/shared-dat
 import { Constants } from '../model';
 import { ActivateTooltipsService } from '../../../services/activateTooltipsService/activate-tooltips.service';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
+import { SubvariantVisualization } from './model';
+import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 
 @Component({
   selector: 'app-sub-variant',
@@ -22,27 +24,34 @@ export class SubVariantComponent implements AfterViewInit {
   svgElement: ElementRef;
 
   @Input()
-  set variant(value: [string, string][][]) {
+  set variant(value) {
     this._variant = value;
     if (this.isLoaded) {
       this.draw();
     }
   }
 
-  private _variant: [string, string][][];
+  private _variant;
+  isPerformanceMode: boolean;
 
   @Input()
   private expanded = false;
+
+  @Input()
+  onClickCbFc: (SubvariantVisualization) => void;
 
   private isLoaded = false;
 
   svg: Selection<any, any, any, any>;
   public colorMap: Map<string, string>;
+  public serviceTimeColorMap: any;
+  public waitingTimeColorMap: any;
 
   constructor(
     private sharedDataService: SharedDataService,
     private colorMapService: ColorMapService,
-    private tooltipService: ActivateTooltipsService
+    private tooltipService: ActivateTooltipsService,
+    private variantPerformanceService: VariantPerformanceService
   ) {}
 
   ngAfterViewInit(): void {
@@ -51,59 +60,149 @@ export class SubVariantComponent implements AfterViewInit {
 
     this.colorMapService.colorMap$.subscribe((cMap) => {
       this.colorMap = cMap;
-      this.draw();
+      if (this._variant) {
+        this.draw();
+      }
     });
+
+    this.variantPerformanceService.serviceTimeColorMap.subscribe((colorMap) => {
+      if (colorMap !== undefined) {
+        this.serviceTimeColorMap = colorMap;
+        this.draw();
+      }
+    });
+
+    this.variantPerformanceService.waitingTimeColorMap.subscribe((colorMap) => {
+      if (colorMap !== undefined) {
+        this.waitingTimeColorMap = colorMap;
+        this.draw();
+      }
+    });
+
+    this.variantPerformanceService.variantPerformanceMode.subscribe(
+      (isPerformanceModeActive: boolean) => {
+        this.isPerformanceMode = isPerformanceModeActive;
+        this.draw();
+      }
+    );
   }
 
   draw(textColor: string = 'whitesmoke'): void {
     const intervalWidth = !this.expanded
       ? Constants.INTERVAL_LENGTH
       : Constants.INTERVAL_LENGTH * 1.5;
+
     this.svg.selectAll('g').remove();
-    const [data, yLength] = this.buildData();
-    const xScale = (x) => Constants.POINT_RADIUS + x * intervalWidth;
+    this.svg.selectAll('rect').remove();
+    this.svg.selectAll('line').remove();
+
+    const [data, xValues] = this.buildData();
+    let dataArray = Array.from(data.values());
+
+    const xScale = (x) => Constants.POINT_RADIUS + x * intervalWidth + 5;
     const yScale = (y) =>
       4 * Constants.POINT_RADIUS + y * Constants.LEAF_HEIGHT * 1.5;
 
-    const groupedData = d3.group(data, (d) => d[4]);
-    const g = this.svg.selectAll().data(groupedData).join('g');
+    const maxYIndex = Math.max(...dataArray.map((d) => d.yIndex));
+    const maxXEnd = Math.max(...dataArray.map((d) => d.xEnd));
 
-    g.append('line')
-      .filter(([_, d]) => d.length === 2)
-      .style('stroke', ([_, d]) => this.colorMap.get(d[0][2]))
-      .attr('x1', ([_, d]) => xScale(d[0][0]))
-      .attr('x2', ([_, d]) => xScale(d[1][0]))
-      .attr('y1', ([_, d]) => yScale(d[0][1]))
-      .attr('y2', ([_, d]) => yScale(d[1][1]))
-      .attr('stroke-width', ([_, d]) => 2 * Constants.POINT_RADIUS);
+    const height = yScale(maxYIndex + 1);
+    const width = xScale(maxXEnd) + Constants.POINT_RADIUS + 5;
 
-    const circles = g
-      .selectAll('circle')
-      .data(([_, d]) => d)
-      .join('circle')
-      .attr('cx', (d) => xScale(d[0]))
-      .attr('cy', (d) => yScale(d[1]))
-      .attr('fill', (d) => this.colorMap.get(d[2]))
-      .attr('r', Constants.POINT_RADIUS);
+    this.svg.attr('height', height);
+    this.svg.attr('width', width);
 
-    circles
-      .filter((d) => d[3] === 'atomic')
-      .attr('data-bs-toggle', 'tooltip')
-      .attr('title', (d) => d[2]);
+    const helpLineOpacity = this.isPerformanceMode ? 0.1 : 0.04;
+
+    this.svg
+      .selectAll('line')
+      .data(xValues)
+      .enter()
+      .append('line')
+      .attr('x1', (x) => xScale(x))
+      .attr('x2', (x) => xScale(x))
+      .attr('y1', 0)
+      .attr('y2', height)
+      .attr('stroke', 'lightgrey')
+      .attr('stroke-width', 2 * Constants.POINT_RADIUS)
+      .attr('stroke-opacity', helpLineOpacity);
+
+    if (this.isPerformanceMode) {
+      dataArray = dataArray.concat(this.buildWaitingTimeData(data));
+
+      this.svg
+        .append('rect')
+        .classed('subvariant-rect', true)
+        .datum(() => {
+          let d = new SubvariantVisualization();
+          d.activity = 'GLOBAL';
+          d.performanceStats = this._variant.global_performance_stats;
+
+          return d;
+        })
+        .style('fill', (d) => 'lightgrey')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', width)
+        .attr('height', height)
+        .attr('fill-opacity', 0.5)
+        .attr('rx', 8)
+        .attr('ry', 8)
+        .on('click', (_, d) => {
+          if (this.onClickCbFc) {
+            this.onClickCbFc(d);
+          }
+
+          this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
+            d.performanceStats,
+            !d.isWaitingTimeNode
+          );
+        });
+    }
+
+    const g = this.svg.selectAll().data(dataArray).join('g');
+
+    g.append('rect')
+      .classed('subvariant-rect', true)
+      .style('fill', (d) => this.computeActivityColor(d))
+      .attr('x', (d) => xScale(d.xStart) - Constants.POINT_RADIUS)
+      .attr('y', (d) => yScale(d.yIndex) - Constants.POINT_RADIUS)
+      .attr('rx', 8)
+      .attr('ry', 8)
+      .attr(
+        'width',
+        (d) => xScale(d.xEnd) - xScale(d.xStart) + 2 * Constants.POINT_RADIUS
+      )
+      .attr('height', Constants.POINT_RADIUS * 2)
+      .attr('data-bs-toggle', (d) => {
+        if (d.isWaitingTimeNode) return null;
+        return 'tooltip';
+      })
+      .attr('title', (d) => d.activity)
+      .on('click', (_, d) => {
+        if (this.onClickCbFc) {
+          this.onClickCbFc(d);
+        }
+
+        this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
+          d.performanceStats,
+          !d.isWaitingTimeNode
+        );
+      });
 
     const texts = g
-      .filter(([_, d]) => d.length === 2)
       .append('text')
-      .attr('x', ([_, d]) => xScale(d[0][0] + (d[1][0] - d[0][0]) / 2))
-      .attr('y', ([_, d]) => yScale(d[0][1]) - Constants.POINT_RADIUS - 5)
+      .filter((d) => !d.isWaitingTimeNode)
+      .attr('x', (d) => xScale(d.xStart + (d.xEnd - d.xStart) / 2))
+      .attr('y', (d) => yScale(d.yIndex) - Constants.POINT_RADIUS - 5)
       .style('text-anchor', 'middle')
       .style('fill', textColor)
-      .text(([_, d]) => d[0][2]);
+      .text((d) => d.activity);
 
     texts.each((a, b, c) => {
       const sel = d3.select(c[b]);
-      const xStart = xScale(a[1][0][0]);
-      const xEnd = xScale(a[1][1][0]);
+      const xStart = xScale(a.xStart);
+      const xEnd = xScale(a.xEnd);
       this.wrapInnerLabelText(
         sel,
         sel.text(),
@@ -111,17 +210,20 @@ export class SubVariantComponent implements AfterViewInit {
       );
     });
 
-    this.svg.attr(
-      'height',
-      yLength * Constants.LEAF_HEIGHT + 6 * Constants.POINT_RADIUS
-    );
-    this.svg.attr(
-      'width',
-      this._variant.length * intervalWidth + 2 * Constants.POINT_RADIUS
-    );
-    this.svg.attr('overflow', 'visible');
-
     this.tooltipService.initializeChildren(this.svgElement);
+  }
+
+  private computeActivityColor(subvariantData: SubvariantVisualization) {
+    if (!this.isPerformanceMode) {
+      return this.colorMap.get(subvariantData.activity);
+    }
+    if (!subvariantData.isWaitingTimeNode) {
+      let stat = this.variantPerformanceService.serviceTimeStatistic;
+      return this.serviceTimeColorMap(subvariantData.performanceStats[stat]);
+    }
+
+    let stat = this.variantPerformanceService.waitingTimeStatistic;
+    return this.waitingTimeColorMap(subvariantData.performanceStats[stat]);
   }
 
   private wrapInnerLabelText(
@@ -163,67 +265,59 @@ export class SubVariantComponent implements AfterViewInit {
     return textLength;
   }
 
-  private buildData(): [any[], number] {
+  private buildData(): [Map<string, SubvariantVisualization>, Set<number>] {
     const intervalWidth = Constants.INTERVAL_LENGTH;
     const gapLength = (20 + Constants.POINT_RADIUS) / intervalWidth;
 
-    const yIndices: boolean[] = [];
-    const starts = new Map<string, [number, number][]>();
-    const data = [];
+    let xValues = new Set<number>();
+    let usedYIndices = new Set<number>();
+    const starts = new Map<string, [number, number]>();
+    const data = new Map<string, SubvariantVisualization>();
+
     let xIndex = 0;
-    this._variant.forEach((group, _i) => {
-      group.sort();
-      let starting = group
-        .filter(([_a, l]) => l.toLowerCase() === 'start')
-        .map(([a, _l]) => a);
-      let completing = group
-        .filter(([_a, l]) => l.toLowerCase() === 'complete')
-        .map(([a, _l]) => a);
-      const atomic = completing.filter((a) => starting.includes(a));
-      starting = starting.filter((a) => !atomic.includes(a));
-      completing = completing.filter((a) => !atomic.includes(a));
+    this._variant.subvariant.forEach((group) => {
+      let starting = group.filter(
+        (subvariantNode) => subvariantNode.lifecycle === 'start'
+      );
+      let completing = group.filter(
+        (subvariantNode) => subvariantNode.lifecycle === 'complete'
+      );
 
-      starting.forEach((a) => {
-        let yIndex = 0;
-        while (yIndices[yIndex]) {
-          yIndex++;
-        }
-        yIndices[yIndex] = true;
-        const aStarts = starts.get(a) || [];
-        aStarts.push([xIndex, yIndex]);
-        starts.set(a, aStarts);
+      starting.forEach((subvariantNode) => {
+        let yIndex = this.getNextFreeYIndex(usedYIndices);
+        usedYIndices.add(yIndex);
 
-        const id = [xIndex, yIndex, a].join(';');
-        data.push([xIndex, yIndex, a, 'start', id]);
+        starts[subvariantNode.activity + subvariantNode.activity_instance] = [
+          xIndex,
+          yIndex,
+        ];
       });
 
-      const atomicYIndices = [];
-      atomic.forEach((a) => {
-        let yIndex = 0;
-        while (yIndices[yIndex]) {
-          yIndex++;
-        }
-        yIndices[yIndex] = true;
-        atomicYIndices.push(yIndex);
+      completing.forEach((subvariantNode) => {
+        let startIndices =
+          starts[subvariantNode.activity + subvariantNode.activity_instance];
 
-        const id = [xIndex, yIndex, a].join(';');
-        data.push([xIndex, yIndex, a, 'atomic', id]);
+        let m = new SubvariantVisualization();
+        m.activity = subvariantNode.activity;
+        m.performanceStats = subvariantNode.performance_stats;
+        m.xStart = startIndices[0];
+        m.xEnd = xIndex;
+        m.yIndex = startIndices[1];
+        m.isWaitingTimeNode = false;
+
+        xValues.add(m.xStart);
+        xValues.add(m.xEnd);
+
+        data.set(subvariantNode.activity + subvariantNode.activity_instance, m);
+
+        usedYIndices.delete(startIndices[1]);
+
+        starts.delete(
+          (subvariantNode.activity, subvariantNode.activity_instance)
+        );
       });
 
-      completing.forEach((a) => {
-        const [xStartIndex, yIndex] = starts.get(a).shift();
-        yIndices[yIndex] = false;
-        const id = [xStartIndex, yIndex, a].join(';');
-        data.push([xIndex, yIndex, a, 'complete', id]);
-      });
-
-      atomicYIndices.forEach((yIndex) => {
-        yIndices[yIndex] = false;
-      });
-
-      const nRunning = Array.from(starts.values())
-        .map((s) => s.length)
-        .reduce((a, b) => a + b, 0);
+      const nRunning = Array.from(starts.values()).length;
       if (nRunning <= 0) {
         xIndex += gapLength;
       } else {
@@ -231,7 +325,119 @@ export class SubVariantComponent implements AfterViewInit {
       }
     });
 
-    return [data, yIndices.length];
+    return [data, xValues];
+  }
+
+  private buildWaitingTimeData(
+    nodesData: Map<string, SubvariantVisualization>
+  ): SubvariantVisualization[] {
+    let result = [];
+
+    this._variant.waiting_time_events.forEach((waitingTimeEvent) => {
+      let xStart = 0;
+      let xEnd = 0;
+      let yIndex = 0;
+
+      let startActivityData = nodesData.get(
+        waitingTimeEvent.start.activity +
+          waitingTimeEvent.start.activity_instance
+      );
+      let completeActivityData = nodesData.get(
+        waitingTimeEvent.complete.activity +
+          waitingTimeEvent.complete.activity_instance
+      );
+
+      if (waitingTimeEvent.start.lifecycle == 'start') {
+        xStart = startActivityData.xStart;
+      } else {
+        xStart = startActivityData.xEnd + 0.2;
+      }
+      if (waitingTimeEvent.complete.lifecycle == 'start') {
+        xEnd = completeActivityData.xStart - 0.2;
+      } else {
+        xEnd = completeActivityData.xEnd;
+      }
+
+      if (waitingTimeEvent.anchor == 'start') {
+        yIndex = startActivityData.yIndex;
+      } else {
+        yIndex = completeActivityData.yIndex;
+      }
+
+      let m = new SubvariantVisualization();
+      m.activity = 'WAITING TIME NODE';
+      m.performanceStats = waitingTimeEvent.performance_stats;
+      m.xStart = xStart;
+      m.xEnd = xEnd;
+      m.yIndex = yIndex;
+      m.isWaitingTimeNode = true;
+
+      result.push(m);
+    });
+
+    // find duplicates in x-positions between Waiting Time Nodes and Subvariant Nodes; then, introduce gaps
+    const yData = this.getSubvariantVisualizationsXPositionMapPerYIndex(
+      Array.from(nodesData.values())
+    );
+
+    for (let [i, wtEvent] of result.entries()) {
+      if (yData.get(wtEvent.yIndex).indexOf(wtEvent.xStart) > -1) {
+        result[i].xStart += 0.2;
+      }
+
+      if (yData.get(wtEvent.yIndex).indexOf(wtEvent.xEnd) > -1) {
+        result[i].xEnd -= 0.2;
+      }
+    }
+
+    // handle remaining overlapping waiting time events
+    for (let r1 of result) {
+      for (let [j, r2] of result.entries()) {
+        if (r1 === r2) {
+          continue;
+        }
+
+        if (r1.y != r2.y) {
+          continue;
+        }
+
+        if (r1.xEnd === r2.xStart) {
+          result[j].xStart += 0.2;
+        }
+      }
+    }
+
+    return result;
+  }
+
+  private getSubvariantVisualizationsXPositionMapPerYIndex(
+    data: SubvariantVisualization[]
+  ): Map<number, number[]> {
+    const yData = new Map<number, number[]>();
+    data.forEach((subvariant: SubvariantVisualization) => {
+      if (!yData.has(subvariant.yIndex)) {
+        yData.set(subvariant.yIndex, []);
+      }
+
+      let yDataForIndex = yData.get(subvariant.yIndex);
+      yDataForIndex.push(subvariant.xStart);
+      yDataForIndex.push(subvariant.xEnd);
+      yData.set(subvariant.yIndex, yDataForIndex);
+    });
+
+    return yData;
+  }
+
+  private getNextFreeYIndex(usedYIndices: Set<number>): number {
+    let index = 0;
+    while (true) {
+      if (usedYIndices.has(index)) {
+        index++;
+        continue;
+      }
+
+      return index;
+    }
   }
 
   public setExpanded(expanded: boolean): void {
@@ -242,5 +448,12 @@ export class SubVariantComponent implements AfterViewInit {
   public toggleExpanded() {
     this.expanded = !this.expanded;
     this.draw();
+  }
+
+  changeSelection(sel: SubvariantVisualization) {
+    d3.selectAll('.subvariant-rect').classed(
+      'selected-subvariant',
+      (d) => sel === d
+    );
   }
 }

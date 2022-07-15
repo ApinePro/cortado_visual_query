@@ -1,5 +1,4 @@
 import json
-import pickle
 
 from cortado_core.performance.variant_performance import \
     assign_variants_performances
@@ -34,7 +33,6 @@ def calculate_event_log_properties(event_log: EventLog, time_granularity: TimeUn
 
     res_variants, variants = get_c_variants(
         event_log, use_mp, time_granularity)
-    
     assign_variants_performances(variants)
 
     variants = sorted(variants.keys(), key=lambda v: len(
@@ -126,5 +124,5 @@ def get_c_variants(event_log: EventLog, use_mp: bool = False, time_granularity: 
         res_variants.append(variant)
 
     variants_store = {json.dumps(v.serialize(include_performance=False)): t for v, t in variants.items()}
-    
+
     return sorted(res_variants, key=lambda variant: variant['count'], reverse=True), variants
