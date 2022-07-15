@@ -32,12 +32,9 @@ const areAllChildrenSelected = (elem: VariantElement) => {
   }
 };
 
-const updateSelectionAttributesForGroup = (
-  group: any,
-  surroundingSelectableFn: Function
-) => {
+const updateSelectionAttributesForGroup = (group: any) => {
   updateSelectedAttributesForGroup(group);
-  updateSelectableAttributesForGroup(group, surroundingSelectableFn);
+  updateSelectableAttributesForGroup(group);
 };
 
 const updateSelectedAttributesForGroup = (group: any) => {
@@ -61,10 +58,7 @@ const updateSelectedAttributesForGroup = (group: any) => {
   }
 };
 
-const updateSelectableAttributesForGroup = (
-  group: any,
-  surroundingSelectableFn: Function
-) => {
+const updateSelectableAttributesForGroup = (group: any) => {
   let children = group.elements.filter((c) => isElementWithActivity(c));
 
   // initialize all elements with not selectable state
@@ -82,12 +76,12 @@ const updateSelectableAttributesForGroup = (
 
     if (someChildrenSelected(child)) {
       child.setSelectable();
-      updateSelectableAttributesForGroup(child, surroundingSelectableFn);
+      updateSelectableAttributesForGroup(child);
       return;
     }
   }
 
-  surroundingSelectableFn(children);
+  group.updateSurroundingSelectableElements();
 };
 
 export const someChildrenSelected = (elem: VariantElement) => {
@@ -404,6 +398,10 @@ export abstract class VariantElement {
       }
     }
   }
+
+  public updateSurroundingSelectableElements() {
+    return;
+  }
 }
 
 export class SequenceGroup extends VariantElement {
@@ -492,10 +490,12 @@ export class SequenceGroup extends VariantElement {
   }
 
   public updateSelectionAttributes(): void {
-    updateSelectionAttributesForGroup(this, this.setSelectableElements);
+    updateSelectionAttributesForGroup(this);
   }
 
-  private setSelectableElements(children: VariantElement[]): void {
+  public updateSurroundingSelectableElements(): void {
+    let children = this.elements.filter((c) => isElementWithActivity(c));
+
     // If no children is partly selected, then selection happens on this level
     // Then calculate the next selectable elements
     let first = -1;
@@ -616,9 +616,12 @@ export class ParallelGroup extends VariantElement {
   }
 
   public updateSelectionAttributes(): void {
-    updateSelectionAttributesForGroup(this, (children) =>
-      children.forEach((c) => c.setSelectable())
-    );
+    updateSelectionAttributesForGroup(this);
+  }
+
+  public updateSurroundingSelectableElements(): void {
+    let children = this.elements.filter((c) => isElementWithActivity(c));
+    children.forEach((c) => c.setSelectable());
   }
 }
 
