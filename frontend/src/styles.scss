@@ -446,20 +446,3 @@ th {
   height: 100vh !important;
   background-color: var(--box-background-color);
 }
-
-.show-only-on-hover {
-  display: none;
-}
-
-.variant-element-group:hover > .show-only-on-hover {
-  display: block;
-  fill: white;
-}
-
-.variant-element-group:hover >.activity-text {
-  fill: rgba($color: lightgrey, $alpha: 0.2);
-}
-
-.variant-element-group:hover >.variant-polygon {
-  opacity: 0.1;
-}
