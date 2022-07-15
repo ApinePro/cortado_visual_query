@@ -23,6 +23,7 @@ import { LeafNode } from '../model';
 import { BackendService } from 'src/app/services/backendService/backend.service';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 import { SubvariantVisualization } from '../sub-variant/model';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-subvariant-explorer',
@@ -39,6 +40,9 @@ export class SubvariantExplorerComponent
   public serviceTimeColorMap: any;
   public waitingTimeColorMap: any;
   isPerformanceMode: boolean = false;
+
+  public performanceUpdateInProgress: boolean = false;
+  public performanceUpdateProgress: number = 0;
 
   @ViewChild(VariantDrawerDirective)
   mainvariantDrawer: VariantDrawerDirective;
@@ -348,6 +352,14 @@ export class SubvariantExplorerComponent
     performanceMode: boolean,
     forwardUpdate: boolean = true
   ) {
+    if (
+      performanceMode &&
+      !this.variantPerformanceService.performanceInformationLoaded
+    ) {
+      this.updatePerformanceInformation();
+      return;
+    }
+
     this.isPerformanceMode = performanceMode;
 
     if (forwardUpdate) {
@@ -355,11 +367,28 @@ export class SubvariantExplorerComponent
         performanceMode
       );
     }
+  }
 
-    if (performanceMode) {
-      this.mainvariantDrawer.setExpanded(true);
-      this.setExpandedSubVariants(true);
-    }
+  private updatePerformanceInformation() {
+    this.performanceUpdateInProgress = true;
+    this.variantPerformanceService
+      .addPerformanceInformationToVariants()
+      .pipe(
+        finalize(() => {
+          this.performanceUpdateProgress = 1;
+          setTimeout(() => {
+            this.performanceUpdateInProgress = false;
+            this.performanceUpdateProgress = 0;
+            this.isPerformanceMode = true;
+            this.variantPerformanceService.variantPerformanceMode.next(true);
+            this.mainvariantDrawer.setExpanded(true);
+            this.setExpandedSubVariants(true);
+          }, 1000);
+        })
+      )
+      .subscribe((progress: number) => {
+        this.performanceUpdateProgress = progress;
+      });
   }
 
   computeActivityColor = (
