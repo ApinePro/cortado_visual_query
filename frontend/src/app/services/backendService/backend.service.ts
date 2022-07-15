@@ -8,6 +8,7 @@ import {
   Variant,
   VariantElement,
 } from 'src/app/components/variant-explorer/model';
+import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { ProcessTree } from 'src/app/objects/ProcessTree';
 import { mapVariants } from 'src/app/utils/util';
 import { SharedDataService } from '../sharedDataService/shared-data.service';
@@ -290,5 +291,16 @@ export class BackendService {
       this.backendUrl + 'logBasedPerformanceForVariants',
       body
     );
+  }
+
+  getSubvariantsForVariant(
+    variant: any,
+    timeGranularity: TimeUnit
+  ): Observable<any> {
+    let body = {
+      variant: variant.serialize(),
+      timeGranularity: timeGranularity,
+    };
+    return this.httpClient.post(this.backendUrl + 'subvariants', body);
   }
 }
