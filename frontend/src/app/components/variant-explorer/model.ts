@@ -61,9 +61,18 @@ const updateSelectedAttributesForGroup = (group: any) => {
 const updateSelectableAttributesForGroup = (group: any) => {
   let children = group.elements.filter((c) => isElementWithActivity(c));
 
+  let nothingIsSelected = !someChildrenSelected(group);
+
+  if (nothingIsSelected) {
+    group.setSelectable(true);
+    group.setNotUnselectable();
+    return;
+  }
+
   // initialize all elements with not selectable state
   for (let child of children) {
     child.setNotSelectable();
+    child.setNotUnselectable();
   }
 
   // First, check if a child is only partly selected
@@ -113,12 +122,12 @@ export const setParent = (root: VariantElement) => {
   }
 };
 
-export const getLowestSelectableParent = (elem: VariantElement) => {
-  if (elem.selectable || elem.parent == null) {
-    // Selectable or root
+export const getLowestSelectionActionableElement = (elem: VariantElement) => {
+  if (elem.selectable || elem.unselectable || elem.parent == null) {
+    // Selectable or unselectable or root
     return elem;
   } else {
-    return getLowestSelectableParent(elem.parent);
+    return getLowestSelectionActionableElement(elem.parent);
   }
 };
 
@@ -270,6 +279,7 @@ export abstract class VariantElement {
   public waitingTimeEnd: PerformanceStats;
   public selected: boolean = false;
   public selectable: boolean = true;
+  public unselectable: boolean = false;
 
   public height;
   width;
@@ -367,8 +377,16 @@ export abstract class VariantElement {
 
   public abstract updateSelectionAttributes(): void;
 
-  public setSelectable(): void {
+  public setSelectable(recursive: boolean = false): void {
     this.selectable = true;
+    if (
+      recursive &&
+      (this instanceof ParallelGroup || this instanceof SequenceGroup)
+    ) {
+      for (let elem of this.elements) {
+        elem.setSelectable(recursive);
+      }
+    }
   }
 
   public setNotSelectable(): void {
@@ -380,11 +398,28 @@ export abstract class VariantElement {
     }
   }
 
+  public setNotUnselectable(): void {
+    this.unselectable = false;
+    if (this instanceof ParallelGroup || this instanceof SequenceGroup) {
+      for (let elem of this.elements) {
+        elem.setNotUnselectable();
+      }
+    }
+  }
+
   public setAllChildrenSelected(): void {
-    this.selected = true;
+    this.setSelectedStateRecursive(true);
+  }
+
+  public setAllChildrenUnselected(): void {
+    this.setSelectedStateRecursive(false);
+  }
+
+  public setSelectedStateRecursive(selected: boolean): void {
+    this.selected = selected;
     if (this instanceof SequenceGroup || this instanceof ParallelGroup) {
       for (let child of this.elements) {
-        child.setAllChildrenSelected();
+        child.setSelectedStateRecursive(selected);
       }
     }
   }
@@ -504,6 +539,7 @@ export class SequenceGroup extends VariantElement {
     for (let i = 0; i < children.length; i++) {
       if (children[i].selected) {
         first = i;
+        children[first].unselectable = true;
         break;
       }
     }
@@ -511,22 +547,17 @@ export class SequenceGroup extends VariantElement {
     for (let i = children.length - 1; i >= 0; i--) {
       if (children[i].selected) {
         last = i;
+        children[last].unselectable = true;
         break;
       }
     }
+
     // Adding two new selectable elements, disabling selection in lower levels
     if (first > 0) {
       children[first - 1].setSelectable();
     }
     if (last < children.length - 1) {
       children[last + 1].setSelectable();
-    }
-    // Set all other elements to be not selectable
-    for (let i = 0; i < first - 1; i++) {
-      children[i].setNotSelectable();
-    }
-    for (let i = children.length - 1; i > last + 1; i--) {
-      children[i].setNotSelectable();
     }
   }
 }
@@ -621,7 +652,13 @@ export class ParallelGroup extends VariantElement {
 
   public updateSurroundingSelectableElements(): void {
     let children = this.elements.filter((c) => isElementWithActivity(c));
-    children.forEach((c) => c.setSelectable());
+    children.forEach((c) => {
+      if (!c.selected) {
+        c.setSelectable();
+      } else {
+        c.unselectable = true;
+      }
+    });
   }
 }
 
@@ -752,12 +789,12 @@ export class InvisibleSequenceGroup extends SequenceGroup {
     return 0;
   }
 
-  public setSelectable(): void {
+  public setSelectable(recursive = false): void {
     this.selectable = true;
 
     for (let child of this.elements) {
       if (isElementWithActivity(child)) {
-        child.setSelectable();
+        child.setSelectable(recursive);
       }
     }
   }

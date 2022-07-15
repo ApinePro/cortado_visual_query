@@ -51,7 +51,7 @@ import { SharedDataService } from '../../services/sharedDataService/shared-data.
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { textColorForBackgroundColor } from './helper_functions';
 import {
-  getLowestSelectableParent as getLowestSelectableElement,
+  getLowestSelectionActionableElement,
   InfixType,
   LeafNode,
   ParallelGroup,
@@ -856,10 +856,13 @@ export class VariantExplorerComponent
         );
       }
     } else if (this.traceInfixSelectionMode) {
-      let lowestSelectableNode = getLowestSelectableElement(element);
+      let lowestSelectableNode = getLowestSelectionActionableElement(element);
 
       if (lowestSelectableNode != variant) {
-        lowestSelectableNode.setAllChildrenSelected();
+        if (lowestSelectableNode.unselectable)
+          lowestSelectableNode.setAllChildrenUnselected();
+        else lowestSelectableNode.setAllChildrenSelected();
+
         variant.updateSelectionAttributes();
         drawer.redraw();
       }
