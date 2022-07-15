@@ -250,6 +250,8 @@ export class VariantComponent implements AfterViewInit {
       currentVariants.push(newVariant);
       this.sharedDataService.variants = currentVariants;
     }
+
+    this.resetSelectionStatus();
   }
 
   private getInfixType(): InfixType {

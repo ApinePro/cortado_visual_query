@@ -425,13 +425,8 @@ export abstract class VariantElement {
   }
 
   public resetSelectionStatus(): void {
-    this.selected = false;
-    this.selectable = true;
-    if (this instanceof SequenceGroup || this instanceof ParallelGroup) {
-      for (let child of this.elements) {
-        child.resetSelectionStatus();
-      }
-    }
+    this.setAllChildrenUnselected();
+    this.setSelectable(true);
   }
 
   public updateSurroundingSelectableElements() {
