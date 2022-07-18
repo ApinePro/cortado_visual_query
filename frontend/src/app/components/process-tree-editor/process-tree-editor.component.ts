@@ -483,7 +483,6 @@ export class ProcessTreeEditorComponent
   }
 
   horizontallyCenterTree(): void {
-    console.log(this.d3ContainerElem.nativeElement.offsetWidth);
     this.mainSvgGroup.attr(
       'transform',
       'translate(' + this.d3ContainerElem.nativeElement.offsetWidth / 2 + ',0)'
@@ -1039,8 +1038,14 @@ export class ProcessTreeEditorComponent
   }
 
   computeLeafNodeWidth(nodeActivityLabels: string[]): void {
-    const dummy_select = d3
-      .select(this.svgElem.nativeElement)
+    const dummy_container = d3
+      .select('body')
+      .append('svg')
+      .style('top', '0px')
+      .style('left', '0px')
+      .style('position', 'absolute');
+
+    const dummy_select = dummy_container
       .append('text')
       .attr('font-size', '12px');
 
@@ -1069,6 +1074,7 @@ export class ProcessTreeEditorComponent
 
     // Delete the Dummy
     dummy_select.remove();
+    dummy_container.remove();
 
     this.processTreeService.nodeWidthCache = this.nodeWidthCache;
   }

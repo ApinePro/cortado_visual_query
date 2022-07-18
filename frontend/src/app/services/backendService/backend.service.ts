@@ -4,7 +4,10 @@ import * as FileSaver from 'file-saver';
 import { Observable } from 'rxjs';
 import { take, tap } from 'rxjs/operators';
 import { Configuration } from 'src/app/components/settings/model';
-import { VariantElement } from 'src/app/components/variant-explorer/model';
+import {
+  Variant,
+  VariantElement,
+} from 'src/app/components/variant-explorer/model';
 import { ProcessTree } from 'src/app/objects/ProcessTree';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { mapVariants } from 'src/app/utils/util';
@@ -353,5 +356,17 @@ export class BackendService {
 
   public resetLogCache(): Observable<any> {
     return this.httpClient.get(this.backendUrl + 'log/resetLogCache');
+
+  }
+
+  getSubvariantsForVariant(
+    bid : number,
+    timeGranularity: TimeUnit
+  ): Observable<any> {
+    let body = {
+      bid: bid,
+      timeGranularity: timeGranularity,
+    };
+    return this.httpClient.post(this.backendUrl + 'subvariants', body);
   }
 }

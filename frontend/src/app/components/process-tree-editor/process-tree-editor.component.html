@@ -161,14 +161,12 @@
       </div>
     </div>
 
-    <div
-      class="btn-group align-baseline dropdown dropDownParent"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      title="change selected node"
-    >
+    <div class="btn-group align-baseline dropdown dropDownParent">
       <button
         class="button"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        title="change selected node"
         [disabled]="
           !selectedRootNode ||
           (nodeSelectionStrategy === NodeSeletionStrategy.TREE &&
