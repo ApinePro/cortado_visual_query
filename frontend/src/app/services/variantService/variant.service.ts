@@ -443,6 +443,7 @@ export class VariantService {
     });
 
     function filter_subvariants(variant: Subvariant, activtiyName) {
+      console.log(variant)
       variant.variant = variant.variant.map((r) => {
         return r.filter(
           ([activity, lifecycle]) => !(activity === activtiyName)

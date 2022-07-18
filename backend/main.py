@@ -188,14 +188,13 @@ def discover_process_model_from_variants(variants):
 
 
 class InputPerformanceSubvariant(BaseModel):
-    variant: Any
+    bid: int 
     time_granularity: TimeUnit = Field(alias='timeGranularity')
-
 
 @app.post("/subvariants")
 async def get_subvariants(data: InputPerformanceSubvariant):
-    variant_cache_key = json.dumps(data.variant)
-    variant_traces = load_event_log.variants_store[variant_cache_key]
+
+    variant_traces = cache.variants[data.bid][1]
     sub_variants = get_detailed_variants(variant_traces, data.time_granularity)
 
     result = []
