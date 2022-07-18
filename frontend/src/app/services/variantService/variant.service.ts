@@ -428,9 +428,9 @@ export class VariantService {
       newActivityName
     ) {
       variant.variant.forEach((r) => {
-        if(r[0].activty === activtiyName){
-          r[0].activty = newActivityName
-        };
+        if (r[0].activty === activtiyName) {
+          r[0].activty = newActivityName;
+        }
       });
     }
   }
@@ -441,7 +441,9 @@ export class VariantService {
     });
 
     function filter_subvariants(variant: Subvariant, activityName) {
-      variant.variant = variant.variant.filter((r) => {return r[0].activity !== activityName})
+      variant.variant = variant.variant.filter((r) => {
+        return r[0].activity !== activityName;
+      });
     }
   }
 }

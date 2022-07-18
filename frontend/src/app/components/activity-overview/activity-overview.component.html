@@ -64,6 +64,9 @@
                   class="reset-button"
                   (click)="revertLastChange($event)"
                   *ngIf="resetAvailable"
+                  data-bs-toggle="tooltip"
+                  data-bs-placement="bottom"
+                  title="revert large change to the event log"
                 >
                   <i class="bi bi-arrow-counterclockwise btn-icon"></i>
                 </button>
@@ -212,6 +215,9 @@
               <div
                 class="cursor-pointer remove-activity-button"
                 (click)="deleteActivity($event, activityField)"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                title="remove activity from event log"
               >
                 <i class="bi bi-trash"></i>
               </div>

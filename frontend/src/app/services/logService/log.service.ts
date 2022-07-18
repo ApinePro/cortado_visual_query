@@ -12,7 +12,9 @@ export class LogService {
   constructor(private colorMapService: ColorMapService) {}
 
   public performanceInfoAvailable = false;
-  private _timeGranularity: BehaviorSubject<TimeUnit> = new BehaviorSubject(TimeUnit.SEC);
+  private _timeGranularity: BehaviorSubject<TimeUnit> = new BehaviorSubject(
+    TimeUnit.SEC
+  );
 
   private _numberFittingTraces: number = undefined;
   private _numberFittingVariants: number = undefined;
