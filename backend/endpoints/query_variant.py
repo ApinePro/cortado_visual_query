@@ -27,6 +27,4 @@ def evaluate_query_against_variant_graphs(query, variants, activities):
         res = {'error' : LE.msg, 'error_index' : LE.column}
         return res
     
-    #print(load_event_log.variants)
-    
     return {'ids' : ids}

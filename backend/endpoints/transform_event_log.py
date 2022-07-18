@@ -198,13 +198,9 @@ def rename_activities(mergeList, renameList, activityName, newActivityName):
     
     no_update = set(cache.variants.keys()).difference(set(flat_list(mergeList) + renameList))
 
-    print('No Update', no_update)
 
     for bid in no_update: 
         new_variant_dict[bid] = cache.variants[bid]
-        
-    for bid, (variant, traces) in new_variant_dict.items(): 
-        print(variant)
     
     load_event_log.variants = new_variant_dict
     
@@ -214,10 +210,8 @@ def remove_activity_from_trace(trace, activityName):
     for event in trace: 
         
         if event["concept:name"] == activityName:
-            print('Deleting Event')
             del event
      
-    print(trace)
     return trace
 
 
@@ -381,8 +375,6 @@ def remove_activities(activityName, fallthrough, delete_member_list, merge_list,
     newVariants = []
     
     if len(fallthrough) > 0:
-           
-      print('Handling Fallthroughs')
       
       cLog = []
       for bid in fallthrough: 

@@ -77,7 +77,6 @@ export class SubvariantExplorerComponent
       )
       .subscribe((r) => {
         this.subvariants = r;
-        console.log(this.subvariants[0]);
       });
   }
 

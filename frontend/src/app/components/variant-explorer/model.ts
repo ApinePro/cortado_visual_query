@@ -201,7 +201,7 @@ export class Variant {
 
 export class Subvariant {
   count: number;
-  variant: [string, string][][];
+  variant: any;
   percentage: number;
   calculationInProgress: boolean | undefined;
 
