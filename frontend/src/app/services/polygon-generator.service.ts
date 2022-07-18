@@ -18,7 +18,8 @@ export class PolygonGeneratorService {
     let x = 0,
       y = 0;
     let headLength =
-      Math.tan((VARIANT_Constants.ARROW_HEAD_ANGLE / 360) * Math.PI * 2) * (height / 2);
+      Math.tan((VARIANT_Constants.ARROW_HEAD_ANGLE / 360) * Math.PI * 2) *
+      (height / 2);
 
     width -= headLength;
 

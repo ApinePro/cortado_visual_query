@@ -1,10 +1,9 @@
-
-from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field
-
-from backend_utilities.configuration.repository import ConfigurationRepository, ConfigurationRepositoryFactory
 from backend_utilities.configuration.repository import \
     Configuration as DomainConfiguration
+from backend_utilities.configuration.repository import (
+    ConfigurationRepository, ConfigurationRepositoryFactory)
+from fastapi import APIRouter, Depends
+from pydantic import BaseModel, Field
 
 router = APIRouter(
     tags=["config"],

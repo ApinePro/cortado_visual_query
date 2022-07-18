@@ -1,4 +1,3 @@
-
 import {
   NodeSeletionStrategy,
   ProcessTreeService,
@@ -18,7 +17,10 @@ import {
 import * as d3 from 'd3';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 
-import { ProcessTree, ProcessTreeOperator } from 'src/app/objects/ProcessTree/ProcessTree';
+import {
+  ProcessTree,
+  ProcessTreeOperator,
+} from 'src/app/objects/ProcessTree/ProcessTree';
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
 import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
 import { ImageExportService } from 'src/app/services/imageExportService/image-export-service';
@@ -50,7 +52,6 @@ export class BpmnEditorComponent
   @ViewChild('bpmn') svgElem: ElementRef;
   @ViewChild('BPMNcontainer') bpmnContainerElem: ElementRef;
   @ViewChild(BpmnDrawerDirective) bpmnDrawer: BpmnDrawerDirective;
-
 
   mainGroup: d3.Selection<SVGGElement, any, any, any>;
   selectedStatistic: string;
@@ -99,16 +100,16 @@ export class BpmnEditorComponent
     this.processTreeService.selectionMode$.subscribe((strategy) => {
       this.nodeSelectionStrategy = strategy;
     });
-
   }
 
   ngAfterViewInit(): void {
     this.nodeWidthCache = this.processTreeService.nodeWidthCache;
-    this.selectedStatistic = this.performanceColorScaleService.selectedColorScale.statistic
-    this.selectedPerformanceIndicator = this.performanceColorScaleService.selectedColorScale.performanceIndicator;
+    this.selectedStatistic =
+      this.performanceColorScaleService.selectedColorScale.statistic;
+    this.selectedPerformanceIndicator =
+      this.performanceColorScaleService.selectedColorScale.performanceIndicator;
 
-    this.mainGroup = d3
-      .select('#bpmn-zoom-group')
+    this.mainGroup = d3.select('#bpmn-zoom-group');
 
     this.createArrowHeadMarker();
 
@@ -139,7 +140,7 @@ export class BpmnEditorComponent
     this.curPTSub =
       this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
         this.currentTree = tree;
-        this.redraw(tree); 
+        this.redraw(tree);
       });
 
     this.rootNodeIdSub = this.processTreeService.selectedRootNodeID$.subscribe(
@@ -155,21 +156,18 @@ export class BpmnEditorComponent
     );
   }
 
-
-  selectNodeCallBack = (self, event : PointerEvent, d) => {
-
+  selectNodeCallBack = (self, event: PointerEvent, d) => {
     event.stopPropagation();
     event.preventDefault();
-    
-    if (d.id === this.selectedRootID) {
-        this.processTreeService.selectedRootNodeID = null;
-        this.performanceService.treeSelection.next(undefined);
-    } else {
-        this.processTreeService.selectedRootNodeID = d.id;
-        this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
-    }
 
-  }
+    if (d.id === this.selectedRootID) {
+      this.processTreeService.selectedRootNodeID = null;
+      this.performanceService.treeSelection.next(undefined);
+    } else {
+      this.processTreeService.selectedRootNodeID = d.id;
+      this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
+    }
+  };
 
   createArrowHeadMarker() {
     d3.select(this.svgElem.nativeElement)
@@ -184,7 +182,7 @@ export class BpmnEditorComponent
       .attr('markerUnits', 'strokeWidth')
       .append('path')
       .attr('d', 'M 0 0 6 3 0 6 1.5 3')
-      .attr('fill', BPMN_Constant.bpmn_stroke_color);
+      .attr('fill', BPMN_Constant.STROKE_COLOR);
 
     d3.select(this.svgElem.nativeElement)
       .append('svg:defs')
@@ -215,24 +213,20 @@ export class BpmnEditorComponent
       .attr('fill', '#425bbf');
   }
 
-  redraw(tree : ProcessTree){
-
+  redraw(tree: ProcessTree) {
     this.bpmnDrawer.redraw(tree);
 
     this.activateTooltipsService.initializeChildren(this.svgElem);
     this.selectBPMNNode(this.selectedRootID);
   }
 
-  tooltipContent = (d : ProcessTree) => {
-    if (
-      d.hasPerformance() &&
-      d.label !== ProcessTreeOperator.tau
-    ) {
+  tooltipContent = (d: ProcessTree) => {
+    if (d.hasPerformance() && d.label !== ProcessTreeOperator.tau) {
       return (
-            `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
+        `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
         <h6 style="flex: 1" class="performance-tooltip-header">` +
-            (d.label || d.operator) +
-            `</h6>
+        (d.label || d.operator) +
+        `</h6>
       </div>` +
         getPerformanceTable(
           d.performance,
@@ -242,10 +236,10 @@ export class BpmnEditorComponent
       );
     }
     return d.label || d.operator;
-  }
+  };
 
-  computeNodeColor = (root, pt : ProcessTree) => {
-    let color;  
+  computeNodeColor = (root, pt: ProcessTree) => {
+    let color;
 
     if (root.performance) {
       if (
@@ -264,19 +258,19 @@ export class BpmnEditorComponent
       }
     } else {
       color =
-      pt.label !== '\u03C4'
+        pt.label !== '\u03C4'
           ? this.activityColorMap.get(pt.label)
-          : BPMN_Constant.bpmn_non_visible_activity_color;
+          : BPMN_Constant.INVISIBLE_ACTIVITIY_DEFAULT_COLOR;
     }
 
-    return color
-  }
+    return color;
+  };
 
-  computeTextColor = (root, pt : ProcessTree) => {
-    return (pt.label === ProcessTreeOperator.tau || pt.frozen)
+  computeTextColor = (root, pt: ProcessTree) => {
+    return pt.label === ProcessTreeOperator.tau || pt.frozen
       ? 'White'
       : textColorForBackgroundColor(this.computeNodeColor(root, pt));
-  }
+  };
 
   ngOnDestroy() {
     this.rootNodeIdSub.unsubscribe();
@@ -297,7 +291,7 @@ export class BpmnEditorComponent
   }
 
   freezeSubtree() {
-    this.processTreeService.freezeSubtree(this.selectedNode.datum())
+    this.processTreeService.freezeSubtree(this.selectedNode.datum());
   }
 
   buttonFreezeSubtreeDisabled() {
@@ -367,7 +361,7 @@ export class BpmnEditorComponent
   }
 
   deleteSelected() {
-    this.processTreeService.deleteSelected(this.selectedNode.datum()); 
+    this.processTreeService.deleteSelected(this.selectedNode.datum());
   }
 
   deleteInactive() {

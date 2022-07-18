@@ -7,22 +7,21 @@ export class BPMN_Constant {
 
   public static LINE_COLOR = 'black';
 
-  public static bpmn_node_height_width = 30;
-  public static bpmn_stroke_width = 1;
-  public static bpmn_stroke_color = 'gray';
-  public static bpmn_corner_radius = '3';
-  public static bpmn_invisible_font_size = '2em';
-  public static bpmn_operator_font_size = '1.5em';
-  public static bpmn_visible_font_size = '12px';
+  public static BASE_HEIGHT_WIDTH = 30;
+  public static STROKE_WIDTH = 1;
+  public static STROKE_COLOR = 'gray';
+  public static CORNER_RADIUS = '3';
+  public static INVISIBLE_FONT_SIZE = '2em';
+  public static OPERATOR_FONT_SIZE = '1.5em';
+  public static VISIBLE_FONT_SIZE = '12px';
 
-  public static operatorNodewidth =
-    this.bpmn_node_height_width + this.bpmn_stroke_width;
-  public static rectCenter = this.operatorNodewidth / 2;
-  public static rectDiagLen =
-    Math.pow(2 * Math.pow(this.operatorNodewidth, 2), 0.5) / 2;
+  public static OPERATOR_NODE_WIDTH =
+    this.BASE_HEIGHT_WIDTH + this.STROKE_WIDTH;
+  public static OPERATOR_CENTER = this.OPERATOR_NODE_WIDTH / 2;
+  public static OPERATOR_DIAGONAL_LENGTH =
+    Math.pow(2 * Math.pow(this.OPERATOR_NODE_WIDTH, 2), 0.5) / 2;
 
-  public static nonSelectedBPMNStrokeColor = 'gray';
-  public static bpmn_operator_color = '#404040';
-  public static bpmn_visible_activity_color = '#8f8f8f';
-  public static bpmn_non_visible_activity_color = '#181818';
+  public static OPERATOR_COLOR = '#404040';
+  public static VISIBLE_ACTIVITIY_DEFAULT_COLOR = '#8f8f8f';
+  public static INVISIBLE_ACTIVITIY_DEFAULT_COLOR = '#181818';
 }

@@ -8,3 +8,13 @@ export class Subvariant {
   alignment: any | undefined;
   deviation: any | undefined;
 }
+
+
+export class SubvariantVisualization {
+  activity: string;
+  xStart: number;
+  xEnd: number;
+  yIndex: number;
+  performanceStats;
+  isWaitingTimeNode: boolean = false;
+}

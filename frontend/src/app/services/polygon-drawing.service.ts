@@ -88,7 +88,10 @@ export class PolygonDrawingService {
         .attr('x', width / 2)
         .attr('y', height / 2)
         .text(element.activity[0])
-        .attr('height', VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y);
+        .attr(
+          'height',
+          VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y
+        );
 
       offsetX += width + VARIANT_Constants.LEGEND_MARGIN_X;
 

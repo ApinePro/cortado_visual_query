@@ -1,10 +1,8 @@
 import { Directive } from '@angular/core';
 
 @Directive({
-  selector: '[appZoomArea]'
+  selector: '[appZoomArea]',
 })
 export class ZoomAreaDirective {
-
-  constructor() { }
-
+  constructor() {}
 }

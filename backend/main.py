@@ -1,19 +1,15 @@
-
 from multiprocessing import cpu_count, freeze_support
-import pm4pycvxopt
 
+import pm4pycvxopt
 import uvicorn
-from fastapi import ( FastAPI, HTTPException)
+from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from pm4py.algo.filtering.log.variants import variants_filter
+
 from api.routes.api import router as api_router
 from core.events import create_start_app_handler, create_stop_app_handler
-from error_handlers import (http_exception_handler,
-                            validation_exception_handler)
+from error_handlers import http_exception_handler, validation_exception_handler
 from middleware.http_middleware import http_middleware
-
-
 
 
 def get_application():
@@ -37,12 +33,8 @@ def add_event_handlers(app: FastAPI):
 
 
 def add_middleware(app: FastAPI):
-    app.middleware('http')(http_middleware)
-    origins = [
-        "http://localhost",
-        "http://localhost:8080",
-        "http://localhost:4444"
-    ]
+    app.middleware("http")(http_middleware)
+    origins = ["http://localhost", "http://localhost:8080", "http://localhost:4444"]
 
     app.add_middleware(
         CORSMiddleware,
@@ -56,38 +48,20 @@ def add_middleware(app: FastAPI):
 def add_exception_handlers(app: FastAPI):
     app.add_exception_handler(HTTPException, http_exception_handler)
     # app.add_exception_handler(Exception, exception_handler)
-    app.add_exception_handler(RequestValidationError,
-                              validation_exception_handler)
+    app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 
 app = get_application()
 
 
-# Remove this
-@app.get("/variants")
-async def get_variants_from_event_log():
-    log = await meta.get_event_log()
-    variants = variants_filter.get_variants(log)
-    total_traces = len(log)
-    res = {"variants": [], "activities": set()}
-    for v in variants:
-        res["variants"].append({
-            'count': len(variants[v]),
-            'events': v.split(','),
-            'percentage': round(len(variants[v]) / total_traces * 100, 2)
-        })
-        for a in v.split(','):
-            res["activities"].add(a)
-
-    res['variants'] = sorted(
-        res['variants'], key=lambda variant: variant['count'], reverse=True)
-    return res
+@app.get("/info")
+async def get_info():
+    return {}
 
 # Using FastAPI instance
 @app.get("/url-list")
 def get_all_urls():
-    url_list = [{"path": route.path, "name": route.name}
-                for route in app.routes]
+    url_list = [{"path": route.path, "name": route.name} for route in app.routes]
     return url_list
 
 
@@ -95,6 +69,8 @@ if __name__ == "__main__":
     # print(DEFAULT_LP_SOLVER_VARIANT)
     freeze_support()
     num_workers = max(1, cpu_count() - 2)
-    uvicorn.run("main:app", host="0.0.0.0", port=41211, workers=num_workers, reload=True)
+    uvicorn.run(
+        "main:app", host="0.0.0.0", port=41211, workers=num_workers, reload=True
+    )
     # dev mode
     # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

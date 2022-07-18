@@ -136,7 +136,7 @@ export class ProcessTreeEditorComponent
   nodeWidthCache = new Map<string, number>();
 
   activityColorMap: Map<string, string>;
-  performanceColorMap : Map<number, any>;
+  performanceColorMap: Map<number, any>;
 
   processEditorOutOfFocus: boolean = false;
 
@@ -151,7 +151,7 @@ export class ProcessTreeEditorComponent
   treeCacheLength: number = 0;
   treeCacheIndex: number = 0;
 
-  activitiesOccurringInLog : string[]; 
+  activitiesOccurringInLog: string[];
 
   ngOnInit(): void {
     this.dropZoneConfig = new DropzoneConfig(
@@ -175,9 +175,9 @@ export class ProcessTreeEditorComponent
 
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.activityColorMap = colorMap;
-      
-      if(this.currentlyDisplayedTreeInEditor){
-        this.redraw(this.currentlyDisplayedTreeInEditor); 
+
+      if (this.currentlyDisplayedTreeInEditor) {
+        this.redraw(this.currentlyDisplayedTreeInEditor);
       }
     });
 
@@ -185,46 +185,43 @@ export class ProcessTreeEditorComponent
       (colorMap) => {
         if (colorMap && colorMap != this.performanceColorMap) {
           this.performanceColorMap = colorMap;
-          this.redraw(this.currentlyDisplayedTreeInEditor); 
+          this.redraw(this.currentlyDisplayedTreeInEditor);
         }
       }
     );
 
-
     this.logService.activitiesInEventLog$.subscribe((activties) => {
-      this.activitiesOccurringInLog = Object.keys(activties); 
-    })
+      this.activitiesOccurringInLog = Object.keys(activties);
+    });
 
     this.processTreeService.currentDisplayedProcessTree$.subscribe((res) => {
       // If the tree was loaded via the process tree import or Drag&Drop that does not contain the current activites
 
       if (res) {
-
         console.warn('update tree triggered by service');
-        this.currentlyDisplayedTreeInEditor = res
+        this.currentlyDisplayedTreeInEditor = res;
 
         this.processTreeSyntaxInfo = checkSyntax(res);
-        this.processTreeService.correctTreeSyntax = this.processTreeSyntaxInfo.correctSyntax;    
+        this.processTreeService.correctTreeSyntax =
+          this.processTreeSyntaxInfo.correctSyntax;
 
-        this.redraw(res)
-
-
+        this.redraw(res);
       } else if (res === null && this.mainSvgGroup) {
-
-        this.processTreeDrawer.redraw(null); 
+        this.processTreeDrawer.redraw(null);
         this.selectedRootNode = null;
       }
     });
-
   }
 
-  redraw(tree){
+  redraw(tree) {
+    this.selectedStatistic =
+      this.performanceColorScaleService.selectedColorScale.statistic;
+    this.selectedPerformanceIndicator =
+      this.performanceColorScaleService.selectedColorScale.performanceIndicator;
+    this.performanceColorMap =
+      this.performanceColorScaleService.getColorScale();
 
-    this.selectedStatistic = this.performanceColorScaleService.selectedColorScale.statistic;
-    this.selectedPerformanceIndicator = this.performanceColorScaleService.selectedColorScale.performanceIndicator;
-    this.performanceColorMap = this.performanceColorScaleService.getColorScale();
-
-    this.processTreeDrawer.redraw(tree); 
+    this.processTreeDrawer.redraw(tree);
 
     this.selectRootNodeFromID(this.selectedRootNodeId);
     this.activateTooltipsService.initializeChildren(this.svgElem);
@@ -291,8 +288,7 @@ export class ProcessTreeEditorComponent
 
   handleVisibilityChange(visibile: boolean): void {
     if (visibile) {
-
-      if(this.currentlyDisplayedTreeInEditor){
+      if (this.currentlyDisplayedTreeInEditor) {
         this.redraw(this.currentlyDisplayedTreeInEditor);
       }
     }
@@ -356,12 +352,12 @@ export class ProcessTreeEditorComponent
 
   // @REFRACTOR INTO PROCESSTREE SERVICE
   shiftSubtreeToLeft(): void {
-    this.processTreeService.shiftSubtreeToLeft(this.selectedRootNode.data)
+    this.processTreeService.shiftSubtreeToLeft(this.selectedRootNode.data);
   }
 
   // @REFRACTOR INTO PROCESSTREE SERVICE
   shiftSubtreeToRight(): void {
-    this.processTreeService.shiftSubtreeToRight(this.selectedRootNode.data)
+    this.processTreeService.shiftSubtreeToRight(this.selectedRootNode.data);
   }
 
   undo(): void {
@@ -384,16 +380,20 @@ export class ProcessTreeEditorComponent
     this.processTreeService.deleteSelected(this.selectedRootNode.data);
   }
 
-  insertNewNode(operator, label){
-    this.processTreeService.insertNewNode(this.selectedRootNode?.data, this.nodeInsertionStrategy, operator, label)
-    this.afterInsertNode()
+  insertNewNode(operator, label) {
+    this.processTreeService.insertNewNode(
+      this.selectedRootNode?.data,
+      this.nodeInsertionStrategy,
+      operator,
+      label
+    );
+    this.afterInsertNode();
   }
 
   afterInsertNode(): void {
     this.selectedRootNodeOnly = true;
     this.searchText = undefined;
   }
-
 
   // @REFRACTOR INTO PROCESSTREE SERVICE
   createNode(operator, label): d3.HierarchyNode<any> {
@@ -407,11 +407,8 @@ export class ProcessTreeEditorComponent
     return d3.hierarchy(nodeData);
   }
 
-  computeNodeColor = (root, d : d3.HierarchyNode<ProcessTree>) => {
-    if (
-      root.data.performance &&
-      d.data.label !== ProcessTreeOperator.tau
-    ) {
+  computeNodeColor = (root, d: d3.HierarchyNode<ProcessTree>) => {
+    if (root.data.performance && d.data.label !== ProcessTreeOperator.tau) {
       if (
         this.performanceColorMap.has(d.data.id) &&
         d.data.performance?.[this.selectedPerformanceIndicator]?.[
@@ -427,26 +424,22 @@ export class ProcessTreeEditorComponent
         return '#404040';
       }
     } else {
-      if (d.data.operator !== null) return PT_Constant.node_operator_color;
+      if (d.data.operator !== null) return PT_Constant.OPERATOR_COLOR;
       if (d.data.label !== null && d.data.label === ProcessTreeOperator.tau)
-        return PT_Constant.node_non_visible_activity_color;
+        return PT_Constant.INVISIBLE_ACTIVTIY_COLOR;
       const isVisibleActivity =
         d.data.label !== null && d.data.label !== ProcessTreeOperator.tau;
       return isVisibleActivity ? this.activityColorMap.get(d.data.label) : null;
     }
-  }
+  };
 
-
-  tooltipContent = (d : d3.HierarchyNode<ProcessTree>) => {
-    if (
-      d.data.hasPerformance() &&
-      d.data.label !== ProcessTreeOperator.tau
-    ) {
+  tooltipContent = (d: d3.HierarchyNode<ProcessTree>) => {
+    if (d.data.hasPerformance() && d.data.label !== ProcessTreeOperator.tau) {
       return (
-            `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
+        `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
         <h6 style="flex: 1" class="performance-tooltip-header">` +
-            (d.data.label || d.data.operator) +
-            `</h6>
+        (d.data.label || d.data.operator) +
+        `</h6>
       </div>` +
         getPerformanceTable(
           d.data.performance,
@@ -456,29 +449,25 @@ export class ProcessTreeEditorComponent
       );
     }
     return d.data.label || d.data.operator;
-  }
+  };
 
-
-  computeFillColor = (d : d3.HierarchyNode<ProcessTree>) => {
-    if (d.data.operator !== null) return PT_Constant.node_operator_color;
+  computeFillColor = (d: d3.HierarchyNode<ProcessTree>) => {
+    if (d.data.operator !== null) return PT_Constant.OPERATOR_COLOR;
     if (d.data.label !== null && d.data.label === ProcessTreeOperator.tau)
-      return PT_Constant.node_non_visible_activity_color;
+      return PT_Constant.INVISIBLE_ACTIVTIY_COLOR;
     const isVisibleActivity =
       d.data.label !== null && d.data.label !== ProcessTreeOperator.tau;
     return isVisibleActivity
       ? this.activityColorMap.get(d.data.label) ||
-          PT_Constant.node_visible_activity_color
+          PT_Constant.VISIBILE_ACTIVITY_DEFAULT_COLOR
       : null;
-  }
+  };
 
-
-  computeTextColor = (root, d : d3.HierarchyNode<ProcessTree>) => {
-
+  computeTextColor = (root, d: d3.HierarchyNode<ProcessTree>) => {
     if (
       d.data.frozen ||
       d.data.label === ProcessTreeOperator.tau ||
-      (d.data.performance == undefined &&
-        root.data.performance != undefined)
+      (d.data.performance == undefined && root.data.performance != undefined)
     ) {
       return 'white';
     }
@@ -491,20 +480,19 @@ export class ProcessTreeEditorComponent
       d.data.performance[this.selectedPerformanceIndicator]
     ) {
       nodeColor = this.performanceColorMap.get(d.data.id)(
-        d.data.performance[this.selectedPerformanceIndicator][this.selectedStatistic]
+        d.data.performance[this.selectedPerformanceIndicator][
+          this.selectedStatistic
+        ]
       );
     }
 
     const isVisibleActivity =
       (d.data.label !== null && d.data.label !== ProcessTreeOperator.tau) ||
       (d.data.performance != undefined && nodeColor !== undefined);
-    return isVisibleActivity
-      ? textColorForBackgroundColor(nodeColor)
-      : 'white';
-  }
+    return isVisibleActivity ? textColorForBackgroundColor(nodeColor) : 'white';
+  };
 
   // END - Inserting node functionality
-
 
   // Refactor to Directive with Variant Editor / BPMN Viewer
   addZoomFunctionality(): void {
@@ -535,19 +523,15 @@ export class ProcessTreeEditorComponent
           .transition()
           .duration(250)
           .ease(d3.easeExpInOut)
-          .call(zoom.transform, d3.zoomIdentity.translate(
-            0,
-            30
-          ));
+          .call(zoom.transform, d3.zoomIdentity.translate(0, 30));
       }.bind(this)
     );
   }
 
   selectNodeCallBack = (self, event, d) => {
     this.pushIDtoService(self, d),
-    this.performanceService.treeSelection.next(ProcessTree.fromObj(d.data));
-  }
-
+      this.performanceService.treeSelection.next(ProcessTree.fromObj(d.data));
+  };
 
   private pushIDtoService = (svg, d) => {
     // Activate Toogle by pushing Null to service
@@ -560,7 +544,9 @@ export class ProcessTreeEditorComponent
 
   private setSelectedRootNode = function (d) {
     this.selectedRootNode = d;
-    this.selectedRootNodeOnly = this.nodeSelectionStrategy == NodeSeletionStrategy.NODE || this.leafNodeSelected();
+    this.selectedRootNodeOnly =
+      this.nodeSelectionStrategy == NodeSeletionStrategy.NODE ||
+      this.leafNodeSelected();
   };
 
   private selectSubtreeFromRoot = function (svgGroup, d) {
@@ -639,7 +625,7 @@ export class ProcessTreeEditorComponent
   initializeSvg(): void {
     this.svg = d3.select('#d3-svg');
     // add svg group for zooming
-    this.mainSvgGroup = this.svg.select('#zoomGroup')
+    this.mainSvgGroup = this.svg.select('#zoomGroup');
 
     this.horizontallyCenterTree();
     this.addZoomFunctionality();
@@ -688,7 +674,7 @@ export class ProcessTreeEditorComponent
     });
 
     const xLower = Math.min(...xCords);
-    const xOffset = Math.abs(xLower) + PT_Constant.export_offset;
+    const xOffset = Math.abs(xLower) + PT_Constant.EXPORT_OFFSET;
 
     tree.selectAll('rect').attr('x', function (this: SVGGraphicsElement) {
       return shiftbyXOffset(this, xOffset, 'x');
@@ -707,13 +693,13 @@ export class ProcessTreeEditorComponent
 
     tree
       .selectChild()
-      .attr('transform', `translate(0, ${PT_Constant.export_offset})`);
+      .attr('transform', `translate(0, ${PT_Constant.EXPORT_OFFSET})`);
 
     // Export the tree
     this.imageExportService.export(
       'process_tree',
-      svgBBox.width + 2 * PT_Constant.export_offset,
-      svgBBox.height + PT_Constant.export_offset,
+      svgBBox.width + 2 * PT_Constant.EXPORT_OFFSET,
+      svgBBox.height + PT_Constant.EXPORT_OFFSET,
       tree_copy
     );
   }

@@ -1,6 +1,6 @@
-import { InfixType } from "./infix_selection";
-import { Subvariant } from "./subvariant";
-import { VariantElement } from "./variant_element";
+import { InfixType } from './infix_selection';
+import { Subvariant } from './subvariant';
+import { VariantElement } from './variant_element';
 
 export class Variant {
   id: string;
@@ -52,4 +52,3 @@ export class Variant {
     this.infixType = infixType;
   }
 }
-

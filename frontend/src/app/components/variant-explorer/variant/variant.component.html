@@ -2,13 +2,7 @@
 
 <ng-container *ngIf="isVisible && !(variant.userDefined && performanceMode)">
   <td>
-    <app-variant-info
-      [variant]="variant"
-      (selectionChanged)="selectionChanged.emit($event)"
-      (updateConformance)="updateConformance.emit($event)"
-      [selectable]="variant.infixType === infixType.NOT_AN_INFIX || isDevMode"
-    >
-    </app-variant-info>
+    <ng-content select="info"> </ng-content>
   </td>
   <td>
     <div
@@ -20,165 +14,16 @@
     </div>
   </td>
   <td *ngIf="processTreeAvailable" style="text-align: center">
-    <div
-      style="
-        display: flex;
-        flex-direction: row;
-        padding: 5px;
-        margin: 5px 10px 5px 10px;
-      "
-      [ngClass]="{
-        'selected-variant-performance': isPerformanceActive(variant),
-        'light-dashed-border':
-          isPerformanceAvailable(variant) && !isPerformanceActive(variant)
-      }"
-    >
-      <button
-        type="button"
-        class="btn variant-performance-button"
-        (click)="showThisPerformance(variant)"
-        [style.background]="variantPerformanceColor(variant)"
-        data-bs-toggle="tooltip"
-        data-bs-trigger="hover"
-        title="calculate model performance of this variant"
-        data-bs-html="true"
-        [id]="'performanceButton' + variant.bid"
-        style="display: flex; flex-direction: column"
-      >
-        <i
-          *ngIf="isPerformanceAvailable(variant) && !variant.userDefined"
-          class="bi bi-graph-up align-middle font-large variant-performance-icon"
-          [style.color]="textColorForBackgroundColor(variant)"
-        >
-          <i
-            *ngIf="
-              performanceService.fitness.get(variant) < 1 &&
-              !variant.userDefined
-            "
-            class="bi bi-exclamation-triangle-fill"
-          ></i>
-        </i>
-        <i
-          class="bi bi-stopwatch"
-          *ngIf="!isPerformanceAvailable(variant) && !variant.userDefined"
-          style="color: white"
-        >
-        </i>
-        <div
-          *ngIf="
-            performanceService.calculationInProgress.has(variant) &&
-            !variant.userDefined
-          "
-          class="spinner-border spinner-border-sm text-primary"
-          role="status"
-          style="margin-top: 5px"
-        ></div>
-      </button>
-      <button
-        style="padding: 0"
-        *ngIf="isPerformanceAvailable(variant) && !variant.userDefined"
-        class="btn"
-        (click)="removePerformance(variant)"
-        data-bs-toggle="tooltip"
-        title="remove performance values of this variant"
-      >
-        <i class="bi bi-x-lg" style="color: white"></i>
-      </button>
-    </div>
+    <ng-content select="performanceButton"> </ng-content>
   </td>
   <td class="variant-cell">
-    <div
-      class="variant"
-      [ngStyle]="{
-        'border-color': variant.isSelected ? 'unset' : 'transparent'
-      }"
-      style="white-space: nowrap"
-    >
-      <svg
-        appVariantDrawer
-        #fragment
-        [variant]="variant['variant']"
-        [onClickCbFc]="onClickCbFc"
-        [onRightMouseClickCbFc]="onRightMouseClickCbFc"
-        [performanceMode]="performanceMode"
-        [traceInfixSelectionMode]="traceInfixSelectionMode"
-        [computeActivityColor]="computeActivityColor"
-        [infixType]="variant.infixType"
-        class="zoom-group-variant"
-        style="display: inline-block"
-      ></svg>
-    </div>
+    <ng-content select="variantRenderer"> </ng-content>
   </td>
-  <td class="infix-selection-buttons-panel" *ngIf="traceInfixSelectionMode">
-    <div>
-      <td>
-        <button
-          class="button"
-          (click)="resetSelectionStatus()"
-          title="Reset trace infix selection of this variant"
-          data-bs-toggle="tooltip"
-        >
-          <i class="bi bi-x-lg text-secondary align-middle font-large"></i>
-        </button>
-      </td>
-      <td>
-        <button
-          class="button"
-          (click)="addSelectedTraceInfix()"
-          title="Add the currently selected infix to the variant explorer"
-          data-bs-toggle="tooltip"
-        >
-          <i
-            class="bi bi-arrow-down text-secondary align-middle font-large"
-          ></i>
-        </button>
-      </td>
-      <td>
-        <button
-          class="shadow-none button btn-fixed-width"
-          (click)="undoSelection()"
-          title="Undo last selection"
-          data-bs-toggle="tooltip"
-        >
-          <i
-            class="bi bi-arrow-counterclockwise text-secondary align-middle font-large"
-          ></i>
-          <span class="text-secondary"
-            >({{ variant.variant.currentIdxSelectionHistory }})</span
-          >
-        </button>
-      </td>
-      <td>
-        <button
-          class="button"
-          (click)="redoSelection()"
-          title="Redo"
-          data-bs-toggle="tooltip"
-        >
-          <i
-            class="bi bi-arrow-clockwise text-secondary align-middle font-large"
-          ></i>
-          <span class="text-secondary"
-            >({{
-              variant.variant.selectionHistory.length -
-                variant.variant.currentIdxSelectionHistory -
-                1
-            }})</span
-          >
-        </button>
-      </td>
-    </div>
-  </td>
+  <ng-content select="infixControls"> </ng-content>
 </ng-container>
 
 <ng-container *ngIf="isVisible && variant.userDefined && performanceMode">
   <td>
-    <app-variant-info
-      [variant]="variant"
-      (selectionChanged)="selectionChanged.emit($event)"
-      (updateConformance)="updateConformance.emit($event)"
-    >
-    </app-variant-info>
   </td>
 
   <td>

@@ -1,5 +1,10 @@
-import { VARIANT_Constants } from "src/app/constants/variant_element_drawer_constants";
-import { setParent, isElementWithActivity, someChildrenSelected, allChildrenSelected } from "./infix_selection";
+import { VARIANT_Constants } from 'src/app/constants/variant_element_drawer_constants';
+import {
+  setParent,
+  isElementWithActivity,
+  someChildrenSelected,
+  allChildrenSelected,
+} from './infix_selection';
 
 export class PerformanceStats {
   public min: number;
@@ -744,7 +749,8 @@ export class LeafNode extends VariantElement {
 
   public getHeight(): number {
     this.height =
-      this.activity.length * (VARIANT_Constants.FONT_SIZE + 2 * VARIANT_Constants.MARGIN_Y);
+      this.activity.length *
+      (VARIANT_Constants.FONT_SIZE + 2 * VARIANT_Constants.MARGIN_Y);
     return this.height;
   }
 
@@ -819,7 +825,6 @@ export function deserialize(obj: any): VariantElement {
     return new LeafNode(obj['leaf'], obj['performance']);
   }
 }
-
 
 export class WaitingTimeNode extends VariantElement {
   public getActivities(): Set<string> {
@@ -925,7 +930,6 @@ export class InvisibleSequenceGroup extends SequenceGroup {
     return this.elements.map((e) => e.serialize()).filter((e) => e !== null);
   }
 }
-
 
 export function injectWaitingTimeNodes(variants: VariantElement[]) {
   variants.forEach((v) => injectWaitingTimeNodesVariant(v));

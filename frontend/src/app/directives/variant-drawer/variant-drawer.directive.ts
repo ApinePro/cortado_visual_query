@@ -16,7 +16,14 @@ import { textColorForBackgroundColor } from 'src/app/utils/helper_functions';
 import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
-import { VariantElement, SequenceGroup, ParallelGroup, LeafNode, WaitingTimeNode, InvisibleSequenceGroup } from 'src/app/objects/Variants/variant_element';
+import {
+  VariantElement,
+  SequenceGroup,
+  ParallelGroup,
+  LeafNode,
+  WaitingTimeNode,
+  InvisibleSequenceGroup,
+} from 'src/app/objects/Variants/variant_element';
 
 @Directive({
   selector: '[appVariantDrawer]',
@@ -491,10 +498,15 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
         .text(a);
 
       dy += VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y;
-      tspan.attr('height', VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y);
+      tspan.attr(
+        'height',
+        VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y
+      );
 
       const maxWidth =
-        element.getWidth() - element.getHeadLength() * 2 - VARIANT_Constants.MARGIN_X;
+        element.getWidth() -
+        element.getHeadLength() * 2 -
+        VARIANT_Constants.MARGIN_X;
       const tr = this.wrapInnerLabelText(tspan, a, maxWidth);
       truncated ||= tr;
     });

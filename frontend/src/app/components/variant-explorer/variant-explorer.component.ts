@@ -53,11 +53,16 @@ import { SharedDataService } from '../../services/sharedDataService/shared-data.
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { textColorForBackgroundColor } from '../../utils/helper_functions';
 import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
-import { VariantSorter } from './variant-sorter';
+import { VariantSorter } from '../../objects/Variants/variant-sorter';
 import { VariantComponent } from './variant/variant.component';
 import { Variant } from 'src/app/objects/Variants/variant';
 import { getLowestSelectableParent } from 'src/app/objects/Variants/infix_selection';
-import { VariantElement, SequenceGroup, ParallelGroup, LeafNode } from 'src/app/objects/Variants/variant_element';
+import {
+  VariantElement,
+  SequenceGroup,
+  ParallelGroup,
+  LeafNode,
+} from 'src/app/objects/Variants/variant_element';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -190,6 +195,8 @@ export class VariantExplorerComponent
   contextMenu_element: VariantElement;
   contextMenu_variant: VariantElement;
   contextMenu_directive: VariantDrawerDirective;
+
+
 
   public traceInfixSelectionMode: boolean = false;
 
@@ -456,6 +463,38 @@ export class VariantExplorerComponent
     }
   }
 
+  computePerformanceButtonColor = (variant : Variant) => {
+    let tree;
+    tree = this.performanceService.variantsPerformance.get(variant);
+
+    if (!tree) {
+      return null;
+    }
+
+    let selectedScale = this.performanceColorService.selectedColorScale;
+    const colorScale = this.performanceColorService
+      .getVariantComparisonColorScale()
+      .get(tree.id);
+    if (
+      colorScale &&
+      tree.performance?.[selectedScale.performanceIndicator]?.[
+        selectedScale.statistic
+      ] !== undefined
+    ) {
+      return colorScale(
+        tree.performance[selectedScale.performanceIndicator][
+          selectedScale.statistic
+        ]
+      );
+    }
+    return '#d3d3d3';
+  }
+
+
+  handleSelectInfix(bid : number){
+    this.variantService.addSelectedTraceInfix(this.variants.filter((v) => v.bid === bid)[0])
+  }
+
   discoverInitialModel(): void {
     const variants = this.getSelectedVariants().map((v) => v.variant);
 
@@ -498,6 +537,29 @@ export class VariantExplorerComponent
 
     this.addSelectedVariantsToModelForGivenConformance(selectedVariants);
   }
+
+  handleSelectTreePerformance(variant: Variant){
+
+      if (this.performanceService.availablePerformances.has(variant)) {
+        if (this.performanceService.activeVariant == variant) {
+          this.performanceService.unselectPerformance();
+        } else {
+          this.performanceService.setShownVariantPerformance(variant);
+        }
+      } else {
+        if (this.performanceService.calculationInProgress.has(variant)) {
+          return;
+        }
+        if (this.currentlyDisplayedProcessTree) {
+          this.performanceService.updatePerformance([variant]);
+        }
+      }
+  }
+  
+  handlePerformanceRemove(variant: Variant) {
+    this.performanceService.updatePerformance([], [variant]);
+  }
+
 
   createSubVariantView(index) {
     const currently_maximized = this.maximized;
@@ -569,6 +631,14 @@ export class VariantExplorerComponent
     this._subvariantcomponentItemsMap = new Map<string, ComponentItem>();
   }
 
+  isPerformanceCalcInProgress = (variant : Variant) => {
+    return this.performanceService.calculationInProgress.has(variant)
+  }
+
+  isPerformanceFitting = (variant : Variant) => {
+    return this.performanceService.fitness.get(variant) < 1 
+  }
+
   updateAllSubvariantWindows(): void {
     this._subvariantcomponentItemsMap.forEach((value) => {
       if (value) {
@@ -601,6 +671,15 @@ export class VariantExplorerComponent
         this._subvariantcomponentItemsMap.delete(id);
       }
     }
+  }
+
+
+  isPerformanceAvailable = (variant: Variant) => {
+    return this.performanceService.availablePerformances.has(variant);
+  }
+
+  isPerformanceActive = (variant: Variant) => {
+    return this.performanceService.activeVariant === variant;
   }
 
   removeAllFilters() {

@@ -492,9 +492,52 @@
             (updateConformance)="
               updateConformanceForSingleVariantClicked($event)
             "
+            (addCurrentSelectedInfix)="handleSelectInfix($event)"
+            (removePerformance)="handlePerformanceRemove($event)"
+            (selectTreePerformance)="handleSelectTreePerformance($event)"
+            [computePerformanceButtonColor]="computePerformanceButtonColor"
             [rootElement]="variantExplorerDiv"
             [traceInfixSelectionMode]="traceInfixSelectionMode"
-          ></tr>
+          >
+            <ng-template performanceButton>
+              <app-tree-performance-button
+                [variant]="variant"
+                [isPerformanceAvailable]="isPerformanceAvailable"
+                [isPerformanceActive]="isPerformanceActive"
+                [isPerformanceFitting]="isPerformanceFitting"
+                [isPerformanceCalcInProgress]="isPerformanceCalcInProgress"
+              ></app-tree-performance-button>
+            </ng-template>
+
+            <ng-template performanceButton>
+              <app-tree-performance-button
+                [variant]="variant"
+                [isPerformanceAvailable]="isPerformanceAvailable"
+                [isPerformanceActive]="isPerformanceActive"
+                [isPerformanceFitting]="isPerformanceFitting"
+                [isPerformanceCalcInProgress]="isPerformanceCalcInProgress"
+              ></app-tree-performance-button>
+            </ng-template>
+
+            <ng-template variantInfo>
+              <app-variant-info
+              [variant]="variant"
+              (selectionChanged)="selectionChanged.emit($event)"
+              (updateConformance)="updateConformance.emit($event)"
+              >
+              </app-variant-info>
+            </ng-template>
+
+            <ng-template performanceButton>
+              <app-tree-performance-button
+                [variant]="variant"
+                [isPerformanceAvailable]="isPerformanceAvailable"
+                [isPerformanceActive]="isPerformanceActive"
+                [isPerformanceFitting]="isPerformanceFitting"
+                [isPerformanceCalcInProgress]="isPerformanceCalcInProgress"
+              ></app-tree-performance-button>
+            </ng-template>
+          </tr>
         </table>
       </div>
     </div>

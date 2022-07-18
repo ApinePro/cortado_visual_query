@@ -3,7 +3,13 @@ import { BehaviorSubject } from 'rxjs';
 import * as d3 from 'd3';
 import { LogService } from './logService/log.service';
 import { VariantService } from './variantService/variant.service';
-import { VariantElement, LeafNode, ParallelGroup, SequenceGroup, WaitingTimeNode } from '../objects/Variants/variant_element';
+import {
+  VariantElement,
+  LeafNode,
+  ParallelGroup,
+  SequenceGroup,
+  WaitingTimeNode,
+} from '../objects/Variants/variant_element';
 
 // https://observablehq.com/@philippkoytek/celonis-data-visualization-colors
 export const COLORS_CYAN = [

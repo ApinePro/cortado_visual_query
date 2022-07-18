@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
-import { ProcessTree, TreePerformance } from '../objects/ProcessTree/ProcessTree';
+import {
+  ProcessTree,
+  TreePerformance,
+} from '../objects/ProcessTree/ProcessTree';
 import { BackendService } from './backendService/backend.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { ActivateTooltipsService } from './activateTooltipsService/activate-tooltips.service';

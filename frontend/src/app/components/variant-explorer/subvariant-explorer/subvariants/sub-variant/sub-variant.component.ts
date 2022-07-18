@@ -1,4 +1,4 @@
-import { VARIANT_Constants } from './../../../constants/variant_element_drawer_constants';
+import { VARIANT_Constants } from '../../../../../constants/variant_element_drawer_constants';
 import {
   AfterViewInit,
   Component,
@@ -9,10 +9,11 @@ import {
 import * as d3 from 'd3';
 import { Selection } from 'd3';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
-import { ActivateTooltipsService } from '../../../services/activateTooltipsService/activate-tooltips.service';
+import { ActivateTooltipsService } from '../../../../../services/activateTooltipsService/activate-tooltips.service';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
-import { SubvariantVisualization } from './model';
+
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
+import { SubvariantVisualization } from 'src/app/objects/Variants/subvariant';
 
 @Component({
   selector: 'app-sub-variant',
@@ -99,9 +100,11 @@ export class SubVariantComponent implements AfterViewInit {
     const [data, xValues] = this.buildData();
     let dataArray = Array.from(data.values());
 
-    const xScale = (x) => VARIANT_Constants.POINT_RADIUS + x * intervalWidth + 5;
+    const xScale = (x) =>
+      VARIANT_Constants.POINT_RADIUS + x * intervalWidth + 5;
     const yScale = (y) =>
-      4 * VARIANT_Constants.POINT_RADIUS + y * VARIANT_Constants.LEAF_HEIGHT * 1.5;
+      4 * VARIANT_Constants.POINT_RADIUS +
+      y * VARIANT_Constants.LEAF_HEIGHT * 1.5;
 
     const maxYIndex = Math.max(...dataArray.map((d) => d.yIndex));
     const maxXEnd = Math.max(...dataArray.map((d) => d.xEnd));
@@ -171,7 +174,8 @@ export class SubVariantComponent implements AfterViewInit {
       .attr('ry', 8)
       .attr(
         'width',
-        (d) => xScale(d.xEnd) - xScale(d.xStart) + 2 * VARIANT_Constants.POINT_RADIUS
+        (d) =>
+          xScale(d.xEnd) - xScale(d.xStart) + 2 * VARIANT_Constants.POINT_RADIUS
       )
       .attr('height', VARIANT_Constants.POINT_RADIUS * 2)
       .attr('data-bs-toggle', (d) => {

@@ -2,11 +2,16 @@
 """
 
 from fastapi import APIRouter
-from api.routes.log import log, modifyLog
-from api.routes.input_output import exporting, importing
+
 from api.routes.configuration import configuration
 from api.routes.conformance import conformance
-from api.routes.performance import variantPerformance, subvariantPerformance
+from api.routes.input_output import exporting, importing
+from api.routes.log import log, modifyLog
+from api.routes.performance import (
+    subvariantPerformance,
+    treePerformance,
+    variantPerformance,
+)
 from api.routes.process_tree import discoverTree, modifyTree, treeString
 from api.routes.variants import queryVariant
 
@@ -18,7 +23,7 @@ router.include_router(importing.router)
 router.include_router(configuration.router)
 
 router.include_router(conformance.router)
-router.include_router(variantPerformance.router)
+router.include_router(treePerformance.router)
 router.include_router(subvariantPerformance.router)
 router.include_router(discoverTree.router)
 router.include_router(modifyTree.router)

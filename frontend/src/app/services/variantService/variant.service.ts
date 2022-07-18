@@ -1,4 +1,3 @@
-
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { LogService } from 'src/app/services/logService/log.service';
@@ -8,16 +7,21 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { skip } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { mapVariants } from 'src/app/utils/util';
-import { InfixType, setParent } from 'src/app/objects/Variants/infix_selection';
+import { getSelectedChildren, handleTreeLevelsWithOneChild, InfixType, setParent, someChildrenSelected } from 'src/app/objects/Variants/infix_selection';
 import { Subvariant } from 'src/app/objects/Variants/subvariant';
 import { Variant } from 'src/app/objects/Variants/variant';
-import { deserialize, injectWaitingTimeNodes } from 'src/app/objects/Variants/variant_element';
+import {
+  deserialize,
+  injectWaitingTimeNodes,
+  SequenceGroup,
+} from 'src/app/objects/Variants/variant_element';
 
 @Injectable({
   providedIn: 'root',
 })
 export class VariantService {
   backendUrl = 'http://127.0.0.1:41211/';
+  variantService: any;
   constructor(
     private logService: LogService,
     private httpClient: HttpClient,
@@ -54,6 +58,67 @@ export class VariantService {
   }
 
   public nUserVariants: number = 0;
+
+
+  addSelectedTraceInfix(variant : Variant): void {
+
+    let thereAreSelectedChildren = someChildrenSelected(
+      variant.variant,
+      true
+    );
+
+    if (thereAreSelectedChildren && !variant.variant.selected) {
+      let infixType;
+      let children = variant.variant.getElements();
+      if (children[0].selected) {
+        infixType = InfixType.PREFIX;
+      } else if (children[children.length - 1].selected) {
+        infixType = InfixType.POSTFIX;
+      } else {
+        infixType = InfixType.PROPER_INFIX;
+      }
+      let newInfix = getSelectedChildren(variant.variant);
+      let reducedInfix = handleTreeLevelsWithOneChild(newInfix);
+      if (!(reducedInfix instanceof SequenceGroup)) {
+        // Every variant should be a sequence group
+        reducedInfix = new SequenceGroup([reducedInfix]);
+      }
+      const newVariant = new Variant(
+        1,
+        reducedInfix,
+        false,
+        true,
+        false,
+        0,
+        false,
+        true,
+        false,
+        true,
+        [],
+        infixType
+      );
+
+      let currentVariants = this.variants;
+
+      newVariant.alignment = undefined;
+      newVariant.deviation = undefined;
+      newVariant.id = objectHash(newVariant);
+
+      this.nUserVariants += 1;
+      newVariant.bid = -this.nUserVariants;
+
+      const duplicate = currentVariants.map((v) => v.id === newVariant.id);
+
+      if (!duplicate.includes(true)) {
+        currentVariants.push(newVariant);
+        this.variants = currentVariants;
+      } else {
+        // Will think about some warning mechanism later
+      }
+    }
+  }
+
+
 
   public deleteVariants(bids: number[]): void {
     const delVariants = this.variants.filter((v) => bids.includes(v.bid));

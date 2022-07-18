@@ -1,4 +1,11 @@
-import { InvisibleSequenceGroup, LeafNode, ParallelGroup, SequenceGroup, VariantElement, WaitingTimeNode } from "./variant_element";
+import {
+  InvisibleSequenceGroup,
+  LeafNode,
+  ParallelGroup,
+  SequenceGroup,
+  VariantElement,
+  WaitingTimeNode,
+} from './variant_element';
 
 export const isElementWithActivity = (elem: VariantElement) => {
   if (
@@ -12,7 +19,10 @@ export const isElementWithActivity = (elem: VariantElement) => {
   }
 };
 
-export const allChildrenSelected = (elem: VariantElement, defaultRes: boolean) => {
+export const allChildrenSelected = (
+  elem: VariantElement,
+  defaultRes: boolean
+) => {
   if (elem instanceof LeafNode) {
     return elem.selected;
   } else if (elem instanceof ParallelGroup || elem instanceof SequenceGroup) {
@@ -121,7 +131,6 @@ export const handleTreeLevelsWithOneChild = (elem: VariantElement) => {
     }
   }
 };
-
 
 export enum InfixType {
   PROPER_INFIX = 1,

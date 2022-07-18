@@ -1,28 +1,23 @@
 from typing import Any, List
+
+from backend_utilities.process_tree_conversion import (
+    dict_to_process_tree,
+    process_tree_to_dict,
+)
+from backend_utilities.variant_trace_conversion import variant_to_trace
 from cortado_core.utils.alignment_utils import trace_fits_process_tree
 from cortado_core.utils.cvariants import generate_variants
+from endpoints.add_variants_to_process_model import add_variants_to_process_model
 from fastapi import APIRouter
-
-from pm4py.algo.discovery.inductive.variants.im_clean.algorithm import \
-    apply_tree as inductive_miner
+from pm4py.algo.discovery.inductive.variants.im_clean.algorithm import (
+    apply_tree as inductive_miner,
+)
 from pm4py.objects.log.obj import Event, EventLog, Trace
-
 from pm4py.objects.process_tree.obj import ProcessTree
-
-
 from pydantic import BaseModel
 
-from backend_utilities.process_tree_conversion import (dict_to_process_tree,
-                                                       process_tree_to_dict)
-from backend_utilities.variant_trace_conversion import variant_to_trace
-from endpoints.add_variants_to_process_model import \
-    add_variants_to_process_model
+router = APIRouter(tags=["discoverTree"], prefix="/discoverTree")
 
-
-router = APIRouter(
-    tags=["discoverTree"],
-    prefix="/discoverTree"
-)
 
 class InputDiscoverProcessModelFromVariants(BaseModel):
     variants: List[Any]
@@ -30,7 +25,7 @@ class InputDiscoverProcessModelFromVariants(BaseModel):
 
 @router.post("/discoverProcessModelFromVariants")
 async def discover_process_model(d: InputDiscoverProcessModelFromVariants):
-    variants = [v['value']['events'] for v in d.variants]
+    variants = [v["value"]["events"] for v in d.variants]
     return discover_process_model_from_variants(variants)
 
 
@@ -49,11 +44,17 @@ def discover_process_model_from_variants(variants):
     return res
 
 
-
 @router.post("/discoverProcessModelFromConcurrencyVariants")
-async def discover_process_model_from_cvariants(d: InputDiscoverProcessModelFromVariants):
-    all_variants = set([tuple(
-        variant) for cvariant in d.variants for variant in generate_variants(cvariant)])
+async def discover_process_model_from_cvariants(
+    d: InputDiscoverProcessModelFromVariants,
+):
+    all_variants = set(
+        [
+            tuple(variant)
+            for cvariant in d.variants
+            for variant in generate_variants(cvariant)
+        ]
+    )
     print(f"nVariants: {len(all_variants)}")
     res = discover_process_model_from_variants(all_variants)
     return res
@@ -68,17 +69,27 @@ class InputAddVariantsToProcessModel(BaseModel):
 # TODO this endpoint is currently unused, we have to decide if we want to delete it
 @router.post("/addVariantsToProcessModel")
 async def add_simple_variants_to_process_model(d: InputAddVariantsToProcessModel):
-    fitting_variants = [v['events'] for v in d.fitting_variants]
-    to_add = [v['events'] for v in d.variants_to_add]
+    fitting_variants = [v["events"] for v in d.fitting_variants]
+    to_add = [v["events"] for v in d.variants_to_add]
     return add_variants_to_process_model(d.pt, fitting_variants, to_add)
 
 
 @router.post("/addConcurrencyVariantsToProcessModel")
 async def add_cvariants_to_process_model(d: InputAddVariantsToProcessModel):
     fitting_variants = set(
-        [tuple(variant) for cvariant in d.fitting_variants for variant in generate_variants(cvariant)])
-    to_add = set([tuple(variant)
-                  for cvariant in d.variants_to_add for variant in generate_variants(cvariant)])
+        [
+            tuple(variant)
+            for cvariant in d.fitting_variants
+            for variant in generate_variants(cvariant)
+        ]
+    )
+    to_add = set(
+        [
+            tuple(variant)
+            for cvariant in d.variants_to_add
+            for variant in generate_variants(cvariant)
+        ]
+    )
     return add_variants_to_process_model(d.pt, fitting_variants, to_add)
 
 
@@ -88,9 +99,16 @@ class InputAddVariantsToProcessModelUnknownConformance(BaseModel):
 
 
 @router.post("/addConcurrencyVariantsToProcessModelUnknownConformance")
-async def add_cvariants_to_process_model_unknown_conformance(d: InputAddVariantsToProcessModelUnknownConformance):
+async def add_cvariants_to_process_model_unknown_conformance(
+    d: InputAddVariantsToProcessModelUnknownConformance,
+):
     selected_variants = set(
-        [tuple(variant) for cvariant in d.selected_variants for variant in generate_variants(cvariant)])
+        [
+            tuple(variant)
+            for cvariant in d.selected_variants
+            for variant in generate_variants(cvariant)
+        ]
+    )
 
     fitting_variants = set()
     variants_to_add = set()

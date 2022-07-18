@@ -1,30 +1,30 @@
-
+from cortado_core.variant_query_language.check_query_tree_against_graph import (
+    check_query_tree,
+)
+from cortado_core.variant_query_language.error_handling import LexerError, ParseError
 from cortado_core.variant_query_language.parse_query import parse_query_to_query_tree
-from cortado_core.variant_query_language.error_handling import ParseError, LexerError
-from cortado_core.variant_query_language.check_query_tree_against_graph import check_query_tree
 
 
-def evaluate_query_against_variant_graphs(query, variants, activities): 
+def evaluate_query_against_variant_graphs(query, variants, activities):
     ids = []
-    
-    try: 
-        
+
+    try:
+
         qt = parse_query_to_query_tree(query.queryString)
-        
-        for bid, (variant, _) in variants.items(): 
-            
+
+        for bid, (variant, _) in variants.items():
+
             b = check_query_tree(qt, variant, activities, True)
-            
-            if b: 
+
+            if b:
                 ids.append(bid)
-                    
-        
-    except ParseError as PE: 
-       res = {'error' : PE.msg, 'error_index' : PE.column}
-       return res
-        
-    except LexerError as LE: 
-        res = {'error' : LE.msg, 'error_index' : LE.column}
+
+    except ParseError as PE:
+        res = {"error": PE.msg, "error_index": PE.column}
         return res
-    
-    return {'ids' : ids}
+
+    except LexerError as LE:
+        res = {"error": LE.msg, "error_index": LE.column}
+        return res
+
+    return {"ids": ids}

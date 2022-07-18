@@ -26,7 +26,12 @@ import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-c
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
 import { InfixType, setParent } from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
-import { VariantElement, LeafNode, SequenceGroup, ParallelGroup } from 'src/app/objects/Variants/variant_element';
+import {
+  VariantElement,
+  LeafNode,
+  SequenceGroup,
+  ParallelGroup,
+} from 'src/app/objects/Variants/variant_element';
 
 @Component({
   selector: 'app-variant-editor',

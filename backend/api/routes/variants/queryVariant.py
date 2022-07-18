@@ -1,15 +1,11 @@
-
-from fastapi import APIRouter
-import pm4pycvxopt
-from pydantic import BaseModel
-from endpoints.query_variant import evaluate_query_against_variant_graphs
 import cache.cache as cache
+import pm4pycvxopt
+from endpoints.query_variant import evaluate_query_against_variant_graphs
+from fastapi import APIRouter
+from pydantic import BaseModel
 
+router = APIRouter(tags=["variantQuery"], prefix="/variantQuery")
 
-router = APIRouter(
-    tags=["variantQuery"],
-    prefix="/variantQuery"
-)
 
 class variantQuery(BaseModel):
     queryString: str
@@ -18,6 +14,7 @@ class variantQuery(BaseModel):
 @router.post("/variant-query")
 def variant_query(query: variantQuery):
     res = evaluate_query_against_variant_graphs(
-        query, cache.variants, cache.parameters['activites'])
+        query, cache.variants, cache.parameters["activites"]
+    )
 
     return res

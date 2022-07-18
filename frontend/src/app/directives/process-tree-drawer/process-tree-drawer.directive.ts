@@ -3,17 +3,18 @@ import { ProcessTreeService } from 'src/app/services/processTreeService/process-
 import { Directive, ElementRef, Input } from '@angular/core';
 import { getPerformanceTable } from 'src/app/components/process-tree-editor/utils';
 import { textColorForBackgroundColor } from 'src/app/utils/helper_functions';
-import { ProcessTree, ProcessTreeOperator } from 'src/app/objects/ProcessTree/ProcessTree';
+import {
+  ProcessTree,
+  ProcessTreeOperator,
+} from 'src/app/objects/ProcessTree/ProcessTree';
 import { flextree } from 'd3-flextree';
 
 import * as d3 from 'd3';
 
 @Directive({
-  selector: '[appProcessTreeDrawer]'
+  selector: '[appProcessTreeDrawer]',
 })
-export class ProcessTreeDrawerDirective{
-
-
+export class ProcessTreeDrawerDirective {
   nodeEnter: any;
 
   root: d3.HierarchyNode<any>;
@@ -24,31 +25,29 @@ export class ProcessTreeDrawerDirective{
 
   constructor(
     elRef: ElementRef,
-    private processTreeService : ProcessTreeService,
+    private processTreeService: ProcessTreeService
   ) {
     this.mainSvgGroup = d3.select(elRef.nativeElement);
   }
 
   @Input()
-  computeNodeColor
+  computeNodeColor;
 
   @Input()
-  computeTextColor
+  computeTextColor;
 
   @Input()
-  tooltipText
+  tooltipText;
 
   @Input()
-  onClickCallBack
+  onClickCallBack;
 
-  redraw(tree : ProcessTree){
-
-    if (tree){
+  redraw(tree: ProcessTree) {
+    if (tree) {
       this.root = d3.hierarchy(tree, (d) => {
         // @ts-ignore
         return d.children;
       });
-
     } else {
       this.root = null;
     }
@@ -56,9 +55,7 @@ export class ProcessTreeDrawerDirective{
     this.update(this.root);
   }
 
-  drawNodes(
-    node: d3.Selection<any, any, any, any>
-  ) {
+  drawNodes(node: d3.Selection<any, any, any, any>) {
     // add node groups
     this.nodeEnter = node
       .enter()
@@ -91,10 +88,10 @@ export class ProcessTreeDrawerDirective{
     this.nodeEnter
       .append('rect')
       .classed('node', true)
-      .attr('rx', PT_Constant.tree_corner_radius)
-      .attr('ry', PT_Constant.tree_corner_radius)
-      .attr('stroke', PT_Constant.tree_stroke_color)
-      .attr('stroke-width', PT_Constant.tree_stroke_width)
+      .attr('rx', PT_Constant.CORNER_RADIUS)
+      .attr('ry', PT_Constant.CORNER_RADIUS)
+      .attr('stroke', PT_Constant.STROKE_COLOR)
+      .attr('stroke-width', PT_Constant.STROKE_WIDTH)
       .merge(node.select('.node'))
       .style('fill', (d) => this.computeNodeColor(this.root, d))
       .classed('node-operator', function (d: any) {
@@ -126,15 +123,15 @@ export class ProcessTreeDrawerDirective{
           d.data.label === ProcessTreeOperator.tau && d.data.frozen === true
         );
       })
-      .attr('width', PT_Constant.tree_node_height_width)
-      .attr('height', PT_Constant.tree_node_height_width)
+      .attr('width', PT_Constant.BASE_HEIGHT_WIDTH)
+      .attr('height', PT_Constant.BASE_HEIGHT_WIDTH)
       .attr('font-size', (d: any) => {
         if (d.data.label === ProcessTreeOperator.tau)
-          return PT_Constant.node_invisible_font_size;
+          return PT_Constant.INVISIBLE_FONT_SIZE;
         return '';
       })
       .attr('x', function (d: any) {
-        return d.x - PT_Constant.tree_node_height_width / 2;
+        return d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2;
       })
       .attr('y', function (d: any) {
         return d.y;
@@ -151,15 +148,15 @@ export class ProcessTreeDrawerDirective{
       .attr('fill', (d) => this.computeTextColor(this.root, d))
       .attr('font-size', (d: any) => {
         if (d.data.operator) {
-          return PT_Constant.node_operator_font_size;
+          return PT_Constant.OPERATOR_FONT_SIZE;
         }
-        return PT_Constant.node_visible_font_size;
+        return PT_Constant.VISIBLE_FONT_SIZE;
       })
       .attr('x', function (d: any) {
         return d.x;
       })
       .attr('y', function (d: any) {
-        return d.y + PT_Constant.tree_node_height_width / 2 + 3;
+        return d.y + PT_Constant.BASE_HEIGHT_WIDTH / 2 + 3;
       })
       .text(function (d: any) {
         if (d.data.operator) {
@@ -183,7 +180,7 @@ export class ProcessTreeDrawerDirective{
         return (
           d.x -
           Math.max(
-            PT_Constant.tree_node_height_width,
+            PT_Constant.BASE_HEIGHT_WIDTH,
             this.nextSibling.getComputedTextLength() + 10
           ) /
             2
@@ -191,7 +188,7 @@ export class ProcessTreeDrawerDirective{
       })
       .attr('width', function () {
         return Math.max(
-          PT_Constant.tree_node_height_width,
+          PT_Constant.BASE_HEIGHT_WIDTH,
           this.nextSibling.getComputedTextLength() + 10
         );
       });
@@ -219,7 +216,7 @@ export class ProcessTreeDrawerDirective{
         return d.source.x;
       })
       .attr('y1', function (d: any) {
-        return d.source.y + PT_Constant.tree_node_height_width;
+        return d.source.y + PT_Constant.BASE_HEIGHT_WIDTH;
       })
       .attr('x2', function (d: any) {
         return d.target.x;
@@ -227,7 +224,7 @@ export class ProcessTreeDrawerDirective{
       .attr('y2', function (d: any) {
         return d.target.y;
       })
-      .attr('stroke', PT_Constant.tree_stroke_color)
+      .attr('stroke', PT_Constant.STROKE_COLOR)
       .classed('frozen-edge', (d) => {
         return d.source.data.frozen;
       })
@@ -240,7 +237,6 @@ export class ProcessTreeDrawerDirective{
     this.mainSvgGroup.selectAll('g').remove();
 
     if (root) {
-
       // add node groups that contain a rectangle and text
 
       this.calculateTreeLayout(root);
@@ -258,8 +254,7 @@ export class ProcessTreeDrawerDirective{
       this.drawEdges(root);
 
       this.addSelectionFunctionality();
-
-    } else{
+    } else {
       this.selectedRootNode = null;
       this.mainSvgGroup.selectAll('*').remove();
     }
@@ -276,29 +271,28 @@ export class ProcessTreeDrawerDirective{
     return d3.hierarchy(nodeData);
   }
 
-
   calculateTreeLayout(root): void {
     if (root) {
       const flextreeLayout = flextree();
       flextreeLayout.nodeSize((node) => {
         if (node.data.operator || node.data.label === ProcessTreeOperator.tau) {
           return [
-            PT_Constant.tree_node_height_width,
-            2 * PT_Constant.tree_node_height_width,
+            PT_Constant.BASE_HEIGHT_WIDTH,
+            2 * PT_Constant.BASE_HEIGHT_WIDTH,
           ];
         }
 
         return [
           this.processTreeService.nodeWidthCache[node.data.label],
-          2 * PT_Constant.tree_node_height_width,
+          2 * PT_Constant.BASE_HEIGHT_WIDTH,
         ];
       });
 
       // Specifies the spacing between two nodes
       flextreeLayout.spacing((nodeA, nodeB) => {
         return nodeA.parent === nodeB.parent
-          ? PT_Constant.nodeSpacing
-          : 2 * PT_Constant.nodeSpacing;
+          ? PT_Constant.NODE_SPACING
+          : 2 * PT_Constant.NODE_SPACING;
       });
 
       // calculate layout
@@ -307,11 +301,9 @@ export class ProcessTreeDrawerDirective{
   }
 
   addSelectionFunctionality(): void {
-    this.nodeEnter.on('click',  
-    (e: PointerEvent, data) => {
+    this.nodeEnter.on('click', (e: PointerEvent, data) => {
       this.onClickCallBack(this, e, data);
       e.stopPropagation();
     });
   }
-
 }

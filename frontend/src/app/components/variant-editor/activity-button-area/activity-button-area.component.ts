@@ -14,7 +14,10 @@ import { ColorMapService } from 'src/app/services/colorMapService/color-map.serv
 import * as d3 from 'd3';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
 import { Variant } from 'src/app/objects/Variants/variant';
-import { LeafNode, VariantElement } from 'src/app/objects/Variants/variant_element';
+import {
+  LeafNode,
+  VariantElement,
+} from 'src/app/objects/Variants/variant_element';
 
 @Component({
   selector: 'app-activity-button-area',

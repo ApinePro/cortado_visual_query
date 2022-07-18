@@ -6,13 +6,11 @@ import { skip } from 'rxjs/operators';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { Variant } from 'src/app/objects/Variants/variant';
 
-
 @Injectable({
   providedIn: 'root',
 })
-export class LogService{
-  constructor(private colorMapService: ColorMapService,
-) {}
+export class LogService {
+  constructor(private colorMapService: ColorMapService) {}
 
   public performanceInfoAvailable = false;
   private _timeGranularity: BehaviorSubject<TimeUnit> = new BehaviorSubject(
@@ -216,8 +214,6 @@ export class LogService{
       totalNumberVariants
     );
   }
-
-
 }
 
 export class LogStats {

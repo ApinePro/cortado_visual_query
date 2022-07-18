@@ -1,4 +1,3 @@
-
 import { ColorMapService } from '../../../services/colorMapService/color-map.service';
 import {
   AfterViewInit,
@@ -12,18 +11,21 @@ import {
   ViewChildren,
 } from '@angular/core';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
-import { SubVariantComponent } from '../sub-variant/sub-variant.component';
+import { SubVariantComponent } from './subvariants/sub-variant/sub-variant.component';
 import { ImageExportService } from 'src/app/services/imageExportService/image-export-service';
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import * as d3 from 'd3';
 import { LogService } from 'src/app/services/logService/log.service';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
-import { LeafNode, VariantElement } from 'src/app/objects/Variants/variant_element';
+import {
+  LeafNode,
+  VariantElement,
+} from 'src/app/objects/Variants/variant_element';
 import { Variant } from 'src/app/objects/Variants/variant';
 import { BackendService } from 'src/app/services/backendService/backend.service';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
-import { SubvariantVisualization } from '../sub-variant/model';
+import { SubvariantVisualization } from 'src/app/objects/Variants/subvariant';
 
 @Component({
   selector: 'app-subvariant-explorer',

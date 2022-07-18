@@ -1,14 +1,13 @@
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
-import {
-  ChangeDetectorRef,
-  Component,
-  OnInit,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import {
   HumanizeDuration,
   HumanizeDurationLanguage,
 } from 'humanize-duration-ts';
-import { ProcessTree, TreePerformance } from 'src/app/objects/ProcessTree/ProcessTree';
+import {
+  ProcessTree,
+  TreePerformance,
+} from 'src/app/objects/ProcessTree/ProcessTree';
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
 import { PerformanceService } from 'src/app/services/performance.service';
 import { PerformanceStats } from 'src/app/objects/Variants/variant_element';

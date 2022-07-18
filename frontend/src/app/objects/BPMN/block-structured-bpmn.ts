@@ -1,4 +1,3 @@
-
 import { BPMN_Constant } from 'src/app/constants/bpmn_model_drawer_constants';
 import { ProcessTree, ProcessTreeOperator } from '../ProcessTree/ProcessTree';
 
@@ -159,7 +158,7 @@ export class Event extends Block_Structured_BPMN {
 
   recalculateWidth(blockWidthCache: Map<string, number> = null) {
     if (this.eventName === ProcessTreeOperator.tau) {
-      this.width = BPMN_Constant.bpmn_node_height_width;
+      this.width = BPMN_Constant.BASE_HEIGHT_WIDTH;
     } else {
       const width = blockWidthCache[this.eventName];
 
@@ -245,7 +244,7 @@ function compute_width_vertical_group(model: any): number {
 
   model.width += 2 * BPMN_Constant.HORIZONTALSPACING;
 
-  model.width += 4 * BPMN_Constant.rectDiagLen;
+  model.width += 4 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
 
   return model.width;
 }

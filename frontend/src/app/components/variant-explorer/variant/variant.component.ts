@@ -1,5 +1,3 @@
-import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
-
 import {
   AfterViewInit,
   Component,
@@ -11,16 +9,14 @@ import {
 } from '@angular/core';
 import { isDevMode } from '@angular/core';
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
-
-import { PerformanceService } from '../../../services/performance.service';
-import { ModelPerformanceColorScaleService } from '../../../services/performance-color-scale.service';
-import { textColorForBackgroundColor } from '../../../utils/helper_functions';
-import * as objectHash from 'object-hash';
-import { VariantService } from 'src/app/services/variantService/variant.service';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
-import { InfixType, someChildrenSelected, getSelectedChildren, handleTreeLevelsWithOneChild } from 'src/app/objects/Variants/infix_selection';
+import {
+  InfixType,
+} from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
-import { VariantElement, SequenceGroup } from 'src/app/objects/Variants/variant_element';
+import {
+  VariantElement,
+} from 'src/app/objects/Variants/variant_element';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -83,6 +79,9 @@ export class VariantComponent implements AfterViewInit {
   @Output()
   public openSubvariantWindow = new EventEmitter<number>();
 
+  @Output()
+  public selectTraceInfix = new EventEmitter<Variant>(); 
+
   @ViewChild('row')
   rowElement: ElementRef;
 
@@ -101,11 +100,7 @@ export class VariantComponent implements AfterViewInit {
   isDevMode = isDevMode();
 
   constructor(
-    private lazyLoadingService: LazyLoadingServiceService,
-    public performanceService: PerformanceService,
-    public variantService: VariantService,
-    private performanceColorService: ModelPerformanceColorScaleService
-  ) {}
+    private lazyLoadingService: LazyLoadingServiceService,  ) {}
 
   ngAfterViewInit(): void {
     const self = this;
@@ -123,6 +118,10 @@ export class VariantComponent implements AfterViewInit {
 
   openNewSubvariantWindow(index: number) {
     this.openSubvariantWindow.emit(index);
+  }
+
+  addCurrentSelectedInfix() {
+    this.selectTraceInfix.emit(this.variant)
   }
 
   setExpanded(expanded: boolean): void {
@@ -145,127 +144,9 @@ export class VariantComponent implements AfterViewInit {
     return this.fragment.nativeElement;
   }
 
-  isPerformanceAvailable(variant: Variant): boolean {
-    return this.performanceService.availablePerformances.has(variant);
-  }
-
-  isPerformanceActive(variant: Variant): boolean {
-    return this.performanceService.activeVariant === variant;
-  }
-
-  showThisPerformance(variant: Variant): void {
-    if (this.performanceService.availablePerformances.has(variant)) {
-      if (this.performanceService.activeVariant == variant) {
-        this.performanceService.unselectPerformance();
-      } else {
-        this.performanceService.setShownVariantPerformance(variant);
-      }
-    } else {
-      if (this.performanceService.calculationInProgress.has(variant)) {
-        return;
-      }
-      if (this.processTreeAvailable) {
-        this.performanceService.updatePerformance([variant]);
-      }
-    }
-  }
-
-  removePerformance(variant: Variant) {
-    this.performanceService.updatePerformance([], [variant]);
-  }
-
-  variantPerformanceColor(variant: Variant): string {
-    let tree;
-    tree = this.performanceService.variantsPerformance.get(variant);
-    if (!tree) {
-      return null;
-    }
-
-    let selectedScale = this.performanceColorService.selectedColorScale;
-    const colorScale = this.performanceColorService
-      .getVariantComparisonColorScale()
-      .get(tree.id);
-    if (
-      colorScale &&
-      tree.performance?.[selectedScale.performanceIndicator]?.[
-        selectedScale.statistic
-      ] !== undefined
-    ) {
-      return colorScale(
-        tree.performance[selectedScale.performanceIndicator][
-          selectedScale.statistic
-        ]
-      );
-    }
-    return '#d3d3d3';
-  }
-
-  textColorForBackgroundColor(variant: Variant): string {
-    if (this.variantPerformanceColor(variant) === null) {
-      return 'white';
-    }
-    return textColorForBackgroundColor(this.variantPerformanceColor(variant));
-  }
-
   resetSelectionStatus(): void {
     this.variant.variant.resetSelectionStatus();
     this.variantDrawer.redraw();
-  }
-
-  addSelectedTraceInfix(): void {
-    let thereAreSelectedChildren = someChildrenSelected(
-      this.variant.variant,
-      true
-    );
-    if (thereAreSelectedChildren && !this.variant.variant.selected) {
-      let infixType;
-      let children = this.variant.variant.getElements();
-      if (children[0].selected) {
-        infixType = InfixType.PREFIX;
-      } else if (children[children.length - 1].selected) {
-        infixType = InfixType.POSTFIX;
-      } else {
-        infixType = InfixType.PROPER_INFIX;
-      }
-      let newInfix = getSelectedChildren(this.variant.variant);
-      let reducedInfix = handleTreeLevelsWithOneChild(newInfix);
-      if (!(reducedInfix instanceof SequenceGroup)) {
-        // Every variant should be a sequence group
-        reducedInfix = new SequenceGroup([reducedInfix]);
-      }
-      const newVariant = new Variant(
-        1,
-        reducedInfix,
-        false,
-        true,
-        false,
-        0,
-        false,
-        true,
-        false,
-        true,
-        [],
-        infixType
-      );
-
-      let currentVariants = this.variantService.variants;
-
-      newVariant.alignment = undefined;
-      newVariant.deviation = undefined;
-      newVariant.id = objectHash(newVariant);
-
-      this.variantService.nUserVariants += 1;
-      newVariant.bid = -this.variantService.nUserVariants;
-
-      const duplicate = currentVariants.map((v) => v.id === newVariant.id);
-
-      if (!duplicate.includes(true)) {
-        currentVariants.push(newVariant);
-        this.variantService.variants = currentVariants;
-      } else {
-        // Will think about some warning mechanism later
-      }
-    }
   }
 
   undoSelection(): void {

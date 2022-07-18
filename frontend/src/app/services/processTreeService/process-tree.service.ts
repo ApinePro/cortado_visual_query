@@ -5,24 +5,26 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
 import * as d3 from 'd3';
 import Swal from 'sweetalert2';
-import { ProcessTree, ProcessTreeOperator } from 'src/app/objects/ProcessTree/ProcessTree';
+import {
+  ProcessTree,
+  ProcessTreeOperator,
+} from 'src/app/objects/ProcessTree/ProcessTree';
 @Injectable({
   providedIn: 'root',
 })
-export class ProcessTreeService{
-  constructor(private logService : LogService) {
-
-    console.log('Init Process Tree Service')
+export class ProcessTreeService {
+  constructor(private logService: LogService) {
+    console.log('Init Process Tree Service');
     this.logService.activitiesInEventLog$.subscribe((activites) => {
       this.computeLeafNodeWidth(Object.keys(activites));
-    })
+    });
 
     this.logService.loadedEventLog$.subscribe((log) => {
-      console.log('Log Changed', log)
-      if(log !== 'preload'){
-        this.nodeWidthCache = new Map<string, number>()
+      console.log('Log Changed', log);
+      if (log !== 'preload') {
+        this.nodeWidthCache = new Map<string, number>();
       }
-    })
+    });
   }
 
   private _selectedRootNodeID = new BehaviorSubject<number>(null);
@@ -39,7 +41,9 @@ export class ProcessTreeService{
     return this._selectedRootNodeID.getValue();
   }
 
-  private _nodeWidthCache = new BehaviorSubject<Map<string, number>>(new Map<string, number>());
+  private _nodeWidthCache = new BehaviorSubject<Map<string, number>>(
+    new Map<string, number>()
+  );
 
   get nodeWidthCache$(): Observable<Map<string, number>> {
     return this._nodeWidthCache.asObservable();
@@ -164,10 +168,9 @@ export class ProcessTreeService{
     this._activitiesInCurrentTree.next(activities);
   }
 
-
   checkForLoadedTreeIntegrity(tree): Set<string> {
     let unknownActivities = new Set<string>();
-    const activities = Object.keys(this.logService.activitiesInEventLog)
+    const activities = Object.keys(this.logService.activitiesInEventLog);
 
     for (let subtree of tree.children) {
       // If it is a operator, recurse on the children
@@ -192,7 +195,6 @@ export class ProcessTreeService{
 
     return unknownActivities;
   }
-
 
   set currentDisplayedProcessTree(tree: any) {
     if (tree && !(tree instanceof ProcessTree)) {
@@ -226,7 +228,6 @@ export class ProcessTreeService{
         cancelButtonText: 'close',
       });
     }
-
   }
 
   public set_currentDisplayedProcessTree_with_Cache(tree: any) {
@@ -358,10 +359,8 @@ export class ProcessTreeService{
     }
   }
 
-
   computeLeafNodeWidth(nodeActivityLabels: string[]): void {
-
-    const nodeWidthCache = this.nodeWidthCache
+    const nodeWidthCache = this.nodeWidthCache;
 
     const dummy_container = d3
       .select('body')
@@ -390,7 +389,7 @@ export class ProcessTreeService{
       // Compute the true node width as specified above
       rendered_width = Math.max(
         rendered_width + 10,
-        PT_Constant.tree_node_height_width
+        PT_Constant.BASE_HEIGHT_WIDTH
       );
 
       // Add to Cache
@@ -404,7 +403,7 @@ export class ProcessTreeService{
     this.nodeWidthCache = nodeWidthCache;
   }
 
-  freezeSubtree(node : ProcessTree) {
+  freezeSubtree(node: ProcessTree) {
     const markNodeAsFrozen = (node) => {
       node.frozen = true;
       if (node.children) {
@@ -438,47 +437,41 @@ export class ProcessTreeService{
     this.selectedRootNodeID = null;
   }
 
-  shiftSubtreeToLeft(tree : ProcessTree): void {
-
-    this.cacheCurrentTree(this.currentDisplayedProcessTree)
+  shiftSubtreeToLeft(tree: ProcessTree): void {
+    this.cacheCurrentTree(this.currentDisplayedProcessTree);
 
     if (tree.parent) {
-      const siblings = tree.parent.children
+      const siblings = tree.parent.children;
       const idxInParentChildList = siblings.indexOf(tree);
       if (idxInParentChildList > 0) {
-
         const childToRight = siblings[idxInParentChildList - 1];
         const childToLeft = siblings[idxInParentChildList];
         siblings[idxInParentChildList] = childToRight;
         siblings[idxInParentChildList - 1] = childToLeft;
 
-        this.currentDisplayedProcessTree = this.currentDisplayedProcessTree
+        this.currentDisplayedProcessTree = this.currentDisplayedProcessTree;
       }
     }
   }
 
-  shiftSubtreeToRight(tree : ProcessTree): void {
-
-    this.cacheCurrentTree(this.currentDisplayedProcessTree)
+  shiftSubtreeToRight(tree: ProcessTree): void {
+    this.cacheCurrentTree(this.currentDisplayedProcessTree);
 
     if (tree.parent) {
-      const siblings = tree.parent.children
-      const idxInParentChildList =
-      siblings.indexOf(tree);
-      if ( idxInParentChildList < siblings.length - 1) {
+      const siblings = tree.parent.children;
+      const idxInParentChildList = siblings.indexOf(tree);
+      if (idxInParentChildList < siblings.length - 1) {
         const childToRight = siblings[idxInParentChildList];
         const childToLeft = siblings[idxInParentChildList + 1];
         siblings[idxInParentChildList + 1] = childToRight;
         siblings[idxInParentChildList] = childToLeft;
 
-        this.currentDisplayedProcessTree = this.currentDisplayedProcessTree
+        this.currentDisplayedProcessTree = this.currentDisplayedProcessTree;
       }
     }
   }
 
-
-
-  deleteSelected(tree_to_delete : ProcessTree) {
+  deleteSelected(tree_to_delete: ProcessTree) {
     this.cacheCurrentTree(this.currentDisplayedProcessTree);
     const newTree = this.currentDisplayedProcessTree;
 
@@ -486,7 +479,6 @@ export class ProcessTreeService{
       if (tree === tree_to_delete) {
         console.log('Found Tree to Delete!');
         return;
-
       } else {
         if (tree.children) {
           let child_list: Array<ProcessTree> = [];
@@ -514,23 +506,31 @@ export class ProcessTreeService{
       );
     }
 
-    console.log('After Delete', this.currentDisplayedProcessTree)
+    console.log('After Delete', this.currentDisplayedProcessTree);
     this.selectedRootNodeID = null;
   }
 
-
-
-
-  insertNewNode(selectedNode : ProcessTree, strat : NodeInsertionStrategy, operator : ProcessTreeOperator, label : string){
-
-    let newNode : ProcessTree
-    newNode = new ProcessTree(label, operator, [], Math.floor(1000000000 + Math.random() * 900000000), false, null, null)
+  insertNewNode(
+    selectedNode: ProcessTree,
+    strat: NodeInsertionStrategy,
+    operator: ProcessTreeOperator,
+    label: string
+  ) {
+    let newNode: ProcessTree;
+    newNode = new ProcessTree(
+      label,
+      operator,
+      [],
+      Math.floor(1000000000 + Math.random() * 900000000),
+      false,
+      null,
+      null
+    );
 
     if (this.currentDisplayedProcessTree) {
+      this.cacheCurrentTree(this.currentDisplayedProcessTree);
 
-      this.cacheCurrentTree(this.currentDisplayedProcessTree)
-
-      switch(strat){
+      switch (strat) {
         case NodeInsertionStrategy.BELOW: {
           selectedNode.children.push(newNode);
           newNode.parent = selectedNode;
@@ -538,20 +538,22 @@ export class ProcessTreeService{
         }
 
         case NodeInsertionStrategy.ABOVE: {
-          newNode.children = [selectedNode]
-          selectedNode.parent = newNode
+          newNode.children = [selectedNode];
+          selectedNode.parent = newNode;
           break;
         }
 
         case NodeInsertionStrategy.LEFT: {
-          const idx: number = selectedNode.parent.children.indexOf(selectedNode);
+          const idx: number =
+            selectedNode.parent.children.indexOf(selectedNode);
           selectedNode.parent.children.splice(idx, 0, newNode);
           newNode.parent = selectedNode.parent;
           break;
         }
 
         case NodeInsertionStrategy.RIGHT: {
-          const idx: number = selectedNode.parent.children.indexOf(selectedNode);
+          const idx: number =
+            selectedNode.parent.children.indexOf(selectedNode);
           selectedNode.parent.children.splice(idx + 1, 0, newNode);
           newNode.parent = selectedNode.parent;
           break;
@@ -570,15 +572,13 @@ export class ProcessTreeService{
         }
       }
 
-      this.currentDisplayedProcessTree = this.currentDisplayedProcessTree
+      this.currentDisplayedProcessTree = this.currentDisplayedProcessTree;
       this.selectedRootNodeID = selectedNode.id;
     } else {
       // empty tree - just add a single node
-      this.currentDisplayedProcessTree = newNode
+      this.currentDisplayedProcessTree = newNode;
       this.selectedRootNodeID = newNode.id;
     }
-
-    
   }
 }
 
@@ -592,6 +592,5 @@ export enum NodeInsertionStrategy {
   RIGHT = 'Right',
   ABOVE = 'Above',
   BELOW = 'Below',
-  CHANGE = 'Change'
+  CHANGE = 'Change',
 }
-

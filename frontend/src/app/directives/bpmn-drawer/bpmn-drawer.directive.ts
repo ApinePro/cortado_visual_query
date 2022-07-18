@@ -1,38 +1,45 @@
 import { Directive, ElementRef, Input, SimpleChanges } from '@angular/core';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import * as d3 from 'd3';
-import { Block_Structured_BPMN, ChoiceBlock, convertPTtoBlockstructuredBPMN, LoopBlock, ParallelBlock, SequenceBlock, Event } from 'src/app/objects/BPMN/block-structured-bpmn';
+import {
+  Block_Structured_BPMN,
+  ChoiceBlock,
+  convertPTtoBlockstructuredBPMN,
+  LoopBlock,
+  ParallelBlock,
+  SequenceBlock,
+  Event,
+} from 'src/app/objects/BPMN/block-structured-bpmn';
 import { BPMN_Constant } from 'src/app/constants/bpmn_model_drawer_constants';
 import { getPerformanceTable } from 'src/app/components/process-tree-editor/utils';
 import { ProcessTreeOperator } from 'src/app/objects/ProcessTree/ProcessTree';
 import { textColorForBackgroundColor } from 'src/app/utils/helper_functions';
 
 @Directive({
-  selector: '[appBpmnDrawer]'
+  selector: '[appBpmnDrawer]',
 })
-export class BpmnDrawerDirective{
+export class BpmnDrawerDirective {
+  @Input()
+  computeNodeColor;
 
   @Input()
-  computeNodeColor
+  computeTextColor;
 
   @Input()
-  computeTextColor
+  computeFillColor;
 
   @Input()
-  computeFillColor
+  tooltipText;
 
   @Input()
-  tooltipText
+  onClickCallBack;
 
-  @Input()
-  onClickCallBack
-
-  mainGroup
-  root 
+  mainGroup;
+  root;
 
   constructor(
     elRef: ElementRef,
-    private processTreeService : ProcessTreeService,
+    private processTreeService: ProcessTreeService
   ) {
     this.mainGroup = d3.select(elRef.nativeElement);
   }
@@ -40,10 +47,9 @@ export class BpmnDrawerDirective{
   redraw(tree) {
     this.mainGroup.selectChildren().remove();
 
-    this.root = tree
+    this.root = tree;
 
     if (tree) {
-
       const model = convertPTtoBlockstructuredBPMN(
         tree,
         this.processTreeService.nodeWidthCache
@@ -56,7 +62,7 @@ export class BpmnDrawerDirective{
           `translate(${-(
             2 * BPMN_Constant.HORIZONTALSPACING +
             BPMN_Constant.START_END_RADIUS
-          )},${BPMN_Constant.bpmn_node_height_width / 2})`
+          )},${BPMN_Constant.BASE_HEIGHT_WIDTH / 2})`
         );
 
       this.drawStart(start, tree, model._pt.frozen);
@@ -83,7 +89,7 @@ export class BpmnDrawerDirective{
             model.width +
             2 * BPMN_Constant.HORIZONTALSPACING +
             BPMN_Constant.START_END_RADIUS
-          }, ${BPMN_Constant.bpmn_node_height_width / 2})`
+          }, ${BPMN_Constant.BASE_HEIGHT_WIDTH / 2})`
         );
 
       this.drawEnd(end, tree, model._pt.frozen);
@@ -97,7 +103,6 @@ export class BpmnDrawerDirective{
         false,
         model._pt.frozen
       );
-
     }
   }
 
@@ -128,7 +133,8 @@ export class BpmnDrawerDirective{
     this.drawOperatorNode(enter_operator, model);
 
     let offset_x =
-      BPMN_Constant.HORIZONTALSPACING + 2 * BPMN_Constant.rectDiagLen;
+      BPMN_Constant.HORIZONTALSPACING +
+      2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
 
     let offset_y = 0;
 
@@ -138,13 +144,20 @@ export class BpmnDrawerDirective{
       interpolate_along_diag = [...model.members.keys()].map((i) => {
         return {
           y:
-            BPMN_Constant.rectDiagLen -
-            (BPMN_Constant.rectDiagLen / (model.members.length - 1)) * i,
-          x: (BPMN_Constant.rectDiagLen / (model.members.length - 1)) * i,
+            BPMN_Constant.OPERATOR_DIAGONAL_LENGTH -
+            (BPMN_Constant.OPERATOR_DIAGONAL_LENGTH /
+              (model.members.length - 1)) *
+              i,
+          x:
+            (BPMN_Constant.OPERATOR_DIAGONAL_LENGTH /
+              (model.members.length - 1)) *
+            i,
         };
       });
     } else {
-      interpolate_along_diag = [{ y: 0, x: BPMN_Constant.rectDiagLen }];
+      interpolate_along_diag = [
+        { y: 0, x: BPMN_Constant.OPERATOR_DIAGONAL_LENGTH },
+      ];
     }
 
     for (let block of model.members) {
@@ -164,10 +177,10 @@ export class BpmnDrawerDirective{
 
         this.drawLine(
           parallel_block,
-          BPMN_Constant.rectDiagLen + interpolate.x,
-          BPMN_Constant.bpmn_node_height_width / 2 + interpolate.y,
+          BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
           offset_x + center,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
           false,
           model._pt.frozen
         );
@@ -175,12 +188,12 @@ export class BpmnDrawerDirective{
         this.drawLine(
           parallel_block,
           offset_x + center + block.width,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-          2 * BPMN_Constant.rectDiagLen +
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
+          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
             model.core_width +
             2 * BPMN_Constant.HORIZONTALSPACING +
             interpolate.y,
-          BPMN_Constant.bpmn_node_height_width / 2 + interpolate.y,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
           interpolate.y > 0,
           model._pt.frozen
         );
@@ -190,13 +203,13 @@ export class BpmnDrawerDirective{
         this.drawSkipLine(
           parallel_block,
           block,
-          BPMN_Constant.rectDiagLen + interpolate.x,
-          BPMN_Constant.bpmn_node_height_width / 2 + interpolate.y,
-          2 * BPMN_Constant.rectDiagLen +
+          BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
+          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
             model.core_width +
             2 * BPMN_Constant.HORIZONTALSPACING +
             interpolate.y,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
           false,
           model._pt.frozen
         );
@@ -208,10 +221,10 @@ export class BpmnDrawerDirective{
     if (model.members.length === 0) {
       this.drawLine(
         parallel_block,
-        2 * BPMN_Constant.rectDiagLen,
-        BPMN_Constant.bpmn_node_height_width / 2,
+        2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
+        BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
         offset_x + BPMN_Constant.HORIZONTALSPACING,
-        BPMN_Constant.bpmn_node_height_width / 2,
+        BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
         false,
         model._pt.frozen
       );
@@ -223,7 +236,7 @@ export class BpmnDrawerDirective{
         'transform',
         `translate(${
           model.core_width +
-          2 * BPMN_Constant.rectDiagLen +
+          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
           2 * BPMN_Constant.HORIZONTALSPACING
         }, 0)`
       );
@@ -241,7 +254,8 @@ export class BpmnDrawerDirective{
     this.drawOperatorNode(enter_operator, model);
 
     let offset_x =
-      BPMN_Constant.HORIZONTALSPACING + 2 * BPMN_Constant.rectDiagLen;
+      BPMN_Constant.HORIZONTALSPACING +
+      2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
 
     let offset_y = 0;
     let interpolate_along_diag;
@@ -250,13 +264,20 @@ export class BpmnDrawerDirective{
       interpolate_along_diag = [...model.members.keys()].map((i) => {
         return {
           y:
-            BPMN_Constant.rectDiagLen -
-            (BPMN_Constant.rectDiagLen / (model.members.length - 1)) * i,
-          x: (BPMN_Constant.rectDiagLen / (model.members.length - 1)) * i,
+            BPMN_Constant.OPERATOR_DIAGONAL_LENGTH -
+            (BPMN_Constant.OPERATOR_DIAGONAL_LENGTH /
+              (model.members.length - 1)) *
+              i,
+          x:
+            (BPMN_Constant.OPERATOR_DIAGONAL_LENGTH /
+              (model.members.length - 1)) *
+            i,
         };
       });
     } else {
-      interpolate_along_diag = [{ y: 0, x: BPMN_Constant.rectDiagLen }];
+      interpolate_along_diag = [
+        { y: 0, x: BPMN_Constant.OPERATOR_DIAGONAL_LENGTH },
+      ];
     }
 
     for (let block of model.members) {
@@ -275,10 +296,10 @@ export class BpmnDrawerDirective{
 
         this.drawLine(
           choiceblock,
-          BPMN_Constant.rectDiagLen + interpolate.x,
-          BPMN_Constant.bpmn_node_height_width / 2 + interpolate.y,
+          BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
           offset_x + center,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
           false,
           model._pt.frozen
         );
@@ -286,12 +307,12 @@ export class BpmnDrawerDirective{
         this.drawLine(
           choiceblock,
           offset_x + center + block.width,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-          2 * BPMN_Constant.rectDiagLen +
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
+          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
             model.core_width +
             2 * BPMN_Constant.HORIZONTALSPACING +
             interpolate.y,
-          BPMN_Constant.bpmn_node_height_width / 2 + interpolate.y,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
           interpolate.y > 0,
           model._pt.frozen
         );
@@ -299,13 +320,13 @@ export class BpmnDrawerDirective{
         this.drawSkipLine(
           choiceblock,
           block,
-          BPMN_Constant.rectDiagLen + interpolate.x,
-          BPMN_Constant.bpmn_node_height_width / 2 + interpolate.y,
-          2 * BPMN_Constant.rectDiagLen +
+          BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
+          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
             model.core_width +
             2 * BPMN_Constant.HORIZONTALSPACING +
             interpolate.y,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
           false,
           model._pt.frozen
         );
@@ -317,10 +338,10 @@ export class BpmnDrawerDirective{
     if (model.members.length === 0) {
       this.drawLine(
         choiceblock,
-        2 * BPMN_Constant.rectDiagLen,
-        BPMN_Constant.bpmn_node_height_width / 2,
+        2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
+        BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
         offset_x + BPMN_Constant.HORIZONTALSPACING,
-        BPMN_Constant.bpmn_node_height_width / 2,
+        BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
         false,
         model._pt.frozen
       );
@@ -332,7 +353,7 @@ export class BpmnDrawerDirective{
         'transform',
         `translate(${
           model.core_width +
-          2 * BPMN_Constant.rectDiagLen +
+          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
           2 * BPMN_Constant.HORIZONTALSPACING
         }, 0)`
       );
@@ -347,7 +368,8 @@ export class BpmnDrawerDirective{
     this.drawOperatorNode(enter_operator, model);
 
     let offset_x =
-      BPMN_Constant.HORIZONTALSPACING + 2 * BPMN_Constant.rectDiagLen;
+      BPMN_Constant.HORIZONTALSPACING +
+      2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
 
     let offset_y = 0;
 
@@ -370,10 +392,10 @@ export class BpmnDrawerDirective{
 
         this.drawLine(
           loop_block,
-          2 * BPMN_Constant.rectDiagLen,
-          BPMN_Constant.bpmn_node_height_width / 2,
+          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
           offset_x + center,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
           false,
           model._pt.frozen
         );
@@ -381,11 +403,11 @@ export class BpmnDrawerDirective{
         this.drawLine(
           loop_block,
           offset_x + center + do_block.width,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-          2 * BPMN_Constant.rectDiagLen +
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
+          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
             model.core_width +
             2 * BPMN_Constant.HORIZONTALSPACING,
-          BPMN_Constant.bpmn_node_height_width / 2,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
           false,
           model._pt.frozen
         );
@@ -393,12 +415,12 @@ export class BpmnDrawerDirective{
         this.drawSkipLine(
           loop_block,
           do_block,
-          2 * BPMN_Constant.rectDiagLen,
-          BPMN_Constant.bpmn_node_height_width / 2,
-          2 * BPMN_Constant.rectDiagLen +
+          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
+          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
             model.core_width +
             2 * BPMN_Constant.HORIZONTALSPACING,
-          BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
           false,
           model._pt.frozen
         );
@@ -426,23 +448,23 @@ export class BpmnDrawerDirective{
           this.drawLine(
             loop_block,
             offset_x + center,
-            BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
-            BPMN_Constant.rectDiagLen,
-            BPMN_Constant.bpmn_node_height_width / 2 +
-              BPMN_Constant.rectDiagLen,
+            BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
+            BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
+            BPMN_Constant.BASE_HEIGHT_WIDTH / 2 +
+              BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
             true,
             model._pt.frozen
           );
 
           this.drawLine(
             loop_block,
-            3 * BPMN_Constant.rectDiagLen +
+            3 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
               model.core_width +
               2 * BPMN_Constant.HORIZONTALSPACING,
-            BPMN_Constant.bpmn_node_height_width / 2 +
-              BPMN_Constant.rectDiagLen,
+            BPMN_Constant.BASE_HEIGHT_WIDTH / 2 +
+              BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
             offset_x + center + redo_block.width + 6,
-            BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
+            BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
             false,
             model._pt.frozen
           );
@@ -450,13 +472,13 @@ export class BpmnDrawerDirective{
           this.drawSkipLine(
             loop_block,
             redo_block,
-            3 * BPMN_Constant.rectDiagLen +
+            3 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
               model.core_width +
               2 * BPMN_Constant.HORIZONTALSPACING,
-            BPMN_Constant.bpmn_node_height_width / 2 +
-              BPMN_Constant.rectDiagLen,
-            BPMN_Constant.rectDiagLen,
-            BPMN_Constant.bpmn_node_height_width / 2 + offset_y,
+            BPMN_Constant.BASE_HEIGHT_WIDTH / 2 +
+              BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
+            BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
+            BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
             true,
             model._pt.frozen
           );
@@ -467,10 +489,10 @@ export class BpmnDrawerDirective{
     if (model.members.length === 0) {
       this.drawLine(
         loop_block,
-        2 * BPMN_Constant.rectDiagLen,
-        BPMN_Constant.bpmn_node_height_width / 2,
+        2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
+        BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
         offset_x + BPMN_Constant.HORIZONTALSPACING,
-        BPMN_Constant.bpmn_node_height_width / 2,
+        BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
         false,
         model._pt.frozen
       );
@@ -482,7 +504,7 @@ export class BpmnDrawerDirective{
         'transform',
         `translate(${
           model.core_width +
-          2 * BPMN_Constant.rectDiagLen +
+          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
           2 * BPMN_Constant.HORIZONTALSPACING
         }, 0)`
       );
@@ -499,31 +521,29 @@ export class BpmnDrawerDirective{
 
     let color;
 
-    color = BPMN_Constant.bpmn_operator_color;
+    color = BPMN_Constant.OPERATOR_COLOR;
 
     const op = parent
       .append('rect')
-      .attr('width', BPMN_Constant.bpmn_node_height_width)
-      .attr('height', BPMN_Constant.bpmn_node_height_width)
+      .attr('width', BPMN_Constant.BASE_HEIGHT_WIDTH)
+      .attr('height', BPMN_Constant.BASE_HEIGHT_WIDTH)
       .attr('fill', color)
-      .attr('stroke', BPMN_Constant.bpmn_stroke_color)
-      .attr('stroke-width', BPMN_Constant.bpmn_stroke_width)
+      .attr('stroke', BPMN_Constant.STROKE_COLOR)
+      .attr('stroke-width', BPMN_Constant.STROKE_WIDTH)
       .attr(
         'transform',
         `translate(${
-          BPMN_Constant.rectDiagLen - BPMN_Constant.rectCenter
+          BPMN_Constant.OPERATOR_DIAGONAL_LENGTH - BPMN_Constant.OPERATOR_CENTER
         },0), rotate(45)`
       )
       .attr(
         'transform-origin',
-        `${BPMN_Constant.rectCenter} ${BPMN_Constant.rectCenter}`
+        `${BPMN_Constant.OPERATOR_CENTER} ${BPMN_Constant.OPERATOR_CENTER}`
       )
       .classed('frozen-node-operator', model._pt.frozen);
 
-    parent.on(
-      'click',
-      (e: PointerEvent, data) => {
-        this.onClickCallBack(this, e, data);
+    parent.on('click', (e: PointerEvent, data) => {
+      this.onClickCallBack(this, e, data);
     });
 
     parent
@@ -531,11 +551,11 @@ export class BpmnDrawerDirective{
       .classed('user-select-none', true)
       .attr(
         'transform',
-        `translate(${BPMN_Constant.rectDiagLen}, ${BPMN_Constant.rectCenter})`
+        `translate(${BPMN_Constant.OPERATOR_DIAGONAL_LENGTH}, ${BPMN_Constant.OPERATOR_CENTER})`
       )
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
-      .attr('font-size', BPMN_Constant.bpmn_operator_font_size)
+      .attr('font-size', BPMN_Constant.OPERATOR_FONT_SIZE)
       .attr('fill', 'white')
       .text(label);
   }
@@ -581,9 +601,9 @@ export class BpmnDrawerDirective{
         this.drawLine(
           seq_block,
           offset_x,
-          BPMN_Constant.bpmn_node_height_width / 2,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
           offset_x + BPMN_Constant.HORIZONTALSPACING,
-          BPMN_Constant.bpmn_node_height_width / 2,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
           false,
           model._pt.frozen
         );
@@ -612,7 +632,7 @@ export class BpmnDrawerDirective{
       .attr('d', d3.line()(lineData))
       .attr('fill', 'None')
       .attr('stroke-width', '1')
-      .attr('stroke', BPMN_Constant.bpmn_stroke_color)
+      .attr('stroke', BPMN_Constant.STROKE_COLOR)
       .style('stroke-linejoin', 'round')
       .attr('marker-end', frozen ? 'url(#arrow-frozen)' : 'url(#arrow-grey)')
       .classed('frozen-edge', frozen);
@@ -648,7 +668,7 @@ export class BpmnDrawerDirective{
       .attr('d', d3.line()(lineData))
       .attr('fill', 'None')
       .attr('stroke-width', '1')
-      .attr('stroke', BPMN_Constant.bpmn_stroke_color)
+      .attr('stroke', BPMN_Constant.STROKE_COLOR)
       .style('stroke-linejoin', 'round')
       .attr('marker-end', frozen ? 'url(#arrow-frozen)' : 'url(#arrow-grey)')
       .classed('frozen-edge', frozen);
@@ -661,7 +681,7 @@ export class BpmnDrawerDirective{
     const node = selection
       .append('rect')
       .attr('stroke-width', 1)
-      .attr('stroke', BPMN_Constant.bpmn_stroke_color)
+      .attr('stroke', BPMN_Constant.STROKE_COLOR)
       .attr('rx', 3)
       .attr('ry', 3);
 
@@ -671,32 +691,30 @@ export class BpmnDrawerDirective{
     selection.classed('cursor-pointer', true);
 
     const color = this.computeNodeColor(this.root, model._pt);
-    const text_color = this.computeTextColor(this.root, model._pt)
+    const text_color = this.computeTextColor(this.root, model._pt);
 
     const width = model.width;
 
     if (model.eventName === ProcessTreeOperator.tau) {
       node
         .attr('width', width)
-        .attr('height', BPMN_Constant.bpmn_node_height_width)
+        .attr('height', BPMN_Constant.BASE_HEIGHT_WIDTH)
         .attr('fill', color);
     } else {
       node
         .attr('width', width)
-        .attr('height', BPMN_Constant.bpmn_node_height_width)
+        .attr('height', BPMN_Constant.BASE_HEIGHT_WIDTH)
         .attr('fill', color);
     }
 
-    selection.on(
-      'click',
-      (e: PointerEvent, data) => {
-        this.onClickCallBack(this, e, data);
+    selection.on('click', (e: PointerEvent, data) => {
+      this.onClickCallBack(this, e, data);
     });
 
     const activityText = selection
       .append('text')
       .attr('x', width / 2)
-      .attr('y', BPMN_Constant.bpmn_node_height_width / 2)
+      .attr('y', BPMN_Constant.BASE_HEIGHT_WIDTH / 2)
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
       .attr('font-size', 12)
@@ -706,7 +724,7 @@ export class BpmnDrawerDirective{
     const tspan = activityText
       .append('tspan')
       .attr('x', width / 2)
-      .attr('y', BPMN_Constant.bpmn_node_height_width / 2);
+      .attr('y', BPMN_Constant.BASE_HEIGHT_WIDTH / 2);
 
     if (model.eventName) {
       // shorten text if it is too long
@@ -721,52 +739,42 @@ export class BpmnDrawerDirective{
   }
 
   drawStart(parent, tree, frozen) {
-    parent
-      .classed('cursor-pointer', true)
-      .attr('id', tree.id)
-      .datum(tree);
+    parent.classed('cursor-pointer', true).attr('id', tree.id).datum(tree);
 
     parent
       .append('circle')
       .attr('r', BPMN_Constant.START_END_RADIUS)
-      .attr('fill', BPMN_Constant.bpmn_operator_color)
-      .attr('stroke', BPMN_Constant.bpmn_stroke_color)
+      .attr('fill', BPMN_Constant.OPERATOR_COLOR)
+      .attr('stroke', BPMN_Constant.STROKE_COLOR)
       .attr('stroke-width', 1)
       .classed('frozen-node-operator', frozen);
 
-    parent.on(
-      'click',
-      (e: PointerEvent, data) => {
-        this.onClickCallBack(this, e, data);
+    parent.on('click', (e: PointerEvent, data) => {
+      this.onClickCallBack(this, e, data);
     });
   }
 
   drawEnd(parent, tree, frozen) {
-    parent
-      .classed('cursor-pointer', true)
-      .attr('id', tree.id)
-      .datum(tree);
+    parent.classed('cursor-pointer', true).attr('id', tree.id).datum(tree);
 
     parent
       .append('circle')
       .attr('r', BPMN_Constant.START_END_RADIUS)
-      .attr('fill', BPMN_Constant.bpmn_operator_color)
-      .attr('stroke', BPMN_Constant.bpmn_stroke_color)
-      .attr('stroke-width', BPMN_Constant.bpmn_stroke_width)
+      .attr('fill', BPMN_Constant.OPERATOR_COLOR)
+      .attr('stroke', BPMN_Constant.STROKE_COLOR)
+      .attr('stroke-width', BPMN_Constant.STROKE_WIDTH)
       .classed('frozen-node-operator', frozen);
 
     parent
       .append('circle')
       .attr('r', BPMN_Constant.START_END_RADIUS - 2)
-      .attr('fill', BPMN_Constant.bpmn_operator_color)
-      .attr('stroke', BPMN_Constant.bpmn_stroke_color)
-      .attr('stroke-width', BPMN_Constant.bpmn_stroke_width)
+      .attr('fill', BPMN_Constant.OPERATOR_COLOR)
+      .attr('stroke', BPMN_Constant.STROKE_COLOR)
+      .attr('stroke-width', BPMN_Constant.STROKE_WIDTH)
       .classed('frozen-node-operator', frozen);
 
-      parent.on(
-        'click',
-        (e: PointerEvent, data) => {
-          this.onClickCallBack(this, e, data);
-      });
+    parent.on('click', (e: PointerEvent, data) => {
+      this.onClickCallBack(this, e, data);
+    });
   }
 }
