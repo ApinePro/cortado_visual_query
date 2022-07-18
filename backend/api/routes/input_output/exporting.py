@@ -8,20 +8,17 @@ from pm4py.objects.petri_net.exporter.variants.pnml import \
 from pm4py.objects.process_tree.exporter.variants.ptml import \
     export_tree_as_string as generate_ptml_xml
    
-
 import cache.cache as cache
  
 from pm4py.objects.process_tree.obj import ProcessTree
 from pm4py.objects.log.exporter.xes.variants.etree_xes_exp import export_log_as_string as generate_xes_xml
-
-
 from pm4py.objects.bpmn.exporter.variants.etree import \
     get_xml_string as generate_bpmn_xml
 from pm4py.objects.conversion.process_tree.converter import \
     Variants as ptConverterVariant
 from pm4py.objects.conversion.process_tree.converter import apply as convert_pt
 
-from backend.backend_utilities.process_tree_conversion import dict_to_process_tree
+from backend_utilities.process_tree_conversion import dict_to_process_tree
 from pm4py.objects.log.obj import EventLog
 
 router = APIRouter(

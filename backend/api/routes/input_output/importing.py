@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 from fastapi import APIRouter
 from pydantic import BaseModel
-from backend.backend_utilities.configuration.repository import ConfigurationRepositoryFactory
-from backend.backend_utilities.process_tree_conversion import process_tree_to_dict
+from backend_utilities.configuration.repository import ConfigurationRepositoryFactory
+from backend_utilities.process_tree_conversion import process_tree_to_dict
 import cache.cache as cache
 
 import pm4py.objects.log.importer.xes.importer as xes_importer

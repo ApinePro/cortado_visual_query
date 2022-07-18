@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from backend.backend_utilities.process_tree_conversion import dict_to_process_tree, process_tree_to_dict
+from backend_utilities.process_tree_conversion import dict_to_process_tree, process_tree_to_dict
 from cortado_core.freezing.reinsert_frozen_subtrees import post_process_tree
 
 router = APIRouter(

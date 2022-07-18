@@ -6,7 +6,7 @@ import pm4pycvxopt
 
 from cortado_core.utils.cvariants import generate_variants
 from fastapi import (WebSocket, WebSocketDisconnect)
-from backend.backend_utilities.configuration.repository import ConfigurationRepositoryFactory
+from backend_utilities.configuration.repository import ConfigurationRepositoryFactory
 
 from backend_utilities.timeout.helper_functions import (TimeoutException,
                                                         execute_with_timeout)
@@ -15,8 +15,7 @@ from endpoints.alignments import InfixType
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 
 from fastapi import APIRouter
-
-from backend.backend_utilities.timeout.helper_functions import execute_with_timeout
+from backend_utilities.timeout.helper_functions import execute_with_timeout
 
 
 router = APIRouter(
@@ -59,7 +58,7 @@ def get_alignment_callback(idx: str, websocket: WebSocket):
     return callback
 
 
-@app.websocket("/conformancews")
+@router.websocket("/conformancews")
 async def websocket_endpoint(websocket: WebSocket):
     config_repository = ConfigurationRepositoryFactory.get_config_repository()
     configuration = config_repository.get_configuration()

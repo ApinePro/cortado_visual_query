@@ -1,7 +1,7 @@
 
 from fastapi import APIRouter
 from pydantic import BaseModel
-from backend.backend_utilities.process_tree_conversion import dict_to_process_tree, process_tree_to_dict
+from backend_utilities.process_tree_conversion import dict_to_process_tree, process_tree_to_dict
 from pm4py.objects.process_tree.utils.generic import parse
 
 

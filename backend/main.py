@@ -83,11 +83,6 @@ async def get_variants_from_event_log():
         res['variants'], key=lambda variant: variant['count'], reverse=True)
     return res
 
-@app.get("/info")
-async def get_info():
-    return {}
-
-
 # Using FastAPI instance
 @app.get("/url-list")
 def get_all_urls():
