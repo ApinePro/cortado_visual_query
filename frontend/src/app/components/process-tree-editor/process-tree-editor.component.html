@@ -155,6 +155,9 @@
     >
       <button
         class="button"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        title="change selected node"
         [disabled]="
           !selectedRootNode ||
           (nodeSelectionStrategy === NodeSeletionStrategy.TREE &&

@@ -354,4 +354,15 @@ export class BackendService {
   public resetLogCache(): Observable<any> {
     return this.httpClient.get(this.backendUrl + 'log/resetLogCache');
   }
+
+  getSubvariantsForVariant(
+    bid: number,
+    timeGranularity: TimeUnit
+  ): Observable<any> {
+    let body = {
+      bid: bid,
+      timeGranularity: timeGranularity,
+    };
+    return this.httpClient.post(this.backendUrl + 'subvariants', body);
+  }
 }

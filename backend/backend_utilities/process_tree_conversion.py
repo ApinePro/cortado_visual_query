@@ -105,6 +105,3 @@ if __name__ == "__main__":
     ], 'frozen': False}
 
     res_tree, res_frozen_subtrees = dict_to_process_tree(test)
-    print("RESULT:")
-    print(res_tree)
-    print(res_frozen_subtrees)

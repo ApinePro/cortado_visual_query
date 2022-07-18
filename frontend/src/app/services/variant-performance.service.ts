@@ -70,13 +70,12 @@ export class VariantPerformanceService {
     this.updateWaitingTimeColorMap();
   }
 
-  public selectedVariant: BehaviorSubject<VariantElement> =
-    new BehaviorSubject<VariantElement>(undefined);
-  public selectedVariantElement$: BehaviorSubject<VariantElement> =
-    new BehaviorSubject<VariantElement>(undefined);
+  public performanceStatsForSelectedVariantElement$: BehaviorSubject<
+    [any, boolean]
+  > = new BehaviorSubject<[any, boolean]>(undefined);
 
-  get selectedVariantElement(): VariantElement {
-    return this.selectedVariantElement$.value;
+  get performanceStatsForSelectedVariantElement(): [any, boolean] {
+    return this.performanceStatsForSelectedVariantElement$.value;
   }
 
   public serviceTimeColorMap = new BehaviorSubject<any>(undefined);
@@ -85,8 +84,14 @@ export class VariantPerformanceService {
   public minValues = {};
   public maxValues = {};
 
-  setSelectedVariantElement(selectedElement: VariantElement) {
-    this.selectedVariantElement$.next(selectedElement);
+  setPerformanceStatsSelectedVariantElement(
+    performanceStats: any,
+    isServiceTime: boolean
+  ) {
+    this.performanceStatsForSelectedVariantElement$.next([
+      performanceStats,
+      isServiceTime,
+    ]);
   }
 
   public variantPerformanceMode = new BehaviorSubject<boolean>(false);

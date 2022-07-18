@@ -15,7 +15,9 @@ export class LogService{
 ) {}
 
   public performanceInfoAvailable = false;
-  private _timeGranularity: Subject<TimeUnit> = new Subject();
+  private _timeGranularity: BehaviorSubject<TimeUnit> = new BehaviorSubject(
+    TimeUnit.SEC
+  );
 
   private _numberFittingTraces: number = undefined;
   private _numberFittingVariants: number = undefined;
@@ -74,6 +76,10 @@ export class LogService{
 
   public get logGranularity$(): Observable<TimeUnit> {
     return this._logGranularity.asObservable();
+  }
+
+  public get logGranularity(): TimeUnit {
+    return this._logGranularity.value;
   }
 
   public set logGranularity(value: TimeUnit) {

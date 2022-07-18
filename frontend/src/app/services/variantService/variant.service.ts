@@ -256,7 +256,7 @@ export class VariantService {
 
       if (variant.variant.getActivities().has(activityName)) {
         variant.variant.renameActivity(activityName, newActivityName);
-        this.rename_actvities_subvariants(
+        this.rename_activities_subvariants(
           variant,
           activityName,
           newActivityName
@@ -411,7 +411,7 @@ export class VariantService {
     return variants;
   }
 
-  private rename_actvities_subvariants(
+  private rename_activities_subvariants(
     variant: Variant,
     activtiyName,
     newActivityName
@@ -425,26 +425,22 @@ export class VariantService {
       activtiyName,
       newActivityName
     ) {
-      variant.variant = variant.variant.map((r) => {
-        return r.map(([activty, lifecycle]) => {
-          return activty === activtiyName
-            ? [newActivityName, lifecycle]
-            : [activty, lifecycle];
-        });
+      variant.variant.forEach((r) => {
+        if (r[0].activty === activtiyName) {
+          r[0].activty = newActivityName;
+        }
       });
     }
   }
 
-  private delete_actvities_subvariants(variant: Variant, activtiyName) {
+  private delete_actvities_subvariants(variant: Variant, activityName) {
     variant.sub_variants.forEach((sv) => {
-      filter_subvariants(sv, activtiyName);
+      filter_subvariants(sv, activityName);
     });
 
-    function filter_subvariants(variant: Subvariant, activtiyName) {
-      variant.variant = variant.variant.map((r) => {
-        return r.filter(
-          ([activity, lifecycle]) => !(activity === activtiyName)
-        );
+    function filter_subvariants(variant: Subvariant, activityName) {
+      variant.variant = variant.variant.filter((r) => {
+        return r[0].activity !== activityName;
       });
     }
   }

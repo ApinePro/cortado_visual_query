@@ -16,8 +16,10 @@ from cortado_core.performance import tree_performance
 from cortado_core.performance import utils as performance_utils
 from cortado_core.performance.aggregators import avg, noop, stats
 from cortado_core.utils.alignment_utils import trace_fits_process_tree
-from cortado_core.utils.cvariants import generate_variants
+from cortado_core.utils.cvariants import generate_variants, get_detailed_variants
 from cortado_core.utils.process_tree import CortadoProcessTree, convert_tree
+from cortado_core.performance.subvariant_performance import calculate_subvariant_performance
+from cortado_core.utils.timestamp_utils import TimeUnit
 from fastapi import (Depends, FastAPI, File, HTTPException, UploadFile,
                      WebSocket, WebSocketDisconnect)
 from fastapi.exceptions import RequestValidationError
@@ -183,6 +185,32 @@ def discover_process_model_from_variants(variants):
     return res
 
 
+class InputPerformanceSubvariant(BaseModel):
+    bid: int 
+    time_granularity: TimeUnit = Field(alias='timeGranularity')
+
+@app.post("/subvariants")
+async def get_subvariants(data: InputPerformanceSubvariant):
+
+    variant_traces = cache.variants[data.bid][1]
+    sub_variants = get_detailed_variants(variant_traces, data.time_granularity)
+
+    result = []
+
+    total_sub_traces = sum(len(sub_variants[v]) for v in sub_variants)
+
+    for subvariant, traces in sub_variants.items():
+        subvariant_performance = calculate_subvariant_performance(subvariant, traces, data.time_granularity)
+        subvariant_response = {
+            'variant': subvariant_performance,
+            'count': len(traces),
+            'percentage': round(len(traces) / total_sub_traces * 100, 2)
+        }
+        result.append(subvariant_response)
+
+    return sorted(result, key=lambda x: x['count'], reverse=True)
+
+
 @app.post("/discoverProcessModelFromConcurrencyVariants")
 async def discover_process_model_from_cvariants(d: InputDiscoverProcessModelFromVariants):
     all_variants = set([tuple(
@@ -211,7 +239,7 @@ async def add_cvariants_to_process_model(d: InputAddVariantsToProcessModel):
     fitting_variants = set(
         [tuple(variant) for cvariant in d.fitting_variants for variant in generate_variants(cvariant)])
     to_add = set([tuple(variant)
-                 for cvariant in d.variants_to_add for variant in generate_variants(cvariant)])
+                  for cvariant in d.variants_to_add for variant in generate_variants(cvariant)])
     return add_variants_to_process_model(d.pt, fitting_variants, to_add)
 
 
@@ -463,7 +491,7 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             'fitness_values': variants_fitness}
 
 
-def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, infix_type: InfixType,  timeout: int):
+def calculate_alignment_intern_with_timeout(pt: dict, c_variant: dict, infix_type: InfixType, timeout: int):
     try:
         return execute_with_timeout(calculate_alignment_intern, timeout, args=(pt, c_variant, infix_type))
     except TimeoutException:
@@ -571,7 +599,6 @@ class variantQuery(BaseModel):
 
 @app.post("/variant-query")
 def variant_query(query: variantQuery):
-
     res = evaluate_query_against_variant_graphs(
         query, cache.variants, cache.parameters['activites'])
 

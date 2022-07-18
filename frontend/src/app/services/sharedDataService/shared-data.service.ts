@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { TimeUnit } from 'src/app/objects/TimeUnit';
 
 @Injectable({
   providedIn: 'root',
@@ -8,6 +9,7 @@ export class SharedDataService {
   constructor() {}
 
   public computedTextLengthCache = new Map<string, number>();
+  public performanceInfoAvailable = false;
 
   private _treePerformance = new BehaviorSubject<Object>({});
 

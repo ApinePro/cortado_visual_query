@@ -14,9 +14,7 @@ def add_variants_to_process_model(pt_dict: dict, fitting_variants, variants_to_a
     pt: ProcessTree
     frozen_subtrees: List[ProcessTree]
     pt, frozen_subtrees = dict_to_process_tree(pt_dict)
-    print("\ntree:", pt)
-    print("frozen subtrees", frozen_subtrees, "\n")
-
+    
     fitting_variants_log: EventLog = EventLog()
     for v in fitting_variants:
         t = variant_to_trace(v)
