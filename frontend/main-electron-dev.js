@@ -52,5 +52,3 @@ app.on('activate', function () {
 )
 
 
-ipcMain.on('maximize-window', event =>
-
