@@ -106,7 +106,9 @@
                   appVariantDrawer
                   #fragment
                   [variant]="mainVariant['variant']"
-                  [onClickCbFc]="variantClickCallBack"
+                  (clickCbFc)="
+                    variantClickCallBack($event[0], $event[1], $event[2])
+                  "
                   [performanceMode]="isPerformanceMode"
                   [computeActivityColor]="computeActivityColor"
                 ></svg>

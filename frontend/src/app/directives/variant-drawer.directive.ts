@@ -60,19 +60,14 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
   ) => string;
 
   @Input()
-  onClickCbFc: (
-    drawerDirective: VariantDrawerDirective,
-    element: VariantElement,
-    variant: VariantElement
-  ) => void;
-
-  @Input()
   onMouseOverCbFc: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
     variant: VariantElement,
     selection
   ) => void;
+
+  @Output() clickCbFc: EventEmitter<any> = new EventEmitter();
 
   @Output()
   selection = new EventEmitter<Selection<any, any, any, any>>();
@@ -204,12 +199,10 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     if (element instanceof InvisibleSequenceGroup) {
       polygon.style('fill', 'transparent');
     } else {
-      if (this.onClickCbFc) {
-        parent.on('click', (e: PointerEvent) => {
-          this.onClickCbFc(this, element, this.variant);
-          e.stopPropagation();
-        });
-      }
+      parent.on('click', (e: PointerEvent) => {
+        this.clickCbFc.emit([this, element, this.variant]);
+        e.stopPropagation();
+      });
     }
 
     let x =
@@ -263,12 +256,11 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       this.addInfixSelectionAttributes(element, polygon, parent, false);
     }
 
-    if (this.onClickCbFc) {
-      parent.on('click', (e: PointerEvent) => {
-        this.onClickCbFc(this, element, this.variant);
-        e.stopPropagation();
-      });
-    }
+    parent.on('click', (e: PointerEvent) => {
+      this.clickCbFc.emit([this, element, this.variant]);
+
+      e.stopPropagation();
+    });
 
     let y = Constants.MARGIN_Y;
 
@@ -317,12 +309,10 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       this.addInfixSelectionAttributes(element, polygon, parent, true);
     }
 
-    if (this.onClickCbFc) {
-      parent.on('click', (e: PointerEvent) => {
-        this.onClickCbFc(this, element, this.variant);
-        e.stopPropagation();
-      });
-    }
+    parent.on('click', (e: PointerEvent) => {
+      this.clickCbFc.emit([this, element, this.variant]);
+      e.stopPropagation();
+    });
 
     const textcolor = textColorForBackgroundColor(
       color,
@@ -427,12 +417,10 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       .style('fill', color)
       .classed('variant-polygon', true);
 
-    if (this.onClickCbFc) {
-      parent.on('click', (e: PointerEvent) => {
-        this.onClickCbFc(this, element, this.variant);
-        e.stopPropagation();
-      });
-    }
+    parent.on('click', (e: PointerEvent) => {
+      this.clickCbFc.emit([this, element, this.variant]);
+      e.stopPropagation();
+    });
 
     if (this.onMouseOverCbFc) {
       this.onMouseOverCbFc(this, element, this.variant, parent);

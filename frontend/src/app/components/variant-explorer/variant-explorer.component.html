@@ -475,7 +475,7 @@
               processTreeService.currentDisplayedProcessTree
             "
             (openSubvariantWindow)="createSubVariantView($event)"
-            [onClickCbFc]="variantClickCallBack"
+            (clickCbFc)="variantClickCallBack($event[0], $event[1], $event[2])"
             [computeActivityColor]="computeActivityColor"
             [performanceMode]="performanceMode"
             (selectionChanged)="selectionChangedForVariant(variant, $event)"

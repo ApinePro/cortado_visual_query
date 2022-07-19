@@ -1,4 +1,3 @@
-import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 
 import {
@@ -49,18 +48,14 @@ export class VariantComponent implements AfterViewInit {
   @Input()
   traceInfixSelectionMode: boolean = false;
 
+  isAnyInfixSelected: boolean = false;
+
   @Input()
   computeActivityColor: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
     variant: VariantElement
   ) => string;
-
-  @Input()
-  onClickCbFc: (
-    drawerDirective: VariantDrawerDirective,
-    element: VariantElement
-  ) => void;
 
   @Input()
   onMouseOverCbFc: (
@@ -79,6 +74,8 @@ export class VariantComponent implements AfterViewInit {
 
   @Output()
   public openSubvariantWindow = new EventEmitter<number>();
+
+  @Output() clickCbFc: EventEmitter<any> = new EventEmitter();
 
   @ViewChild('row')
   rowElement: ElementRef;
@@ -207,13 +204,13 @@ export class VariantComponent implements AfterViewInit {
   resetSelectionStatus(): void {
     this.variant.variant.resetSelectionStatus();
     this.variantDrawer.redraw();
+    this.isAnyInfixSelected = false;
   }
 
   addSelectedTraceInfix(): void {
-    let isAnyElementSelected = someChildrenSelected(this.variant.variant);
     let isWholeVariantSelected = this.variant.variant.selected;
 
-    if (!isAnyElementSelected || isWholeVariantSelected) return;
+    if (!this.isAnyInfixSelected || isWholeVariantSelected) return;
 
     let infixType: InfixType = this.getInfixType();
 
@@ -265,5 +262,16 @@ export class VariantComponent implements AfterViewInit {
     }
 
     return InfixType.PROPER_INFIX;
+  }
+
+  public onClickVariant(
+    drawerDirective: VariantDrawerDirective,
+    element: VariantElement,
+    variant: VariantElement
+  ) {
+    this.clickCbFc.emit([drawerDirective, element, variant]);
+
+    if (this.traceInfixSelectionMode)
+      this.isAnyInfixSelected = someChildrenSelected(this.variant.variant);
   }
 }
