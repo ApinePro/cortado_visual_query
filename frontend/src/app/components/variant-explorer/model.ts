@@ -424,6 +424,15 @@ export abstract class VariantElement {
     }
   }
 
+  public isVisibleParentSelected(): boolean {
+    if (this.parent === null || this.parent.parent === null) return false;
+
+    if (this.parent instanceof InvisibleSequenceGroup)
+      return this.parent.isVisibleParentSelected();
+
+    return this.parent.selected;
+  }
+
   public resetSelectionStatus(): void {
     this.setAllChildrenUnselected();
     this.setSelectable(true);

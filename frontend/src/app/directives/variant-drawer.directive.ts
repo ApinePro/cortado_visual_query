@@ -193,7 +193,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       element.parent &&
       !(element instanceof InvisibleSequenceGroup)
     ) {
-      this.addInfixSelectionAttributes(element, polygon, parent, false);
+      this.addInfixSelectionAttributes(element, polygon, false);
     }
 
     if (element instanceof InvisibleSequenceGroup) {
@@ -253,7 +253,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       this.traceInfixSelectionMode &&
       !(element instanceof InvisibleSequenceGroup)
     ) {
-      this.addInfixSelectionAttributes(element, polygon, parent, false);
+      this.addInfixSelectionAttributes(element, polygon, false);
     }
 
     parent.on('click', (e: PointerEvent) => {
@@ -306,7 +306,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       .classed('variant-polygon', true);
 
     if (this.traceInfixSelectionMode) {
-      this.addInfixSelectionAttributes(element, polygon, parent, true);
+      this.addInfixSelectionAttributes(element, polygon, true);
     }
 
     parent.on('click', (e: PointerEvent) => {
@@ -371,14 +371,12 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
   private addInfixSelectionAttributes(
     element: VariantElement,
     polygon: any,
-    parent: any,
     isLeafNode: boolean
   ) {
     if (element.selected) {
-      polygon
-        .attr('stroke', '#ff0000')
-        .attr('stroke-width', '4px')
-        .attr('stroke-opacity', '0.5');
+      polygon.attr('stroke-opacity', '0.5');
+      if (!element.isVisibleParentSelected())
+        polygon.attr('stroke', '#ff0000').attr('stroke-width', '4px');
       return;
     }
 
