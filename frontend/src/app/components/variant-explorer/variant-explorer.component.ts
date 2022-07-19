@@ -154,7 +154,7 @@ export class VariantExplorerComponent
     renderer: Renderer2,
     public performanceService: PerformanceService,
     private performanceColorService: ModelPerformanceColorScaleService,
-    private variantPerformanceService: VariantPerformanceService,
+    public variantPerformanceService: VariantPerformanceService,
     private conformanceCheckingService: ConformanceCheckingService,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     private ref: ChangeDetectorRef
@@ -185,9 +185,6 @@ export class VariantExplorerComponent
 
   public svgRenderingInProgress: boolean = false;
   public variantExplorerOutOfFocus: boolean = false;
-
-  public performanceUpdateInProgress: boolean = false;
-  public performanceUpdateProgress: number = 0;
 
   _goldenLayoutHostComponent: GoldenLayoutHostComponent;
   _goldenLayout: GoldenLayout;
@@ -285,7 +282,7 @@ export class VariantExplorerComponent
 
     this.variantPerformanceService.variantPerformanceMode.subscribe(
       (isPerformanceModeActive) =>
-        this.setPerformanceMode(isPerformanceModeActive, false)
+        this.setPerformanceMode(isPerformanceModeActive)
     );
   }
 
@@ -672,39 +669,39 @@ export class VariantExplorerComponent
       });
   }
 
-  updatePerformanceInformation() {
-    this.performanceUpdateInProgress = true;
+  updatePerformanceInformation(forwardUpdate: boolean) {
     this.variantPerformanceService
       .addPerformanceInformationToVariants()
       .pipe(
         finalize(() => {
-          this.performanceUpdateProgress = 1;
           setTimeout(() => {
-            this.performanceUpdateInProgress = false;
-            this.performanceUpdateProgress = 0;
             this.performanceMode = true;
-            this.variantPerformanceService.variantPerformanceMode.next(true);
+            if (forwardUpdate)
+              this.variantPerformanceService.variantPerformanceMode.next(true);
           }, 1000);
         })
       )
-      .subscribe((progress) => {
-        this.performanceUpdateProgress = progress;
-      });
+      .subscribe();
   }
 
-  setPerformanceMode(
-    performanceMode: boolean,
-    forwardUpdate: boolean = true
-  ): void {
+  public setPerformanceModeClicked(performanceMode: boolean) {
+    if (
+      performanceMode &&
+      !this.variantPerformanceService.performanceInformationLoaded
+    )
+      this.variantPerformanceService
+        .addPerformanceInformationToVariants()
+        .subscribe();
+    else
+      this.variantPerformanceService.variantPerformanceMode.next(
+        performanceMode
+      );
+  }
+
+  setPerformanceMode(performanceMode: boolean): void {
+    this.performanceMode = performanceMode;
+
     if (performanceMode) {
-      if (!this.variantPerformanceService.performanceInformationLoaded) {
-        this.updatePerformanceInformation();
-      } else {
-        this.performanceMode = performanceMode;
-        this.variantPerformanceService.variantPerformanceMode.next(
-          performanceMode
-        );
-      }
       this.variants.map((variant) => {
         this.expansionState.set(variant.id, variant.variant.getExpanded());
       });
@@ -713,13 +710,6 @@ export class VariantExplorerComponent
       this.variants.forEach((variant, i) =>
         variant.variant.setExpanded(this.expansionState.get(variant.id))
       );
-
-      this.performanceMode = performanceMode;
-      if (forwardUpdate) {
-        this.variantPerformanceService.variantPerformanceMode.next(
-          performanceMode
-        );
-      }
     }
   }
 

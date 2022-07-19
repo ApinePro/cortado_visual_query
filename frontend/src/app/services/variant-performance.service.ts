@@ -62,6 +62,8 @@ export class VariantPerformanceService {
   private _waitingTimeStatistic = 'mean';
 
   public performanceInformationLoaded: boolean = false;
+  public performanceUpdateIsInProgress: boolean = false;
+  public performanceUpdateProgress: number = 0;
   private results = new Map<string, any>();
 
   get serviceTimeStatistic() {
@@ -117,6 +119,8 @@ export class VariantPerformanceService {
         this.updateServiceTimeColorMap();
         this.updateWaitingTimeColorMap();
         this.performanceInformationLoaded = false;
+        this.performanceUpdateProgress = 0;
+        this.results = new Map<string, any>();
       }
     });
 
@@ -303,6 +307,7 @@ export class VariantPerformanceService {
   }
 
   addPerformanceInformationToVariants(): Observable<number> {
+    this.performanceUpdateIsInProgress = true;
     let chunks = [];
     const nVariants = this.sharedDataService.variants.length;
     for (let i = 0; i < nVariants; i += 100) {
@@ -313,8 +318,10 @@ export class VariantPerformanceService {
       concatMap((chunk) =>
         this.backendService.getLogBasedPerformance(chunk[0], chunk[1])
       ),
-      tap((res) => this.addVariantPerformanceResults(res)),
-      map((_) => this.results.size / nVariants),
+      tap((res) => {
+        this.addVariantPerformanceResults(res);
+        this.performanceUpdateProgress = this.results.size / nVariants;
+      }),
       finalize(() => {
         this.sharedDataService.variants.forEach((v) => {
           if (!v.userDefined) {
@@ -326,7 +333,12 @@ export class VariantPerformanceService {
         this.injectWaitingTimeNodes(
           this.sharedDataService.variants.map((v) => v.variant)
         );
-        this.performanceInformationLoaded = true;
+
+        setTimeout(() => {
+          this.performanceInformationLoaded = true;
+          this.performanceUpdateIsInProgress = false;
+          this.variantPerformanceMode.next(true);
+        }, 1000);
       })
     );
   }

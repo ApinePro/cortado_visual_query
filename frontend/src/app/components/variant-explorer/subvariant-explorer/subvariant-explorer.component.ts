@@ -41,9 +41,6 @@ export class SubvariantExplorerComponent
   public waitingTimeColorMap: any;
   isPerformanceMode: boolean = false;
 
-  public performanceUpdateInProgress: boolean = false;
-  public performanceUpdateProgress: number = 0;
-
   @ViewChild(VariantDrawerDirective)
   mainvariantDrawer: VariantDrawerDirective;
 
@@ -63,7 +60,7 @@ export class SubvariantExplorerComponent
     private imageExportService: ImageExportService,
     private polygonDrawingService: PolygonDrawingService,
     private backendService: BackendService,
-    private variantPerformanceService: VariantPerformanceService
+    public variantPerformanceService: VariantPerformanceService
   ) {
     super(elRef.nativeElement, renderer);
     this.mainVariant = this.container.initialState as Variant;
@@ -108,7 +105,7 @@ export class SubvariantExplorerComponent
 
     this.variantPerformanceService.variantPerformanceMode.subscribe(
       (isPerformanceModeActive) =>
-        this.setPerformanceMode(isPerformanceModeActive, false)
+        this.setPerformanceMode(isPerformanceModeActive)
     );
   }
 
@@ -348,47 +345,27 @@ export class SubvariantExplorerComponent
     return svgElement_copy;
   }
 
-  public setPerformanceMode(
-    performanceMode: boolean,
-    forwardUpdate: boolean = true
-  ) {
+  public setPerformanceModeClicked(performanceMode: boolean) {
     if (
       performanceMode &&
       !this.variantPerformanceService.performanceInformationLoaded
-    ) {
-      this.updatePerformanceInformation();
-      return;
-    }
-
-    this.isPerformanceMode = performanceMode;
-
-    if (forwardUpdate) {
+    )
+      this.variantPerformanceService
+        .addPerformanceInformationToVariants()
+        .subscribe();
+    else
       this.variantPerformanceService.variantPerformanceMode.next(
         performanceMode
       );
-    }
   }
 
-  private updatePerformanceInformation() {
-    this.performanceUpdateInProgress = true;
-    this.variantPerformanceService
-      .addPerformanceInformationToVariants()
-      .pipe(
-        finalize(() => {
-          this.performanceUpdateProgress = 1;
-          setTimeout(() => {
-            this.performanceUpdateInProgress = false;
-            this.performanceUpdateProgress = 0;
-            this.isPerformanceMode = true;
-            this.variantPerformanceService.variantPerformanceMode.next(true);
-            this.mainvariantDrawer.setExpanded(true);
-            this.setExpandedSubVariants(true);
-          }, 1000);
-        })
-      )
-      .subscribe((progress: number) => {
-        this.performanceUpdateProgress = progress;
-      });
+  private setPerformanceMode(performanceMode: boolean) {
+    this.isPerformanceMode = performanceMode;
+
+    if (this.isPerformanceMode) {
+      this.mainvariantDrawer.setExpanded(true);
+      this.setExpandedSubVariants(true);
+    }
   }
 
   computeActivityColor = (

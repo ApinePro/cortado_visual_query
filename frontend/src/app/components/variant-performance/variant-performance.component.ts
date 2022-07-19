@@ -1,6 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
-import { VariantElement } from '../variant-explorer/model';
 
 @Component({
   selector: 'app-variant-performance',
@@ -34,9 +33,5 @@ export class VariantPerformanceComponent implements OnInit {
         this.changeDetectorRef.markForCheck();
       }
     );
-  }
-
-  setPerformanceMode(performanceMode: boolean): void {
-    this.variantPerformanceService.variantPerformanceMode.next(performanceMode);
   }
 }

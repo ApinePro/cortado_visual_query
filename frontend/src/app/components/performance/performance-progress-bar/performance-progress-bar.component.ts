@@ -1,4 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 
 @Component({
   selector: 'app-performance-progress-bar',
@@ -6,11 +7,5 @@ import { Component, Input, OnInit } from '@angular/core';
   styleUrls: ['./performance-progress-bar.component.css'],
 })
 export class PerformanceProgressBarComponent {
-  nVariants: number = 0;
-
-  @Input()
-  public isVisible: boolean = false;
-
-  @Input()
-  public progress: number = 0;
+  constructor(public variantPerformanceService: VariantPerformanceService) {}
 }
