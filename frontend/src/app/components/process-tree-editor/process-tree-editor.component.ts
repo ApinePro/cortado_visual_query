@@ -14,8 +14,6 @@ import {
   Renderer2,
 } from '@angular/core';
 
-import { trigger, style, animate, transition } from '@angular/animations';
-
 import { ComponentContainer, GoldenLayout, LogicalZIndex } from 'golden-layout';
 import * as d3 from 'd3';
 import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
@@ -47,28 +45,13 @@ import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-c
 import { ProcessTreeDrawerDirective } from 'src/app/directives/process-tree-drawer/process-tree-drawer.directive';
 import { textColorForBackgroundColor } from 'src/app/utils/helper_functions';
 import { getPerformanceTable } from './utils';
+import { collapsingText } from 'src/app/animations/text-animations';
 
 @Component({
   selector: 'app-process-tree-editor',
   templateUrl: './process-tree-editor.component.html',
   styleUrls: ['./process-tree-editor.component.scss'],
-  animations: [
-    trigger('collapseText', [
-      transition(':enter', [
-        style({ opacity: '0', transform: 'translateX(-30px)' }),
-        animate(
-          '150ms 0ms ease-in',
-          style({ opacity: '1', transform: 'translateX(0)' })
-        ),
-      ]),
-      transition(':leave', [
-        animate(
-          '150ms 00ms ease-in',
-          style({ opacity: '0', transform: 'translateX(-30px)' })
-        ),
-      ]),
-    ]),
-  ],
+  animations: [collapsingText],
 })
 export class ProcessTreeEditorComponent
   extends LayoutChangeDirective

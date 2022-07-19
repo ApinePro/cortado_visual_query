@@ -29,7 +29,7 @@
       [style.color]="textColorForBackgroundColor(variant)"
     >
       <i
-        *ngIf="isPerformanceFitting(variant) < 1 && !variant.userDefined"
+        *ngIf="isPerformanceFitting(variant) && !variant.userDefined"
         class="bi bi-exclamation-triangle-fill"
       ></i>
     </i>

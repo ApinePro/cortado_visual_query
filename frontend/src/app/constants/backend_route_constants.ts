@@ -12,6 +12,6 @@ export class ROUTES {
   public static CONFORMANCE = 'conformance/';
   public static QUERY = 'variantQuery/';
   public static CONFIG = 'config/';
-  public static EXPORT = 'export/';
-  public static IMPORT = 'import/';
+  public static EXPORT = 'exporting/';
+  public static IMPORT = 'importing/';
 }

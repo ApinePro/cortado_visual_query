@@ -20,8 +20,7 @@ export class ProcessTreeService {
     });
 
     this.logService.loadedEventLog$.subscribe((log) => {
-      console.log('Log Changed', log);
-      if (log !== 'preload') {
+      if (log && log !== 'preload') {
         this.nodeWidthCache = new Map<string, number>();
       }
     });

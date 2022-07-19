@@ -1,3 +1,4 @@
+import { ZoomFieldComponent } from './../zoom-field/zoom-field.component';
 import { VariantService } from './../../services/variantService/variant.service';
 import { VariantExplorerComponent } from './../variant-explorer/variant-explorer.component';
 import { GoldenLayoutComponentService } from './../../services/goldenLayoutService/golden-layout-component.service';
@@ -11,14 +12,12 @@ import {
   OnInit,
   Renderer2,
   ViewChild,
-  AfterViewInit,
   HostListener,
 } from '@angular/core';
 
 import { cloneDeep } from 'lodash';
 import { Selection } from 'd3';
 import * as objectHash from 'object-hash';
-import { animate, transition, trigger, style } from '@angular/animations';
 import * as d3 from 'd3';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 import { LogService } from 'src/app/services/logService/log.service';
@@ -32,41 +31,20 @@ import {
   SequenceGroup,
   ParallelGroup,
 } from 'src/app/objects/Variants/variant_element';
+import { collapsingText, fadeInText } from 'src/app/animations/text-animations';
+import { findPathToSelectedNode } from 'src/app/objects/Variants/utility_functions';
+import { applyInverseStrokeToPoly } from 'src/app/utils/helper_functions';
+
 
 @Component({
   selector: 'app-variant-editor',
   templateUrl: './variant-editor.component.html',
   styleUrls: ['./variant-editor.component.css'],
-  animations: [
-    trigger('collapseText', [
-      transition(':enter', [
-        style({ opacity: '0', transform: 'translateX(-40px)' }),
-        animate(
-          '100ms 50ms ease-in',
-          style({ opacity: '1', transform: 'translateX(0)' })
-        ),
-      ]),
-      transition(':leave', [
-        animate(
-          '100ms 50ms ease-in',
-          style({ opacity: '0', transform: 'translateX(-50px)' })
-        ),
-      ]),
-    ]),
-    trigger('fadeIn', [
-      transition(':enter', [
-        style({ opacity: '0' }),
-        animate('100ms 50ms ease-in', style({ opacity: '1' })),
-      ]),
-      transition(':leave', [
-        animate('550ms 50ms ease-in', style({ opacity: '0' })),
-      ]),
-    ]),
-  ],
+  animations: [fadeInText, collapsingText],
 })
 export class VariantEditorComponent
   extends LayoutChangeDirective
-  implements OnInit, AfterViewInit
+  implements OnInit
 {
   activityNames: Array<String> = [];
 
@@ -77,8 +55,8 @@ export class VariantEditorComponent
   @ViewChild('VariantMainGroup')
   variantElement: ElementRef;
 
-  @ViewChild('EditorWindow')
-  editorWindow: ElementRef;
+  @ViewChild(ZoomFieldComponent)
+  editor: ZoomFieldComponent;
 
   @ViewChild(VariantDrawerDirective)
   variantDrawer: VariantDrawerDirective;
@@ -159,11 +137,6 @@ export class VariantEditorComponent
         this.performanceMode = performanceMode;
       }
     );
-  }
-
-  ngAfterViewInit() {
-    this.centerVariant();
-    this.addZoomFunctionality();
   }
 
   handleResponsiveChange(
@@ -514,6 +487,8 @@ export class VariantEditorComponent
           this.newLeaf = children[index - 1];
 
           children.splice(index, 1);
+
+          
         }
       }
 
@@ -587,116 +562,33 @@ export class VariantEditorComponent
     setTimeout(() => this.variantDrawer.redraw(), 1);
   }
 
-  centerVariant() {
-    const boundingRect = (
-      this.editorWindow.nativeElement as HTMLElement
-    ).getBoundingClientRect();
-    d3.select(this.variantElement.nativeElement)
-      .selectChild()
-      .attr(
-        'transform',
-        `translate(${boundingRect.width / 2}, ${boundingRect.height / 2})`
-      );
+  focusSelected(){
+    this.editor.focusSelected(250); 
   }
 
-  addZoomFunctionality(): void {
-    const zoomGroupVariantSelection = d3.select(
-      this.variantElement.nativeElement
-    );
-
-    const zooming = function (event) {
-      d3.select(this.variantElement.nativeElement)
-        .selectChild()
-        .attr(
-          'transform',
-          event.transform.translate(
-            this.editorWindow.nativeElement.offsetWidth / 2,
-            this.editorWindow.nativeElement.offsetHeight / 2
-          )
-        );
-    }.bind(this);
-
-    this.zoom = d3.zoom().scaleExtent([0.1, 3]).on('zoom', zooming);
-
-    zoomGroupVariantSelection.call(this.zoom).on('dblclick.zoom', null);
-
-    // center variant
-    d3.select('#btn-center-variant').on(
-      'click',
-      function () {
-        d3.select(this.variantElement.nativeElement)
-          .transition()
-          .duration(250)
-          .ease(d3.easeExpInOut)
-          .call(this.zoom.transform, d3.zoomIdentity);
-      }.bind(this)
-    );
-
-    // focus selected
-    d3.select('#btn-focus-selected').on(
-      'click',
-      function () {
-        const svg = d3.select(this.variantElement.nativeElement);
-
-        const path = this.findPathToSelectedNode().slice(1);
-        let translateX = 0;
-
-        for (let element of svg
-          .selectAll('g')
-          .filter((d) => {
-            return path.indexOf(d) > -1;
-          })
-          .nodes()) {
-          const transform = d3
-            .select(element)
-            .attr('transform')
-            .match(/[\d.]+/g);
-          translateX += parseFloat(transform[0]);
-        }
-
-        svg
-          .transition()
-          .duration(250)
-          .ease(d3.easeExpInOut)
-          .call(
-            this.zoom.transform,
-            translateX
-              ? d3.zoomIdentity.translate(-translateX, 0)
-              : d3.zoomIdentity
-          );
-      }.bind(this)
-    );
+  centerVariant(){
+    this.editor.centerContent(250);
   }
 
-  findPathToSelectedNode(): Array<VariantElement> {
-    const svg = d3.select(this.variantElement.nativeElement);
-    const path = searchPath(
-      this.currentVariant,
-      svg.select('.selected-variant-g').data()[0]
-    );
+  computeFocusOffset = (svg) => {
 
-    function searchPath(
-      parent: VariantElement,
-      element
-    ): Array<VariantElement> {
-      if (parent.getElements().indexOf(element) > -1) {
-        return [parent, element];
-      } else if (!(parent instanceof LeafNode)) {
-        for (let child of parent.getElements()) {
-          if (!(child instanceof LeafNode)) {
-            const res = searchPath(child, element);
+    const path = findPathToSelectedNode(this.currentVariant, svg.select('.selected-variant-g').data()[0]).slice(1);
+    let translateX = 0;
 
-            if (res.length > 0) {
-              return [parent].concat(res);
-            }
-          }
-        }
-      }
-
-      return [];
+    for (let element of svg
+      .selectAll('g')
+      .filter((d : VariantElement) => {
+        return path.indexOf(d) > -1;
+      })
+      .nodes()) {
+      const transform = d3
+        .select(element)
+        .attr('transform')
+        .match(/[\d.]+/g);
+      translateX += parseFloat(transform[0]);
     }
 
-    return path;
+    return [-translateX, 0]
   }
 
   addCurrentVariantToVariantList() {
@@ -763,24 +655,4 @@ export enum activityInsertionStrategy {
   replace = 'replace',
 }
 
-export function applyInverseStrokeToPoly(poly: Selection<any, any, any, any>) {
-  const datum = poly.data()[0];
-  if (datum) {
-    if (datum instanceof LeafNode) {
-      const rgb_code = poly.attr('style').match(/[\d.]+/g);
-      const inversed = rgb_code.map((d) => 255 - parseInt(d));
 
-      poly.attr('style', poly.attr('style').split(';')[0]);
-      poly.attr('stroke-width', 2);
-      poly.attr(
-        'stroke',
-        `rgb(${inversed[0]}, ${inversed[1]}, ${inversed[2]})`
-      );
-    } else {
-      poly
-        .attr('stroke', '#dc3545')
-        .attr('style', poly.attr('style').split(';')[0])
-        .attr('stroke-width', 2);
-    }
-  }
-}

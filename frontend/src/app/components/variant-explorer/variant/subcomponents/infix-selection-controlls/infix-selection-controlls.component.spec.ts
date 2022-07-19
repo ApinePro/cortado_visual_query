@@ -8,9 +8,8 @@ describe('InfixSelectionControllsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ InfixSelectionControllsComponent ]
-    })
-    .compileComponents();
+      declarations: [InfixSelectionControllsComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

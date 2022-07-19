@@ -58,6 +58,7 @@ import { BpmnDrawerDirective } from './directives/bpmn-drawer/bpmn-drawer.direct
 import { ZoomAreaDirective } from './directives/zoom-area/zoom-area.directive';
 import { TreePerformanceButtonComponent } from './components/variant-explorer/variant/subcomponents/tree-performance-button/tree-performance-button.component';
 import { InfixSelectionControllsComponent } from './components/variant-explorer/variant/subcomponents/infix-selection-controlls/infix-selection-controlls.component';
+import { ZoomFieldComponent } from './components/zoom-field/zoom-field.component';
 
 @NgModule({
   declarations: [
@@ -110,6 +111,7 @@ import { InfixSelectionControllsComponent } from './components/variant-explorer/
     BpmnDrawerDirective,
     TreePerformanceButtonComponent,
     InfixSelectionControllsComponent,
+    ZoomFieldComponent
   ],
   imports: [
     BrowserModule,

@@ -260,7 +260,7 @@
       data-bs-container="body"
       data-bs-placement="bottom"
       title="focus selected"
-      id="btn-focus-selected"
+      (click)="focusSelected()"
       [disabled]="emptyVariant || multipleSelected"
     >
       <i class="bi bi-eye-fill"></i>
@@ -272,7 +272,7 @@
       data-bs-placement="bottom"
       data-bs-container="body"
       title="move to the start of the variant"
-      id="btn-center-variant"
+      (click)="centerVariant()"
     >
       <i class="bi bi-arrows-fullscreen btn-icon text-light"></i>
     </button>
@@ -288,10 +288,14 @@
   >
   </app-activity-button-area>
 
-  <div class="editor-zone" #EditorWindow>
+  <app-zoom-field
+    [zoomScale]="[0.1, 3]"
+    [computeFocusOffsets]="computeFocusOffset"
+  >
     <svg
-      appVariantDrawer
+      #content
       #VariantMainGroup
+      appVariantDrawer
       id="VariantMainGroup"
       [variant]="currentVariant"
       (selection)="handleRedraw($event)"
@@ -299,7 +303,7 @@
       [infixType]="curInfixType"
       class="zoom-group-variant"
     ></svg>
-  </div>
+  </app-zoom-field>
   <div class="redundancy-warning" @fadeIn *ngIf="redundancyWarning">
     This variant already exists in the user defined dataset
   </div>

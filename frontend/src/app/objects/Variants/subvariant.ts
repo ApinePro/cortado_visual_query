@@ -9,7 +9,6 @@ export class Subvariant {
   deviation: any | undefined;
 }
 
-
 export class SubvariantVisualization {
   activity: string;
   xStart: number;

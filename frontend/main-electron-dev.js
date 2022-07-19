@@ -13,6 +13,8 @@ function createWindow() {
     frame: true,
     titleBarStyle: true,
     webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
     },
     icon: "./icon/cortado_icon_colorful_transparent.png"
   })
@@ -32,6 +34,7 @@ function createWindow() {
     e.preventDefault();
     require('electron').shell.openExternal(url);
   });
+
 }
 
 app.on('ready', createWindow)

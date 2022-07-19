@@ -24,7 +24,7 @@ from pm4py.objects.process_tree.exporter.variants.ptml import (
 from pm4py.objects.process_tree.obj import ProcessTree
 from pydantic import BaseModel
 
-router = APIRouter(tags=["export"], prefix="/export")
+router = APIRouter(tags=["exporting"], prefix="/exporting")
 
 
 class ConvertPtToX(BaseModel):

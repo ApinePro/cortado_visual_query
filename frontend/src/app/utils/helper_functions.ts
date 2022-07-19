@@ -47,3 +47,28 @@ export function textColorForBackgroundColor(
     };
   }
 }
+
+import { Selection } from 'd3';
+import { LeafNode } from '../objects/Variants/variant_element';
+
+export function applyInverseStrokeToPoly(poly: Selection<any, any, any, any>) {
+  const datum = poly.data()[0];
+  if (datum) {
+    if (datum instanceof LeafNode) {
+      const rgb_code = poly.attr('style').match(/[\d.]+/g);
+      const inversed = rgb_code.map((d) => 255 - parseInt(d));
+
+      poly.attr('style', poly.attr('style').split(';')[0]);
+      poly.attr('stroke-width', 2);
+      poly.attr(
+        'stroke',
+        `rgb(${inversed[0]}, ${inversed[1]}, ${inversed[2]})`
+      );
+    } else {
+      poly
+        .attr('stroke', '#dc3545')
+        .attr('style', poly.attr('style').split(';')[0])
+        .attr('stroke-width', 2);
+    }
+  }
+}

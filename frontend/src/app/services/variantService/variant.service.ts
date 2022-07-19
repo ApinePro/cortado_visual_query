@@ -7,7 +7,13 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { skip } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { mapVariants } from 'src/app/utils/util';
-import { getSelectedChildren, handleTreeLevelsWithOneChild, InfixType, setParent, someChildrenSelected } from 'src/app/objects/Variants/infix_selection';
+import {
+  getSelectedChildren,
+  handleTreeLevelsWithOneChild,
+  InfixType,
+  setParent,
+  someChildrenSelected,
+} from 'src/app/objects/Variants/infix_selection';
 import { Subvariant } from 'src/app/objects/Variants/subvariant';
 import { Variant } from 'src/app/objects/Variants/variant';
 import {
@@ -59,13 +65,8 @@ export class VariantService {
 
   public nUserVariants: number = 0;
 
-
-  addSelectedTraceInfix(variant : Variant): void {
-
-    let thereAreSelectedChildren = someChildrenSelected(
-      variant.variant,
-      true
-    );
+  addSelectedTraceInfix(variant: Variant): void {
+    let thereAreSelectedChildren = someChildrenSelected(variant.variant, true);
 
     if (thereAreSelectedChildren && !variant.variant.selected) {
       let infixType;
@@ -118,20 +119,17 @@ export class VariantService {
     }
   }
 
-
-
   public deleteVariants(bids: number[]): void {
     const delVariants = this.variants.filter((v) => bids.includes(v.bid));
 
     if (delVariants.every((v) => v.userDefined)) {
       this.variants = this.variants.filter((v) => !bids.includes(v.bid));
     } else {
-      const nDelVar = bids.length;
-      const nDelTrace = delVariants.map((v) => v.count).reduce((a, b) => a + b);
 
       const fittingVariants = delVariants.filter(
         (v) => v.deviation !== undefined && !v.deviation
       );
+
       let nDelFittingVar = 0;
       let nDelFittingTraces = 0;
 

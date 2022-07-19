@@ -8,9 +8,8 @@ describe('TreePerformanceButtonComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TreePerformanceButtonComponent ]
-    })
-    .compileComponents();
+      declarations: [TreePerformanceButtonComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

@@ -42,7 +42,9 @@ export class VariantExplorerContextMenuComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.displayMenu = true;
+    if (!(changes.xPos.isFirstChange && changes.yPos.isFirstChange)){
+      this.displayMenu = true;
+    }
   }
 
   @HostListener('window:click', ['$event'])

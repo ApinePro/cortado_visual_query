@@ -1,11 +1,4 @@
 import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
-import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
@@ -18,7 +11,7 @@ import {
   ViewChild,
   ViewChildren,
 } from '@angular/core';
-import * as d3 from 'd3';
+
 import {
   ComponentContainer,
   ComponentItem,
@@ -54,79 +47,29 @@ import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { textColorForBackgroundColor } from '../../utils/helper_functions';
 import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
 import { VariantSorter } from '../../objects/Variants/variant-sorter';
-import { VariantComponent } from './variant/variant.component';
 import { Variant } from 'src/app/objects/Variants/variant';
-import { getLowestSelectableParent } from 'src/app/objects/Variants/infix_selection';
 import {
   VariantElement,
   SequenceGroup,
   ParallelGroup,
-  LeafNode,
 } from 'src/app/objects/Variants/variant_element';
+import {
+  activityColor,
+  clickCallback,
+  contextMenuCallback,
+} from './functions/variant-drawer-callbacks';
+import { exportVariantDrawer } from './functions/export-variant-explorer';
+import {
+  fadeInOutComponent,
+  openCloseComponent,
+} from 'src/app/animations/component-animations';
+import { collapsingText } from 'src/app/animations/text-animations';
 
 @Component({
   selector: 'app-variant-explorer',
   templateUrl: './variant-explorer.component.html',
   styleUrls: ['./variant-explorer.component.scss'],
-  animations: [
-    trigger('collapseText', [
-      transition(':enter', [
-        style({ opacity: '0', transform: 'translateX(-40px)' }),
-        animate(
-          '100ms 50ms ease-in',
-          style({ opacity: '1', transform: 'translateX(0)' })
-        ),
-      ]),
-      transition(':leave', [
-        animate(
-          '100ms 50ms ease-in',
-          style({ opacity: '0', transform: 'translateX(-50px)' })
-        ),
-      ]),
-    ]),
-    trigger('openCloseQuery', [
-      // ...
-      state(
-        'openQuery',
-        style({
-          height: '75%',
-          width: '55%',
-          overflow: 'hidden',
-        })
-      ),
-      state(
-        'closeQuery',
-        style({
-          height: '25px',
-          width: '25px',
-          overflow: 'hidden',
-        })
-      ),
-      transition('openQuery => closeQuery', [animate('175ms')]),
-      transition('closeQuery => openQuery', [animate('175ms')]),
-    ]),
-    trigger('fadeInOutQuery', [
-      // ...
-      state(
-        'fadeInQuery',
-        style({
-          opacity: '1',
-          width: '100%',
-          height: '100%',
-        })
-      ),
-      state(
-        'fadeOutQuery',
-        style({
-          opacity: '0',
-          width: '0%',
-          height: '0%',
-        })
-      ),
-      transition('fadeInQuery => fadeOutQuery', [animate('175ms')]),
-      transition('fadeOutQuery => fadeInQuery', [animate('175ms')]),
-    ]),
-  ],
+  animations: [collapsingText, fadeInOutComponent, openCloseComponent],
 })
 export class VariantExplorerComponent
   extends LayoutChangeDirective
@@ -150,7 +93,6 @@ export class VariantExplorerComponent
     private variantPerformanceService: VariantPerformanceService,
     private conformanceCheckingService: ConformanceCheckingService,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
-    private ref: ChangeDetectorRef
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -196,15 +138,21 @@ export class VariantExplorerComponent
   contextMenu_variant: VariantElement;
   contextMenu_directive: VariantDrawerDirective;
 
+  // Define Callbacks
+  variantClickCallBack = clickCallback.bind(this);
+  openContextCallback = contextMenuCallback.bind(this);
+  computeActivityColor = activityColor.bind(this);
 
+  // Exporter
+  exportVariantSVG = exportVariantDrawer.bind(this);
 
   public traceInfixSelectionMode: boolean = false;
 
   @ViewChild('variantExplorer', { static: true })
   variantExplorerDiv: ElementRef<HTMLDivElement>;
 
-  @ViewChildren(VariantComponent)
-  variantComponents: QueryList<VariantComponent>;
+  @ViewChildren(VariantDrawerDirective)
+  variantDrawers: QueryList<VariantDrawerDirective>;
 
   @ViewChild('variantExplorerContainer')
   variantExplorerContainer: ElementRef<HTMLDivElement>;
@@ -248,7 +196,7 @@ export class VariantExplorerComponent
   }
 
   @HostListener('window:keydown.control.q', ['$event'])
-  onOpenQuery(e) {
+  onopenComponent(e) {
     this.toggleQuery();
   }
 
@@ -360,8 +308,8 @@ export class VariantExplorerComponent
   }
 
   private redraw_components() {
-    if (this.variantComponents) {
-      for (let component of this.variantComponents) {
+    if (this.variantDrawers) {
+      for (let component of this.variantDrawers) {
         component.redraw();
       }
     }
@@ -463,7 +411,7 @@ export class VariantExplorerComponent
     }
   }
 
-  computePerformanceButtonColor = (variant : Variant) => {
+  computePerformanceButtonColor = (variant: Variant) => {
     let tree;
     tree = this.performanceService.variantsPerformance.get(variant);
 
@@ -488,11 +436,12 @@ export class VariantExplorerComponent
       );
     }
     return '#d3d3d3';
-  }
+  };
 
-
-  handleSelectInfix(bid : number){
-    this.variantService.addSelectedTraceInfix(this.variants.filter((v) => v.bid === bid)[0])
+  handleSelectInfix(bid: number) {
+    this.variantService.addSelectedTraceInfix(
+      this.variants.filter((v) => v.bid === bid)[0]
+    );
   }
 
   discoverInitialModel(): void {
@@ -538,28 +487,28 @@ export class VariantExplorerComponent
     this.addSelectedVariantsToModelForGivenConformance(selectedVariants);
   }
 
-  handleSelectTreePerformance(variant: Variant){
-
-      if (this.performanceService.availablePerformances.has(variant)) {
-        if (this.performanceService.activeVariant == variant) {
-          this.performanceService.unselectPerformance();
-        } else {
-          this.performanceService.setShownVariantPerformance(variant);
-        }
+  handleSelectTreePerformance(variant: Variant) {
+    console.log('Variant Tree Performance', variant);
+    if (this.performanceService.availablePerformances.has(variant)) {
+      if (this.performanceService.activeVariant == variant) {
+        this.performanceService.unselectPerformance();
       } else {
-        if (this.performanceService.calculationInProgress.has(variant)) {
-          return;
-        }
-        if (this.currentlyDisplayedProcessTree) {
-          this.performanceService.updatePerformance([variant]);
-        }
+        this.performanceService.setShownVariantPerformance(variant);
       }
+    } else {
+      if (this.performanceService.calculationInProgress.has(variant)) {
+        return;
+      }
+      if (this.currentlyDisplayedProcessTree) {
+        this.performanceService.updatePerformance([variant]);
+      }
+    }
   }
-  
+
   handlePerformanceRemove(variant: Variant) {
+    console.log('Variant Tree Performance', variant);
     this.performanceService.updatePerformance([], [variant]);
   }
-
 
   createSubVariantView(index) {
     const currently_maximized = this.maximized;
@@ -631,13 +580,13 @@ export class VariantExplorerComponent
     this._subvariantcomponentItemsMap = new Map<string, ComponentItem>();
   }
 
-  isPerformanceCalcInProgress = (variant : Variant) => {
-    return this.performanceService.calculationInProgress.has(variant)
-  }
+  isPerformanceCalcInProgress = (variant: Variant) => {
+    return this.performanceService.calculationInProgress.has(variant);
+  };
 
-  isPerformanceFitting = (variant : Variant) => {
-    return this.performanceService.fitness.get(variant) < 1 
-  }
+  isPerformanceFitting = (variant: Variant) => {
+    return this.performanceService.fitness.get(variant) < 1;
+  };
 
   updateAllSubvariantWindows(): void {
     this._subvariantcomponentItemsMap.forEach((value) => {
@@ -673,14 +622,17 @@ export class VariantExplorerComponent
     }
   }
 
+  anyPerforamnceAvailable = () => {
+    return this.performanceService.availablePerformances.size > 0
+  }
 
   isPerformanceAvailable = (variant: Variant) => {
     return this.performanceService.availablePerformances.has(variant);
-  }
+  };
 
   isPerformanceActive = (variant: Variant) => {
     return this.performanceService.activeVariant === variant;
-  }
+  };
 
   removeAllFilters() {
     this.displayed_variants = this.variants;
@@ -793,9 +745,10 @@ export class VariantExplorerComponent
   }
 
   areAllVariantsExpanded(): boolean {
-    if (this.variantComponents === undefined) {
+    if (this.variantDrawers === undefined || (this.variants && this.variants.length < 1 )){
       return false;
     }
+
     const unexpandedVariantsExist = this.variants.some(
       (v) => !v.variant.expanded
     );
@@ -804,7 +757,13 @@ export class VariantExplorerComponent
 
   unExpandAll(): void {
     const shouldExpand = !this.areAllVariantsExpanded();
-    this.variantComponents.forEach((c) => c.setExpanded(shouldExpand));
+
+    this.variantDrawers.forEach((c) => {
+      if (!this.performanceMode && shouldExpand != c.variant.expanded) {
+        c.setExpanded(shouldExpand);
+        c.redraw();
+      }
+    });
   }
 
   handleResponsiveChange(
@@ -823,10 +782,6 @@ export class VariantExplorerComponent
     defaultZIndex: string
   ): void {
     this.maximized = logicalZIndex === 'stackMaximised';
-  }
-
-  performanceAvailable(): boolean {
-    return this.performanceService.mergedPerformance !== undefined;
   }
 
   isMeanPerformanceActive(): boolean {
@@ -886,215 +841,6 @@ export class VariantExplorerComponent
   toggleQueryInfo(event: Event): void {
     this.showQueryInfo = !this.showQueryInfo;
     event.stopPropagation();
-  }
-
-  variantClickCallBack = (
-    drawer: VariantDrawerDirective,
-    element: VariantElement,
-    variant: VariantElement
-  ) => {
-    if (this.performanceMode) {
-      drawer.changeSelected(element);
-      if (element.serviceTime) {
-        this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
-          element.serviceTime,
-          true
-        );
-      }
-      if (element.waitingTime) {
-        this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
-          element.waitingTime,
-          false
-        );
-      }
-    } else if (this.traceInfixSelectionMode) {
-      let lowestSelectableParent = getLowestSelectableParent(element);
-      if (lowestSelectableParent != variant) {
-        lowestSelectableParent.setAllChildrenSelected();
-        variant.calculateSelectableElements();
-        if (!variant.selectionStatusUnchangedFromLastSavedSelection()) {
-          variant.saveCurrentSelectionToSelectionHistory();
-        }
-        drawer.redraw();
-      }
-    } else {
-      variant.setExpanded(!variant.getExpanded());
-      drawer.redraw();
-    }
-  };
-
-  openContextCallback = (
-    self: VariantDrawerDirective,
-    element: VariantElement,
-    variant: VariantElement,
-    event: PointerEvent
-  ) => {
-    this.contextMenu_xPos = event.clientX;
-    this.contextMenu_yPos = event.clientY;
-    this.contextMenu_variant = variant;
-    this.contextMenu_element = element;
-    this.contextMenu_directive = self;
-  };
-
-  computeActivityColor = (
-    self: VariantDrawerDirective,
-    element: VariantElement,
-    variant: Variant
-  ) => {
-    let color;
-
-    if (element instanceof LeafNode) {
-      color = this.colorMap.get(element.asLeafNode().activity[0]);
-
-      // in this case cuts were not applicable anymore.
-      // The resulting chevron is displayed in gray
-      if (element.activity.length > 1) {
-        color = '#d3d3d3'; // lightgray
-      }
-
-      if (element.serviceTime?.mean !== undefined && this.performanceMode) {
-        let stat = this.variantPerformanceService.serviceTimeStatistic;
-        color = this.performanceColorMap(element.serviceTime[stat]);
-        if (color == undefined) {
-          color = '#d3d3d3'; // lightgrey
-        }
-      } else if (this.performanceMode && variant.variant?.serviceTime) {
-        color = '#d3d3d3';
-      }
-    } else {
-      if (this.performanceMode && element.waitingTime?.mean !== undefined) {
-        let stat = this.variantPerformanceService.waitingTimeStatistic;
-        color = this.waitingColorMap(element.waitingTime[stat]);
-      }
-    }
-
-    if (!color) {
-      color = '#d3d3d3'; // lightgrey
-    }
-
-    return color;
-  };
-
-  exportVariantSVG() {
-    let svgs: SVGGraphicsElement[] = [];
-    let state: boolean[] = [];
-
-    this.svgRenderingInProgress = true;
-
-    const visibleComponents = this.variantComponents.filter((c) => c.isVisible);
-
-    // Get current expansion state
-    visibleComponents.forEach((c) => state.push(c.isExpanded()));
-
-    // Expand the elements and redraw them
-    visibleComponents.forEach((c) => c.setExpanded(true));
-
-    // Collect the SVG and pass them to the SVG Service
-    visibleComponents.forEach((c) => svgs.push(c.getSVGGraphicElement()));
-
-    // Add Frequency and Percentage information to the SVG
-    svgs = svgs.map((c, i) =>
-      this.addVariantInformation(
-        c,
-        this.variants[i].count,
-        this.variants[i].percentage
-      )
-    );
-
-    // TODO Create the Legend Element and add it
-    const legend = d3.create('svg').attr('x', '10').attr('y', '10');
-
-    let leafnodes: LeafNode[] = [];
-
-    for (let activity in this.logService.activitiesInEventLog) {
-      leafnodes.push(new LeafNode([activity]));
-    }
-
-    svgs.forEach((svg) => {
-      svg.removeAttribute('ng-reflect-variant');
-      svg.removeAttribute('ng-reflect-on-click-cb-fc');
-      svg.removeAttribute('ng-reflect-performance-mode');
-      svg.removeAttribute('ng-reflect-compute-activity-color');
-      svg.removeAttribute('appVariantDrawer');
-      svg.removeAttribute('class');
-      d3.select(svg).selectAll('text').attr('data-bs-original-title', null);
-    });
-
-    this.polygonDrawingService.drawLegend(leafnodes, legend, this.colorMap);
-
-    svgs.unshift(legend.node());
-
-    // Send all Elements to the export service
-    this.imageExportService.export('variant_explorer', 0, 0, ...svgs);
-
-    // Return everything to its previous state
-    visibleComponents.forEach((c, i) => c.setExpanded(state[i]));
-
-    // Hide the Spinner
-    this.svgRenderingInProgress = false;
-  }
-
-  addVariantInformation(
-    svgElement: SVGGraphicsElement,
-    variantAbs: number,
-    variantPerc: number
-  ): SVGGraphicsElement {
-    const exportMarginX: number = 65;
-    const exportMarginY: number = 15;
-
-    const svgElement_copy = svgElement.cloneNode(true) as SVGGraphicsElement;
-
-    // Shift all Elements to the right using transform chaining
-    svgElement_copy.setAttribute(
-      'width',
-      (svgElement.clientWidth + exportMarginX).toString()
-    );
-    svgElement_copy.setAttribute(
-      'height',
-      (svgElement.clientHeight + exportMarginY).toString()
-    );
-
-    d3.select(svgElement_copy)
-      .select('g')
-      .selectChildren()
-      .each(function (this: SVGGraphicsElement) {
-        this.setAttribute(
-          'transform',
-          (this.getAttribute('transform')
-            ? this.getAttribute('transform') + ','
-            : '') + `translate(${exportMarginX}, 0)`
-        );
-      });
-    // Add the Frequency Information
-    const textfield = d3
-      .select(svgElement_copy)
-      .append('text')
-      .attr(
-        'transform',
-        `translate(20, ${(svgElement.clientHeight - 25) / 2 + 10})`
-      )
-      .attr('height', 20)
-      .attr('width', 50)
-      .attr('font-size', 9)
-      .attr('fill', 'black');
-
-    textfield
-      .append('tspan')
-      .attr('x', 0)
-      .attr('dy', 0)
-      .attr('height', 9)
-      .attr('fill', 'black')
-      .text(variantPerc + '%');
-
-    textfield
-      .append('tspan')
-      .attr('x', 0)
-      .attr('dy', 10)
-      .attr('height', 9)
-      .attr('fill', 'black')
-      .text('(' + variantAbs + ')');
-
-    return svgElement_copy;
   }
 
   toggleBlur(event) {

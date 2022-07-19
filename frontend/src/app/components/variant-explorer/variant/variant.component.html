@@ -2,38 +2,25 @@
 
 <ng-container *ngIf="isVisible && !(variant.userDefined && performanceMode)">
   <td>
-    <ng-content select="info"> </ng-content>
+    <div [ngTemplateOutlet]="variantInfo"></div>
   </td>
   <td>
-    <div
-      *ngIf="variant.sub_variants"
-      class="subvariants"
-      (click)="openNewSubvariantWindow(index + 1)"
-    >
-      {{ variant.sub_variants.length }}
-    </div>
+    <ng-container [ngTemplateOutlet]="subvariantButton"> </ng-container>
   </td>
   <td *ngIf="processTreeAvailable" style="text-align: center">
-    <ng-content select="performanceButton"> </ng-content>
+    <div [ngTemplateOutlet]="performanceButton"></div>
   </td>
   <td class="variant-cell">
-    <ng-content select="variantRenderer"> </ng-content>
+    <ng-container [ngTemplateOutlet]="variantDrawer"> </ng-container>
   </td>
-  <ng-content select="infixControls"> </ng-content>
+  <div [ngTemplateOutlet]="infixSelection"> </div>
 </ng-container>
 
 <ng-container *ngIf="isVisible && variant.userDefined && performanceMode">
-  <td>
-  </td>
+  <td></td>
 
   <td>
-    <div
-      *ngIf="variant.sub_variants"
-      class="subvariants"
-      (click)="openNewSubvariantWindow(index + 1)"
-    >
-      {{ variant.sub_variants.length }}
-    </div>
+    <ng-container [ngTemplateOutlet]="subvariantButton"> </ng-container>
   </td>
 
   <td *ngIf="processTreeAvailable"></td>
@@ -51,17 +38,3 @@
     Loading...
   </div>
 </td>
-
-<svg display="none">
-  <symbol
-    width="20"
-    height="20"
-    fill="currentColor"
-    id="infixDots"
-    transform-origin="10 10"
-  >
-    <path
-      d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-    />
-  </symbol>
-</svg>
