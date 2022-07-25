@@ -349,6 +349,8 @@ export class BackendService {
    * @param logName
    */
   private updateState(properties: any, logName: string) {
+
+    console.log(properties)
     this.logService.activitiesInEventLog = properties['activities'];
     this.logService.startActivitiesInEventLog = new Set(
       properties['startActivities']

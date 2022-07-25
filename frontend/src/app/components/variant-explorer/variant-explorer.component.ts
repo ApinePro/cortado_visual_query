@@ -792,14 +792,7 @@ export class VariantExplorerComponent
   }
 
   showMeanPerformance(): void {
-    if (this.performanceService.activeVariant === undefined) {
-      this.performanceService.unselectPerformance();
-    } else {
-      this.performanceService.activeVariant = undefined;
-      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
-        this.performanceService.mergedPerformance
-      );
-    }
+    this.performanceService.showMeanPerformance()
   }
 
   meanPerformance(): string {

@@ -121,6 +121,8 @@ export class ProcessTreeEditorComponent
   activityColorMap: Map<string, string>;
   performanceColorMap: Map<number, any>;
 
+  performanceMode : boolean = false; 
+
   processEditorOutOfFocus: boolean = false;
 
   dropZoneConfig: DropzoneConfig;
@@ -155,6 +157,15 @@ export class ProcessTreeEditorComponent
     this.processTreeService.selectionMode$.subscribe((strategy) => {
       this.nodeSelectionStrategy = strategy;
     });
+
+
+    this.performanceService.performanceMode$.subscribe((mode) => {
+      this.performanceMode = mode; 
+      if (this.currentlyDisplayedTreeInEditor){
+        this.redraw(this.currentlyDisplayedTreeInEditor);
+      }
+
+    })
 
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.activityColorMap = colorMap;
@@ -391,7 +402,7 @@ export class ProcessTreeEditorComponent
   }
 
   computeNodeColor = (root, d: d3.HierarchyNode<ProcessTree>) => {
-    if (root.data.performance && d.data.label !== ProcessTreeOperator.tau) {
+    if (this.performanceMode && d.data.label !== ProcessTreeOperator.tau) {
       if (
         this.performanceColorMap.has(d.data.id) &&
         d.data.performance?.[this.selectedPerformanceIndicator]?.[
@@ -417,7 +428,7 @@ export class ProcessTreeEditorComponent
   };
 
   tooltipContent = (d: d3.HierarchyNode<ProcessTree>) => {
-    if (d.data.hasPerformance() && d.data.label !== ProcessTreeOperator.tau) {
+    if (this.performanceMode && d.data.hasPerformance() && d.data.label !== ProcessTreeOperator.tau) {
       return (
         `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
         <h6 style="flex: 1" class="performance-tooltip-header">` +
@@ -450,7 +461,7 @@ export class ProcessTreeEditorComponent
     if (
       d.data.frozen ||
       d.data.label === ProcessTreeOperator.tau ||
-      (d.data.performance == undefined && root.data.performance != undefined)
+      (!this.performanceMode)
     ) {
       return 'white';
     }
@@ -458,7 +469,7 @@ export class ProcessTreeEditorComponent
     let nodeColor = this.activityColorMap.get(d.data.label);
 
     if (
-      d.data.performance &&
+      this.performanceMode &&
       this.performanceColorMap.has(d.data.id) &&
       d.data.performance[this.selectedPerformanceIndicator]
     ) {
@@ -471,7 +482,7 @@ export class ProcessTreeEditorComponent
 
     const isVisibleActivity =
       (d.data.label !== null && d.data.label !== ProcessTreeOperator.tau) ||
-      (d.data.performance != undefined && nodeColor !== undefined);
+      (this.performanceMode && nodeColor !== undefined);
     return isVisibleActivity ? textColorForBackgroundColor(nodeColor) : 'white';
   };
 

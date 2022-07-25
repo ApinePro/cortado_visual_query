@@ -130,15 +130,6 @@ export class VariantService {
         (v) => v.deviation !== undefined && !v.deviation
       );
 
-      let nDelFittingVar = 0;
-      let nDelFittingTraces = 0;
-
-      if (fittingVariants.length > 0) {
-        nDelFittingVar = fittingVariants.length;
-        nDelFittingTraces = fittingVariants
-          .map((v) => v.count)
-          .reduce((a, b) => a + b);
-      }
 
       this.propagateVariantDeletions(bids).subscribe((res) => {
         this.logService.activitiesInEventLog = res['activities'];
@@ -271,7 +262,7 @@ export class VariantService {
     for (let [key, ls] of updateMap.entries()) {
       if (ls.length > 1) {
         let count = 0;
-        let subvariants = [];
+        let subvariants : Subvariant[] = [];
         let bids = [];
         let selected = false;
         let userAdded = false;
@@ -284,6 +275,36 @@ export class VariantService {
           userAdded = userAdded || variant.isAddedFittingVariant;
         }
 
+
+        const subvariant_map : Map<string, Subvariant[]> = new Map<string, Subvariant[]>();
+
+        for (let subvariant of subvariants){
+
+          console.log('Subvariant', subvariant.variant)
+          const str = subvariant.variant.map((v) => v[0].activity + '_' + v[0].lifecycle).reduce((a, b) => a + '$' + b)
+
+          if(! subvariant_map.has(str)){
+            subvariant_map.set(str, [subvariant])
+          } else {
+            subvariant_map.get(str).push(subvariant)
+          }
+        }
+
+        const new_subvariants = []
+        console.log('Subvar Map', subvariant_map)
+
+        for( let subvariant_entries of subvariant_map.values()){
+
+          console.log('Subvariant Entries', subvariant_entries)
+          const variant = subvariant_entries[0]
+          variant.count = subvariant_entries.map((v) => v.count).reduce((a, b) => a + b)
+
+          new_subvariants.push(variant)
+        }
+
+        console.log('Variant', ls[0])
+        console.log('Subvariants ', new_subvariants)
+
         const variant: Variant = new Variant(
           count,
           ls[0].variant,
@@ -295,7 +316,7 @@ export class VariantService {
           false,
           false,
           true,
-          subvariants,
+          new_subvariants,
           InfixType.NOT_AN_INFIX
         );
         variant.bid = Math.min(...bids);
@@ -318,12 +339,17 @@ export class VariantService {
       let change: boolean = false;
 
       if (variant.variant.getActivities().has(activityName)) {
+
         variant.variant.renameActivity(activityName, newActivityName);
+
         this.rename_activities_subvariants(
           variant,
           activityName,
           newActivityName
         );
+
+        console.log('Variant after Rename', variant)
+
         change = true;
       }
 
@@ -357,6 +383,8 @@ export class VariantService {
 
     const variants = this.apply_update_map(updateMap);
 
+    console.log(variants)
+
     variants.push(...user_defined_variants);
     this.variants = variants;
 
@@ -382,8 +410,12 @@ export class VariantService {
       newActivityName
     );
 
+
+
     this.logService.update_log_stats(null, null, null, updateMap.size);
     this.cachedChange = true;
+
+    
   }
 
   propagateActivityNameChange(
@@ -399,7 +431,7 @@ export class VariantService {
         activityName: activityName,
         newActivityName: newActivityName,
       })
-      .subscribe();
+      .subscribe((res) => console.log('Variant after Finsih', this.variants));
   }
 
   propagateActivityDeletion(

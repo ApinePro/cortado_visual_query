@@ -1,6 +1,6 @@
 import pickle
 from collections import Counter
-from typing import List, Mapping, Tuple
+from typing import List, Mapping, Set, Tuple
 
 import cache.cache as cache
 from cortado_core.utils.cgroups_graph import cgroups_graph
@@ -14,7 +14,6 @@ from cortado_core.utils.split_graph import (
 from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.util.xes_constants import DEFAULT_NAME_KEY
 
-from endpoints import load_event_log
 from endpoints.load_event_log import compute_log_stats, create_variant_object
 
 
@@ -32,7 +31,7 @@ def reset_last_transaction():
     res_variants = []
 
     for bid, (v, ts) in cache.variants.items():
-
+        
         variant = create_variant_object(
             cache.parameters["cur_time_granularity"], total_traces, bid, v, ts
         )
@@ -41,9 +40,11 @@ def reset_last_transaction():
     res_variants = sorted(
         res_variants, key=lambda variant: variant["count"], reverse=True
     )
+    
 
     start_activities, end_activities, nActivities = compute_log_stats(cache.variants)
-
+    
+    cache.parameters["activites"] = set(nActivities.keys())
     res = {
         "startActivities": start_activities,
         "endActivities": end_activities,
@@ -258,7 +259,13 @@ def rename_activities(mergeList, renameList, activityName, newActivityName):
     for bid in no_update:
         new_variant_dict[bid] = cache.variants[bid]
 
-    load_event_log.variants = new_variant_dict
+    cache.variants = new_variant_dict
+    
+    activities : Set = cache.parameters["activites"]
+    activities.discard(activityName)
+    activities.add(newActivityName)
+    
+    cache.parameters["activites"] = activities
 
 
 def remove_activity_from_trace(trace, activityName):
@@ -524,12 +531,17 @@ def remove_activities(
     }
 
     cache.variants = new_variants
+    
+    
+    activities : Set = cache.parameters["activites"]
+    activities.discard(activityName)
+    
+    cache.parameters["activites"] = activities
 
     return res
 
-
 def remove_variant(bids):
-
+    
     cache.variants = {
         bid: (v, t) for bid, (v, t) in cache.variants.items() if bid not in bids
     }
@@ -541,5 +553,7 @@ def remove_variant(bids):
         "endActivities": list(end_activities),
         "activities": nActivities,
     }
+    
+    cache.parameters["activites"] = set(nActivities.keys())
 
     return res
