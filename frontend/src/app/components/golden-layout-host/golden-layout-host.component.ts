@@ -26,7 +26,9 @@ import { GoldenLayoutComponentService } from '../../services/goldenLayoutService
 import { BpmnEditorComponent } from '../bpmn-editor/bpmn-editor.component';
 import { VariantEditorComponent } from '../variant-editor/variant-editor.component';
 import { InfoBoxComponent } from '../info-box/info-box.component';
-
+import { ModelPerformanceComponent } from '../performance/performance.component';
+import { VariantPerformanceComponent } from '../variant-performance/variant-performance.component';
+import { thresholdSturges } from 'd3';
 @Component({
   selector: 'app-golden-layout-host',
   templateUrl: './golden-layout-host.component.html',
@@ -73,6 +75,16 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     this.goldenLayoutComponentService.registerComponentType(
       ActivityOverviewComponent.componentName,
       ActivityOverviewComponent
+    );
+
+    this.goldenLayoutComponentService.registerComponentType(
+      VariantPerformanceComponent.componentName,
+      VariantPerformanceComponent
+    );
+
+    this.goldenLayoutComponentService.registerComponentType(
+      ModelPerformanceComponent.componentName,
+      ModelPerformanceComponent
     );
 
     this.goldenLayoutComponentService.registerComponentType(
@@ -143,6 +155,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
       componentType,
       container
     );
+
     const component = componentRef.instance;
     this._componentRefMap.set(container, componentRef);
 
@@ -224,6 +237,49 @@ export class GoldenLayoutHostComponent implements OnDestroy {
       throw new Error(
         'handleContainerVirtualRectingRequiredEvent: ComponentRef not found'
       );
+    }
+
+    const parent = container.parent;
+    const grand_parent = parent.parent;
+    const grand_parent_children_elements = grand_parent.element.children;
+
+    if (width < 150 || height < 100) {
+      for (let i = 0; i < grand_parent_children_elements.length; i++) {
+        this.renderer.setStyle(
+          grand_parent_children_elements[i],
+          'visibility',
+          'hidden'
+        );
+      }
+
+      this._componentRefMap.get(container).instance.setVisibility(false);
+      this.renderer.addClass(
+        grand_parent.element,
+        'collapsed-golden-layout-container'
+      );
+
+      if (width < 150) {
+        this.renderer.addClass(grand_parent.element, 'vertical-dots');
+      } else {
+        this.renderer.addClass(grand_parent.element, 'horizontal-dots');
+      }
+    } else {
+      for (let i = 0; i < grand_parent_children_elements.length; i++) {
+        this.renderer.removeStyle(
+          grand_parent_children_elements[i],
+          'visibility'
+        );
+      }
+
+      this._componentRefMap.get(container).instance.setVisibility(true);
+      this.renderer.removeClass(
+        grand_parent.element,
+        'collapsed-golden-layout-container'
+      );
+
+      this.renderer.removeClass(grand_parent.element, 'vertical-dots');
+
+      this.renderer.removeClass(grand_parent.element, 'horizontal-dots');
     }
 
     const component = componentRef.instance;

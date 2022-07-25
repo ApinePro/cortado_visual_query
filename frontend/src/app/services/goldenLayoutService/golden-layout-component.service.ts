@@ -9,13 +9,16 @@ import {
 import {
   ComponentContainer,
   ComponentItemConfig,
+  ContentItem,
   GoldenLayout,
   JsonValue,
   LayoutManager,
+  RowOrColumn,
 } from 'golden-layout';
 import { take } from 'rxjs/operators';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import { LayoutChangeDirective } from '../../directives/layout-change.directive';
+import { ProcessTreeEditorComponent } from 'src/app/components/process-tree-editor/process-tree-editor.component';
 
 @Injectable({
   providedIn: 'root',
@@ -24,9 +27,10 @@ export class GoldenLayoutComponentService {
   private _componentTypeMap = new Map<string, Type<LayoutChangeDirective>>();
   private _goldenLayoutHostComponent: GoldenLayoutHostComponent;
   private _goldenLayout: GoldenLayout;
-  private _splitViewWindow: string = null;
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
+
+  splitViewIds = [];
 
   registerComponentType(
     name: string,
@@ -117,9 +121,14 @@ export class GoldenLayoutComponentService {
     // Destroy the split window instance, and register the creation after the semaphor fires TODO carry over the state
     // Issue, when in the Future multiple Editor might exist and can be closed in rapid succesion
 
-    if (editor && componentID === this._splitViewWindow) {
+    // TODO READD SPLIT WINDOW CHECK
+    if (editor && this.splitViewIds.includes(componentID)) {
       editor.close();
-      this._splitViewWindow = null;
+
+      this.splitViewIds.forEach((item, index) => {
+        if (item === componentID) this.splitViewIds.splice(index, 1);
+      });
+
       createComponent(parentContainerID, itemConfig, LocationSelectors);
 
       // Create the component at the specified selector
@@ -130,22 +139,18 @@ export class GoldenLayoutComponentService {
     }
   }
 
-  createSplitViewWindow(componentID) {
-    this._goldenLayout
-      .findFirstComponentItemById(this._splitViewWindow)
-      ?.close();
+  createBPMNSplitViewWindow(splitParentID, componentID) {
+    const parent = this._goldenLayout.findFirstComponentItemById(splitParentID);
 
-    if (this._splitViewWindow === componentID) {
-      this._splitViewWindow = null;
-    } else {
+    if (this.splitViewIds.includes(componentID)) {
       this._goldenLayout.findFirstComponentItemById(componentID)?.close();
 
-      const LocationSelectors: LayoutManager.LocationSelector[] = [
-        {
-          typeId: LayoutManager.LocationSelector.TypeId.FirstRow,
-          index: undefined,
-        },
-      ];
+      this.splitViewIds.forEach((item, index) => {
+        if (item === componentID) this.splitViewIds.splice(index, 1);
+      });
+    } else {
+      this.splitViewIds.push(componentID);
+      this._goldenLayout.findFirstComponentItemById(componentID)?.close();
 
       const itemConfig: ComponentItemConfig = {
         id: componentID,
@@ -158,8 +163,41 @@ export class GoldenLayoutComponentService {
         componentType: componentID,
       };
 
-      this._goldenLayout.addItemAtLocation(itemConfig, LocationSelectors);
-      this._splitViewWindow = componentID;
+      const pt_editor_row = findContentItemByUniqueID(
+        splitParentID + '_Container_Row',
+        this._goldenLayout.rootItem
+      );
+
+      (pt_editor_row as RowOrColumn).addItem(itemConfig, 1);
     }
+  }
+}
+
+function findContentItemByUniqueID(
+  id: string,
+  groundItem: ContentItem
+): ContentItem | undefined {
+  const contentItems = groundItem.contentItems;
+
+  const contentItemCount = contentItems.length;
+  if (contentItemCount === 0) {
+    return undefined;
+  } else {
+    for (let i = 0; i < contentItemCount; i++) {
+      const contentItem = contentItems[i];
+      if (contentItem.id === id) {
+        return contentItem;
+      }
+    }
+
+    for (let i = 0; i < contentItemCount; i++) {
+      const contentItem = contentItems[i];
+      const foundContentItem = findContentItemByUniqueID(id, contentItem);
+      if (foundContentItem !== undefined) {
+        return foundContentItem;
+      }
+    }
+
+    return undefined;
   }
 }
