@@ -1,15 +1,15 @@
-import { LeafNode, VariantElement } from "src/app/objects/Variants/variant_element";
+import {
+  LeafNode,
+  VariantElement,
+} from 'src/app/objects/Variants/variant_element';
 
-export function findPathToSelectedNode(start : VariantElement, end ): Array<VariantElement> {
-  const path = searchPath(
-    start,
-    end
-  );
+export function findPathToSelectedNode(
+  start: VariantElement,
+  end
+): Array<VariantElement> {
+  const path = searchPath(start, end);
 
-  function searchPath(
-    parent: VariantElement,
-    element
-  ): Array<VariantElement> {
+  function searchPath(parent: VariantElement, element): Array<VariantElement> {
     if (parent.getElements().indexOf(element) > -1) {
       return [parent, element];
     } else if (!(parent instanceof LeafNode)) {

@@ -42,7 +42,7 @@ export class VariantExplorerContextMenuComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (!(changes.xPos.isFirstChange && changes.yPos.isFirstChange)){
+    if (!(changes.xPos.isFirstChange && changes.yPos.isFirstChange)) {
       this.displayMenu = true;
     }
   }

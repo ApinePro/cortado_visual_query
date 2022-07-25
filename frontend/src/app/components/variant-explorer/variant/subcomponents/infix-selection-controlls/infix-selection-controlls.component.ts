@@ -10,7 +10,6 @@ import { Variant } from 'src/app/objects/Variants/variant';
 export class InfixSelectionControllsComponent {
   constructor() {}
 
-
   @Input()
   variant: Variant;
 

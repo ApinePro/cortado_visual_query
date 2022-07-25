@@ -11,9 +11,8 @@ describe('ZoomFieldComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ZoomFieldComponent ]
-    })
-    .compileComponents();
+      declarations: [ZoomFieldComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

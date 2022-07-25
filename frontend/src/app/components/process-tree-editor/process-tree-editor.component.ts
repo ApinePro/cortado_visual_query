@@ -121,7 +121,7 @@ export class ProcessTreeEditorComponent
   activityColorMap: Map<string, string>;
   performanceColorMap: Map<number, any>;
 
-  performanceMode : boolean = false; 
+  performanceMode: boolean = false;
 
   processEditorOutOfFocus: boolean = false;
 
@@ -158,14 +158,12 @@ export class ProcessTreeEditorComponent
       this.nodeSelectionStrategy = strategy;
     });
 
-
     this.performanceService.performanceMode$.subscribe((mode) => {
-      this.performanceMode = mode; 
-      if (this.currentlyDisplayedTreeInEditor){
+      this.performanceMode = mode;
+      if (this.currentlyDisplayedTreeInEditor) {
         this.redraw(this.currentlyDisplayedTreeInEditor);
       }
-
-    })
+    });
 
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.activityColorMap = colorMap;
@@ -428,7 +426,11 @@ export class ProcessTreeEditorComponent
   };
 
   tooltipContent = (d: d3.HierarchyNode<ProcessTree>) => {
-    if (this.performanceMode && d.data.hasPerformance() && d.data.label !== ProcessTreeOperator.tau) {
+    if (
+      this.performanceMode &&
+      d.data.hasPerformance() &&
+      d.data.label !== ProcessTreeOperator.tau
+    ) {
       return (
         `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
         <h6 style="flex: 1" class="performance-tooltip-header">` +
@@ -461,7 +463,7 @@ export class ProcessTreeEditorComponent
     if (
       d.data.frozen ||
       d.data.label === ProcessTreeOperator.tau ||
-      (!this.performanceMode)
+      !this.performanceMode
     ) {
       return 'white';
     }

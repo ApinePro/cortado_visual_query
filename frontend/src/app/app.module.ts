@@ -109,7 +109,7 @@ import { ZoomFieldComponent } from './components/zoom-field/zoom-field.component
     BpmnDrawerDirective,
     TreePerformanceButtonComponent,
     InfixSelectionControllsComponent,
-    ZoomFieldComponent
+    ZoomFieldComponent,
   ],
   imports: [
     BrowserModule,

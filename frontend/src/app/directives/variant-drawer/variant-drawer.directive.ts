@@ -27,7 +27,7 @@ import {
 
 @Directive({
   selector: '[appVariantDrawer]',
-  exportAs: 'variantDrawer'
+  exportAs: 'variantDrawer',
 })
 export class VariantDrawerDirective implements AfterViewInit, OnChanges {
   setExpanded(expanded: boolean) {

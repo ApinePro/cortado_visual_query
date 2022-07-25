@@ -92,7 +92,7 @@ export class VariantExplorerComponent
     private performanceColorService: ModelPerformanceColorScaleService,
     private variantPerformanceService: VariantPerformanceService,
     private conformanceCheckingService: ConformanceCheckingService,
-    private goldenLayoutComponentService: GoldenLayoutComponentService,
+    private goldenLayoutComponentService: GoldenLayoutComponentService
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -222,6 +222,8 @@ export class VariantExplorerComponent
       this.displayed_variants = this.variants;
       this.sort(this.sortingFeature);
       this.closeAllSubvariantWindows();
+
+      console.log('This Variants', this.variants); 
       this.redraw_components();
     });
 
@@ -624,8 +626,8 @@ export class VariantExplorerComponent
   }
 
   anyPerforamnceAvailable = () => {
-    return this.performanceService.availablePerformances.size > 0
-  }
+    return this.performanceService.availablePerformances.size > 0;
+  };
 
   isPerformanceAvailable = (variant: Variant) => {
     return this.performanceService.availablePerformances.has(variant);
@@ -746,7 +748,10 @@ export class VariantExplorerComponent
   }
 
   areAllVariantsExpanded(): boolean {
-    if (this.variantDrawers === undefined || (this.variants && this.variants.length < 1 )){
+    if (
+      this.variantDrawers === undefined ||
+      (this.variants && this.variants.length < 1)
+    ) {
       return false;
     }
 
@@ -792,7 +797,7 @@ export class VariantExplorerComponent
   }
 
   showMeanPerformance(): void {
-    this.performanceService.showMeanPerformance()
+    this.performanceService.showMeanPerformance();
   }
 
   meanPerformance(): string {

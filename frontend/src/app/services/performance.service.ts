@@ -45,21 +45,21 @@ export class PerformanceService {
   latestRequest: Subscription;
   fitness = new Map<Variant, number>();
 
-  _performanceMode : BehaviorSubject<boolean> =
-  new BehaviorSubject<boolean>(false);; 
+  _performanceMode: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
+    false
+  );
 
-  set performanceMode (value : boolean) {
-    this._performanceMode.next(value)
+  set performanceMode(value: boolean) {
+    this._performanceMode.next(value);
   }
 
-  get performanceMode () {
-    return this._performanceMode.value
+  get performanceMode() {
+    return this._performanceMode.value;
   }
 
-  get performanceMode$(){
-    return this._performanceMode.asObservable(); 
+  get performanceMode$() {
+    return this._performanceMode.asObservable();
   }
-  
 
   private currentPt: ProcessTree;
 
@@ -156,7 +156,8 @@ export class PerformanceService {
           variants.forEach((v) => this.availablePerformances.add(v));
           this.newValues.next(true);
 
-          this.processTreeService.currentDisplayedProcessTree = performance.merged_performance_tree; 
+          this.processTreeService.currentDisplayedProcessTree =
+            performance.merged_performance_tree;
 
           variants.forEach((v) => this.calculationInProgress.delete(v));
 
@@ -171,7 +172,7 @@ export class PerformanceService {
             this.clear();
             return;
           } else {
-            this.performanceMode = true; 
+            this.performanceMode = true;
           }
 
           variants.forEach((v) => {
@@ -198,7 +199,7 @@ export class PerformanceService {
   }
 
   public unselectPerformance() {
-    this.performanceMode = false; 
+    this.performanceMode = false;
     this.activeVariant = null;
   }
 
@@ -260,22 +261,22 @@ export class PerformanceService {
   public setShownVariantPerformance(variant: Variant): void {
     this.activeVariant = variant;
     if (this.variantsPerformance.has(variant)) {
-      this.processTreeService.currentDisplayedProcessTree = this.variantsPerformance.get(variant); 
+      this.processTreeService.currentDisplayedProcessTree =
+        this.variantsPerformance.get(variant);
       this.performanceMode = true;
-
     } else {
       console.error(`No performance values available: ${variant}`);
     }
   }
 
-  showMeanPerformance(){
-    
+  showMeanPerformance() {
     if (this.activeVariant === undefined) {
       this.unselectPerformance();
     } else {
       this.activeVariant = undefined;
       this.performanceMode = true;
-      this.processTreeService.currentDisplayedProcessTree = this.mergedPerformance;
+      this.processTreeService.currentDisplayedProcessTree =
+        this.mergedPerformance;
     }
   }
 
@@ -289,8 +290,7 @@ export class PerformanceService {
     this.calculationInProgress.clear();
     this.treeSelection.next(undefined);
 
-    this.performanceMode = false
-
+    this.performanceMode = false;
   }
 
   private deletePerformance(variant: Variant) {

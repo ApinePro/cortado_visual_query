@@ -35,7 +35,6 @@ import { collapsingText, fadeInText } from 'src/app/animations/text-animations';
 import { findPathToSelectedNode } from 'src/app/objects/Variants/utility_functions';
 import { applyInverseStrokeToPoly } from 'src/app/utils/helper_functions';
 
-
 @Component({
   selector: 'app-variant-editor',
   templateUrl: './variant-editor.component.html',
@@ -487,8 +486,6 @@ export class VariantEditorComponent
           this.newLeaf = children[index - 1];
 
           children.splice(index, 1);
-
-
         }
       }
 
@@ -562,22 +559,24 @@ export class VariantEditorComponent
     setTimeout(() => this.variantDrawer.redraw(), 1);
   }
 
-  focusSelected(){
+  focusSelected() {
     this.editor.focusSelected(250);
   }
 
-  centerVariant(){
+  centerVariant() {
     this.editor.centerContent(250);
   }
 
   computeFocusOffset = (svg) => {
-
-    const path = findPathToSelectedNode(this.currentVariant, svg.select('.selected-variant-g').data()[0]).slice(1);
+    const path = findPathToSelectedNode(
+      this.currentVariant,
+      svg.select('.selected-variant-g').data()[0]
+    ).slice(1);
     let translateX = 0;
 
     for (let element of svg
       .selectAll('g')
-      .filter((d : VariantElement) => {
+      .filter((d: VariantElement) => {
         return path.indexOf(d) > -1;
       })
       .nodes()) {
@@ -588,8 +587,8 @@ export class VariantEditorComponent
       translateX += parseFloat(transform[0]);
     }
 
-    return [-translateX, 0]
-  }
+    return [-translateX, 0];
+  };
 
   addCurrentVariantToVariantList() {
     let currentVariants = this.variantService.variants;
@@ -654,5 +653,3 @@ export enum activityInsertionStrategy {
   parallel = 'parallel',
   replace = 'replace',
 }
-
-
