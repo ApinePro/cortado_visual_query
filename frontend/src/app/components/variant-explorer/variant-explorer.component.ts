@@ -223,7 +223,7 @@ export class VariantExplorerComponent
       this.sort(this.sortingFeature);
       this.closeAllSubvariantWindows();
 
-      console.log('This Variants', this.variants); 
+      console.log('This Variants', this.variants);
       this.redraw_components();
     });
 
