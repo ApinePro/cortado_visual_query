@@ -11,12 +11,16 @@ import { ProcessTreeEditorComponent } from '../../process-tree-editor/process-tr
 import { VariantExplorerComponent } from '../../variant-explorer/variant-explorer.component';
 import { InfoBoxComponent } from '../../info-box/info-box.component';
 
+import { ActivityOverviewComponent } from '../../activity-overview/activity-overview.component';
+import { ModelPerformanceComponent } from '../../performance/performance.component';
+import { VariantPerformanceComponent } from '../../variant-performance/variant-performance.component';
+
 export const baseLayout: LayoutConfig = {
   dimensions: {
     borderWidth: 0.75,
     borderGrabWidth: 10,
-    minItemHeight: 30,
-    minItemWidth: 350,
+    minItemHeight: 10,
+    minItemWidth: 10,
   },
   settings: {
     showPopoutIcon: false,
@@ -28,7 +32,9 @@ export const baseLayout: LayoutConfig = {
       {
         type: ItemType.row,
         height: 61.803,
-        isClosable: true,
+        isClosable: false,
+        reorderEnabled: false,
+        id: ProcessTreeEditorComponent.componentName + '_Container_Row',
         content: [
           {
             type: ItemType.stack,
@@ -58,8 +64,9 @@ export const baseLayout: LayoutConfig = {
           {
             type: ItemType.stack,
             height: 38.197,
-            isClosable: true,
+            isClosable: false,
             width: 61.803,
+            id: VariantExplorerComponent.componentName + '_Container_Stack',
             content: [
               {
                 id: VariantExplorerComponent.componentName,
@@ -74,16 +81,53 @@ export const baseLayout: LayoutConfig = {
             ],
           } as StackItemConfig,
           {
-            type: 'component',
-            header: {
-              show: false,
-            },
-            width: 38.197,
-            isClosable: true,
-            title: 'Info Box',
-            id: InfoBoxComponent.componentName,
-            componentType: InfoBoxComponent.componentName,
-          } as ComponentItemConfig,
+            type: ItemType.stack,
+            height: 38.197,
+            isClosable: false,
+            width: 61.803,
+            id: ActivityOverviewComponent.componentName + '_Container_Stack',
+            content: [
+              {
+                type: 'component',
+                header: {
+                  show: false,
+                },
+                width: 38.197,
+                isClosable: false,
+                reorderEnabled: false,
+                title: 'Activity Overview',
+                id: ActivityOverviewComponent.componentName,
+                componentType: ActivityOverviewComponent.componentName,
+                componentState: { cssParentClass: 'info-box-stack' },
+              } as ComponentItemConfig,
+              {
+                type: 'component',
+                header: {
+                  show: false,
+                },
+                width: 38.197,
+                isClosable: false,
+                reorderEnabled: true,
+                title: 'Model Performance',
+                id: ModelPerformanceComponent.componentName,
+                componentType: ModelPerformanceComponent.componentName,
+                componentState: { cssParentClass: 'info-box-stack' },
+              } as ComponentItemConfig,
+              {
+                type: 'component',
+                header: {
+                  show: false,
+                },
+                width: 38.197,
+                isClosable: false,
+                reorderEnabled: true,
+                title: 'Variant Performane',
+                id: VariantPerformanceComponent.componentName,
+                componentType: VariantPerformanceComponent.componentName,
+                componentState: { cssParentClass: 'info-box-stack' },
+              } as ComponentItemConfig,
+            ],
+          } as StackItemConfig,
         ],
       } as RowOrColumnItemConfig,
     ],

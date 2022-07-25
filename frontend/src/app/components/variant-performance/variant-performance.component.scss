@@ -1,6 +1,8 @@
 :host {
   display: flex;
   flex-direction: column;
+  overflow: auto;
+  position: absolute;
 }
 
 .nav-tabs {
