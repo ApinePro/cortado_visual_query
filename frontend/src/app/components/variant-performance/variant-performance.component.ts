@@ -1,5 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { VariantElement } from 'src/app/objects/Variants/variant_element';
+import { ChangeDetectorRef, Component, ElementRef, Inject, OnInit, Renderer2 } from '@angular/core';
+import { ComponentContainer, LogicalZIndex } from 'golden-layout';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 
 @Component({
@@ -7,11 +8,34 @@ import { VariantPerformanceService } from 'src/app/services/variant-performance.
   templateUrl: './variant-performance.component.html',
   styleUrls: ['./variant-performance.component.scss'],
 })
-export class VariantPerformanceComponent implements OnInit {
+export class VariantPerformanceComponent
+  extends LayoutChangeDirective
+  implements OnInit
+{
   constructor(
     public variantPerformanceService: VariantPerformanceService,
-    private changeDetectorRef: ChangeDetectorRef
-  ) {}
+    private changeDetectorRef: ChangeDetectorRef,
+    renderer: Renderer2,
+    @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
+    private container: ComponentContainer,
+    elRef: ElementRef
+  ) {
+    super(elRef.nativeElement, renderer);
+  }
+
+  handleResponsiveChange(
+    left: number,
+    top: number,
+    width: number,
+    height: number
+  ): void {}
+
+  handleVisibilityChange(visibility: boolean): void {}
+
+  handleZIndexChange(
+    logicalZIndex: LogicalZIndex,
+    defaultZIndex: string
+  ): void {}
 
   public performanceStats: any;
   public title: string;
@@ -39,4 +63,8 @@ export class VariantPerformanceComponent implements OnInit {
   setPerformanceMode(performanceMode: boolean): void {
     this.variantPerformanceService.variantPerformanceMode.next(performanceMode);
   }
+}
+
+export namespace VariantPerformanceComponent {
+  export const componentName = 'VariantPerformanceComponent';
 }

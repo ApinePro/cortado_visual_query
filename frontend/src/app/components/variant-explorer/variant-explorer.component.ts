@@ -103,6 +103,7 @@ export class VariantExplorerComponent
   public variants: Variant[] = [];
   public displayed_variants: Variant[] = [];
   public colorMap: Map<string, string>;
+  public sidebarHeigth = 0;
 
   public logStats: LogStats = null;
 
@@ -773,6 +774,8 @@ export class VariantExplorerComponent
     height: number
   ): void {
     this.collapse = width < 875;
+
+    this.sidebarHeigth = height;
   }
 
   handleVisibilityChange(visibility: boolean): void {}

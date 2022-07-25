@@ -68,6 +68,8 @@ export class BpmnEditorComponent
   performanceSub: Subscription;
   colorMapSub: Subscription;
 
+  performanceMode : boolean = false; 
+
   constructor(
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
@@ -100,6 +102,8 @@ export class BpmnEditorComponent
     this.processTreeService.selectionMode$.subscribe((strategy) => {
       this.nodeSelectionStrategy = strategy;
     });
+
+
   }
 
   ngAfterViewInit(): void {
@@ -108,6 +112,16 @@ export class BpmnEditorComponent
       this.performanceColorScaleService.selectedColorScale.statistic;
     this.selectedPerformanceIndicator =
       this.performanceColorScaleService.selectedColorScale.performanceIndicator;
+
+
+    this.performanceService.performanceMode$.subscribe((mode) => {
+        this.performanceMode = mode; 
+        console.log('Performance Mode', mode)
+  
+        if (this.currentTree) {
+          this.redraw(this.currentTree);
+        }
+    })
 
     this.mainGroup = d3.select('#bpmn-zoom-group');
 

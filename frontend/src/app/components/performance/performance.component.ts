@@ -1,5 +1,13 @@
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ElementRef,
+  Inject,
+  Renderer2,
+} from '@angular/core';
+
 import {
   HumanizeDuration,
   HumanizeDurationLanguage,
@@ -11,12 +19,17 @@ import {
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
 import { PerformanceService } from 'src/app/services/performance.service';
 import { PerformanceStats } from 'src/app/objects/Variants/variant_element';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 @Component({
   selector: 'app-performance',
   templateUrl: './performance.component.html',
   styleUrls: ['./performance.component.scss'],
 })
-export class ModelPerformanceComponent implements OnInit {
+export class ModelPerformanceComponent
+  extends LayoutChangeDirective
+  implements OnInit
+{
   duration: HumanizeDuration;
 
   colorValues = [];
@@ -30,8 +43,13 @@ export class ModelPerformanceComponent implements OnInit {
     public performanceService: PerformanceService,
     private processTreeService: ProcessTreeService,
     public performanceColorScaleService: ModelPerformanceColorScaleService,
-    private changeDetectionRef: ChangeDetectorRef
+    private changeDetectionRef: ChangeDetectorRef,
+    renderer: Renderer2,
+    @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
+    private container: ComponentContainer,
+    elRef: ElementRef
   ) {
+    super(elRef.nativeElement, renderer);
     const durationLang = new HumanizeDurationLanguage();
     this.duration = new HumanizeDuration(durationLang);
   }
@@ -94,4 +112,22 @@ export class ModelPerformanceComponent implements OnInit {
       treeNode.children.forEach((n) => this.nodePerformance(n));
     }
   }
+
+  handleResponsiveChange(
+    left: number,
+    top: number,
+    width: number,
+    height: number
+  ): void {}
+
+  handleVisibilityChange(visibility: boolean): void {}
+
+  handleZIndexChange(
+    logicalZIndex: LogicalZIndex,
+    defaultZIndex: string
+  ): void {}
+}
+
+export namespace ModelPerformanceComponent {
+  export const componentName = 'ModelPerformanceComponent';
 }

@@ -488,7 +488,7 @@ export class VariantEditorComponent
 
           children.splice(index, 1);
 
-          
+
         }
       }
 
@@ -563,7 +563,7 @@ export class VariantEditorComponent
   }
 
   focusSelected(){
-    this.editor.focusSelected(250); 
+    this.editor.focusSelected(250);
   }
 
   centerVariant(){

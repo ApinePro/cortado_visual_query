@@ -13,7 +13,7 @@
   <td class="variant-cell">
     <ng-container [ngTemplateOutlet]="variantDrawer"> </ng-container>
   </td>
-  <div [ngTemplateOutlet]="infixSelection"> </div>
+  <div [ngTemplateOutlet]="infixSelection"></div>
 </ng-container>
 
 <ng-container *ngIf="isVisible && variant.userDefined && performanceMode">
@@ -38,3 +38,17 @@
     Loading...
   </div>
 </td>
+
+<svg display="none">
+  <symbol
+    width="20"
+    height="20"
+    fill="currentColor"
+    id="infixDots"
+    transform-origin="10 10"
+  >
+    <path
+      d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+    />
+  </symbol>
+</svg>
