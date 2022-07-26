@@ -522,11 +522,11 @@
 
               <ng-template #subvariantButton>
                 <div
-                  *ngIf="variant.sub_variants"
+                  *ngIf="variant.nSubVariants > 0"
                   class="subvariants"
                   (click)="createSubVariantView(i + 1)"
                 >
-                  {{ variant.sub_variants.length }}
+                  {{ variant.nSubVariants }}
                 </div>
               </ng-template>
 
@@ -556,7 +556,7 @@
                 <app-infix-selection-controlls
                   [variant]="variant"
                   [traceInfixSelectionMode]="traceInfixSelectionMode"
-                  (addCurrentSelectedInfix)="handleSelectInfix($event)"
+                  (selectTraceInfix)="handleSelectInfix($event)"
                   [variantDrawer]="drawer"
                 >
                 </app-infix-selection-controlls>

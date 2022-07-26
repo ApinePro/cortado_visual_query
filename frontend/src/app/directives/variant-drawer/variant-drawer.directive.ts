@@ -12,7 +12,6 @@ import { Input } from '@angular/core';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
 import { PolygonGeneratorService } from 'src/app/services/polygon-generator.service';
-import { textColorForBackgroundColor } from 'src/app/utils/helper_functions';
 import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
@@ -24,6 +23,7 @@ import {
   WaitingTimeNode,
   InvisibleSequenceGroup,
 } from 'src/app/objects/Variants/variant_element';
+import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 
 @Directive({
   selector: '[appVariantDrawer]',

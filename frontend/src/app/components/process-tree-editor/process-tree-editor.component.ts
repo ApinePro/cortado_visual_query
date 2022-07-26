@@ -16,7 +16,6 @@ import {
 
 import { ComponentContainer, GoldenLayout, LogicalZIndex } from 'golden-layout';
 import * as d3 from 'd3';
-import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
 import { ColorMapService } from '../../services/colorMapService/color-map.service';
 
 import { ImageExportService } from '../../services/imageExportService/image-export-service';
@@ -35,17 +34,16 @@ import {
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { ActivateTooltipsService } from '../../services/activateTooltipsService/activate-tooltips.service';
 import {
-  NodeSeletionStrategy,
-  NodeInsertionStrategy,
   ProcessTreeService,
 } from 'src/app/services/processTreeService/process-tree.service';
 
 import { LogService } from 'src/app/services/logService/log.service';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { ProcessTreeDrawerDirective } from 'src/app/directives/process-tree-drawer/process-tree-drawer.directive';
-import { textColorForBackgroundColor } from 'src/app/utils/helper_functions';
 import { getPerformanceTable } from './utils';
 import { collapsingText } from 'src/app/animations/text-animations';
+import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
+import { NodeSeletionStrategy, NodeInsertionStrategy } from 'src/app/objects/ProcessTree/utility-functions/process-tree-edit-tree';
 
 @Component({
   selector: 'app-process-tree-editor',
@@ -60,7 +58,6 @@ export class ProcessTreeEditorComponent
   selectedPerformanceIndicator: string;
   selectedStatistic: string;
   constructor(
-    private sharedDataService: SharedDataService,
     private activateTooltipsService: ActivateTooltipsService,
     private colorMapService: ColorMapService,
     private imageExportService: ImageExportService,

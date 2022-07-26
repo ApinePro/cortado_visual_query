@@ -1,5 +1,4 @@
 import { InfixType } from './infix_selection';
-import { Subvariant } from './subvariant';
 import { VariantElement } from './variant_element';
 
 export class Variant {
@@ -21,7 +20,7 @@ export class Variant {
   deviation: any | undefined;
   isTimeouted: boolean;
   isConformanceOutdated: boolean;
-  sub_variants: Subvariant[] | undefined;
+  nSubVariants : number; 
   infixType: InfixType;
 
   constructor(
@@ -35,7 +34,7 @@ export class Variant {
     userDefined: boolean,
     isTimeouted: boolean,
     isConformanceOutdated: boolean,
-    sub_variants,
+    nSubVariants : number,
     infixType: InfixType = InfixType.NOT_AN_INFIX
   ) {
     this.count = count;
@@ -48,7 +47,7 @@ export class Variant {
     this.userDefined = userDefined;
     this.isTimeouted = isTimeouted;
     this.isConformanceOutdated = isConformanceOutdated;
-    this.sub_variants = sub_variants;
+    this.nSubVariants = nSubVariants;
     this.infixType = infixType;
   }
 }

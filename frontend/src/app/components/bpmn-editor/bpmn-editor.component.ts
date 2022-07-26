@@ -1,5 +1,4 @@
 import {
-  NodeSeletionStrategy,
   ProcessTreeService,
 } from './../../services/processTreeService/process-tree.service';
 import { Subscription } from 'rxjs';
@@ -29,8 +28,8 @@ import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-c
 import { BPMN_Constant } from 'src/app/constants/bpmn_model_drawer_constants';
 import { BpmnDrawerDirective } from 'src/app/directives/bpmn-drawer/bpmn-drawer.directive';
 import { getPerformanceTable } from '../process-tree-editor/utils';
-import { textColorForBackgroundColor } from 'src/app/utils/helper_functions';
-
+import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
+import { NodeSeletionStrategy } from 'src/app/objects/ProcessTree/utility-functions/process-tree-edit-tree';
 @Component({
   selector: 'app-bpmn-editor',
   templateUrl: './bpmn-editor.component.html',
@@ -113,7 +112,6 @@ export class BpmnEditorComponent
 
     this.performanceService.performanceMode$.subscribe((mode) => {
       this.performanceMode = mode;
-      console.log('Performance Mode', mode);
 
       if (this.currentTree) {
         this.redraw(this.currentTree);

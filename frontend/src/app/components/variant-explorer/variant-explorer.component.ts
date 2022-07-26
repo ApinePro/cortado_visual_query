@@ -44,7 +44,6 @@ import { ColorMapService } from '../../services/colorMapService/color-map.servic
 import { ImageExportService } from '../../services/imageExportService/image-export-service';
 import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
-import { textColorForBackgroundColor } from '../../utils/helper_functions';
 import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
 import { VariantSorter } from '../../objects/Variants/variant-sorter';
 import { Variant } from 'src/app/objects/Variants/variant';
@@ -64,6 +63,8 @@ import {
   openCloseComponent,
 } from 'src/app/animations/component-animations';
 import { collapsingText } from 'src/app/animations/text-animations';
+import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
+import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -217,13 +218,14 @@ export class VariantExplorerComponent
 
     variantExplorerItem.focus();
 
-    this.variantService.variants$.subscribe(() => {
-      this.variants = this.variantService.variants;
-      this.displayed_variants = this.variants;
+    this.variantService.variants$.subscribe((variants) => {
+
+      console.log(variants)
+      this.variants = variants;
+      this.displayed_variants = variants;
       this.sort(this.sortingFeature);
       this.closeAllSubvariantWindows();
 
-      console.log('This Variants', this.variants);
       this.redraw_components();
     });
 
@@ -265,7 +267,7 @@ export class VariantExplorerComponent
   private listenForProcessTreeChange() {
     this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
       this.currentlyDisplayedProcessTree = tree;
-      const treeHasChanged = !this.processTreeService.processTreesEqual(
+      const treeHasChanged = processTreesEqual(
         this.usedTreeForConformanceChecking,
         this.currentlyDisplayedProcessTree
       );
@@ -349,7 +351,6 @@ export class VariantExplorerComponent
       this.displayed_variants = this.variants;
       this.variants.forEach((v) => (v.isDisplayed = true));
     } else {
-      const displayed_variants = [];
 
       this.displayed_variants = this.variants.filter((v) => {
         if (queryItems.has(v.bid)) {
@@ -441,9 +442,9 @@ export class VariantExplorerComponent
     return '#d3d3d3';
   };
 
-  handleSelectInfix(bid: number) {
+  handleSelectInfix(variant: Variant) {
     this.variantService.addSelectedTraceInfix(
-      this.variants.filter((v) => v.bid === bid)[0]
+      this.variants.filter((v) => v.bid === variant.bid)[0]
     );
   }
 
@@ -491,7 +492,6 @@ export class VariantExplorerComponent
   }
 
   handleSelectTreePerformance(variant: Variant) {
-    console.log('Variant Tree Performance', variant);
     if (this.performanceService.availablePerformances.has(variant)) {
       if (this.performanceService.activeVariant == variant) {
         this.performanceService.unselectPerformance();
@@ -509,7 +509,6 @@ export class VariantExplorerComponent
   }
 
   handlePerformanceRemove(variant: Variant) {
-    console.log('Variant Tree Performance', variant);
     this.performanceService.updatePerformance([], [variant]);
   }
 

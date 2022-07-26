@@ -201,7 +201,7 @@ export class SubvariantExplorerComponent
     this.svgRenderingInProgress = true;
 
     // Add the main variant to the SVG array
-    const mainVariantSVG = this.addVariantInformation(
+    const mainVariantSVG = this.addVariantExportInformation(
       this.mainvariantDrawer.getSVGGraphicElement(),
       100,
       100,
@@ -228,7 +228,7 @@ export class SubvariantExplorerComponent
     // Add frequency informations of the subvariants
     // The first svg is the main variant, so index starts from 1
     for (let i = 1; i < svgs.length; i++) {
-      svgs[i] = this.addVariantInformation(
+      svgs[i] = this.addVariantExportInformation(
         svgs[i],
         counts[i - 1],
         percentages[i - 1],
@@ -268,7 +268,7 @@ export class SubvariantExplorerComponent
     this.svgRenderingInProgress = false;
   }
 
-  addVariantInformation(
+  addVariantExportInformation(
     svgElement: any,
     variantAbs: number,
     variantPerc: number,

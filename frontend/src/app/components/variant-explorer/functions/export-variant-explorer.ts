@@ -20,7 +20,7 @@ export function exportVariantDrawer() {
 
   // Add Frequency and Percentage information to the SVG
   svgs = svgs.map((c, i) =>
-    this.addVariantInformation(
+    this.addVariantExportInformation(
       c,
       this.variants[i].count,
       this.variants[i].percentage
@@ -60,7 +60,7 @@ export function exportVariantDrawer() {
   this.svgRenderingInProgress = false;
 }
 
-export function addVariantInformation(
+export function addVariantExportInformation(
   svgElement: SVGGraphicsElement,
   variantAbs: number,
   variantPerc: number

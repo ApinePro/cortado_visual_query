@@ -49,6 +49,7 @@ export function textColorForBackgroundColor(
 }
 
 import { Selection } from 'd3';
+import { PT_Constant } from '../constants/process_tree_drawer_constants';
 import { LeafNode } from '../objects/Variants/variant_element';
 
 export function applyInverseStrokeToPoly(poly: Selection<any, any, any, any>) {
@@ -71,4 +72,49 @@ export function applyInverseStrokeToPoly(poly: Selection<any, any, any, any>) {
         .attr('stroke-width', 2);
     }
   }
+}
+
+import * as d3 from 'd3';
+
+export function computeLeafNodeWidth(nodeActivityLabels: string[], nodeWidthCache : Map<string, number> ): Map<string, number> {
+
+  const dummy_container = d3
+    .select('body')
+    .append('svg')
+    .style('top', '0px')
+    .style('left', '0px')
+    .style('position', 'absolute');
+
+  const dummy_select = dummy_container
+    .append('text')
+    .attr('font-size', '12px');
+
+  for (let nodeActivityLabel of nodeActivityLabels) {
+    // Compute the width by rendering a dummy node
+    dummy_select.text(function (d: any) {
+      if (nodeActivityLabel.length <= 20) {
+        return nodeActivityLabel;
+      } else {
+        return nodeActivityLabel.substring(0, 20) + '...';
+      }
+    });
+
+    // Retrieve the computed width
+    let rendered_width = dummy_select.node().getComputedTextLength();
+
+    // Compute the true node width as specified above
+    rendered_width = Math.max(
+      rendered_width + 10,
+      PT_Constant.BASE_HEIGHT_WIDTH
+    );
+
+    // Add to Cache
+    nodeWidthCache[nodeActivityLabel] = rendered_width;
+  }
+
+  // Delete the Dummy
+  dummy_select.remove();
+  dummy_container.remove();
+
+  return nodeWidthCache;
 }

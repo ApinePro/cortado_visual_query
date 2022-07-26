@@ -33,7 +33,7 @@ import {
 } from 'src/app/objects/Variants/variant_element';
 import { collapsingText, fadeInText } from 'src/app/animations/text-animations';
 import { findPathToSelectedNode } from 'src/app/objects/Variants/utility_functions';
-import { applyInverseStrokeToPoly } from 'src/app/utils/helper_functions';
+import { applyInverseStrokeToPoly } from 'src/app/utils/render-utils';
 
 @Component({
   selector: 'app-variant-editor',
@@ -607,7 +607,7 @@ export class VariantEditorComponent
       true,
       false,
       true,
-      [],
+      0,
       this.curInfixType
     );
 

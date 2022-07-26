@@ -67,7 +67,7 @@ async def download_xes(d: ExportLogXes):
 
     traces = list(
         itertools.chain(
-            *[ts for bid, (_, ts) in cache.variants.items() if bid in d.bids]
+            *[ts for bid, (_, ts, _) in cache.variants.items() if bid in d.bids]
         )
     )
     log = EventLog(traces, **cache.parameters["log_info"])

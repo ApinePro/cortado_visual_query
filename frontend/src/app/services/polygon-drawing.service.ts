@@ -4,7 +4,7 @@ import { Selection } from 'd3';
 import { PolygonGeneratorService } from './polygon-generator.service';
 import * as d3 from 'd3';
 import { LeafNode } from '../objects/Variants/variant_element';
-import { textColorForBackgroundColor } from '../utils/helper_functions';
+import { textColorForBackgroundColor } from '../utils/render-utils';
 
 @Injectable({
   providedIn: 'root',

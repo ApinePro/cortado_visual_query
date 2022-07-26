@@ -11,10 +11,7 @@ import {
   Event,
 } from 'src/app/objects/BPMN/block-structured-bpmn';
 import { BPMN_Constant } from 'src/app/constants/bpmn_model_drawer_constants';
-import { getPerformanceTable } from 'src/app/components/process-tree-editor/utils';
 import { ProcessTreeOperator } from 'src/app/objects/ProcessTree/ProcessTree';
-import { textColorForBackgroundColor } from 'src/app/utils/helper_functions';
-
 @Directive({
   selector: '[appBpmnDrawer]',
 })

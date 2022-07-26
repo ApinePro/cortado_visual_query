@@ -107,7 +107,7 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
     tree_cache_key = str(pt)
     variants_fitness = []
 
-    for bid, (_, traces) in cache.variants.items():
+    for bid, (_, traces, _) in cache.variants.items():
 
         if d.delete and bid in d.delete:
 

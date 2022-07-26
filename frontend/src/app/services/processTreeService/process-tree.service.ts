@@ -1,22 +1,26 @@
-import { PT_Constant } from './../../constants/process_tree_drawer_constants';
 import { LogService } from 'src/app/services/logService/log.service';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
-import * as d3 from 'd3';
+
 import Swal from 'sweetalert2';
 import {
   ProcessTree,
   ProcessTreeOperator,
 } from 'src/app/objects/ProcessTree/ProcessTree';
+import { markNodeAsFrozen, markNodeAsNonFrozen } from 'src/app/objects/ProcessTree/utility-functions/process-tree-freeze';
+import { checkForLoadedTreeIntegrity } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
+import { renameProcessTreeLeafs, getSetOfActivitiesInProcessTree } from 'src/app/objects/ProcessTree/utility-functions/process-tree-transform';
+import { NodeSeletionStrategy, delete_subtree, NodeInsertionStrategy, createNewRandomNode, insertNode } from 'src/app/objects/ProcessTree/utility-functions/process-tree-edit-tree';
+import { computeLeafNodeWidth } from 'src/app/utils/render-utils';
+
 @Injectable({
   providedIn: 'root',
 })
 export class ProcessTreeService {
   constructor(private logService: LogService) {
-    console.log('Init Process Tree Service');
     this.logService.activitiesInEventLog$.subscribe((activites) => {
-      this.computeLeafNodeWidth(Object.keys(activites));
+      this.nodeWidthCache = computeLeafNodeWidth(Object.keys(activites), this.nodeWidthCache);
     });
 
     this.logService.loadedEventLog$.subscribe((log) => {
@@ -131,28 +135,12 @@ export class ProcessTreeService {
       this.activitiesInCurrentTree.add(newActivityName);
 
     if (this.currentDisplayedProcessTree) {
-      this.currentDisplayedProcessTree = this.renameProcessTreeLeafs(
+      this.currentDisplayedProcessTree = renameProcessTreeLeafs(
         this.currentDisplayedProcessTree,
         activityName,
         newActivityName
       );
     }
-  }
-
-  private renameProcessTreeLeafs(
-    tree: ProcessTree,
-    activityName: string,
-    newActivityName: string
-  ) {
-    if (tree.label && tree.label === activityName) {
-      tree.label = newActivityName;
-    } else {
-      tree.children.forEach((c) =>
-        this.renameProcessTreeLeafs(c, activityName, newActivityName)
-      );
-    }
-
-    return tree;
   }
 
   get activitiesInCurrentTree$(): Observable<Set<string>> {
@@ -167,47 +155,20 @@ export class ProcessTreeService {
     this._activitiesInCurrentTree.next(activities);
   }
 
-  checkForLoadedTreeIntegrity(tree): Set<string> {
-    let unknownActivities = new Set<string>();
-    const activities = Object.keys(this.logService.activitiesInEventLog);
-
-    for (let subtree of tree.children) {
-      // If it is a operator, recurse on the children
-      if (!subtree.label) {
-        unknownActivities = new Set<string>([
-          ...unknownActivities,
-          ...this.checkForLoadedTreeIntegrity(subtree),
-        ]);
-
-        // If it is a leaf with unkown label add it to the set
-      } else if (
-        !(
-          activities.indexOf(subtree.label) > -1 ||
-          subtree.label === ProcessTreeOperator.tau
-        )
-      ) {
-        unknownActivities.add(subtree.label);
-
-        // Else continue
-      }
-    }
-
-    return unknownActivities;
-  }
-
   set currentDisplayedProcessTree(tree: any) {
     if (tree && !(tree instanceof ProcessTree)) {
       tree = ProcessTree.fromObj(tree);
     }
 
-    this.activitiesInCurrentTree = this.getSetOfActivities(tree);
+    this.activitiesInCurrentTree = getSetOfActivitiesInProcessTree(tree);
     this._currentDisplayedProcessTree.next(tree);
+    const activites = Object.keys(this.logService.activitiesInEventLog);
 
-    if (this.checkForLoadedTreeIntegrity(tree).size > 0) {
+    if (checkForLoadedTreeIntegrity(tree, activites).size > 0) {
       const unknownActivities = Array.from(
-        this.checkForLoadedTreeIntegrity(tree)
+        checkForLoadedTreeIntegrity(tree, activites)
       );
-      this.computeLeafNodeWidth(unknownActivities);
+      this.nodeWidthCache = computeLeafNodeWidth(unknownActivities, this.nodeWidthCache);
 
       Swal.fire({
         title:
@@ -234,27 +195,12 @@ export class ProcessTreeService {
       tree = ProcessTree.fromObj(tree);
     }
     this._currentDisplayedProcessTree.next(tree);
-    this.activitiesInCurrentTree = this.getSetOfActivities(tree);
+    this.activitiesInCurrentTree = getSetOfActivitiesInProcessTree(tree);
     this.cacheCurrentTree(tree);
   }
 
-  private getSetOfActivities(tree: any): Set<string> {
-    if (tree) {
-      let res: Set<string> = new Set();
-      if (tree.children && tree.children.length > 0) {
-        tree.children.forEach((c) => {
-          res = new Set([...res, ...this.getSetOfActivities(c)]);
-        });
-      } else if (tree.label) {
-        res.add(tree.label);
-      }
-      return res;
-    } else {
-      return new Set();
-    }
-  }
 
-  previousTreeObjects: ProcessTree[] = [];
+  private previousTreeObjects: ProcessTree[] = [];
 
   private _treeCacheLength = new BehaviorSubject<number>(0);
   private _treeCacheIndex = new BehaviorSubject<number>(0);
@@ -332,99 +278,7 @@ export class ProcessTreeService {
     }
   }
 
-  // TODO move somewhere else
-  processTreesEqual(pt1, pt2): boolean {
-    if (!pt1 || !pt2) {
-      return false;
-    }
-    if (
-      pt1['operator'] === pt2['operator'] &&
-      pt1['label'] === pt2['label'] &&
-      pt1['children'].length === pt2['children'].length
-    ) {
-      if (pt1['children'].length === 0) {
-        return true;
-      } else {
-        let res = true;
-        for (let i = 0; i < pt1['children'].length; i++) {
-          res =
-            res &&
-            this.processTreesEqual(pt1['children'][i], pt2['children'][i]);
-        }
-        return res;
-      }
-    } else {
-      return false;
-    }
-  }
-
-  computeLeafNodeWidth(nodeActivityLabels: string[]): void {
-    const nodeWidthCache = this.nodeWidthCache;
-
-    const dummy_container = d3
-      .select('body')
-      .append('svg')
-      .style('top', '0px')
-      .style('left', '0px')
-      .style('position', 'absolute');
-
-    const dummy_select = dummy_container
-      .append('text')
-      .attr('font-size', '12px');
-
-    for (let nodeActivityLabel of nodeActivityLabels) {
-      // Compute the width by rendering a dummy node
-      dummy_select.text(function (d: any) {
-        if (nodeActivityLabel.length <= 20) {
-          return nodeActivityLabel;
-        } else {
-          return nodeActivityLabel.substring(0, 20) + '...';
-        }
-      });
-
-      // Retrieve the computed width
-      let rendered_width = dummy_select.node().getComputedTextLength();
-
-      // Compute the true node width as specified above
-      rendered_width = Math.max(
-        rendered_width + 10,
-        PT_Constant.BASE_HEIGHT_WIDTH
-      );
-
-      // Add to Cache
-      nodeWidthCache[nodeActivityLabel] = rendered_width;
-    }
-
-    // Delete the Dummy
-    dummy_select.remove();
-    dummy_container.remove();
-
-    this.nodeWidthCache = nodeWidthCache;
-  }
-
   freezeSubtree(node: ProcessTree) {
-    const markNodeAsFrozen = (node) => {
-      node.frozen = true;
-      if (node.children) {
-        node.children.forEach((child) => {
-          markNodeAsFrozen(child);
-        });
-      }
-    };
-
-    const markNodeAsNonFrozen = (node) => {
-      node.frozen = false;
-
-      if (node.parent && node.parent.frozen) {
-        markNodeAsNonFrozen(node.parent);
-        return;
-      }
-      if (node.children) {
-        node.children.forEach((child) => {
-          markNodeAsNonFrozen(child);
-        });
-      }
-    };
 
     if (!node.frozen) {
       markNodeAsFrozen(node);
@@ -474,29 +328,6 @@ export class ProcessTreeService {
     this.cacheCurrentTree(this.currentDisplayedProcessTree);
     const newTree = this.currentDisplayedProcessTree;
 
-    const delete_subtree = (tree: ProcessTree, tree_to_delete: ProcessTree) => {
-      if (tree === tree_to_delete) {
-        console.log('Found Tree to Delete!');
-        return;
-      } else {
-        if (tree.children) {
-          let child_list: Array<ProcessTree> = [];
-
-          for (let child of tree.children) {
-            let res = delete_subtree(child, tree_to_delete);
-
-            if (res) {
-              child_list.push(res);
-            }
-          }
-
-          tree.children = child_list;
-        }
-      }
-
-      return tree;
-    };
-
     if (this.currentDisplayedProcessTree === tree_to_delete) {
       this.set_currentDisplayedProcessTree_with_Cache(null);
     } else {
@@ -505,7 +336,6 @@ export class ProcessTreeService {
       );
     }
 
-    console.log('After Delete', this.currentDisplayedProcessTree);
     this.selectedRootNodeID = null;
   }
 
@@ -515,61 +345,13 @@ export class ProcessTreeService {
     operator: ProcessTreeOperator,
     label: string
   ) {
-    let newNode: ProcessTree;
-    newNode = new ProcessTree(
-      label,
-      operator,
-      [],
-      Math.floor(1000000000 + Math.random() * 900000000),
-      false,
-      null,
-      null
-    );
+
+    let newNode: ProcessTree = createNewRandomNode(label, operator);
 
     if (this.currentDisplayedProcessTree) {
       this.cacheCurrentTree(this.currentDisplayedProcessTree);
 
-      switch (strat) {
-        case NodeInsertionStrategy.BELOW: {
-          selectedNode.children.push(newNode);
-          newNode.parent = selectedNode;
-          break;
-        }
-
-        case NodeInsertionStrategy.ABOVE: {
-          newNode.children = [selectedNode];
-          selectedNode.parent = newNode;
-          break;
-        }
-
-        case NodeInsertionStrategy.LEFT: {
-          const idx: number =
-            selectedNode.parent.children.indexOf(selectedNode);
-          selectedNode.parent.children.splice(idx, 0, newNode);
-          newNode.parent = selectedNode.parent;
-          break;
-        }
-
-        case NodeInsertionStrategy.RIGHT: {
-          const idx: number =
-            selectedNode.parent.children.indexOf(selectedNode);
-          selectedNode.parent.children.splice(idx + 1, 0, newNode);
-          newNode.parent = selectedNode.parent;
-          break;
-        }
-
-        case NodeInsertionStrategy.CHANGE: {
-          if (operator) {
-            // console.log('change operator');
-            selectedNode.operator = operator;
-            selectedNode.label = null;
-          } else if (label) {
-            selectedNode.label = label;
-            selectedNode.operator = null;
-          }
-          break;
-        }
-      }
+      insertNode(selectedNode, newNode, strat, operator, label)
 
       this.currentDisplayedProcessTree = this.currentDisplayedProcessTree;
       this.selectedRootNodeID = selectedNode.id;
@@ -581,15 +363,4 @@ export class ProcessTreeService {
   }
 }
 
-export enum NodeSeletionStrategy {
-  NODE = 'Node',
-  TREE = 'Tree',
-}
 
-export enum NodeInsertionStrategy {
-  LEFT = 'Left',
-  RIGHT = 'Right',
-  ABOVE = 'Above',
-  BELOW = 'Below',
-  CHANGE = 'Change',
-}

@@ -10,9 +10,9 @@ import { mapVariants } from 'src/app/utils/util';
 import { LogService } from '../logService/log.service';
 import { VariantService } from '../variantService/variant.service';
 import { ProcessTreeService } from './../processTreeService/process-tree.service';
-import * as objectHash from 'object-hash';
 import { VariantElement } from 'src/app/objects/Variants/variant_element';
 import { ROUTES } from 'src/app/constants/backend_route_constants';
+import { addVariantInformation } from '../variantService/variant-transformation';
 
 @Injectable({
   providedIn: 'root',
@@ -69,7 +69,7 @@ export class BackendService {
     this.logService.startActivitiesInEventLog = new Set(res['startActivities']);
     this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
 
-    const variants = this.variantService.addVariantInformation(res['variants']);
+    const variants = addVariantInformation(res['variants']);
     this.variantService.variants = variants;
     this.variantService.cachedChange = false;
 
@@ -349,7 +349,6 @@ export class BackendService {
    * @param logName
    */
   private updateState(properties: any, logName: string) {
-    console.log(properties);
     this.logService.activitiesInEventLog = properties['activities'];
     this.logService.startActivitiesInEventLog = new Set(
       properties['startActivities']
@@ -358,7 +357,7 @@ export class BackendService {
       properties['endActivities']
     );
 
-    const variants = this.variantService.addVariantInformation(
+    const variants = addVariantInformation(
       properties['variants']
     );
     this.logService.computeLogStats(variants);

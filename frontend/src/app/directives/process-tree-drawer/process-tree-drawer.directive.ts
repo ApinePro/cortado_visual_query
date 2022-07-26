@@ -1,8 +1,6 @@
 import { PT_Constant } from './../../constants/process_tree_drawer_constants';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { Directive, ElementRef, Input } from '@angular/core';
-import { getPerformanceTable } from 'src/app/components/process-tree-editor/utils';
-import { textColorForBackgroundColor } from 'src/app/utils/helper_functions';
 import {
   ProcessTree,
   ProcessTreeOperator,

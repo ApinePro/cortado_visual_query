@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Variant } from 'src/app/objects/Variants/variant';
-import { textColorForBackgroundColor } from 'src/app/utils/helper_functions';
+import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 
 @Component({
   selector: 'app-tree-performance-button',

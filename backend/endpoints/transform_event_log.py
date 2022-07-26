@@ -27,10 +27,10 @@ def reset_last_transaction():
     cache.variants = pickle.load(open("tmp/variants_cache.p", "rb"))
     cache.parameters = pickle.load(open("tmp/parameters_cache.p", "rb"))
 
-    total_traces = sum([len(ts) for (_, ts) in cache.variants.values()])
+    total_traces = sum([len(ts) for (_, ts, _) in cache.variants.values()])
     res_variants = []
 
-    for bid, (v, ts) in cache.variants.items():
+    for bid, (v, ts, sv) in cache.variants.items():
         
         variant = create_variant_object(
             cache.parameters["cur_time_granularity"], total_traces, bid, v, ts
@@ -202,6 +202,9 @@ def rename_activities_in_variant_group(group, oldActivityName, newActivityName):
             return SequenceGroup(children)
 
 
+def rename_activites_in_subvariant(subvariants, activityName, newActivityName):
+    print(subvariants)
+
 def rename_activities(mergeList, renameList, activityName, newActivityName):
 
     if cache.parameters["activites"].discard(activityName):
@@ -211,7 +214,7 @@ def rename_activities(mergeList, renameList, activityName, newActivityName):
 
     for bid in renameList:
 
-        (variant, traces) = cache.variants[bid]
+        (variant, traces, subvariant) = cache.variants[bid]
 
         renamed_variant = rename_activities_in_variant_group(
             variant, activityName, newActivityName
@@ -229,12 +232,16 @@ def rename_activities(mergeList, renameList, activityName, newActivityName):
 
     for ls in mergeList:
 
-        (variant, _) = cache.variants[ls[0]]
+        (variant, _, subvariants) = cache.variants[ls[0]]
         renamed_variant = rename_activities_in_variant_group(
             variant, activityName, newActivityName
         )
         renamed_variant.graph = rename_merge_activities_in_graph(
             variant.graph, activityName, newActivityName
+        )
+        
+        renamed_subvariants = rename_activites_in_subvariant(
+            subvariants, activityName, newActivityName
         )
 
         renamed_traces = []
@@ -248,7 +255,7 @@ def rename_activities(mergeList, renameList, activityName, newActivityName):
                 for trace in traces
             ]
 
-        new_variant_dict[min(ls)] = (renamed_variant, renamed_traces)
+        new_variant_dict[min(ls)] = (renamed_variant, renamed_traces, renamed_subvariants)
 
     flat_list = lambda lss: [x for ls in lss for x in ls]
 
@@ -361,6 +368,8 @@ def apply_filter_copy(trace, activityName):
 
     return ctrace
 
+def remove_activitiy_from_subvariant(subvariants, activityName):
+    print(subvariants)
 
 def recompute_log_statistics(variants, total_traces):
 
@@ -417,28 +426,34 @@ def remove_activities(
 
     for bid in delete_member_list:
 
-        (variant, traces) = cache.variants[bid]
+        (variant, traces, subvariants) = cache.variants[bid]
 
         new_variant = remove_activitiy_from_group(variant, activityName)
         log = [apply_filter_copy(trace, activityName) for trace in traces]
         new_variant.graph = create_new_graph(log[0])
-        new_variants[bid] = (new_variant, log)
+        
+        new_subvariant = remove_activitiy_from_subvariant(subvariants, activityName)
+        
+        new_variants[bid] = (new_variant, log, new_subvariant)
+        
+        
 
     for ls in merge_list:
 
-        (variant, _) = cache.variants[ls[0]]
+        (variant, _, subvariant) = cache.variants[ls[0]]
         new_variant = remove_activitiy_from_group(variant, activityName)
+        new_subvariant = remove_activitiy_from_subvariant(subvariant, activityName)
 
         new_traces = []
 
         for bid in ls:
 
-            (_, traces) = cache.variants[bid]
+            (_, traces, _) = cache.variants[bid]
             new_traces += [apply_filter_copy(trace, activityName) for trace in traces]
 
         new_variant.graph = create_new_graph(new_traces[0])
 
-        new_variants[min(ls)] = (new_variant, new_traces)
+        new_variants[min(ls)] = (new_variant, new_traces, new_subvariant)
 
     flat_list = lambda lss: [x for ls in lss for x in ls]
 
@@ -540,10 +555,11 @@ def remove_activities(
 
     return res
 
+
 def remove_variant(bids):
     
     cache.variants = {
-        bid: (v, t) for bid, (v, t) in cache.variants.items() if bid not in bids
+        bid: (v, t, sv) for bid, (v, t, sv) in cache.variants.items() if bid not in bids
     }
 
     start_activities, end_activities, nActivities = compute_log_stats(cache.variants)
