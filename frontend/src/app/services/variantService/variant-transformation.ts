@@ -1,10 +1,12 @@
-import { InfixType, setParent } from "src/app/objects/Variants/infix_selection";
-import { Variant } from "src/app/objects/Variants/variant";
+import { InfixType, setParent } from 'src/app/objects/Variants/infix_selection';
+import { Variant } from 'src/app/objects/Variants/variant';
 import * as objectHash from 'object-hash';
-import { injectWaitingTimeNodes } from "src/app/objects/Variants/variant_element";
+import { injectWaitingTimeNodes } from 'src/app/objects/Variants/variant_element';
 
-export function compute_delete_activity_variants(activityName : string, cur_variants : Variant[]) : [Variant[], any[], any[], any[], any[]]{
-
+export function compute_delete_activity_variants(
+  activityName: string,
+  cur_variants: Variant[]
+): [Variant[], any[], any[], any[], any[]] {
   const fallthrough = [];
   const updateMap: Map<string, Variant[]> = new Map<string, Variant[]>();
   const changedStrings: Set<string> = new Set<string>();
@@ -62,12 +64,10 @@ export function compute_delete_activity_variants(activityName : string, cur_vari
     }
   }
 
-  return [variants, fallthrough, delete_member_list, merge_list, delete_list]
+  return [variants, fallthrough, delete_member_list, merge_list, delete_list];
 }
 
-
-
-export function apply_update_map(updateMap: Map<string, Variant[]>) : Variant[]{
+export function apply_update_map(updateMap: Map<string, Variant[]>): Variant[] {
   const variants: Variant[] = [];
 
   for (let [key, ls] of updateMap.entries()) {
@@ -110,9 +110,11 @@ export function apply_update_map(updateMap: Map<string, Variant[]>) : Variant[]{
   return variants;
 }
 
-
-export function compute_rename_activity_variants(activityName : string, newActivityName : string, cur_variants : Variant[]) : [Variant[], any[], any[], Map<string, Variant[]>]{
-
+export function compute_rename_activity_variants(
+  activityName: string,
+  newActivityName: string,
+  cur_variants: Variant[]
+): [Variant[], any[], any[], Map<string, Variant[]>] {
   const updateMap: Map<string, Variant[]> = new Map<string, Variant[]>();
   const changedStrings: Set<string> = new Set<string>();
 
@@ -162,11 +164,8 @@ export function compute_rename_activity_variants(activityName : string, newActiv
     }
   }
 
-
-  return [variants, rename_list, merge_list, updateMap]
+  return [variants, rename_list, merge_list, updateMap];
 }
-
-
 
 export function addVariantInformation(variants: Variant[]): Variant[] {
   injectWaitingTimeNodes(variants.map((v) => v.variant));

@@ -357,9 +357,7 @@ export class BackendService {
       properties['endActivities']
     );
 
-    const variants = addVariantInformation(
-      properties['variants']
-    );
+    const variants = addVariantInformation(properties['variants']);
     this.logService.computeLogStats(variants);
     this.variantService.variants = variants;
 

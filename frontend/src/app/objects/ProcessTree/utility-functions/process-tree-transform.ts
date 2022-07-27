@@ -1,10 +1,10 @@
-import { ProcessTree } from "src/app/objects/ProcessTree/ProcessTree";
+import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 
 export function renameProcessTreeLeafs(
   tree: ProcessTree,
   activityName: string,
   newActivityName: string
-) : ProcessTree{
+): ProcessTree {
   if (tree.label && tree.label === activityName) {
     tree.label = newActivityName;
   } else {
@@ -16,8 +16,9 @@ export function renameProcessTreeLeafs(
   return tree;
 }
 
-
-export function getSetOfActivitiesInProcessTree(tree: ProcessTree): Set<string> {
+export function getSetOfActivitiesInProcessTree(
+  tree: ProcessTree
+): Set<string> {
   if (tree) {
     let res: Set<string> = new Set();
     if (tree.children && tree.children.length > 0) {

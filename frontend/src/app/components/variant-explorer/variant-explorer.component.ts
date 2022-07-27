@@ -219,8 +219,7 @@ export class VariantExplorerComponent
     variantExplorerItem.focus();
 
     this.variantService.variants$.subscribe((variants) => {
-
-      console.log(variants)
+      console.log(variants);
       this.variants = variants;
       this.displayed_variants = variants;
       this.sort(this.sortingFeature);
@@ -351,7 +350,6 @@ export class VariantExplorerComponent
       this.displayed_variants = this.variants;
       this.variants.forEach((v) => (v.isDisplayed = true));
     } else {
-
       this.displayed_variants = this.variants.filter((v) => {
         if (queryItems.has(v.bid)) {
           v.isDisplayed = true;

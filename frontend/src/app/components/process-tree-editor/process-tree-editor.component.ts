@@ -33,9 +33,7 @@ import {
 
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { ActivateTooltipsService } from '../../services/activateTooltipsService/activate-tooltips.service';
-import {
-  ProcessTreeService,
-} from 'src/app/services/processTreeService/process-tree.service';
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 
 import { LogService } from 'src/app/services/logService/log.service';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
@@ -43,7 +41,10 @@ import { ProcessTreeDrawerDirective } from 'src/app/directives/process-tree-draw
 import { getPerformanceTable } from './utils';
 import { collapsingText } from 'src/app/animations/text-animations';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
-import { NodeSeletionStrategy, NodeInsertionStrategy } from 'src/app/objects/ProcessTree/utility-functions/process-tree-edit-tree';
+import {
+  NodeSeletionStrategy,
+  NodeInsertionStrategy,
+} from 'src/app/objects/ProcessTree/utility-functions/process-tree-edit-tree';
 
 @Component({
   selector: 'app-process-tree-editor',

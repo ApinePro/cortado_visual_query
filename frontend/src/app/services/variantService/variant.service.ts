@@ -18,14 +18,17 @@ import {
   deserialize,
   SequenceGroup,
 } from 'src/app/objects/Variants/variant_element';
-import { addVariantInformation, compute_delete_activity_variants, compute_rename_activity_variants } from './variant-transformation';
+import {
+  addVariantInformation,
+  compute_delete_activity_variants,
+  compute_rename_activity_variants,
+} from './variant-transformation';
 import { ROUTES } from 'src/app/constants/backend_route_constants';
 
 @Injectable({
   providedIn: 'root',
 })
 export class VariantService {
-
   variantService: any;
   constructor(
     private logService: LogService,
@@ -124,7 +127,6 @@ export class VariantService {
     if (delVariants.every((v) => v.userDefined)) {
       this.variants = this.variants.filter((v) => !bids.includes(v.bid));
     } else {
-
       this.propagateVariantDeletions(bids).subscribe((res) => {
         this.logService.activitiesInEventLog = res['activities'];
         this.logService.startActivitiesInEventLog = new Set(
@@ -140,8 +142,8 @@ export class VariantService {
   }
 
   public deleteActivity(activityName: string) {
-
-    const [variants, fallthrough, delete_member_list, merge_list, delete_list] = compute_delete_activity_variants(activityName, this.variants);
+    const [variants, fallthrough, delete_member_list, merge_list, delete_list] =
+      compute_delete_activity_variants(activityName, this.variants);
 
     this.logService.deleteActivityInEventLog(activityName);
     this.colorMapService.deleteActivityInColorMap(activityName);
@@ -192,10 +194,13 @@ export class VariantService {
     });
   }
 
-
   public renameActivity(activityName: string, newActivityName: string) {
-
-    const [variants, rename_list, merge_list, updateMap] = compute_rename_activity_variants(activityName, newActivityName, this.variants)
+    const [variants, rename_list, merge_list, updateMap] =
+      compute_rename_activity_variants(
+        activityName,
+        newActivityName,
+        this.variants
+      );
 
     this.logService.renameActivitiesInEventLog(activityName, newActivityName);
     this.processTreeService.renameActivityInProcessTree(
@@ -207,15 +212,21 @@ export class VariantService {
       newActivityName
     );
 
-    
-
     this.propagateActivityNameChange(
       merge_list,
       rename_list,
       activityName,
       newActivityName
     ).subscribe((res) => {
-      console.log('Variant after Finsih', res);
+      console.log(res);
+      variants.forEach((v) => {
+        for (let bid of Object.keys(res)) {
+          if (v.bid.toString() === bid) {
+            v.nSubVariants = res[v.bid]['nSubVariants'];
+          }
+        }
+      });
+
       this.variants = variants;
     });
 
@@ -229,13 +240,15 @@ export class VariantService {
     activityName,
     newActivityName
   ) {
-    return this.httpClient
-      .post(ROUTES.BASE_URL + ROUTES.MODIFY_LOG + 'changeActivityName', {
+    return this.httpClient.post(
+      ROUTES.BASE_URL + ROUTES.MODIFY_LOG + 'changeActivityName',
+      {
         mergeList: mergeList,
         renameList: renameList,
         activityName: activityName,
         newActivityName: newActivityName,
-      });
+      }
+    );
   }
 
   private propagateActivityDeletion(
@@ -258,17 +271,14 @@ export class VariantService {
   }
 
   private propagateVariantDeletions(bids: number[]) {
-    return this.httpClient.post(
-       + 'modifylog/' + 'deleteVariants',
-      {
-        bids: bids,
-      }
-    );
+    return this.httpClient.post(+'modifylog/' + 'deleteVariants', {
+      bids: bids,
+    });
   }
 
   revertChangeInBackend() {
     this.httpClient
-      .post( ROUTES.BASE_URL + ROUTES.MODIFY_LOG + 'revertLastChange', {})
+      .post(ROUTES.BASE_URL + ROUTES.MODIFY_LOG + 'revertLastChange', {})
       .pipe(mapVariants())
       .subscribe((res) => {
         this.logService.activitiesInEventLog = res['activities'];
@@ -292,6 +302,4 @@ export class VariantService {
         this.logService.computeLogStats(variants);
       });
   }
-
-
 }

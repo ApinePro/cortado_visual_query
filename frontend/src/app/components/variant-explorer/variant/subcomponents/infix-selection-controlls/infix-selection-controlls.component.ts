@@ -22,9 +22,8 @@ export class InfixSelectionControllsComponent {
   @Output()
   public selectTraceInfix = new EventEmitter<Variant>();
 
-
-  addCurrentSelectedInfix() : void {
-    this.selectTraceInfix.emit(this.variant)
+  addCurrentSelectedInfix(): void {
+    this.selectTraceInfix.emit(this.variant);
   }
 
   resetSelectionStatus(): void {

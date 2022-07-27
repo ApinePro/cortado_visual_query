@@ -44,9 +44,6 @@ def calculate_event_log_properties(
 
     res_variants, cache.variants, subvariants = get_c_variants(event_log, use_mp, time_granularity)
 
-    
-
-
     assign_variants_performances(cache.variants)
 
     cache.variants = {
@@ -132,7 +129,7 @@ def create_variant_object(time_granularity, total_traces, bid, v, ts):
         "length": len(v),
         "number_of_activities": v.number_of_activities(),
         "percentage": round(len(ts) / total_traces * 100, 2),
-        "nSubVariants": len(sub_variants),
+        "nSubVariants": len(sub_variants.keys()),
     }
     
     # If the variant is only a single activity leaf, wrap it up as a sequence
@@ -145,24 +142,5 @@ def create_variant_object(time_granularity, total_traces, bid, v, ts):
 def create_subvariants(ts, time_granularity):
     
     sub_vars = get_detailed_variants(ts, time_granularity=time_granularity)
-
-    total_sub_traces = sum(len(sub_vars[v]) for v in sub_vars)
-
-    sub_variants = []
     
-    for sub_v in sub_vars:
-        sub_variants.append(
-            {
-                "variant": sub_v,
-                "count": len(sub_vars[sub_v]),
-                "percentage": round(
-                    len(sub_vars[sub_v]) / total_sub_traces * 100, 2
-                ),
-            }
-        )
-
-    sub_variants = sorted(
-        sub_variants, key=lambda x: x["count"], reverse=True
-    )
-    
-    return sub_variants
+    return sub_vars

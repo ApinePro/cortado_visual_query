@@ -76,8 +76,10 @@ export function applyInverseStrokeToPoly(poly: Selection<any, any, any, any>) {
 
 import * as d3 from 'd3';
 
-export function computeLeafNodeWidth(nodeActivityLabels: string[], nodeWidthCache : Map<string, number> ): Map<string, number> {
-
+export function computeLeafNodeWidth(
+  nodeActivityLabels: string[],
+  nodeWidthCache: Map<string, number>
+): Map<string, number> {
   const dummy_container = d3
     .select('body')
     .append('svg')
@@ -85,9 +87,7 @@ export function computeLeafNodeWidth(nodeActivityLabels: string[], nodeWidthCach
     .style('left', '0px')
     .style('position', 'absolute');
 
-  const dummy_select = dummy_container
-    .append('text')
-    .attr('font-size', '12px');
+  const dummy_select = dummy_container.append('text').attr('font-size', '12px');
 
   for (let nodeActivityLabel of nodeActivityLabels) {
     // Compute the width by rendering a dummy node

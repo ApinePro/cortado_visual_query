@@ -20,7 +20,7 @@ export class Variant {
   deviation: any | undefined;
   isTimeouted: boolean;
   isConformanceOutdated: boolean;
-  nSubVariants : number; 
+  nSubVariants: number;
   infixType: InfixType;
 
   constructor(
@@ -34,7 +34,7 @@ export class Variant {
     userDefined: boolean,
     isTimeouted: boolean,
     isConformanceOutdated: boolean,
-    nSubVariants : number,
+    nSubVariants: number,
     infixType: InfixType = InfixType.NOT_AN_INFIX
   ) {
     this.count = count;

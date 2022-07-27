@@ -8,10 +8,22 @@ import {
   ProcessTree,
   ProcessTreeOperator,
 } from 'src/app/objects/ProcessTree/ProcessTree';
-import { markNodeAsFrozen, markNodeAsNonFrozen } from 'src/app/objects/ProcessTree/utility-functions/process-tree-freeze';
+import {
+  markNodeAsFrozen,
+  markNodeAsNonFrozen,
+} from 'src/app/objects/ProcessTree/utility-functions/process-tree-freeze';
 import { checkForLoadedTreeIntegrity } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
-import { renameProcessTreeLeafs, getSetOfActivitiesInProcessTree } from 'src/app/objects/ProcessTree/utility-functions/process-tree-transform';
-import { NodeSeletionStrategy, delete_subtree, NodeInsertionStrategy, createNewRandomNode, insertNode } from 'src/app/objects/ProcessTree/utility-functions/process-tree-edit-tree';
+import {
+  renameProcessTreeLeafs,
+  getSetOfActivitiesInProcessTree,
+} from 'src/app/objects/ProcessTree/utility-functions/process-tree-transform';
+import {
+  NodeSeletionStrategy,
+  delete_subtree,
+  NodeInsertionStrategy,
+  createNewRandomNode,
+  insertNode,
+} from 'src/app/objects/ProcessTree/utility-functions/process-tree-edit-tree';
 import { computeLeafNodeWidth } from 'src/app/utils/render-utils';
 
 @Injectable({
@@ -20,7 +32,10 @@ import { computeLeafNodeWidth } from 'src/app/utils/render-utils';
 export class ProcessTreeService {
   constructor(private logService: LogService) {
     this.logService.activitiesInEventLog$.subscribe((activites) => {
-      this.nodeWidthCache = computeLeafNodeWidth(Object.keys(activites), this.nodeWidthCache);
+      this.nodeWidthCache = computeLeafNodeWidth(
+        Object.keys(activites),
+        this.nodeWidthCache
+      );
     });
 
     this.logService.loadedEventLog$.subscribe((log) => {
@@ -168,7 +183,10 @@ export class ProcessTreeService {
       const unknownActivities = Array.from(
         checkForLoadedTreeIntegrity(tree, activites)
       );
-      this.nodeWidthCache = computeLeafNodeWidth(unknownActivities, this.nodeWidthCache);
+      this.nodeWidthCache = computeLeafNodeWidth(
+        unknownActivities,
+        this.nodeWidthCache
+      );
 
       Swal.fire({
         title:
@@ -198,7 +216,6 @@ export class ProcessTreeService {
     this.activitiesInCurrentTree = getSetOfActivitiesInProcessTree(tree);
     this.cacheCurrentTree(tree);
   }
-
 
   private previousTreeObjects: ProcessTree[] = [];
 
@@ -279,7 +296,6 @@ export class ProcessTreeService {
   }
 
   freezeSubtree(node: ProcessTree) {
-
     if (!node.frozen) {
       markNodeAsFrozen(node);
     } else {
@@ -345,13 +361,12 @@ export class ProcessTreeService {
     operator: ProcessTreeOperator,
     label: string
   ) {
-
     let newNode: ProcessTree = createNewRandomNode(label, operator);
 
     if (this.currentDisplayedProcessTree) {
       this.cacheCurrentTree(this.currentDisplayedProcessTree);
 
-      insertNode(selectedNode, newNode, strat, operator, label)
+      insertNode(selectedNode, newNode, strat, operator, label);
 
       this.currentDisplayedProcessTree = this.currentDisplayedProcessTree;
       this.selectedRootNodeID = selectedNode.id;
@@ -362,5 +377,3 @@ export class ProcessTreeService {
     }
   }
 }
-
-

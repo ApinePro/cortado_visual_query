@@ -1,4 +1,4 @@
-from typing import Mapping, Tuple
+from typing import List, Mapping, Tuple
 from pm4py.objects.log.obj import EventLog, Trace
 from cortado_core.utils.split_graph import ConcurrencyGroup
 
@@ -9,4 +9,4 @@ pcache : Mapping = {}
 
 parameters : Mapping = {}
 
-variants : Mapping[int, Tuple[ConcurrencyGroup, Trace]] = {}
+variants : Mapping[int, Tuple[ConcurrencyGroup, Trace, List]] = {}

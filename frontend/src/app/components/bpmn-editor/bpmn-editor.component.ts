@@ -1,6 +1,4 @@
-import {
-  ProcessTreeService,
-} from './../../services/processTreeService/process-tree.service';
+import { ProcessTreeService } from './../../services/processTreeService/process-tree.service';
 import { Subscription } from 'rxjs';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import {

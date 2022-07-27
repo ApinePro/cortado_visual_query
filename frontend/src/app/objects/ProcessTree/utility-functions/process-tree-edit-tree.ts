@@ -1,6 +1,9 @@
-import { ProcessTree, ProcessTreeOperator } from "src/app/objects/ProcessTree/ProcessTree";
+import {
+  ProcessTree,
+  ProcessTreeOperator,
+} from 'src/app/objects/ProcessTree/ProcessTree';
 
-export function delete_subtree (tree: ProcessTree, tree_to_delete: ProcessTree) {
+export function delete_subtree(tree: ProcessTree, tree_to_delete: ProcessTree) {
   if (tree === tree_to_delete) {
     return;
   } else {
@@ -20,28 +23,23 @@ export function delete_subtree (tree: ProcessTree, tree_to_delete: ProcessTree) 
   }
 
   return tree;
-};
-
-export function createNewRandomNode(label : string, operator : ProcessTreeOperator, id : number = Math.floor(1000000000 + Math.random() * 900000000)) : ProcessTree{
-
-  return new ProcessTree(
-    label,
-    operator,
-    [],
-    id,
-    false,
-    null,
-    null
-  );
-
 }
 
-export function insertNode(selectedNode: ProcessTree,
-                           newNode : ProcessTree,
-                           strat: NodeInsertionStrategy,
-                           operator: ProcessTreeOperator,
-                           label : string){
+export function createNewRandomNode(
+  label: string,
+  operator: ProcessTreeOperator,
+  id: number = Math.floor(1000000000 + Math.random() * 900000000)
+): ProcessTree {
+  return new ProcessTree(label, operator, [], id, false, null, null);
+}
 
+export function insertNode(
+  selectedNode: ProcessTree,
+  newNode: ProcessTree,
+  strat: NodeInsertionStrategy,
+  operator: ProcessTreeOperator,
+  label: string
+) {
   switch (strat) {
     case NodeInsertionStrategy.BELOW: {
       selectedNode.children.push(newNode);
@@ -56,16 +54,14 @@ export function insertNode(selectedNode: ProcessTree,
     }
 
     case NodeInsertionStrategy.LEFT: {
-      const idx: number =
-        selectedNode.parent.children.indexOf(selectedNode);
+      const idx: number = selectedNode.parent.children.indexOf(selectedNode);
       selectedNode.parent.children.splice(idx, 0, newNode);
       newNode.parent = selectedNode.parent;
       break;
     }
 
     case NodeInsertionStrategy.RIGHT: {
-      const idx: number =
-        selectedNode.parent.children.indexOf(selectedNode);
+      const idx: number = selectedNode.parent.children.indexOf(selectedNode);
       selectedNode.parent.children.splice(idx + 1, 0, newNode);
       newNode.parent = selectedNode.parent;
       break;
@@ -82,10 +78,7 @@ export function insertNode(selectedNode: ProcessTree,
       break;
     }
   }
-
-
 }
-
 
 export enum NodeSeletionStrategy {
   NODE = 'Node',
