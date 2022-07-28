@@ -45,7 +45,7 @@ export class ActivityOverviewComponent
   endActivities: Set<string>;
   activitiesInLog: any;
   activityFields: ActivityField[];
-  editingActivityName: boolean = false;
+
 
   sortKey: string = 'activityName';
   ascending: boolean = false;
@@ -159,7 +159,6 @@ export class ActivityOverviewComponent
     }
   }
   deleteActivity(e: Event, activity: ActivityField) {
-    this.editingActivityName = false;
     this.variantService.deleteActivity(activity.activityName);
     this.resetActivityFields();
   }
@@ -172,10 +171,6 @@ export class ActivityOverviewComponent
         color
       );
     }
-  }
-
-  startEditing() {
-    this.editingActivityName = true;
   }
 
   resetActivityColors(): void {
@@ -197,7 +192,6 @@ export class ActivityOverviewComponent
     oldActivityName: string,
     newActivityName: string
   ): void {
-    this.editingActivityName = false;
 
     if (oldActivityName !== newActivityName) {
       this.variantService.renameActivity(oldActivityName, newActivityName);

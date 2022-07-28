@@ -176,7 +176,6 @@ export class ProcessTreeService {
     }
 
     this.activitiesInCurrentTree = getSetOfActivitiesInProcessTree(tree);
-    this._currentDisplayedProcessTree.next(tree);
     const activites = Object.keys(this.logService.activitiesInEventLog);
 
     if (checkForLoadedTreeIntegrity(tree, activites).size > 0) {
@@ -206,6 +205,9 @@ export class ProcessTreeService {
         cancelButtonText: 'close',
       });
     }
+
+    this._currentDisplayedProcessTree.next(tree);
+
   }
 
   public set_currentDisplayedProcessTree_with_Cache(tree: any) {

@@ -40,6 +40,8 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     ComponentContainer,
     ComponentRef<LayoutChangeDirective>
   >();
+
+  private _collapsedComponentContainers : Set<ComponentContainer> = new Set<ComponentContainer> (); 
   private _goldenLayoutBoundingClientRect: DOMRect = new DOMRect();
 
   private _goldenLayoutBindComponentEventListener = (
@@ -242,6 +244,11 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     const grand_parent = parent.parent;
     const grand_parent_children_elements = grand_parent.element.children;
 
+
+    const component = componentRef.instance;
+ 
+
+
     if (width < 150 || height < 100) {
       for (let i = 0; i < grand_parent_children_elements.length; i++) {
         this.renderer.setStyle(
@@ -251,7 +258,9 @@ export class GoldenLayoutHostComponent implements OnDestroy {
         );
       }
 
-      this._componentRefMap.get(container).instance.setVisibility(false);
+      component.setVisibility(false);
+      component.handleVisibilityChange(false);
+
       this.renderer.addClass(
         grand_parent.element,
         'collapsed-golden-layout-container'
@@ -262,26 +271,34 @@ export class GoldenLayoutHostComponent implements OnDestroy {
       } else {
         this.renderer.addClass(grand_parent.element, 'horizontal-dots');
       }
-    } else {
-      for (let i = 0; i < grand_parent_children_elements.length; i++) {
-        this.renderer.removeStyle(
-          grand_parent_children_elements[i],
-          'visibility'
+
+      this._collapsedComponentContainers.add(container)
+
+    } else if (this._collapsedComponentContainers.has(container)) {
+
+        this._collapsedComponentContainers.delete(container)
+
+        component.setVisibility(true);
+        component.handleVisibilityChange(true);
+
+        for (let i = 0; i < grand_parent_children_elements.length; i++) {
+          this.renderer.removeStyle(
+            grand_parent_children_elements[i],
+            'visibility'
+          );
+        }
+  
+        this._componentRefMap.get(container).instance.setVisibility(true);
+        this.renderer.removeClass(
+          grand_parent.element,
+          'collapsed-golden-layout-container'
         );
-      }
-
-      this._componentRefMap.get(container).instance.setVisibility(true);
-      this.renderer.removeClass(
-        grand_parent.element,
-        'collapsed-golden-layout-container'
-      );
-
-      this.renderer.removeClass(grand_parent.element, 'vertical-dots');
-
-      this.renderer.removeClass(grand_parent.element, 'horizontal-dots');
+  
+        this.renderer.removeClass(grand_parent.element, 'vertical-dots');
+        this.renderer.removeClass(grand_parent.element, 'horizontal-dots');
+      
     }
 
-    const component = componentRef.instance;
     component.setPositionAndSize(left, top, width, height);
     component.handleResponsiveChange(left, top, width, height);
   }

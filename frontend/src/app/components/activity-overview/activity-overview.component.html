@@ -210,7 +210,7 @@
                     $event.target.value
                   )
                 "
-                (click)="startEditing()"
+                (focusout)="$event.target.value = activityField.activityName"
               />
               <div
                 class="cursor-pointer remove-activity-button"
