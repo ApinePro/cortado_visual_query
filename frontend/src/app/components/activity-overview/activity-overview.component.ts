@@ -46,7 +46,6 @@ export class ActivityOverviewComponent
   activitiesInLog: any;
   activityFields: ActivityField[];
 
-
   sortKey: string = 'activityName';
   ascending: boolean = false;
 
@@ -192,7 +191,6 @@ export class ActivityOverviewComponent
     oldActivityName: string,
     newActivityName: string
   ): void {
-
     if (oldActivityName !== newActivityName) {
       this.variantService.renameActivity(oldActivityName, newActivityName);
       // Changing activity field table

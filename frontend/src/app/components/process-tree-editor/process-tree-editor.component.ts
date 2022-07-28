@@ -204,8 +204,7 @@ export class ProcessTreeEditorComponent
   }
 
   redraw(tree) {
-
-    console.log('redrawing')
+    console.log('redrawing');
     this.selectedStatistic =
       this.performanceColorScaleService.selectedColorScale.statistic;
     this.selectedPerformanceIndicator =

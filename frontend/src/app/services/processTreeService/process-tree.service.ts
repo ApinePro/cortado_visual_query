@@ -207,7 +207,6 @@ export class ProcessTreeService {
     }
 
     this._currentDisplayedProcessTree.next(tree);
-
   }
 
   public set_currentDisplayedProcessTree_with_Cache(tree: any) {
