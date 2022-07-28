@@ -74,7 +74,6 @@ export function contextMenuCallback(
   variant: VariantElement,
   event: PointerEvent
 ) {
-  console.log('Set ContextMenu', this)
   this.contextMenu_xPos = event.clientX;
   this.contextMenu_yPos = event.clientY;
   this.contextMenu_variant = variant;

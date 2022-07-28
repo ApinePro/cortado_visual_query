@@ -218,7 +218,6 @@ export class VariantService {
       activityName,
       newActivityName
     ).subscribe((res) => {
-      console.log(res);
       variants.forEach((v) => {
         for (let bid of Object.keys(res)) {
           if (v.bid.toString() === bid) {
@@ -271,9 +270,12 @@ export class VariantService {
   }
 
   private propagateVariantDeletions(bids: number[]) {
-    return this.httpClient.post(+'modifylog/' + 'deleteVariants', {
-      bids: bids,
-    });
+    return this.httpClient.post(
+      ROUTES.BASE_URL + ROUTES.MODIFY_LOG + 'deleteVariants',
+      {
+        bids: bids,
+      }
+    );
   }
 
   revertChangeInBackend() {
