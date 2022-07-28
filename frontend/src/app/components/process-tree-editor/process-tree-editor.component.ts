@@ -457,12 +457,10 @@ export class ProcessTreeEditorComponent
       : null;
   };
 
-  computeTextColor = (root, d: d3.HierarchyNode<ProcessTree>) => {
+  computeTextColor = (d : d3.HierarchyNode<ProcessTree>) => {
     if (
       d.data.frozen ||
-      d.data.label === ProcessTreeOperator.tau ||
-      !this.performanceMode
-    ) {
+      d.data.label === ProcessTreeOperator.tau) {
       return 'white';
     }
 

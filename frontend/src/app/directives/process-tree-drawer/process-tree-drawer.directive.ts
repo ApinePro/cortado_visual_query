@@ -143,7 +143,7 @@ export class ProcessTreeDrawerDirective {
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
       .merge(node.select('text'))
-      .attr('fill', (d) => this.computeTextColor(this.root, d))
+      .attr('fill', (d) => this.computeTextColor(d))
       .attr('font-size', (d: any) => {
         if (d.data.operator) {
           return PT_Constant.OPERATOR_FONT_SIZE;
