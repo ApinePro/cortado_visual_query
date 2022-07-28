@@ -219,7 +219,6 @@ export class VariantExplorerComponent
     variantExplorerItem.focus();
 
     this.variantService.variants$.subscribe((variants) => {
-      console.log(variants);
       this.variants = variants;
       this.displayed_variants = variants;
       this.sort(this.sortingFeature);

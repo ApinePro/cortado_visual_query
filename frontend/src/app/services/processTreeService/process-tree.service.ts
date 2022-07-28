@@ -40,7 +40,10 @@ export class ProcessTreeService {
 
     this.logService.loadedEventLog$.subscribe((log) => {
       if (log && log !== 'preload') {
-        this.nodeWidthCache = new Map<string, number>();
+        this.nodeWidthCache = computeLeafNodeWidth(
+          Object.keys(this.logService.activitiesInEventLog),
+          this.nodeWidthCache
+        );
       }
     });
   }
