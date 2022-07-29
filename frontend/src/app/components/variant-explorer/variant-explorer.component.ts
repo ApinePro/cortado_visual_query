@@ -291,7 +291,9 @@ export class VariantExplorerComponent
           this.logService.getLogPropsAndUpdateState(null, 'preload')
         )
       )
-      .subscribe();
+      .subscribe((val) => {
+        this.selectedGranularity = val.timeGranularity;
+      });
   }
 
   private listenForProcessTreeChange() {
