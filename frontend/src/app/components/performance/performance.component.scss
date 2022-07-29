@@ -2,7 +2,10 @@
   background-color: var(--box-background-color);
   display: flex;
   flex-direction: column;
+  overflow: auto;
+  position: absolute;
 }
+
 
 .color-span {
   height: 5%;

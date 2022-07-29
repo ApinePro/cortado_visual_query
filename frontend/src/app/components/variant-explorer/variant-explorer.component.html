@@ -4,9 +4,7 @@
   (fileOnHover)="toggleBlur($event)"
 ></app-drop-zone>
 
-<app-performance-progress-bar> </app-performance-progress-bar>
-
-<div class="sidebar">
+<div class="sidebar" [style.width.px]="sidebarHeigth">
   <div
     class="sidebar-button"
     [ngClass]="!performanceMode ? 'active' : ''"
@@ -369,7 +367,6 @@
       ></app-variant-query>
     </div>
   </div>
-
   <div class="main-variant-explorer flex-grow-1" #variantExplorer>
     <div *ngIf="svgRenderingInProgress" class="full-body-spinner">
       <div>
@@ -403,7 +400,6 @@
             >
               Sub-Variants
             </th>
-
             <th
               *ngIf="currentlyDisplayedProcessTree"
               style="text-align: center"

@@ -206,7 +206,7 @@ export class SubVariantComponent implements AfterViewInit {
       this.wrapInnerLabelText(
         sel,
         sel.text(),
-        xEnd - xStart - 2 * Constants.POINT_RADIUS
+        xEnd - xStart + 2 * Constants.POINT_RADIUS
       );
     });
 

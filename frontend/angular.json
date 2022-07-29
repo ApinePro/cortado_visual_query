@@ -23,7 +23,8 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [
-              "src/assets"
+              "src/assets",
+              "src/assets/defs.svg"
             ],
             "styles": [
               "./node_modules/golden-layout/dist/css/goldenlayout-base.css",
@@ -109,7 +110,8 @@
             "karmaConfig": "karma.conf.js",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/assets/defs.svg"
             ],
             "styles": [
               "src/styles.scss"
