@@ -21,7 +21,7 @@ variants_store = {}
 def calculate_event_log_properties(event_log: EventLog, time_granularity: TimeUnit = None, use_mp: bool = False):
 
     if time_granularity is None:
-        time_granularity = get_time_granularity(event_log)
+        time_granularity = min(TimeUnit)
 
     lifecycle_available = False
     # TODO: maybe implement more robust check if lifecycle/interval information is available
