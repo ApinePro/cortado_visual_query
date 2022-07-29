@@ -12,7 +12,7 @@ def evaluate_query_against_variant_graphs(query, variants, activities):
 
         qt = parse_query_to_query_tree(query.queryString)
 
-        for bid, (variant, _) in variants.items():
+        for bid, (variant, _, _) in variants.items():
 
             b = check_query_tree(qt, variant, activities, True)
 
