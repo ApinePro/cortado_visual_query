@@ -25,6 +25,7 @@ import { PerformanceService } from '../../../services/performance.service';
 import { ModelPerformanceColorScaleService } from '../../../services/performance-color-scale.service';
 import { textColorForBackgroundColor } from '../helper_functions';
 import * as objectHash from 'object-hash';
+import { ToastService } from 'src/app/services/toast/toast.service';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -98,7 +99,8 @@ export class VariantComponent implements AfterViewInit {
     private lazyLoadingService: LazyLoadingServiceService,
     public performanceService: PerformanceService,
     public sharedDataService: SharedDataService,
-    private performanceColorService: ModelPerformanceColorScaleService
+    private performanceColorService: ModelPerformanceColorScaleService,
+    private toastService: ToastService
   ) {}
 
   ngAfterViewInit(): void {
@@ -248,6 +250,7 @@ export class VariantComponent implements AfterViewInit {
       this.sharedDataService.variants = currentVariants;
     }
 
+    this.toastService.showSuccessToast('Added infix');
     this.resetSelectionStatus();
   }
 

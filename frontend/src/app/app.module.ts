@@ -53,7 +53,8 @@ import { SyntaxHighlightedTextareaDirective } from './directives/syntax-highligh
 import { ConformanceInfoBarComponent } from './components/variant-explorer/info-bar/conformance-info-bar.component';
 import { initApp, InitService } from './services/init.service';
 import { VariantQueryInfoComponent } from './components/variant-explorer/variant-query-info/variant-query-info.component';
-import { ToastComponent } from './components/toast/toast.component';
+import { ToastComponent } from './components/toast/toast/toast.component';
+import { ToasterComponent } from './components/toast/toaster/toaster.component';
 
 @NgModule({
   declarations: [
@@ -102,6 +103,7 @@ import { ToastComponent } from './components/toast/toast.component';
     ConformanceInfoBarComponent,
     VariantQueryInfoComponent,
     ToastComponent,
+    ToasterComponent,
   ],
   imports: [
     BrowserModule,
