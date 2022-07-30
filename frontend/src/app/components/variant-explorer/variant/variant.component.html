@@ -94,20 +94,6 @@
       }"
       style="white-space: nowrap"
     >
-      <div
-        style="display: inline-block; font-size: 23px; vertical-align: middle"
-      >
-        <div
-          *ngIf="
-            variant.infixType === infixType.PROPER_INFIX ||
-            variant.infixType === infixType.POSTFIX
-          "
-          style="display: inline-block; font-size: 23px; vertical-align: middle"
-        >
-          <i class="bi bi-three-dots"></i>
-          &nbsp;&nbsp;
-        </div>
-      </div>
       <svg
         appVariantDrawer
         #fragment
@@ -116,22 +102,10 @@
         [performanceMode]="performanceMode"
         [traceInfixSelectionMode]="traceInfixSelectionMode"
         [computeActivityColor]="computeActivityColor"
+        [infixType]="variant.infixType"
         class="zoom-group-variant"
         style="display: inline-block"
       ></svg>
-      <div
-        style="display: inline-block; font-size: 23px; vertical-align: middle"
-      >
-        <div
-          *ngIf="
-            variant.infixType === infixType.PROPER_INFIX ||
-            variant.infixType === infixType.PREFIX
-          "
-          style="display: inline-block; font-size: 23px; vertical-align: middle"
-        >
-          <i class="bi bi-three-dots"></i>
-        </div>
-      </div>
     </div>
   </td>
   <td class="infix-selection-buttons-panel" *ngIf="traceInfixSelectionMode">
@@ -203,3 +177,17 @@
     Loading...
   </div>
 </td>
+
+<svg display="none">
+  <symbol
+    width="20"
+    height="20"
+    fill="currentColor"
+    id="infixDots"
+    transform-origin="10 10"
+  >
+    <path
+      d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+    />
+  </symbol>
+</svg>

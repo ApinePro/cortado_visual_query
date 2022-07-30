@@ -1,3 +1,4 @@
+import { InfixType } from 'src/app/components/variant-explorer/model';
 import {
   Directive,
   EventEmitter,
@@ -53,6 +54,9 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
   traceInfixSelectionMode: boolean = false;
 
   @Input()
+  infixType: InfixType;
+
+  @Input()
   computeActivityColor: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
@@ -74,20 +78,6 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
   svgSelection!: Selection<any, any, any, any>;
 
-  deserialize(obj: any): VariantElement {
-    if ('follows' in obj) {
-      return new SequenceGroup(
-        obj.follows.map((e: any) => this.deserialize(e))
-      );
-    } else if ('parallel' in obj) {
-      return new ParallelGroup(
-        obj.parallel.map((e: any) => this.deserialize(e))
-      );
-    } else {
-      return new LeafNode(obj.leaf);
-    }
-  }
-
   ngAfterViewInit(): void {
     this.svgSelection = d3
       .select(this.svgHtmlElement.nativeElement)
@@ -101,6 +91,12 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       changes.variant &&
       !changes.variant.firstChange &&
       changes.variant.currentValue
+    ) {
+      this.redraw();
+    } else if (
+      changes.infixType &&
+      !changes.infixType.firstChange &&
+      changes.infixType.currentValue
     ) {
       this.redraw();
     } else if (
@@ -128,15 +124,19 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       const height = this.variant.recalculateHeight(this.performanceMode);
       const width = this.variant.recalculateWidth(this.performanceMode);
 
+      const svg_container = d3.select(this.svgHtmlElement.nativeElement);
       this.variant.updateWidth(this.performanceMode);
 
-      d3.select(this.svgHtmlElement.nativeElement)
-        .attr('width', width)
-        .attr('height', height);
+      const [svg, width_offset] = this.handle_infix(
+        this.infixType,
+        height,
+        width
+      );
 
-      const svg = this.svgSelection.attr('width', width).attr('height', height);
+      svg_container.attr('width', width + width_offset).attr('height', height);
 
       this.draw(this.variant, svg, true);
+
       this.tooltipService.initializeChildren(this.svgHtmlElement);
 
       if (this.variant instanceof SequenceGroup && !this.performanceMode) {
@@ -145,6 +145,77 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
       this.selection.emit(this.svgSelection);
     }
+  }
+
+  private handle_infix(
+    infixType,
+    height: number,
+    width: number
+  ): [any, number] {
+    let width_offset = 0;
+
+    const PREFIX_OFFSET = 35;
+    const POSTFIX_OFFSET = 25;
+    const PROPER_INFIX_OFFSET = 60;
+
+    const svg = this.svgSelection;
+    const variant_svg = svg
+      .append('g')
+      .attr('width', width)
+      .attr('height', height);
+
+    const height_offset = (height - 2 * Constants.MARGIN_Y) / 2 - 7.65;
+    switch (infixType) {
+      case InfixType.NOT_AN_INFIX:
+        break;
+
+      case InfixType.POSTFIX:
+        width_offset = POSTFIX_OFFSET;
+        break;
+
+      case InfixType.PREFIX:
+        width_offset = PREFIX_OFFSET;
+        break;
+
+      case InfixType.PROPER_INFIX:
+        width_offset = PROPER_INFIX_OFFSET;
+        break;
+    }
+
+    svg.attr('width', width + width_offset).attr('height', height);
+
+    if (
+      infixType === InfixType.POSTFIX ||
+      infixType === InfixType.PROPER_INFIX
+    ) {
+      variant_svg.attr('transform', `translate(${PREFIX_OFFSET}, 0)`);
+
+      svg
+        .append('g')
+        .attr('transform', `translate(0, ${height_offset})`)
+        .append('use')
+        .attr('href', '#infixDots')
+        .attr('transform', 'scale(1.7)');
+    }
+
+    if (
+      infixType === InfixType.PREFIX ||
+      infixType === InfixType.PROPER_INFIX
+    ) {
+      svg
+        .append('g')
+        .attr(
+          'transform',
+          `translate(${
+            width + (infixType === InfixType.PROPER_INFIX ? PREFIX_OFFSET : 0)
+          }, ${height_offset})`
+        )
+        .append('use')
+        .attr('href', '#infixDots')
+        .attr('transform', 'scale(1.7)');
+    }
+
+    return [variant_svg, width_offset];
   }
 
   draw(
