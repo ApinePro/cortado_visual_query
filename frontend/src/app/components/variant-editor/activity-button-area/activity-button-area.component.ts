@@ -10,14 +10,14 @@ import {
   ViewChildren,
   QueryList,
 } from '@angular/core';
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
+import * as d3 from 'd3';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import { Variant } from 'src/app/objects/Variants/variant';
 import {
   LeafNode,
-  Variant,
   VariantElement,
-} from '../../variant-explorer/model';
-import * as d3 from 'd3';
+} from 'src/app/objects/Variants/variant_element';
 
 @Component({
   selector: 'app-activity-button-area',

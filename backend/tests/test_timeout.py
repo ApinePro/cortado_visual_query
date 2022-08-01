@@ -1,6 +1,10 @@
-import unittest
-from backend.backend_utilities.timeout.helper_functions import execute_with_timeout, TimeoutException
 import time
+import unittest
+
+from backend.backend_utilities.timeout.helper_functions import (
+    TimeoutException,
+    execute_with_timeout,
+)
 
 
 class TimeoutTest(unittest.TestCase):
@@ -25,12 +29,12 @@ class TimeoutTest(unittest.TestCase):
 
     def test_raise_exception_from_inner_func_if_timeout_does_not_occur_before(self):
         def test_func() -> int:
-            raise Exception('inner_exception')
+            raise Exception("inner_exception")
 
         try:
             execute_with_timeout(test_func, 10)
         except Exception as e:
-            self.assertEqual(str(e), 'inner_exception')
+            self.assertEqual(str(e), "inner_exception")
 
     def test_can_handle_function_with_arguments(self):
         def test_func(a: int, b: int) -> int:
@@ -40,5 +44,5 @@ class TimeoutTest(unittest.TestCase):
         self.assertEqual(result, 8)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -1,3 +1,4 @@
+import { VariantService } from './../../../services/variantService/variant.service';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import {
   HumanizeDuration,
@@ -6,8 +7,9 @@ import {
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
 import { PerformanceService } from 'src/app/services/performance.service';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
-import { PerformanceStats, Variant } from '../../variant-explorer/model';
-import { TreePerformance } from '../../../objects/ProcessTree';
+import { TreePerformance } from '../../../objects/ProcessTree/ProcessTree';
+import { Variant } from 'src/app/objects/Variants/variant';
+import { PerformanceStats } from 'src/app/objects/Variants/variant_element';
 
 @Component({
   selector: 'app-node-selection-performance',
@@ -32,6 +34,7 @@ export class NodeSelectionPerformanceComponent implements OnInit {
     public performanceService: PerformanceService,
     public performanceColorScaleService: ModelPerformanceColorScaleService,
     public sharedDataService: SharedDataService,
+    private variantService: VariantService,
     private changeDetectorRef: ChangeDetectorRef
   ) {
     const durationLang = new HumanizeDurationLanguage();
@@ -63,18 +66,18 @@ export class NodeSelectionPerformanceComponent implements OnInit {
             perf.cycle_time
         );
 
-        availableVariants.sort((a, b) => a[0].number - b[0].number);
+        availableVariants.sort((a, b) => a[0].bid - b[0].bid);
         this.variants = availableVariants.map((v) => v[0]);
         availableVariants
           .map(
             ([v, p]) =>
               <[number, TreePerformance]>[
-                this.sharedDataService.variants.indexOf(v),
+                this.variantService.variants.indexOf(v),
                 p,
               ]
           )
           .forEach(([vIdx, p]) => {
-            const v = this.sharedDataService.variants[vIdx];
+            const v = this.variantService.variants[vIdx];
             this.variantIndices.set(v, vIdx + 1);
             this.serviceTimeValues.set(
               v,

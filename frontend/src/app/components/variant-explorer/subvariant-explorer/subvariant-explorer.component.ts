@@ -1,6 +1,4 @@
-import { SharedDataService } from '../../../services/sharedDataService/shared-data.service';
 import { ColorMapService } from '../../../services/colorMapService/color-map.service';
-import { Variant, VariantElement } from '../model';
 import {
   AfterViewInit,
   Component,
@@ -13,17 +11,21 @@ import {
   ViewChildren,
 } from '@angular/core';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
-import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';
-import { SubVariantComponent } from '../sub-variant/sub-variant.component';
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
+import { SubVariantComponent } from './subvariants/sub-variant/sub-variant.component';
 import { ImageExportService } from 'src/app/services/imageExportService/image-export-service';
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import * as d3 from 'd3';
-import { LeafNode } from '../model';
+import { LogService } from 'src/app/services/logService/log.service';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import {
+  LeafNode,
+  VariantElement,
+} from 'src/app/objects/Variants/variant_element';
+import { Variant } from 'src/app/objects/Variants/variant';
 import { BackendService } from 'src/app/services/backendService/backend.service';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
-import { SubvariantVisualization } from '../sub-variant/model';
-import { finalize } from 'rxjs/operators';
+import { SubvariantVisualization } from 'src/app/objects/Variants/subvariant';
 
 @Component({
   selector: 'app-subvariant-explorer',
@@ -56,7 +58,7 @@ export class SubvariantExplorerComponent
     elRef: ElementRef,
     renderer: Renderer2,
     private colorMapService: ColorMapService,
-    private sharedDataService: SharedDataService,
+    private logService: LogService,
     private imageExportService: ImageExportService,
     private polygonDrawingService: PolygonDrawingService,
     private backendService: BackendService,
@@ -64,9 +66,7 @@ export class SubvariantExplorerComponent
   ) {
     super(elRef.nativeElement, renderer);
     this.mainVariant = this.container.initialState as Variant;
-    this.colorMap = this.colorMapService.getColorMap(
-      Object.keys(this.sharedDataService.activitiesInEventLog)
-    );
+    this.colorMap = this.colorMapService.colorMap;
     this.sortAscending = false;
     this.svgRenderingInProgress = false;
   }
@@ -74,12 +74,11 @@ export class SubvariantExplorerComponent
   ngOnInit(): void {
     this.backendService
       .getSubvariantsForVariant(
-        this.mainVariant.variant,
-        this.sharedDataService.currentTimeGranularity
+        this.mainVariant.bid,
+        this.logService.logGranularity
       )
       .subscribe((r) => {
         this.subvariants = r;
-        console.log(this.subvariants[0]);
       });
   }
 
@@ -202,7 +201,7 @@ export class SubvariantExplorerComponent
     this.svgRenderingInProgress = true;
 
     // Add the main variant to the SVG array
-    const mainVariantSVG = this.addVariantInformation(
+    const mainVariantSVG = this.addVariantExportInformation(
       this.mainvariantDrawer.getSVGGraphicElement(),
       100,
       100,
@@ -229,7 +228,7 @@ export class SubvariantExplorerComponent
     // Add frequency informations of the subvariants
     // The first svg is the main variant, so index starts from 1
     for (let i = 1; i < svgs.length; i++) {
-      svgs[i] = this.addVariantInformation(
+      svgs[i] = this.addVariantExportInformation(
         svgs[i],
         counts[i - 1],
         percentages[i - 1],
@@ -240,7 +239,7 @@ export class SubvariantExplorerComponent
     // Draw the legend and insert it to the start of the svg array
     const legend = d3.create('svg').attr('x', '10').attr('y', '10');
     let leafnodes: LeafNode[] = [];
-    for (let activity in this.sharedDataService.activitiesInEventLog) {
+    for (let activity in this.logService.activitiesInEventLog) {
       leafnodes.push(new LeafNode([activity]));
     }
     this.polygonDrawingService.drawLegend(
@@ -253,7 +252,7 @@ export class SubvariantExplorerComponent
 
     // Export to an SVG file
     this.imageExportService.export(
-      `subvariants-for-${this.mainVariant.number}`,
+      `subvariants-for-${this.mainVariant.bid}`,
       0,
       0,
       ...svgs
@@ -269,7 +268,7 @@ export class SubvariantExplorerComponent
     this.svgRenderingInProgress = false;
   }
 
-  addVariantInformation(
+  addVariantExportInformation(
     svgElement: any,
     variantAbs: number,
     variantPerc: number,

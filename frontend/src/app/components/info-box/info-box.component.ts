@@ -2,11 +2,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  OnInit,
   Renderer2,
 } from '@angular/core';
 import { LogicalZIndex } from 'golden-layout';
-import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 
 @Component({
   selector: 'app-info-box',

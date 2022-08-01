@@ -1,5 +1,5 @@
+import { LogService } from 'src/app/services/logService/log.service';
 import { BackendService } from 'src/app/services/backendService/backend.service';
-import { SharedDataService } from './../../../services/sharedDataService/shared-data.service';
 import {
   Component,
   ElementRef,
@@ -49,7 +49,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
   constructor(
     private renderer: Renderer2,
     private colorMapService: ColorMapService,
-    private sharedDataService: SharedDataService,
+    private logService: LogService,
     private backendService: BackendService
   ) {}
 
@@ -267,7 +267,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
 
       const res = control.value.matchAll(this.activityNameRegEx);
       for (let match of res) {
-        if (!this.sharedDataService.activitiesInEventLog[match[1]]) {
+        if (!this.logService.activitiesInEventLog[match[1]]) {
           unknowActivities.add({ index: match.index, name: match[1] });
         }
       }
