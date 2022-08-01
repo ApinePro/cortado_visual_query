@@ -1,4 +1,7 @@
-import { InfixType } from 'src/app/components/variant-explorer/model';
+import {
+  getLowestSelectionActionableElement,
+  InfixType,
+} from 'src/app/components/variant-explorer/model';
 import {
   Directive,
   EventEmitter,
@@ -252,13 +255,19 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
     const color = 'lightgrey';
 
+    let laElement = getLowestSelectionActionableElement(element);
+    let actionable =
+      laElement.parent !== null &&
+      laElement.infixSelectableState !== SelectableState.None;
+
     let polygon = parent
       .append('polygon')
       .attr('points', polygonPoints)
       .style('fill', color)
       .classed('variant-group-element', true)
       .classed('variant-sequence-group', true)
-      .classed('variant-polygon', true);
+      .classed('variant-polygon', true)
+      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable);
 
     if (
       this.traceInfixSelectionMode &&
@@ -371,11 +380,17 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     ];
     const inversed = rgb_code.map((d) => 255 - parseInt(d, 16));
 
+    let laElement = getLowestSelectionActionableElement(element);
+    let actionable =
+      laElement.parent !== null &&
+      laElement.infixSelectableState !== SelectableState.None;
+
     let polygon = parent
       .append('polygon')
       .attr('points', polygonPoints)
       .style('fill', color)
-      .classed('variant-polygon', true);
+      .classed('variant-polygon', true)
+      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable);
 
     if (this.traceInfixSelectionMode) {
       this.addInfixSelectionAttributes(element, polygon, true);
@@ -417,7 +432,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
         .append('tspan')
         .attr('x', width / 2)
         .attr('y', y + dy)
-        .classed('cursor-pointer', true)
+        .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable)
         .text(a);
 
       dy += Constants.FONT_SIZE + Constants.MARGIN_Y;

@@ -108,7 +108,10 @@
       ></svg>
     </div>
   </td>
-  <td class="infix-selection-buttons-panel" *ngIf="traceInfixSelectionMode">
+  <td
+    class="infix-selection-buttons-panel"
+    *ngIf="traceInfixSelectionMode && !performanceMode"
+  >
     <div>
       <td>
         <button
