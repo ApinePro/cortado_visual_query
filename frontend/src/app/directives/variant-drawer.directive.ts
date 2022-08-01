@@ -321,6 +321,11 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
     const polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
+    let laElement = getLowestSelectionActionableElement(element);
+    let actionable =
+      laElement.parent !== null &&
+      laElement.infixSelectableState !== SelectableState.None;
+
     const color = 'lightgrey';
     let polygon = parent
       .append('polygon')
@@ -328,7 +333,8 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       .style('fill', color)
       .classed('variant-group-element', true)
       .classed('variant-parallel-group', true)
-      .classed('variant-polygon', true);
+      .classed('variant-polygon', true)
+      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable);
 
     if (
       this.traceInfixSelectionMode &&
