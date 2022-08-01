@@ -40,7 +40,7 @@
         data-bs-toggle="tooltip"
         data-bs-placement="bottom"
         data-bs-container="body"
-        title="model variant as a full variant"
+        title="model variant"
         ><svg height="20" width="20">
           <use href="#variantChevron"></use></svg
       ></label>
@@ -58,7 +58,7 @@
         data-bs-toggle="tooltip"
         data-bs-placement="bottom"
         data-bs-container="body"
-        title="model variant as a prefix"
+        title="model prefix variant"
         ><svg height="20" width="20">
           <use href="#prefixChevron"></use></svg
       ></label>
@@ -78,7 +78,7 @@
         data-bs-toggle="tooltip"
         data-bs-placement="bottom"
         data-bs-container="body"
-        title="model variant as an infix"
+        title="model infix variant"
         ><svg height="20" width="20">
           <use href="#infixChevron"></use></svg
       ></label>
@@ -98,7 +98,7 @@
         data-bs-toggle="tooltip"
         data-bs-placement="bottom"
         data-bs-container="body"
-        title="model variant as a postfix"
+        title="model postfix variant"
       >
         <svg height="20" width="20">
           <use href="#postfixChevron"></use>
@@ -260,7 +260,7 @@
       data-bs-container="body"
       data-bs-placement="bottom"
       title="focus selected"
-      id="btn-focus-selected"
+      (click)="focusSelected()"
       [disabled]="emptyVariant || multipleSelected"
     >
       <i class="bi bi-eye-fill"></i>
@@ -272,7 +272,7 @@
       data-bs-placement="bottom"
       data-bs-container="body"
       title="move to the start of the variant"
-      id="btn-center-variant"
+      (click)="centerVariant()"
     >
       <i class="bi bi-arrows-fullscreen btn-icon text-light"></i>
     </button>
@@ -288,10 +288,14 @@
   >
   </app-activity-button-area>
 
-  <div class="editor-zone" #EditorWindow>
+  <app-zoom-field
+    [zoomScale]="[0.1, 3]"
+    [computeFocusOffsets]="computeFocusOffset"
+  >
     <svg
-      appVariantDrawer
+      #content
       #VariantMainGroup
+      appVariantDrawer
       id="VariantMainGroup"
       [variant]="currentVariant"
       (selection)="handleRedraw($event)"
@@ -299,7 +303,7 @@
       [infixType]="curInfixType"
       class="zoom-group-variant"
     ></svg>
-  </div>
+  </app-zoom-field>
   <div class="redundancy-warning" @fadeIn *ngIf="redundancyWarning">
     This variant already exists in the user defined dataset
   </div>

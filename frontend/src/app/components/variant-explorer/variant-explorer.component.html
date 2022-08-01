@@ -4,11 +4,13 @@
   (fileOnHover)="toggleBlur($event)"
 ></app-drop-zone>
 
+<app-performance-progress-bar> </app-performance-progress-bar>
+
 <div class="sidebar" [style.width.px]="sidebarHeigth">
   <div
     class="sidebar-button"
     [ngClass]="!performanceMode ? 'active' : ''"
-    (click)="setPerformanceMode(false)"
+    (click)="setPerformanceModeClicked(false)"
   >
     <span class="sidebar-button-text user-select-none"> Standard View</span>
   </div>
@@ -16,7 +18,7 @@
   <div
     class="sidebar-button"
     [ngClass]="performanceMode ? 'active' : ''"
-    (click)="setPerformanceMode(true)"
+    (click)="setPerformanceModeClicked(true)"
   >
     <span class="sidebar-button-text user-select-none"> Performance View </span>
   </div>
@@ -25,7 +27,10 @@
 <div
   class="d-flex flex-column h-100 container-variant-explorer"
   #variantExplorerContainer
-  [class.blurOutOfFocus]="variantExplorerOutOfFocus"
+  [class.blurOutOfFocus]="
+    variantExplorerOutOfFocus ||
+    variantPerformanceService.performanceUpdateIsInProgress
+  "
 >
   <div class="bg-dark btn-tool-bar">
     <i
@@ -122,9 +127,22 @@
 
     <span class="vl"></span>
 
-    <span class="vl ms-auto"></span>
+    <!--
+    <span class="vl"></span>
+
+    <button
+      class="button"
+      data-bs-toggle="tooltip"
+      title="Restore last deleted variants"
+      [disabled]="noDeletedVariants()"
+      (click)="restoreLastDeletedVariants()"
+    >
+      <i class="bi bi-arrow-counterclockwise"></i>
+    </button> -->
+
+    <span class="vl"></span>
     <div
-      class="btn-group align-baseline dropDownParent dropdown"
+      class="btn-group align-baseline dropDownParent dropdown ms-auto"
       data-bs-toggle="tooltip"
       data-bs-html="true"
       title='sort variants by one of the following attributes:
@@ -326,7 +344,7 @@
 
   <div
     class="variant-query-button"
-    [@openCloseQuery]="queryActive ? 'openQuery' : 'closeQuery'"
+    [@openCloseComponent]="queryActive ? 'openComponent' : 'closeComponent'"
   >
     <div class="query-header d-flex" (click)="toggleQuery()">
       <div class="query-button me-auto">
@@ -356,7 +374,9 @@
     </div>
     <div
       class="query-app-container"
-      [@fadeInOutQuery]="queryActive ? 'fadeInQuery' : 'fadeOutQuery'"
+      [@fadeInOutComponent]="
+        queryActive ? 'fadeInComponent' : 'fadeOutComponent'
+      "
     >
       <app-variant-query
         (query_selection)="apply_query_filter($event)"
@@ -402,7 +422,9 @@
               style="text-align: center"
             >
               <div
-                *ngIf="currentlyDisplayedProcessTree && performanceAvailable()"
+                *ngIf="
+                  currentlyDisplayedProcessTree && anyPerforamnceAvailable()
+                "
                 style="
                   display: flex;
                   flex-direction: row;
@@ -462,25 +484,90 @@
               >
             </th>
           </tr>
-          <tr
-            app-variant
+          <ng-container
             *ngFor="let variant of displayed_variants; let i = index"
-            [index]="i"
-            [variant]="variant"
-            [processTreeAvailable]="
-              processTreeService.currentDisplayedProcessTree
-            "
-            (openSubvariantWindow)="createSubVariantView($event)"
-            [onClickCbFc]="variantClickCallBack"
-            [computeActivityColor]="computeActivityColor"
-            [performanceMode]="performanceMode"
-            (selectionChanged)="selectionChangedForVariant(variant, $event)"
-            (updateConformance)="
-              updateConformanceForSingleVariantClicked($event)
-            "
-            [rootElement]="variantExplorerDiv"
-            [traceInfixSelectionMode]="traceInfixSelectionMode"
-          ></tr>
+          >
+            <tr
+              app-variant
+              [index]="i"
+              [variant]="variant"
+              [processTreeAvailable]="
+                processTreeService.currentDisplayedProcessTree
+              "
+              [performanceMode]="performanceMode"
+              [rootElement]="variantExplorerDiv"
+            >
+              <ng-template #treeButton>
+                <app-tree-performance-button
+                  [variant]="variant"
+                  [isPerformanceAvailable]="isPerformanceAvailable"
+                  [isPerformanceActive]="isPerformanceActive"
+                  [isPerformanceFitting]="isPerformanceFitting"
+                  [isPerformanceCalcInProgress]="isPerformanceCalcInProgress"
+                  (removePerformance)="handlePerformanceRemove($event)"
+                  (showPerformance)="handleSelectTreePerformance($event)"
+                  [computePerformanceButtonColor]="
+                    computePerformanceButtonColor
+                  "
+                ></app-tree-performance-button>
+              </ng-template>
+
+              <ng-template #variantInfo>
+                <app-variant-info
+                  [variant]="variant"
+                  (selectionChanged)="
+                    selectionChangedForVariant(variant, $event)
+                  "
+                  (updateConformance)="
+                    updateConformanceForSingleVariantClicked($event)
+                  "
+                >
+                </app-variant-info>
+              </ng-template>
+
+              <ng-template #subvariantButton>
+                <div
+                  *ngIf="variant.nSubVariants > 0"
+                  class="subvariants"
+                  (click)="createSubVariantView(i + 1)"
+                >
+                  {{ variant.nSubVariants }}
+                </div>
+              </ng-template>
+
+              <ng-template #variantDrawer>
+                <div
+                  class="variant"
+                  [ngStyle]="{
+                    'border-color': variant.isSelected ? 'unset' : 'transparent'
+                  }"
+                  style="white-space: nowrap"
+                >
+                  <svg
+                    appVariantDrawer
+                    #drawer="variantDrawer"
+                    [variant]="variant['variant']"
+                    [onClickCbFc]="variantClickCallBack"
+                    [onRightMouseClickCbFc]="openContextCallback"
+                    [performanceMode]="performanceMode"
+                    [traceInfixSelectionMode]="traceInfixSelectionMode"
+                    [computeActivityColor]="computeActivityColor"
+                    [infixType]="variant.infixType"
+                    class="zoom-group-variant"
+                    style="display: inline-block"
+                  ></svg>
+                </div>
+
+                <app-infix-selection-controlls
+                  [variant]="variant"
+                  [traceInfixSelectionMode]="traceInfixSelectionMode"
+                  (selectTraceInfix)="handleSelectInfix($event)"
+                  [variantDrawer]="drawer"
+                >
+                </app-infix-selection-controlls>
+              </ng-template>
+            </tr>
+          </ng-container>
         </table>
       </div>
     </div>
@@ -488,10 +575,7 @@
 
   <div class="bg-dark user-select-none">
     <app-conformance-info-bar
-      [numberFittingVariants]="numberFittingVariants"
-      [numberFittingTraces]="numberFittingTraces"
-      [totalNumberTraces]="totalNumberTraces"
-      [totalNumberVariants]="totalNumberVariants"
+      [logStats]="logStats"
       [isConformanceOutdated]="this.isConformanceOutdated()"
       [numSelectedVariants]="this.getSelectedVariants().length"
     ></app-conformance-info-bar>
@@ -510,3 +594,25 @@
 ></app-variant-conformance-dialog>
 
 <app-variant-query-info [(showInfo)]="showQueryInfo"> </app-variant-query-info>
+
+<app-variant-explorer-context-menu
+  [xPos]="contextMenu_xPos"
+  [yPos]="contextMenu_yPos"
+  [element]="contextMenu_element"
+  [variant]="contextMenu_variant"
+  [directive]="contextMenu_directive"
+></app-variant-explorer-context-menu>
+
+<svg display="none">
+  <symbol
+    width="20"
+    height="20"
+    fill="currentColor"
+    id="infixDots"
+    transform-origin="10 10"
+  >
+    <path
+      d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+    />
+  </symbol>
+</svg>

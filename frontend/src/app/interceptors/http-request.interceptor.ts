@@ -12,6 +12,7 @@ import { BackgroundTaskInfoService } from '../services/backgroundTaskInfoService
 import { BackendService } from '../services/backendService/backend.service';
 import { ErrorService } from '../services/errorService/error.service';
 import { BackendInfoService } from '../services/backendInfoService/backend-info.service';
+import { ROUTES } from '../constants/backend_route_constants';
 
 @Injectable()
 export class HttpRequestInterceptor implements HttpInterceptor {
@@ -29,7 +30,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
     const calledEndpoint = request.url
-      .slice(this.backendService.backendUrl.length)
+      .slice(ROUTES.BASE_URL.length)
       .replace(/([a-z0-9])([A-Z])/g, '$1 $2');
 
     let id;
@@ -56,7 +57,6 @@ export class HttpRequestInterceptor implements HttpInterceptor {
   }
 
   shouldIgnoreError(error: HttpErrorResponse): boolean {
-    console.log('HTML Error', error);
     return (
       // ignore timeouts for alignment computations because they are handled in the variant explorer
       (error.status == 504 &&

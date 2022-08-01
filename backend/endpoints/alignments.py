@@ -20,8 +20,8 @@ class InfixType(Enum):
 def calculate_alignment(variant, pt, infix_type: InfixType):
     # this function uses the specific tree alignment calculation
     pt: ProcessTree
-    frozen_subtree: List[ProcessTree]
-    pt, frozen_subtrees = dict_to_process_tree(pt)
+    _: List[ProcessTree]
+    pt, _ = dict_to_process_tree(pt)
     trace = Trace()
     for a in variant:
         e = Event()

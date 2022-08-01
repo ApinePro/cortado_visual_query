@@ -6,10 +6,9 @@ import {
   OnInit,
   Renderer2,
 } from '@angular/core';
-import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
-import { VariantElement } from '../variant-explorer/model';
-import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 
 @Component({
   selector: 'app-variant-performance',
@@ -45,21 +44,27 @@ export class VariantPerformanceComponent
     defaultZIndex: string
   ): void {}
 
-  public selectedVariantElement: VariantElement;
+  public performanceStats: any;
+  public title: string;
 
   public colorScale;
 
   ngOnInit(): void {
-    this.variantPerformanceService.selectedVariantElement$.subscribe(
-      (variantElement) => {
-        this.selectedVariantElement = variantElement;
+    this.variantPerformanceService.performanceStatsForSelectedVariantElement$.subscribe(
+      (data) => {
+        if (data == undefined) {
+          this.performanceStats = null;
+          return;
+        }
+        this.performanceStats = data[0];
+        const isServiceTime: boolean = data[1];
+        this.title = 'Service Time';
+        if (!isServiceTime) {
+          this.title = 'Waiting Time';
+        }
         this.changeDetectorRef.markForCheck();
       }
     );
-  }
-
-  setPerformanceMode(performanceMode: boolean): void {
-    this.variantPerformanceService.variantPerformanceMode.next(performanceMode);
   }
 }
 

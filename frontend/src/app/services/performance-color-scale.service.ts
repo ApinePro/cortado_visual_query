@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ProcessTree } from '../objects/ProcessTree';
+import { ProcessTree } from '../objects/ProcessTree/ProcessTree';
 import { PerformanceService } from './performance.service';
 import { SharedDataService } from './sharedDataService/shared-data.service';
 import * as d3 from 'd3';
@@ -197,7 +197,7 @@ export class ModelPerformanceColorScaleService {
 
     this.performanceService.availablePerformances.forEach((v) => {
       const performanceButton = document.getElementById(
-        `performanceButton${v.number}`
+        `performanceButton${v.bid}`
       );
 
       let vP = this.performanceService.variantsPerformance.get(v).performance;

@@ -1,18 +1,19 @@
+import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import * as FileSaver from 'file-saver';
 import { Observable } from 'rxjs';
 import { take, tap } from 'rxjs/operators';
 import { Configuration } from 'src/app/components/settings/model';
-import {
-  Variant,
-  VariantElement,
-} from 'src/app/components/variant-explorer/model';
-import * as objectHash from 'object-hash';
-import { ProcessTree } from 'src/app/objects/ProcessTree';
+import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
+import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { mapVariants } from 'src/app/utils/util';
-import { SharedDataService } from '../sharedDataService/shared-data.service';
+import { LogService } from '../logService/log.service';
+import { VariantService } from '../variantService/variant.service';
 import { ProcessTreeService } from './../processTreeService/process-tree.service';
+import { VariantElement } from 'src/app/objects/Variants/variant_element';
+import { ROUTES } from 'src/app/constants/backend_route_constants';
+import { addVariantInformation } from '../variantService/variant-transformation';
 import { MiningConfig } from 'src/app/components/variant-miner/variant-miner-types';
 
 @Injectable({
@@ -21,15 +22,30 @@ import { MiningConfig } from 'src/app/components/variant-miner/variant-miner-typ
 export class BackendService {
   constructor(
     private httpClient: HttpClient,
-    private sharedDataService: SharedDataService,
-    private processTreeService: ProcessTreeService
+    private logService: LogService,
+    private variantService: VariantService,
+    private processTreeService: ProcessTreeService,
+    private sharedDataService : SharedDataService
   ) {}
 
-  backendUrl = 'http://127.0.0.1:41211/';
+  exportEventLogFromLog(bids: number[]) {
+    this.httpClient
+      .post(
+        ROUTES.BASE_URL + ROUTES.EXPORT + 'exportLogVariants',
+        { bids: bids },
+        { responseType: 'blob' }
+      )
+      .pipe(take(1))
+      .subscribe((blob) => {
+        FileSaver.saveAs(blob, 'log.xes');
+      });
+  }
 
   loadEventLogFromFilePath(filePath: string): void {
     this.httpClient
-      .post(this.backendUrl + 'loadEventLog', { file_path: filePath })
+      .post(ROUTES.BASE_URL + ROUTES.IMPORT + 'loadEventLog', {
+        file_path: filePath,
+      })
       .pipe(mapVariants())
       .subscribe((res) => {
         this.processEventLog(res, filePath);
@@ -37,39 +53,39 @@ export class BackendService {
   }
 
   uploadEventLog(file: File) {
-    console.log(file);
     let formData = new FormData();
     formData.append('file', file);
 
     this.httpClient
-      .post(this.backendUrl + 'uploadfile', formData)
+      .post(ROUTES.BASE_URL + ROUTES.IMPORT + 'uploadfile', formData)
       .pipe(mapVariants())
       .subscribe((res) => {
-        console.log('Event log ' + file.name + ' loaded');
         this.processEventLog(res, file.name);
       });
   }
 
-  private processEventLog(res, filePath) {
-    this.sharedDataService.activitiesInEventLog = res['activities'];
-    this.sharedDataService.startActivitiesInEventLog = new Set(
-      Object.keys(res['startActivities'])
-    );
-    this.sharedDataService.endActivitiesInEventLog = new Set(
-      Object.keys(res['endActivities'])
-    );
+  // Refractor too Log Service
+  private processEventLog(res, filePath = null) {
+    console.warn('Processing Event Log', res);
 
-    this.sharedDataService.variants = res['variants'];
-    this.sharedDataService.loadedEventLog = filePath;
-    this.sharedDataService.performanceInfoAvailable = true;
-    this.sharedDataService.timeGranularity = res['timeGranularity'];
-    this.sharedDataService.logGranularity = res['timeGranularity'];
+    this.logService.activitiesInEventLog = res['activities'];
+    this.logService.startActivitiesInEventLog = new Set(res['startActivities']);
+    this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
+
+    const variants = addVariantInformation(res['variants']);
+    this.variantService.variants = variants;
+    this.variantService.cachedChange = false;
+
+    this.logService.computeLogStats(variants);
+    this.logService.loadedEventLog = filePath;
+    this.logService.performanceInfoAvailable = true;
+    this.logService.timeGranularity = res['timeGranularity'];
+    this.logService.logGranularity = res['timeGranularity'];
   }
 
   loadProcessTreeFromFilePath(filePath: string): void {
-    console.log(filePath);
     this.httpClient
-      .post(this.backendUrl + 'loadProcessTreeFromPtmlFile', {
+      .post(ROUTES.BASE_URL + ROUTES.IMPORT + 'loadProcessTreeFromPtmlFile', {
         file_path: filePath,
       })
       .subscribe((tree) => {
@@ -81,9 +97,12 @@ export class BackendService {
 
   discoverProcessModelFromVariants(variants: any[]): void {
     this.httpClient
-      .post(this.backendUrl + 'discoverProcessModelFromVariants', {
-        variants: variants,
-      })
+      .post(
+        ROUTES.BASE_URL + ROUTES.DISCOVER + 'discoverProcessModelFromVariants',
+        {
+          variants: variants,
+        }
+      )
       .subscribe((tree) => {
         this.processTreeService.currentDisplayedProcessTree = tree;
       });
@@ -94,12 +113,16 @@ export class BackendService {
   ): Observable<any> {
     const variantsSerialized = variants.map((v) => v.serialize(1));
     return this.httpClient
-      .post(this.backendUrl + 'discoverProcessModelFromConcurrencyVariants', {
-        variants: variantsSerialized,
-      })
+      .post(
+        ROUTES.BASE_URL +
+          ROUTES.DISCOVER +
+          'discoverProcessModelFromConcurrencyVariants',
+        {
+          variants: variantsSerialized,
+        }
+      )
       .pipe(
         tap((tree) => {
-          console.log('Parsing Tree after Request');
           this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
             tree
           );
@@ -109,7 +132,7 @@ export class BackendService {
 
   computeTreeString(tree: ProcessTree): void {
     this.httpClient
-      .post(this.backendUrl + 'computeTreeStringFromTree', {
+      .post(ROUTES.BASE_URL + ROUTES.PT_STRING + 'computeTreeStringFromTree', {
         pt: tree.copy(false),
       })
       .subscribe((tree) => {
@@ -118,9 +141,12 @@ export class BackendService {
   }
 
   renderStringToPT(treeString: string) {
-    return this.httpClient.post(this.backendUrl + 'parseStringToPT', {
-      pt_string: treeString,
-    });
+    return this.httpClient.post(
+      ROUTES.BASE_URL + ROUTES.PT_STRING + 'parseStringToPT',
+      {
+        pt_string: treeString,
+      }
+    );
   }
 
   downloadCurrentTreeAsBPMN(): void {
@@ -129,7 +155,7 @@ export class BackendService {
       .subscribe((tree) => {
         this.httpClient
           .post(
-            this.backendUrl + 'convertPtToBPMN',
+            ROUTES.BASE_URL + ROUTES.EXPORT + 'convertPtToBPMN',
             { pt: tree.copy(false) },
             { responseType: 'blob' }
           )
@@ -145,7 +171,7 @@ export class BackendService {
       .subscribe((tree) => {
         this.httpClient
           .post(
-            this.backendUrl + 'convertPtToPTML',
+            ROUTES.BASE_URL + ROUTES.EXPORT + 'convertPtToPTML',
             { pt: tree.copy(false) },
             { responseType: 'blob' }
           )
@@ -161,7 +187,7 @@ export class BackendService {
       .subscribe((tree) => {
         this.httpClient
           .post(
-            this.backendUrl + 'convertPtToPNML',
+            ROUTES.BASE_URL + ROUTES.EXPORT + 'convertPtToPNML',
             { pt: tree.copy(false) },
             { responseType: 'blob' }
           )
@@ -176,9 +202,12 @@ export class BackendService {
       .pipe(take(1))
       .subscribe((tree) => {
         this.httpClient
-          .post(this.backendUrl + 'applyReductionRulesToTree', {
-            pt: tree.copy(false),
-          })
+          .post(
+            ROUTES.BASE_URL + ROUTES.MODIFY_TREE + 'applyReductionRulesToTree',
+            {
+              pt: tree.copy(false),
+            }
+          )
           .subscribe((tree) =>
             this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
               tree
@@ -198,24 +227,26 @@ export class BackendService {
       fitting_variants: explicitlyAddedVariants,
     };
     this.httpClient
-      .post(this.backendUrl + 'addVariantsToProcessModel', body)
+      .post(
+        ROUTES.BASE_URL + ROUTES.DISCOVER + 'addVariantsToProcessModel',
+        body
+      )
       .subscribe((res) => {
         this.processTreeService.set_currentDisplayedProcessTree_with_Cache(res);
       });
   }
 
-  getTreePerformance(
-    variants: VariantElement[],
-    remove?: Variant[]
-  ): Observable<any> {
+  getTreePerformance(variants: number[], remove?: number[]): Observable<any> {
     const body = {
       pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
-      variants: variants.map((v) => v.serialize(1)),
-      delete: remove?.map((v) => v.variant.serialize(1)),
+      variants: variants,
+      delete: remove,
     };
 
     return this.httpClient.post(
-      this.backendUrl + 'calculateVariantsPerformance',
+      ROUTES.BASE_URL +
+        ROUTES.TREE_PERFORMANCE +
+        'calculateVariantsPerformance',
       body
     );
   }
@@ -230,10 +261,14 @@ export class BackendService {
       fitting_variants: variantsInModelLanguage.map((v) => v.serialize(1)),
     };
     return this.httpClient
-      .post(this.backendUrl + 'addConcurrencyVariantsToProcessModel', body)
+      .post(
+        ROUTES.BASE_URL +
+          ROUTES.DISCOVER +
+          'addConcurrencyVariantsToProcessModel',
+        body
+      )
       .pipe(
         tap((res) => {
-          console.log('Tree Received from BackEnd Service', res);
           this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
             res
           );
@@ -250,13 +285,13 @@ export class BackendService {
     };
     return this.httpClient
       .post(
-        this.backendUrl +
+        ROUTES.BASE_URL +
+          ROUTES.DISCOVER +
           'addConcurrencyVariantsToProcessModelUnknownConformance',
         body
       )
       .pipe(
         tap((res) => {
-          console.log('Tree Received from BackEnd Service', res);
           this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
             res
           );
@@ -267,7 +302,7 @@ export class BackendService {
   frequentSubtreeMining(config: MiningConfig): void {
     this.httpClient
       .post<Array<any>>(
-        this.backendUrl + 'frequentSubtreeMining',
+        ROUTES.BASE_URL + ROUTES.VARIANTMINING + 'frequentSubtreeMining',
         config.serialize()
       )
       .subscribe((res) => {
@@ -280,23 +315,113 @@ export class BackendService {
 
   saveConfiguration(configuration: Configuration): Observable<any> {
     return this.httpClient.post(
-      this.backendUrl + 'saveConfiguration',
+      ROUTES.BASE_URL + ROUTES.CONFIG + 'saveConfiguration',
       configuration
     );
   }
 
   getConfiguration(): Observable<any> {
     return this.httpClient.get<Configuration>(
-      this.backendUrl + 'getConfiguration'
+      ROUTES.BASE_URL + ROUTES.CONFIG + 'getConfiguration'
     );
   }
 
   variantQuery(query: string): Observable<any> {
     const queryBody = { queryString: query };
-    return this.httpClient.post(this.backendUrl + 'variant-query', queryBody);
+    return this.httpClient.post(
+      ROUTES.BASE_URL + ROUTES.QUERY + 'variant-query',
+      queryBody
+    );
   }
 
   getInfo(): Observable<any> {
-    return this.httpClient.get(this.backendUrl + 'info');
+    return this.httpClient.get(ROUTES.BASE_URL + 'info');
+  }
+
+  public getEventLog(): Observable<any> {
+    return this.httpClient.get(ROUTES.BASE_URL + 'log');
+  }
+
+  /**
+   * Fetches the properties of the log that is currently cached in the backend.
+   * If no time granularity is provided the granularity of the log is computed in
+   * the backend.
+   * @param timeGranularity
+   * @param logName
+   */
+  public getLogPropsAndUpdateState(
+    timeGranularity?: TimeUnit,
+    logName?: string
+  ): Observable<any> {
+    return this.getProperties(timeGranularity).pipe(
+      tap((properties) => {
+        this.updateState(properties, logName);
+      })
+    );
+  }
+
+  /**
+   * Updates the properties in sharedDataService (variants, activities, logName)
+   * @param properties
+   * @param logName
+   */
+  private updateState(properties: any, logName: string) {
+    this.logService.activitiesInEventLog = properties['activities'];
+    this.logService.startActivitiesInEventLog = new Set(
+      properties['startActivities']
+    );
+    this.logService.endActivitiesInEventLog = new Set(
+      properties['endActivities']
+    );
+
+    const variants = addVariantInformation(properties['variants']);
+    this.logService.computeLogStats(variants);
+    this.variantService.variants = variants;
+
+    this.logService.loadedEventLog = logName;
+
+    console.warn('Variants in Update State', properties['variants']);
+  }
+
+  public getProperties(timeGranularity?: TimeUnit): Observable<any> {
+    return this.httpClient
+      .post(ROUTES.BASE_URL + ROUTES.LOG + 'properties', {
+        timeGranularity: timeGranularity,
+      })
+      .pipe(mapVariants());
+  }
+
+  public getLogGranularity(): Observable<TimeUnit> {
+    return this.httpClient.get<TimeUnit>(
+      ROUTES.BASE_URL + ROUTES.LOG + 'granularity'
+    );
+  }
+
+  public resetLogCache(): Observable<any> {
+    return this.httpClient.get(ROUTES.BASE_URL + ROUTES.LOG + 'resetLogCache');
+  }
+
+  getLogBasedPerformance(start: number, end: number): Observable<any> {
+    const body = { start: start, end: end };
+    return this.httpClient.post(
+      ROUTES.BASE_URL +
+        ROUTES.VARIANT_PERFORMANCE +
+        'logBasedVariantPerformance',
+      body
+    );
+  }
+
+  getSubvariantsForVariant(
+    bid: number,
+    timeGranularity: TimeUnit
+  ): Observable<any> {
+    let body = {
+      bid: bid,
+      timeGranularity: timeGranularity,
+    };
+    return this.httpClient.post(
+      ROUTES.BASE_URL + ROUTES.SUBVARIANT_PERFORMANCE + 'subvariants',
+      body
+    );
   }
 }

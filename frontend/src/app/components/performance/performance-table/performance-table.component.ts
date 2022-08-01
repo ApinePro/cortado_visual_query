@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { PerformanceStats } from '../../variant-explorer/model';
+import { PerformanceStats } from 'src/app/objects/Variants/variant_element';
 
 @Component({
   selector: 'app-performance-table',

@@ -1,24 +1,31 @@
-import { SharedDataService } from '../../../services/sharedDataService/shared-data.service';
 import { ColorMapService } from '../../../services/colorMapService/color-map.service';
-import { Variant, VariantElement } from '../model';
 import {
   AfterViewInit,
   Component,
   ElementRef,
   Inject,
+  OnInit,
   QueryList,
   Renderer2,
   ViewChild,
   ViewChildren,
 } from '@angular/core';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
-import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';
-import { SubVariantComponent } from '../sub-variant/sub-variant.component';
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
+import { SubVariantComponent } from './subvariants/sub-variant/sub-variant.component';
 import { ImageExportService } from 'src/app/services/imageExportService/image-export-service';
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import * as d3 from 'd3';
-import { LeafNode } from '../model';
+import { LogService } from 'src/app/services/logService/log.service';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import {
+  LeafNode,
+  VariantElement,
+} from 'src/app/objects/Variants/variant_element';
+import { Variant } from 'src/app/objects/Variants/variant';
+import { BackendService } from 'src/app/services/backendService/backend.service';
+import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
+import { SubvariantVisualization } from 'src/app/objects/Variants/subvariant';
 
 @Component({
   selector: 'app-subvariant-explorer',
@@ -27,10 +34,14 @@ import { LeafNode } from '../model';
 })
 export class SubvariantExplorerComponent
   extends LayoutChangeDirective
-  implements AfterViewInit
+  implements AfterViewInit, OnInit
 {
   mainVariant: Variant;
+  subvariants;
   public colorMap: Map<string, string>;
+  public serviceTimeColorMap: any;
+  public waitingTimeColorMap: any;
+  isPerformanceMode: boolean = false;
 
   @ViewChild(VariantDrawerDirective)
   mainvariantDrawer: VariantDrawerDirective;
@@ -47,17 +58,28 @@ export class SubvariantExplorerComponent
     elRef: ElementRef,
     renderer: Renderer2,
     private colorMapService: ColorMapService,
-    private sharedDataService: SharedDataService,
+    private logService: LogService,
     private imageExportService: ImageExportService,
-    private polygonDrawingService: PolygonDrawingService
+    private polygonDrawingService: PolygonDrawingService,
+    private backendService: BackendService,
+    public variantPerformanceService: VariantPerformanceService
   ) {
     super(elRef.nativeElement, renderer);
     this.mainVariant = this.container.initialState as Variant;
-    this.colorMap = this.colorMapService.getColorMap(
-      Object.keys(this.sharedDataService.activitiesInEventLog)
-    );
+    this.colorMap = this.colorMapService.colorMap;
     this.sortAscending = false;
     this.svgRenderingInProgress = false;
+  }
+
+  ngOnInit(): void {
+    this.backendService
+      .getSubvariantsForVariant(
+        this.mainVariant.bid,
+        this.logService.logGranularity
+      )
+      .subscribe((r) => {
+        this.subvariants = r;
+      });
   }
 
   ngAfterViewInit() {
@@ -65,6 +87,25 @@ export class SubvariantExplorerComponent
       this.colorMap = cMap;
       this.mainvariantDrawer.redraw();
     });
+
+    this.variantPerformanceService.serviceTimeColorMap.subscribe((colorMap) => {
+      if (colorMap !== undefined) {
+        this.serviceTimeColorMap = colorMap;
+        this.mainvariantDrawer.redraw();
+      }
+    });
+
+    this.variantPerformanceService.waitingTimeColorMap.subscribe((colorMap) => {
+      if (colorMap !== undefined) {
+        this.waitingTimeColorMap = colorMap;
+        this.mainvariantDrawer.redraw();
+      }
+    });
+
+    this.variantPerformanceService.variantPerformanceMode.subscribe(
+      (isPerformanceModeActive) =>
+        this.setPerformanceMode(isPerformanceModeActive)
+    );
   }
 
   // Implements responsive changes, such as triggering animations, if the layout and thus the components size changes
@@ -86,7 +127,15 @@ export class SubvariantExplorerComponent
     defaultZIndex: string
   ): void {}
 
+  subvariantClickCallBack(vis: SubvariantVisualization) {
+    this.mainvariantDrawer.changeSelected(null);
+    this.subVariantComponents.forEach((svc) => svc.changeSelection(vis));
+  }
+
   public toggleExpanded() {
+    if (this.isPerformanceMode) {
+      return;
+    }
     let expanded = this.mainvariantDrawer.isExpanded();
     this.mainvariantDrawer.setExpanded(!expanded);
     this.setExpandedSubVariants(!expanded);
@@ -96,34 +145,28 @@ export class SubvariantExplorerComponent
     this.subVariantComponents.forEach((svc) => svc.setExpanded(expanded));
   }
 
-  computeActivityColor = (
-    self: VariantDrawerDirective,
-    element: VariantElement,
-    variant: Variant
-  ) => {
-    let color;
-    let leafNode = element.asLeafNode();
-    color = this.colorMap.get(leafNode.activity[0]);
-
-    if (!color) {
-      color = '#d3d3d3'; // lightgrey
-    }
-
-    // in this case cuts were not applicable anymore.
-    // The resulting chevron is displayed in gray
-    if (leafNode.activity.length > 1) {
-      color = '#d3d3d3'; // lightgray
-    }
-
-    return color;
-  };
-
-  subvariantClickCallBack = (
-    self: VariantDrawerDirective,
+  variantClickCallBack = (
+    drawer: VariantDrawerDirective,
     element: VariantElement,
     variant: VariantElement
   ) => {
     this.toggleExpanded();
+    if (this.isPerformanceMode) {
+      drawer.changeSelected(element);
+      this.subVariantComponents.forEach((svc) => svc.changeSelection(null));
+      if (element.serviceTime) {
+        this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
+          element.serviceTime,
+          true
+        );
+      }
+      if (element.waitingTime) {
+        this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
+          element.waitingTime,
+          false
+        );
+      }
+    }
   };
 
   toggleSortOrder(): void {
@@ -141,7 +184,7 @@ export class SubvariantExplorerComponent
       } else return order;
     };
 
-    this.mainVariant.sub_variants.sort(subvariantSortFunction);
+    this.subvariants.sort(subvariantSortFunction);
   }
 
   exportSubvariantSVG(): void {
@@ -158,7 +201,7 @@ export class SubvariantExplorerComponent
     this.svgRenderingInProgress = true;
 
     // Add the main variant to the SVG array
-    const mainVariantSVG = this.addVariantInformation(
+    const mainVariantSVG = this.addVariantExportInformation(
       this.mainvariantDrawer.getSVGGraphicElement(),
       100,
       100,
@@ -177,7 +220,7 @@ export class SubvariantExplorerComponent
     // Prepare frequency informations of the subvariants
     const counts = [];
     const percentages = [];
-    for (let subVariant of this.mainVariant.sub_variants) {
+    for (let subVariant of this.subvariants) {
       counts.push(subVariant.count);
       percentages.push(subVariant.percentage);
     }
@@ -185,7 +228,7 @@ export class SubvariantExplorerComponent
     // Add frequency informations of the subvariants
     // The first svg is the main variant, so index starts from 1
     for (let i = 1; i < svgs.length; i++) {
-      svgs[i] = this.addVariantInformation(
+      svgs[i] = this.addVariantExportInformation(
         svgs[i],
         counts[i - 1],
         percentages[i - 1],
@@ -196,7 +239,7 @@ export class SubvariantExplorerComponent
     // Draw the legend and insert it to the start of the svg array
     const legend = d3.create('svg').attr('x', '10').attr('y', '10');
     let leafnodes: LeafNode[] = [];
-    for (let activity in this.sharedDataService.activitiesInEventLog) {
+    for (let activity in this.logService.activitiesInEventLog) {
       leafnodes.push(new LeafNode([activity]));
     }
     this.polygonDrawingService.drawLegend(
@@ -209,7 +252,7 @@ export class SubvariantExplorerComponent
 
     // Export to an SVG file
     this.imageExportService.export(
-      `subvariants-for-${this.mainVariant.number}`,
+      `subvariants-for-${this.mainVariant.bid}`,
       0,
       0,
       ...svgs
@@ -225,7 +268,7 @@ export class SubvariantExplorerComponent
     this.svgRenderingInProgress = false;
   }
 
-  addVariantInformation(
+  addVariantExportInformation(
     svgElement: any,
     variantAbs: number,
     variantPerc: number,
@@ -300,6 +343,68 @@ export class SubvariantExplorerComponent
     }
     return svgElement_copy;
   }
+
+  public setPerformanceModeClicked(performanceMode: boolean) {
+    if (
+      performanceMode &&
+      !this.variantPerformanceService.performanceInformationLoaded
+    )
+      this.variantPerformanceService
+        .addPerformanceInformationToVariants()
+        .subscribe();
+    else
+      this.variantPerformanceService.variantPerformanceMode.next(
+        performanceMode
+      );
+  }
+
+  private setPerformanceMode(performanceMode: boolean) {
+    this.isPerformanceMode = performanceMode;
+
+    if (this.isPerformanceMode) {
+      this.mainvariantDrawer.setExpanded(true);
+      this.setExpandedSubVariants(true);
+    }
+  }
+
+  computeActivityColor = (
+    self: VariantDrawerDirective,
+    element: VariantElement,
+    variant: Variant
+  ) => {
+    let color;
+
+    if (element instanceof LeafNode) {
+      color = this.colorMap.get(element.asLeafNode().activity[0]);
+
+      // in this case cuts were not applicable anymore.
+      // The resulting chevron is displayed in gray
+      if (element.activity.length > 1) {
+        color = '#d3d3d3'; // lightgray
+      }
+
+      if (element.serviceTime?.mean !== undefined && this.isPerformanceMode) {
+        let stat = this.variantPerformanceService.serviceTimeStatistic;
+        color = this.serviceTimeColorMap(element.serviceTime[stat]);
+        if (color == undefined) {
+          color = '#d3d3d3'; // lightgrey
+        }
+      } else if (this.isPerformanceMode && variant.variant?.serviceTime) {
+        color = '#d3d3d3';
+      }
+    } else {
+      if (this.isPerformanceMode && element.waitingTime?.mean !== undefined) {
+        let stat = this.variantPerformanceService.waitingTimeStatistic;
+        color = this.waitingTimeColorMap(element.waitingTime[stat]);
+      }
+    }
+
+    if (!color) {
+      color = '#d3d3d3'; // lightgrey
+    }
+
+    return color;
+  };
 }
 
 export namespace SubvariantExplorerComponent {

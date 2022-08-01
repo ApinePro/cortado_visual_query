@@ -1,0 +1,1120 @@
+import { VARIANT_Constants } from 'src/app/constants/variant_element_drawer_constants';
+import {
+  setParent,
+  isElementWithActivity,
+  someChildrenSelected,
+  allChildrenSelected,
+} from './infix_selection';
+
+export class PerformanceStats {
+  public min: number;
+  public max: number;
+  public mean: number;
+  public median: number;
+  public stdev: number | undefined = 0;
+  public n: number;
+
+  constructor(dict) {
+    if (dict) {
+      this.min = dict['min'];
+      this.max = dict['max'];
+      this.mean = dict['mean'];
+      this.median = dict['median'];
+      this.stdev = dict['stdev'] || 0;
+      this.n = dict['n'];
+    }
+  }
+}
+
+export abstract class VariantElement {
+  public expanded: boolean = false;
+  public serviceTime: PerformanceStats;
+  public waitingTime: PerformanceStats;
+  public waitingTimeStart: PerformanceStats;
+  public waitingTimeEnd: PerformanceStats;
+  public selected: boolean = false;
+  public selectable: boolean = true;
+
+  public height;
+  width;
+
+  public inspectionMode = false;
+
+  public parent;
+
+  public selectionHistory = [{ selected: false, selectable: true }]; // contains JSON objects {"selectable": boolean, "selected": boolean}
+  public currentIdxSelectionHistory = 0;
+
+  constructor(performance: any = undefined) {
+    this.serviceTime = performance?.service_time;
+    this.waitingTime = performance?.wait_time;
+    this.waitingTimeStart = performance?.wait_time_start;
+    this.waitingTimeEnd = performance?.wait_time_end;
+    this.parent = null;
+  }
+
+  public asSequenceGroup(): SequenceGroup {
+    let self: unknown = this;
+    return <SequenceGroup>self;
+  }
+
+  public asParallelGroup(): ParallelGroup {
+    let self: unknown = this;
+    return <ParallelGroup>self;
+  }
+
+  public asLeafNode(): LeafNode {
+    let self: unknown = this;
+    return <LeafNode>self;
+  }
+
+  public setExpanded(expanded: boolean) {
+    this.expanded = expanded;
+  }
+
+  public getExpanded(): boolean {
+    return this.expanded;
+  }
+
+  // Creates a deep copy of a Variant Element
+  public copy(): VariantElement {
+    if (this instanceof ParallelGroup) {
+      return this.asParallelGroup().copy();
+    } else if (this instanceof SequenceGroup) {
+      return this.asSequenceGroup().copy();
+    } else {
+      return this.asLeafNode().copy();
+    }
+  }
+
+  public getElements() {
+    if (this instanceof ParallelGroup) {
+      return this.asParallelGroup().getElements();
+    } else if (this instanceof SequenceGroup) {
+      return this.asSequenceGroup().getElements();
+    } else {
+      return null;
+    }
+  }
+
+  public setElements(children: VariantElement[]) {
+    if (this instanceof ParallelGroup) {
+      this.asParallelGroup().setElements(children);
+      setParent(this);
+    } else if (this instanceof SequenceGroup) {
+      this.asSequenceGroup().setElements(children);
+      setParent(this);
+    }
+  }
+
+  public getHeadLength() {
+    return (
+      Math.tan((VARIANT_Constants.ARROW_HEAD_ANGLE / 360) * Math.PI * 2) *
+      (this.getHeight() / 2)
+    );
+  }
+
+  public getMarginX() {
+    return VARIANT_Constants.MARGIN_X;
+  }
+
+  public getMarginY() {
+    return VARIANT_Constants.MARGIN_Y;
+  }
+
+  public abstract getHeight(): number;
+  public abstract getWidth(includeWaiting): number;
+
+  public abstract recalculateWidth(includeWaiting): number;
+  public abstract recalculateHeight(includeWaiting): number;
+
+  public abstract updateWidth(includeWaiting);
+
+  public abstract serialize(l): Object;
+
+  public abstract calculateSelectableElements(): void;
+  public abstract getActivities(): Set<string>;
+
+  public setSelectable(): void {
+    this.selectable = true;
+  }
+
+  public disableSelectableAllChildren(): void {
+    this.selectable = false;
+    if (this instanceof ParallelGroup || this instanceof SequenceGroup) {
+      for (let elem of this.elements) {
+        elem.disableSelectableAllChildren();
+      }
+    }
+  }
+
+  public setAllChildrenSelected(): void {
+    this.selected = true;
+    if (this instanceof SequenceGroup || this instanceof ParallelGroup) {
+      for (let child of this.elements) {
+        child.setAllChildrenSelected();
+      }
+    }
+  }
+
+  public resetSelectionStatus(): void {
+    this.selected = false;
+    this.selectable = true;
+    this.selectionHistory = [{ selected: false, selectable: true }];
+    this.currentIdxSelectionHistory = 0;
+    if (this instanceof SequenceGroup || this instanceof ParallelGroup) {
+      for (let child of this.elements) {
+        child.resetSelectionStatus();
+      }
+    }
+  }
+
+  public applySelectionHistory(): void {
+    let toBeApplied = this.selectionHistory[this.currentIdxSelectionHistory];
+    this.selected = toBeApplied['selected'];
+    this.selectable = toBeApplied['selectable'];
+  }
+
+  public saveCurrentSelectionToSelectionHistory(): void {
+    let toBeInserted = {
+      selected: this.selected,
+      selectable: this.selectable,
+    };
+    this.selectionHistory.splice(
+      this.currentIdxSelectionHistory + 1,
+      this.selectionHistory.length - this.currentIdxSelectionHistory - 1,
+      toBeInserted
+    );
+    this.currentIdxSelectionHistory++;
+    if (this instanceof SequenceGroup || this instanceof ParallelGroup) {
+      for (let child of this.getElements()) {
+        if (isElementWithActivity(child)) {
+          child.saveCurrentSelectionToSelectionHistory();
+        }
+      }
+    }
+  }
+
+  public undoSelection(): void {
+    if (this.currentIdxSelectionHistory > 0) {
+      this.currentIdxSelectionHistory--;
+      this.applySelectionHistory();
+      if (this instanceof SequenceGroup || this instanceof ParallelGroup) {
+        for (let child of this.getElements()) {
+          if (isElementWithActivity(child)) {
+            child.undoSelection();
+          }
+        }
+      }
+    }
+  }
+
+  public redoSelection(): void {
+    if (this.currentIdxSelectionHistory < this.selectionHistory.length - 1) {
+      this.currentIdxSelectionHistory++;
+      this.applySelectionHistory();
+      if (this instanceof SequenceGroup || this instanceof ParallelGroup) {
+        for (let child of this.getElements()) {
+          if (isElementWithActivity(child)) {
+            child.redoSelection();
+          }
+        }
+      }
+    }
+  }
+
+  public selectionStatusUnchangedFromLastSavedSelection(): boolean {
+    let checkpoint = this.selectionHistory[this.currentIdxSelectionHistory];
+    let unchanged =
+      this.selected == checkpoint['selected'] &&
+      this.selectable == checkpoint['selectable'];
+    if (this instanceof LeafNode) {
+      return unchanged;
+    } else if (this instanceof ParallelGroup || this instanceof SequenceGroup) {
+      for (let child of this.getElements()) {
+        if (isElementWithActivity(child)) {
+          unchanged =
+            unchanged && child.selectionStatusUnchangedFromLastSavedSelection();
+        }
+      }
+      return unchanged;
+    }
+  }
+
+  public abstract asString(): string;
+  public abstract deleteActivity(
+    activityName: string
+  ): [VariantElement[], boolean];
+  public abstract renameActivity(
+    activityName: string,
+    newActivityName: string
+  ): void;
+}
+
+export class SequenceGroup extends VariantElement {
+  public getActivities(): Set<string> {
+    const res: Set<string> = new Set<string>();
+
+    this.elements.forEach((e) => e.getActivities().forEach((a) => res.add(a)));
+
+    return res;
+  }
+
+  public renameActivity(activityName: string, newActivityName: string) {
+    this.elements.forEach((e) => {
+      e.renameActivity(activityName, newActivityName);
+    });
+  }
+
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    let newElems: VariantElement[] = [];
+
+    for (let elem of this.elements) {
+      if (!(elem instanceof WaitingTimeNode)) {
+        const [variantElements, isFallthrough] =
+          elem.deleteActivity(activityName);
+
+        if (isFallthrough) {
+          // Found a Fallthrough Stop Early
+          console.warn('Found a Fallthrough');
+          return [[], true];
+        } else {
+          // We append the result
+          if (variantElements) {
+            newElems = newElems.concat(variantElements);
+            variantElements.forEach((e) => (e.parent = this));
+          }
+        }
+      }
+    }
+
+    if (
+      newElems.length > 1 ||
+      (newElems.length === 1 &&
+        !this.parent &&
+        !(this instanceof InvisibleSequenceGroup))
+    ) {
+      this.elements = newElems;
+      return [[this], false];
+    } else if (newElems.length === 1) {
+      if (newElems[0] instanceof ParallelGroup) {
+        return [newElems[0].elements, false];
+      } else {
+        return [newElems, false];
+      }
+    } else {
+      return [null, false];
+    }
+  }
+
+  public asString(): string {
+    return (
+      '->(' +
+      this.elements
+        .filter((v) => {
+          return !(v instanceof WaitingTimeNode);
+        })
+        .map((v) => {
+          return v.asString();
+        })
+        .join(', ') +
+      ')'
+    );
+  }
+
+  constructor(public elements: VariantElement[], performance: any = undefined) {
+    super(performance);
+  }
+
+  public setExpanded(expanded: boolean) {
+    super.setExpanded(expanded);
+
+    for (let el of this.elements) {
+      el.setExpanded(expanded);
+    }
+  }
+
+  public setElements(elements: VariantElement[]) {
+    this.elements = elements;
+  }
+
+  public getElements() {
+    return this.elements;
+  }
+
+  public getHeight(): number {
+    if (this.height) {
+      return this.height;
+    }
+    return this.recalculateHeight();
+  }
+
+  public getWidth(includeWaiting = false): number {
+    if (this.width) {
+      return this.width;
+    }
+    return this.recalculateWidth(includeWaiting);
+  }
+
+  public getServiceTime(): Object {
+    throw new Error('Method not implemented.');
+  }
+
+  public getWaitingTime(): Object {
+    throw new Error('Method not implemented.');
+  }
+
+  public updateWidth(includeWaiting) {
+    for (let el of this.elements) {
+      el.updateWidth(includeWaiting);
+    }
+  }
+
+  public copy(): SequenceGroup {
+    const res = new SequenceGroup(this.elements.map((e) => e.copy()));
+    res.expanded = this.expanded;
+    return res;
+  }
+
+  public recalculateHeight(): number {
+    this.elements.forEach((el) => (el.height = undefined));
+    this.height =
+      Math.max(...this.elements.map((el: VariantElement) => el.getHeight())) +
+      this.getMarginY() * 2;
+    return this.height;
+  }
+
+  public recalculateWidth(includeWaiting = false): number {
+    this.elements.forEach((el) => (el.width = undefined));
+    this.width =
+      this.elements
+        .filter((el) => !(el instanceof WaitingTimeNode) || includeWaiting)
+        .map((el: VariantElement) => el.getWidth(includeWaiting))
+        .reduce((a: number, b: number) => a + b) +
+      2 * this.getMarginX() +
+      this.getHeadLength() -
+      this.elements[0].getHeadLength();
+    return this.width;
+  }
+
+  public serialize(l = 1): any {
+    return {
+      follows: this.elements
+        .map((e) => e.serialize(l))
+        .flat()
+        .filter((e) => e !== null),
+    };
+  }
+
+  public calculateSelectableElements(): void {
+    // Get all variant element containing activities
+    let indexes = [];
+    for (let i = 0; i < this.elements.length; i++) {
+      if (isElementWithActivity(this.elements[i])) {
+        indexes.push(i);
+        // Set correct selected status
+        this.elements[i].selected = allChildrenSelected(
+          this.elements[i],
+          this.elements[i].selected
+        );
+      }
+    }
+
+    // Handling the InvisibleSequenceGroup case
+    if (this instanceof InvisibleSequenceGroup) {
+      let onlyChild = this.elements[indexes[0]];
+      if (onlyChild.selected) {
+        this.selected = true;
+      }
+
+      onlyChild.calculateSelectableElements();
+
+      return;
+    }
+
+    // Check if the parent element is itself selected
+    let selected = true;
+    for (let k = 0; k < indexes.length; k++) {
+      selected = selected && this.elements[indexes[k]].selected;
+    }
+    this.selected = selected;
+
+    // Check which children are selectable
+
+    // First, check if a child is only partly selected
+    // If yes, set all other children to be not selectable and call this function on that child
+    let partlySelected = -1;
+    for (let p = 0; p < indexes.length; p++) {
+      let elem = this.elements[indexes[p]];
+      if (
+        someChildrenSelected(elem, elem.selected) &&
+        !allChildrenSelected(elem, elem.selected)
+      ) {
+        partlySelected = p;
+        for (let z = 0; z < indexes.length; z++) {
+          if (z != partlySelected) {
+            this.elements[indexes[z]].disableSelectableAllChildren();
+          }
+        }
+
+        elem.calculateSelectableElements();
+        break;
+      }
+    }
+
+    // If no children is partly selected, then selection happens on this level
+    // Then calculate the next selectable elements
+    if (partlySelected === -1) {
+      let first = -1;
+      let last = -Math.max(); // Infinity
+      // First selected child
+      for (let j = 0; j < indexes.length; j++) {
+        if (this.elements[indexes[j]].selected) {
+          first = j;
+          break;
+        }
+      }
+      // Last selected child
+      for (let l = indexes.length - 1; l >= 0; l--) {
+        if (this.elements[indexes[l]].selected) {
+          last = l;
+          break;
+        }
+      }
+      // Adding two new selectable elements, disabling selection in lower levels
+      if (first > 0) {
+        this.elements[indexes[first - 1]].disableSelectableAllChildren();
+        this.elements[indexes[first - 1]].setSelectable();
+      }
+      if (last < indexes.length - 1) {
+        this.elements[indexes[last + 1]].disableSelectableAllChildren();
+        this.elements[indexes[last + 1]].setSelectable();
+      }
+      // Set all other elements to be not selectable
+      for (let m = 0; m < first - 1; m++) {
+        this.elements[indexes[m]].disableSelectableAllChildren();
+      }
+      for (let n = indexes.length - 1; n > last + 1; n--) {
+        this.elements[indexes[n]].disableSelectableAllChildren();
+      }
+    }
+  }
+}
+
+export class ParallelGroup extends VariantElement {
+  public getActivities(): Set<string> {
+    const res: Set<string> = new Set<string>();
+
+    this.elements.forEach((e) => e.getActivities().forEach((a) => res.add(a)));
+
+    return res;
+  }
+
+  public renameActivity(activityName: string, newActivityName: string) {
+    this.elements.forEach((e) => {
+      e.renameActivity(activityName, newActivityName);
+    });
+  }
+
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    let newElems = [];
+
+    for (let elem of this.elements) {
+      if (!(elem instanceof WaitingTimeNode)) {
+        const [variantElements, isFallthrough] =
+          elem.deleteActivity(activityName);
+
+        if (isFallthrough) {
+          // Found a Fallthrough Stop Early
+          return [[], true];
+        } else {
+          // We append the result
+          if (variantElements) {
+            newElems = newElems.concat(variantElements);
+            variantElements.forEach((e) => (e.parent = this));
+          }
+        }
+      }
+    }
+
+    if (newElems.length > 1) {
+      this.elements = newElems;
+      return [[this], false];
+    } else if (newElems.length === 1) {
+      if (newElems[0] instanceof SequenceGroup) {
+        return [newElems[0].elements, false];
+      } else {
+        return [newElems, false];
+      }
+    } else {
+      return [null, false];
+    }
+  }
+
+  constructor(public elements: VariantElement[], performance: any = undefined) {
+    super(performance);
+  }
+
+  public asString(): string {
+    return (
+      '+(' +
+      this.elements
+        .filter((v) => {
+          return !(v instanceof WaitingTimeNode);
+        })
+        .map((v) => {
+          return v.asString();
+        })
+        .join(', ') +
+      ')'
+    );
+  }
+
+  public setExpanded(expanded: boolean) {
+    super.setExpanded(expanded);
+
+    for (let el of this.elements) {
+      el.setExpanded(expanded);
+    }
+  }
+
+  public setElements(elements: VariantElement[]) {
+    this.elements = elements;
+  }
+
+  public getElements() {
+    return this.elements;
+  }
+
+  public getHeight(): number {
+    if (this.height) {
+      return this.height;
+    }
+    return this.recalculateHeight();
+  }
+
+  public getWidth(includeWaiting = false): number {
+    if (this.width) {
+      return this.width;
+    }
+    return this.recalculateWidth(includeWaiting);
+  }
+
+  public copy(): ParallelGroup {
+    const res = new ParallelGroup(this.elements.map((e) => e.copy()));
+    res.expanded = this.expanded;
+    return res;
+  }
+
+  public updateWidth(includeWaiting) {
+    let headLength = this.getHeadLength();
+    for (let el of this.elements) {
+      el.width = this.width - VARIANT_Constants.MARGIN_X - 2 * headLength;
+    }
+
+    for (let el of this.elements) {
+      el.updateWidth(includeWaiting);
+    }
+  }
+
+  public recalculateHeight(): number {
+    this.elements.forEach((el) => (el.height = undefined));
+    this.height =
+      this.elements
+        .map((el: VariantElement) => el.getHeight() + this.getMarginY())
+        .reduce((a: number, b: number) => a + b) + VARIANT_Constants.MARGIN_Y;
+    return this.height;
+  }
+
+  public recalculateWidth(includeWaiting = false): number {
+    this.elements.forEach((el) => (el.width = undefined));
+    let headLength = this.getHeadLength();
+    this.width =
+      Math.max(
+        ...this.elements
+          .filter((el) => !(el instanceof WaitingTimeNode) || includeWaiting)
+          .map((el: VariantElement) => el.getWidth(includeWaiting))
+      ) +
+      VARIANT_Constants.MARGIN_X +
+      2 * headLength;
+    return this.width;
+  }
+
+  public serialize(l = 1) {
+    return {
+      parallel: this.elements
+        .map((e) => e.serialize(l))
+        .flat()
+        .filter((e) => e !== null),
+    };
+  }
+
+  public calculateSelectableElements(): void {
+    // Get all variant element containing activities
+    let indexes = [];
+    for (let i = 0; i < this.elements.length; i++) {
+      if (isElementWithActivity(this.elements[i])) {
+        indexes.push(i);
+        // Set correct selected status
+        this.elements[i].selected = allChildrenSelected(
+          this.elements[i],
+          this.elements[i].selected
+        );
+      }
+      // Handling InvisibleSequenceGroup
+      if (this.elements[i] instanceof InvisibleSequenceGroup) {
+        this.elements[i].calculateSelectableElements();
+      }
+    }
+
+    // Check if the parent element is itself selected
+    let selected = true;
+    for (let k = 0; k < indexes.length; k++) {
+      selected = selected && this.elements[indexes[k]].selected;
+    }
+    this.selected = selected;
+
+    // Check which children are selectable
+    // First check if there is a partly selected child. If yes, only allow selection within that child
+    let partlySelected = -1;
+    for (let p = 0; p < indexes.length; p++) {
+      let elem = this.elements[indexes[p]];
+      if (
+        someChildrenSelected(elem, elem.selected) &&
+        !allChildrenSelected(elem, elem.selected)
+      ) {
+        partlySelected = p;
+        for (let z = 0; z < indexes.length; z++) {
+          if (z != partlySelected) {
+            this.elements[indexes[z]].disableSelectableAllChildren();
+          }
+        }
+        elem.calculateSelectableElements();
+        break;
+      }
+    }
+
+    if (partlySelected === -1) {
+      // No partly selected child found
+      // Then all unselected children are selectable, but only at this level
+      for (let child of this.elements) {
+        if (!child.selected) {
+          child.disableSelectableAllChildren();
+          child.setSelectable();
+        }
+        if (child instanceof InvisibleSequenceGroup) {
+          for (let i = 0; i < child.elements.length; i++) {
+            if (isElementWithActivity(child.elements[i])) {
+              child.elements[i].setSelectable();
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+export class LeafNode extends VariantElement {
+  public getActivities(): Set<string> {
+    return new Set<string>(this.activity);
+  }
+
+  public renameActivity(activityName: string, newActivityName: string) {
+    this.activity = this.activity.map((a) => {
+      return a === activityName ? newActivityName : a;
+    });
+  }
+
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    if (this.activity.includes(activityName)) {
+      if (this.activity.length > 1) {
+        return [[this], true];
+      } else {
+        return [null, false];
+      }
+    }
+
+    return [[this], false];
+  }
+
+  public textLength: number = 10;
+
+  public asString(): string {
+    return this.activity.join(';');
+  }
+
+  constructor(public activity: string[], performance: any = undefined) {
+    super(performance);
+  }
+
+  public getHeight(): number {
+    this.height =
+      this.activity.length *
+      (VARIANT_Constants.FONT_SIZE + 2 * VARIANT_Constants.MARGIN_Y);
+    return this.height;
+  }
+
+  public getWidth(
+    includeWaiting = false,
+    full_text_width: boolean = false
+  ): number {
+    if (this.width) {
+      return this.width;
+    }
+    if (this.expanded || includeWaiting) {
+      this.width = VARIANT_Constants.LEAF_WIDTH_EXPANDED;
+    } else if (full_text_width) {
+      this.width = this.activity[0].length * VARIANT_Constants.CHAR_WIDTH;
+    } else {
+      this.width = VARIANT_Constants.LEAF_WIDTH;
+    }
+    this.width += VARIANT_Constants.MARGIN_X;
+
+    this.width = Math.max(
+      this.width * 0.75 + this.getHeadLength() * 2,
+      this.width - this.getHeadLength() * 2
+    );
+
+    return this.width;
+  }
+
+  public updateWidth() {}
+
+  public recalculateHeight(): number {
+    this.height = VARIANT_Constants.LEAF_HEIGHT;
+    return this.height;
+  }
+
+  public copy(): LeafNode {
+    const res = new LeafNode([...this.activity]);
+    res.expanded = this.expanded;
+    return res;
+  }
+
+  public recalculateWidth(): number {
+    if (this.expanded) {
+      this.width = VARIANT_Constants.LEAF_WIDTH_EXPANDED;
+    } else {
+      this.width = VARIANT_Constants.LEAF_WIDTH;
+    }
+    this.width += VARIANT_Constants.MARGIN_X;
+    return this.width;
+  }
+
+  public serialize(l = 1) {
+    return { leaf: this.activity };
+  }
+
+  public calculateSelectableElements(): void {
+    // pass
+  }
+}
+
+export class LeafLoopNode extends VariantElement {
+
+  public getActivities(): Set<string> {
+   return this.leafNode.getActivities();
+  }
+  public asString(): string {
+    return 'LOOP' + this.leafNode.asString();
+  }
+
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    return this.leafNode.deleteActivity(activityName); // TODO IMPLEMENT THIS CORRECTLY
+  }
+
+  public renameActivity(activityName: string, newActivityName: string): void {
+    return this.leafNode.renameActivity(activityName, newActivityName) // TODO IMPLEMENT THIS CORRECTLY
+  }
+
+  public setExpanded(expanded: boolean) {
+    super.setExpanded(expanded);
+    this.leafNode.setExpanded(expanded);
+  }
+
+  public getWidth(includeWaiting: any): number {
+    return this.leafNode.getWidth();
+  }
+  public recalculateWidth(includeWaiting: any): number {
+    return this.leafNode.recalculateWidth();
+  }
+  public updateWidth(includeWaiting: any) {}
+
+  public serialize(l = 1): Object {
+    const leaf = this.leafNode.serialize(l);
+    const res = [];
+
+    // Serialize it as l+1 many activites of the folded loop,
+    for (let k; k < l + 1; k++) {
+      res.push(leaf);
+    }
+
+    return res;
+  }
+
+  public calculateSelectableElements(): void {}
+
+  leafNode: LeafNode;
+
+  constructor(activity: string) {
+    super();
+    this.leafNode = new LeafNode([activity], null);
+  }
+
+  public getHeight(): number {
+    return this.leafNode.getHeight() + 30;
+  }
+
+  public recalculateHeight(): number {
+    return VARIANT_Constants.LEAF_HEIGHT + 30;
+  }
+}
+
+export class WaitingTimeNode extends VariantElement {
+  public getActivities(): Set<string> {
+    return new Set<string>();
+  }
+
+  public renameActivity(activityName: string, newActivityName: string) {}
+
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    return [null, false];
+  }
+
+  public asString(): string {
+    return '';
+  }
+
+  constructor(waitingTime: PerformanceStats) {
+    super({ wait_time: waitingTime });
+  }
+
+  public getHeight(): number {
+    return VARIANT_Constants.LEAF_HEIGHT;
+  }
+
+  public getWidth(): number {
+    if (this.width) {
+      return this.width;
+    }
+    if (this.expanded) {
+      this.width = VARIANT_Constants.WAITING_WIDTH_EXPANDED;
+    } else {
+      this.width = VARIANT_Constants.WAITING_WIDTH;
+    }
+    this.width += VARIANT_Constants.MARGIN_X;
+
+    return this.width;
+  }
+
+  public updateWidth() {}
+
+  public recalculateHeight(): number {
+    this.height = VARIANT_Constants.LEAF_HEIGHT;
+    return this.height;
+  }
+
+  public recalculateWidth(): number {
+    if (this.expanded) {
+      this.width = VARIANT_Constants.LEAF_WIDTH_EXPANDED;
+    } else {
+      this.width = VARIANT_Constants.LEAF_WIDTH;
+    }
+    this.width += VARIANT_Constants.MARGIN_X;
+    return this.width;
+  }
+
+  public serialize(l = 1) {
+    return null;
+  }
+
+  public calculateSelectableElements(): void {
+    // pass
+  }
+}
+
+export class InvisibleSequenceGroup extends SequenceGroup {
+  public asString(): string {
+    return this.elements
+      .filter((e) => {
+        return !(e instanceof WaitingTimeNode);
+      })[0]
+      .asString();
+  }
+
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    return this.elements
+      .filter((e) => {
+        return !(e instanceof WaitingTimeNode);
+      })[0]
+      .deleteActivity(activityName);
+  }
+
+  public getMarginX() {
+    return 0;
+  }
+
+  public getMarginY() {
+    return 0;
+  }
+
+  public updateWidth(includeWaiting = false) {
+    let waiting = includeWaiting ? 1 : 0;
+    let waitingLengths = this.elements
+      .filter((e) => e instanceof WaitingTimeNode)
+      .map((e) => e.getWidth(true))
+      .reduce((a, b) => a + b, 0);
+    this.elements
+      .filter((e) => !(e instanceof WaitingTimeNode))
+      .forEach((e) => (e.width = this.width - waitingLengths * waiting));
+    return this.width;
+  }
+
+  public serialize(l = 1) {
+    return this.elements.map((e) => e.serialize(l)).filter((e) => e !== null);
+  }
+}
+
+export class StartGroup extends VariantElement {
+  public getActivities(): Set<string> {
+    return new Set<string>();
+  }
+  public asString(): string {
+    return 'END'
+  }
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    return [[this], false]
+  }
+  public renameActivity(activityName: string, newActivityName: string): void {
+
+  }
+  public calculateSelectableElements(): void {}
+
+  public getHeight(): number {
+    return VARIANT_Constants.LEAF_HEIGHT;
+  }
+
+  public getWidth(includeWaiting: any): number {
+    return 25;
+  }
+
+  public recalculateWidth(includeWaiting: any): number {
+    return 25;
+  }
+
+  public recalculateHeight(includeWaiting: any): number {
+    return VARIANT_Constants.LEAF_HEIGHT;
+  }
+
+  public updateWidth(includeWaiting: any) {}
+
+  public serialize(l = 1): Object {
+    return { start: true };
+  }
+}
+
+export class EndGroup extends VariantElement {
+
+  public getActivities(): Set<string> {
+    return new Set<string>();
+  }
+  public asString(): string {
+    return 'START'
+  }
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    return [[this], false]
+  }
+  public renameActivity(activityName: string, newActivityName: string): void {
+
+  }
+
+  public calculateSelectableElements(): void {}
+
+  public getHeight(): number {
+    return VARIANT_Constants.LEAF_HEIGHT;
+  }
+
+  public getWidth(includeWaiting: any): number {
+    return 25;
+  }
+
+  public recalculateWidth(includeWaiting: any): number {
+    return 25;
+  }
+
+  public recalculateHeight(includeWaiting: any): number {
+    return VARIANT_Constants.LEAF_HEIGHT;
+  }
+  public updateWidth(includeWaiting: any) {}
+
+  public serialize(l = 1): Object {
+    return { end: true };
+  }
+}
+
+export function deserialize(obj: any): VariantElement {
+  if ('follows' in obj) {
+    return new SequenceGroup(
+      obj['follows'].map((e: any) => deserialize(e)).filter((e) => e),
+      obj['performance']
+    );
+  } else if ('parallel' in obj) {
+    return new ParallelGroup(
+      obj['parallel'].map((e: any) => deserialize(e)).filter((e) => e),
+      obj['performance']
+    );
+  } else if ('leaf' in obj) {
+    if (obj['leaf'][0].includes('_LOOP')) {
+      return new LeafLoopNode(obj['leaf'][0].replace('_LOOP', ''));
+    } else {
+      return new LeafNode(obj['leaf'], obj['performance']);
+    }
+  }
+}
+
+
+export function injectWaitingTimeNodes(variants: VariantElement[]) {
+  variants.forEach((v) => injectWaitingTimeNodesVariant(v));
+}
+
+export function injectWaitingTimeNodesVariant(variant: VariantElement) {
+  if (variant instanceof SequenceGroup) {
+    variant
+      .asSequenceGroup()
+      .elements.filter((v) => !(v instanceof LeafNode))
+      .forEach((e) => injectWaitingTimeNodesVariant(e));
+
+    for (let i = 0; i < variant.asSequenceGroup().elements.length; i++) {
+      let v = variant.asSequenceGroup().elements[i];
+
+      if (v.waitingTime?.mean !== undefined) {
+        let wait = new WaitingTimeNode(v.waitingTime);
+        v.waitingTime = undefined;
+        variant.elements.splice(i, 0, wait);
+        i += 1;
+      }
+    }
+  }
+
+  if (variant instanceof ParallelGroup) {
+    variant
+      .asParallelGroup()
+      .elements.filter((v) => !(v instanceof LeafNode))
+      .forEach((e) => injectWaitingTimeNodesVariant(e));
+
+    for (let i = 0; i < variant.asSequenceGroup().elements.length; i++) {
+      let v = variant.asParallelGroup().elements[i];
+      let waitGroup = [v];
+      if (v.waitingTimeStart?.mean !== undefined) {
+        let wait = new WaitingTimeNode(v.waitingTimeStart);
+        waitGroup.splice(0, 0, wait);
+      }
+
+      if (v.waitingTimeEnd?.mean !== undefined) {
+        let wait = new WaitingTimeNode(v.waitingTimeEnd);
+        waitGroup.splice(waitGroup.length, 0, wait);
+      }
+      variant.elements[i] = new InvisibleSequenceGroup(waitGroup);
+    }
+  }
+}

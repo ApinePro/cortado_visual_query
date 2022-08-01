@@ -8,6 +8,7 @@ import { Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { BackendService } from '../../services/backendService/backend.service';
 import { ComponentItemConfig, LayoutManager, Side } from 'golden-layout';
+import { VariantService } from 'src/app/services/variantService/variant.service';
 
 @Component({
   selector: 'app-header-bar',
@@ -18,9 +19,11 @@ export class HeaderBarComponent {
   @ViewChild('fileUploadEventLog') fileUploadEventLog: ElementRef;
   @ViewChild('fileUploadProcessTree') fileUploadProcessTree: ElementRef;
 
+  public exportVariant = ExportVariant;
   showSettingsEvent: Subject<void> = new Subject<void>();
 
   constructor(
+    private variantService: VariantService,
     private backendService: BackendService,
     private _elRef: ElementRef<HTMLElement>,
     private goldenLayoutComponentService: GoldenLayoutComponentService
@@ -213,4 +216,61 @@ export class HeaderBarComponent {
       itemConfig
     );
   }
+
+  exportVariantsAsLog(type: ExportVariant) {
+    const variant = this.variantService.variants;
+    switch (type) {
+      case ExportVariant.ALL:
+        this.backendService.exportEventLogFromLog(variant.map((v) => v.bid));
+        break;
+
+      case ExportVariant.FITTING:
+        this.backendService.exportEventLogFromLog(
+          variant
+            .filter((v) => {
+              return !v.deviation;
+            })
+            .map((v) => v.bid)
+        );
+        break;
+
+      case ExportVariant.NONFITTING:
+        this.backendService.exportEventLogFromLog(
+          variant
+            .filter((v) => {
+              return v.deviation;
+            })
+            .map((v) => v.bid)
+        );
+        break;
+
+      case ExportVariant.SELECTED:
+        this.backendService.exportEventLogFromLog(
+          variant
+            .filter((v) => {
+              return v.isSelected;
+            })
+            .map((v) => v.bid)
+        );
+        break;
+
+      case ExportVariant.DISPLAYED:
+        this.backendService.exportEventLogFromLog(
+          variant
+            .filter((v) => {
+              return v.isDisplayed;
+            })
+            .map((v) => v.bid)
+        );
+        break;
+    }
+  }
+}
+
+export enum ExportVariant {
+  ALL = 1,
+  FITTING = 2,
+  NONFITTING = 3,
+  SELECTED = 4,
+  DISPLAYED = 5,
 }

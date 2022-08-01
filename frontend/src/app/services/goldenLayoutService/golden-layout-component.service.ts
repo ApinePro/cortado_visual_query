@@ -1,4 +1,3 @@
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import {
   ComponentFactoryResolver,
   Injectable,
@@ -15,10 +14,8 @@ import {
   LayoutManager,
   RowOrColumn,
 } from 'golden-layout';
-import { take } from 'rxjs/operators';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
-import { LayoutChangeDirective } from '../../directives/layout-change.directive';
-import { ProcessTreeEditorComponent } from 'src/app/components/process-tree-editor/process-tree-editor.component';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 
 @Injectable({
   providedIn: 'root',

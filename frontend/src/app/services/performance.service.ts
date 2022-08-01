@@ -1,33 +1,41 @@
 import { Injectable } from '@angular/core';
-import { Variant, VariantElement } from '../components/variant-explorer/model';
-import { ProcessTree, TreePerformance } from '../objects/ProcessTree';
+import {
+  ProcessTree,
+  TreePerformance,
+} from '../objects/ProcessTree/ProcessTree';
 import { BackendService } from './backendService/backend.service';
-import { SharedDataService } from './sharedDataService/shared-data.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { ActivateTooltipsService } from './activateTooltipsService/activate-tooltips.service';
 import { HumanizeDurationPipe } from '../pipes/humanize-duration.pipe';
 import { ProcessTreeService } from './processTreeService/process-tree.service';
+import { VariantService } from './variantService/variant.service';
+import { Variant } from '../objects/Variants/variant';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PerformanceService {
   mergedPerformance: ProcessTree;
+
   // key is variant, value is process tree
   variantsPerformance: Map<Variant, ProcessTree> = new Map<
     Variant,
     ProcessTree
   >();
+
   availablePerformances: Set<Variant> = new Set<Variant>();
+
   // key is id of node, value is map with performance stats for each variant
   allValues: Map<number, Map<Variant, TreePerformance>> = new Map<
     number,
     Map<Variant, TreePerformance>
   >();
+
   allValuesMean: Map<number, TreePerformance> = new Map<
     number,
     TreePerformance
   >();
+
   // colorScale for each tree node;
   activeVariant: Variant = undefined;
   treeSelection: BehaviorSubject<ProcessTree> =
@@ -36,17 +44,34 @@ export class PerformanceService {
   calculationInProgress = new Set<Variant>();
   latestRequest: Subscription;
   fitness = new Map<Variant, number>();
+
+  _performanceMode: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
+    false
+  );
+
+  set performanceMode(value: boolean) {
+    this._performanceMode.next(value);
+  }
+
+  get performanceMode() {
+    return this._performanceMode.value;
+  }
+
+  get performanceMode$() {
+    return this._performanceMode.asObservable();
+  }
+
   private currentPt: ProcessTree;
 
   constructor(
-    private sharedDataService: SharedDataService,
+    private variantService: VariantService,
     private backendService: BackendService,
     private tooltipService: ActivateTooltipsService,
     private processTreeService: ProcessTreeService
   ) {
     this.currentPt = processTreeService.currentDisplayedProcessTree;
 
-    this.sharedDataService.variants$.subscribe((_variants) => {
+    this.variantService.variants$.subscribe((_variants) => {
       this.clear();
     });
     processTreeService.currentDisplayedProcessTree$.subscribe((pt) => {
@@ -101,12 +126,15 @@ export class PerformanceService {
       }
     });
 
-    const variantElements: VariantElement[] = variants.map((v) => v.variant);
+    const variantBIDs: number[] = variants.map((v) => v.bid);
     variants
       .filter((v) => !this.availablePerformances.has(v))
       .forEach((v) => this.calculationInProgress.add(v));
     this.latestRequest = this.backendService
-      .getTreePerformance(variantElements, removeVariants)
+      .getTreePerformance(
+        variantBIDs,
+        removeVariants?.map((v) => v.bid)
+      )
       .subscribe(
         (performance) => {
           this.mergedPerformance = ProcessTree.fromObj(
@@ -128,10 +156,8 @@ export class PerformanceService {
           variants.forEach((v) => this.availablePerformances.add(v));
           this.newValues.next(true);
 
-          console.log('TRIGGERED REDRAW AT PERFROMANCE SERVICE');
-          this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
-            performance.merged_performance_tree
-          );
+          this.processTreeService.currentDisplayedProcessTree =
+            performance.merged_performance_tree;
 
           variants.forEach((v) => this.calculationInProgress.delete(v));
 
@@ -145,12 +171,14 @@ export class PerformanceService {
           if (variants.length === 0) {
             this.clear();
             return;
+          } else {
+            this.performanceMode = true;
           }
 
           variants.forEach((v) => {
             // TODO: use currently selected performanceIndicator and statistic
             const performanceButton = document.getElementById(
-              `performanceButton${v.number}`
+              `performanceButton${v.bid}`
             );
             const vPerformance =
               this.variantsPerformance.get(v)?.performance?.service_time?.mean;
@@ -165,18 +193,13 @@ export class PerformanceService {
           });
         },
         (error) => {
-          console.log(error);
           variants.forEach((v) => this.calculationInProgress.clear());
         }
       );
   }
 
   public unselectPerformance() {
-    console.log('TRIGGERED REDRAW AT UNSELECT PERFORMANCE');
-    this.processTreeService.currentDisplayedProcessTree = this.clearProcessTree(
-      this.processTreeService.currentDisplayedProcessTree
-    );
-
+    this.performanceMode = false;
     this.activeVariant = null;
   }
 
@@ -200,6 +223,7 @@ export class PerformanceService {
     tooltipText = `${tooltipText}<hr class="performance-tooltip-hr">click to visualize performance of this variant on model`;
 
     button.setAttribute('title', tooltipText);
+    this.tooltipService.destroyTooltip(button);
     this.tooltipService.initializeTooltip(button);
   }
 
@@ -237,12 +261,22 @@ export class PerformanceService {
   public setShownVariantPerformance(variant: Variant): void {
     this.activeVariant = variant;
     if (this.variantsPerformance.has(variant)) {
-      console.log('TRIGGERED REDRAW AT SHOW VARIANT PERFORMANCE');
-      this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
-        this.variantsPerformance.get(variant)
-      );
+      this.processTreeService.currentDisplayedProcessTree =
+        this.variantsPerformance.get(variant);
+      this.performanceMode = true;
     } else {
-      console.error(`No performance values available: ${Variant}`);
+      console.error(`No performance values available: ${variant}`);
+    }
+  }
+
+  showMeanPerformance() {
+    if (this.activeVariant === undefined) {
+      this.unselectPerformance();
+    } else {
+      this.activeVariant = undefined;
+      this.performanceMode = true;
+      this.processTreeService.currentDisplayedProcessTree =
+        this.mergedPerformance;
     }
   }
 
@@ -256,19 +290,7 @@ export class PerformanceService {
     this.calculationInProgress.clear();
     this.treeSelection.next(undefined);
 
-    if (this.currentPt) {
-      // TODO Change this to allow Performance Tree Cleanup
-      //this.sharedDataService.currentDisplayedProcessTree =
-      //  this.clearProcessTree(this.currentPt);
-    }
-  }
-
-  private clearProcessTree(tree: ProcessTree) {
-    let copy: any = {};
-    Object.assign(copy, tree);
-    copy.performance = undefined;
-    copy.children = copy.children.map((t) => this.clearProcessTree(t));
-    return copy;
+    this.performanceMode = false;
   }
 
   private deletePerformance(variant: Variant) {

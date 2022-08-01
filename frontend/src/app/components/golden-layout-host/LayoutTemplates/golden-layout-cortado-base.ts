@@ -19,8 +19,8 @@ export const baseLayout: LayoutConfig = {
   dimensions: {
     borderWidth: 0.75,
     borderGrabWidth: 10,
-    minItemHeight: 30,
-    minItemWidth: 30,
+    minItemHeight: 10,
+    minItemWidth: 10,
   },
   settings: {
     showPopoutIcon: false,
@@ -106,7 +106,7 @@ export const baseLayout: LayoutConfig = {
                   show: false,
                 },
                 width: 38.197,
-                isClosable: true,
+                isClosable: false,
                 reorderEnabled: true,
                 title: 'Model Performance',
                 id: ModelPerformanceComponent.componentName,
@@ -119,7 +119,7 @@ export const baseLayout: LayoutConfig = {
                   show: false,
                 },
                 width: 38.197,
-                isClosable: true,
+                isClosable: false,
                 reorderEnabled: true,
                 title: 'Variant Performane',
                 id: VariantPerformanceComponent.componentName,
