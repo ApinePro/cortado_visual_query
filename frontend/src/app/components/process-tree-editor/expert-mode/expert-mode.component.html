@@ -1,6 +1,6 @@
 <div
   class="expert-mode-open-button"
-  [@opencloseExpertMode]="editorActive ? 'openExpertMode' : 'closeExpertMode'"
+  [@openCloseComponent]="editorActive ? 'openComponent' : 'closeComponent'"
 >
   <div
     class="expert-mode-header expert-mode-button d-flex"
@@ -12,8 +12,8 @@
 
   <div
     class="expert-mode-app-container"
-    [@fadeInOutExpertMode]="
-      editorActive ? 'fadeInExpertMode' : 'fadeOutExpertMode'
+    [@fadeInOutComponent]="
+      editorActive ? 'fadeInComponent' : 'fadeOutComponent'
     "
   >
     <form class="form" [formGroup]="syntaxTreeInput" (ngSubmit)="onSubmit()">

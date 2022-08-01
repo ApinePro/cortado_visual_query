@@ -9,7 +9,7 @@ import * as constants from './predefinedColors';
 export class ColorMapService {
   constructor() {}
 
-  getColorMap(activities: string[]): Map<string, string> {
+  createColorMap(activities: string[]): void {
     //TODO: ensure activities are ordered based on frequency
     const colorMap: Map<string, string> = new Map();
     activities.sort();
@@ -17,14 +17,12 @@ export class ColorMapService {
       colorMap.set(a, this.get_color(i));
     });
     this._colorMap.next(colorMap);
-    return colorMap;
   }
 
-  changeActivityColor(activity: string, color: string): Map<string, string> {
+  changeActivityColor(activity: string, color: string): void {
     let colorMap: Map<string, string> = this._colorMap.getValue();
     colorMap.set(activity, color);
     this._colorMap.next(colorMap);
-    return colorMap;
   }
 
   // tslint:disable-next-line:variable-name
@@ -32,6 +30,10 @@ export class ColorMapService {
 
   get colorMap$(): Observable<Map<string, string>> {
     return this._colorMap.asObservable().pipe(filter((map) => map !== null));
+  }
+
+  get colorMap(): Map<string, string> {
+    return this._colorMap.getValue();
   }
 
   set colorMap(newColorMap: Map<string, string>) {
@@ -55,5 +57,17 @@ export class ColorMapService {
     const color =
       '#' + (0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6);
     return color;
+  }
+
+  public deleteActivityInColorMap(activityName: string) {
+    this.colorMap.delete(activityName);
+  }
+
+  public renameColorInActivityColorMap(activityName, newActivityName) {
+    if (!this.colorMap.get(newActivityName)) {
+      this.colorMap.set(newActivityName, this.colorMap.get(activityName));
+    }
+
+    this.colorMap.delete(activityName);
   }
 }

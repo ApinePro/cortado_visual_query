@@ -16,13 +16,12 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { VariantExplorerComponent } from './components/variant-explorer/variant-explorer.component';
 import { ActivityOverviewComponent } from './components/activity-overview/activity-overview.component';
 import { HttpRequestInterceptor } from './interceptors/http-request.interceptor';
-import { VariantFragmentComponent } from './components/variant-explorer/variant-fragment/variant-fragment.component';
-import { VariantInfoComponent } from './components/variant-explorer/variant-info/variant-info.component';
+import { VariantInfoComponent } from './components/variant-explorer/variant/subcomponents/variant-info/variant-info.component';
 import { ModelPerformanceComponent } from './components/performance/performance.component';
 import { HumanizeDurationPipe } from './pipes/humanize-duration.pipe';
 import { VariantPerformanceComponent } from './components/variant-performance/variant-performance.component';
 import { InfoBoxComponent } from './components/info-box/info-box.component';
-import { VariantSelectionButtonComponent } from './components/variant-explorer/variant-selection-button/variant-selection-button.component';
+import { VariantSelectionButtonComponent } from './components/variant-explorer/variant/subcomponents/variant-selection-button/variant-selection-button.component';
 import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
 import { SubvariantExplorerComponent } from './components/variant-explorer/subvariant-explorer/subvariant-explorer.component';
@@ -32,27 +31,33 @@ import { PerformanceTableComponent } from './components/performance/performance-
 import { ColorMapComponent } from './components/performance/color-map/color-map.component';
 import { TreePerformanceColorMapComponent } from './components/performance/tree-performance-color-map/tree-performance-color-map.component';
 import { ExpertModeComponent } from './components/process-tree-editor/expert-mode/expert-mode.component';
-import { ContentEditableDirective } from './directives/content-editable-directive.directive';
 import { SettingsComponent } from './components/settings/settings.component';
 import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 import { TreeStringRendererComponent } from './components/tree-string-renderer/tree-string-renderer.component';
 import { TooltipDirective } from './directives/tooltip/tooltip.directive';
 import { VariantEditorComponent } from './components/variant-editor/variant-editor.component';
-import { VariantDrawerDirective } from './directives/variant-drawer.directive';
 import { VariantComponent } from './components/variant-explorer/variant/variant.component';
-import { VariantConformanceDialogComponent } from './components/variant-explorer/variant-conformance-dialog/variant-conformance-dialog.component';
+import { VariantConformanceDialogComponent } from './components/variant-explorer/conformance-info/variant-conformance-dialog/variant-conformance-dialog.component';
 import { BpmnEditorComponent } from './components/bpmn-editor/bpmn-editor.component';
 import { GoldenLayoutDummyComponent } from './components/golden-layout-host/golden-layout-dummy/golden-layout-dummy.component';
-import { SubVariantComponent } from './components/variant-explorer/sub-variant/sub-variant.component';
+import { SubVariantComponent } from './components/variant-explorer/subvariant-explorer/subvariants/sub-variant/sub-variant.component';
 import { ActivityButtonAreaComponent } from './components/variant-editor/activity-button-area/activity-button-area.component';
 import { HeaderBarComponent } from './components/header-bar/header-bar.component';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { DialogModule } from './components/dialogs/dialog.module';
 import { VariantQueryComponent } from './components/variant-explorer/variant-query/variant-query.component';
-import { SyntaxHighlightedTextareaDirective } from './directives/syntax-highlighted-textarea.directive';
-import { ConformanceInfoBarComponent } from './components/variant-explorer/info-bar/conformance-info-bar.component';
+import { ConformanceInfoBarComponent } from './components/variant-explorer/conformance-info/info-bar/conformance-info-bar.component';
 import { initApp, InitService } from './services/init.service';
-import { VariantQueryInfoComponent } from './components/variant-explorer/variant-query-info/variant-query-info.component';
+import { VariantQueryInfoComponent } from './components/variant-explorer/variant-query/query-info/variant-query-info/variant-query-info.component';
+import { VariantExplorerContextMenuComponent } from './components/variant-explorer/variant-explorer-context-menu/variant-explorer-context-menu.component';
+import { ContentEditableDirective } from './directives/content-editable/content-editable.directive';
+import { SyntaxHighlightedTextareaDirective } from './directives/syntax-highlighted-textarea/syntax-highlighted-textarea.directive';
+import { VariantDrawerDirective } from './directives/variant-drawer/variant-drawer.directive';
+import { ProcessTreeDrawerDirective } from './directives/process-tree-drawer/process-tree-drawer.directive';
+import { BpmnDrawerDirective } from './directives/bpmn-drawer/bpmn-drawer.directive';
+import { TreePerformanceButtonComponent } from './components/variant-explorer/variant/subcomponents/tree-performance-button/tree-performance-button.component';
+import { InfixSelectionControllsComponent } from './components/variant-explorer/variant/subcomponents/infix-selection-controlls/infix-selection-controlls.component';
+import { ZoomFieldComponent } from './components/zoom-field/zoom-field.component';
 
 @NgModule({
   declarations: [
@@ -62,7 +67,6 @@ import { VariantQueryInfoComponent } from './components/variant-explorer/variant
     ActivityOverviewSortingPipe,
     GoldenLayoutHostComponent,
     VariantExplorerComponent,
-    VariantFragmentComponent,
     VariantInfoComponent,
     ModelPerformanceComponent,
     HumanizeDurationPipe,
@@ -100,6 +104,12 @@ import { VariantQueryInfoComponent } from './components/variant-explorer/variant
     GoldenLayoutDummyComponent,
     ConformanceInfoBarComponent,
     VariantQueryInfoComponent,
+    VariantExplorerContextMenuComponent,
+    ProcessTreeDrawerDirective,
+    BpmnDrawerDirective,
+    TreePerformanceButtonComponent,
+    InfixSelectionControllsComponent,
+    ZoomFieldComponent,
   ],
   imports: [
     BrowserModule,
@@ -128,7 +138,6 @@ import { VariantQueryInfoComponent } from './components/variant-explorer/variant
   ],
   entryComponents: [
     VariantExplorerComponent,
-    VariantFragmentComponent,
     ActivityOverviewComponent,
     ProcessTreeEditorComponent,
     VariantInfoComponent,
