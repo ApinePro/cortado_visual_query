@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { Toast } from 'bootstrap';
 import { fromEvent } from 'rxjs';
+import { ToastEvent } from 'src/app/objects/toast-event';
 
 @Component({
   selector: 'app-toast',
@@ -22,9 +23,9 @@ export class ToastComponent implements OnInit {
   toastEl!: ElementRef;
 
   @Input()
-  message!: string;
+  toastEvent: ToastEvent;
 
-  toast!: Toast;
+  toast: Toast;
 
   ngOnInit() {
     this.show();
@@ -32,8 +33,8 @@ export class ToastComponent implements OnInit {
 
   show() {
     this.toast = new Toast(this.toastEl.nativeElement, {
-      autohide: true,
-      delay: 5000,
+      autohide: this.toastEvent.autoclose,
+      delay: this.toastEvent.delay,
     });
 
     fromEvent(this.toastEl.nativeElement, 'hidden.bs.toast').subscribe(() =>

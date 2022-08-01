@@ -250,7 +250,11 @@ export class VariantComponent implements AfterViewInit {
       this.sharedDataService.variants = currentVariants;
     }
 
-    this.toastService.showSuccessToast('Added infix');
+    this.toastService.showToast(
+      'Variant Explorer',
+      `New infix added at position ${currentVariants.length}`,
+      'bi-list-ul'
+    );
     this.resetSelectionStatus();
   }
 

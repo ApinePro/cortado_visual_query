@@ -1,5 +1,5 @@
-<div class="position-fixed bottom-0 end-0 pe-1 pb-4">
+<div class="position-fixed top-0 end-0 me-1 toaster-top-margin">
   <div *ngFor="let toast of currentToasts; index as i">
-    <app-toast [message]="toast.text" (disposeEvent)="dispose(i)"></app-toast>
+    <app-toast [toastEvent]="toast" (disposeEvent)="dispose(i)"></app-toast>
   </div>
 </div>

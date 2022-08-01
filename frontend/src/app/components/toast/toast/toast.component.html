@@ -1,20 +1,21 @@
 <div
-  class="toast"
+  class="toast bg-dark secondary-text-color"
   role="alert"
   aria-live="assertive"
   aria-atomic="true"
   #toastElement
 >
-  <div class="toast-header">
-    <img src="..." class="rounded me-2" alt="..." />
-    <strong class="me-auto">Bootstrap</strong>
-    <small>11 mins ago</small>
+  <div class="toast-header toast-header-bg">
+    <i class="bi secondary-text-color" [ngClass]="toastEvent.icon"></i>
+    <strong class="me-auto ms-2 secondary-text-color">{{
+      toastEvent.title
+    }}</strong>
     <button
       type="button"
-      class="btn-close"
+      class="btn-close btn-close-white"
       data-bs-dismiss="toast"
       aria-label="Close"
     ></button>
   </div>
-  <div class="toast-body">{{ message }}</div>
+  <div class="toast-body bg-dark">{{ toastEvent.body }}</div>
 </div>
