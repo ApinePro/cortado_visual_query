@@ -444,6 +444,8 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     polygon: any,
     isLeafNode: boolean
   ) {
+    if (this.performanceMode) return;
+
     if (element.selected) {
       polygon.attr('stroke-opacity', '0.5');
       if (!element.isVisibleParentSelected())
