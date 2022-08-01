@@ -168,8 +168,6 @@ export function compute_rename_activity_variants(
 }
 
 export function addVariantInformation(variants: Variant[]): Variant[] {
-  injectWaitingTimeNodes(variants.map((v) => v.variant));
-
   variants.forEach((v, i) => {
     v.isConformanceOutdated = true;
     v.userDefined = false;

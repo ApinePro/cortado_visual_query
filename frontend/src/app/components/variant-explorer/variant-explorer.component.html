@@ -4,11 +4,13 @@
   (fileOnHover)="toggleBlur($event)"
 ></app-drop-zone>
 
+<app-performance-progress-bar> </app-performance-progress-bar>
+
 <div class="sidebar" [style.width.px]="sidebarHeigth">
   <div
     class="sidebar-button"
     [ngClass]="!performanceMode ? 'active' : ''"
-    (click)="setPerformanceMode(false)"
+    (click)="setPerformanceModeClicked(false)"
   >
     <span class="sidebar-button-text user-select-none"> Standard View</span>
   </div>
@@ -16,7 +18,7 @@
   <div
     class="sidebar-button"
     [ngClass]="performanceMode ? 'active' : ''"
-    (click)="setPerformanceMode(true)"
+    (click)="setPerformanceModeClicked(true)"
   >
     <span class="sidebar-button-text user-select-none"> Performance View </span>
   </div>
@@ -25,7 +27,10 @@
 <div
   class="d-flex flex-column h-100 container-variant-explorer"
   #variantExplorerContainer
-  [class.blurOutOfFocus]="variantExplorerOutOfFocus"
+  [class.blurOutOfFocus]="
+    variantExplorerOutOfFocus ||
+    variantPerformanceService.performanceUpdateIsInProgress
+  "
 >
   <div class="bg-dark btn-tool-bar">
     <i

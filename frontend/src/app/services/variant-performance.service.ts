@@ -1,15 +1,20 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, from, Observable, of } from 'rxjs';
+import { map, finalize, concatMap, tap } from 'rxjs/operators';
 import * as d3 from 'd3';
 import { LogService } from './logService/log.service';
 import { VariantService } from './variantService/variant.service';
+import { injectWaitingTimeNodes } from 'src/app/objects/Variants/variant_element';
+
 import {
   VariantElement,
   LeafNode,
   ParallelGroup,
   SequenceGroup,
   WaitingTimeNode,
+  deserialize,
 } from '../objects/Variants/variant_element';
+import { BackendService } from './backendService/backend.service';
 
 // https://observablehq.com/@philippkoytek/celonis-data-visualization-colors
 export const COLORS_CYAN = [
@@ -58,6 +63,11 @@ export class VariantPerformanceService {
   private _serviceTimeStatistic = 'mean';
   private _waitingTimeStatistic = 'mean';
 
+  public performanceInformationLoaded: boolean = false;
+  public performanceUpdateIsInProgress: boolean = false;
+  public performanceUpdateProgress: number = 0;
+  private results = new Map<string, any>();
+
   get serviceTimeStatistic() {
     return this._serviceTimeStatistic;
   }
@@ -104,12 +114,16 @@ export class VariantPerformanceService {
 
   constructor(
     private logService: LogService,
-    private variantService: VariantService
+    private variantService: VariantService,
+    private backendService: BackendService
   ) {
     this.logService.loadedEventLog$.subscribe((log) => {
       if (log !== undefined) {
         this.updateServiceTimeColorMap();
         this.updateWaitingTimeColorMap();
+        this.performanceInformationLoaded = false;
+        this.performanceUpdateProgress = 0;
+        this.results = new Map<string, any>();
       }
     });
 
@@ -241,5 +255,48 @@ export class VariantPerformanceService {
         .forEach((v) => values.push(...v));
     }
     return values;
+  }
+
+  addVariantPerformanceResults(chunkResult) {
+    for (const [k, v] of Object.entries(chunkResult)) {
+      this.results.set(k, v);
+    }
+  }
+
+  addPerformanceInformationToVariants(): Observable<any> {
+    this.performanceUpdateIsInProgress = true;
+    let chunks = [];
+    const nVariants = this.variantService.variants.length;
+    for (let i = 0; i < nVariants; i += 100) {
+      chunks.push([i, Math.min(i + 99, nVariants - 1)]);
+    }
+
+    return from(chunks).pipe(
+      concatMap((chunk) =>
+        this.backendService.getLogBasedPerformance(chunk[0], chunk[1])
+      ),
+      tap((res) => {
+        this.addVariantPerformanceResults(res);
+        this.performanceUpdateProgress = this.results.size / nVariants;
+      }),
+      finalize(() => {
+        this.variantService.variants.forEach((v) => {
+          if (!v.userDefined) {
+            v.variant = deserialize(this.results.get(v.bid.toString()));
+          }
+        });
+        this.updateServiceTimeColorMap();
+        this.updateWaitingTimeColorMap();
+        injectWaitingTimeNodes(
+          this.variantService.variants.map((v) => v.variant)
+        );
+
+        setTimeout(() => {
+          this.performanceInformationLoaded = true;
+          this.performanceUpdateIsInProgress = false;
+          this.variantPerformanceMode.next(true);
+        }, 1000);
+      })
+    );
   }
 }

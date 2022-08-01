@@ -1,8 +1,10 @@
+<app-performance-progress-bar></app-performance-progress-bar>
+
 <div class="sidebar">
   <div
     class="sidebar-button"
     [ngClass]="!isPerformanceMode ? 'active' : ''"
-    (click)="setPerformanceMode(false)"
+    (click)="setPerformanceModeClicked(false)"
   >
     <span class="sidebar-button-text"> Standard View</span>
   </div>
@@ -10,14 +12,19 @@
   <div
     class="sidebar-button"
     [ngClass]="isPerformanceMode ? 'active' : ''"
-    (click)="setPerformanceMode(true)"
+    (click)="setPerformanceModeClicked(true)"
   >
     Performance View
   </div>
 </div>
 
 <div class="d-flex flex-column h-100 container-variant-explorer">
-  <div class="main-variant-explorer flex-grow-1">
+  <div
+    class="main-variant-explorer flex-grow-1"
+    [class.blurOutOfFocus]="
+      variantPerformanceService.performanceUpdateIsInProgress
+    "
+  >
     <div class="bg-dark btn-tool-bar">
       <div *ngIf="svgRenderingInProgress" class="full-body-spinner">
         <div class="svg-rendering-status">

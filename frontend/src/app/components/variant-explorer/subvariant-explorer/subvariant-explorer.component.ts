@@ -62,7 +62,7 @@ export class SubvariantExplorerComponent
     private imageExportService: ImageExportService,
     private polygonDrawingService: PolygonDrawingService,
     private backendService: BackendService,
-    private variantPerformanceService: VariantPerformanceService
+    public variantPerformanceService: VariantPerformanceService
   ) {
     super(elRef.nativeElement, renderer);
     this.mainVariant = this.container.initialState as Variant;
@@ -104,7 +104,7 @@ export class SubvariantExplorerComponent
 
     this.variantPerformanceService.variantPerformanceMode.subscribe(
       (isPerformanceModeActive) =>
-        this.setPerformanceMode(isPerformanceModeActive, false)
+        this.setPerformanceMode(isPerformanceModeActive)
     );
   }
 
@@ -344,19 +344,24 @@ export class SubvariantExplorerComponent
     return svgElement_copy;
   }
 
-  public setPerformanceMode(
-    performanceMode: boolean,
-    forwardUpdate: boolean = true
-  ) {
-    this.isPerformanceMode = performanceMode;
-
-    if (forwardUpdate) {
+  public setPerformanceModeClicked(performanceMode: boolean) {
+    if (
+      performanceMode &&
+      !this.variantPerformanceService.performanceInformationLoaded
+    )
+      this.variantPerformanceService
+        .addPerformanceInformationToVariants()
+        .subscribe();
+    else
       this.variantPerformanceService.variantPerformanceMode.next(
         performanceMode
       );
-    }
+  }
 
-    if (performanceMode) {
+  private setPerformanceMode(performanceMode: boolean) {
+    this.isPerformanceMode = performanceMode;
+
+    if (this.isPerformanceMode) {
       this.mainvariantDrawer.setExpanded(true);
       this.setExpandedSubVariants(true);
     }

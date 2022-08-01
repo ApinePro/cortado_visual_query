@@ -66,10 +66,6 @@ export class VariantPerformanceComponent
       }
     );
   }
-
-  setPerformanceMode(performanceMode: boolean): void {
-    this.variantPerformanceService.variantPerformanceMode.next(performanceMode);
-  }
 }
 
 export namespace VariantPerformanceComponent {

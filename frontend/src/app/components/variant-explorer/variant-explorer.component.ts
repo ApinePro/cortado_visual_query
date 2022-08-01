@@ -22,7 +22,14 @@ import {
   Stack,
 } from 'golden-layout';
 import { Subject } from 'rxjs';
-import { delay, mergeMap, retryWhen, take, tap } from 'rxjs/operators';
+import {
+  delay,
+  finalize,
+  mergeMap,
+  retryWhen,
+  take,
+  tap,
+} from 'rxjs/operators';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
@@ -91,7 +98,7 @@ export class VariantExplorerComponent
     renderer: Renderer2,
     public performanceService: PerformanceService,
     private performanceColorService: ModelPerformanceColorScaleService,
-    private variantPerformanceService: VariantPerformanceService,
+    public variantPerformanceService: VariantPerformanceService,
     private conformanceCheckingService: ConformanceCheckingService,
     private goldenLayoutComponentService: GoldenLayoutComponentService
   ) {
@@ -243,7 +250,7 @@ export class VariantExplorerComponent
 
     this.variantPerformanceService.variantPerformanceMode.subscribe(
       (isPerformanceModeActive) =>
-        this.setPerformanceMode(isPerformanceModeActive, false)
+        this.setPerformanceMode(isPerformanceModeActive)
     );
   }
 
@@ -669,10 +676,23 @@ export class VariantExplorerComponent
       });
   }
 
-  setPerformanceMode(
-    performanceMode: boolean,
-    forwardUpdate: boolean = true
-  ): void {
+  public setPerformanceModeClicked(performanceMode: boolean) {
+    if (
+      performanceMode &&
+      !this.variantPerformanceService.performanceInformationLoaded
+    )
+      this.variantPerformanceService
+        .addPerformanceInformationToVariants()
+        .subscribe();
+    else
+      this.variantPerformanceService.variantPerformanceMode.next(
+        performanceMode
+      );
+  }
+
+  setPerformanceMode(performanceMode: boolean): void {
+    this.performanceMode = performanceMode;
+
     if (performanceMode) {
       this.variants.map((variant) => {
         this.expansionState.set(variant.id, variant.variant.getExpanded());
@@ -681,13 +701,6 @@ export class VariantExplorerComponent
       // Return everything to its previous state
       this.variants.forEach((variant, i) =>
         variant.variant.setExpanded(this.expansionState.get(variant.id))
-      );
-    }
-
-    this.performanceMode = performanceMode;
-    if (forwardUpdate) {
-      this.variantPerformanceService.variantPerformanceMode.next(
-        performanceMode
       );
     }
   }

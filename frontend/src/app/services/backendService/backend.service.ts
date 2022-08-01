@@ -384,6 +384,16 @@ export class BackendService {
     return this.httpClient.get(ROUTES.BASE_URL + ROUTES.LOG + 'resetLogCache');
   }
 
+  getLogBasedPerformance(start: number, end: number): Observable<any> {
+    const body = { start: start, end: end };
+    return this.httpClient.post(
+      ROUTES.BASE_URL +
+        ROUTES.VARIANT_PERFORMANCE +
+        'logBasedVariantPerformance',
+      body
+    );
+  }
+
   getSubvariantsForVariant(
     bid: number,
     timeGranularity: TimeUnit

@@ -1,14 +1,10 @@
-import json
-import pickle
 from collections import Counter
 from typing import Mapping, Tuple
 
-import cache.cache as cache
-from cortado_core.performance.variant_performance import assign_variants_performances
+import backend.cache.cache as cache
 from cortado_core.utils.cvariants import get_concurrency_variants, get_detailed_variants
-from cortado_core.utils.split_graph import Group, LeafGroup, SequenceGroup
+from cortado_core.utils.split_graph import Group
 from cortado_core.utils.timestamp_utils import TimeUnit, get_time_granularity
-from pm4py.algo.filtering.log.variants import variants_filter
 from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.objects.log.util.interval_lifecycle import to_interval
 from pm4py.util.xes_constants import DEFAULT_START_TIMESTAMP_KEY, DEFAULT_TRANSITION_KEY
@@ -43,8 +39,6 @@ def calculate_event_log_properties(
         cache.parameters["lifecycle_available"] = True
 
     res_variants, cache.variants, subvariants = get_c_variants(event_log, use_mp, time_granularity)
-
-    assign_variants_performances(cache.variants)
 
     cache.variants = {
         bid: (variant, traces, subvars)
@@ -101,14 +95,14 @@ def get_c_variants(
 
     total_traces = len(event_log)
     res_variants = []
-    
+
     sub_variants = []
-    
+
     for bid, (v, ts) in enumerate(variants.items()):
 
         variant, sub_vars = create_variant_object(time_granularity, total_traces, bid, v, ts)
         sub_variants.append(sub_vars)
-        
+
         res_variants.append(variant)
 
     return (
@@ -118,10 +112,10 @@ def get_c_variants(
 
 
 def create_variant_object(time_granularity, total_traces, bid, v, ts):
-    
+
     sub_variants = create_subvariants(ts, time_granularity)
-    
-    
+
+
     variant = {
         "count": len(ts),
         "variant": v.serialize(),
@@ -131,7 +125,7 @@ def create_variant_object(time_granularity, total_traces, bid, v, ts):
         "percentage": round(len(ts) / total_traces * 100, 2),
         "nSubVariants": len(sub_variants.keys()),
     }
-    
+
     # If the variant is only a single activity leaf, wrap it up as a sequence
     if "leaf" in variant["variant"].keys() or "parallel" in variant["variant"].keys():
         variant["variant"] = {"follows": [variant["variant"]]}
@@ -140,7 +134,7 @@ def create_variant_object(time_granularity, total_traces, bid, v, ts):
 
 
 def create_subvariants(ts, time_granularity):
-    
+
     sub_vars = get_detailed_variants(ts, time_granularity=time_granularity)
-    
+
     return sub_vars
