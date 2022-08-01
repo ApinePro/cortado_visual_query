@@ -212,7 +212,15 @@ export class VariantComponent implements AfterViewInit {
   addSelectedTraceInfix(): void {
     let isWholeVariantSelected = this.variant.variant.selected;
 
-    if (!this.isAnyInfixSelected || isWholeVariantSelected) return;
+    if (isWholeVariantSelected) {
+      this.toastService.showWarningToast(
+        'Variant Explorer',
+        `A complete variant is selected. It will not be added.`,
+        'bi-list-ul'
+      );
+
+      return;
+    }
 
     let infixType: InfixType = this.getInfixType();
 
@@ -245,14 +253,24 @@ export class VariantComponent implements AfterViewInit {
     const containsDuplicate =
       currentVariants.filter((v) => v.id === newVariant.id).length > 0;
 
-    if (!containsDuplicate) {
-      currentVariants.push(newVariant);
-      this.sharedDataService.variants = currentVariants;
+    if (containsDuplicate) {
+      this.toastService.showWarningToast(
+        'Variant Explorer',
+        `The selected infix is already present in the variant explorer. It will not be added.`,
+        'bi-list-ul'
+      );
+
+      this.resetSelectionStatus();
+
+      return;
     }
 
-    this.toastService.showToast(
+    currentVariants.push(newVariant);
+    this.sharedDataService.variants = currentVariants;
+
+    this.toastService.showSuccessToast(
       'Variant Explorer',
-      `New infix added at position ${currentVariants.length}`,
+      `The selected infix is added at position ${currentVariants.length}.`,
       'bi-list-ul'
     );
     this.resetSelectionStatus();

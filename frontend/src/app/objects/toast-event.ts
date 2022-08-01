@@ -4,4 +4,11 @@ export type ToastEvent = {
   delay: number;
   autoclose: boolean;
   icon: string;
+  type: ToastType;
 };
+
+export enum ToastType {
+  SUCCESS = 0,
+  WARNING = 1,
+  ERROR = 2,
+}

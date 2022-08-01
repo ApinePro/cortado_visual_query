@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { ToastEvent } from 'src/app/objects/toast-event';
+import { ToastEvent, ToastType } from 'src/app/objects/toast-event';
 
 @Injectable({
   providedIn: 'root',
@@ -15,13 +15,36 @@ export class ToastService {
     this.toastEvents = this._toastEvents.asObservable();
   }
 
-  showToast(title: string, body: string, icon: string) {
+  showSuccessToast(title: string, body: string, icon: string) {
     this.showToastWithOptions(
       title,
       body,
       this.defaultDelay,
       this.defaultAutoclose,
-      icon
+      icon,
+      ToastType.SUCCESS
+    );
+  }
+
+  showWarningToast(title: string, body: string, icon: string) {
+    this.showToastWithOptions(
+      title,
+      body,
+      this.defaultDelay,
+      this.defaultAutoclose,
+      icon,
+      ToastType.WARNING
+    );
+  }
+
+  showErrorToast(title: string, body: string, icon: string) {
+    this.showToastWithOptions(
+      title,
+      body,
+      this.defaultDelay,
+      this.defaultAutoclose,
+      icon,
+      ToastType.ERROR
     );
   }
 
@@ -30,7 +53,8 @@ export class ToastService {
     body: string,
     delay: number,
     autoclose: boolean,
-    icon: string
+    icon: string,
+    type: ToastType
   ) {
     this._toastEvents.next({
       title,
@@ -38,6 +62,7 @@ export class ToastService {
       delay,
       autoclose,
       icon,
+      type,
     });
   }
 }

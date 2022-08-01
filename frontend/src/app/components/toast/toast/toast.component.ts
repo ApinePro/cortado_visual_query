@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { Toast } from 'bootstrap';
 import { fromEvent } from 'rxjs';
-import { ToastEvent } from 'src/app/objects/toast-event';
+import { ToastEvent, ToastType } from 'src/app/objects/toast-event';
 
 @Component({
   selector: 'app-toast',
@@ -26,6 +26,8 @@ export class ToastComponent implements OnInit {
   toastEvent: ToastEvent;
 
   toast: Toast;
+
+  ToastType = ToastType;
 
   ngOnInit() {
     this.show();
