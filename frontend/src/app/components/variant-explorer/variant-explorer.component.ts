@@ -55,6 +55,7 @@ import {
   InfixType,
   LeafNode,
   ParallelGroup,
+  SelectableState,
   SequenceGroup,
   setParent,
   Variant,
@@ -862,7 +863,10 @@ export class VariantExplorerComponent
       let lowestSelectableNode = getLowestSelectionActionableElement(element);
 
       if (lowestSelectableNode != variant) {
-        if (lowestSelectableNode.unselectable)
+        if (
+          lowestSelectableNode.infixSelectableState ===
+          SelectableState.Unselectable
+        )
           lowestSelectableNode.setAllChildrenUnselected();
         else lowestSelectableNode.setAllChildrenSelected();
 

@@ -1,3 +1,9 @@
+export enum SelectableState {
+  Selectable = 0,
+  Unselectable = 1,
+  None = 2,
+}
+
 export const isElementWithActivity = (elem: VariantElement) => {
   if (
     elem instanceof ParallelGroup ||
@@ -64,15 +70,13 @@ const updateSelectableAttributesForGroup = (group: any) => {
   let nothingIsSelected = !someChildrenSelected(group);
 
   if (nothingIsSelected) {
-    group.setSelectable(true);
-    group.setNotUnselectable();
+    group.setInfixSelectableState(SelectableState.Selectable, true);
     return;
   }
 
   // initialize all elements with not selectable state
   for (let child of children) {
-    child.setNotSelectable();
-    child.setNotUnselectable();
+    child.setInfixSelectableState(SelectableState.None, true);
   }
 
   // First, check if a child is only partly selected
@@ -84,7 +88,7 @@ const updateSelectableAttributesForGroup = (group: any) => {
     }
 
     if (someChildrenSelected(child)) {
-      child.setSelectable();
+      child.setInfixSelectableState(SelectableState.Selectable);
       updateSelectableAttributesForGroup(child);
       return;
     }
@@ -123,7 +127,10 @@ export const setParent = (root: VariantElement) => {
 };
 
 export const getLowestSelectionActionableElement = (elem: VariantElement) => {
-  if (elem.selectable || elem.unselectable || elem.parent == null) {
+  if (
+    elem.infixSelectableState !== SelectableState.None ||
+    elem.parent == null
+  ) {
     // Selectable or unselectable or root
     return elem;
   } else {
@@ -135,7 +142,7 @@ export const getSelectedChildren = (elem: VariantElement) => {
   if (elem instanceof LeafNode && elem.selected) {
     let ret = elem.copy();
     ret.selected = false;
-    ret.selectable = true;
+    ret.infixSelectableState = SelectableState.Selectable;
     return ret;
   } else if (elem instanceof SequenceGroup || elem instanceof ParallelGroup) {
     let copyElem;
@@ -145,7 +152,8 @@ export const getSelectedChildren = (elem: VariantElement) => {
       copyElem = new ParallelGroup([]);
     }
     copyElem.selected = false;
-    copyElem.selectable = true;
+    copyElem.infixSelectableState = SelectableState.Selectable;
+
     for (let child of elem.elements) {
       if (!(child instanceof WaitingTimeNode) && someChildrenSelected(child)) {
         let newPushedChild;
@@ -278,8 +286,7 @@ export abstract class VariantElement {
   public waitingTimeStart: PerformanceStats;
   public waitingTimeEnd: PerformanceStats;
   public selected: boolean = false;
-  public selectable: boolean = true;
-  public unselectable: boolean = false;
+  public infixSelectableState: SelectableState = SelectableState.Selectable;
 
   public height;
   width;
@@ -377,32 +384,18 @@ export abstract class VariantElement {
 
   public abstract updateSelectionAttributes(): void;
 
-  public setSelectable(recursive: boolean = false): void {
-    this.selectable = true;
+  public setInfixSelectableState(
+    state: SelectableState,
+    recursive: boolean = false
+  ): void {
+    this.infixSelectableState = state;
+
     if (
       recursive &&
       (this instanceof ParallelGroup || this instanceof SequenceGroup)
     ) {
       for (let elem of this.elements) {
-        elem.setSelectable(recursive);
-      }
-    }
-  }
-
-  public setNotSelectable(): void {
-    this.selectable = false;
-    if (this instanceof ParallelGroup || this instanceof SequenceGroup) {
-      for (let elem of this.elements) {
-        elem.setNotSelectable();
-      }
-    }
-  }
-
-  public setNotUnselectable(): void {
-    this.unselectable = false;
-    if (this instanceof ParallelGroup || this instanceof SequenceGroup) {
-      for (let elem of this.elements) {
-        elem.setNotUnselectable();
+        elem.setInfixSelectableState(state, recursive);
       }
     }
   }
@@ -435,7 +428,7 @@ export abstract class VariantElement {
 
   public resetSelectionStatus(): void {
     this.setAllChildrenUnselected();
-    this.setSelectable(true);
+    this.setInfixSelectableState(SelectableState.Selectable, true);
   }
 
   public updateSurroundingSelectableElements() {
@@ -543,7 +536,7 @@ export class SequenceGroup extends VariantElement {
     for (let i = 0; i < children.length; i++) {
       if (children[i].selected) {
         first = i;
-        children[first].unselectable = true;
+        children[first].infixSelectableState = SelectableState.Unselectable;
         break;
       }
     }
@@ -551,17 +544,23 @@ export class SequenceGroup extends VariantElement {
     for (let i = children.length - 1; i >= 0; i--) {
       if (children[i].selected) {
         last = i;
-        children[last].unselectable = true;
+        children[last].infixSelectableState = SelectableState.Unselectable;
         break;
       }
     }
 
     // Adding two new selectable elements, disabling selection in lower levels
     if (first > 0) {
-      children[first - 1].setSelectable();
+      children[first - 1].setInfixSelectableState(
+        SelectableState.Selectable,
+        false
+      );
     }
     if (last < children.length - 1) {
-      children[last + 1].setSelectable();
+      children[last + 1].setInfixSelectableState(
+        SelectableState.Selectable,
+        false
+      );
     }
   }
 }
@@ -658,9 +657,9 @@ export class ParallelGroup extends VariantElement {
     let children = this.elements.filter((c) => isElementWithActivity(c));
     children.forEach((c) => {
       if (!c.selected) {
-        c.setSelectable();
+        c.setInfixSelectableState(SelectableState.Selectable, false);
       } else {
-        c.unselectable = true;
+        c.setInfixSelectableState(SelectableState.Unselectable, false);
       }
     });
   }
@@ -793,12 +792,15 @@ export class InvisibleSequenceGroup extends SequenceGroup {
     return 0;
   }
 
-  public setSelectable(recursive = false): void {
-    this.selectable = true;
+  public setInfixSelectableState(
+    state: SelectableState,
+    recursive = false
+  ): void {
+    this.infixSelectableState = state;
 
     for (let child of this.elements) {
       if (isElementWithActivity(child)) {
-        child.setSelectable(recursive);
+        child.setInfixSelectableState(state, recursive);
       }
     }
   }

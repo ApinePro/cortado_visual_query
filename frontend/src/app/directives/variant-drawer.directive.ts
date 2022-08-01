@@ -19,6 +19,7 @@ import {
   ParallelGroup,
   SequenceGroup,
   VariantElement,
+  SelectableState,
   WaitingTimeNode,
 } from '../components/variant-explorer/model';
 import { ActivateTooltipsService } from '../services/activateTooltipsService/activate-tooltips.service';
@@ -453,7 +454,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       return;
     }
 
-    if (!element.selectable) {
+    if (element.infixSelectableState !== SelectableState.Selectable) {
       polygon.style('fill-opacity', '0.1');
       return;
     }
