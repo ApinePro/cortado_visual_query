@@ -7,9 +7,9 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { Toast } from 'bootstrap';
 import { fromEvent } from 'rxjs';
 import { ToastEvent, ToastType } from 'src/app/objects/toast-event';
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-toast',
@@ -25,7 +25,7 @@ export class ToastComponent implements OnInit {
   @Input()
   toastEvent: ToastEvent;
 
-  toast: Toast;
+  toast: any;
 
   ToastType = ToastType;
 
@@ -34,15 +34,13 @@ export class ToastComponent implements OnInit {
   }
 
   show() {
-    this.toast = new Toast(this.toastEl.nativeElement, {
+    this.toast = new bootstrap.Toast(this.toastEl.nativeElement, {
       autohide: this.toastEvent.autoclose,
       delay: this.toastEvent.delay,
     });
-
     fromEvent(this.toastEl.nativeElement, 'hidden.bs.toast').subscribe(() =>
       this.hide()
     );
-
     this.toast.show();
   }
 
