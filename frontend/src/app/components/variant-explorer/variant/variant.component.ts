@@ -278,11 +278,19 @@ export class VariantComponent implements AfterViewInit {
 
   private getInfixType(): InfixType {
     let children = this.variant.variant.getElements();
-    if (children[0].selected) {
+    if (
+      children[0].selected &&
+      (this.variant.infixType === InfixType.NOT_AN_INFIX ||
+        this.variant.infixType === InfixType.PREFIX)
+    ) {
       return InfixType.PREFIX;
     }
 
-    if (children[children.length - 1].selected) {
+    if (
+      children[children.length - 1].selected &&
+      (this.variant.infixType === InfixType.NOT_AN_INFIX ||
+        this.variant.infixType === InfixType.POSTFIX)
+    ) {
       return InfixType.POSTFIX;
     }
 
