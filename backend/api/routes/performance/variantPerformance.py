@@ -3,7 +3,6 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from backend.cache import cache
-from backend.endpoints import load_event_log
 
 router = APIRouter(tags=["variantPerformance"], prefix="/variantPerformance")
 
@@ -15,11 +14,7 @@ class InputLogBasedVariantPerformance(BaseModel):
 
 @router.post("/logBasedVariantPerformance")
 async def calculate_log_based_performance(data: InputLogBasedVariantPerformance):
-    # TODO niklas check if this works
-    variants = cache.variants
-
-    variants = {k: variants[k] for i, k in enumerate(variants) if data.start <= i <= data.end}
+    variants = {bid: var for bid, var in cache.variants.items() if data.start <= bid <= data.end}
     assign_variants_performances(variants)
 
-    return {i + data.start: v.serialize(include_performance=True) for i, v in
-            enumerate(variants)}
+    return {bid: v[0].serialize(include_performance=True) for bid, v in variants.items()}

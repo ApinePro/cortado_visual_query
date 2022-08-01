@@ -1,14 +1,10 @@
-import json
-import pickle
 from collections import Counter
 from typing import Mapping, Tuple
 
-import cache.cache as cache
-from cortado_core.performance.variant_performance import assign_variants_performances
+import backend.cache.cache as cache
 from cortado_core.utils.cvariants import get_concurrency_variants, get_detailed_variants
-from cortado_core.utils.split_graph import Group, LeafGroup, SequenceGroup
+from cortado_core.utils.split_graph import Group
 from cortado_core.utils.timestamp_utils import TimeUnit, get_time_granularity
-from pm4py.algo.filtering.log.variants import variants_filter
 from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.objects.log.util.interval_lifecycle import to_interval
 from pm4py.util.xes_constants import DEFAULT_START_TIMESTAMP_KEY, DEFAULT_TRANSITION_KEY

@@ -4,6 +4,8 @@ import { map, finalize, concatMap, tap } from 'rxjs/operators';
 import * as d3 from 'd3';
 import { LogService } from './logService/log.service';
 import { VariantService } from './variantService/variant.service';
+import { injectWaitingTimeNodes } from 'src/app/objects/Variants/variant_element';
+
 import {
   VariantElement,
   LeafNode,
@@ -283,12 +285,11 @@ export class VariantPerformanceService {
             v.variant = deserialize(this.results.get(v.bid.toString()));
           }
         });
-        // TODO Niklas check how to handle after refactoring
         this.updateServiceTimeColorMap();
         this.updateWaitingTimeColorMap();
-        // this.injectWaitingTimeNodes(
-        //   this.sharedDataService.variants.map((v) => v.variant)
-        // );
+        injectWaitingTimeNodes(
+          this.variantService.variants.map((v) => v.variant)
+        );
 
         setTimeout(() => {
           this.performanceInformationLoaded = true;
