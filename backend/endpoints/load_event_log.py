@@ -15,7 +15,7 @@ def calculate_event_log_properties(
 ):
 
     if time_granularity is None:
-        time_granularity = get_time_granularity(event_log)
+        time_granularity = min(TimeUnit)
 
     cache.parameters["cur_time_granularity"] = time_granularity
 
