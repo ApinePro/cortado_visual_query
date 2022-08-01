@@ -676,21 +676,6 @@ export class VariantExplorerComponent
       });
   }
 
-  updatePerformanceInformation(forwardUpdate: boolean) {
-    this.variantPerformanceService
-      .addPerformanceInformationToVariants()
-      .pipe(
-        finalize(() => {
-          setTimeout(() => {
-            this.performanceMode = true;
-            if (forwardUpdate)
-              this.variantPerformanceService.variantPerformanceMode.next(true);
-          }, 1000);
-        })
-      )
-      .subscribe();
-  }
-
   public setPerformanceModeClicked(performanceMode: boolean) {
     if (
       performanceMode &&
