@@ -1,5 +1,5 @@
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
-import { InfixType } from 'src/app/components/variant-explorer/model';
+
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { BackendService } from './../../services/backendService/backend.service';
@@ -14,15 +14,9 @@ import {
   ViewChild,
 } from '@angular/core';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
-import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';
+
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
-import {
-  deserialize,
-  LeafNode,
-  Variant,
-  VariantElement,
-} from '../variant-explorer/model';
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
+
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Options } from '@angular-slider/ngx-slider';
@@ -39,7 +33,15 @@ import {
   SubvariantPattern,
   VariantSortKey,
 } from './variant-miner-types';
-import { ProcessTree } from 'src/app/objects/ProcessTree';
+import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
+import { LogService } from 'src/app/services/logService/log.service';
+import { VariantService } from 'src/app/services/variantService/variant.service';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
+import { InfixType } from 'src/app/objects/Variants/infix_selection';
+import { Variant } from 'src/app/objects/Variants/variant';
+import { VariantElement, LeafNode, deserialize } from 'src/app/objects/Variants/variant_element';
 
 @Component({
   selector: 'app-variant-miner',
@@ -70,6 +72,8 @@ export class VariantMinerComponent
     private conformanceCheckingService: ConformanceCheckingService,
     private processTreeService: ProcessTreeService,
     private lazyLoadingServiceService: LazyLoadingServiceService,
+    private logService : LogService,
+    private variantService : VariantService,
     elRef: ElementRef,
     renderer: Renderer2
   ) {
@@ -306,7 +310,7 @@ export class VariantMinerComponent
       }
     });
 
-    this.sharedDataService.variants$.subscribe((variants) => {
+    this.variantService.variants$.subscribe((variants) => {
       this.totalTraces = variants
         .map((variant) => {
           return variant.count;
@@ -363,7 +367,7 @@ export class VariantMinerComponent
       this.colorMap = cMap;
     });
 
-    this.sharedDataService.loadedEventLog$.subscribe((log) => {
+    this.logService.loadedEventLog$.subscribe((log) => {
       console.log('Log Changed', log);
       this.variantPatterns = [];
       this.displayedVariantsPatterns = [];
@@ -372,7 +376,7 @@ export class VariantMinerComponent
     this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
       this.processTree = tree;
 
-      const treeHasChanged = !this.sharedDataService.processTreesEqual(
+      const treeHasChanged = processTreesEqual(
         this.conformanceCheckedTree,
         this.processTree
       );

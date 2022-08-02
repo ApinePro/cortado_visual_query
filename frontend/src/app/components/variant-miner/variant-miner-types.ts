@@ -1,5 +1,6 @@
-import { InfixType } from 'src/app/components/variant-explorer/model';
-import { VariantElement } from '../variant-explorer/model';
+import { InfixType } from "src/app/objects/Variants/infix_selection";
+import { VariantElement } from "src/app/objects/Variants/variant_element";
+
 
 export class MiningConfig {
   k: number;

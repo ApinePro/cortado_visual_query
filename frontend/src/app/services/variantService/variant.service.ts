@@ -40,7 +40,7 @@ export class VariantService {
   private _variants = new BehaviorSubject<Variant[]>([]);
 
   get variants$(): Observable<Variant[]> {
-    return this._variants.asObservable().pipe(skip(1));
+    return this._variants.asObservable().pipe();
   }
 
   set variants(activities: Variant[]) {

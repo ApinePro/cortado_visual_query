@@ -6,10 +6,11 @@ import {
   ViewChild,
   AfterViewInit,
 } from '@angular/core';
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer.directive';
-import { VariantElement } from '../../variant-explorer/model';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import { InfixType } from 'src/app/objects/Variants/infix_selection';
+import { VariantElement } from 'src/app/objects/Variants/variant_element';
 import { SubvariantPattern } from '../variant-miner-types';
-import { InfixType } from 'src/app/components/variant-explorer/model';
+
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: '[app-variant-miner-pattern]',

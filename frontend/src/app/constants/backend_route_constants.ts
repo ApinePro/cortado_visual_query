@@ -14,4 +14,5 @@ export class ROUTES {
   public static CONFIG = 'config/';
   public static EXPORT = 'exporting/';
   public static IMPORT = 'importing/';
+  public static VARIANTMINING = 'subvariantMining/'
 }

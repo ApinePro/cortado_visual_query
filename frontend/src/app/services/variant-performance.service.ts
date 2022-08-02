@@ -4,7 +4,6 @@ import { map, finalize, concatMap, tap } from 'rxjs/operators';
 import * as d3 from 'd3';
 import { LogService } from './logService/log.service';
 import { VariantService } from './variantService/variant.service';
-import { injectWaitingTimeNodes } from 'src/app/objects/Variants/variant_element';
 
 import {
   VariantElement,
@@ -13,6 +12,7 @@ import {
   SequenceGroup,
   WaitingTimeNode,
   deserialize,
+  injectWaitingTimeNodes,
 } from '../objects/Variants/variant_element';
 import { BackendService } from './backendService/backend.service';
 
