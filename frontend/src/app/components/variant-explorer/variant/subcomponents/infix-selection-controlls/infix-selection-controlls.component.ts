@@ -3,8 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Variant } from 'src/app/objects/Variants/variant';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: '[app-infix-selection-controlls]',
+  selector: 'app-infix-selection-controlls',
   templateUrl: './infix-selection-controlls.component.html',
   styleUrls: ['./infix-selection-controlls.component.css'],
 })

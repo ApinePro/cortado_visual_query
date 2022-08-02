@@ -42,8 +42,6 @@ export class VariantComponent implements AfterViewInit {
   @Input()
   traceInfixSelectionMode: boolean = false;
 
-  isAnyInfixSelected: boolean = false;
-
   @Input()
   processTreeAvailable: boolean = false;
 

@@ -497,6 +497,7 @@
                 processTreeService.currentDisplayedProcessTree
               "
               [performanceMode]="performanceMode"
+              [traceInfixSelectionMode]="traceInfixSelectionMode"
               [rootElement]="variantExplorerDiv"
             >
               <ng-template #treeButton>
@@ -559,15 +560,13 @@
                     style="display: inline-block"
                   ></svg>
                 </div>
-
-                <td
-                  app-infix-selection-controlls
-                  class="infix-selection-buttons-panel"
-                  *ngIf="traceInfixSelectionMode && !performanceMode"
-                  [variant]="variant"
-                  (selectTraceInfix)="handleSelectInfix($event)"
-                  [variantDrawer]="drawer"
-                ></td>
+                <ng-template #infixSelection>
+                  <app-infix-selection-controlls
+                    [variant]="variant"
+                    (selectTraceInfix)="handleSelectInfix($event)"
+                    [variantDrawer]="drawer"
+                  ></app-infix-selection-controlls>
+                </ng-template>
               </ng-template>
             </tr>
           </ng-container>
