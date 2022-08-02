@@ -71,6 +71,22 @@ unit_tests:
       junit: report.xml
     expire_in: 2 weeks
 
+backend-system-test:
+  stage: test
+  image: python:$PYTHON_VERSION
+  before_script:
+    - git config --global credential.https://gitlab.fit.fraunhofer.de/cortado/cortado-core.git.username ${cortado_core_git_username}
+    - git config --global credential.https://gitlab.fit.fraunhofer.de/pm4py/pm4py-core.git.username ${pm4py_core_git_username}
+
+    - git config --global credential.helper store
+    - git config --global credential.interactive never
+    - echo https://${cortado_core_git_username}:${cortado_core_git_password}@gitlab.fit.fraunhofer.de >> /root/.git-credentials
+    - echo https://${pm4py_core_git_username}:${pm4py_core_git_password}@gitlab.fit.fraunhofer.de >> /root/.git-credentials
+    - pip install -r backend/requirements.txt
+  script:
+    - cd backend
+    - timeout --preserve-status 60 python main.py # Start main.py and stop after 60 seconds
+
 build-backend-linux:
   stage: build-backend
   image: python:$PYTHON_VERSION
