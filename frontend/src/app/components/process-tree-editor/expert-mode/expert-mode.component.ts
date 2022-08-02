@@ -1,8 +1,7 @@
-import { ProcessTree } from './../../../objects/ProcessTree';
+import { LogService } from 'src/app/services/logService/log.service';
 import { ProcessTreeService } from './../../../services/processTreeService/process-tree.service';
 import { BackendService } from 'src/app/services/backendService/backend.service';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import {
   AbstractControl,
   FormControl,
@@ -11,61 +10,15 @@ import {
   FormGroup,
 } from '@angular/forms';
 import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
+  fadeInOutComponent,
+  openCloseComponent,
+} from 'src/app/animations/component-animations';
 
 @Component({
   selector: 'app-expert-mode',
   templateUrl: './expert-mode.component.html',
   styleUrls: ['./expert-mode.component.scss'],
-  animations: [
-    trigger('opencloseExpertMode', [
-      // ...
-      state(
-        'openExpertMode',
-        style({
-          height: '55%',
-          width: '35%',
-          overflow: 'hidden',
-        })
-      ),
-      state(
-        'closeExpertMode',
-        style({
-          height: '25px',
-          width: '25px',
-          overflow: 'hidden',
-        })
-      ),
-      transition('openExpertMode => closeExpertMode', [animate('175ms')]),
-      transition('closeExpertMode => openExpertMode', [animate('175ms')]),
-    ]),
-    trigger('fadeInOutExpertMode', [
-      // ...
-      state(
-        'fadeInExpertMode',
-        style({
-          opacity: '1',
-          width: '100%',
-          height: '100%',
-        })
-      ),
-      state(
-        'fadeOutExpertMode',
-        style({
-          opacity: '0',
-          width: '0%',
-          height: '0%',
-        })
-      ),
-      transition('fadeInExpertMode => fadeOutExpertMode', [animate('175ms')]),
-      transition('fadeOutExpertMode => fadeInExpertMode', [animate('175ms')]),
-    ]),
-  ],
+  animations: [fadeInOutComponent, openCloseComponent],
 })
 export class ExpertModeComponent implements OnInit {
   syntax_tree_string: string = '';
@@ -85,7 +38,7 @@ export class ExpertModeComponent implements OnInit {
   currentlyDisplayedTreeInExpertMode;
 
   constructor(
-    private sharedDataService: SharedDataService,
+    private logService: LogService,
     private backendService: BackendService,
     private processTreeService: ProcessTreeService
   ) {}
@@ -204,7 +157,6 @@ export class ExpertModeComponent implements OnInit {
 
   toggleExpertMode() {
     this.editorActive = !this.editorActive;
-    console.log('Toogle Editor', this.editorActive);
     if (this.editorActive) {
       this.collectCurrentTreeString(
         this.processTreeService.currentDisplayedProcessTree
@@ -290,7 +242,7 @@ export class ExpertModeComponent implements OnInit {
 
       const res = control.value.matchAll(this.activityNameRegEx);
       for (let match of res) {
-        if (!this.sharedDataService.activitiesInEventLog[match[1]]) {
+        if (!this.logService.activitiesInEventLog[match[1]]) {
           unknowActivities.add({ index: match.index, name: match[1] });
         }
       }

@@ -6,7 +6,7 @@ import {
   ElementRef,
 } from '@angular/core';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
-import { LayoutChangeDirective } from 'src/app/directives/layout-change.directive';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 
 @Component({
   selector: 'app-golden-layout-dummy',

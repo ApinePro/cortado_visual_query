@@ -6,10 +6,9 @@ import {
   OnInit,
   Renderer2,
 } from '@angular/core';
-import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
-import { VariantElement } from '../variant-explorer/model';
-import { LayoutChangeDirective } from '../../directives/layout-change.directive';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 
 @Component({
   selector: 'app-variant-performance',
@@ -66,10 +65,6 @@ export class VariantPerformanceComponent
         this.changeDetectorRef.markForCheck();
       }
     );
-  }
-
-  setPerformanceMode(performanceMode: boolean): void {
-    this.variantPerformanceService.variantPerformanceMode.next(performanceMode);
   }
 }
 

@@ -1,15 +1,9 @@
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { SwalPortalTargets } from '@sweetalert2/ngx-sweetalert2';
 import { NextObserver, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { expandCollapsed } from 'src/app/animations/text-animations';
 import { ApiError } from 'src/app/objects/ApiError';
 import { ErrorService } from 'src/app/services/errorService/error.service';
 
@@ -17,24 +11,7 @@ import { ErrorService } from 'src/app/services/errorService/error.service';
   selector: 'app-api-error-dialog',
   templateUrl: './api-error-dialog.component.html',
   styleUrls: ['./api-error-dialog.component.scss'],
-  animations: [
-    trigger('expandCollapse', [
-      state(
-        'void',
-        style({
-          height: '0px',
-        })
-      ),
-      state(
-        '*',
-        style({
-          height: '*',
-        })
-      ),
-      transition('void => *', animate('150ms ease-out')),
-      transition('* => void', animate('150ms ease-in')),
-    ]),
-  ],
+  animations: [expandCollapsed],
 })
 export class ApiErrorDialogComponent implements OnInit, OnDestroy {
   public isVisible: boolean;

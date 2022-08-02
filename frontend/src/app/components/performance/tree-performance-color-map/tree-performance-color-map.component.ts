@@ -7,7 +7,7 @@ import {
   buildColorValues,
   ColorMapValue,
 } from '../color-map/color-map.component';
-import { ProcessTree } from '../../../objects/ProcessTree';
+import { ProcessTree } from '../../../objects/ProcessTree/ProcessTree';
 
 @Component({
   selector: 'app-tree-performance-color-map',
