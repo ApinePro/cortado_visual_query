@@ -11,8 +11,6 @@ import { Variant } from 'src/app/objects/Variants/variant';
 export class InfixSelectionControllsComponent {
   constructor() {}
 
-  isAnyInfixSelected = true;
-
   @Input()
   variant: Variant;
 

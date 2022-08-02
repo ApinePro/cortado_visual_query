@@ -39,7 +39,7 @@ const areAllChildrenSelected = (elem: VariantElement) => {
       if (!isElementWithActivity(e)) {
         continue;
       }
-      if (!areAllChildrenSelected(e)) {
+      if (!e.selected) {
         return false;
       }
     }
@@ -78,22 +78,30 @@ export const updateSelectionAttributesForGroup = (group: any) => {
 
 const updateSelectedAttributesForGroup = (group: any) => {
   let children = group.elements.filter((c) => isElementWithActivity(c));
-
-  let allChildrenSelected: boolean = true;
-
-  for (let child of children) {
-    child.selected = areAllChildrenSelected(child);
-    allChildrenSelected = allChildrenSelected && child.selected;
-  }
-
-  if (allChildrenSelected) {
-    group.selected = true;
-  }
+  group.isAnyInfixSelected = false;
 
   for (let child of children) {
     if (!(child instanceof LeafNode)) {
       updateSelectedAttributesForGroup(child);
+    } else {
+      if (child.selected) {
+        setRootAnyInfixSelected(group);
+      }
     }
+  }
+
+  let allChildrenSelected: boolean = areAllChildrenSelected(group);
+
+  if (allChildrenSelected) {
+    group.selected = true;
+  }
+};
+
+const setRootAnyInfixSelected = (group) => {
+  if (group.parent !== null) {
+    setRootAnyInfixSelected(group.parent);
+  } else {
+    group.isAnyInfixSelected = true;
   }
 };
 

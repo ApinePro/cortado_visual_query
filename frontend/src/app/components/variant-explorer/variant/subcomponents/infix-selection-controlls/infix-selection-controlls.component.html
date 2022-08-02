@@ -1,7 +1,7 @@
 <div>
   <td>
     <button
-      [disabled]="!isAnyInfixSelected"
+      [disabled]="!variant.variant.isAnyInfixSelected"
       class="button"
       (click)="resetSelectionStatus()"
       title="Reset trace infix selection of this variant"
@@ -9,13 +9,15 @@
     >
       <i
         class="bi bi-x-lg align-middle font-large"
-        [ngClass]="isAnyInfixSelected ? 'text-danger' : 'text-secondary'"
+        [ngClass]="
+          variant.variant.isAnyInfixSelected ? 'text-danger' : 'text-secondary'
+        "
       ></i>
     </button>
   </td>
   <td>
     <button
-      [disabled]="!isAnyInfixSelected"
+      [disabled]="!variant.variant.isAnyInfixSelected"
       class="button"
       (click)="addCurrentSelectedInfix()"
       title="Add the currently selected infix to the variant explorer"
@@ -23,7 +25,9 @@
     >
       <i
         class="bi bi-scissors align-middle font-large"
-        [ngClass]="isAnyInfixSelected ? 'text-light' : 'text-secondary'"
+        [ngClass]="
+          variant.variant.isAnyInfixSelected ? 'text-light' : 'text-secondary'
+        "
       ></i>
     </button>
   </td>

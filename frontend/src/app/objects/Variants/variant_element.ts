@@ -34,6 +34,7 @@ export abstract class VariantElement {
   public waitingTimeEnd: PerformanceStats;
   public selected: boolean = false;
   public infixSelectableState: SelectableState = SelectableState.Selectable;
+  public isAnyInfixSelected: boolean = false;
 
   public height;
   width;
