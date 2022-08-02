@@ -26,6 +26,7 @@ import {
 } from './variant-transformation';
 import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { ToastService } from '../toast/toast.service';
+import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
 
 @Injectable({
   providedIn: 'root',
@@ -70,7 +71,11 @@ export class VariantService {
 
   public nUserVariants: number = 0;
 
-  public addSelectedTraceInfix(variant: Variant): void {
+  public addSelectedTraceInfix(
+    variant: Variant,
+    sortingFeature: string,
+    isAscending: boolean
+  ): void {
     let isWholeVariantSelected = variant.variant.selected;
 
     if (isWholeVariantSelected) {
@@ -92,7 +97,7 @@ export class VariantService {
       reducedInfix = new SequenceGroup([reducedInfix]);
     }
     const newVariant = new Variant(
-      1,
+      0,
       reducedInfix,
       false,
       false,
@@ -128,9 +133,17 @@ export class VariantService {
     currentVariants.push(newVariant);
     this.variants = currentVariants;
 
+    let sortedVariants = VariantSorter.sort(
+      this.variants,
+      sortingFeature,
+      isAscending
+    );
+
     this.toastService.showSuccessToast(
       'Variant Explorer',
-      `The selected infix is added at position ${currentVariants.length}.`,
+      `The selected infix is added at position ${
+        sortedVariants.indexOf(newVariant) + 1
+      }.`,
       'bi-list-ul'
     );
     variant.variant.resetSelectionStatus();
