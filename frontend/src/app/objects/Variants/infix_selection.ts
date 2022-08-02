@@ -85,7 +85,7 @@ const updateSelectedAttributesForGroup = (group: any) => {
       updateSelectedAttributesForGroup(child);
     } else {
       if (child.selected) {
-        setRootAnyInfixSelected(group);
+        group.setRootAnyInfixSelected(true);
       }
     }
   }
@@ -94,14 +94,6 @@ const updateSelectedAttributesForGroup = (group: any) => {
 
   if (allChildrenSelected) {
     group.selected = true;
-  }
-};
-
-const setRootAnyInfixSelected = (group) => {
-  if (group.parent !== null) {
-    setRootAnyInfixSelected(group.parent);
-  } else {
-    group.isAnyInfixSelected = true;
   }
 };
 

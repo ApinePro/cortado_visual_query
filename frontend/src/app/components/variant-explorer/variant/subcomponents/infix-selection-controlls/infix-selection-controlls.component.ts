@@ -22,6 +22,7 @@ export class InfixSelectionControllsComponent {
 
   addCurrentSelectedInfix(): void {
     this.selectTraceInfix.emit(this.variant);
+    this.variantDrawer.redraw();
   }
 
   resetSelectionStatus(): void {

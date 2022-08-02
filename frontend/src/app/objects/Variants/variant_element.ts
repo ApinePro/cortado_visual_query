@@ -149,6 +149,14 @@ export abstract class VariantElement {
     }
   }
 
+  public setRootAnyInfixSelected(selected) {
+    if (this.parent !== null) {
+      this.parent.setRootAnyInfixSelected(selected);
+    } else {
+      this.isAnyInfixSelected = selected;
+    }
+  }
+
   public setAllChildrenSelected(): void {
     this.setSelectedStateRecursive(true);
   }
@@ -176,6 +184,7 @@ export abstract class VariantElement {
   }
 
   public resetSelectionStatus(): void {
+    this.setRootAnyInfixSelected(false);
     this.setAllChildrenUnselected();
     this.setInfixSelectableState(SelectableState.Selectable, true);
   }

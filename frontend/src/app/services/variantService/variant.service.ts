@@ -121,8 +121,6 @@ export class VariantService {
         `The selected infix is already present in the variant explorer. It will not be added.`,
         'bi-list-ul'
       );
-      // TODO Niklas reset selection state!
-      //this.resetSelectionStatus();
 
       return;
     }
@@ -135,7 +133,7 @@ export class VariantService {
       `The selected infix is added at position ${currentVariants.length}.`,
       'bi-list-ul'
     );
-    //this.resetSelectionStatus();
+    variant.variant.resetSelectionStatus();
   }
 
   public deleteVariants(bids: number[]): void {

@@ -68,10 +68,10 @@ export function clickCallback(
 
       variant.updateSelectionAttributes();
       drawer.redraw();
-    } else {
-      variant.setExpanded(!variant.getExpanded());
-      drawer.redraw();
     }
+  } else {
+    variant.setExpanded(!variant.getExpanded());
+    drawer.redraw();
   }
 }
 
