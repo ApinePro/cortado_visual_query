@@ -1,5 +1,8 @@
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
-import { getLowestSelectableParent } from 'src/app/objects/Variants/infix_selection';
+import {
+  getLowestSelectionActionableElement,
+  SelectableState,
+} from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
 import {
   VariantElement,
@@ -53,18 +56,22 @@ export function clickCallback(
       );
     }
   } else if (this.traceInfixSelectionMode) {
-    let lowestSelectableParent = getLowestSelectableParent(element);
-    if (lowestSelectableParent != variant) {
-      lowestSelectableParent.setAllChildrenSelected();
-      variant.calculateSelectableElements();
-      if (!variant.selectionStatusUnchangedFromLastSavedSelection()) {
-        variant.saveCurrentSelectionToSelectionHistory();
-      }
+    let lowestSelectableNode = getLowestSelectionActionableElement(element);
+
+    if (lowestSelectableNode != variant) {
+      if (
+        lowestSelectableNode.infixSelectableState ===
+        SelectableState.Unselectable
+      )
+        lowestSelectableNode.setAllChildrenUnselected();
+      else lowestSelectableNode.setAllChildrenSelected();
+
+      variant.updateSelectionAttributes();
+      drawer.redraw();
+    } else {
+      variant.setExpanded(!variant.getExpanded());
       drawer.redraw();
     }
-  } else {
-    variant.setExpanded(!variant.getExpanded());
-    drawer.redraw();
   }
 }
 

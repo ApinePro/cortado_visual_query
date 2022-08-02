@@ -1,3 +1,4 @@
+import { Variant } from './variant';
 import {
   InvisibleSequenceGroup,
   LeafNode,
@@ -203,4 +204,25 @@ export const removeIntermediateGroupsWithSingleElements = (
       return elem;
     }
   }
+};
+
+export const getInfixTypeForSelectedInfix = (variant: Variant) => {
+  let children = variant.variant.getElements();
+  if (
+    children[0].selected &&
+    (variant.infixType === InfixType.NOT_AN_INFIX ||
+      variant.infixType === InfixType.PREFIX)
+  ) {
+    return InfixType.PREFIX;
+  }
+
+  if (
+    children[children.length - 1].selected &&
+    (variant.infixType === InfixType.NOT_AN_INFIX ||
+      variant.infixType === InfixType.POSTFIX)
+  ) {
+    return InfixType.POSTFIX;
+  }
+
+  return InfixType.PROPER_INFIX;
 };

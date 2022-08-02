@@ -11,65 +11,7 @@
     <div [ngTemplateOutlet]="performanceButton"></div>
   </td>
   <td class="variant-cell">
-<<<<<<< HEAD
-    <div
-      class="variant"
-      [ngStyle]="{
-        'border-color': variant.isSelected ? 'unset' : 'transparent'
-      }"
-      style="white-space: nowrap"
-    >
-      <svg
-        appVariantDrawer
-        #fragment
-        [variant]="variant['variant']"
-        (clickCbFc)="onClickVariant($event[0], $event[1], $event[2])"
-        [performanceMode]="performanceMode"
-        [traceInfixSelectionMode]="traceInfixSelectionMode"
-        [computeActivityColor]="computeActivityColor"
-        [infixType]="variant.infixType"
-        class="zoom-group-variant"
-        style="display: inline-block"
-      ></svg>
-    </div>
-  </td>
-  <td
-    class="infix-selection-buttons-panel"
-    *ngIf="traceInfixSelectionMode && !performanceMode"
-  >
-    <div>
-      <td>
-        <button
-          [disabled]="!isAnyInfixSelected"
-          class="button"
-          (click)="resetSelectionStatus()"
-          title="Reset trace infix selection of this variant"
-          data-bs-toggle="tooltip"
-        >
-          <i
-            class="bi bi-x-lg align-middle font-large"
-            [ngClass]="isAnyInfixSelected ? 'text-danger' : 'text-secondary'"
-          ></i>
-        </button>
-      </td>
-      <td>
-        <button
-          [disabled]="!isAnyInfixSelected"
-          class="button"
-          (click)="addSelectedTraceInfix()"
-          title="Add the currently selected infix to the variant explorer"
-          data-bs-toggle="tooltip"
-        >
-          <i
-            class="bi bi-scissors align-middle font-large"
-            [ngClass]="isAnyInfixSelected ? 'text-light' : 'text-secondary'"
-          ></i>
-        </button>
-      </td>
-    </div>
-=======
     <ng-container [ngTemplateOutlet]="variantDrawer"> </ng-container>
->>>>>>> integration
   </td>
   <div [ngTemplateOutlet]="infixSelection"></div>
 </ng-container>

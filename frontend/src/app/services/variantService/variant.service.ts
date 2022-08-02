@@ -8,9 +8,10 @@ import { skip } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { mapVariants } from 'src/app/utils/util';
 import {
+  getInfixTypeForSelectedInfix,
   getSelectedChildren,
-  handleTreeLevelsWithOneChild,
   InfixType,
+  removeIntermediateGroupsWithSingleElements,
   someChildrenSelected,
 } from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
@@ -24,6 +25,7 @@ import {
   compute_rename_activity_variants,
 } from './variant-transformation';
 import { ROUTES } from 'src/app/constants/backend_route_constants';
+import { ToastService } from '../toast/toast.service';
 
 @Injectable({
   providedIn: 'root',
@@ -34,7 +36,8 @@ export class VariantService {
     private logService: LogService,
     private httpClient: HttpClient,
     private processTreeService: ProcessTreeService,
-    private colorMapService: ColorMapService
+    private colorMapService: ColorMapService,
+    private toastService: ToastService
   ) {}
 
   private _variants = new BehaviorSubject<Variant[]>([]);
@@ -68,57 +71,71 @@ export class VariantService {
   public nUserVariants: number = 0;
 
   public addSelectedTraceInfix(variant: Variant): void {
-    let thereAreSelectedChildren = someChildrenSelected(variant.variant, true);
+    let isWholeVariantSelected = variant.variant.selected;
 
-    if (thereAreSelectedChildren && !variant.variant.selected) {
-      let infixType;
-      let children = variant.variant.getElements();
-      if (children[0].selected) {
-        infixType = InfixType.PREFIX;
-      } else if (children[children.length - 1].selected) {
-        infixType = InfixType.POSTFIX;
-      } else {
-        infixType = InfixType.PROPER_INFIX;
-      }
-      let newInfix = getSelectedChildren(variant.variant);
-      let reducedInfix = handleTreeLevelsWithOneChild(newInfix);
-      if (!(reducedInfix instanceof SequenceGroup)) {
-        // Every variant should be a sequence group
-        reducedInfix = new SequenceGroup([reducedInfix]);
-      }
-      const newVariant = new Variant(
-        1,
-        reducedInfix,
-        false,
-        true,
-        false,
-        0,
-        false,
-        true,
-        false,
-        true,
-        0,
-        infixType
+    if (isWholeVariantSelected) {
+      this.toastService.showWarningToast(
+        'Variant Explorer',
+        `A complete variant is selected. It will not be added.`,
+        'bi-list-ul'
       );
 
-      let currentVariants = this.variants;
-
-      newVariant.alignment = undefined;
-      newVariant.deviation = undefined;
-      newVariant.id = objectHash(newVariant);
-
-      this.nUserVariants += 1;
-      newVariant.bid = -this.nUserVariants;
-
-      const duplicate = currentVariants.map((v) => v.id === newVariant.id);
-
-      if (!duplicate.includes(true)) {
-        currentVariants.push(newVariant);
-        this.variants = currentVariants;
-      } else {
-        // Will think about some warning mechanism later
-      }
+      return;
     }
+
+    let infixType: InfixType = getInfixTypeForSelectedInfix(variant);
+
+    let newInfix = getSelectedChildren(variant.variant);
+    let reducedInfix = removeIntermediateGroupsWithSingleElements(newInfix);
+    if (!(reducedInfix instanceof SequenceGroup)) {
+      // Every variant should be a sequence group
+      reducedInfix = new SequenceGroup([reducedInfix]);
+    }
+    const newVariant = new Variant(
+      1,
+      reducedInfix,
+      false,
+      false,
+      false,
+      0,
+      false,
+      true,
+      false,
+      true,
+      0,
+      infixType
+    );
+
+    let currentVariants = this.variants;
+
+    newVariant.alignment = undefined;
+    newVariant.deviation = undefined;
+    newVariant.id = objectHash(newVariant);
+
+    const containsDuplicate =
+      currentVariants.filter((v) => v.id === newVariant.id).length > 0;
+
+    if (containsDuplicate) {
+      this.toastService.showWarningToast(
+        'Variant Explorer',
+        `The selected infix is already present in the variant explorer. It will not be added.`,
+        'bi-list-ul'
+      );
+      // TODO Niklas reset selection state!
+      //this.resetSelectionStatus();
+
+      return;
+    }
+
+    currentVariants.push(newVariant);
+    this.variants = currentVariants;
+
+    this.toastService.showSuccessToast(
+      'Variant Explorer',
+      `The selected infix is added at position ${currentVariants.length}.`,
+      'bi-list-ul'
+    );
+    //this.resetSelectionStatus();
   }
 
   public deleteVariants(bids: number[]): void {

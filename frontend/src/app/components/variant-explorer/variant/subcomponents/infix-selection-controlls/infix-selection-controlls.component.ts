@@ -19,6 +19,9 @@ export class InfixSelectionControllsComponent {
   @Input()
   traceInfixSelectionMode: boolean = false;
 
+  @Input()
+  performanceMode: boolean = false;
+
   @Output()
   public selectTraceInfix = new EventEmitter<Variant>();
 
@@ -28,16 +31,6 @@ export class InfixSelectionControllsComponent {
 
   resetSelectionStatus(): void {
     this.variant.variant.resetSelectionStatus();
-    this.variantDrawer.redraw();
-  }
-
-  undoSelection(): void {
-    this.variant.variant.undoSelection();
-    this.variantDrawer.redraw();
-  }
-
-  redoSelection(): void {
-    this.variant.variant.redoSelection();
     this.variantDrawer.redraw();
   }
 }
