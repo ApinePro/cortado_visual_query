@@ -559,15 +559,16 @@
                     style="display: inline-block"
                   ></svg>
                 </div>
-
-                <app-infix-selection-controlls
+              </ng-template>
+              <ng-template #infixSelection>
+                <td
+                  app-infix-selection-controlls
+                  class="infix-selection-buttons-panel"
+                  *ngIf="traceInfixSelectionMode && !performanceMode"
                   [variant]="variant"
-                  [traceInfixSelectionMode]="traceInfixSelectionMode"
-                  [performanceMode]="performanceMode"
                   (selectTraceInfix)="handleSelectInfix($event)"
                   [variantDrawer]="drawer"
-                >
-                </app-infix-selection-controlls>
+                ></td>
               </ng-template>
             </tr>
           </ng-container>
