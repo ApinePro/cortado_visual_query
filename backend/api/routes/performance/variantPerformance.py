@@ -2,7 +2,7 @@ from cortado_core.performance.variant_performance import assign_variants_perform
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from backend.cache import cache
+from cache import cache
 
 router = APIRouter(tags=["variantPerformance"], prefix="/variantPerformance")
 
