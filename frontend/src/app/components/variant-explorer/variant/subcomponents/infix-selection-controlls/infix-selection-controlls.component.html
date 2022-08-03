@@ -3,6 +3,22 @@
     <button
       [disabled]="!variant.variant.isAnyInfixSelected"
       class="button"
+      (click)="addCurrentSelectedInfix()"
+      title="Add the currently selected infix to the variant explorer"
+      data-bs-toggle="tooltip"
+    >
+      <i
+        class="bi bi-scissors align-middle font-large"
+        [ngClass]="
+          variant.variant.isAnyInfixSelected ? 'text-light' : 'text-secondary'
+        "
+      ></i>
+    </button>
+  </td>
+  <td>
+    <button
+      [disabled]="!variant.variant.isAnyInfixSelected"
+      class="button"
       (click)="resetSelectionStatus()"
       title="Reset trace infix selection of this variant"
       data-bs-toggle="tooltip"
@@ -17,17 +33,13 @@
   </td>
   <td>
     <button
-      [disabled]="!variant.variant.isAnyInfixSelected"
       class="button"
-      (click)="addCurrentSelectedInfix()"
-      title="Add the currently selected infix to the variant explorer"
+      (click)="selectAll()"
+      title="Select the whole variant"
       data-bs-toggle="tooltip"
     >
       <i
-        class="bi bi-scissors align-middle font-large"
-        [ngClass]="
-          variant.variant.isAnyInfixSelected ? 'text-light' : 'text-secondary'
-        "
+        class="bi bi-plus-square-dotted align-middle font-large text-light"
       ></i>
     </button>
   </td>

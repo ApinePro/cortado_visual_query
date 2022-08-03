@@ -90,11 +90,7 @@ const updateSelectedAttributesForGroup = (group: any) => {
     }
   }
 
-  let allChildrenSelected: boolean = areAllChildrenSelected(group);
-
-  if (allChildrenSelected) {
-    group.selected = true;
-  }
+  group.selected = areAllChildrenSelected(group);
 };
 
 const updateSelectableAttributesForGroup = (group: any) => {

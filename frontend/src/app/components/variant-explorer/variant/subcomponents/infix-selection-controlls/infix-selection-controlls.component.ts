@@ -28,4 +28,10 @@ export class InfixSelectionControllsComponent {
     this.variant.variant.resetSelectionStatus();
     this.variantDrawer.redraw();
   }
+
+  selectAll(): void {
+    this.variant.variant.setAllChildrenSelected();
+    this.variant.variant.updateSelectionAttributes();
+    this.variantDrawer.redraw();
+  }
 }
