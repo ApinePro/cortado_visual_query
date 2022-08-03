@@ -96,6 +96,7 @@ export class VariantService {
       // Every variant should be a sequence group
       reducedInfix = new SequenceGroup([reducedInfix]);
     }
+    reducedInfix.parent = null;
     const newVariant = new Variant(
       0,
       reducedInfix,

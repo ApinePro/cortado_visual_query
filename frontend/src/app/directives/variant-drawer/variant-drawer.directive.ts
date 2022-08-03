@@ -146,7 +146,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       const svg_container = d3.select(this.svgHtmlElement.nativeElement);
       this.variant.updateWidth(this.performanceMode);
 
-      const [svg, width_offset] = this.handle_infix(
+      const [svg, width_offset] = this.handleInfix(
         this.infixType,
         height,
         width
@@ -166,11 +166,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     }
   }
 
-  private handle_infix(
-    infixType,
-    height: number,
-    width: number
-  ): [any, number] {
+  private handleInfix(infixType, height: number, width: number): [any, number] {
     let width_offset = 0;
 
     const PREFIX_OFFSET = 35;
