@@ -291,10 +291,12 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     if (element instanceof InvisibleSequenceGroup) {
       polygon.style('fill', 'transparent');
     } else {
-      parent.on('click', (e: PointerEvent) => {
-        this.onClickCbFc(this, element, this.variant);
-        e.stopPropagation();
-      });
+      if (this.onClickCbFc) {
+        parent.on('click', (e: PointerEvent) => {
+          this.onClickCbFc(this, element, this.variant);
+          e.stopPropagation();
+        });
+      }
     }
 
     let x =
@@ -361,10 +363,12 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       this.addInfixSelectionAttributes(element, polygon, false);
     }
 
-    parent.on('click', (e: PointerEvent) => {
-      this.onClickCbFc(this, element, this.variant);
-      e.stopPropagation();
-    });
+    if (this.onClickCbFc) {
+      parent.on('click', (e: PointerEvent) => {
+        this.onClickCbFc(this, element, this.variant);
+        e.stopPropagation();
+      });
+    }
 
     if (this.onRightMouseClickCbFc) {
       parent.on('contextmenu', (e: PointerEvent) => {
@@ -426,10 +430,12 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       this.addInfixSelectionAttributes(element, polygon, true);
     }
 
-    parent.on('click', (e: PointerEvent) => {
-      this.onClickCbFc(this, element, this.variant);
-      e.stopPropagation();
-    });
+    if (this.onClickCbFc) {
+      parent.on('click', (e: PointerEvent) => {
+        this.onClickCbFc(this, element, this.variant);
+        e.stopPropagation();
+      });
+    }
 
     const textcolor = textColorForBackgroundColor(
       color,
@@ -539,10 +545,12 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       .style('fill', color)
       .classed('variant-polygon', true);
 
-    parent.on('click', (e: PointerEvent) => {
-      this.onClickCbFc(this, element, this.variant);
-      e.stopPropagation();
-    });
+    if (this.onClickCbFc) {
+      parent.on('click', (e: PointerEvent) => {
+        this.onClickCbFc(this, element, this.variant);
+        e.stopPropagation();
+      });
+    }
 
     if (this.onRightMouseClickCbFc) {
       parent.on('contextmenu', (e: PointerEvent) => {
