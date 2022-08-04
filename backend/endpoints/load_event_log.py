@@ -1,7 +1,7 @@
 from collections import Counter
 from typing import Mapping, Tuple
 
-from cache import cache
+import cache.cache as cache
 from cortado_core.utils.cvariants import get_concurrency_variants, get_detailed_variants
 from cortado_core.utils.split_graph import Group
 from cortado_core.utils.timestamp_utils import TimeUnit, get_time_granularity
