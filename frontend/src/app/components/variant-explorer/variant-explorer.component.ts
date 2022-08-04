@@ -450,7 +450,9 @@ export class VariantExplorerComponent
 
   handleSelectInfix(variant: Variant) {
     this.variantService.addSelectedTraceInfix(
-      this.variants.filter((v) => v.bid === variant.bid)[0]
+      this.variants.filter((v) => v.bid === variant.bid)[0],
+      this.sortingFeature,
+      this.isAscendingOrder
     );
   }
 

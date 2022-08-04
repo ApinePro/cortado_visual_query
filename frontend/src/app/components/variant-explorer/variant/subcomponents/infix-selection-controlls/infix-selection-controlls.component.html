@@ -1,58 +1,46 @@
-<td class="infix-selection-buttons-panel" *ngIf="traceInfixSelectionMode">
-  <div>
-    <td>
-      <button
-        class="button"
-        (click)="resetSelectionStatus()"
-        title="Reset trace infix selection of this variant"
-        data-bs-toggle="tooltip"
-      >
-        <i class="bi bi-x-lg text-secondary align-middle font-large"></i>
-      </button>
-    </td>
-    <td>
-      <button
-        class="button"
-        (click)="addCurrentSelectedInfix()"
-        title="Add the currently selected infix to the variant explorer"
-        data-bs-toggle="tooltip"
-      >
-        <i class="bi bi-arrow-down text-secondary align-middle font-large"></i>
-      </button>
-    </td>
-    <td>
-      <button
-        class="shadow-none button btn-fixed-width"
-        (click)="undoSelection()"
-        title="Undo last selection"
-        data-bs-toggle="tooltip"
-      >
-        <i
-          class="bi bi-arrow-counterclockwise text-secondary align-middle font-large"
-        ></i>
-        <span class="text-secondary"
-          >({{ variant.variant.currentIdxSelectionHistory }})</span
-        >
-      </button>
-    </td>
-    <td>
-      <button
-        class="button"
-        (click)="redoSelection()"
-        title="Redo"
-        data-bs-toggle="tooltip"
-      >
-        <i
-          class="bi bi-arrow-clockwise text-secondary align-middle font-large"
-        ></i>
-        <span class="text-secondary"
-          >({{
-            variant.variant.selectionHistory.length -
-              variant.variant.currentIdxSelectionHistory -
-              1
-          }})</span
-        >
-      </button>
-    </td>
-  </div>
-</td>
+<div>
+  <td>
+    <button
+      [disabled]="!variant.variant.isAnyInfixSelected"
+      class="button"
+      (click)="addCurrentSelectedInfix()"
+      title="Add the currently selected infix to the variant explorer"
+      data-bs-toggle="tooltip"
+    >
+      <i
+        class="bi bi-scissors align-middle font-large"
+        [ngClass]="
+          variant.variant.isAnyInfixSelected ? 'text-light' : 'text-secondary'
+        "
+      ></i>
+    </button>
+  </td>
+  <td>
+    <button
+      [disabled]="!variant.variant.isAnyInfixSelected"
+      class="button"
+      (click)="resetSelectionStatus()"
+      title="Reset trace infix selection of this variant"
+      data-bs-toggle="tooltip"
+    >
+      <i
+        class="bi bi-x-lg align-middle font-large"
+        [ngClass]="
+          variant.variant.isAnyInfixSelected ? 'text-danger' : 'text-secondary'
+        "
+      ></i>
+    </button>
+  </td>
+  <td>
+    <button
+      class="button"
+      (click)="selectAll()"
+      title="Select the whole variant"
+      data-bs-toggle="tooltip"
+    >
+      <i
+        class="bi bi-plus-square-dotted align-middle font-large text-light"
+      ></i>
+    </button>
+  </td>
+</div>

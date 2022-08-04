@@ -14,7 +14,11 @@ import { Selection } from 'd3';
 import { PolygonGeneratorService } from 'src/app/services/polygon-generator.service';
 import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
-import { InfixType } from 'src/app/objects/Variants/infix_selection';
+import {
+  getLowestSelectionActionableElement,
+  InfixType,
+  SelectableState,
+} from 'src/app/objects/Variants/infix_selection';
 import {
   VariantElement,
   SequenceGroup,
@@ -48,9 +52,6 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
   @Input()
   variant: VariantElement;
-
-  @Input()
-  highlightOnMouseover;
 
   @Input()
   performanceMode: boolean = false;
@@ -145,7 +146,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       const svg_container = d3.select(this.svgHtmlElement.nativeElement);
       this.variant.updateWidth(this.performanceMode);
 
-      const [svg, width_offset] = this.handle_infix(
+      const [svg, width_offset] = this.handleInfix(
         this.infixType,
         height,
         width
@@ -165,11 +166,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     }
   }
 
-  private handle_infix(
-    infixType,
-    height: number,
-    width: number
-  ): [any, number] {
+  private handleInfix(infixType, height: number, width: number): [any, number] {
     let width_offset = 0;
 
     const PREFIX_OFFSET = 35;
@@ -269,31 +266,26 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
     const color = 'lightgrey';
 
+    let laElement = getLowestSelectionActionableElement(element);
+    let actionable =
+      laElement.parent !== null &&
+      laElement.infixSelectableState !== SelectableState.None;
+
     let polygon = parent
       .append('polygon')
       .attr('points', polygonPoints)
       .style('fill', color)
       .classed('variant-group-element', true)
       .classed('variant-sequence-group', true)
-      .classed('variant-polygon', true);
+      .classed('variant-polygon', true)
+      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable);
 
     if (
       this.traceInfixSelectionMode &&
+      element.parent &&
       !(element instanceof InvisibleSequenceGroup)
     ) {
-      if (element.selected && element.parent && !element.parent.selected) {
-        polygon.attr('stroke', '#ff0000').attr('stroke-width', '1px');
-      }
-      if (!element.selected && element.selectable && element.parent) {
-        polygon
-          .attr('stroke', '#ff0000')
-          .attr('stroke-width', '1px')
-          .attr('stroke-dasharray', '4')
-          .attr('fill', '#999999');
-      }
-      if (!element.selected && !element.selectable) {
-        polygon.attr('fill', '#555555');
-      }
+      this.addInfixSelectionAttributes(element, polygon, false);
     }
 
     if (element instanceof InvisibleSequenceGroup) {
@@ -349,6 +341,11 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
     const polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
+    let laElement = getLowestSelectionActionableElement(element);
+    let actionable =
+      laElement.parent !== null &&
+      laElement.infixSelectableState !== SelectableState.None;
+
     const color = 'lightgrey';
     let polygon = parent
       .append('polygon')
@@ -356,28 +353,14 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       .style('fill', color)
       .classed('variant-group-element', true)
       .classed('variant-parallel-group', true)
-      .classed('variant-polygon', true);
+      .classed('variant-polygon', true)
+      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable);
 
     if (
       this.traceInfixSelectionMode &&
       !(element instanceof InvisibleSequenceGroup)
     ) {
-      if (
-        element.selected &&
-        ((element.parent && !element.parent.selected) || !element.parent)
-      ) {
-        polygon.attr('stroke', '#ff0000').attr('stroke-width', '1px');
-      }
-      if (!element.selected && element.selectable) {
-        polygon
-          .attr('stroke', '#ff0000')
-          .attr('stroke-width', '1px')
-          .attr('stroke-dasharray', '4')
-          .style('fill', '#999999');
-      }
-      if (!element.selected && !element.selectable) {
-        polygon.style('fill', '#555555');
-      }
+      this.addInfixSelectionAttributes(element, polygon, false);
     }
 
     if (this.onClickCbFc) {
@@ -431,30 +414,20 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     ];
     const inversed = rgb_code.map((d) => 255 - parseInt(d, 16));
 
+    let laElement = getLowestSelectionActionableElement(element);
+    let actionable =
+      laElement.parent !== null &&
+      laElement.infixSelectableState !== SelectableState.None;
+
     let polygon = parent
       .append('polygon')
       .attr('points', polygonPoints)
       .style('fill', color)
-      .classed('variant-polygon', true);
+      .classed('variant-polygon', true)
+      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable);
 
     if (this.traceInfixSelectionMode) {
-      if (
-        element.selected &&
-        ((element.parent && !element.parent.selected) || !element.parent)
-      ) {
-        polygon
-          .attr('stroke', '#ff0000')
-          .attr('stroke-width', '4px')
-          .attr('stroke-opacity', '0.5');
-      } else if (!element.selected && element.selectable) {
-        polygon
-          .style('fill-opacity', '0.2')
-          .attr('stroke', '#ff0000')
-          .attr('stroke-width', '1px')
-          .attr('stroke-dasharray', 4);
-      } else if (!element.selected && !element.selectable) {
-        polygon.style('fill-opacity', '0.1');
-      }
+      this.addInfixSelectionAttributes(element, polygon, true);
     }
 
     if (this.onClickCbFc) {
@@ -495,7 +468,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
         .append('tspan')
         .attr('x', width / 2)
         .attr('y', y + dy)
-        .classed('cursor-pointer', true)
+        .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable)
         .text(a);
 
       dy += VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y;
@@ -520,6 +493,38 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
     if (this.onMouseOverCbFc) {
       this.onMouseOverCbFc(this, element, this.variant, parent);
+    }
+  }
+
+  private addInfixSelectionAttributes(
+    element: VariantElement,
+    polygon: any,
+    isLeafNode: boolean
+  ) {
+    if (this.performanceMode) return;
+
+    if (element.selected) {
+      polygon.attr('stroke-opacity', '0.5');
+      if (!element.isVisibleParentSelected())
+        polygon.attr('stroke', '#ff0000').attr('stroke-width', '4px');
+      return;
+    }
+
+    if (element.infixSelectableState !== SelectableState.Selectable) {
+      polygon.style('fill-opacity', '0.1');
+      return;
+    }
+
+    // element is selectable
+    polygon
+      .attr('stroke', '#ff0000')
+      .attr('stroke-width', '1px')
+      .attr('stroke-dasharray', 4);
+
+    if (isLeafNode) {
+      polygon.style('fill-opacity', '0.2');
+    } else {
+      polygon.style('fill', '#999999');
     }
   }
 

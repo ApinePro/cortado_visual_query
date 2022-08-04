@@ -13,7 +13,6 @@
   <td class="variant-cell">
     <ng-container [ngTemplateOutlet]="variantDrawer"> </ng-container>
   </td>
-  <div [ngTemplateOutlet]="infixSelection"></div>
 </ng-container>
 
 <ng-container *ngIf="isVisible && variant.userDefined && performanceMode">
@@ -29,6 +28,13 @@
     <tspan class="ms-2"> Performance not available </tspan>
   </td>
 </ng-container>
+
+<td
+  *ngIf="isVisible && traceInfixSelectionMode && !performanceMode"
+  class="infix-selection-buttons-panel"
+>
+  <ng-container [ngTemplateOutlet]="infixSelection"> </ng-container>
+</td>
 
 <td *ngIf="!isVisible">
   <div

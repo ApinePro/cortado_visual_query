@@ -270,30 +270,32 @@
 
     <span class="vl"></span>
 
-    <button
-      *ngIf="!traceInfixSelectionMode"
-      class="button"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      data-bs-trigger="hover"
-      title="Enter trace infix selection mode"
-      (click)="toggleTraceInfixSelectionMode()"
-    >
-      <i class="bi bi-ui-checks-grid"></i>
-    </button>
+    <div *ngIf="!performanceMode">
+      <button
+        *ngIf="!traceInfixSelectionMode"
+        class="button"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        data-bs-trigger="hover"
+        title="Enter trace infix selection mode"
+        (click)="toggleTraceInfixSelectionMode()"
+      >
+        <i class="bi bi-ui-checks-grid"></i>
+      </button>
 
-    <button
-      *ngIf="traceInfixSelectionMode"
-      class="button"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      data-bs-trigger="hover"
-      title="Exit trace infix selection mode"
-      style="color: green"
-      (click)="toggleTraceInfixSelectionMode()"
-    >
-      <i class="bi bi-ui-checks-grid"></i>
-    </button>
+      <button
+        *ngIf="traceInfixSelectionMode"
+        class="button"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        data-bs-trigger="hover"
+        title="Exit trace infix selection mode"
+        style="color: green"
+        (click)="toggleTraceInfixSelectionMode()"
+      >
+        <i class="bi bi-ui-checks-grid"></i>
+      </button>
+    </div>
 
     <span class="vl"></span>
 
@@ -495,6 +497,7 @@
                 processTreeService.currentDisplayedProcessTree
               "
               [performanceMode]="performanceMode"
+              [traceInfixSelectionMode]="traceInfixSelectionMode"
               [rootElement]="variantExplorerDiv"
             >
               <ng-template #treeButton>
@@ -557,14 +560,13 @@
                     style="display: inline-block"
                   ></svg>
                 </div>
-
-                <app-infix-selection-controlls
-                  [variant]="variant"
-                  [traceInfixSelectionMode]="traceInfixSelectionMode"
-                  (selectTraceInfix)="handleSelectInfix($event)"
-                  [variantDrawer]="drawer"
-                >
-                </app-infix-selection-controlls>
+                <ng-template #infixSelection>
+                  <app-infix-selection-controlls
+                    [variant]="variant"
+                    (selectTraceInfix)="handleSelectInfix($event)"
+                    [variantDrawer]="drawer"
+                  ></app-infix-selection-controlls>
+                </ng-template>
               </ng-template>
             </tr>
           </ng-container>

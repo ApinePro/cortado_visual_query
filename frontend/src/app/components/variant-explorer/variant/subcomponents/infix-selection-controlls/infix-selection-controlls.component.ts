@@ -16,14 +16,12 @@ export class InfixSelectionControllsComponent {
   @Input()
   variantDrawer: VariantDrawerDirective;
 
-  @Input()
-  traceInfixSelectionMode: boolean = false;
-
   @Output()
   public selectTraceInfix = new EventEmitter<Variant>();
 
   addCurrentSelectedInfix(): void {
     this.selectTraceInfix.emit(this.variant);
+    this.variantDrawer.redraw();
   }
 
   resetSelectionStatus(): void {
@@ -31,13 +29,9 @@ export class InfixSelectionControllsComponent {
     this.variantDrawer.redraw();
   }
 
-  undoSelection(): void {
-    this.variant.variant.undoSelection();
-    this.variantDrawer.redraw();
-  }
-
-  redoSelection(): void {
-    this.variant.variant.redoSelection();
+  selectAll(): void {
+    this.variant.variant.setAllChildrenSelected();
+    this.variant.variant.updateSelectionAttributes();
     this.variantDrawer.redraw();
   }
 }
