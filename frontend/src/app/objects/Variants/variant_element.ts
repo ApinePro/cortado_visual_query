@@ -276,7 +276,6 @@ export class SequenceGroup extends VariantElement {
 
         if (isFallthrough) {
           // Found a Fallthrough Stop Early
-          console.warn('Found a Fallthrough');
           return [[], true];
         } else {
           // We append the result
