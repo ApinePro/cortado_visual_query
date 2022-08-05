@@ -21,8 +21,9 @@
         'text-warning': toastEvent.type === ToastType.WARNING,
         'text-danger': toastEvent.type === ToastType.ERROR
       }"
-      >{{ toastEvent.title }}</strong
+      >{{ toastEvent.title }} - {{ type }}</strong
     >
+
     <button
       type="button"
       class="btn-close btn-close-white"
