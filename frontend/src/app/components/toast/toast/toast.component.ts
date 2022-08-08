@@ -27,10 +27,30 @@ export class ToastComponent implements OnInit {
 
   toast: any;
 
+  type: string;
+
   ToastType = ToastType;
 
   ngOnInit() {
+    this.setTypeString();
     this.show();
+  }
+
+  setTypeString(): void {
+    switch (this.toastEvent.type) {
+      case ToastType.SUCCESS:
+        this.type = 'Info';
+        break;
+      case ToastType.WARNING:
+        this.type = 'Warning';
+        break;
+      case ToastType.ERROR:
+        this.type = 'Error';
+        break;
+      default:
+        this.type = '';
+        break;
+    }
   }
 
   show() {
