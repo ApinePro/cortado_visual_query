@@ -72,6 +72,8 @@ import {
 import { collapsingText } from 'src/app/animations/text-animations';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
+import { ViewMode } from 'src/app/objects/ViewMode';
+import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -100,7 +102,8 @@ export class VariantExplorerComponent
     private performanceColorService: ModelPerformanceColorScaleService,
     public variantPerformanceService: VariantPerformanceService,
     private conformanceCheckingService: ConformanceCheckingService,
-    private goldenLayoutComponentService: GoldenLayoutComponentService
+    private goldenLayoutComponentService: GoldenLayoutComponentService,
+    public variantViewModeService: VariantViewModeService
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -111,7 +114,7 @@ export class VariantExplorerComponent
   public variants: Variant[] = [];
   public displayed_variants: Variant[] = [];
   public colorMap: Map<string, string>;
-  public sidebarHeigth = 0;
+  public sidebarHeight = 0;
 
   public logStats: LogStats = null;
 
@@ -120,10 +123,11 @@ export class VariantExplorerComponent
   protected unsubscribe: Subject<void> = new Subject<void>();
 
   public correctTreeSyntax = false;
-  performanceMode: boolean = false;
   expansionState: Map<string, boolean> = new Map<string, boolean>();
-  performanceColorMap: any;
+  serviceTimeColorMap: any;
   waitingColorMap: any;
+
+  public VM = ViewMode;
 
   public svgRenderingInProgress: boolean = false;
   public variantExplorerOutOfFocus: boolean = false;
@@ -236,7 +240,7 @@ export class VariantExplorerComponent
 
     this.variantPerformanceService.serviceTimeColorMap.subscribe((colorMap) => {
       if (colorMap !== undefined) {
-        this.performanceColorMap = colorMap;
+        this.serviceTimeColorMap = colorMap;
         this.redraw_components();
       }
     });
@@ -248,10 +252,9 @@ export class VariantExplorerComponent
       }
     });
 
-    this.variantPerformanceService.variantPerformanceMode.subscribe(
-      (isPerformanceModeActive) =>
-        this.setPerformanceMode(isPerformanceModeActive)
-    );
+    this.variantViewModeService.viewMode$.subscribe((viewMode: ViewMode) => {
+      this.onViewModeChange(viewMode);
+    });
   }
 
   private init() {
@@ -312,8 +315,7 @@ export class VariantExplorerComponent
       .pipe(
         tap(() => {
           this.closeAllSubvariantWindows();
-          this.performanceMode = false;
-          this.variantPerformanceService.variantPerformanceMode.next(false);
+          this.variantViewModeService.viewMode = ViewMode.STANDARD;
         })
       )
       .subscribe();
@@ -680,32 +682,19 @@ export class VariantExplorerComponent
       });
   }
 
-  public setPerformanceModeClicked(performanceMode: boolean) {
-    if (
-      performanceMode &&
-      !this.variantPerformanceService.performanceInformationLoaded
-    )
-      this.variantPerformanceService
-        .addPerformanceInformationToVariants()
-        .subscribe();
-    else
-      this.variantPerformanceService.variantPerformanceMode.next(
-        performanceMode
-      );
-  }
-
-  setPerformanceMode(performanceMode: boolean): void {
-    this.performanceMode = performanceMode;
-
-    if (performanceMode) {
-      this.variants.map((variant) => {
-        this.expansionState.set(variant.id, variant.variant.getExpanded());
-      });
-    } else {
-      // Return everything to its previous state
-      this.variants.forEach((variant, i) =>
-        variant.variant.setExpanded(this.expansionState.get(variant.id))
-      );
+  private onViewModeChange(viewMode: ViewMode) {
+    switch (viewMode) {
+      case ViewMode.PERFORMANCE:
+        this.variants.forEach((variant) => {
+          this.expansionState.set(variant.id, variant.variant.getExpanded());
+        });
+        break;
+      default:
+        // Return everything to its previous state
+        this.variants.forEach((variant, i) =>
+          variant.variant.setExpanded(this.expansionState.get(variant.id))
+        );
+        break;
     }
   }
 
@@ -778,7 +767,10 @@ export class VariantExplorerComponent
     const shouldExpand = !this.areAllVariantsExpanded();
 
     this.variantDrawers.forEach((c) => {
-      if (!this.performanceMode && shouldExpand != c.variant.expanded) {
+      if (
+        this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE &&
+        shouldExpand != c.variant.expanded
+      ) {
         c.setExpanded(shouldExpand);
         c.redraw();
       }
@@ -793,7 +785,7 @@ export class VariantExplorerComponent
   ): void {
     this.collapse = width < 875;
 
-    this.sidebarHeigth = height;
+    this.sidebarHeight = height;
   }
 
   handleVisibilityChange(visibility: boolean): void {}

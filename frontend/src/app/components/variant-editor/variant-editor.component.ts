@@ -19,7 +19,6 @@ import { cloneDeep } from 'lodash';
 import { Selection } from 'd3';
 import * as objectHash from 'object-hash';
 import * as d3 from 'd3';
-import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 import { LogService } from 'src/app/services/logService/log.service';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
@@ -86,7 +85,6 @@ export class VariantEditorComponent
   zoom: any;
 
   redundancyWarning: boolean = false;
-  performanceMode: boolean;
 
   constructor(
     private sharedDataService: SharedDataService,
@@ -96,7 +94,6 @@ export class VariantEditorComponent
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
-    private variantPerformanceService: VariantPerformanceService,
     elRef: ElementRef,
     renderer: Renderer2
   ) {
@@ -130,12 +127,6 @@ export class VariantEditorComponent
         this.variantDrawer.redraw();
       }
     });
-
-    this.variantPerformanceService.variantPerformanceMode.subscribe(
-      (performanceMode) => {
-        this.performanceMode = performanceMode;
-      }
-    );
   }
 
   handleResponsiveChange(

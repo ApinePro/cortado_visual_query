@@ -14,6 +14,8 @@ import { ColorMapService } from 'src/app/services/colorMapService/color-map.serv
 
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 import { SubvariantVisualization } from 'src/app/objects/Variants/subvariant';
+import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
+import { ViewMode } from 'src/app/objects/ViewMode';
 
 @Component({
   selector: 'app-sub-variant',
@@ -33,7 +35,6 @@ export class SubVariantComponent implements AfterViewInit {
   }
 
   private _variant;
-  isPerformanceMode: boolean;
 
   @Input()
   private expanded = false;
@@ -52,7 +53,8 @@ export class SubVariantComponent implements AfterViewInit {
     private sharedDataService: SharedDataService,
     private colorMapService: ColorMapService,
     private tooltipService: ActivateTooltipsService,
-    private variantPerformanceService: VariantPerformanceService
+    private variantPerformanceService: VariantPerformanceService,
+    private variantViewModeService: VariantViewModeService
   ) {}
 
   ngAfterViewInit(): void {
@@ -80,12 +82,9 @@ export class SubVariantComponent implements AfterViewInit {
       }
     });
 
-    this.variantPerformanceService.variantPerformanceMode.subscribe(
-      (isPerformanceModeActive: boolean) => {
-        this.isPerformanceMode = isPerformanceModeActive;
-        this.draw();
-      }
-    );
+    this.variantViewModeService.viewMode$.subscribe((viewMode: ViewMode) => {
+      this.draw();
+    });
   }
 
   draw(textColor: string = 'whitesmoke'): void {
@@ -115,7 +114,10 @@ export class SubVariantComponent implements AfterViewInit {
     this.svg.attr('height', height);
     this.svg.attr('width', width);
 
-    const helpLineOpacity = this.isPerformanceMode ? 0.1 : 0.04;
+    const helpLineOpacity =
+      this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+        ? 0.1
+        : 0.04;
 
     this.svg
       .selectAll('line')
@@ -130,7 +132,7 @@ export class SubVariantComponent implements AfterViewInit {
       .attr('stroke-width', 2 * VARIANT_Constants.POINT_RADIUS)
       .attr('stroke-opacity', helpLineOpacity);
 
-    if (this.isPerformanceMode) {
+    if (this.variantViewModeService.viewMode === ViewMode.PERFORMANCE) {
       dataArray = dataArray.concat(this.buildWaitingTimeData(data));
 
       this.svg
@@ -218,7 +220,7 @@ export class SubVariantComponent implements AfterViewInit {
   }
 
   private computeActivityColor(subvariantData: SubvariantVisualization) {
-    if (!this.isPerformanceMode) {
+    if (this.variantViewModeService.viewMode === ViewMode.STANDARD) {
       return this.colorMap.get(subvariantData.activity);
     }
     if (!subvariantData.isWaitingTimeNode) {
