@@ -45,7 +45,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   // Put the dropzone in front if a File Drag enters
   @HostListener('window:dragenter', ['$event'])
   window_dragenter(event) {
-    if((event.dataTransfer.types as Array<string>).includes('Files')){
+    if ((event.dataTransfer.types as Array<string>).includes('Files')) {
       DropZoneDirective.windowDrag = true;
     }
   }
