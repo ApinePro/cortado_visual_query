@@ -11,6 +11,8 @@ import {
   Output,
   EventEmitter,
   Input,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -26,7 +28,7 @@ import { ColorMapService } from 'src/app/services/colorMapService/color-map.serv
   templateUrl: './variant-query.component.html',
   styleUrls: ['./variant-query.component.scss'],
 })
-export class VariantQueryComponent implements OnInit, AfterViewInit {
+export class VariantQueryComponent implements OnInit, AfterViewInit, OnChanges{
   variantQueryInput: any;
 
   @ViewChild('queryEditor') queryEditor: ElementRef<HTMLTextAreaElement>;
@@ -40,6 +42,12 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
   @Input()
   active: boolean = false;
 
+  @Input()
+  options : EditorOptions = new EditorOptions();
+
+  @Input()
+  queryfilteractive : boolean = false;
+
   activityNameRegEx = new RegExp("'([^']*)'", 'g');
   activityColorMap: Map<string, string>;
   imbalancedItems: imbalancedItem[];
@@ -52,6 +60,14 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
     private logService: LogService,
     private backendService: BackendService
   ) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+
+    console.log(changes)
+    if(this.active){
+      this.handleInput();
+    }
+  }
 
   ngOnInit() {
     this.variantQueryInput = new FormGroup({
@@ -132,8 +148,15 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
       .replace(/\</g, '&lt;')
       .replace(/\>/g, '&gt;');
 
-    highlighted_text = this.colorActivityNames(highlighted_text);
+    
+    if(this.options.highlightActivityNames){
+      highlighted_text = this.colorActivityNames(highlighted_text);
+    };
+
+    highlighted_text = this.colorSyntaxOperators(highlighted_text); 
+
     highlighted_text = this.colorLogicalOperators(highlighted_text);
+
     highlighted_text = this.colorOperators(highlighted_text);
 
     return highlighted_text;
@@ -143,6 +166,13 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
     value = value.replace(
       /\b(NOT|AND|OR|ANY|ALL)\b/g,
       "<span class='logical-operator'>$&</span>"
+    );
+    return value;
+  }
+
+  colorSyntaxOperators(value: any): string {
+    value = value.replace(
+      /(((\'|\;)($|\s))|((^|\s)(\'|\;)))/g, "<span class='syntax-operator'>$&</span>"
     );
     return value;
   }
@@ -363,4 +393,13 @@ class imbalancedItem {
     this.symbol = symbol;
     this.index = index;
   }
+}
+
+export class EditorOptions {
+  highlightActivityNames : boolean 
+  
+  constructor() {
+    this.highlightActivityNames = true; 
+  }
+  
 }

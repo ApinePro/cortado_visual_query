@@ -72,6 +72,7 @@ import {
 import { collapsingText } from 'src/app/animations/text-animations';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
+import { EditorOptions } from './variant-query/variant-query.component';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -112,6 +113,8 @@ export class VariantExplorerComponent
   public displayed_variants: Variant[] = [];
   public colorMap: Map<string, string>;
   public sidebarHeigth = 0;
+
+  public options : EditorOptions = new EditorOptions()
 
   public logStats: LogStats = null;
 
@@ -305,6 +308,16 @@ export class VariantExplorerComponent
     this.logService.logStatistics$.subscribe((logStat) => {
       this.logStats = logStat;
     });
+  }
+
+  changeQueryOption(event, option){
+
+    const newOptions : EditorOptions = new EditorOptions(); 
+    Object.entries(this.options).forEach(v => newOptions[v[0]] = v[1])
+    newOptions[option] = event.target.checked
+
+    this.options = newOptions
+
   }
 
   private listenForLogChange() {

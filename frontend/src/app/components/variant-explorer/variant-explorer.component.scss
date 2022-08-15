@@ -37,7 +37,27 @@
   align-items: stretch;
   flex-direction: column;
   border-bottom: black solid 1px;
+  border-left: black solid 1px;
+  border-top: black solid 1px;
   z-index: 1;
+}
+
+.query-bar-drop{
+  background-color: var(--box-background-color) !important;
+  z-index :  100;
+  border-radius: 0;
+}
+
+.query-bar-dropdown{
+  transform : translate(0, 22px) !important;
+  color:whitesmoke;
+  font-size: small;
+  position: absolute;
+  inset: 0px 0px auto auto;
+  transform: translate(0px, 28px);
+  padding: 10px;
+  width: 15rem;
+  border-radius: 4px !important;
 }
 
 .query-app-container{
@@ -115,6 +135,11 @@
   padding: 5px;
 }
 
+.badge-button{
+  padding: 0;
+  font-size: unset;
+  display: contents;
+}
 .button-text {
   display: inline-block;
 }

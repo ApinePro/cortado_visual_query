@@ -1,5 +1,7 @@
 $tooltip-max-width: 450px;
 
+
+
 /* Define our main import here */
 @import "./@theme/theme";
 @import "~bootstrap-icons/font/bootstrap-icons.css";
@@ -12,11 +14,6 @@ $tooltip-max-width: 450px;
   font-size: var(--standard-font-size);
 }
 
-
-
-body {
-  overflow : hidden;
-}
 
 :root {
   --line-color: #485158;
@@ -31,6 +28,12 @@ body {
   --bs-dark-rgb: 52,58,64;
   --bs-bg-opacity: 1;
 }
+
+
+body {
+  overflow : hidden;
+}
+
 
 .table-dark{
   --bs-table-bg: #343a40;
@@ -233,6 +236,10 @@ th {
 
 .logical-operator{
   color :rgb(65, 141, 213);
+}
+
+.syntax-operator{
+  color :rgb(255, 255, 255);
 }
 
 .syntax-info {

@@ -348,16 +348,51 @@
     class="variant-query-button"
     [@openCloseComponent]="queryActive ? 'openComponent' : 'closeComponent'"
   >
-    <div class="query-header d-flex" (click)="toggleQuery()">
-      <div class="query-button me-auto">
+    <div class="query-header d-flex">
+      <div class="query-button me-auto" (click)="toggleQuery()">
         <i
           [ngClass]="{
             'bi-arrows-angle-contract': queryActive,
-            'bi bi-search': !queryActive
+            'bi bi-funnel': !queryActive
           }"
           class=""
         ></i>
-        <span *ngIf="queryActive" class="ms-2">Variant Query</span>
+        <span *ngIf="queryActive" class="ms-2 user-select-none"
+          >Variant Query</span
+        >
+      </div>
+
+      <div class="me-2 dropdown">
+        <button
+          class="query-info-button"
+          type="button"
+          id="Options"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <i
+            class="bi bi-gear font-large secondary-text fs-6 question-icon"
+          ></i>
+        </button>
+        <ul
+          class="dropdown-menu query-bar-drop query-bar-dropdown"
+          aria-labelledby="Files"
+        >
+          <li>
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="flexSwitchCheckChecked"
+                checked
+                (change)="changeQueryOption($event, 'highlightActivityNames')"
+              />
+              <label class="form-check-label" for="flexSwitchCheckChecked"
+                >Syntax Highlighting</label
+              >
+            </div>
+          </li>
+        </ul>
       </div>
       <div class="me-2">
         <button
@@ -383,6 +418,8 @@
       <app-variant-query
         (query_selection)="apply_query_filter($event)"
         [active]="queryActive"
+        [options]="options"
+        [queryfilteractive]="displayed_variants.length !== variants.length"
       ></app-variant-query>
     </div>
   </div>
@@ -468,9 +505,23 @@
 
             <th class="text-start">
               Variant
+              <span
+                class="badge text-bg-primary ms-1"
+                *ngIf="displayed_variants.length !== variants.length"
+                ><i class="bi bi-funnel-fill"> </i> query filter
+                <button
+                  class="btn badge-button"
+                  (click)="removeAllFilters()"
+                  data-bs-toggle="tooltip"
+                  title="remove query filter"
+                >
+                  <i class="bi bi-x-lg" style="color: white"></i>
+                </button>
+              </span>
+
               <i
                 *ngIf="displayed_variants.length !== variants.length"
-                class="bi bi-funnel-fill text-primary"
+                class="text-primary"
                 data-bs-toggle="tooltip"
                 data-placement="bottom"
                 title="Filter active"
@@ -583,7 +634,7 @@
     ></app-conformance-info-bar>
   </div>
 
-  <div class="tooltip" role="tooltip" #tooltipContainer>
+  <div role="tooltip" #tooltipContainer>
     <div class="tooltip-inner"></div>
   </div>
 </div>
