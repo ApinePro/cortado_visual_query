@@ -271,7 +271,13 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
 
-    let polygon = this.createPolygon(parent, polygonPoints, color, actionable, true)
+    let polygon = this.createPolygon(
+      parent,
+      polygonPoints,
+      color,
+      actionable,
+      true
+    );
 
     if (
       this.traceInfixSelectionMode &&
@@ -340,7 +346,13 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       laElement.infixSelectableState !== SelectableState.None;
 
     const color = 'lightgrey';
-    let polygon = this.createPolygon(parent, polygonPoints, color, actionable, true);
+    let polygon = this.createPolygon(
+      parent,
+      polygonPoints,
+      color,
+      actionable,
+      true
+    );
 
     if (
       this.traceInfixSelectionMode &&
@@ -382,18 +394,24 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     }
   }
 
-  private createPolygon(parent: d3.Selection<any, any, any, any>, polygonPoints: string, color: string, actionable: boolean, group = false) {
-    const poly = parent.append('polygon')
-                      .attr('points', polygonPoints)
-                      .style('fill', color)
-                      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable);
+  private createPolygon(
+    parent: d3.Selection<any, any, any, any>,
+    polygonPoints: string,
+    color: string,
+    actionable: boolean,
+    group = false
+  ) {
+    const poly = parent
+      .append('polygon')
+      .attr('points', polygonPoints)
+      .style('fill', color)
+      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable);
 
-    if (group){
-      poly.style('fill-opacity', .5)
-          .style('stroke-width', 2)
+    if (group) {
+      poly.style('fill-opacity', 0.5).style('stroke-width', 2);
     }
 
-    return poly
+    return poly;
   }
 
   public drawLeafNode(
@@ -419,7 +437,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
 
-    let polygon = this.createPolygon(parent, polygonPoints, color, actionable)
+    let polygon = this.createPolygon(parent, polygonPoints, color, actionable);
 
     if (this.traceInfixSelectionMode) {
       this.addInfixSelectionAttributes(element, polygon, true);
@@ -534,8 +552,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
     const color = this.computeActivityColor(this, element, this.variant);
 
-
-    this.createPolygon(parent, polygonPoints, color, false)
+    this.createPolygon(parent, polygonPoints, color, false);
 
     if (this.onClickCbFc) {
       parent.on('click', (e: PointerEvent) => {
