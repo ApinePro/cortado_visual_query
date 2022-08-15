@@ -11,8 +11,6 @@ import {
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
 import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
-import { LogService } from './services/logService/log.service';
-import { SharedDataService } from './services/sharedDataService/shared-data.service';
 import * as d3 from 'd3';
 @Component({
   selector: 'app-root',
@@ -28,8 +26,6 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   constructor(
     private goldenLayoutComponentService: GoldenLayoutComponentService,
-    private logService: LogService,
-    private sharedDataService: SharedDataService,
     @Inject(APP_INITIALIZER) public appInit: ApplicationInitStatus
   ) {}
 
@@ -49,7 +45,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   // Put the dropzone in front if a File Drag enters
   @HostListener('window:dragenter', ['$event'])
   window_dragenter(event) {
-    DropZoneDirective.windowDrag = true;
+    if((event.dataTransfer.types as Array<string>).includes('Files')){
+      DropZoneDirective.windowDrag = true;
+    }
   }
 
   // If the File Drag leaves the window, put the Dropzone back again
