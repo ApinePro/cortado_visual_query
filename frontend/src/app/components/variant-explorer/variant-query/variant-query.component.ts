@@ -79,6 +79,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
 
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.activityColorMap = colorMap;
+      this.handleInput();
     });
   }
 
