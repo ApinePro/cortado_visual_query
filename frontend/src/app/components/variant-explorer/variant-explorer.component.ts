@@ -114,7 +114,7 @@ export class VariantExplorerComponent
   public colorMap: Map<string, string>;
   public sidebarHeigth = 0;
 
-  public options : EditorOptions = new EditorOptions()
+  public options: EditorOptions = new EditorOptions();
 
   public logStats: LogStats = null;
 
@@ -310,14 +310,12 @@ export class VariantExplorerComponent
     });
   }
 
-  changeQueryOption(event, option){
+  changeQueryOption(event, option) {
+    const newOptions: EditorOptions = new EditorOptions();
+    Object.entries(this.options).forEach((v) => (newOptions[v[0]] = v[1]));
+    newOptions[option] = event.target.checked;
 
-    const newOptions : EditorOptions = new EditorOptions(); 
-    Object.entries(this.options).forEach(v => newOptions[v[0]] = v[1])
-    newOptions[option] = event.target.checked
-
-    this.options = newOptions
-
+    this.options = newOptions;
   }
 
   private listenForLogChange() {

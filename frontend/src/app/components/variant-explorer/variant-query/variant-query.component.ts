@@ -28,7 +28,7 @@ import { ColorMapService } from 'src/app/services/colorMapService/color-map.serv
   templateUrl: './variant-query.component.html',
   styleUrls: ['./variant-query.component.scss'],
 })
-export class VariantQueryComponent implements OnInit, AfterViewInit, OnChanges{
+export class VariantQueryComponent implements OnInit, AfterViewInit, OnChanges {
   variantQueryInput: any;
 
   @ViewChild('queryEditor') queryEditor: ElementRef<HTMLTextAreaElement>;
@@ -43,10 +43,10 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnChanges{
   active: boolean = false;
 
   @Input()
-  options : EditorOptions = new EditorOptions();
+  options: EditorOptions = new EditorOptions();
 
   @Input()
-  queryfilteractive : boolean = false;
+  queryfilteractive: boolean = false;
 
   activityNameRegEx = new RegExp("'([^']*)'", 'g');
   activityColorMap: Map<string, string>;
@@ -62,9 +62,8 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnChanges{
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-
-    console.log(changes)
-    if(this.active){
+    console.log(changes);
+    if (this.active) {
       this.handleInput();
     }
   }
@@ -148,12 +147,11 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnChanges{
       .replace(/\</g, '&lt;')
       .replace(/\>/g, '&gt;');
 
-    
-    if(this.options.highlightActivityNames){
+    if (this.options.highlightActivityNames) {
       highlighted_text = this.colorActivityNames(highlighted_text);
-    };
+    }
 
-    highlighted_text = this.colorSyntaxOperators(highlighted_text); 
+    highlighted_text = this.colorSyntaxOperators(highlighted_text);
 
     highlighted_text = this.colorLogicalOperators(highlighted_text);
 
@@ -172,7 +170,8 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnChanges{
 
   colorSyntaxOperators(value: any): string {
     value = value.replace(
-      /(((\'|\;)($|\s))|((^|\s)(\'|\;)))/g, "<span class='syntax-operator'>$&</span>"
+      /(((\'|\;)($|\s))|((^|\s)(\'|\;)))/g,
+      "<span class='syntax-operator'>$&</span>"
     );
     return value;
   }
@@ -396,10 +395,9 @@ class imbalancedItem {
 }
 
 export class EditorOptions {
-  highlightActivityNames : boolean 
-  
+  highlightActivityNames: boolean;
+
   constructor() {
-    this.highlightActivityNames = true; 
+    this.highlightActivityNames = true;
   }
-  
 }

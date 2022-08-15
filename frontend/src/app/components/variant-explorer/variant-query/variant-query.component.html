@@ -41,7 +41,9 @@
           </div>
 
           <div *ngIf="variantQuery.errors?.['imbalanced']">
-            <li *ngFor="let imbalancedItem of variantQuery.errors?.['imbalanced']">
+            <li
+              *ngFor="let imbalancedItem of variantQuery.errors?.['imbalanced']"
+            >
               Imbalanced {{ imbalancedItem.symbol }} at position
               {{ imbalancedItem.index + 1 }}
             </li>
@@ -58,7 +60,10 @@
             Missing Semicolon
           </li>
 
-          <li *ngIf="variantQuery.errors?.['backendError']" class="backend-error">
+          <li
+            *ngIf="variantQuery.errors?.['backendError']"
+            class="backend-error"
+          >
             <span> {{ variantQuery.errors?.['backendError'] }} </span>
           </li>
         </ul>
