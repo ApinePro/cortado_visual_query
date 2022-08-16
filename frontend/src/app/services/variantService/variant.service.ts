@@ -1,3 +1,4 @@
+import { VariantFilterService } from './../variantFilterService/variant-filter.service';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { LogService } from 'src/app/services/logService/log.service';
@@ -38,8 +39,15 @@ export class VariantService {
     private httpClient: HttpClient,
     private processTreeService: ProcessTreeService,
     private colorMapService: ColorMapService,
-    private toastService: ToastService
-  ) {}
+    private toastService: ToastService,
+    private variantFilterService : VariantFilterService
+  ) {
+
+    this.logService.loadedEventLog$.subscribe(() => {
+      this.variantFilterService.clearAllFilters();
+    })
+
+  }
 
   private _variants = new BehaviorSubject<Variant[]>([]);
 
@@ -67,6 +75,11 @@ export class VariantService {
 
   get cachedChange(): boolean {
     return this._cachedChange.getValue();
+  }
+
+  // TODO Add Spinner Removal / Toast etc.
+  private afterVariantChange(){
+    this.variantFilterService.clearAllFilters();
   }
 
   public nUserVariants: number = 0;
@@ -219,7 +232,9 @@ export class VariantService {
       this.cachedChange = true;
       this.logService.computeLogStats(variants);
 
+      this.afterVariantChange();
       this.variants = variants;
+
     });
   }
 
@@ -255,6 +270,7 @@ export class VariantService {
         }
       });
 
+      this.afterVariantChange();
       this.variants = variants;
     });
 
@@ -329,6 +345,8 @@ export class VariantService {
         this.cachedChange = false;
 
         const variants = addVariantInformation(res['variants']);
+        this.afterVariantChange();
+
         this.variants = variants;
         this.logService.computeLogStats(variants);
       });

@@ -1,3 +1,4 @@
+import { VariantFilterService } from './../../../services/variantFilterService/variant-filter.service';
 import { LogService } from 'src/app/services/logService/log.service';
 import { BackendService } from 'src/app/services/backendService/backend.service';
 import {
@@ -8,11 +9,7 @@ import {
   Renderer2,
   AfterViewInit,
   HostListener,
-  Output,
-  EventEmitter,
   Input,
-  OnChanges,
-  SimpleChanges,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -28,7 +25,7 @@ import { ColorMapService } from 'src/app/services/colorMapService/color-map.serv
   templateUrl: './variant-query.component.html',
   styleUrls: ['./variant-query.component.scss'],
 })
-export class VariantQueryComponent implements OnInit, AfterViewInit, OnChanges {
+export class VariantQueryComponent implements OnInit, AfterViewInit {
   variantQueryInput: any;
 
   @ViewChild('queryEditor') queryEditor: ElementRef<HTMLTextAreaElement>;
@@ -36,16 +33,12 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnChanges {
   queryEditorBackdrop: ElementRef<HTMLDivElement>;
   @ViewChild('highlightText') highlightText: ElementRef<HTMLDivElement>;
 
-  @Output()
-  query_selection = new EventEmitter<Set<number>>();
-
   @Input()
   active: boolean = false;
 
   @Input()
   options: EditorOptions = new EditorOptions();
 
-  @Input()
   queryfilteractive: boolean = false;
 
   activityNameRegEx = new RegExp("'([^']*)'", 'g');
@@ -58,15 +51,9 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnChanges {
     private renderer: Renderer2,
     private colorMapService: ColorMapService,
     private logService: LogService,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private variantFilterService : VariantFilterService
   ) {}
-
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes);
-    if (this.active) {
-      this.handleInput();
-    }
-  }
 
   ngOnInit() {
     this.variantQueryInput = new FormGroup({
@@ -95,6 +82,10 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnChanges {
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.activityColorMap = colorMap;
     });
+
+    this.variantFilterService.variantFilters$.subscribe((filter) => {
+      this.queryfilteractive = filter.has('query filter')
+    })
   }
 
   onSubmit() {
@@ -102,7 +93,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnChanges {
       .variantQuery(this.variantQuery.value)
       .subscribe((res) => {
         if (!res.error) {
-          this.query_selection.emit(new Set(res.ids as Array<number>));
+          this.variantFilterService.addVariantFilter('query filter', new Set(res.ids as Array<number>))
         } else {
           this.variantQuery.setErrors({ backendError: res.error });
           this.backendErrorIndex = res.error_index;
@@ -111,7 +102,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   resetQuery() {
-    this.query_selection.emit(null);
+    this.variantFilterService.removeVariantFilter('query filter')
   }
 
   get variantQuery(): FormControl {

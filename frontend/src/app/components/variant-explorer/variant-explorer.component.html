@@ -416,10 +416,8 @@
       "
     >
       <app-variant-query
-        (query_selection)="apply_query_filter($event)"
         [active]="queryActive"
         [options]="options"
-        [queryfilteractive]="displayed_variants.length !== variants.length"
       ></app-variant-query>
     </div>
   </div>
@@ -437,15 +435,19 @@
       <div class="chart-variant__percentage">
         <table>
           <tr class="user-select-none">
-            <th style="padding-right: 15px; padding-left: 5px">Nr.</th>
-            <th style="display: flex; align-items: center">
-              <app-variant-selection-button
-                [isSelected]="areAllDisplayedVariantsSelected()"
-                (selectionChanged)="unSelectAllChanged($event)"
-                tooltipText="(un)select all variants"
-              >
-              </app-variant-selection-button>
-              Info
+            <th style="padding-right: 15px; padding-left: 5px">
+              <div class="variant-filter-container">Nr.</div>
+            </th>
+            <th>
+              <div class="variant-filter-container">
+                <app-variant-selection-button
+                  [isSelected]="areAllDisplayedVariantsSelected()"
+                  (selectionChanged)="unSelectAllChanged($event)"
+                  tooltipText="(un)select all variants"
+                >
+                </app-variant-selection-button>
+                Info
+              </div>
             </th>
             <th
               style="
@@ -454,7 +456,7 @@
                 padding-left: 10px;
               "
             >
-              Sub-Variants
+              <div class="variant-filter-container">Sub-Variants</div>
             </th>
             <th
               *ngIf="currentlyDisplayedProcessTree"
@@ -504,37 +506,39 @@
             </th>
 
             <th class="text-start">
-              Variant
-              <span
-                class="badge text-bg-primary ms-1"
-                *ngIf="displayed_variants.length !== variants.length"
-                ><i class="bi bi-funnel-fill"> </i> query filter
-                <button
-                  class="btn badge-button"
-                  (click)="removeAllFilters()"
-                  data-bs-toggle="tooltip"
-                  title="remove query filter"
-                >
-                  <i class="bi bi-x-lg" style="color: white"></i>
-                </button>
-              </span>
+              <div class="variant-filter-container p-2">
+                <div>
+                  <span>Variant </span>
+                  <br />
+                  <span class="variant-number"
+                    >({{
+                      displayed_variants.length === variants.length
+                        ? displayed_variants.length
+                        : displayed_variants.length + "/" + variants.length
+                    }})</span>
+                </div>
 
-              <i
-                *ngIf="displayed_variants.length !== variants.length"
-                class="text-primary"
-                data-bs-toggle="tooltip"
-                data-placement="bottom"
-                title="Filter active"
-                (dblclick)="removeAllFilters()"
-              ></i>
-              <br />
-              <span class="variant-number"
-                >({{
-                  displayed_variants.length === variants.length
-                    ? displayed_variants.length
-                    : displayed_variants.length + "/" + variants.length
-                }})</span
-              >
+                <div class="filter-container">
+
+                  <div *ngFor="let filter of filterMap | keyvalue" class='badge-container'>
+                    <span
+                        class="badge rounded-pill bg-danger badge-close-position cursor-pointer"
+                      >
+                        <button
+                          class="btn badge-button"
+                          (click)="removeFilter(filter.key)"
+                        >
+                          <i class="bi bi-x-lg close-icon"></i>
+                        </button>
+                    </span>
+                    <span
+                      class="badge text-bg-primary ms-1"
+                    >
+                      <i class="bi bi-funnel-fill"> </i> query filter
+                    </span>
+                  </div>
+                </div>
+              </div>
             </th>
           </tr>
           <ng-container

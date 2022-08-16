@@ -7,6 +7,7 @@
   */
   font-size: .8rem;
   color: var(--text-secondary);
+  width: 100%;
 }
 
 :host {
@@ -124,6 +125,47 @@
   position: absolute;
   bottom: 10px;
   margin: auto;
+}
+
+.badge-close-position{
+  transform: translate(-50%, -35%) scale(0.6);
+  left: 100%;
+  top: 0%;
+  position:relative;
+}
+
+.badge-close-position:hover{
+  filter: brightness(150%);
+}
+
+.badge-container{
+  margin-left : -20px;
+}
+
+.close-icon{
+  color : white
+}
+
+.filter-container{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 5px;
+  max-width: 50%;
+  justify-content: center;
+  align-items: flex-start;
+  align-content: flex-start;
+  height: 100%;
+  align-self: baseline;
+}
+
+.variant-filter-container{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 .variant-activity-tooltip {
