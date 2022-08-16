@@ -5,11 +5,13 @@ import { Observable } from 'rxjs/internal/Observable';
 import { VariantService } from '../variantService/variant.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class VariantFilterService {
-
-  private _variantFilters : BehaviorSubject<Map<string, Set<number>>> = new BehaviorSubject<Map<string, Set<number>>>(new  Map<string, Set<number>>() );
+  private _variantFilters: BehaviorSubject<Map<string, Set<number>>> =
+    new BehaviorSubject<Map<string, Set<number>>>(
+      new Map<string, Set<number>>()
+    );
 
   get variantFilters$(): Observable<Map<string, Set<number>>> {
     return this._variantFilters.asObservable();
@@ -20,39 +22,26 @@ export class VariantFilterService {
   }
 
   get variantFilters() {
-    return this._variantFilters.value
+    return this._variantFilters.value;
   }
 
-  constructor(
-    ) {}
+  constructor() {}
 
-  addVariantFilter(filter_name : string, bids : Set<number>){
+  addVariantFilter(filter_name: string, bids: Set<number>) {
+    const newFilterMap = new Map<string, Set<number>>(this.variantFilters);
+    newFilterMap.set(filter_name, bids);
 
-    const newFilterMap = new  Map<string, Set<number>>(this.variantFilters);
-    newFilterMap.set(filter_name, bids)
-
-    this.variantFilters = newFilterMap
-
+    this.variantFilters = newFilterMap;
   }
 
-
-  removeVariantFilter(filter_name){
-
-    const newFilterMap = new  Map<string, Set<number>>(this.variantFilters);
+  removeVariantFilter(filter_name) {
+    const newFilterMap = new Map<string, Set<number>>(this.variantFilters);
     newFilterMap.delete(filter_name);
-    this.variantFilters = newFilterMap
-
+    this.variantFilters = newFilterMap;
   }
 
-
-  clearAllFilters(){
-    const newFilterMap = new  Map<string, Set<number>>(this.variantFilters);
-    this.variantFilters = newFilterMap
+  clearAllFilters() {
+    const newFilterMap = new Map<string, Set<number>>(this.variantFilters);
+    this.variantFilters = newFilterMap;
   }
-
-
-
-
-
-
 }

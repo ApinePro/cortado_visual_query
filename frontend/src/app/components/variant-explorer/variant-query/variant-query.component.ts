@@ -52,7 +52,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
     private colorMapService: ColorMapService,
     private logService: LogService,
     private backendService: BackendService,
-    private variantFilterService : VariantFilterService
+    private variantFilterService: VariantFilterService
   ) {}
 
   ngOnInit() {
@@ -84,8 +84,8 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
     });
 
     this.variantFilterService.variantFilters$.subscribe((filter) => {
-      this.queryfilteractive = filter.has('query filter')
-    })
+      this.queryfilteractive = filter.has('query filter');
+    });
   }
 
   onSubmit() {
@@ -93,7 +93,10 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
       .variantQuery(this.variantQuery.value)
       .subscribe((res) => {
         if (!res.error) {
-          this.variantFilterService.addVariantFilter('query filter', new Set(res.ids as Array<number>))
+          this.variantFilterService.addVariantFilter(
+            'query filter',
+            new Set(res.ids as Array<number>)
+          );
         } else {
           this.variantQuery.setErrors({ backendError: res.error });
           this.backendErrorIndex = res.error_index;
@@ -102,7 +105,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
   }
 
   resetQuery() {
-    this.variantFilterService.removeVariantFilter('query filter')
+    this.variantFilterService.removeVariantFilter('query filter');
   }
 
   get variantQuery(): FormControl {

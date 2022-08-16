@@ -22,13 +22,7 @@ import {
   Stack,
 } from 'golden-layout';
 import { Subject } from 'rxjs';
-import {
-  delay,
-  mergeMap,
-  retryWhen,
-  take,
-  tap,
-} from 'rxjs/operators';
+import { delay, mergeMap, retryWhen, take, tap } from 'rxjs/operators';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
@@ -151,7 +145,7 @@ export class VariantExplorerComponent
   contextMenu_variant: VariantElement;
   contextMenu_directive: VariantDrawerDirective;
 
-  filterMap : Map<string, Set<number>> = new  Map<string, Set<number>>()
+  filterMap: Map<string, Set<number>> = new Map<string, Set<number>>();
 
   // Define Callbacks
   variantClickCallBack = clickCallback.bind(this);
@@ -240,19 +234,17 @@ export class VariantExplorerComponent
       this.redraw_components();
     });
 
-
-
     this.variantFilterService.variantFilters$.subscribe((filterMap) => {
-
       this.filterMap = filterMap;
 
-      if(filterMap.size > 0){
-
-        function union(a : Set<number>, b : Set<number>) {
+      if (filterMap.size > 0) {
+        function union(a: Set<number>, b: Set<number>) {
           return new Set([...a, ...b]);
         }
 
-        const filterSet = Array.from(filterMap.values()).reduce((a, b) => union(a,b))
+        const filterSet = Array.from(filterMap.values()).reduce((a, b) =>
+          union(a, b)
+        );
 
         this.displayed_variants = this.variants.filter((v) => {
           if (filterSet.has(v.bid)) {
@@ -261,8 +253,7 @@ export class VariantExplorerComponent
           } else {
             v.isDisplayed = false;
           }
-        })
-
+        });
       } else {
         this.displayed_variants = this.variants;
         this.variants.forEach((v) => (v.isDisplayed = true));
@@ -270,7 +261,7 @@ export class VariantExplorerComponent
 
       this.updateAllSubvariantWindows();
       this.redraw_components();
-    })
+    });
 
     this.variantPerformanceService.serviceTimeColorMap.subscribe((colorMap) => {
       if (colorMap !== undefined) {
@@ -477,7 +468,7 @@ export class VariantExplorerComponent
     return '#d3d3d3';
   };
 
-  removeFilter(filter_name : string){
+  removeFilter(filter_name: string) {
     this.variantFilterService.removeVariantFilter(filter_name);
   }
 

@@ -40,13 +40,11 @@ export class VariantService {
     private processTreeService: ProcessTreeService,
     private colorMapService: ColorMapService,
     private toastService: ToastService,
-    private variantFilterService : VariantFilterService
+    private variantFilterService: VariantFilterService
   ) {
-
     this.logService.loadedEventLog$.subscribe(() => {
       this.variantFilterService.clearAllFilters();
-    })
-
+    });
   }
 
   private _variants = new BehaviorSubject<Variant[]>([]);
@@ -78,7 +76,7 @@ export class VariantService {
   }
 
   // TODO Add Spinner Removal / Toast etc.
-  private afterVariantChange(){
+  private afterVariantChange() {
     this.variantFilterService.clearAllFilters();
   }
 
@@ -234,7 +232,6 @@ export class VariantService {
 
       this.afterVariantChange();
       this.variants = variants;
-
     });
   }
 
