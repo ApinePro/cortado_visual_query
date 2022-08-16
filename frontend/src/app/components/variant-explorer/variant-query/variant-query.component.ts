@@ -1,3 +1,4 @@
+import { VariantFilterService } from './../../../services/variantFilterService/variant-filter.service';
 import { LogService } from 'src/app/services/logService/log.service';
 import { BackendService } from 'src/app/services/backendService/backend.service';
 import {
@@ -8,8 +9,6 @@ import {
   Renderer2,
   AfterViewInit,
   HostListener,
-  Output,
-  EventEmitter,
   Input,
 } from '@angular/core';
 import {
@@ -34,11 +33,13 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
   queryEditorBackdrop: ElementRef<HTMLDivElement>;
   @ViewChild('highlightText') highlightText: ElementRef<HTMLDivElement>;
 
-  @Output()
-  query_selection = new EventEmitter<Set<number>>();
-
   @Input()
   active: boolean = false;
+
+  @Input()
+  options: EditorOptions = new EditorOptions();
+
+  queryfilteractive: boolean = false;
 
   activityNameRegEx = new RegExp("'([^']*)'", 'g');
   activityColorMap: Map<string, string>;
@@ -50,7 +51,8 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
     private renderer: Renderer2,
     private colorMapService: ColorMapService,
     private logService: LogService,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private variantFilterService: VariantFilterService
   ) {}
 
   ngOnInit() {
@@ -80,6 +82,10 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
     this.colorMapService.colorMap$.subscribe((colorMap) => {
       this.activityColorMap = colorMap;
     });
+
+    this.variantFilterService.variantFilters$.subscribe((filter) => {
+      this.queryfilteractive = filter.has('query filter');
+    });
   }
 
   onSubmit() {
@@ -87,7 +93,10 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
       .variantQuery(this.variantQuery.value)
       .subscribe((res) => {
         if (!res.error) {
-          this.query_selection.emit(new Set(res.ids as Array<number>));
+          this.variantFilterService.addVariantFilter(
+            'query filter',
+            new Set(res.ids as Array<number>)
+          );
         } else {
           this.variantQuery.setErrors({ backendError: res.error });
           this.backendErrorIndex = res.error_index;
@@ -96,7 +105,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
   }
 
   resetQuery() {
-    this.query_selection.emit(null);
+    this.variantFilterService.removeVariantFilter('query filter');
   }
 
   get variantQuery(): FormControl {
@@ -132,8 +141,14 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
       .replace(/\</g, '&lt;')
       .replace(/\>/g, '&gt;');
 
-    highlighted_text = this.colorActivityNames(highlighted_text);
+    if (this.options.highlightActivityNames) {
+      highlighted_text = this.colorActivityNames(highlighted_text);
+    }
+
+    highlighted_text = this.colorSyntaxOperators(highlighted_text);
+
     highlighted_text = this.colorLogicalOperators(highlighted_text);
+
     highlighted_text = this.colorOperators(highlighted_text);
 
     return highlighted_text;
@@ -143,6 +158,14 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
     value = value.replace(
       /\b(NOT|AND|OR|ANY|ALL)\b/g,
       "<span class='logical-operator'>$&</span>"
+    );
+    return value;
+  }
+
+  colorSyntaxOperators(value: any): string {
+    value = value.replace(
+      /(((\'|\;)($|\s))|((^|\s)(\'|\;)))/g,
+      "<span class='syntax-operator'>$&</span>"
     );
     return value;
   }
@@ -362,5 +385,13 @@ class imbalancedItem {
   constructor(symbol: string, index: number) {
     this.symbol = symbol;
     this.index = index;
+  }
+}
+
+export class EditorOptions {
+  highlightActivityNames: boolean;
+
+  constructor() {
+    this.highlightActivityNames = true;
   }
 }

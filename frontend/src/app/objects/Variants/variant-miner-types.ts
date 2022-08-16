@@ -84,6 +84,7 @@ export class SubvariantPattern {
   maximal: boolean;
   valid: boolean;
   closed: boolean;
+  bids : Set<number>;
 
   calculationInProgress;
   isConformanceOutdated;
@@ -104,7 +105,8 @@ export class SubvariantPattern {
     maximal: boolean,
     valid: boolean,
     closed: boolean,
-    infixType: InfixType
+    infixType: InfixType,
+    bids : Set<number>,
   ) {
     this.index = index;
     this.k = k;
@@ -117,5 +119,6 @@ export class SubvariantPattern {
     this.valid = valid;
     this.closed = closed;
     this.infixType = infixType;
+    this.bids = bids;
   }
 }

@@ -50,8 +50,8 @@ freq_strat_mapping = {
 @router.post("/frequentSubtreeMining")
 def mineFrequentSubtrees(config: VariantMinerConfig):
     
-    print(config)
-
+    print()
+    
     print("K:", config.k)
     print("min_sup:", config.min_sup)
     print("Strat:", freq_strat_mapping[config.strat])
@@ -62,9 +62,11 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
     variants = { v : ts for _, (v, ts , _ ) in cache.variants.items()}
 
     treeBank = create_treebank_from_cv_variants(variants, config.artifical_start)
+    
+    print()
 
     if config.algo == 1:
-        print("Mining K Patterns")
+        print("Mining K Patterns...")
         k_patterns = min_sub_mining(
             treeBank,
             variants,
@@ -75,25 +77,9 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
             fold_loops=config.loop,
         )
 
-        print("Setting Maximally Closed Patterns")
-        set_maximaly_closed_patterns(k_patterns)
-
-        df = dataframe_from_k_patterns(k_patterns)
-
-        print("Adding Confidence Information")
-        df = add_confidence_information_to_df(k_patterns, df)
-        print("Finished Confidence")
-        df.obj = df.obj.apply(
-            lambda x: x.to_concurrency_group().serialize(include_performance=False)
-        )
-        df = df.replace({np.nan: None})
-        print()
-        print("Closed in RMO", df.closed.value_counts())
-        print()
-
     else:
 
-        print("Mining CM K Patterns")
+        print("Mining CM K Patterns...")
         k_patterns = cm_min_sub_mining(
             treeBank,
             variants,
@@ -102,20 +88,32 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
             min_sup=config.min_sup,
             artifical_start=config.artifical_start,
         )
-        set_maximaly_closed_patterns(k_patterns)
+    
+    print()
+    print('Post-Processing...')
+    set_maximaly_closed_patterns(k_patterns) 
+        
+    df = dataframe_from_k_patterns(k_patterns)
 
-        df = dataframe_from_k_patterns(k_patterns)
-
-        print("Adding Confidence Information")
+    if not df.empty: 
+            
+        df = df[df.valid] 
+        
+        df['bids'] = df.obj.apply(lambda x : set(x.rmo.keys()))
+        
+        print("Adding Confidence Information...")
         df = add_confidence_information_to_df(k_patterns, df)
-
+        print("Finished Confidence...")
+        
         df.obj = df.obj.apply(
             lambda x: x.to_concurrency_group().serialize(include_performance=False)
         )
         df = df.replace({np.nan: None})
+        
+        df_dict = df.to_dict(orient="records")
 
-    print("Finished Computation")
-    df_dict = df.to_dict(orient="records")
+    else: 
+        df_dict = False
 
     print("Sending Results")
     return df_dict

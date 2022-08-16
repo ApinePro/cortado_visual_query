@@ -587,7 +587,7 @@ def handle_fallthrough(activityName, fallthrough, new_variants, update_res_varia
     if len(fallthrough) > 0:
         cLog = []
         for bid in fallthrough:
-            (_, traces) = cache.variants[bid]
+            (_, traces, _) = cache.variants[bid]
             cLog.extend([apply_filter_copy(trace, activityName) for trace in traces])
 
         log = EventLog(cLog)
@@ -608,6 +608,7 @@ def handle_fallthrough(activityName, fallthrough, new_variants, update_res_varia
                 new_variants[n_bid] = (
                     n_variant,
                     n_traces + c_traces,
+                    None
                 )
 
             else:
@@ -622,7 +623,7 @@ def handle_fallthrough(activityName, fallthrough, new_variants, update_res_varia
             cache.parameters["cur_time_granularity"], 1, bid, v, ts
         )
 
-        new_variants[cache.parameters["nBids"] + 1] = (v, ts, subvar)
+        new_variants[bid] = (v, ts, subvar)
         new_res_variants.append(variant)
 
     for bid, v, ts in mergeVariants:

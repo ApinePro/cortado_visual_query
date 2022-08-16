@@ -45,8 +45,7 @@ export class VariantComponent implements AfterViewInit {
   @Input()
   processTreeAvailable: boolean = false;
 
-  @Output()
-  public selectTraceInfix = new EventEmitter<Variant>();
+  @Output() clickCbFc: EventEmitter<any> = new EventEmitter();
 
   @ViewChild('row')
   rowElement: ElementRef;

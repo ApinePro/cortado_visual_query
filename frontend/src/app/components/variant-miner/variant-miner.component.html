@@ -713,11 +713,28 @@
             *ngFor="let pattern of displayedVariantsPatterns; let i = index"
             [pattern]="pattern"
             [index]="i"
-            [computeActivityColor]="computeActivityColor"
+
             [rootElement]="variantMinerDiv"
-          ></tr>
+          >
+            <svg
+            appVariantDrawer
+            #fragment
+            [variant]="pattern.variant"
+            [onClickCbFc]="onClickCbFc"
+            [computeActivityColor]="computeActivityColor"
+            [onRightMouseClickCbFc]="openContextCallback"
+            [infixType]="pattern.infixType"
+            class="zoom-group-variant"
+          ></svg>
+        </tr>
         </tbody>
       </table>
     </div>
   </div>
 </div>
+
+<app-variant-explorer-context-menu
+  [xPos]="contextMenu_xPos"
+  [yPos]="contextMenu_yPos"
+  [contextMenuOptions]="contextMenuOptions"
+></app-variant-explorer-context-menu>

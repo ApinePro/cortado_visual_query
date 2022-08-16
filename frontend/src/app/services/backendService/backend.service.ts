@@ -14,7 +14,7 @@ import { ProcessTreeService } from './../processTreeService/process-tree.service
 import { VariantElement } from 'src/app/objects/Variants/variant_element';
 import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { addVariantInformation } from '../variantService/variant-transformation';
-import { MiningConfig } from 'src/app/components/variant-miner/variant-miner-types';
+import { MiningConfig } from 'src/app/objects/Variants/variant-miner-types';
 
 @Injectable({
   providedIn: 'root',

@@ -1,3 +1,4 @@
+import { VariantFilterService } from './../../services/variantFilterService/variant-filter.service';
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
 
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
@@ -32,7 +33,7 @@ import {
   MiningConfig,
   SubvariantPattern,
   VariantSortKey,
-} from './variant-miner-types';
+} from '../../objects/Variants/variant-miner-types';
 import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
 import { LogService } from 'src/app/services/logService/log.service';
 import { VariantService } from 'src/app/services/variantService/variant.service';
@@ -42,6 +43,7 @@ import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
 import { VariantElement, LeafNode, deserialize } from 'src/app/objects/Variants/variant_element';
+import { contextMenuCallback } from '../variant-explorer/functions/variant-drawer-callbacks';
 
 @Component({
   selector: 'app-variant-miner',
@@ -74,6 +76,7 @@ export class VariantMinerComponent
     private lazyLoadingServiceService: LazyLoadingServiceService,
     private logService : LogService,
     private variantService : VariantService,
+    private variantFilterService : VariantFilterService,
     elRef: ElementRef,
     renderer: Renderer2
   ) {
@@ -100,6 +103,30 @@ export class VariantMinerComponent
   nClosed: number;
   nValid: number;
   nMaximal: number;
+
+  contextMenu_xPos: number = 10;
+  contextMenu_yPos: number = 10;
+  contextMenu_element: VariantElement;
+  contextMenu_variant: VariantElement;
+  contextMenu_directive: VariantDrawerDirective;
+
+  openContextCallback = contextMenuCallback.bind(this);
+
+  filterInfix = function () {
+
+    const bids = this.displayedVariantsPatterns
+    .filter((v) => v.variant === this.contextMenu_variant)[0].bids
+
+    console.log(bids)
+
+    this.variantFilterService.addVariantFilter('infix filter', new Set(bids))
+
+  }.bind(this)
+
+  contextMenuOptions : Map<string, ((variant : VariantElement, element : VariantElement, directive : VariantDrawerDirective) => {})> =
+   new Map<string, ((variant : VariantElement, element: VariantElement, directive : VariantDrawerDirective ) => {})>(
+    [['Use infix as filter', this.filterInfix]]
+  );
 
   currentConfig: MiningConfig = null;
 
@@ -393,6 +420,7 @@ export class VariantMinerComponent
     });
 
     this.sharedDataService.frequentMiningResults$.subscribe((res) => {
+
       if (res) {
         this.variantPatterns = new Array<SubvariantPattern>();
 
@@ -426,7 +454,8 @@ export class VariantMinerComponent
               p.maximal,
               p.valid,
               p.closed,
-              infixtype
+              infixtype,
+              p.bids
             );
 
             pattern.isConformanceOutdated = true;
@@ -505,6 +534,16 @@ export class VariantMinerComponent
           tickValueStep: 0.2,
           step: 0.01,
         };
+      } else {
+        console.log('No Results');
+        this.variantPatterns = [];
+        this.displayedVariantsPatterns = this.variantPatterns;
+
+        this.maxSup = null;
+        this.maxK = null;
+        this.nClosed = 0;
+        this.nValid = 0;
+        this.nMaximal = 0;
       }
     });
   }

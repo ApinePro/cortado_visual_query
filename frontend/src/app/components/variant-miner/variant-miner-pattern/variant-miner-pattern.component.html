@@ -94,15 +94,7 @@
       pattern.infixType === infixtype.NOT_AN_INFIX
     "
   ></div>
-  <svg
-    appVariantDrawer
-    #fragment
-    [variant]="pattern.variant"
-    [onClickCbFc]="onClickCbFc"
-    [computeActivityColor]="computeActivityColor"
-    [infixType]="pattern.infixType"
-    class="zoom-group-variant"
-  ></svg>
+  <ng-content></ng-content>
 </td>
 
 <td *ngIf="!isVisible" class="border-start border-lightgrey ps-2">

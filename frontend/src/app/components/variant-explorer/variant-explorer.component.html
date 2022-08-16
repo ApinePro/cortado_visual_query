@@ -270,30 +270,32 @@
 
     <span class="vl"></span>
 
-    <button
-      *ngIf="!traceInfixSelectionMode"
-      class="button"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      data-bs-trigger="hover"
-      title="Enter trace infix selection mode"
-      (click)="toggleTraceInfixSelectionMode()"
-    >
-      <i class="bi bi-ui-checks-grid"></i>
-    </button>
+    <div *ngIf="!performanceMode">
+      <button
+        *ngIf="!traceInfixSelectionMode"
+        class="button"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        data-bs-trigger="hover"
+        title="Enter trace infix selection mode"
+        (click)="toggleTraceInfixSelectionMode()"
+      >
+        <i class="bi bi-ui-checks-grid"></i>
+      </button>
 
-    <button
-      *ngIf="traceInfixSelectionMode"
-      class="button"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      data-bs-trigger="hover"
-      title="Exit trace infix selection mode"
-      style="color: green"
-      (click)="toggleTraceInfixSelectionMode()"
-    >
-      <i class="bi bi-ui-checks-grid"></i>
-    </button>
+      <button
+        *ngIf="traceInfixSelectionMode"
+        class="button"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        data-bs-trigger="hover"
+        title="Exit trace infix selection mode"
+        style="color: green"
+        (click)="toggleTraceInfixSelectionMode()"
+      >
+        <i class="bi bi-ui-checks-grid"></i>
+      </button>
+    </div>
 
     <span class="vl"></span>
 
@@ -346,16 +348,51 @@
     class="variant-query-button"
     [@openCloseComponent]="queryActive ? 'openComponent' : 'closeComponent'"
   >
-    <div class="query-header d-flex" (click)="toggleQuery()">
-      <div class="query-button me-auto">
+    <div class="query-header d-flex">
+      <div class="query-button me-auto" (click)="toggleQuery()">
         <i
           [ngClass]="{
             'bi-arrows-angle-contract': queryActive,
-            'bi bi-search': !queryActive
+            'bi bi-funnel': !queryActive
           }"
           class=""
         ></i>
-        <span *ngIf="queryActive" class="ms-2">Variant Query</span>
+        <span *ngIf="queryActive" class="ms-2 user-select-none"
+          >Variant Query</span
+        >
+      </div>
+
+      <div class="me-2 dropdown">
+        <button
+          class="query-info-button"
+          type="button"
+          id="Options"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <i
+            class="bi bi-gear font-large secondary-text fs-6 question-icon"
+          ></i>
+        </button>
+        <ul
+          class="dropdown-menu query-bar-drop query-bar-dropdown"
+          aria-labelledby="Files"
+        >
+          <li>
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="flexSwitchCheckChecked"
+                checked
+                (change)="changeQueryOption($event, 'highlightActivityNames')"
+              />
+              <label class="form-check-label" for="flexSwitchCheckChecked"
+                >Syntax Highlighting</label
+              >
+            </div>
+          </li>
+        </ul>
       </div>
       <div class="me-2">
         <button
@@ -379,8 +416,8 @@
       "
     >
       <app-variant-query
-        (query_selection)="apply_query_filter($event)"
         [active]="queryActive"
+        [options]="options"
       ></app-variant-query>
     </div>
   </div>
@@ -398,15 +435,19 @@
       <div class="chart-variant__percentage">
         <table>
           <tr class="user-select-none">
-            <th style="padding-right: 15px; padding-left: 5px">Nr.</th>
-            <th style="display: flex; align-items: center">
-              <app-variant-selection-button
-                [isSelected]="areAllDisplayedVariantsSelected()"
-                (selectionChanged)="unSelectAllChanged($event)"
-                tooltipText="(un)select all variants"
-              >
-              </app-variant-selection-button>
-              Info
+            <th style="padding-right: 15px; padding-left: 5px">
+              <div class="variant-filter-container">Nr.</div>
+            </th>
+            <th>
+              <div class="variant-filter-container">
+                <app-variant-selection-button
+                  [isSelected]="areAllDisplayedVariantsSelected()"
+                  (selectionChanged)="unSelectAllChanged($event)"
+                  tooltipText="(un)select all variants"
+                >
+                </app-variant-selection-button>
+                Info
+              </div>
             </th>
             <th
               style="
@@ -415,7 +456,7 @@
                 padding-left: 10px;
               "
             >
-              Sub-Variants
+              <div class="variant-filter-container">Sub-Variants</div>
             </th>
             <th
               *ngIf="currentlyDisplayedProcessTree"
@@ -465,23 +506,40 @@
             </th>
 
             <th class="text-start">
-              Variant
-              <i
-                *ngIf="displayed_variants.length !== variants.length"
-                class="bi bi-funnel-fill text-primary"
-                data-bs-toggle="tooltip"
-                data-placement="bottom"
-                title="Filter active"
-                (dblclick)="removeAllFilters()"
-              ></i>
-              <br />
-              <span class="variant-number"
-                >({{
-                  displayed_variants.length === variants.length
-                    ? displayed_variants.length
-                    : displayed_variants.length + "/" + variants.length
-                }})</span
-              >
+              <div class="variant-filter-container p-2">
+                <div>
+                  <span>Variant </span>
+                  <br />
+                  <span class="variant-number"
+                    >({{
+                      displayed_variants.length === variants.length
+                        ? displayed_variants.length
+                        : displayed_variants.length + "/" + variants.length
+                    }})</span
+                  >
+                </div>
+
+                <div class="filter-container">
+                  <div
+                    *ngFor="let filter of filterMap | keyvalue"
+                    class="badge-container"
+                  >
+                    <span
+                      class="badge rounded-pill bg-danger badge-close-position cursor-pointer"
+                    >
+                      <button
+                        class="btn badge-button"
+                        (click)="removeFilter(filter.key)"
+                      >
+                        <i class="bi bi-x-lg close-icon"></i>
+                      </button>
+                    </span>
+                    <span class="badge text-bg-primary ms-1">
+                      <i class="bi bi-funnel-fill"> </i> {{filter.key}}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </th>
           </tr>
           <ng-container
@@ -495,6 +553,7 @@
                 processTreeService.currentDisplayedProcessTree
               "
               [performanceMode]="performanceMode"
+              [traceInfixSelectionMode]="traceInfixSelectionMode"
               [rootElement]="variantExplorerDiv"
             >
               <ng-template #treeButton>
@@ -557,14 +616,13 @@
                     style="display: inline-block"
                   ></svg>
                 </div>
-
-                <app-infix-selection-controlls
-                  [variant]="variant"
-                  [traceInfixSelectionMode]="traceInfixSelectionMode"
-                  (selectTraceInfix)="handleSelectInfix($event)"
-                  [variantDrawer]="drawer"
-                >
-                </app-infix-selection-controlls>
+                <ng-template #infixSelection>
+                  <app-infix-selection-controlls
+                    [variant]="variant"
+                    (selectTraceInfix)="handleSelectInfix($event)"
+                    [variantDrawer]="drawer"
+                  ></app-infix-selection-controlls>
+                </ng-template>
               </ng-template>
             </tr>
           </ng-container>
@@ -581,7 +639,7 @@
     ></app-conformance-info-bar>
   </div>
 
-  <div class="tooltip" role="tooltip" #tooltipContainer>
+  <div role="tooltip" #tooltipContainer>
     <div class="tooltip-inner"></div>
   </div>
 </div>
@@ -598,9 +656,7 @@
 <app-variant-explorer-context-menu
   [xPos]="contextMenu_xPos"
   [yPos]="contextMenu_yPos"
-  [element]="contextMenu_element"
-  [variant]="contextMenu_variant"
-  [directive]="contextMenu_directive"
+  [contextMenuOptions] = 'contextMenuOptions'
 ></app-variant-explorer-context-menu>
 
 <svg display="none">

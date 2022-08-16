@@ -51,6 +51,8 @@ import { NgxSliderModule } from '@angular-slider/ngx-slider';
 import { VariantQueryComponent } from './components/variant-explorer/variant-query/variant-query.component';
 import { ConformanceInfoBarComponent } from './components/variant-explorer/conformance-info/info-bar/conformance-info-bar.component';
 import { initApp, InitService } from './services/init.service';
+import { ToastComponent } from './components/toast/toast/toast.component';
+import { ToasterComponent } from './components/toast/toaster/toaster.component';
 import { PerformanceProgressBarComponent } from './components/performance/performance-progress-bar/performance-progress-bar.component';
 import { VariantQueryInfoComponent } from './components/variant-explorer/variant-query/query-info/variant-query-info/variant-query-info.component';
 import { VariantExplorerContextMenuComponent } from './components/variant-explorer/variant-explorer-context-menu/variant-explorer-context-menu.component';
@@ -110,6 +112,8 @@ import { ZoomFieldComponent } from './components/zoom-field/zoom-field.component
     VariantMinerPatternComponent,
     ConformanceInfoBarComponent,
     VariantQueryInfoComponent,
+    ToastComponent,
+    ToasterComponent,
     PerformanceProgressBarComponent,
     VariantExplorerContextMenuComponent,
     ProcessTreeDrawerDirective,

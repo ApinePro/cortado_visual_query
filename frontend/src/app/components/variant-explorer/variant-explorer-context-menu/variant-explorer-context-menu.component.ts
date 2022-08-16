@@ -15,6 +15,7 @@ import { VariantElement } from 'src/app/objects/Variants/variant_element';
   templateUrl: './variant-explorer-context-menu.component.html',
   styleUrls: ['./variant-explorer-context-menu.component.css'],
 })
+
 export class VariantExplorerContextMenuComponent
   implements OnChanges, AfterViewInit
 {
@@ -24,18 +25,13 @@ export class VariantExplorerContextMenuComponent
   @Input()
   yPos: number;
 
-  @Input()
-  variant: VariantElement;
-
-  @Input()
-  element: VariantElement;
-
-  @Input()
-  directive: VariantDrawerDirective;
-
   displayMenu: boolean = false;
 
-  constructor(private variantService: VariantService) {}
+  @Input()
+  contextMenuOptions : Map<string, ((variant : VariantElement, element : VariantElement, directive : VariantDrawerDirective) => {})> =
+   new Map<string, ((variant : VariantElement, element: VariantElement, directive : VariantDrawerDirective ) => {})>();
+
+  constructor() {}
 
   ngAfterViewInit(): void {
     this.displayMenu = false;
@@ -50,13 +46,5 @@ export class VariantExplorerContextMenuComponent
   @HostListener('window:click', ['$event'])
   public onClick(event: any): void {
     this.displayMenu = false;
-  }
-
-  deleteVariant(e: Event) {
-    const bids = this.variantService.variants
-      .filter((v) => v.variant === this.variant)
-      .map((v) => v.bid);
-
-    this.variantService.deleteVariants(bids);
   }
 }

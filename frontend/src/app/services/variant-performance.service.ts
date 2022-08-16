@@ -15,6 +15,7 @@ import {
   injectWaitingTimeNodes,
 } from '../objects/Variants/variant_element';
 import { BackendService } from './backendService/backend.service';
+import { setParent } from '../objects/Variants/infix_selection';
 
 // https://observablehq.com/@philippkoytek/celonis-data-visualization-colors
 export const COLORS_CYAN = [
@@ -283,6 +284,7 @@ export class VariantPerformanceService {
         this.variantService.variants.forEach((v) => {
           if (!v.userDefined) {
             v.variant = deserialize(this.results.get(v.bid.toString()));
+            setParent(v.variant);
           }
         });
         this.updateServiceTimeColorMap();

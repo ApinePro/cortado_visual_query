@@ -5,11 +5,11 @@
   *ngIf="displayMenu"
 >
   <ul class="context-menu-list">
-    <li>
-      <button class="button align-bottom" (click)="deleteVariant($event)">
+    <li *ngFor="let option of contextMenuOptions | keyvalue">
+      <button class="button align-bottom" (click)="option.value()">
         <div>
           <i class="bi bi-diagram-2 btn-icon"></i>
-          <span><b>Delete</b> Variant</span>
+          <span>{{ option.key }}</span>
         </div>
       </button>
     </li>

@@ -8,8 +8,7 @@ import {
 } from '@angular/core';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
-import { VariantElement } from 'src/app/objects/Variants/variant_element';
-import { SubvariantPattern } from '../variant-miner-types';
+import { SubvariantPattern } from 'src/app/objects/Variants/variant-miner-types';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -23,26 +22,7 @@ export class VariantMinerPatternComponent implements AfterViewInit {
   infixtype = InfixType;
 
   @Input()
-  computeActivityColor: (
-    drawerDirective: VariantDrawerDirective,
-    element: VariantElement,
-    variant: VariantElement
-  ) => string;
-
-  @Input()
-  onClickCbFc: (
-    drawerDirective: VariantDrawerDirective,
-    element: VariantElement
-  ) => void;
-
-  @Input()
   index: number;
-
-  @Input()
-  onMouseOverCbFc: (
-    drawerDirective: VariantDrawerDirective,
-    element: VariantElement
-  ) => void;
 
   @ViewChild('row')
   rowElement: ElementRef;
@@ -53,8 +33,6 @@ export class VariantMinerPatternComponent implements AfterViewInit {
   @ViewChild(VariantDrawerDirective)
   variantDrawer: VariantDrawerDirective;
 
-  @ViewChild('fragment')
-  fragment: ElementRef;
   constructor(private lazyLoadingService: LazyLoadingServiceService) {}
 
   isVisible: boolean = false;
