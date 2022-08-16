@@ -251,10 +251,6 @@ export class VariantExplorerComponent
         this.redraw_components();
       }
     });
-
-    this.variantViewModeService.viewMode$.subscribe((viewMode: ViewMode) => {
-      this.onViewModeChange(viewMode);
-    });
   }
 
   private init() {
@@ -680,22 +676,6 @@ export class VariantExplorerComponent
       .subscribe((_) => {
         this.refreshConformanceIconsAfterModelChange(false);
       });
-  }
-
-  private onViewModeChange(viewMode: ViewMode) {
-    switch (viewMode) {
-      case ViewMode.PERFORMANCE:
-        this.variants.forEach((variant) => {
-          this.expansionState.set(variant.id, variant.variant.getExpanded());
-        });
-        break;
-      default:
-        // Return everything to its previous state
-        this.variants.forEach((variant, i) =>
-          variant.variant.setExpanded(this.expansionState.get(variant.id))
-        );
-        break;
-    }
   }
 
   addSelectedVariantsToModelForGivenConformance(

@@ -104,10 +104,6 @@ export class SubvariantExplorerComponent
         this.mainvariantDrawer.redraw();
       }
     });
-
-    this.variantViewModeService.viewMode$.subscribe((viewMode: ViewMode) => {
-      this.onViewModeChange(viewMode);
-    });
   }
 
   // Implements responsive changes, such as triggering animations, if the layout and thus the components size changes
@@ -344,17 +340,6 @@ export class SubvariantExplorerComponent
         .text('Parent');
     }
     return svgElement_copy;
-  }
-
-  private onViewModeChange(viewMode: ViewMode) {
-    switch (viewMode) {
-      case ViewMode.PERFORMANCE:
-        this.mainvariantDrawer.setExpanded(true);
-        this.setExpandedSubVariants(true);
-        break;
-      default:
-        break;
-    }
   }
 
   computeActivityColor = activityColor.bind(this);
