@@ -4,6 +4,7 @@ import {
   Component,
   ElementRef,
   Input,
+  OnDestroy,
   ViewChild,
 } from '@angular/core';
 import * as d3 from 'd3';
@@ -16,13 +17,15 @@ import { VariantPerformanceService } from 'src/app/services/variant-performance.
 import { SubvariantVisualization } from 'src/app/objects/Variants/subvariant';
 import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
 import { ViewMode } from 'src/app/objects/ViewMode';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sub-variant',
   templateUrl: './sub-variant.component.html',
   styleUrls: ['./sub-variant.component.scss'],
 })
-export class SubVariantComponent implements AfterViewInit {
+export class SubVariantComponent implements AfterViewInit, OnDestroy {
   @ViewChild('svg')
   svgElement: ElementRef;
 
@@ -49,6 +52,8 @@ export class SubVariantComponent implements AfterViewInit {
   public serviceTimeColorMap: any;
   public waitingTimeColorMap: any;
 
+  private _destroy$ = new Subject();
+
   constructor(
     private sharedDataService: SharedDataService,
     private colorMapService: ColorMapService,
@@ -61,30 +66,42 @@ export class SubVariantComponent implements AfterViewInit {
     this.svg = d3.select(this.svgElement.nativeElement);
     this.isLoaded = true;
 
-    this.colorMapService.colorMap$.subscribe((cMap) => {
-      this.colorMap = cMap;
-      if (this._variant) {
-        this.draw();
-      }
-    });
+    this.colorMapService.colorMap$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((cMap) => {
+        this.colorMap = cMap;
+        if (this._variant) {
+          this.draw();
+        }
+      });
 
-    this.variantPerformanceService.serviceTimeColorMap.subscribe((colorMap) => {
-      if (colorMap !== undefined) {
-        this.serviceTimeColorMap = colorMap;
-        this.draw();
-      }
-    });
+    this.variantPerformanceService.serviceTimeColorMap
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        if (colorMap !== undefined) {
+          this.serviceTimeColorMap = colorMap;
+          this.draw();
+        }
+      });
 
-    this.variantPerformanceService.waitingTimeColorMap.subscribe((colorMap) => {
-      if (colorMap !== undefined) {
-        this.waitingTimeColorMap = colorMap;
-        this.draw();
-      }
-    });
+    this.variantPerformanceService.waitingTimeColorMap
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        if (colorMap !== undefined) {
+          this.waitingTimeColorMap = colorMap;
+          this.draw();
+        }
+      });
 
-    this.variantViewModeService.viewMode$.subscribe((viewMode: ViewMode) => {
-      this.draw();
-    });
+    this.variantViewModeService.viewMode$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((viewMode: ViewMode) => {
+        this.draw();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   draw(textColor: string = 'whitesmoke'): void {

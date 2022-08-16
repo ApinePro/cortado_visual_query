@@ -1,4 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
@@ -8,11 +10,13 @@ import { VariantViewModeService } from 'src/app/services/variantViewModeService/
   templateUrl: './variant-explorer-sidebar.component.html',
   styleUrls: ['./variant-explorer-sidebar.component.css'],
 })
-export class VariantExplorerSidebarComponent implements OnInit {
+export class VariantExplorerSidebarComponent implements OnInit, OnDestroy {
   @Input()
   public sidebarHeight: number = 0;
 
   public VM = ViewMode;
+
+  private _destroy$ = new Subject();
 
   constructor(
     public variantViewModeService: VariantViewModeService,
@@ -23,6 +27,10 @@ export class VariantExplorerSidebarComponent implements OnInit {
     return;
   }
 
+  ngOnDestroy(): void {
+    this._destroy$.next();
+  }
+
   public setViewModeClicked(viewMode: ViewMode) {
     if (
       viewMode === ViewMode.PERFORMANCE &&
@@ -30,6 +38,7 @@ export class VariantExplorerSidebarComponent implements OnInit {
     )
       this.variantPerformanceService
         .addPerformanceInformationToVariants()
+        .pipe(takeUntil(this._destroy$))
         .subscribe();
     else this.variantViewModeService.viewMode = viewMode;
   }

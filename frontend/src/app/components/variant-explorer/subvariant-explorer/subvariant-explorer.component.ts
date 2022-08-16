@@ -4,6 +4,7 @@ import {
   Component,
   ElementRef,
   Inject,
+  OnDestroy,
   OnInit,
   QueryList,
   Renderer2,
@@ -29,6 +30,8 @@ import { SubvariantVisualization } from 'src/app/objects/Variants/subvariant';
 import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { activityColor } from '../functions/variant-drawer-callbacks';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-subvariant-explorer',
@@ -37,7 +40,7 @@ import { activityColor } from '../functions/variant-drawer-callbacks';
 })
 export class SubvariantExplorerComponent
   extends LayoutChangeDirective
-  implements AfterViewInit, OnInit
+  implements AfterViewInit, OnInit, OnDestroy
 {
   mainVariant: Variant;
   subvariants;
@@ -53,6 +56,8 @@ export class SubvariantExplorerComponent
 
   public sortAscending: boolean;
   public svgRenderingInProgress: boolean;
+
+  private _destroy$ = new Subject();
 
   constructor(
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
@@ -80,30 +85,41 @@ export class SubvariantExplorerComponent
         this.mainVariant.bid,
         this.logService.logGranularity
       )
+      .pipe(takeUntil(this._destroy$))
       .subscribe((r) => {
         this.subvariants = r;
       });
   }
 
   ngAfterViewInit() {
-    this.colorMapService.colorMap$.subscribe((cMap) => {
-      this.colorMap = cMap;
-      this.mainvariantDrawer.redraw();
-    });
-
-    this.variantPerformanceService.serviceTimeColorMap.subscribe((colorMap) => {
-      if (colorMap !== undefined) {
-        this.serviceTimeColorMap = colorMap;
+    this.colorMapService.colorMap$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((cMap) => {
+        this.colorMap = cMap;
         this.mainvariantDrawer.redraw();
-      }
-    });
+      });
 
-    this.variantPerformanceService.waitingTimeColorMap.subscribe((colorMap) => {
-      if (colorMap !== undefined) {
-        this.waitingTimeColorMap = colorMap;
-        this.mainvariantDrawer.redraw();
-      }
-    });
+    this.variantPerformanceService.serviceTimeColorMap
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        if (colorMap !== undefined) {
+          this.serviceTimeColorMap = colorMap;
+          this.mainvariantDrawer.redraw();
+        }
+      });
+
+    this.variantPerformanceService.waitingTimeColorMap
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        if (colorMap !== undefined) {
+          this.waitingTimeColorMap = colorMap;
+          this.mainvariantDrawer.redraw();
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   // Implements responsive changes, such as triggering animations, if the layout and thus the components size changes

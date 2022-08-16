@@ -13,6 +13,7 @@ import {
   Renderer2,
   ViewChild,
   HostListener,
+  OnDestroy,
 } from '@angular/core';
 
 import { cloneDeep } from 'lodash';
@@ -33,6 +34,8 @@ import {
 import { collapsingText, fadeInText } from 'src/app/animations/text-animations';
 import { findPathToSelectedNode } from 'src/app/objects/Variants/utility_functions';
 import { applyInverseStrokeToPoly } from 'src/app/utils/render-utils';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-variant-editor',
@@ -42,7 +45,7 @@ import { applyInverseStrokeToPoly } from 'src/app/utils/render-utils';
 })
 export class VariantEditorComponent
   extends LayoutChangeDirective
-  implements OnInit
+  implements OnInit, OnDestroy
 {
   activityNames: Array<String> = [];
 
@@ -86,6 +89,8 @@ export class VariantEditorComponent
 
   redundancyWarning: boolean = false;
 
+  private _destroy$ = new Subject();
+
   constructor(
     private sharedDataService: SharedDataService,
     private logService: LogService,
@@ -107,26 +112,36 @@ export class VariantEditorComponent
   }
 
   ngOnInit(): void {
-    this.logService.activitiesInEventLog$.subscribe((activities) => {
-      this.activityNames = [];
-      for (let activity in activities) {
-        this.activityNames.push(activity);
-        this.activityNames.sort();
-      }
-    });
+    this.logService.activitiesInEventLog$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((activities) => {
+        this.activityNames = [];
+        for (let activity in activities) {
+          this.activityNames.push(activity);
+          this.activityNames.sort();
+        }
+      });
 
-    this.logService.loadedEventLog$.subscribe((newLog) => {
-      if (newLog) {
-        this.emptyVariant = true;
-      }
-    });
+    this.logService.loadedEventLog$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((newLog) => {
+        if (newLog) {
+          this.emptyVariant = true;
+        }
+      });
 
-    this.colorMapService.colorMap$.subscribe((map) => {
-      this.colorMap = map;
-      if (this.variantDrawer) {
-        this.variantDrawer.redraw();
-      }
-    });
+    this.colorMapService.colorMap$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((map) => {
+        this.colorMap = map;
+        if (this.variantDrawer) {
+          this.variantDrawer.redraw();
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   handleResponsiveChange(

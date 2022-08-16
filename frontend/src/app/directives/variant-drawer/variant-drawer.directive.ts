@@ -4,6 +4,7 @@ import {
   Directive,
   EventEmitter,
   OnChanges,
+  OnDestroy,
   Output,
   SimpleChanges,
 } from '@angular/core';
@@ -30,12 +31,16 @@ import {
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Directive({
   selector: '[appVariantDrawer]',
   exportAs: 'variantDrawer',
 })
-export class VariantDrawerDirective implements AfterViewInit, OnChanges {
+export class VariantDrawerDirective
+  implements AfterViewInit, OnChanges, OnDestroy
+{
   setExpanded(expanded: boolean) {
     this.variant.setExpanded(expanded);
     this.redraw();
@@ -97,6 +102,8 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
   svgSelection!: Selection<any, any, any, any>;
 
+  private _destroy$ = new Subject();
+
   ngAfterViewInit(): void {
     this.svgSelection = d3
       .select(this.svgHtmlElement.nativeElement)
@@ -104,10 +111,12 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
     this.redraw();
 
-    this.variantViewModeService.viewMode$.subscribe((viewMode: ViewMode) => {
-      this.redraw();
-      this.setInspectVariant();
-    });
+    this.variantViewModeService.viewMode$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((viewMode: ViewMode) => {
+        this.redraw();
+        this.setInspectVariant();
+      });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -129,6 +138,10 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     ) {
       this.redraw();
     }
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   redraw(): void {

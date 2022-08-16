@@ -1,13 +1,22 @@
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { Variant } from 'src/app/objects/Variants/variant';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-variant-info',
   templateUrl: './variant-info.component.html',
   styleUrls: ['./variant-info.component.css'],
 })
-export class VariantInfoComponent implements OnInit {
+export class VariantInfoComponent implements OnInit, OnDestroy {
   @Input()
   variant: Variant;
 
@@ -22,12 +31,20 @@ export class VariantInfoComponent implements OnInit {
 
   public processTreeIsPresent: boolean = false;
 
+  private _destroy$ = new Subject();
+
   constructor(private processTreeService: ProcessTreeService) {}
 
   ngOnInit(): void {
-    this.processTreeService.currentDisplayedProcessTree$.subscribe((t) => {
-      this.processTreeIsPresent = t !== undefined && t !== null;
-    });
+    this.processTreeService.currentDisplayedProcessTree$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((t) => {
+        this.processTreeIsPresent = t !== undefined && t !== null;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   conformanceIconClicked(): void {
