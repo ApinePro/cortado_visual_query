@@ -238,12 +238,14 @@ export class VariantExplorerComponent
       this.filterMap = filterMap;
 
       if (filterMap.size > 0) {
-        function union(a: Set<number>, b: Set<number>) {
-          return new Set([...a, ...b]);
-        }
+        const intersectSets = function (a: Set<number>, b: Set<number>) {
+          const c: Set<number> = new Set<number>();
+          a.forEach((v) => b.has(v) && c.add(v));
+          return c;
+        };
 
         const filterSet = Array.from(filterMap.values()).reduce((a, b) =>
-          union(a, b)
+          intersectSets(a, b)
         );
 
         this.displayed_variants = this.variants.filter((v) => {
