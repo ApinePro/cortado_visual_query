@@ -11,6 +11,7 @@ import {
   Output,
   EventEmitter,
   Input,
+  OnDestroy,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -20,13 +21,15 @@ import {
   ValidatorFn,
 } from '@angular/forms';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-variant-query',
   templateUrl: './variant-query.component.html',
   styleUrls: ['./variant-query.component.scss'],
 })
-export class VariantQueryComponent implements OnInit, AfterViewInit {
+export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   variantQueryInput: any;
 
   @ViewChild('queryEditor') queryEditor: ElementRef<HTMLTextAreaElement>;
@@ -45,6 +48,8 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
   imbalancedItems: imbalancedItem[];
   backendErrorMessage: boolean = false;
   backendErrorIndex: number;
+
+  private _destroy$ = new Subject();
 
   constructor(
     private renderer: Renderer2,
@@ -77,14 +82,21 @@ export class VariantQueryComponent implements OnInit, AfterViewInit {
       this.handleScroll();
     });
 
-    this.colorMapService.colorMap$.subscribe((colorMap) => {
-      this.activityColorMap = colorMap;
-    });
+    this.colorMapService.colorMap$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        this.activityColorMap = colorMap;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   onSubmit() {
     this.backendService
       .variantQuery(this.variantQuery.value)
+      .pipe(takeUntil(this._destroy$))
       .subscribe((res) => {
         if (!res.error) {
           this.query_selection.emit(new Set(res.ids as Array<number>));

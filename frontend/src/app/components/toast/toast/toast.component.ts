@@ -3,11 +3,13 @@ import {
   ElementRef,
   EventEmitter,
   Input,
+  OnDestroy,
   OnInit,
   Output,
   ViewChild,
 } from '@angular/core';
-import { fromEvent } from 'rxjs';
+import { fromEvent, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ToastEvent, ToastType } from 'src/app/objects/toast-event';
 declare var bootstrap: any;
 
@@ -16,7 +18,7 @@ declare var bootstrap: any;
   templateUrl: './toast.component.html',
   styleUrls: ['./toast.component.css'],
 })
-export class ToastComponent implements OnInit {
+export class ToastComponent implements OnInit, OnDestroy {
   @Output() disposeEvent = new EventEmitter();
 
   @ViewChild('toastElement', { static: true })
@@ -31,9 +33,15 @@ export class ToastComponent implements OnInit {
 
   ToastType = ToastType;
 
+  private _destroy$ = new Subject();
+
   ngOnInit() {
     this.setTypeString();
     this.show();
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   setTypeString(): void {
@@ -58,9 +66,9 @@ export class ToastComponent implements OnInit {
       autohide: this.toastEvent.autoclose,
       delay: this.toastEvent.delay,
     });
-    fromEvent(this.toastEl.nativeElement, 'hidden.bs.toast').subscribe(() =>
-      this.hide()
-    );
+    fromEvent(this.toastEl.nativeElement, 'hidden.bs.toast')
+      .pipe(takeUntil(this._destroy$))
+      .subscribe(() => this.hide());
     this.toast.show();
   }
 

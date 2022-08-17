@@ -4,6 +4,7 @@ import {
   Directive,
   EventEmitter,
   OnChanges,
+  OnDestroy,
   Output,
   SimpleChanges,
 } from '@angular/core';
@@ -28,12 +29,18 @@ import {
   InvisibleSequenceGroup,
 } from 'src/app/objects/Variants/variant_element';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
+import { ViewMode } from 'src/app/objects/ViewMode';
+import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Directive({
   selector: '[appVariantDrawer]',
   exportAs: 'variantDrawer',
 })
-export class VariantDrawerDirective implements AfterViewInit, OnChanges {
+export class VariantDrawerDirective
+  implements AfterViewInit, OnChanges, OnDestroy
+{
   setExpanded(expanded: boolean) {
     this.variant.setExpanded(expanded);
     this.redraw();
@@ -43,7 +50,8 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     elRef: ElementRef,
     private polygonService: PolygonGeneratorService,
     private sharedDataService: SharedDataService,
-    private tooltipService: ActivateTooltipsService
+    private tooltipService: ActivateTooltipsService,
+    private variantViewModeService: VariantViewModeService
   ) {
     this.svgHtmlElement = elRef;
   }
@@ -52,9 +60,6 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
   @Input()
   variant: VariantElement;
-
-  @Input()
-  performanceMode: boolean = false;
 
   @Input()
   traceInfixSelectionMode: boolean = false;
@@ -97,12 +102,21 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
   svgSelection!: Selection<any, any, any, any>;
 
+  private _destroy$ = new Subject();
+
   ngAfterViewInit(): void {
     this.svgSelection = d3
       .select(this.svgHtmlElement.nativeElement)
       .append('g');
 
     this.redraw();
+
+    this.variantViewModeService.viewMode$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((viewMode: ViewMode) => {
+        this.redraw();
+        this.setInspectVariant();
+      });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -119,16 +133,6 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     ) {
       this.redraw();
     } else if (
-      changes.performanceMode &&
-      !changes.performanceMode.firstChange
-    ) {
-      if (changes.performanceMode.currentValue) {
-        this.variant.setExpanded(true);
-      }
-
-      this.redraw();
-      this.setInspectVariant();
-    } else if (
       changes.traceInfixSelectionMode &&
       (!changes.variant || !changes.variant.firstChange)
     ) {
@@ -136,15 +140,25 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     }
   }
 
+  ngOnDestroy(): void {
+    this._destroy$.next();
+  }
+
   redraw(): void {
     this.svgSelection.selectAll('*').remove();
 
     if (this.variant) {
-      const height = this.variant.recalculateHeight(this.performanceMode);
-      const width = this.variant.recalculateWidth(this.performanceMode);
+      const height = this.variant.recalculateHeight(
+        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+      );
+      const width = this.variant.recalculateWidth(
+        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+      );
 
       const svg_container = d3.select(this.svgHtmlElement.nativeElement);
-      this.variant.updateWidth(this.performanceMode);
+      this.variant.updateWidth(
+        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+      );
 
       const [svg, width_offset] = this.handleInfix(
         this.infixType,
@@ -158,7 +172,10 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
       this.tooltipService.initializeChildren(this.svgHtmlElement);
 
-      if (this.variant instanceof SequenceGroup && !this.performanceMode) {
+      if (
+        this.variant instanceof SequenceGroup &&
+        this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE
+      ) {
         this.svgSelection.select('polygon').style('fill', 'transparent');
       }
 
@@ -300,18 +317,24 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     }
 
     let x =
-      outerElement && !this.performanceMode
+      outerElement &&
+      this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE
         ? 0
         : element.getHeadLength() +
           element.getMarginX() -
           element.elements[0].getHeadLength();
 
     for (const child of element.elements) {
-      if (child instanceof WaitingTimeNode && !this.performanceMode) {
+      if (
+        child instanceof WaitingTimeNode &&
+        this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE
+      ) {
         continue;
       }
 
-      const width = child.getWidth(this.performanceMode);
+      const width = child.getWidth(
+        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+      );
       const childHeight = child.getHeight();
       const y = height / 2 - childHeight / 2;
       const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
@@ -380,7 +403,10 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     let y = VARIANT_Constants.MARGIN_Y;
 
     for (const child of element.elements) {
-      if (child instanceof WaitingTimeNode && !this.performanceMode) {
+      if (
+        child instanceof WaitingTimeNode &&
+        this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE
+      ) {
         continue;
       }
 
@@ -501,7 +527,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     polygon: any,
     isLeafNode: boolean
   ) {
-    if (this.performanceMode) return;
+    if (this.variantViewModeService.viewMode === ViewMode.PERFORMANCE) return;
 
     if (element.selected) {
       polygon.attr('stroke-opacity', '0.5');
@@ -612,11 +638,11 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     d3.select('.selected-polygon').classed('selected-polygon', false);
     d3.selectAll('.variant-polygon').classed(
       'cursor-pointer',
-      this.performanceMode
+      this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
     );
     d3.selectAll('.activity-text').classed(
       'cursor-pointer',
-      this.performanceMode
+      this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
     );
   }
 
