@@ -169,7 +169,7 @@ export class VariantDrawerDirective
 
       svg_container
         .attr('width', width + width_offset)
-        .attr('height', height + 4);
+        .attr('height', height + 2 * VARIANT_Constants.SELECTION_STROKE_WIDTH);
 
       this.draw(this.variant, svg, true);
 
@@ -261,7 +261,12 @@ export class VariantDrawerDirective
     svgElement.datum(element).classed('variant-element-group', true);
 
     if (outerElement) {
-      svgElement.datum(element).attr('transform', `translate(0, 2)`);
+      svgElement
+        .datum(element)
+        .attr(
+          'transform',
+          `translate(0, ${VARIANT_Constants.SELECTION_STROKE_WIDTH})`
+        );
     }
 
     if (element instanceof ParallelGroup) {
