@@ -60,6 +60,10 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     private variantFilterService: VariantFilterService
   ) {}
 
+  ngOnDestroy(): void {
+    this._destroy$.next();
+  }
+
   ngOnInit() {
     this.variantQueryInput = new FormGroup({
       variantQuery: new FormControl('', {
