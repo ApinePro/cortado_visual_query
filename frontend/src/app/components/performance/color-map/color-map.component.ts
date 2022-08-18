@@ -31,7 +31,7 @@ export function buildColorValues(
     let max = Math.max(...values);
 
     // set min value to one for distinguishing the special value zero, which is always added to the thresholds later
-    if (min === 0) {
+    if (min < 0.5) {
       min += 1;
     }
 
