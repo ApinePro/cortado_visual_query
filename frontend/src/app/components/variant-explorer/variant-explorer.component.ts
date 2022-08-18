@@ -582,7 +582,10 @@ export class VariantExplorerComponent
         title: 'Sub-Variants for ' + index,
         isClosable: true,
         reorderEnabled: true,
-        componentState: this.displayed_variants[index - 1],
+        componentState: {
+          variant: this.displayed_variants[index - 1],
+          index: index,
+        },
         maximised: true,
         componentType: SubvariantExplorerComponent.componentName,
       };
@@ -637,6 +640,8 @@ export class VariantExplorerComponent
       let componentItem = this._subvariantcomponentItemsMap.get(id);
       if (componentItem) {
         componentItem.setTitle('Sub-Variants for ' + (index + 1));
+        let c = componentItem.component as SubvariantExplorerComponent;
+        c.setIndex(index + 1);
       }
     }
   }
