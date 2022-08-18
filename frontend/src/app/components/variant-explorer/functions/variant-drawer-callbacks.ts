@@ -125,7 +125,7 @@ export function activityColor(
     element.waitingTime?.mean !== undefined
   ) {
     let stat = this.variantPerformanceService.waitingTimeStatistic;
-    color = this.waitingColorMap(element.waitingTime[stat]);
+    color = this.waitingTimeColorMap(element.waitingTime[stat]);
   }
 
   if (!color) {
