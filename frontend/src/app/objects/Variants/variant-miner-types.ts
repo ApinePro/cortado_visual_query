@@ -1,6 +1,5 @@
-import { InfixType } from "src/app/objects/Variants/infix_selection";
-import { VariantElement } from "src/app/objects/Variants/variant_element";
-
+import { InfixType } from 'src/app/objects/Variants/infix_selection';
+import { VariantElement } from 'src/app/objects/Variants/variant_element';
 
 export class MiningConfig {
   k: number;
@@ -84,7 +83,7 @@ export class SubvariantPattern {
   maximal: boolean;
   valid: boolean;
   closed: boolean;
-  bids : Set<number>;
+  bids: Set<number>;
 
   calculationInProgress;
   isConformanceOutdated;
@@ -106,7 +105,7 @@ export class SubvariantPattern {
     valid: boolean,
     closed: boolean,
     infixType: InfixType,
-    bids : Set<number>,
+    bids: Set<number>
   ) {
     this.index = index;
     this.k = k;

@@ -261,8 +261,6 @@ export class GoldenLayoutHostComponent implements OnDestroy {
         );
       }
 
-
-
       component.setVisibility(false);
       component.handleVisibilityChange(false);
 

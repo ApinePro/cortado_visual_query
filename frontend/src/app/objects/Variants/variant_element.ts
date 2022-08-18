@@ -662,13 +662,10 @@ export class LeafNode extends VariantElement {
 }
 
 export class LeafLoopNode extends VariantElement {
-
-  public updateSelectionAttributes(): void {
-
-  }
+  public updateSelectionAttributes(): void {}
 
   public getActivities(): Set<string> {
-   return this.leafNode.getActivities();
+    return this.leafNode.getActivities();
   }
   public asString(): string {
     return 'LOOP' + this.leafNode.asString();
@@ -679,7 +676,7 @@ export class LeafLoopNode extends VariantElement {
   }
 
   public renameActivity(activityName: string, newActivityName: string): void {
-    return this.leafNode.renameActivity(activityName, newActivityName) // TODO IMPLEMENT THIS CORRECTLY
+    return this.leafNode.renameActivity(activityName, newActivityName); // TODO IMPLEMENT THIS CORRECTLY
   }
 
   public setExpanded(expanded: boolean) {
@@ -844,22 +841,18 @@ export class InvisibleSequenceGroup extends SequenceGroup {
 }
 
 export class StartGroup extends VariantElement {
-  public updateSelectionAttributes(): void {
-
-  }
+  public updateSelectionAttributes(): void {}
 
   public getActivities(): Set<string> {
     return new Set<string>();
   }
   public asString(): string {
-    return 'END'
+    return 'END';
   }
   public deleteActivity(activityName: string): [VariantElement[], boolean] {
-    return [[this], false]
+    return [[this], false];
   }
-  public renameActivity(activityName: string, newActivityName: string): void {
-
-  }
+  public renameActivity(activityName: string, newActivityName: string): void {}
   public calculateSelectableElements(): void {}
 
   public getHeight(): number {
@@ -886,23 +879,18 @@ export class StartGroup extends VariantElement {
 }
 
 export class EndGroup extends VariantElement {
-
-  public updateSelectionAttributes(): void {
-
-  }
+  public updateSelectionAttributes(): void {}
 
   public getActivities(): Set<string> {
     return new Set<string>();
   }
   public asString(): string {
-    return 'START'
+    return 'START';
   }
   public deleteActivity(activityName: string): [VariantElement[], boolean] {
-    return [[this], false]
+    return [[this], false];
   }
-  public renameActivity(activityName: string, newActivityName: string): void {
-
-  }
+  public renameActivity(activityName: string, newActivityName: string): void {}
 
   public calculateSelectableElements(): void {}
 
@@ -947,7 +935,6 @@ export function deserialize(obj: any): VariantElement {
     }
   }
 }
-
 
 export function injectWaitingTimeNodes(variants: VariantElement[]) {
   variants.forEach((v) => injectWaitingTimeNodesVariant(v));

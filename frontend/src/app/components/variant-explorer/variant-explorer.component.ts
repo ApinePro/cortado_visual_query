@@ -29,7 +29,10 @@ import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/varian
 
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { HumanizeDurationPipe } from 'src/app/pipes/humanize-duration.pipe';
-import { AlignmentType, ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
+import {
+  AlignmentType,
+  ConformanceCheckingService,
+} from 'src/app/services/conformanceChecking/conformance-checking.service';
 import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
 import { LogService, LogStats } from 'src/app/services/logService/log.service';
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
@@ -182,17 +185,27 @@ export class VariantExplorerComponent
 
   deleteVariant = function () {
     const bids = this.variantService.variants
-    .filter((v) => v.variant === this.contextMenu_variant)
-    .map((v) => v.bid);
+      .filter((v) => v.variant === this.contextMenu_variant)
+      .map((v) => v.bid);
 
-    this.variantService.deleteVariants(bids)
-  }.bind(this)
+    this.variantService.deleteVariants(bids);
+  }.bind(this);
 
-
-  contextMenuOptions : Map<string, ((variant : VariantElement, element : VariantElement, directive : VariantDrawerDirective) => {})> =
-   new Map<string, ((variant : VariantElement, element: VariantElement, directive : VariantDrawerDirective ) => {})>(
-    [['Delete Variant', this.deleteVariant]]
-  );
+  contextMenuOptions: Map<
+    string,
+    (
+      variant: VariantElement,
+      element: VariantElement,
+      directive: VariantDrawerDirective
+    ) => {}
+  > = new Map<
+    string,
+    (
+      variant: VariantElement,
+      element: VariantElement,
+      directive: VariantDrawerDirective
+    ) => {}
+  >([['Delete Variant', this.deleteVariant]]);
 
   ngOnInit(): void {
     this.dropZoneConfig = new DropzoneConfig(

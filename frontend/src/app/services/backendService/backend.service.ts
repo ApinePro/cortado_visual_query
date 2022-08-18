@@ -25,7 +25,7 @@ export class BackendService {
     private logService: LogService,
     private variantService: VariantService,
     private processTreeService: ProcessTreeService,
-    private sharedDataService : SharedDataService
+    private sharedDataService: SharedDataService
   ) {}
 
   exportEventLogFromLog(bids: number[]) {

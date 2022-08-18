@@ -45,7 +45,11 @@ import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/varian
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
-import { VariantElement, LeafNode, deserialize } from 'src/app/objects/Variants/variant_element';
+import {
+  VariantElement,
+  LeafNode,
+  deserialize,
+} from 'src/app/objects/Variants/variant_element';
 import { contextMenuCallback } from '../variant-explorer/functions/variant-drawer-callbacks';
 import { ImageExportService } from 'src/app/services/imageExportService/image-export-service';
 
@@ -69,7 +73,6 @@ export class VariantMinerComponent
   extends LayoutChangeDirective
   implements OnInit, AfterViewInit, OnDestroy
 {
-
   constructor(
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
@@ -79,11 +82,11 @@ export class VariantMinerComponent
     private conformanceCheckingService: ConformanceCheckingService,
     private processTreeService: ProcessTreeService,
     private lazyLoadingServiceService: LazyLoadingServiceService,
-    private logService : LogService,
-    private variantService : VariantService,
-    private variantFilterService : VariantFilterService,
+    private logService: LogService,
+    private variantService: VariantService,
+    private variantFilterService: VariantFilterService,
     private polygonDrawingService: PolygonDrawingService,
-    private imageExportService : ImageExportService,
+    private imageExportService: ImageExportService,
     elRef: ElementRef,
     renderer: Renderer2
   ) {
@@ -123,18 +126,28 @@ export class VariantMinerComponent
   openContextCallback = contextMenuCallback.bind(this);
 
   filterInfix = function () {
+    const bids = this.displayedVariantsPatterns.filter(
+      (v) => v.variant === this.contextMenu_variant
+    )[0].bids;
 
-    const bids = this.displayedVariantsPatterns
-    .filter((v) => v.variant === this.contextMenu_variant)[0].bids
+    this.variantFilterService.addVariantFilter('infix filter', new Set(bids));
+  }.bind(this);
 
-    this.variantFilterService.addVariantFilter('infix filter', new Set(bids))
-
-  }.bind(this)
-
-  contextMenuOptions : Map<string, ((variant : VariantElement, element : VariantElement, directive : VariantDrawerDirective) => {})> =
-   new Map<string, ((variant : VariantElement, element: VariantElement, directive : VariantDrawerDirective ) => {})>(
-    [['Use infix as filter', this.filterInfix]]
-  );
+  contextMenuOptions: Map<
+    string,
+    (
+      variant: VariantElement,
+      element: VariantElement,
+      directive: VariantDrawerDirective
+    ) => {}
+  > = new Map<
+    string,
+    (
+      variant: VariantElement,
+      element: VariantElement,
+      directive: VariantDrawerDirective
+    ) => {}
+  >([['Use infix as filter', this.filterInfix]]);
 
   currentConfig: MiningConfig = null;
 
@@ -428,7 +441,6 @@ export class VariantMinerComponent
     });
 
     this.sharedDataService.frequentMiningResults$.subscribe((res) => {
-
       if (res) {
         this.variantPatterns = new Array<SubvariantPattern>();
 
@@ -644,7 +656,6 @@ export class VariantMinerComponent
 
     // Hide the Spinner
   }
-
 
   computeActivityColor = (
     self: VariantDrawerDirective,

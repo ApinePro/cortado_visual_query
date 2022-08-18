@@ -15,7 +15,6 @@ import { VariantElement } from 'src/app/objects/Variants/variant_element';
   templateUrl: './variant-explorer-context-menu.component.html',
   styleUrls: ['./variant-explorer-context-menu.component.css'],
 })
-
 export class VariantExplorerContextMenuComponent
   implements OnChanges, AfterViewInit
 {
@@ -28,8 +27,21 @@ export class VariantExplorerContextMenuComponent
   displayMenu: boolean = false;
 
   @Input()
-  contextMenuOptions : Map<string, ((variant : VariantElement, element : VariantElement, directive : VariantDrawerDirective) => {})> =
-   new Map<string, ((variant : VariantElement, element: VariantElement, directive : VariantDrawerDirective ) => {})>();
+  contextMenuOptions: Map<
+    string,
+    (
+      variant: VariantElement,
+      element: VariantElement,
+      directive: VariantDrawerDirective
+    ) => {}
+  > = new Map<
+    string,
+    (
+      variant: VariantElement,
+      element: VariantElement,
+      directive: VariantDrawerDirective
+    ) => {}
+  >();
 
   constructor() {}
 
