@@ -87,7 +87,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe((colorMap) => {
         this.activityColorMap = colorMap;
         this.handleInput();
-    });
+      });
   }
 
   ngOnDestroy(): void {
