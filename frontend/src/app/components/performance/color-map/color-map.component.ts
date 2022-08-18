@@ -1,4 +1,8 @@
 import { Component, Input } from '@angular/core';
+import {
+  PerformanceColorMap,
+  ZERO_VALUE_COLOR,
+} from 'src/app/objects/Performance/PerformanceColorMap';
 
 @Component({
   selector: 'app-color-map',
@@ -23,14 +27,24 @@ export function buildColorValues(
 ): ColorMapValue[] {
   let thresholds = colorScale.domain();
   if (values) {
-    thresholds = [Math.min(...values), ...thresholds, Math.max(...values)];
+    let min = Math.min(...values);
+    let max = Math.max(...values);
+
+    // set min value to one for distinguishing the special value zero, which is always added to the thresholds later
+    if (min === 0) {
+      min += 1;
+    }
+
+    thresholds = [0, min, ...thresholds, max];
   }
   let colors = colorScale.range();
   colors = [...colors, null];
   return thresholds.map((t, i) => {
+    let color = t === 0 ? ZERO_VALUE_COLOR : colors[i - 1];
+
     return {
       lowerBound: t,
-      color: colors[i],
+      color: color,
     };
   });
 }

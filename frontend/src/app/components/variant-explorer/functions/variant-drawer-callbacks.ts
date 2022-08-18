@@ -111,7 +111,7 @@ export function activityColor(
       case ViewMode.PERFORMANCE:
         if (element.serviceTime?.mean !== undefined) {
           let stat = this.variantPerformanceService.serviceTimeStatistic;
-          color = this.serviceTimeColorMap(element.serviceTime[stat]);
+          color = this.serviceTimeColorMap.getColor(element.serviceTime[stat]);
           if (color == undefined) {
             color = '#d3d3d3'; // lightgrey
           }
@@ -125,7 +125,7 @@ export function activityColor(
     element.waitingTime?.mean !== undefined
   ) {
     let stat = this.variantPerformanceService.waitingTimeStatistic;
-    color = this.waitingColorMap(element.waitingTime[stat]);
+    color = this.waitingColorMap.getColor(element.waitingTime[stat]);
   }
 
   if (!color) {
