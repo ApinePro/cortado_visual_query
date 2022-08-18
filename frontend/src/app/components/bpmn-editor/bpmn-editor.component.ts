@@ -1,5 +1,5 @@
 import { ProcessTreeService } from './../../services/processTreeService/process-tree.service';
-import { Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import {
   Component,
@@ -28,6 +28,7 @@ import { BpmnDrawerDirective } from 'src/app/directives/bpmn-drawer/bpmn-drawer.
 import { getPerformanceTable } from '../process-tree-editor/utils';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { NodeSeletionStrategy } from 'src/app/objects/ProcessTree/utility-functions/process-tree-edit-tree';
+import { takeUntil } from 'rxjs/operators';
 @Component({
   selector: 'app-bpmn-editor',
   templateUrl: './bpmn-editor.component.html',
@@ -60,10 +61,7 @@ export class BpmnEditorComponent
   treeCacheLength: number = 0;
   treeCacheIndex: number = 0;
 
-  rootNodeIdSub: Subscription;
-  curPTSub: Subscription;
-  performanceSub: Subscription;
-  colorMapSub: Subscription;
+  private _destroy$ = new Subject();
 
   performanceMode: boolean = false;
 
@@ -84,21 +82,29 @@ export class BpmnEditorComponent
   }
 
   ngOnInit(): void {
-    this.processTreeService.nodeWidthCache$.subscribe((cache) => {
-      this.nodeWidthCache = cache;
-    });
+    this.processTreeService.nodeWidthCache$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((cache) => {
+        this.nodeWidthCache = cache;
+      });
 
-    this.processTreeService.treeCacheIndex$.subscribe((idx) => {
-      this.treeCacheIndex = idx;
-    });
+    this.processTreeService.treeCacheIndex$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((idx) => {
+        this.treeCacheIndex = idx;
+      });
 
-    this.processTreeService.treeCacheLength$.subscribe((len) => {
-      this.treeCacheLength = len;
-    });
+    this.processTreeService.treeCacheLength$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((len) => {
+        this.treeCacheLength = len;
+      });
 
-    this.processTreeService.selectionMode$.subscribe((strategy) => {
-      this.nodeSelectionStrategy = strategy;
-    });
+    this.processTreeService.selectionMode$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((strategy) => {
+        this.nodeSelectionStrategy = strategy;
+      });
   }
 
   ngAfterViewInit(): void {
@@ -108,13 +114,15 @@ export class BpmnEditorComponent
     this.selectedPerformanceIndicator =
       this.performanceColorScaleService.selectedColorScale.performanceIndicator;
 
-    this.performanceService.performanceMode$.subscribe((mode) => {
-      this.performanceMode = mode;
+    this.performanceService.performanceMode$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((mode) => {
+        this.performanceMode = mode;
 
-      if (this.currentTree) {
-        this.redraw(this.currentTree);
-      }
-    });
+        if (this.currentTree) {
+          this.redraw(this.currentTree);
+        }
+      });
 
     this.mainGroup = d3.select('#bpmn-zoom-group');
 
@@ -123,35 +131,38 @@ export class BpmnEditorComponent
     this.addZoomFunctionality();
     this.centerContent();
 
-    this.colorMapSub = this.colorMapService.colorMap$.subscribe((colorMap) => {
-      this.activityColorMap = colorMap;
+    this.colorMapService.colorMap$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        this.activityColorMap = colorMap;
 
-      if (this.currentTree) {
-        this.redraw(this.currentTree);
-      }
-    });
+        if (this.currentTree) {
+          this.redraw(this.currentTree);
+        }
+      });
 
-    this.performanceSub =
-      this.performanceColorScaleService.currentColorScale.subscribe(
-        (colorMap) => {
-          if (colorMap && colorMap != this.performanceColorMap) {
-            this.performanceColorMap = colorMap;
+    this.performanceColorScaleService.currentColorScale
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        if (colorMap && colorMap != this.performanceColorMap) {
+          this.performanceColorMap = colorMap;
 
-            if (this.currentTree) {
-              this.redraw(this.currentTree);
-            }
+          if (this.currentTree) {
+            this.redraw(this.currentTree);
           }
         }
-      );
+      });
 
-    this.curPTSub =
-      this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
+    this.processTreeService.currentDisplayedProcessTree$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((tree) => {
         this.currentTree = tree;
         this.redraw(tree);
       });
 
-    this.rootNodeIdSub = this.processTreeService.selectedRootNodeID$.subscribe(
-      (id) => {
+    this.processTreeService.selectedRootNodeID$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((id) => {
         if (id) {
           this.selectBPMNNode(id);
         } else {
@@ -159,8 +170,7 @@ export class BpmnEditorComponent
         }
 
         this.selectedRootID = id;
-      }
-    );
+      });
   }
 
   selectNodeCallBack = (self, event: PointerEvent, d) => {
@@ -280,10 +290,7 @@ export class BpmnEditorComponent
   };
 
   ngOnDestroy() {
-    this.rootNodeIdSub.unsubscribe();
-    this.curPTSub.unsubscribe();
-    this.performanceSub.unsubscribe();
-    this.colorMapSub.unsubscribe();
+    this._destroy$.next();
   }
 
   unselectAll() {

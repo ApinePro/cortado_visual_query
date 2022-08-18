@@ -12,6 +12,7 @@ import {
   ElementRef,
   Inject,
   Renderer2,
+  OnDestroy,
 } from '@angular/core';
 
 import { ComponentContainer, GoldenLayout, LogicalZIndex } from 'golden-layout';
@@ -45,6 +46,8 @@ import {
   NodeSeletionStrategy,
   NodeInsertionStrategy,
 } from 'src/app/objects/ProcessTree/utility-functions/process-tree-edit-tree';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-process-tree-editor',
@@ -54,7 +57,7 @@ import {
 })
 export class ProcessTreeEditorComponent
   extends LayoutChangeDirective
-  implements OnInit, AfterViewInit
+  implements OnInit, AfterViewInit, OnDestroy
 {
   selectedPerformanceIndicator: string;
   selectedStatistic: string;
@@ -136,6 +139,8 @@ export class ProcessTreeEditorComponent
 
   activitiesOccurringInLog: string[];
 
+  private _destroy$ = new Subject();
+
   ngOnInit(): void {
     this.dropZoneConfig = new DropzoneConfig(
       '.ptml',
@@ -144,63 +149,81 @@ export class ProcessTreeEditorComponent
       '<large> Import <strong>Process Tree</strong> .ptml file</large>'
     );
 
-    this.processTreeService.treeCacheIndex$.subscribe((idx) => {
-      this.treeCacheIndex = idx;
-    });
+    this.processTreeService.treeCacheIndex$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((idx) => {
+        this.treeCacheIndex = idx;
+      });
 
-    this.processTreeService.treeCacheLength$.subscribe((len) => {
-      this.treeCacheLength = len;
-    });
+    this.processTreeService.treeCacheLength$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((len) => {
+        this.treeCacheLength = len;
+      });
 
-    this.processTreeService.selectionMode$.subscribe((strategy) => {
-      this.nodeSelectionStrategy = strategy;
-    });
+    this.processTreeService.selectionMode$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((strategy) => {
+        this.nodeSelectionStrategy = strategy;
+      });
 
-    this.performanceService.performanceMode$.subscribe((mode) => {
-      this.performanceMode = mode;
-      if (this.currentlyDisplayedTreeInEditor) {
-        this.redraw(this.currentlyDisplayedTreeInEditor);
-      }
-    });
+    this.performanceService.performanceMode$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((mode) => {
+        this.performanceMode = mode;
+        if (this.currentlyDisplayedTreeInEditor) {
+          this.redraw(this.currentlyDisplayedTreeInEditor);
+        }
+      });
 
-    this.colorMapService.colorMap$.subscribe((colorMap) => {
-      this.activityColorMap = colorMap;
+    this.colorMapService.colorMap$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        this.activityColorMap = colorMap;
 
-      if (this.currentlyDisplayedTreeInEditor) {
-        this.redraw(this.currentlyDisplayedTreeInEditor);
-      }
-    });
+        if (this.currentlyDisplayedTreeInEditor) {
+          this.redraw(this.currentlyDisplayedTreeInEditor);
+        }
+      });
 
-    this.performanceColorScaleService.currentColorScale.subscribe(
-      (colorMap) => {
+    this.performanceColorScaleService.currentColorScale
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
         if (colorMap && colorMap != this.performanceColorMap) {
           this.performanceColorMap = colorMap;
           this.redraw(this.currentlyDisplayedTreeInEditor);
         }
-      }
-    );
+      });
 
-    this.logService.activitiesInEventLog$.subscribe((activties) => {
-      this.activitiesOccurringInLog = Object.keys(activties);
-    });
+    this.logService.activitiesInEventLog$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((activties) => {
+        this.activitiesOccurringInLog = Object.keys(activties);
+      });
 
-    this.processTreeService.currentDisplayedProcessTree$.subscribe((res) => {
-      // If the tree was loaded via the process tree import or Drag&Drop that does not contain the current activites
+    this.processTreeService.currentDisplayedProcessTree$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((res) => {
+        // If the tree was loaded via the process tree import or Drag&Drop that does not contain the current activites
 
-      if (res) {
-        console.warn('update tree triggered by service');
-        this.currentlyDisplayedTreeInEditor = res;
+        if (res) {
+          console.warn('update tree triggered by service');
+          this.currentlyDisplayedTreeInEditor = res;
 
-        this.processTreeSyntaxInfo = checkSyntax(res);
-        this.processTreeService.correctTreeSyntax =
-          this.processTreeSyntaxInfo.correctSyntax;
+          this.processTreeSyntaxInfo = checkSyntax(res);
+          this.processTreeService.correctTreeSyntax =
+            this.processTreeSyntaxInfo.correctSyntax;
 
-        this.redraw(res);
-      } else if (res === null && this.mainSvgGroup) {
-        this.processTreeDrawer.redraw(null);
-        this.selectedRootNode = null;
-      }
-    });
+          this.redraw(res);
+        } else if (res === null && this.mainSvgGroup) {
+          this.processTreeDrawer.redraw(null);
+          this.selectedRootNode = null;
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   redraw(tree) {
@@ -234,18 +257,20 @@ export class ProcessTreeEditorComponent
       this.goldenLayoutComponentService.goldenLayoutHostComponent;
     this._goldenLayout = this.goldenLayoutComponentService.goldenLayout;
 
-    this.processTreeService.selectedRootNodeID$.subscribe((id) => {
-      // Change the Selection
-      if (id) {
-        this.selectRootNodeFromID(id);
+    this.processTreeService.selectedRootNodeID$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((id) => {
+        // Change the Selection
+        if (id) {
+          this.selectRootNodeFromID(id);
 
-        // Unselect all
-      } else {
-        this.clearDisplayedSelection();
-      }
+          // Unselect all
+        } else {
+          this.clearDisplayedSelection();
+        }
 
-      this.selectedRootNodeId = id;
-    });
+        this.selectedRootNodeId = id;
+      });
   }
 
   private selectRootNodeFromID(id) {

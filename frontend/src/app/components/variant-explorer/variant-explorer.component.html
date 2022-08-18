@@ -6,23 +6,9 @@
 
 <app-performance-progress-bar> </app-performance-progress-bar>
 
-<div class="sidebar" [style.width.px]="sidebarHeigth">
-  <div
-    class="sidebar-button"
-    [ngClass]="!performanceMode ? 'active' : ''"
-    (click)="setPerformanceModeClicked(false)"
-  >
-    <span class="sidebar-button-text user-select-none"> Standard View</span>
-  </div>
-
-  <div
-    class="sidebar-button"
-    [ngClass]="performanceMode ? 'active' : ''"
-    (click)="setPerformanceModeClicked(true)"
-  >
-    <span class="sidebar-button-text user-select-none"> Performance View </span>
-  </div>
-</div>
+<app-variant-explorer-sidebar
+  [sidebarHeight]="sidebarHeight"
+></app-variant-explorer-sidebar>
 
 <div
   class="d-flex flex-column h-100 container-variant-explorer"
@@ -248,29 +234,30 @@
       </div>
     </div>
 
-    <span class="vl" *ngIf="!performanceMode"></span>
-    <button
-      *ngIf="!performanceMode"
-      class="button"
-      (click)="unExpandAll()"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      data-bs-html="true"
-      title="(un)expand all variants"
-    >
-      <i
-        *ngIf="areAllVariantsExpanded()"
-        class="bi bi-arrows-collapse btn-icon cursor-pointer rotate-90"
-      ></i>
-      <i
-        *ngIf="!areAllVariantsExpanded()"
-        class="bi bi-arrows-expand btn-icon cursor-pointer rotate-90"
-      ></i>
-    </button>
+    <ng-container *ngIf="variantViewModeService.viewMode !== VM.PERFORMANCE">
+      <span class="vl"></span>
+      <button
+        class="button"
+        (click)="unExpandAll()"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        data-bs-html="true"
+        title="(un)expand all variants"
+      >
+        <i
+          *ngIf="areAllVariantsExpanded()"
+          class="bi bi-arrows-collapse btn-icon cursor-pointer rotate-90"
+        ></i>
+        <i
+          *ngIf="!areAllVariantsExpanded()"
+          class="bi bi-arrows-expand btn-icon cursor-pointer rotate-90"
+        ></i>
+      </button>
+    </ng-container>
 
     <span class="vl"></span>
 
-    <div *ngIf="!performanceMode">
+    <div *ngIf="variantViewModeService.viewMode !== VM.PERFORMANCE">
       <button
         *ngIf="!traceInfixSelectionMode"
         class="button"
@@ -552,7 +539,6 @@
               [processTreeAvailable]="
                 processTreeService.currentDisplayedProcessTree
               "
-              [performanceMode]="performanceMode"
               [traceInfixSelectionMode]="traceInfixSelectionMode"
               [rootElement]="variantExplorerDiv"
             >
@@ -608,7 +594,6 @@
                     [variant]="variant['variant']"
                     [onClickCbFc]="variantClickCallBack"
                     [onRightMouseClickCbFc]="openContextCallback"
-                    [performanceMode]="performanceMode"
                     [traceInfixSelectionMode]="traceInfixSelectionMode"
                     [computeActivityColor]="computeActivityColor"
                     [infixType]="variant.infixType"

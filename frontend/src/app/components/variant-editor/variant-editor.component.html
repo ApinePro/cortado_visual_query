@@ -4,7 +4,7 @@
       class="button"
       (click)="addCurrentVariantToVariantList()"
       data-bs-toggle="tooltip"
-      [disabled]="emptyVariant || performanceMode"
+      [disabled]="emptyVariant"
       data-bs-placement="bottom"
       data-bs-container="body"
       title="Add variant to Log"
@@ -12,7 +12,7 @@
       <i
         class="bi bi-hammer"
         [ngClass]="{
-          'text-success': !emptyVariant && !performanceMode
+          'text-success': !emptyVariant
         }"
       ></i>
 

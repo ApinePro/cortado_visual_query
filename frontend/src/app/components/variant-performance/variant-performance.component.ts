@@ -3,10 +3,13 @@ import {
   Component,
   ElementRef,
   Inject,
+  OnDestroy,
   OnInit,
   Renderer2,
 } from '@angular/core';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 
@@ -17,7 +20,7 @@ import { VariantPerformanceService } from 'src/app/services/variant-performance.
 })
 export class VariantPerformanceComponent
   extends LayoutChangeDirective
-  implements OnInit
+  implements OnInit, OnDestroy
 {
   constructor(
     public variantPerformanceService: VariantPerformanceService,
@@ -49,9 +52,12 @@ export class VariantPerformanceComponent
 
   public colorScale;
 
+  private _destroy$ = new Subject();
+
   ngOnInit(): void {
-    this.variantPerformanceService.performanceStatsForSelectedVariantElement$.subscribe(
-      (data) => {
+    this.variantPerformanceService.performanceStatsForSelectedVariantElement$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((data) => {
         if (data == undefined) {
           this.performanceStats = null;
           return;
@@ -63,8 +69,11 @@ export class VariantPerformanceComponent
           this.title = 'Waiting Time';
         }
         this.changeDetectorRef.markForCheck();
-      }
-    );
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 }
 

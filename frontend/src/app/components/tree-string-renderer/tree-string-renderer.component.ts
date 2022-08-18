@@ -8,7 +8,10 @@ import {
   SimpleChanges,
   OnChanges,
   AfterViewInit,
+  OnDestroy,
 } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 
@@ -24,7 +27,9 @@ const TAU_CHAR = '\u03C4';
   templateUrl: './tree-string-renderer.component.html',
   styleUrls: ['./tree-string-renderer.component.css'],
 })
-export class TreeStringRendererComponent implements OnChanges, AfterViewInit {
+export class TreeStringRendererComponent
+  implements OnChanges, AfterViewInit, OnDestroy
+{
   activityNameRegEx = new RegExp("'([^']*)'", 'g');
   activityColorMap: Map<string, string>;
 
@@ -34,19 +39,23 @@ export class TreeStringRendererComponent implements OnChanges, AfterViewInit {
   // Simple Class overwrite for local styling
   @Input() custom_class: string;
 
+  private _destroy$ = new Subject();
+
   constructor(
     private colorMapService: ColorMapService,
     private renderer: Renderer
   ) {}
 
   ngAfterViewInit() {
-    this.colorMapService.colorMap$.subscribe((colorMap) => {
-      this.activityColorMap = colorMap;
+    this.colorMapService.colorMap$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        this.activityColorMap = colorMap;
 
-      if (this.styled_tree_string) {
-        this.styleText(this.styled_tree_string);
-      }
-    });
+        if (this.styled_tree_string) {
+          this.styleText(this.styled_tree_string);
+        }
+      });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -54,6 +63,10 @@ export class TreeStringRendererComponent implements OnChanges, AfterViewInit {
     if (styled_tree_string && this.activityColorMap) {
       this.styleText(styled_tree_string);
     }
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   styleText(value: string) {

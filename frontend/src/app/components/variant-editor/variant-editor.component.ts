@@ -13,13 +13,13 @@ import {
   Renderer2,
   ViewChild,
   HostListener,
+  OnDestroy,
 } from '@angular/core';
 
 import { cloneDeep } from 'lodash';
 import { Selection } from 'd3';
 import * as objectHash from 'object-hash';
 import * as d3 from 'd3';
-import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 import { LogService } from 'src/app/services/logService/log.service';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
@@ -34,6 +34,8 @@ import {
 import { collapsingText, fadeInText } from 'src/app/animations/text-animations';
 import { findPathToSelectedNode } from 'src/app/objects/Variants/utility_functions';
 import { applyInverseStrokeToPoly } from 'src/app/utils/render-utils';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-variant-editor',
@@ -43,7 +45,7 @@ import { applyInverseStrokeToPoly } from 'src/app/utils/render-utils';
 })
 export class VariantEditorComponent
   extends LayoutChangeDirective
-  implements OnInit
+  implements OnInit, OnDestroy
 {
   activityNames: Array<String> = [];
 
@@ -86,7 +88,8 @@ export class VariantEditorComponent
   zoom: any;
 
   redundancyWarning: boolean = false;
-  performanceMode: boolean;
+
+  private _destroy$ = new Subject();
 
   constructor(
     private sharedDataService: SharedDataService,
@@ -96,7 +99,6 @@ export class VariantEditorComponent
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
-    private variantPerformanceService: VariantPerformanceService,
     elRef: ElementRef,
     renderer: Renderer2
   ) {
@@ -110,32 +112,36 @@ export class VariantEditorComponent
   }
 
   ngOnInit(): void {
-    this.logService.activitiesInEventLog$.subscribe((activities) => {
-      this.activityNames = [];
-      for (let activity in activities) {
-        this.activityNames.push(activity);
-        this.activityNames.sort();
-      }
-    });
+    this.logService.activitiesInEventLog$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((activities) => {
+        this.activityNames = [];
+        for (let activity in activities) {
+          this.activityNames.push(activity);
+          this.activityNames.sort();
+        }
+      });
 
-    this.logService.loadedEventLog$.subscribe((newLog) => {
-      if (newLog) {
-        this.emptyVariant = true;
-      }
-    });
+    this.logService.loadedEventLog$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((newLog) => {
+        if (newLog) {
+          this.emptyVariant = true;
+        }
+      });
 
-    this.colorMapService.colorMap$.subscribe((map) => {
-      this.colorMap = map;
-      if (this.variantDrawer) {
-        this.variantDrawer.redraw();
-      }
-    });
+    this.colorMapService.colorMap$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((map) => {
+        this.colorMap = map;
+        if (this.variantDrawer) {
+          this.variantDrawer.redraw();
+        }
+      });
+  }
 
-    this.variantPerformanceService.variantPerformanceMode.subscribe(
-      (performanceMode) => {
-        this.performanceMode = performanceMode;
-      }
-    );
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   handleResponsiveChange(

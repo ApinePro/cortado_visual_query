@@ -9,6 +9,7 @@ import {
   OnInit,
   ViewChildren,
   QueryList,
+  OnDestroy,
 } from '@angular/core';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import * as d3 from 'd3';
@@ -18,6 +19,8 @@ import {
   LeafNode,
   VariantElement,
 } from 'src/app/objects/Variants/variant_element';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-activity-button-area',
@@ -25,7 +28,9 @@ import {
   styleUrls: ['./activity-button-area.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ActivityButtonAreaComponent implements OnChanges, OnInit {
+export class ActivityButtonAreaComponent
+  implements OnChanges, OnInit, OnDestroy
+{
   constructor(private colorMapService: ColorMapService) {}
 
   @Input()
@@ -40,6 +45,8 @@ export class ActivityButtonAreaComponent implements OnChanges, OnInit {
 
   colorMap: Map<string, string> = new Map<string, string>();
 
+  private _destroy$ = new Subject();
+
   ngOnInit() {
     this.activityDummyVariants = new Map<string, LeafNode>();
 
@@ -49,14 +56,20 @@ export class ActivityButtonAreaComponent implements OnChanges, OnInit {
       this.activityDummyVariants.set(activity, leaf);
     }
 
-    this.colorMapService.colorMap$.subscribe((map) => {
-      this.colorMap = map;
-      if (this.activityButtons) {
-        for (let button of this.activityButtons) {
-          button.redraw();
+    this.colorMapService.colorMap$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((map) => {
+        this.colorMap = map;
+        if (this.activityButtons) {
+          for (let button of this.activityButtons) {
+            button.redraw();
+          }
         }
-      }
-    });
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   onActivityButtonClick(elem: SVGElement, activity: any) {
