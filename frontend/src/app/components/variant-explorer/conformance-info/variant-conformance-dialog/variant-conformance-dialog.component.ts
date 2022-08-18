@@ -1,5 +1,13 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Observable } from 'rxjs';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Variant } from 'src/app/objects/Variants/variant';
 import { BackendService } from 'src/app/services/backendService/backend.service';
 
@@ -10,7 +18,7 @@ declare var $: any;
   templateUrl: './variant-conformance-dialog.component.html',
   styleUrls: ['./variant-conformance-dialog.component.scss'],
 })
-export class VariantConformanceDialogComponent implements OnInit {
+export class VariantConformanceDialogComponent implements OnInit, OnDestroy {
   @Input()
   showConformanceDialog: Observable<Variant>;
 
@@ -20,17 +28,28 @@ export class VariantConformanceDialogComponent implements OnInit {
   variant: Variant;
   conformanceTimeout: number = 30;
 
+  private _destroy$ = new Subject();
+
   constructor(private backendService: BackendService) {}
 
   ngOnInit(): void {
-    this.showConformanceDialog.subscribe((variant: Variant) => {
-      this.variant = variant;
-      this.backendService.getConfiguration().subscribe((config) => {
-        this.conformanceTimeout =
-          config.timeoutCVariantAlignmentComputation + 30;
-        $('#conformanceModalDialog').modal('show');
+    this.showConformanceDialog
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((variant: Variant) => {
+        this.variant = variant;
+        this.backendService
+          .getConfiguration()
+          .pipe(takeUntil(this._destroy$))
+          .subscribe((config) => {
+            this.conformanceTimeout =
+              config.timeoutCVariantAlignmentComputation + 30;
+            $('#conformanceModalDialog').modal('show');
+          });
       });
-    });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   hideModal(): void {

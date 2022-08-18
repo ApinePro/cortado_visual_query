@@ -19,7 +19,7 @@ export class ApiErrorDialogComponent implements OnInit, OnDestroy {
   public message: string;
   public isStackTraceExpanded: boolean = false;
 
-  private unsubscribeAll: Subject<any> = new Subject();
+  private _destroy$ = new Subject();
 
   constructor(
     private errorService: ErrorService,
@@ -29,12 +29,12 @@ export class ApiErrorDialogComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.errorService
       .getErrors()
-      .pipe(takeUntil(this.unsubscribeAll))
+      .pipe(takeUntil(this._destroy$))
       .subscribe(this.updatePropsObserver());
   }
 
   ngOnDestroy(): void {
-    this.unsubscribeAll.next();
+    this._destroy$.next();
   }
 
   toggleStackTrace() {
