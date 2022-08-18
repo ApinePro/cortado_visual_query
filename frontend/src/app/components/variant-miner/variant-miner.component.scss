@@ -163,6 +163,22 @@
   border-radius: 0px 5px 0px 0px;
 }
 
+.export-button-container{
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 15;
+}
+
+.export-button{
+  color: whitesmoke;
+  background-color: black;
+  font-size: 6px;
+  padding: 2px 4px 2px 3px;
+  box-shadow: none;
+  border-radius: 0px 0px 0px 5px;
+}
+
 .filter-button:hover{
   color : white;
 }
@@ -237,7 +253,7 @@
   background-color: var(--box-background-color);
   border: none;
   margin: 7px;
-  width : 150px; 
+  width : 150px;
 }
 
 .variant-miner-submit-button{

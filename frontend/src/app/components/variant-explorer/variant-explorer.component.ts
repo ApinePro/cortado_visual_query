@@ -66,7 +66,6 @@ import { collapsingText } from 'src/app/animations/text-animations';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
 import { EditorOptions } from './variant-query/variant-query.component';
-import { timeHours } from 'd3';
 
 @Component({
   selector: 'app-variant-explorer',

@@ -1,3 +1,4 @@
+import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import { VariantFilterService } from './../../services/variantFilterService/variant-filter.service';
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
 
@@ -11,13 +12,15 @@ import {
   Inject,
   OnDestroy,
   OnInit,
+  QueryList,
   Renderer2,
   ViewChild,
+  ViewChildren,
 } from '@angular/core';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
-
+import * as d3 from 'd3';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Options } from '@angular-slider/ngx-slider';
@@ -44,6 +47,7 @@ import { InfixType } from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
 import { VariantElement, LeafNode, deserialize } from 'src/app/objects/Variants/variant_element';
 import { contextMenuCallback } from '../variant-explorer/functions/variant-drawer-callbacks';
+import { ImageExportService } from 'src/app/services/imageExportService/image-export-service';
 
 @Component({
   selector: 'app-variant-miner',
@@ -65,6 +69,7 @@ export class VariantMinerComponent
   extends LayoutChangeDirective
   implements OnInit, AfterViewInit, OnDestroy
 {
+
   constructor(
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
@@ -77,11 +82,16 @@ export class VariantMinerComponent
     private logService : LogService,
     private variantService : VariantService,
     private variantFilterService : VariantFilterService,
+    private polygonDrawingService: PolygonDrawingService,
+    private imageExportService : ImageExportService,
     elRef: ElementRef,
     renderer: Renderer2
   ) {
     super(elRef.nativeElement, renderer);
   }
+
+  @ViewChildren(VariantDrawerDirective)
+  variantDrawers: QueryList<VariantDrawerDirective>;
 
   @ViewChild('variantMiner', { static: false })
   variantMinerDiv: ElementRef<HTMLDivElement>;
@@ -116,8 +126,6 @@ export class VariantMinerComponent
 
     const bids = this.displayedVariantsPatterns
     .filter((v) => v.variant === this.contextMenu_variant)[0].bids
-
-    console.log(bids)
 
     this.variantFilterService.addVariantFilter('infix filter', new Set(bids))
 
@@ -582,6 +590,54 @@ export class VariantMinerComponent
       }
     );
   }
+
+  exportVariantMiner() {
+    let svgs: SVGGraphicsElement[] = [];
+    let state: boolean[] = [];
+
+    const visibleComponents = this.variantDrawers;
+
+    // Get current expansion state
+    visibleComponents.forEach((c) => state.push(c.isExpanded()));
+
+    // Expand the elements and redraw them
+    visibleComponents.forEach((c) => c.setExpanded(true));
+
+    // Collect the SVG and pass them to the SVG Service
+    visibleComponents.forEach((c) => svgs.push(c.getSVGGraphicElement()));
+
+    // TODO Create the Legend Element and add it
+    const legend = d3.create('svg').attr('x', '10').attr('y', '10');
+
+    let leafnodes: LeafNode[] = [];
+
+    for (let activity in this.logService.activitiesInEventLog) {
+      leafnodes.push(new LeafNode([activity]));
+    }
+
+    svgs.forEach((svg) => {
+      svg.removeAttribute('ng-reflect-variant');
+      svg.removeAttribute('ng-reflect-on-click-cb-fc');
+      svg.removeAttribute('ng-reflect-performance-mode');
+      svg.removeAttribute('ng-reflect-compute-activity-color');
+      svg.removeAttribute('appVariantDrawer');
+      svg.removeAttribute('class');
+      d3.select(svg).selectAll('text').attr('data-bs-original-title', null);
+    });
+
+    this.polygonDrawingService.drawLegend(leafnodes, legend, this.colorMap);
+
+    svgs.unshift(legend.node());
+
+    // Send all Elements to the export service
+    this.imageExportService.export('variant_explorer', 0, 0, ...svgs);
+
+    // Return everything to its previous state
+    visibleComponents.forEach((c, i) => c.setExpanded(state[i]));
+
+    // Hide the Spinner
+  }
+
 
   computeActivityColor = (
     self: VariantDrawerDirective,
