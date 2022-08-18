@@ -280,14 +280,13 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
 
-    let polygon = parent
-      .append('polygon')
-      .attr('points', polygonPoints)
-      .style('fill', color)
-      .classed('variant-group-element', true)
-      .classed('variant-sequence-group', true)
-      .classed('variant-polygon', true)
-      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable);
+    let polygon = this.createPolygon(
+      parent,
+      polygonPoints,
+      color,
+      actionable,
+      true
+    );
 
     if (
       this.traceInfixSelectionMode &&
@@ -356,14 +355,13 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       laElement.infixSelectableState !== SelectableState.None;
 
     const color = 'lightgrey';
-    let polygon = parent
-      .append('polygon')
-      .attr('points', polygonPoints)
-      .style('fill', color)
-      .classed('variant-group-element', true)
-      .classed('variant-parallel-group', true)
-      .classed('variant-polygon', true)
-      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable);
+    let polygon = this.createPolygon(
+      parent,
+      polygonPoints,
+      color,
+      actionable,
+      true
+    );
 
     if (
       this.traceInfixSelectionMode &&
@@ -405,6 +403,26 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
     }
   }
 
+  private createPolygon(
+    parent: d3.Selection<any, any, any, any>,
+    polygonPoints: string,
+    color: string,
+    actionable: boolean,
+    group = false
+  ) {
+    const poly = parent
+      .append('polygon')
+      .attr('points', polygonPoints)
+      .style('fill', color)
+      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable);
+
+    if (group) {
+      poly.style('fill-opacity', 0.5).style('stroke-width', 2);
+    }
+
+    return poly;
+  }
+
   public drawLeafNode(
     element: LeafNode,
     parent: Selection<any, any, any, any>
@@ -429,12 +447,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
 
-    let polygon = parent
-      .append('polygon')
-      .attr('points', polygonPoints)
-      .style('fill', color)
-      .classed('variant-polygon', true)
-      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable);
+    let polygon = this.createPolygon(parent, polygonPoints, color, actionable);
 
     if (this.traceInfixSelectionMode) {
       this.addInfixSelectionAttributes(element, polygon, true);
@@ -577,11 +590,7 @@ export class VariantDrawerDirective implements AfterViewInit, OnChanges {
 
     const color = this.computeActivityColor(this, element, this.variant);
 
-    parent
-      .append('polygon')
-      .attr('points', polygonPoints)
-      .style('fill', color)
-      .classed('variant-polygon', true);
+    this.createPolygon(parent, polygonPoints, color, false);
 
     if (this.onClickCbFc) {
       parent.on('click', (e: PointerEvent) => {
