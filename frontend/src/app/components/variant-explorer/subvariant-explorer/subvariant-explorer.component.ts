@@ -47,6 +47,7 @@ export class SubvariantExplorerComponent
   public colorMap: Map<string, string>;
   public serviceTimeColorMap: any;
   public waitingTimeColorMap: any;
+  public index: number;
 
   @ViewChild(VariantDrawerDirective)
   mainvariantDrawer: VariantDrawerDirective;
@@ -73,7 +74,9 @@ export class SubvariantExplorerComponent
     public variantViewModeService: VariantViewModeService
   ) {
     super(elRef.nativeElement, renderer);
-    this.mainVariant = this.container.initialState as Variant;
+    let state = this.container.initialState;
+    this.mainVariant = state['variant'] as Variant;
+    this.index = state['index'] as number;
     this.colorMap = this.colorMapService.colorMap;
     this.sortAscending = false;
     this.svgRenderingInProgress = false;
@@ -140,6 +143,10 @@ export class SubvariantExplorerComponent
     logicalZIndex: LogicalZIndex,
     defaultZIndex: string
   ): void {}
+
+  public setIndex(index: number) {
+    this.index = index;
+  }
 
   subvariantClickCallBack(vis: SubvariantVisualization) {
     this.mainvariantDrawer.changeSelected(null);
