@@ -127,7 +127,7 @@ export class VariantExplorerComponent
   public correctTreeSyntax = false;
   expansionState: Map<string, boolean> = new Map<string, boolean>();
   serviceTimeColorMap: any;
-  waitingColorMap: any;
+  waitingTimeColorMap: any;
 
   public VM = ViewMode;
 
@@ -261,7 +261,7 @@ export class VariantExplorerComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe((colorMap) => {
         if (colorMap !== undefined) {
-          this.waitingColorMap = colorMap;
+          this.waitingTimeColorMap = colorMap;
           this.redraw_components();
         }
       });
