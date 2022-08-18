@@ -396,8 +396,8 @@ th {
 
 .selected-polygon {
   stroke: whitesmoke !important;
-  stroke-width: 3px;
-  stroke-dasharray: 4;
+  stroke-width: 3 !important;
+  stroke-dasharray: 2;
 }
 
 

@@ -107,7 +107,8 @@ export class VariantDrawerDirective
   ngAfterViewInit(): void {
     this.svgSelection = d3
       .select(this.svgHtmlElement.nativeElement)
-      .append('g');
+      .append('g')
+      .style('padding-top', '5px');
 
     this.redraw();
 
@@ -166,7 +167,9 @@ export class VariantDrawerDirective
         width
       );
 
-      svg_container.attr('width', width + width_offset).attr('height', height);
+      svg_container
+        .attr('width', width + width_offset)
+        .attr('height', height + 4);
 
       this.draw(this.variant, svg, true);
 
@@ -256,6 +259,10 @@ export class VariantDrawerDirective
     outerElement: boolean = false
   ): void {
     svgElement.datum(element).classed('variant-element-group', true);
+
+    if (outerElement) {
+      svgElement.datum(element).attr('transform', `translate(0, 2)`);
+    }
 
     if (element instanceof ParallelGroup) {
       this.drawParallelGroup(element.asParallelGroup(), svgElement);

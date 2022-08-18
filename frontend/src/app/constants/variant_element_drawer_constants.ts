@@ -17,4 +17,5 @@ export class VARIANT_Constants {
   public static LEGEND_MARGIN_Y = 5;
   public static POINT_RADIUS = 7;
   public static INTERVAL_LENGTH = 60;
+  public static SELECTION_STROKE_WIDTH = 2;
 }
