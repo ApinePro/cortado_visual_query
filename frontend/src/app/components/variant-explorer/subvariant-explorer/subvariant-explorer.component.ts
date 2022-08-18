@@ -119,6 +119,12 @@ export class SubvariantExplorerComponent
           this.mainvariantDrawer.redraw();
         }
       });
+
+    this.variantViewModeService.viewMode$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((viewMode: ViewMode) => {
+        this.onViewModeChange(viewMode);
+      });
   }
 
   ngOnDestroy(): void {
@@ -363,6 +369,18 @@ export class SubvariantExplorerComponent
         .text('Parent');
     }
     return svgElement_copy;
+  }
+
+  private onViewModeChange(viewMode: ViewMode) {
+    switch (viewMode) {
+      case ViewMode.PERFORMANCE:
+        this.setExpandedSubVariants(true);
+        break;
+      default:
+        if (!this.mainvariantDrawer.isExpanded())
+          this.setExpandedSubVariants(false);
+        break;
+    }
   }
 
   computeActivityColor = activityColor.bind(this);
