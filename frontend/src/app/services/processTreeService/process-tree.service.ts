@@ -1,7 +1,6 @@
 import { LogService } from 'src/app/services/logService/log.service';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { Observable } from 'rxjs/internal/Observable';
+import { Observable, BehaviorSubject } from 'rxjs';
 
 import Swal from 'sweetalert2';
 import {
