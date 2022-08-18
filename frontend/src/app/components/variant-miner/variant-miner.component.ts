@@ -628,6 +628,13 @@ export class VariantMinerComponent
     this.polygonDrawingService.drawLegend(leafnodes, legend, this.colorMap);
 
     svgs.unshift(legend.node());
+    svgs.push(
+      d3
+        .select('#infixDotsForDrawer')
+        .attr('width', 0)
+        .attr('height', 0)
+        .node() as SVGGraphicsElement
+    );
 
     // Send all Elements to the export service
     this.imageExportService.export('variant_explorer', 0, 0, ...svgs);
