@@ -463,7 +463,7 @@ export class VariantExplorerComponent
         selectedScale.statistic
       ] !== undefined
     ) {
-      return colorScale(
+      return colorScale.getColor(
         tree.performance[selectedScale.performanceIndicator][
           selectedScale.statistic
         ]
@@ -837,7 +837,7 @@ export class VariantExplorerComponent
         selectedScale.statistic
       ] !== undefined
     ) {
-      return colorScale(
+      return colorScale.getColor(
         tree.performance[selectedScale.performanceIndicator][
           selectedScale.statistic
         ]
