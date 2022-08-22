@@ -43,20 +43,17 @@ export class VariantFilterService {
   clearAllFilters() {
     const newFilterMap = new Map<string, VariantFilter>(this.variantFilters);
     this.variantFilters = newFilterMap;
-
   }
 }
 
-export class VariantFilter{
+export class VariantFilter {
+  bids: Set<number>;
+  name: string;
+  tooltip: string;
 
-  bids : Set<number>
-  name : string
-  tooltip : string
-
-
-  constructor(name, bids, tooltip){
-      this.name = name;
-      this.bids = bids;
-      this.tooltip = tooltip;
+  constructor(name, bids, tooltip) {
+    this.name = name;
+    this.bids = bids;
+    this.tooltip = tooltip;
   }
 }

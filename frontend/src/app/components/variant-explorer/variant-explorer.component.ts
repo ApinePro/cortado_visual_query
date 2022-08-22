@@ -1,4 +1,7 @@
-import { VariantFilter, VariantFilterService } from './../../services/variantFilterService/variant-filter.service';
+import {
+  VariantFilter,
+  VariantFilterService,
+} from './../../services/variantFilterService/variant-filter.service';
 import {
   AfterViewInit,
   Component,
@@ -266,9 +269,9 @@ export class VariantExplorerComponent
           return c;
         };
 
-        const filterSet = Array.from(filterMap.values()).map((f) => f.bids).reduce((a, b) =>
-          intersectSets(a, b)
-        );
+        const filterSet = Array.from(filterMap.values())
+          .map((f) => f.bids)
+          .reduce((a, b) => intersectSets(a, b));
 
         this.displayed_variants = this.variants.filter((v) => {
           if (filterSet.has(v.bid)) {
