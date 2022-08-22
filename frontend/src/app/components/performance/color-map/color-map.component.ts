@@ -40,7 +40,7 @@ export function buildColorValues(
   let colors = colorScale.range();
   colors = [...colors, null];
   return thresholds.map((t, i) => {
-    let color = t === 0 ? ZERO_VALUE_COLOR : colors[i - 1];
+    let color = t < 0.5 ? ZERO_VALUE_COLOR : colors[i - 1];
 
     return {
       lowerBound: t,

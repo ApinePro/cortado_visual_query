@@ -8,7 +8,7 @@ export class PerformanceColorMap {
   }
 
   getColor(value: number) {
-    return value === 0 ? ZERO_VALUE_COLOR : this.scale(value);
+    return value < 0.5 ? ZERO_VALUE_COLOR : this.scale(value);
   }
 
   domain() {
