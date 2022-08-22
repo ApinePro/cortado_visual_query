@@ -44,11 +44,14 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
 
   queryfilteractive: boolean = false;
 
-  activityNameRegEx = new RegExp("'([^']*)'", 'g');
+  apostropheString = '<span class="syntax-operator">\'</span>';
+  activityNameRegEx = new RegExp( this.apostropheString + "([^']*)" + this.apostropheString, 'g');
   activityColorMap: Map<string, string>;
   imbalancedItems: imbalancedItem[];
   backendErrorMessage: boolean = false;
   backendErrorIndex: number;
+
+
 
   private _destroy$ = new Subject();
 
@@ -108,7 +111,8 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
         if (!res.error) {
           this.variantFilterService.addVariantFilter(
             'query filter',
-            new Set(res.ids as Array<number>)
+            new Set(res.ids as Array<number>),
+            this.highlightText.nativeElement.innerHTML
           );
         } else {
           this.variantQuery.setErrors({ backendError: res.error });
@@ -150,15 +154,14 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
 
   applyHighlights(text: string) {
     var highlighted_text = text
-      .replace(/\n$/g, '\n\n')
-      .replace(/\</g, '&lt;')
-      .replace(/\>/g, '&gt;');
 
-    if (this.options.highlightActivityNames) {
-      highlighted_text = this.colorActivityNames(highlighted_text);
-    }
+    highlighted_text = highlighted_text.replace(/\n$/g, '\n\n')
 
     highlighted_text = this.colorSyntaxOperators(highlighted_text);
+
+    if (this.options.highlightActivityNames) {
+        highlighted_text = this.colorActivityNames(highlighted_text);
+    }
 
     highlighted_text = this.colorLogicalOperators(highlighted_text);
 
@@ -170,15 +173,23 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   colorLogicalOperators(value: any): string {
     value = value.replace(
       /\b(NOT|AND|OR|ANY|ALL)\b/g,
-      "<span class='logical-operator'>$&</span>"
+      '<span class="logical-operator">$&</span>'
     );
     return value;
   }
 
   colorSyntaxOperators(value: any): string {
     value = value.replace(
-      /(((\'|\;)($|\s))|((^|\s)(\'|\;)))/g,
-      "<span class='syntax-operator'>$&</span>"
+      /(\'|\~|\{|\}|\(|\)|\,|\;|\=|\<|\>)/g,
+      '<span class="syntax-operator">$&</span>'
+    );
+    return value;
+  }
+
+  colorNumber(value : any ):string{
+    value = value.replace(
+      /\d+/g,
+      '<span class="number-operator">$&</span>'
     );
     return value;
   }
@@ -199,17 +210,17 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
 
     knownActivities.forEach((activityName: string) => {
       value = value.replace(
-        new RegExp("'" + this.escapeActivityNameChars(activityName) + "'", 'g'),
-        `'<span style="color:${this.activityColorMap.get(activityName)}">` +
+        new RegExp(this.apostropheString + this.escapeActivityNameChars(activityName) + this.apostropheString, 'g'),
+        this.apostropheString + `<span style="color:${this.activityColorMap.get(activityName)}">` +
           activityName +
-          "</span>'"
+          '</span>' + this.apostropheString
       );
     });
 
     unknowActivities.forEach((activityName: string) => {
       value = value.replace(
-        new RegExp("'" + this.escapeActivityNameChars(activityName) + "'", 'g'),
-        '\'<span class="warning-highlight">' + activityName + "</span>'"
+        new RegExp(this.apostropheString + this.escapeActivityNameChars(activityName) + this.apostropheString, 'g'),
+        this.apostropheString + '<span class="warning-highlight">' + activityName + "</span>" + this.apostropheString
       );
     });
 
@@ -223,7 +234,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   colorOperators(value: any): string {
     const res = value.replace(
       /\b(isEF|isEventuallyFollowed|isDF|isDirectlyFollowed|isP|isParallel|isStart|isS|isEnd|isE|isContained|isC)\b/g,
-      "<span class='logical-operator'>$&</span>"
+      '<span class="query-operator">$&</span>'
     );
     return res;
   }

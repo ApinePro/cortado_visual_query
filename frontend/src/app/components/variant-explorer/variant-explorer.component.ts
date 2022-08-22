@@ -1,4 +1,4 @@
-import { VariantFilterService } from './../../services/variantFilterService/variant-filter.service';
+import { VariantFilter, VariantFilterService } from './../../services/variantFilterService/variant-filter.service';
 import {
   AfterViewInit,
   Component,
@@ -157,7 +157,7 @@ export class VariantExplorerComponent
   contextMenu_variant: VariantElement;
   contextMenu_directive: VariantDrawerDirective;
 
-  filterMap: Map<string, Set<number>> = new Map<string, Set<number>>();
+  filterMap: Map<string, VariantFilter> = new Map<string, VariantFilter>();
 
   // Define Callbacks
   variantClickCallBack = clickCallback.bind(this);
@@ -257,6 +257,8 @@ export class VariantExplorerComponent
     this.variantFilterService.variantFilters$.subscribe((filterMap) => {
       this.filterMap = filterMap;
 
+      console.log(filterMap);
+
       if (filterMap.size > 0) {
         const intersectSets = function (a: Set<number>, b: Set<number>) {
           const c: Set<number> = new Set<number>();
@@ -264,7 +266,7 @@ export class VariantExplorerComponent
           return c;
         };
 
-        const filterSet = Array.from(filterMap.values()).reduce((a, b) =>
+        const filterSet = Array.from(filterMap.values()).map((f) => f.bids).reduce((a, b) =>
           intersectSets(a, b)
         );
 
