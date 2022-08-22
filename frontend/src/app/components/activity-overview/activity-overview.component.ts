@@ -191,7 +191,7 @@ export class ActivityOverviewComponent
 
   resetActivityColors(): void {
     this.colorMapService.createColorMap(
-      Object.keys(this.logService.activitiesInEventLog)
+      Array.from(this.activityColorMap.keys())
     );
   }
 

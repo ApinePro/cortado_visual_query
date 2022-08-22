@@ -59,15 +59,9 @@ export class ColorMapService {
     return color;
   }
 
-  public deleteActivityInColorMap(activityName: string) {
-    this.colorMap.delete(activityName);
-  }
-
   public renameColorInActivityColorMap(activityName, newActivityName) {
     if (!this.colorMap.get(newActivityName)) {
       this.colorMap.set(newActivityName, this.colorMap.get(activityName));
     }
-
-    this.colorMap.delete(activityName);
   }
 }
