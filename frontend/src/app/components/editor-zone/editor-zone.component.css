@@ -1,0 +1,11 @@
+.editor-container {
+  width: 75vw;
+  height: 40vh;
+  overflow: auto;
+}
+
+.editor-top-container {
+  width: 90%;
+  height: 60%;
+}
+

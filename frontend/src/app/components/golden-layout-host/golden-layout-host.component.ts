@@ -1,3 +1,4 @@
+import { EditorComponent } from './../editor/editor.component';
 import { GoldenLayoutDummyComponent } from './golden-layout-dummy/golden-layout-dummy.component';
 import {
   Component,
@@ -87,6 +88,11 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     this.goldenLayoutComponentService.registerComponentType(
       ModelPerformanceComponent.componentName,
       ModelPerformanceComponent
+    );
+
+    this.goldenLayoutComponentService.registerComponentType(
+      EditorComponent.componentName,
+      EditorComponent
     );
 
     this.goldenLayoutComponentService.registerComponentType(

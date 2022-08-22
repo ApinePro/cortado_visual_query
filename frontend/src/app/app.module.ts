@@ -62,12 +62,15 @@ import { TreePerformanceButtonComponent } from './components/variant-explorer/va
 import { InfixSelectionControllsComponent } from './components/variant-explorer/variant/subcomponents/infix-selection-controlls/infix-selection-controlls.component';
 import { ZoomFieldComponent } from './components/zoom-field/zoom-field.component';
 import { VariantExplorerSidebarComponent } from './components/variant-explorer/variant-explorer-sidebar/variant-explorer-sidebar.component';
+import { EditorZoneComponent } from './components/editor-zone/editor-zone.component';
+import { EditorComponent } from './components/editor/editor.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     FooterComponent,
     StrFilterPipe,
+    EditorZoneComponent,
     ActivityOverviewSortingPipe,
     GoldenLayoutHostComponent,
     VariantExplorerComponent,
@@ -118,6 +121,7 @@ import { VariantExplorerSidebarComponent } from './components/variant-explorer/v
     InfixSelectionControllsComponent,
     ZoomFieldComponent,
     VariantExplorerSidebarComponent,
+    EditorComponent,
   ],
   imports: [
     BrowserModule,

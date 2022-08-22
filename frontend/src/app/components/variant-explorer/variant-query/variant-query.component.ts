@@ -55,7 +55,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     private renderer: Renderer2,
     private colorMapService: ColorMapService,
     private logService: LogService,
-    private backendService: BackendService
+    private backendService: BackendService,
   ) {}
 
   ngOnInit() {
@@ -88,6 +88,8 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
         this.activityColorMap = colorMap;
         this.handleInput();
       });
+
+
   }
 
   ngOnDestroy(): void {
