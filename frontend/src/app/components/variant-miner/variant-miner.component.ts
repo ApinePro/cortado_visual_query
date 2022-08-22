@@ -125,6 +125,40 @@ export class VariantMinerComponent
 
   openContextCallback = contextMenuCallback.bind(this);
 
+  exportSVG = function () {
+    let svgs: SVGGraphicsElement[] = [];
+    let state: boolean[] = [];
+
+    const visibleComponents = this.contextMenu_directive;
+    svgs.push(visibleComponents.getSVGGraphicElement());
+
+    svgs.forEach((svg) => {
+      svg.removeAttribute('ng-reflect-variant');
+      svg.removeAttribute('ng-reflect-on-click-cb-fc');
+      svg.removeAttribute('ng-reflect-performance-mode');
+      svg.removeAttribute('ng-reflect-compute-activity-color');
+      svg.removeAttribute('appVariantDrawer');
+      svg.removeAttribute('class');
+      d3.select(svg).selectAll('text').attr('data-bs-original-title', null);
+    });
+
+    svgs.push(
+      d3
+        .select('#infixDotsForDrawer')
+        .attr('width', 0)
+        .attr('height', 0)
+        .node() as SVGGraphicsElement
+    );
+
+    // Send all Elements to the export service
+    this.imageExportService.export('variant_explorer', 0, 0, ...svgs);
+
+    // Return everything to its previous state
+    visibleComponents.forEach((c, i) => c.setExpanded(state[i]));
+
+  }.bind(this);
+
+
   filterInfix = function () {
     const bids = this.displayedVariantsPatterns.filter(
       (v) => v.variant === this.contextMenu_variant
@@ -147,7 +181,8 @@ export class VariantMinerComponent
       element: VariantElement,
       directive: VariantDrawerDirective
     ) => {}
-  >([['Use infix as filter', this.filterInfix]]);
+  >([['Use infix as filter', this.filterInfix],
+     ['Export Pattern as SVG', this.exportSVG]]);
 
   currentConfig: MiningConfig = null;
 
