@@ -488,13 +488,15 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
     currentYIndex: number
   ): [Map<string, number[]>, number] {
     if (variantElement instanceof LeafNode) {
-      let activity = variantElement.activity[0];
-      if (results.has(activity)) {
-        let currentValues = results.get(activity);
-        currentValues.push(currentYIndex);
-        results.set(activity, currentValues);
-      } else {
-        results.set(activity, [currentYIndex]);
+      for (let i = 0; i < variantElement.activity.length; i++) {
+        let activity = variantElement.activity[i];
+        if (results.has(activity)) {
+          let currentValues = results.get(activity);
+          currentValues.push(currentYIndex);
+          results.set(activity, currentValues);
+        } else {
+          results.set(activity, [currentYIndex]);
+        }
       }
 
       return [results, currentYIndex];
