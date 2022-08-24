@@ -50,6 +50,7 @@
     "jquery": "^3.6.0",
     "lodash": "^4.17.21",
     "monaco-editor": "^0.34.0",
+    "monaco-editor-webpack-plugin": "^7.0.1",
     "ngx-clipboard": "^15.0.1",
     "ngx-color-picker": "^11.0.0",
     "ngx-file-drop": "^13.0.0",

@@ -1,12 +1,12 @@
+
+
+import { EditorService } from './../../services/editorService/editor.service';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import loader from '@monaco-editor/loader';
-import * as monaco from 'monaco-editor';
+import { take } from 'rxjs/operators'
 
+import { languages, editor } from "monaco-editor/esm/vs/editor/editor.api";
 
-declare var monacoInstance: any;
-let loadedMonaco = false;
-let loadPromise: Promise<void>;
-
+declare var monaco;
 @Component({
   selector: 'app-editor-zone',
   templateUrl: './editor-zone.component.html',
@@ -14,49 +14,48 @@ let loadPromise: Promise<void>;
 })
 export class EditorZoneComponent implements OnInit {
 
-  constructor() { }
+  constructor(private monacoEditorService : EditorService) { }
 
+  ngOnInit(): void {
+    this.monacoEditorService.load()
+  }
+
+  protected _options : editor.IStandaloneEditorConstructionOptions  = {
+                          value: "// First line\nfunction hello() {\n\talert('Hello world!');\n}\n// Last line",
+                          lineNumbers: 'on',
+                          roundedSelection: false,
+                          scrollBeyondLastLine: false,
+                          readOnly: false,
+                          automaticLayout : true,
+                          theme: 'vs-dark'
+                        } as editor.IStandaloneEditorConstructionOptions
+
+  public _editor : editor.IStandaloneCodeEditor;
 
   @ViewChild('editorContainer', { static: true }) _editorContainer: ElementRef;
 
-  ngOnInit() {
+  private initMonaco(): void {
+    if(!this.monacoEditorService.loaded) {
+      this.monacoEditorService.loadingFinished.pipe(take(1)).subscribe(() => {
+        this.initMonaco();
+      });
+      return;
+    }
+
+    this._editor = editor.create(
+      this._editorContainer.nativeElement,
+      this._options
+    );
+
+    this._editor
+    console.log(this._editor)
+
+
+    this._editor
   }
 
-  protected _options = { theme: "vs", language: "sql" };
-  protected _editor;
-
   ngAfterViewInit(): void {
-
-    if (loadedMonaco){
-
-      this._editor = monacoInstance.editor.create(
-        this._editorContainer.nativeElement,
-        this._options
-      );
-
-    } else {
-
-      loader.config({ monaco });
-      loader.init().then( edit => {
-        console.log('monaco Init');
-        loadedMonaco = true;
-
-        this._editor = edit.editor.create(
-          this._editorContainer.nativeElement,
-          {
-            value: '// some comment',
-            theme: 'vs-dark',
-            lineNumbers: 'on',
-            readOnly : true,
-          }
-        );
-
-      })
-
-    }
-
-
-
-    }
+    this.initMonaco();
+  }
 
   }
