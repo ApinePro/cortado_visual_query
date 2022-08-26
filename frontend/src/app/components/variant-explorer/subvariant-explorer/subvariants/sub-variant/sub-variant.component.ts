@@ -251,11 +251,15 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
     }
     if (!subvariantData.isWaitingTimeNode) {
       let stat = this.variantPerformanceService.serviceTimeStatistic;
-      return this.serviceTimeColorMap(subvariantData.performanceStats[stat]);
+      return this.serviceTimeColorMap.getColor(
+        subvariantData.performanceStats[stat]
+      );
     }
 
     let stat = this.variantPerformanceService.waitingTimeStatistic;
-    return this.waitingTimeColorMap(subvariantData.performanceStats[stat]);
+    return this.waitingTimeColorMap.getColor(
+      subvariantData.performanceStats[stat]
+    );
   }
 
   private wrapInnerLabelText(
