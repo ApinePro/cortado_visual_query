@@ -1,3 +1,4 @@
+import { VariantFilterService } from './../../../services/variantFilterService/variant-filter.service';
 import { LogService } from 'src/app/services/logService/log.service';
 import { BackendService } from 'src/app/services/backendService/backend.service';
 import {
@@ -8,8 +9,6 @@ import {
   Renderer2,
   AfterViewInit,
   HostListener,
-  Output,
-  EventEmitter,
   Input,
   OnDestroy,
 } from '@angular/core';
@@ -37,13 +36,19 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   queryEditorBackdrop: ElementRef<HTMLDivElement>;
   @ViewChild('highlightText') highlightText: ElementRef<HTMLDivElement>;
 
-  @Output()
-  query_selection = new EventEmitter<Set<number>>();
-
   @Input()
   active: boolean = false;
 
-  activityNameRegEx = new RegExp("'([^']*)'", 'g');
+  @Input()
+  options: EditorOptions = new EditorOptions();
+
+  queryfilteractive: boolean = false;
+
+  apostropheString = '<span class="syntax-operator">\'</span>';
+  activityNameRegEx = new RegExp(
+    this.apostropheString + "([^']*)" + this.apostropheString,
+    'g'
+  );
   activityColorMap: Map<string, string>;
   imbalancedItems: imbalancedItem[];
   backendErrorMessage: boolean = false;
@@ -55,8 +60,13 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     private renderer: Renderer2,
     private colorMapService: ColorMapService,
     private logService: LogService,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private variantFilterService: VariantFilterService
   ) {}
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
+  }
 
   ngOnInit() {
     this.variantQueryInput = new FormGroup({
@@ -88,10 +98,10 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
         this.activityColorMap = colorMap;
         this.handleInput();
       });
-  }
 
-  ngOnDestroy(): void {
-    this._destroy$.next();
+    this.variantFilterService.variantFilters$.subscribe((filter) => {
+      this.queryfilteractive = filter.has('query filter');
+    });
   }
 
   onSubmit() {
@@ -100,7 +110,11 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe((res) => {
         if (!res.error) {
-          this.query_selection.emit(new Set(res.ids as Array<number>));
+          this.variantFilterService.addVariantFilter(
+            'query filter',
+            new Set(res.ids as Array<number>),
+            this.highlightText.nativeElement.innerHTML
+          );
         } else {
           this.variantQuery.setErrors({ backendError: res.error });
           this.backendErrorIndex = res.error_index;
@@ -109,7 +123,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   resetQuery() {
-    this.query_selection.emit(null);
+    this.variantFilterService.removeVariantFilter('query filter');
   }
 
   get variantQuery(): FormControl {
@@ -140,13 +154,18 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   applyHighlights(text: string) {
-    var highlighted_text = text
-      .replace(/\n$/g, '\n\n')
-      .replace(/\</g, '&lt;')
-      .replace(/\>/g, '&gt;');
+    var highlighted_text = text;
 
-    highlighted_text = this.colorActivityNames(highlighted_text);
+    highlighted_text = highlighted_text.replace(/\n$/g, '\n\n');
+
+    highlighted_text = this.colorSyntaxOperators(highlighted_text);
+
+    if (this.options.highlightActivityNames) {
+      highlighted_text = this.colorActivityNames(highlighted_text);
+    }
+
     highlighted_text = this.colorLogicalOperators(highlighted_text);
+
     highlighted_text = this.colorOperators(highlighted_text);
 
     return highlighted_text;
@@ -155,8 +174,21 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   colorLogicalOperators(value: any): string {
     value = value.replace(
       /\b(NOT|AND|OR|ANY|ALL)\b/g,
-      "<span class='logical-operator'>$&</span>"
+      '<span class="logical-operator">$&</span>'
     );
+    return value;
+  }
+
+  colorSyntaxOperators(value: any): string {
+    value = value.replace(
+      /(\'|\~|\{|\}|\(|\)|\,|\;|\=|\<|\>)/g,
+      '<span class="syntax-operator">$&</span>'
+    );
+    return value;
+  }
+
+  colorNumber(value: any): string {
+    value = value.replace(/\d+/g, '<span class="number-operator">$&</span>');
     return value;
   }
 
@@ -176,17 +208,33 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
 
     knownActivities.forEach((activityName: string) => {
       value = value.replace(
-        new RegExp("'" + this.escapeActivityNameChars(activityName) + "'", 'g'),
-        `'<span style="color:${this.activityColorMap.get(activityName)}">` +
+        new RegExp(
+          this.apostropheString +
+            this.escapeActivityNameChars(activityName) +
+            this.apostropheString,
+          'g'
+        ),
+        this.apostropheString +
+          `<span style="color:${this.activityColorMap.get(activityName)}">` +
           activityName +
-          "</span>'"
+          '</span>' +
+          this.apostropheString
       );
     });
 
     unknowActivities.forEach((activityName: string) => {
       value = value.replace(
-        new RegExp("'" + this.escapeActivityNameChars(activityName) + "'", 'g'),
-        '\'<span class="warning-highlight">' + activityName + "</span>'"
+        new RegExp(
+          this.apostropheString +
+            this.escapeActivityNameChars(activityName) +
+            this.apostropheString,
+          'g'
+        ),
+        this.apostropheString +
+          '<span class="warning-highlight">' +
+          activityName +
+          '</span>' +
+          this.apostropheString
       );
     });
 
@@ -200,7 +248,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   colorOperators(value: any): string {
     const res = value.replace(
       /\b(isEF|isEventuallyFollowed|isDF|isDirectlyFollowed|isP|isParallel|isStart|isS|isEnd|isE|isContained|isC)\b/g,
-      "<span class='logical-operator'>$&</span>"
+      '<span class="query-operator">$&</span>'
     );
     return res;
   }
@@ -375,5 +423,13 @@ class imbalancedItem {
   constructor(symbol: string, index: number) {
     this.symbol = symbol;
     this.index = index;
+  }
+}
+
+export class EditorOptions {
+  highlightActivityNames: boolean;
+
+  constructor() {
+    this.highlightActivityNames = true;
   }
 }

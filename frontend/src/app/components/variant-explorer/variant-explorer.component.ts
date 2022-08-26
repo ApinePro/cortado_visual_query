@@ -1,6 +1,9 @@
 import {
+  VariantFilter,
+  VariantFilterService,
+} from './../../services/variantFilterService/variant-filter.service';
+import {
   AfterViewInit,
-  ChangeDetectorRef,
   Component,
   ElementRef,
   HostListener,
@@ -76,6 +79,7 @@ import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
+import { EditorOptions } from './variant-query/variant-query.component';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -91,6 +95,7 @@ export class VariantExplorerComponent
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
     private variantService: VariantService,
+    private variantFilterService: VariantFilterService,
     private backendService: BackendService,
     private logService: LogService,
     private imageExportService: ImageExportService,
@@ -117,6 +122,8 @@ export class VariantExplorerComponent
   public displayed_variants: Variant[] = [];
   public colorMap: Map<string, string>;
   public sidebarHeight = 0;
+
+  public options: EditorOptions = new EditorOptions();
 
   public logStats: LogStats = null;
 
@@ -152,6 +159,8 @@ export class VariantExplorerComponent
   contextMenu_element: VariantElement;
   contextMenu_variant: VariantElement;
   contextMenu_directive: VariantDrawerDirective;
+
+  filterMap: Map<string, VariantFilter> = new Map<string, VariantFilter>();
 
   // Define Callbacks
   variantClickCallBack = clickCallback.bind(this);
@@ -248,6 +257,39 @@ export class VariantExplorerComponent
         this.redraw_components();
       });
 
+    this.variantFilterService.variantFilters$.subscribe((filterMap) => {
+      this.filterMap = filterMap;
+
+      console.log(filterMap);
+
+      if (filterMap.size > 0) {
+        const intersectSets = function (a: Set<number>, b: Set<number>) {
+          const c: Set<number> = new Set<number>();
+          a.forEach((v) => b.has(v) && c.add(v));
+          return c;
+        };
+
+        const filterSet = Array.from(filterMap.values())
+          .map((f) => f.bids)
+          .reduce((a, b) => intersectSets(a, b));
+
+        this.displayed_variants = this.variants.filter((v) => {
+          if (filterSet.has(v.bid)) {
+            v.isDisplayed = true;
+            return true;
+          } else {
+            v.isDisplayed = false;
+          }
+        });
+      } else {
+        this.displayed_variants = this.variants;
+        this.variants.forEach((v) => (v.isDisplayed = true));
+      }
+
+      this.updateAllSubvariantWindows();
+      this.redraw_components();
+    });
+
     this.variantPerformanceService.serviceTimeColorMap
       .pipe(takeUntil(this._destroy$))
       .subscribe((colorMap) => {
@@ -329,6 +371,14 @@ export class VariantExplorerComponent
       });
   }
 
+  changeQueryOption(event, option) {
+    const newOptions: EditorOptions = new EditorOptions();
+    Object.entries(this.options).forEach((v) => (newOptions[v[0]] = v[1]));
+    newOptions[option] = event.target.checked;
+
+    this.options = newOptions;
+  }
+
   private listenForLogChange() {
     this.logService.loadedEventLog$
       .pipe(
@@ -375,23 +425,6 @@ export class VariantExplorerComponent
           this.updateAlignmentStatistics();
         }
       );
-  }
-
-  apply_query_filter(queryItems: Set<number>) {
-    if (!queryItems) {
-      this.displayed_variants = this.variants;
-      this.variants.forEach((v) => (v.isDisplayed = true));
-    } else {
-      this.displayed_variants = this.variants.filter((v) => {
-        if (queryItems.has(v.bid)) {
-          v.isDisplayed = true;
-          return true;
-        } else {
-          v.isDisplayed = false;
-        }
-      });
-    }
-    this.updateAllSubvariantWindows();
   }
 
   updateAlignments(): void {
@@ -471,6 +504,10 @@ export class VariantExplorerComponent
     }
     return '#d3d3d3';
   };
+
+  removeFilter(filter_name: string) {
+    this.variantFilterService.removeVariantFilter(filter_name);
+  }
 
   handleSelectInfix(variant: Variant) {
     this.variantService.addSelectedTraceInfix(
@@ -673,12 +710,6 @@ export class VariantExplorerComponent
   isPerformanceActive = (variant: Variant) => {
     return this.performanceService.activeVariant === variant;
   };
-
-  removeAllFilters() {
-    this.displayed_variants = this.variants;
-    this.variants.forEach((v) => (v.isDisplayed = true));
-    this.updateAllSubvariantWindows();
-  }
 
   getSelectedVariants(): Variant[] {
     return this.variants.filter((v) => v.isSelected);
