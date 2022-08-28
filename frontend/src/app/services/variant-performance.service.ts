@@ -16,6 +16,8 @@ import {
 } from '../objects/Variants/variant_element';
 import { BackendService } from './backendService/backend.service';
 import { setParent } from '../objects/Variants/infix_selection';
+import { ViewMode } from '../objects/ViewMode';
+import { VariantViewModeService } from './variantViewModeService/variant-view-mode.service';
 
 // https://observablehq.com/@philippkoytek/celonis-data-visualization-colors
 export const COLORS_CYAN = [
@@ -111,12 +113,11 @@ export class VariantPerformanceService {
     ]);
   }
 
-  public variantPerformanceMode = new BehaviorSubject<boolean>(false);
-
   constructor(
     private logService: LogService,
     private variantService: VariantService,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private variantViewModeService: VariantViewModeService
   ) {
     this.logService.loadedEventLog$.subscribe((log) => {
       if (log !== undefined) {
@@ -296,7 +297,7 @@ export class VariantPerformanceService {
         setTimeout(() => {
           this.performanceInformationLoaded = true;
           this.performanceUpdateIsInProgress = false;
-          this.variantPerformanceMode.next(true);
+          this.variantViewModeService.viewMode = ViewMode.PERFORMANCE;
         }, 1000);
       })
     );

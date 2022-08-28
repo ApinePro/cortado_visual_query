@@ -13,6 +13,8 @@ import {
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
+import { ViewMode } from 'src/app/objects/ViewMode';
+import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -37,9 +39,6 @@ export class VariantComponent implements AfterViewInit {
   rootElement: ElementRef;
 
   @Input()
-  performanceMode: boolean = false;
-
-  @Input()
   traceInfixSelectionMode: boolean = false;
 
   @Input()
@@ -55,7 +54,12 @@ export class VariantComponent implements AfterViewInit {
   // necessary because one cannot use it directly in the template file
   infixType = InfixType;
 
-  constructor(private lazyLoadingService: LazyLoadingServiceService) {}
+  public VM = ViewMode;
+
+  constructor(
+    private lazyLoadingService: LazyLoadingServiceService,
+    public variantViewModeService: VariantViewModeService
+  ) {}
 
   ngAfterViewInit(): void {
     const self = this;

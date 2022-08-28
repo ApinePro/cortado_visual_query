@@ -1,5 +1,5 @@
 import { VariantService } from './../../../services/variantService/variant.service';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import {
   HumanizeDuration,
   HumanizeDurationLanguage,
@@ -10,13 +10,15 @@ import { SharedDataService } from 'src/app/services/sharedDataService/shared-dat
 import { TreePerformance } from '../../../objects/ProcessTree/ProcessTree';
 import { Variant } from 'src/app/objects/Variants/variant';
 import { PerformanceStats } from 'src/app/objects/Variants/variant_element';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-node-selection-performance',
   templateUrl: './node-selection-performance.component.html',
   styleUrls: ['./node-selection-performance.component.scss'],
 })
-export class NodeSelectionPerformanceComponent implements OnInit {
+export class NodeSelectionPerformanceComponent implements OnInit, OnDestroy {
   treeSelection: string = undefined;
   humanizeDuration: HumanizeDuration;
 
@@ -30,6 +32,8 @@ export class NodeSelectionPerformanceComponent implements OnInit {
 
   public variantIndices = new Map<Variant, number>();
 
+  private _destroy$ = new Subject();
+
   constructor(
     public performanceService: PerformanceService,
     public performanceColorScaleService: ModelPerformanceColorScaleService,
@@ -42,64 +46,72 @@ export class NodeSelectionPerformanceComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.performanceService.treeSelection.subscribe((tree) => {
-      if (
-        tree === undefined ||
-        this.performanceService.availablePerformances.size === 0
-      ) {
-        this.treeSelection = undefined;
-        this.meanValues = undefined;
-        return;
-      }
-      this.treeSelection = tree?.toString();
-      const meanValues = this.performanceService.allValuesMean.get(tree?.id);
-      if (tree && meanValues) {
-        this.meanValues = this.performanceService.allValuesMean.get(tree.id);
+    this.performanceService.treeSelection
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((tree) => {
+        if (
+          tree === undefined ||
+          this.performanceService.availablePerformances.size === 0
+        ) {
+          this.treeSelection = undefined;
+          this.meanValues = undefined;
+          return;
+        }
+        this.treeSelection = tree?.toString();
+        const meanValues = this.performanceService.allValuesMean.get(tree?.id);
+        if (tree && meanValues) {
+          this.meanValues = this.performanceService.allValuesMean.get(tree.id);
 
-        const availableVariants = Array.from(
-          this.performanceService.allValues.get(tree.id).entries()
-        ).filter(
-          ([v, perf]) =>
-            perf.service_time ||
-            perf.waiting_time ||
-            perf.idle_time ||
-            perf.cycle_time
-        );
+          const availableVariants = Array.from(
+            this.performanceService.allValues.get(tree.id).entries()
+          ).filter(
+            ([v, perf]) =>
+              perf.service_time ||
+              perf.waiting_time ||
+              perf.idle_time ||
+              perf.cycle_time
+          );
 
-        availableVariants.sort((a, b) => a[0].bid - b[0].bid);
-        this.variants = availableVariants.map((v) => v[0]);
-        availableVariants
-          .map(
-            ([v, p]) =>
-              <[number, TreePerformance]>[
-                this.variantService.variants.indexOf(v),
-                p,
-              ]
-          )
-          .forEach(([vIdx, p]) => {
-            const v = this.variantService.variants[vIdx];
-            this.variantIndices.set(v, vIdx + 1);
-            this.serviceTimeValues.set(
-              v,
-              this.performanceService.allValues.get(tree.id).get(v).service_time
-            );
-            this.waitingTimeValues.set(
-              v,
-              this.performanceService.allValues.get(tree.id).get(v).waiting_time
-            );
-            this.cycleTimeValues.set(
-              v,
-              this.performanceService.allValues.get(tree.id).get(v).cycle_time
-            );
-            this.idleTimeValues.set(
-              v,
-              this.performanceService.allValues.get(tree.id).get(v).idle_time
-            );
-          });
-      }
+          availableVariants.sort((a, b) => a[0].bid - b[0].bid);
+          this.variants = availableVariants.map((v) => v[0]);
+          availableVariants
+            .map(
+              ([v, p]) =>
+                <[number, TreePerformance]>[
+                  this.variantService.variants.indexOf(v),
+                  p,
+                ]
+            )
+            .forEach(([vIdx, p]) => {
+              const v = this.variantService.variants[vIdx];
+              this.variantIndices.set(v, vIdx + 1);
+              this.serviceTimeValues.set(
+                v,
+                this.performanceService.allValues.get(tree.id).get(v)
+                  .service_time
+              );
+              this.waitingTimeValues.set(
+                v,
+                this.performanceService.allValues.get(tree.id).get(v)
+                  .waiting_time
+              );
+              this.cycleTimeValues.set(
+                v,
+                this.performanceService.allValues.get(tree.id).get(v).cycle_time
+              );
+              this.idleTimeValues.set(
+                v,
+                this.performanceService.allValues.get(tree.id).get(v).idle_time
+              );
+            });
+        }
 
-      this.changeDetectorRef.markForCheck();
-    });
+        this.changeDetectorRef.markForCheck();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 }
 

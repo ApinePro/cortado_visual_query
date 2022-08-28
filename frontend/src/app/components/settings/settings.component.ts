@@ -1,7 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { BackendService } from 'src/app/services/backendService/backend.service';
 import { LogService } from 'src/app/services/logService/log.service';
@@ -16,12 +16,14 @@ declare var $: any;
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss'],
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, OnDestroy {
   @Input()
   showSettings: Observable<void>;
   configForm: FormGroup;
 
   configuration: Configuration = new Configuration();
+
+  private _destroy$ = new Subject();
 
   constructor(
     private backendService: BackendService,
@@ -31,12 +33,18 @@ export class SettingsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.showSettings.subscribe(() => this.showModal());
+    this.showSettings
+      .pipe(takeUntil(this._destroy$))
+      .subscribe(() => this.showModal());
     this.configForm = this.fb.group({
       timeoutCVariantAlignmentComputation: [null, Validators.required],
       minTracesVariantDetectionMultiprocessing: [null, Validators.required],
       // timeGranularity: [null, Validators.required],
     });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   onGranularityChange(event) {
@@ -51,6 +59,7 @@ export class SettingsComponent implements OnInit {
           this.settingsService.notify(config);
         })
       )
+      .pipe(takeUntil(this._destroy$))
       .subscribe((config) => {
         this.configForm.patchValue(config);
         $('#settingsModalDialog').modal('show');
@@ -67,6 +76,7 @@ export class SettingsComponent implements OnInit {
       .pipe(
         tap(() => this.settingsService.notify(this.configForm.getRawValue()))
       )
+      .pipe(takeUntil(this._destroy$))
       .subscribe((_) => {
         this.hideModal();
       });

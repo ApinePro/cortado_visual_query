@@ -1,5 +1,5 @@
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ModelPerformanceColorScaleService } from '../../../services/performance-color-scale.service';
 import { SharedDataService } from '../../../services/sharedDataService/shared-data.service';
 import { PerformanceService } from '../../../services/performance.service';
@@ -8,13 +8,15 @@ import {
   ColorMapValue,
 } from '../color-map/color-map.component';
 import { ProcessTree } from '../../../objects/ProcessTree/ProcessTree';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-tree-performance-color-map',
   templateUrl: './tree-performance-color-map.component.html',
   styleUrls: ['./tree-performance-color-map.component.scss'],
 })
-export class TreePerformanceColorMapComponent implements OnInit {
+export class TreePerformanceColorMapComponent implements OnInit, OnDestroy {
   availableColorMaps = ModelPerformanceColorScaleService.COLOR_MAPS;
   availablePerformanceValues = ['mean', 'min', 'max', 'stdev'];
   availablePerformanceIndicators = [
@@ -30,6 +32,8 @@ export class TreePerformanceColorMapComponent implements OnInit {
 
   colorMapValues: ColorMapValue[];
 
+  private _destroy$ = new Subject();
+
   constructor(
     public performanceColorScaleService: ModelPerformanceColorScaleService,
     private sharedDataService: SharedDataService,
@@ -44,26 +48,32 @@ export class TreePerformanceColorMapComponent implements OnInit {
     this.modeLongHelpText = ModelPerformanceColorScaleService.COLOR_MAPS.filter(
       (x) => x.key === this.performanceColorScaleService.selectedColorScale.mode
     )[0]?.longDescription;
-    this.performanceColorScaleService.currentColorScale.subscribe(
-      (colorScale) => {
+    this.performanceColorScaleService.currentColorScale
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorScale) => {
         if (
           colorScale &&
           this.performanceService.availablePerformances.size > 0
         ) {
           this.updateColorMapValues();
         }
-      }
-    );
-    this.performanceService.treeSelection.subscribe((t) => {
-      if (
-        t &&
-        this.performanceColorScaleService.selectedColorScale.mode ===
-          'compareVariants'
-      ) {
-        this.selectedTree = t;
-        this.updateColorMapValues();
-      }
-    });
+      });
+    this.performanceService.treeSelection
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((t) => {
+        if (
+          t &&
+          this.performanceColorScaleService.selectedColorScale.mode ===
+            'compareVariants'
+        ) {
+          this.selectedTree = t;
+          this.updateColorMapValues();
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   colorScaleChange(e): void {

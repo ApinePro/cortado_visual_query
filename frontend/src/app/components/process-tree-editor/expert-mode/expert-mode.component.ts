@@ -1,7 +1,13 @@
 import { LogService } from 'src/app/services/logService/log.service';
 import { ProcessTreeService } from './../../../services/processTreeService/process-tree.service';
 import { BackendService } from 'src/app/services/backendService/backend.service';
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  OnDestroy,
+} from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -13,6 +19,8 @@ import {
   fadeInOutComponent,
   openCloseComponent,
 } from 'src/app/animations/component-animations';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-expert-mode',
@@ -20,7 +28,7 @@ import {
   styleUrls: ['./expert-mode.component.scss'],
   animations: [fadeInOutComponent, openCloseComponent],
 })
-export class ExpertModeComponent implements OnInit {
+export class ExpertModeComponent implements OnInit, OnDestroy {
   syntax_tree_string: string = '';
   syntaxTreeInput: any;
   edit: boolean = true;
@@ -36,6 +44,8 @@ export class ExpertModeComponent implements OnInit {
   @ViewChild('textEditor') textEditor: ElementRef<HTMLDivElement>;
 
   currentlyDisplayedTreeInExpertMode;
+
+  private _destroy$ = new Subject();
 
   constructor(
     private logService: LogService,
@@ -59,7 +69,8 @@ export class ExpertModeComponent implements OnInit {
 
     this.syntax_tree.valueChanges.pipe(
       debounceTime(500),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      takeUntil(this._destroy$)
     ).subscribe(res => {
                         res = this.strip_html(res);
                         this.syntax_tree.setValue(res, {emitEvent : false});
@@ -67,15 +78,23 @@ export class ExpertModeComponent implements OnInit {
     */
 
     // If the tree changes and expert mode is open, compute the syntax tree string
-    this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
-      this.collectCurrentTreeString(tree);
-      this.backendErrorMessage = null;
-    });
+    this.processTreeService.currentDisplayedProcessTree$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((tree) => {
+        this.collectCurrentTreeString(tree);
+        this.backendErrorMessage = null;
+      });
 
-    this.processTreeService.currentTreeString$.subscribe((treeString) => {
-      this.syntax_tree.setValue(treeString);
-      this.highlightText();
-    });
+    this.processTreeService.currentTreeString$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((treeString) => {
+        this.syntax_tree.setValue(treeString);
+        this.highlightText();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   // Preconducts expert mode specific highlighting and passes the tree-string down to the tree-string-renderer-component
@@ -125,19 +144,21 @@ export class ExpertModeComponent implements OnInit {
 
     const $pendingTreeParse = this.backendService.renderStringToPT(treeString);
 
-    $pendingTreeParse.subscribe((result: any) => {
-      if (!result.errors) {
-        console.warn('Expert Mode Tree Update');
-        this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
-          result.tree
-        );
-        this.backendErrorMessage = null;
-      } else {
-        this.backendErrorMessage = result.errors;
-        this.syntax_tree.markAsPristine();
-      }
-      this.allowRender = true;
-    });
+    $pendingTreeParse
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((result: any) => {
+        if (!result.errors) {
+          console.warn('Expert Mode Tree Update');
+          this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+            result.tree
+          );
+          this.backendErrorMessage = null;
+        } else {
+          this.backendErrorMessage = result.errors;
+          this.syntax_tree.markAsPristine();
+        }
+        this.allowRender = true;
+      });
   }
 
   replaceRichTextPlaceholderChars(treeString: string): string {

@@ -8,6 +8,7 @@ import {
   VariantElement,
   LeafNode,
 } from 'src/app/objects/Variants/variant_element';
+import { ViewMode } from 'src/app/objects/ViewMode';
 
 export function computePerformanceButtonColor(variant: Variant) {
   let tree;
@@ -41,7 +42,7 @@ export function clickCallback(
   element: VariantElement,
   variant: VariantElement
 ) {
-  if (this.performanceMode) {
+  if (this.variantViewModeService.viewMode === ViewMode.PERFORMANCE) {
     drawer.changeSelected(element);
     if (element.serviceTime) {
       this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
@@ -96,28 +97,35 @@ export function activityColor(
   let color;
 
   if (element instanceof LeafNode) {
-    color = this.colorMap.get(element.asLeafNode().activity[0]);
+    switch (this.variantViewModeService.viewMode) {
+      default:
+        color = this.colorMap.get(element.asLeafNode().activity[0]);
 
-    // in this case cuts were not applicable anymore.
-    // The resulting chevron is displayed in gray
-    if (element.activity.length > 1) {
-      color = '#d3d3d3'; // lightgray
-    }
+        // in this case cuts were not applicable anymore.
+        // The resulting chevron is displayed in gray
+        if (element.activity.length > 1) {
+          color = '#d3d3d3'; // lightgray
+        }
+        break;
 
-    if (element.serviceTime?.mean !== undefined && this.performanceMode) {
-      let stat = this.variantPerformanceService.serviceTimeStatistic;
-      color = this.performanceColorMap(element.serviceTime[stat]);
-      if (color == undefined) {
-        color = '#d3d3d3'; // lightgrey
-      }
-    } else if (this.performanceMode && variant.variant?.serviceTime) {
-      color = '#d3d3d3';
+      case ViewMode.PERFORMANCE:
+        if (element.serviceTime?.mean !== undefined) {
+          let stat = this.variantPerformanceService.serviceTimeStatistic;
+          color = this.serviceTimeColorMap(element.serviceTime[stat]);
+          if (color == undefined) {
+            color = '#d3d3d3'; // lightgrey
+          }
+        } else if (variant.variant?.serviceTime) {
+          color = '#d3d3d3';
+        }
+        break;
     }
-  } else {
-    if (this.performanceMode && element.waitingTime?.mean !== undefined) {
-      let stat = this.variantPerformanceService.waitingTimeStatistic;
-      color = this.waitingColorMap(element.waitingTime[stat]);
-    }
+  } else if (
+    this.variantViewModeService.viewMode === ViewMode.PERFORMANCE &&
+    element.waitingTime?.mean !== undefined
+  ) {
+    let stat = this.variantPerformanceService.waitingTimeStatistic;
+    color = this.waitingTimeColorMap(element.waitingTime[stat]);
   }
 
   if (!color) {
