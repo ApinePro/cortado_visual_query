@@ -10,7 +10,6 @@ import {
   AfterViewInit,
   HostListener,
   Input,
-  OnDestroy,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -28,7 +27,7 @@ import { takeUntil } from 'rxjs/operators';
   templateUrl: './variant-query.component.html',
   styleUrls: ['./variant-query.component.scss'],
 })
-export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
+export class VariantQueryComponent implements OnInit, AfterViewInit {
   variantQueryInput: any;
 
   @ViewChild('queryEditor') queryEditor: ElementRef<HTMLTextAreaElement>;
