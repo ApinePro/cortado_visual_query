@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
 
+declare var monaco;
 @Injectable({
   providedIn: 'root'
 })
@@ -18,6 +19,9 @@ export class EditorService {
   private finishLoading() {
     this.loaded = true;
     this.loadingFinished.next();
+
+    monaco.languages.register({ id: 'VQL' });
+    monaco.languages.register({ id: 'processTreeLangauge' });
   }
 
   public load() {
