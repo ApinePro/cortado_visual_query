@@ -164,7 +164,8 @@ export class EditorZoneComponent implements OnInit {
       scrollBeyondLastLine: false,
       readOnly: false,
       automaticLayout : true,
-      theme: 'VQLTheme'
+      theme: 'VQLTheme',
+      minimap: { enabled: false },
     };
 
 
