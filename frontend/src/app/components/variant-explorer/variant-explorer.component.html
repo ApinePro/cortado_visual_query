@@ -407,7 +407,11 @@
       ></app-variant-query>
     </div>
   </div>
-  <div class="main-variant-explorer flex-grow-1" #variantExplorer>
+  <div
+    class="main-variant-explorer flex-grow-1"
+    (scroll)="onScroll()"
+    #variantExplorer
+  >
     <div *ngIf="svgRenderingInProgress" class="full-body-spinner">
       <div>
         <div
