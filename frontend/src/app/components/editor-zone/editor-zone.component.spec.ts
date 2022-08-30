@@ -11,9 +11,8 @@ describe('EditorZoneComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ EditorZoneComponent ]
-    })
-    .compileComponents();
+      declarations: [EditorZoneComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

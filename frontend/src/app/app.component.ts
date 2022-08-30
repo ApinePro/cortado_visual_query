@@ -1,4 +1,3 @@
-
 import {
   AfterViewInit,
   ApplicationInitStatus,
@@ -28,8 +27,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   constructor(
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     @Inject(APP_INITIALIZER) public appInit: ApplicationInitStatus
-  ) {
-  }
+  ) {}
 
   _sideBarWidth: number = 30;
 

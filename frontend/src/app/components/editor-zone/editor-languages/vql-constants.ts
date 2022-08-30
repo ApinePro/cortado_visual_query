@@ -1,16 +1,8 @@
-export const binarylogicalOperator = [
-  'AND',
-  'OR'
-]
+export const binarylogicalOperator = ['AND', 'OR'];
 
-export const unarylogicalOperator = [
-  'NOT',
-]
+export const unarylogicalOperator = ['NOT'];
 
-export const groupOperator = [
-  'ALL',
-  'ANY',
-]
+export const groupOperator = ['ALL', 'ANY'];
 
 export const binaryOperator = [
   'isEF',
@@ -19,7 +11,7 @@ export const binaryOperator = [
   'isDirectlyFollowed',
   'isP',
   'isParallel',
-]
+];
 
 export const unaryOperator = [
   'isStart',
@@ -28,4 +20,4 @@ export const unaryOperator = [
   'isE',
   'isContained',
   'isC',
-]
+];

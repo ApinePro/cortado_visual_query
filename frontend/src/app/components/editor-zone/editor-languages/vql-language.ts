@@ -1,25 +1,32 @@
-import { unaryOperator, binaryOperator, binarylogicalOperator, groupOperator, unarylogicalOperator } from './vql-constants';
-import * as Monaco from 'monaco-editor'
+import {
+  unaryOperator,
+  binaryOperator,
+  binarylogicalOperator,
+  groupOperator,
+  unarylogicalOperator,
+} from './vql-constants';
+import * as Monaco from 'monaco-editor';
 
-export function getVQLTokenizer() : Monaco.languages.IMonarchLanguage{
-
+export function getVQLTokenizer(): Monaco.languages.IMonarchLanguage {
   return {
-    defaultToken : 'text',
+    defaultToken: 'text',
 
+    keywords: unarylogicalOperator.concat(
+      binarylogicalOperator,
+      groupOperator,
+      binaryOperator,
+      unaryOperator
+    ),
 
-    keywords: unarylogicalOperator.concat(binarylogicalOperator, groupOperator, binaryOperator, unaryOperator),
+    symbols: /[=><!~?:&|+\-*\/\^%]+/,
 
-    symbols:  /[=><!~?:&|+\-*\/\^%]+/,
-
-    quantifier: [
-      '=', '>', '<', '~'
-    ],
+    quantifier: ['=', '>', '<', '~'],
 
     // we include these common regular expressions
     brackets: [
       { open: '{', close: '}', token: 'delimiter.curly' },
       { open: '[', close: ']', token: 'delimiter.bracket' },
-      { open: '(', close: ')', token: 'delimiter.parenthesis' }
+      { open: '(', close: ')', token: 'delimiter.parenthesis' },
     ],
 
     tokenizer: {
@@ -30,40 +37,46 @@ export function getVQLTokenizer() : Monaco.languages.IMonarchLanguage{
         [/[,;]/, 'delimiter'],
         [/[{}\[\]()]/, '@brackets'],
 
-        [/@symbols/, { cases: {
-        '@quantifier': 'quantifier',
-        '@default'  : 'text' } } ],
+        [
+          /@symbols/,
+          {
+            cases: {
+              '@quantifier': 'quantifier',
+              '@default': 'text',
+            },
+          },
+        ],
 
-
-        [/[a-zA-Z]\w*/, {
-          cases: {
-            '@keywords': 'keyword',
-            '@default': 'identifier'
-          }
-        }],
-        [/'/,  { token: 'string.quote', bracket: '@open', next: '@activityName' } ],
-
-
+        [
+          /[a-zA-Z]\w*/,
+          {
+            cases: {
+              '@keywords': 'keyword',
+              '@default': 'identifier',
+            },
+          },
+        ],
+        [
+          /'/,
+          { token: 'string.quote', bracket: '@open', next: '@activityName' },
+        ],
       ],
 
       numbers: [
         [/-?0x([abcdef]|[ABCDEF]|\d)+[lL]?/, 'number.hex'],
-        [/-?(\d*\.)?\d+([eE][+\-]?\d+)?[jJ]?[lL]?/, 'number']
+        [/-?(\d*\.)?\d+([eE][+\-]?\d+)?[jJ]?[lL]?/, 'number'],
       ],
-      whitespace: [
-        [/\s+/, 'white'],
-      ],
+      whitespace: [[/\s+/, 'white']],
 
       activityName: [
-        [/([^\\']+)/, {token :  'activites.$1'}],
-        [/'/, { token: 'string.quote', bracket: '@close', next: '@pop' } ]
+        [/([^\\']+)/, { token: 'activites.$1' }],
+        [/'/, { token: 'string.quote', bracket: '@close', next: '@pop' }],
       ],
-    }
-  }
+    },
+  };
 }
 
-
-export const vqlConfig : Monaco.languages.LanguageConfiguration = {
+export const vqlConfig: Monaco.languages.LanguageConfiguration = {
   surroundingPairs: [
     { open: '{', close: '}' },
     { open: '[', close: ']' },
@@ -79,12 +92,12 @@ export const vqlConfig : Monaco.languages.LanguageConfiguration = {
     { open: "'", close: "'", notIn: ['string', 'comment'] },
     { open: '"', close: '"', notIn: ['string', 'comment'] },
   ],
-  brackets:[
+  brackets: [
     ['(', ')'],
     ['{', '}'],
   ],
-  colorizedBracketPairs : [
+  colorizedBracketPairs: [
     ['(', ')'],
     ['{', '}'],
-  ]
+  ],
 };
