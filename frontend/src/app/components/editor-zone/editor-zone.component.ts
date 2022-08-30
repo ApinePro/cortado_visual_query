@@ -1,11 +1,14 @@
+
+import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { EditorService } from './../../services/editorService/editor.service';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import loader from '@monaco-editor/loader';
-
 import { take } from 'rxjs/operators'
+import { generateVQLTheme } from './editor-languages/vql-language-theme';
+import { getVQLCompletionProvider } from './editor-languages/vql-language-completion-provider';
+import { vqlEditorOptions } from './editor-languages/vql-editor-options';
 
-declare var monaco;
-let loadedMonaco = false;
+import * as Monaco from 'monaco-editor'
+declare var monaco : typeof Monaco;
 
 @Component({
   selector: 'app-editor-zone',
@@ -14,7 +17,8 @@ let loadedMonaco = false;
 })
 export class EditorZoneComponent implements OnInit {
 
-  constructor(private monacoEditorService : EditorService) { }
+  constructor(private monacoEditorService : EditorService,
+              private colorMapService : ColorMapService) { }
 
   ngOnInit(): void {
     this.monacoEditorService.load()
@@ -33,152 +37,56 @@ export class EditorZoneComponent implements OnInit {
         return;
       }
 
-    monaco.languages.register({ id: 'VQL' });
-
-    // Register a tokens provider for the language
-    monaco.languages.setMonarchTokensProvider('VQL', {
-
-      keywords: [
-        'ALL',
-        'ANY',
-        'NOT',
-        'AND',
-        'OR',
-        'isEF',
-        'isEventuallyFollowed',
-        'isDF',
-        'isDirectlyFollowed',
-        'isP',
-        'isParallel',
-        'isStart',
-        'isS',
-        'isEnd',
-        'isE',
-        'isContained',
-        'isC',
-      ],
-
-      symbols:  /[=><!~?:&|+\-*\/\^%]+/,
-
-      quantifier: [
-        '=', '>', '<', '~'
-      ],
-
-      activites : /(send reminder|send invoice|prepare delivery|place order|pay|make delivery|confirm payment|cancel order)/,
-
-      // we include these common regular expressions
-      brackets: [
-        { open: '{', close: '}', token: 'delimiter.curly' },
-        { open: '[', close: ']', token: 'delimiter.bracket' },
-        { open: '(', close: ')', token: 'delimiter.parenthesis' }
-      ],
-
-      tokenizer: {
-        root: [
-          { include: '@whitespace' },
-          { include: '@numbers' },
-
-          [/[,;]/, 'delimiter'],
-          [/[{}\[\]()]/, '@brackets'],
-
-          [/@symbols/, { cases: {
-          '@quantifier': 'quantifier',
-          '@default'  : '' } } ],
-
-
-          [/[a-zA-Z]\w*/, {
-            cases: {
-              '@keywords': 'keyword',
-              '@default': 'identifier'
-            }
-          }],
-
-          [/'([^'\\]|\\.)*$/, 'string.invalid' ],
-          [/'/,  { token: 'string.quote', bracket: '@open', next: '@activityName' } ],
-        ],
-
-        numbers: [
-          [/-?0x([abcdef]|[ABCDEF]|\d)+[lL]?/, 'number.hex'],
-          [/-?(\d*\.)?\d+([eE][+\-]?\d+)?[jJ]?[lL]?/, 'number']
-        ],
-        whitespace: [
-          [/\s+/, 'white'],
-        ],
-
-        activityName: [
-          [/@activites/, 'activity'],
-          [/[^\\']+/,  'unknownContent'],
-          [/'/, { token: 'string.quote', bracket: '@close', next: '@pop' } ]
-        ],
+      if(!this.colorMapService.colorMap) {
+        this.colorMapService.colorMap$.pipe(take(1)).subscribe(() => {
+          this.initMonaco();
+        });
+        return;
       }
-    });
 
-    // Define a new theme that contains only rules that match this language
-    monaco.editor.defineTheme('VQLTheme', {
-      base: 'vs-dark',
-      inherit: true,
-      rules: [
-        { token: 'activity', foreground: 'ff0000', fontStyle: 'bold' },
-        { token: 'custom-notice', foreground: 'FFA500' },
-        { token: 'quantifier', foreground: '008800', fontStyle: 'bold' },
-        { token: 'string', foreground: 'FFFFFF'}
-      ],
-      colors: {
-        'editor.foreground': '#343a40'
-      }
-    });
-
-    // Register a completion item provider for the new language
-    monaco.languages.registerCompletionItemProvider('VQL', {
-      provideCompletionItems: () => {
-        var suggestions = [
-          {
-            label: 'simpleText',
-            kind: monaco.languages.CompletionItemKind.Text,
-            insertText: 'simpleText'
-          },
-          {
-            label: 'testing',
-            kind: monaco.languages.CompletionItemKind.Keyword,
-            insertText: 'testing(${1:condition})',
-            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
-          },
-          {
-            label: 'ifelse',
-            kind: monaco.languages.CompletionItemKind.Snippet,
-            insertText: ['if (${1:condition}) {', '\t$0', '} else {', '\t', '}'].join('\n'),
-            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-            documentation: 'If-Else Statement'
-          }
-        ];
-        return { suggestions: suggestions };
-      }
-    });
-
-
-    this._options = {
-      value: "'send invoice' isC > 0 AND ('pay' isStart OR 'make delivery' isParallel 'confirm payment') \n AND ~ ANY ['confirm payment', 'make delivery', 'cancel order'] isEnd; ",
-      language: 'VQL',
-      lineNumbers: 'on',
-      roundedSelection: false,
-      scrollBeyondLastLine: false,
-      readOnly: false,
-      automaticLayout : true,
-      theme: 'VQLTheme',
-      minimap: { enabled: false },
-    };
-
-
-
+    this.updateVQLTheme();
 
     this._editor = monaco.editor.create(
       this._editorContainer.nativeElement,
-      this._options
+      vqlEditorOptions
     );
+
   }
 
   ngAfterViewInit(): void {
     this.initMonaco();
-  }
+
+    this.colorMapService.colorMap$.subscribe((colormap) =>
+      {
+        if(colormap && this.monacoEditorService.loaded){
+          this.updateVQLTheme();
+        }
+      })
+    }
+
+  private updateVQLTheme(){
+
+    // Define a new theme that matches the activity names and Colormap
+    monaco.editor.defineTheme('VQLTheme', generateVQLTheme(this.colorMapService.colorMap));
+
+    const createProposals = getVQLCompletionProvider(this.colorMapService.colorMap.keys())
+
+    monaco.languages.registerCompletionItemProvider('VQL', {
+      provideCompletionItems: function (model, position) {
+
+        var word = model.getWordUntilPosition(position);
+        var range = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: word.endColumn
+        };
+        return {
+          suggestions: createProposals(range)
+        };
+      }
+    });
 
   }
+
+}

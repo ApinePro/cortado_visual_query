@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
+import { getVQLTokenizer, vqlConfig } from 'src/app/components/editor-zone/editor-languages/vql-language';
 
-declare var monaco;
+
+import * as Monaco from 'monaco-editor'
+declare var monaco : typeof Monaco;
 @Injectable({
   providedIn: 'root'
 })
@@ -20,8 +23,10 @@ export class EditorService {
     this.loaded = true;
     this.loadingFinished.next();
 
+    // Register a tokens provider for the language
     monaco.languages.register({ id: 'VQL' });
-    monaco.languages.register({ id: 'processTreeLangauge' });
+    monaco.languages.setMonarchTokensProvider('VQL', getVQLTokenizer());
+    monaco.languages.setLanguageConfiguration('VQL', vqlConfig);
   }
 
   public load() {
