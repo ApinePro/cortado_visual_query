@@ -8,7 +8,6 @@ import {
 import * as Monaco from 'monaco-editor';
 
 export function getVQLCompletionProvider(activityNames) {
-
   activityNames = Array.from(activityNames);
 
   return function createProposals(range) {

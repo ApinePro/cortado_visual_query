@@ -52,7 +52,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   backendErrorMessage: boolean = false;
   backendErrorIndex: number;
 
-  editorInstance : Monaco.editor.IStandaloneCodeEditor
+  editorInstance: Monaco.editor.IStandaloneCodeEditor;
 
   private _destroy$ = new Subject();
 
@@ -93,7 +93,6 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
         this.activityColorMap = colorMap;
         this.handleInput();
       });
-
   }
 
   ngOnDestroy(): void {
@@ -115,13 +114,13 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onEditorChangeCbk = (params: any) => {
-    console.log('Query Callback', params)
-  }
+    console.log('Query Callback', params);
+  };
 
-  onEditorChange(value){
-    this.onEditorChangeCbk('Callback test')
-    this.editorZone.registerOnChangeCallback(this.onEditorChangeCbk)
-    console.log('Got Editor in Query:', value)
+  onEditorChange(value) {
+    this.onEditorChangeCbk('Callback test');
+    this.editorZone.registerOnChangeCallback(this.onEditorChangeCbk);
+    console.log('Got Editor in Query:', value);
   }
 
   resetQuery() {

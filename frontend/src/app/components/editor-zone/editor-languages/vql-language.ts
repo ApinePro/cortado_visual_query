@@ -11,7 +11,8 @@ export function getVQLTokenizer(): Monaco.languages.IMonarchLanguage {
   return {
     defaultToken: 'text',
 
-    wordPattern : /(-?\d*\.\d\w*)|([^\`\~\!\#\%\^\&\*\(\)\-\=\+\{\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/g,
+    wordPattern:
+      /(-?\d*\.\d\w*)|([^\`\~\!\#\%\^\&\*\(\)\-\=\+\{\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/g,
 
     keywords: unarylogicalOperator.concat(
       binarylogicalOperator,

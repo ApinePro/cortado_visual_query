@@ -23,17 +23,14 @@ export class EditorService {
   public loadingFinished: Subject<void> = new Subject<void>();
 
   constructor(private colorMapService: ColorMapService) {
-
     this.colorMapService.colorMap$.subscribe((colormap) => {
       if (colormap && this.loaded) {
         this.updateVQLTheme();
       }
     });
-
   }
 
   private finishLoading() {
-
     if (!this.colorMapService.colorMap) {
       this.colorMapService.colorMap$.pipe(take(1)).subscribe(() => {
         this.finishLoading();
@@ -50,10 +47,6 @@ export class EditorService {
 
     this.loaded = true;
     this.loadingFinished.next();
-
-
-
-
   }
 
   public load() {
@@ -120,9 +113,7 @@ export class EditorService {
     document.body.appendChild(electronFixScript);
   }
 
-
   private updateVQLTheme() {
-
     console.log('Updating Theme');
 
     // Define a new theme that matches the activity names and Colormap

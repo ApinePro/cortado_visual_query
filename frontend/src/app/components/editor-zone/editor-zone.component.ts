@@ -5,7 +5,6 @@ import {
   OnInit,
   ViewChild,
   AfterViewInit,
-
   Output,
   EventEmitter,
 } from '@angular/core';
@@ -21,9 +20,7 @@ declare var monaco: typeof Monaco;
   styleUrls: ['./editor-zone.component.css'],
 })
 export class EditorZoneComponent implements OnInit, AfterViewInit {
-  constructor(
-    private monacoEditorService: EditorService,
-  ) {}
+  constructor(private monacoEditorService: EditorService) {}
 
   ngOnInit(): void {
     this.monacoEditorService.load();
@@ -31,26 +28,33 @@ export class EditorZoneComponent implements OnInit, AfterViewInit {
 
   protected _options;
 
-  public _editor : Monaco.editor.IStandaloneCodeEditor;
+  public _editor: Monaco.editor.IStandaloneCodeEditor;
 
-
-  @Output() editor : EventEmitter<any>  = new EventEmitter();
+  @Output() editor: EventEmitter<any> = new EventEmitter();
 
   @ViewChild('editorContainer', { static: true }) _editorContainer: ElementRef;
 
-  validate(model : Monaco.editor.ITextModel) {
+  validate(model: Monaco.editor.ITextModel) {
     const markers = [];
     // lines start at 1
 
-
-    console.log(model.findMatches('-?(\d*\.)?\d+([eE][+\-]?\d+)?[jJ]?[lL]?', false, true, false, ' `~!@#$%^&*()-=+[{]}\\|;:\'",.<>/?', true))
+    console.log(
+      model.findMatches(
+        '-?(d*.)?d+([eE][+-]?d+)?[jJ]?[lL]?',
+        false,
+        true,
+        false,
+        ' `~!@#$%^&*()-=+[{]}\\|;:\'",.<>/?',
+        true
+      )
+    );
 
     for (let i = 1; i < model.getLineCount() + 1; i++) {
       const range = {
         startLineNumber: i,
         startColumn: 1,
         endLineNumber: i,
-        endColumn: model.getLineLength(i) + 1
+        endColumn: model.getLineLength(i) + 1,
       };
       const content = model.getValueInRange(range).trim();
       const number = Number(content);
@@ -61,7 +65,7 @@ export class EditorZoneComponent implements OnInit, AfterViewInit {
           startLineNumber: range.startLineNumber,
           startColumn: range.startColumn,
           endLineNumber: range.endLineNumber,
-          endColumn: range.endColumn
+          endColumn: range.endColumn,
         });
       } else if (!Number.isInteger(number)) {
         markers.push({
@@ -70,7 +74,7 @@ export class EditorZoneComponent implements OnInit, AfterViewInit {
           startLineNumber: range.startLineNumber,
           startColumn: range.startColumn,
           endLineNumber: range.endLineNumber,
-          endColumn: range.endColumn
+          endColumn: range.endColumn,
         });
       }
     }
@@ -87,17 +91,17 @@ export class EditorZoneComponent implements OnInit, AfterViewInit {
 
     console.log('Creating Editor...');
 
-    this._editor  = monaco.editor.create(
+    this._editor = monaco.editor.create(
       this._editorContainer.nativeElement,
       vqlEditorOptions
     );
 
-    const model : Monaco.editor.ITextModel = this._editor.getModel()
-    console.log(model)
+    const model: Monaco.editor.ITextModel = this._editor.getModel();
+    console.log(model);
 
     this.editor.emit(this._editor);
 
-    console.log('Validating')
+    console.log('Validating');
     this.validate(model);
   }
 
@@ -105,11 +109,10 @@ export class EditorZoneComponent implements OnInit, AfterViewInit {
     this.initMonaco();
   }
 
-  registerOnChangeCallback(fn : (val : string) => void){
-    console.log('registered callback')
+  registerOnChangeCallback(fn: (val: string) => void) {
+    console.log('registered callback');
     this._editor.onDidChangeModelContent((event) => {
-      fn(this._editor.getValue())
-    })
+      fn(this._editor.getValue());
+    });
   }
-
 }
