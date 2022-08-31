@@ -8,7 +8,6 @@ import {
 import * as Monaco from 'monaco-editor';
 
 export function getVQLCompletionProvider(activityNames) {
-  console.log(activityNames);
 
   activityNames = Array.from(activityNames);
 
@@ -87,8 +86,6 @@ export function getVQLCompletionProvider(activityNames) {
           Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
       });
     });
-
-    console.log(suggetions);
 
     return suggetions;
   };

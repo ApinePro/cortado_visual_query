@@ -12,11 +12,11 @@ export function generateVQLTheme(
     base: 'vs-dark',
     inherit: true,
     rules: [
+      { token: 'string.invalid', foreground: 'dc3545', fontstyle: 'underline' },
       { token: 'activites', foreground: 'ff0000', fontStyle: 'bold' },
       { token: 'quantifier', foreground: '008800', fontStyle: 'bold' },
       { token: 'string', foreground: 'FFFFFF' },
       { token: 'text', foreground: 'a0a0a0' },
-      { token: 'string.invalid', fontstyle: 'underline' },
       { token: 'identifier', foreground: 'a0a0a0' },
       ...activityTokens,
     ],

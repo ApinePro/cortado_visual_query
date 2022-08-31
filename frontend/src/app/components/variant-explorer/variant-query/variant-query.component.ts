@@ -23,7 +23,9 @@ import {
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { EditorZoneComponent } from '../../editor-zone/editor-zone.component';
 
+import * as Monaco from 'monaco-editor';
 @Component({
   selector: 'app-variant-query',
   templateUrl: './variant-query.component.html',
@@ -33,6 +35,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   variantQueryInput: any;
 
   @ViewChild('queryEditor') queryEditor: ElementRef<HTMLTextAreaElement>;
+  @ViewChild(EditorZoneComponent) editorZone: EditorZoneComponent;
   @ViewChild('queryEditorBackdrop')
   queryEditorBackdrop: ElementRef<HTMLDivElement>;
   @ViewChild('highlightText') highlightText: ElementRef<HTMLDivElement>;
@@ -48,6 +51,8 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   imbalancedItems: imbalancedItem[];
   backendErrorMessage: boolean = false;
   backendErrorIndex: number;
+
+  editorInstance : Monaco.editor.IStandaloneCodeEditor
 
   private _destroy$ = new Subject();
 
@@ -88,6 +93,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
         this.activityColorMap = colorMap;
         this.handleInput();
       });
+
   }
 
   ngOnDestroy(): void {
@@ -106,6 +112,16 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
           this.backendErrorIndex = res.error_index;
         }
       });
+  }
+
+  onEditorChangeCbk = (params: any) => {
+    console.log('Query Callback', params)
+  }
+
+  onEditorChange(value){
+    this.onEditorChangeCbk('Callback test')
+    this.editorZone.registerOnChangeCallback(this.onEditorChangeCbk)
+    console.log('Got Editor in Query:', value)
   }
 
   resetQuery() {

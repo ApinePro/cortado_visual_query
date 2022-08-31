@@ -11,6 +11,8 @@ export function getVQLTokenizer(): Monaco.languages.IMonarchLanguage {
   return {
     defaultToken: 'text',
 
+    wordPattern : /(-?\d*\.\d\w*)|([^\`\~\!\#\%\^\&\*\(\)\-\=\+\{\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/g,
+
     keywords: unarylogicalOperator.concat(
       binarylogicalOperator,
       groupOperator,
@@ -69,6 +71,7 @@ export function getVQLTokenizer(): Monaco.languages.IMonarchLanguage {
       whitespace: [[/\s+/, 'white']],
 
       activityName: [
+        [/([^'\\]|\\.)*(?!')$/, 'string.invalid'],
         [/([^\\']+)/, { token: 'activites.$1' }],
         [/'/, { token: 'string.quote', bracket: '@close', next: '@pop' }],
       ],

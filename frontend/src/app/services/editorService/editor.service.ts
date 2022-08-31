@@ -4,6 +4,10 @@ import {
   getVQLTokenizer,
   vqlConfig,
 } from 'src/app/components/editor-zone/editor-languages/vql-language';
+import { take } from 'rxjs/operators';
+import { generateVQLTheme } from 'src/app/components/editor-zone/editor-languages/vql-language-theme';
+import { ColorMapService } from '../colorMapService/color-map.service';
+import { getVQLCompletionProvider } from 'src/app/components/editor-zone/editor-languages/vql-language-completion-provider';
 
 import * as Monaco from 'monaco-editor';
 declare var monaco: typeof Monaco;
@@ -18,16 +22,38 @@ export class EditorService {
 
   public loadingFinished: Subject<void> = new Subject<void>();
 
-  constructor() {}
+  constructor(private colorMapService: ColorMapService) {
+
+    this.colorMapService.colorMap$.subscribe((colormap) => {
+      if (colormap && this.loaded) {
+        this.updateVQLTheme();
+      }
+    });
+
+  }
 
   private finishLoading() {
-    this.loaded = true;
-    this.loadingFinished.next();
+
+    if (!this.colorMapService.colorMap) {
+      this.colorMapService.colorMap$.pipe(take(1)).subscribe(() => {
+        this.finishLoading();
+      });
+      return;
+    }
 
     // Register a tokens provider for the language
     monaco.languages.register({ id: 'VQL' });
     monaco.languages.setMonarchTokensProvider('VQL', getVQLTokenizer());
     monaco.languages.setLanguageConfiguration('VQL', vqlConfig);
+
+    this.updateVQLTheme();
+
+    this.loaded = true;
+    this.loadingFinished.next();
+
+
+
+
   }
 
   public load() {
@@ -81,7 +107,7 @@ export class EditorService {
     document.body.appendChild(loaderScript);
   }
 
-  addElectronFixScripts() {
+  private addElectronFixScripts() {
     const electronFixScript = document.createElement('script');
     // workaround monaco-css not understanding the environment
     const inlineScript = document.createTextNode('self.module = undefined;');
@@ -92,5 +118,36 @@ export class EditorService {
     electronFixScript.appendChild(inlineScript);
     electronFixScript.appendChild(inlineScript2);
     document.body.appendChild(electronFixScript);
+  }
+
+
+  private updateVQLTheme() {
+
+    console.log('Updating Theme');
+
+    // Define a new theme that matches the activity names and Colormap
+    monaco.editor.defineTheme(
+      'VQLTheme',
+      generateVQLTheme(this.colorMapService.colorMap)
+    );
+
+    const createProposals = getVQLCompletionProvider(
+      this.colorMapService.colorMap.keys()
+    );
+
+    monaco.languages.registerCompletionItemProvider('VQL', {
+      provideCompletionItems: function (model, position) {
+        var word = model.getWordUntilPosition(position);
+        var range = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: word.endColumn,
+        };
+        return {
+          suggestions: createProposals(range),
+        };
+      },
+    });
   }
 }

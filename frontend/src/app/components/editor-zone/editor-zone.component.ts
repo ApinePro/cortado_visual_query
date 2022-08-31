@@ -1,4 +1,3 @@
-import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { EditorService } from './../../services/editorService/editor.service';
 import {
   Component,
@@ -6,10 +5,11 @@ import {
   OnInit,
   ViewChild,
   AfterViewInit,
+
+  Output,
+  EventEmitter,
 } from '@angular/core';
 import { take } from 'rxjs/operators';
-import { generateVQLTheme } from './editor-languages/vql-language-theme';
-import { getVQLCompletionProvider } from './editor-languages/vql-language-completion-provider';
 import { vqlEditorOptions } from './editor-languages/vql-editor-options';
 
 import * as Monaco from 'monaco-editor';
@@ -23,7 +23,6 @@ declare var monaco: typeof Monaco;
 export class EditorZoneComponent implements OnInit, AfterViewInit {
   constructor(
     private monacoEditorService: EditorService,
-    private colorMapService: ColorMapService
   ) {}
 
   ngOnInit(): void {
@@ -32,8 +31,51 @@ export class EditorZoneComponent implements OnInit, AfterViewInit {
 
   protected _options;
 
-  public _editor: any;
+  public _editor : Monaco.editor.IStandaloneCodeEditor;
+
+
+  @Output() editor : EventEmitter<any>  = new EventEmitter();
+
   @ViewChild('editorContainer', { static: true }) _editorContainer: ElementRef;
+
+  validate(model : Monaco.editor.ITextModel) {
+    const markers = [];
+    // lines start at 1
+
+
+    console.log(model.findMatches('-?(\d*\.)?\d+([eE][+\-]?\d+)?[jJ]?[lL]?', false, true, false, ' `~!@#$%^&*()-=+[{]}\\|;:\'",.<>/?', true))
+
+    for (let i = 1; i < model.getLineCount() + 1; i++) {
+      const range = {
+        startLineNumber: i,
+        startColumn: 1,
+        endLineNumber: i,
+        endColumn: model.getLineLength(i) + 1
+      };
+      const content = model.getValueInRange(range).trim();
+      const number = Number(content);
+      if (Number.isNaN(number)) {
+        markers.push({
+          message: 'not a number',
+          severity: monaco.MarkerSeverity.Error,
+          startLineNumber: range.startLineNumber,
+          startColumn: range.startColumn,
+          endLineNumber: range.endLineNumber,
+          endColumn: range.endColumn
+        });
+      } else if (!Number.isInteger(number)) {
+        markers.push({
+          message: 'not an integer',
+          severity: monaco.MarkerSeverity.Warning,
+          startLineNumber: range.startLineNumber,
+          startColumn: range.startColumn,
+          endLineNumber: range.endLineNumber,
+          endColumn: range.endColumn
+        });
+      }
+    }
+    monaco.editor.setModelMarkers(model, 'owner', markers);
+  }
 
   private initMonaco(): void {
     if (!this.monacoEditorService.loaded) {
@@ -43,55 +85,31 @@ export class EditorZoneComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    if (!this.colorMapService.colorMap) {
-      this.colorMapService.colorMap$.pipe(take(1)).subscribe(() => {
-        this.initMonaco();
-      });
-      return;
-    }
+    console.log('Creating Editor...');
 
-    this.updateVQLTheme();
-
-    this._editor = monaco.editor.create(
+    this._editor  = monaco.editor.create(
       this._editorContainer.nativeElement,
       vqlEditorOptions
     );
+
+    const model : Monaco.editor.ITextModel = this._editor.getModel()
+    console.log(model)
+
+    this.editor.emit(this._editor);
+
+    console.log('Validating')
+    this.validate(model);
   }
 
   ngAfterViewInit(): void {
     this.initMonaco();
-
-    this.colorMapService.colorMap$.subscribe((colormap) => {
-      if (colormap && this.monacoEditorService.loaded) {
-        this.updateVQLTheme();
-      }
-    });
   }
 
-  private updateVQLTheme() {
-    // Define a new theme that matches the activity names and Colormap
-    monaco.editor.defineTheme(
-      'VQLTheme',
-      generateVQLTheme(this.colorMapService.colorMap)
-    );
-
-    const createProposals = getVQLCompletionProvider(
-      this.colorMapService.colorMap.keys()
-    );
-
-    monaco.languages.registerCompletionItemProvider('VQL', {
-      provideCompletionItems: function (model, position) {
-        var word = model.getWordUntilPosition(position);
-        var range = {
-          startLineNumber: position.lineNumber,
-          endLineNumber: position.lineNumber,
-          startColumn: word.startColumn,
-          endColumn: word.endColumn,
-        };
-        return {
-          suggestions: createProposals(range),
-        };
-      },
-    });
+  registerOnChangeCallback(fn : (val : string) => void){
+    console.log('registered callback')
+    this._editor.onDidChangeModelContent((event) => {
+      fn(this._editor.getValue())
+    })
   }
+
 }
