@@ -121,7 +121,7 @@ export const baseLayout: LayoutConfig = {
                 width: 38.197,
                 isClosable: false,
                 reorderEnabled: true,
-                title: 'Variant Performane',
+                title: 'Variant Performance',
                 id: VariantPerformanceComponent.componentName,
                 componentType: VariantPerformanceComponent.componentName,
                 componentState: { cssParentClass: 'info-box-stack' },
