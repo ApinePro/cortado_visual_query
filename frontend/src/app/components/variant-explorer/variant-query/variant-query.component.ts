@@ -1,3 +1,4 @@
+import { VariantFilterService } from './../../../services/variantFilterService/variant-filter.service';
 import { LogService } from 'src/app/services/logService/log.service';
 import { BackendService } from 'src/app/services/backendService/backend.service';
 import {
@@ -8,8 +9,6 @@ import {
   Renderer2,
   AfterViewInit,
   HostListener,
-  Output,
-  EventEmitter,
   Input,
   OnDestroy,
 } from '@angular/core';
@@ -38,13 +37,19 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   queryEditorBackdrop: ElementRef<HTMLDivElement>;
   @ViewChild('highlightText') highlightText: ElementRef<HTMLDivElement>;
 
-  @Output()
-  query_selection = new EventEmitter<Set<number>>();
-
   @Input()
   active: boolean = false;
 
-  activityNameRegEx = new RegExp("'([^']*)'", 'g');
+  @Input()
+  options: EditorOptions = new EditorOptions();
+
+  queryfilteractive: boolean = false;
+
+  apostropheString = '<span class="syntax-operator">\'</span>';
+  activityNameRegEx = new RegExp(
+    this.apostropheString + "([^']*)" + this.apostropheString,
+    'g'
+  );
   activityColorMap: Map<string, string>;
   backendErrorMessage: boolean = false;
   backendErrorIndex: number;
@@ -57,8 +62,13 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     private renderer: Renderer2,
     private colorMapService: ColorMapService,
     private logService: LogService,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private variantFilterService: VariantFilterService
   ) {}
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
+  }
 
   ngOnInit() {
     this.variantQueryInput = new FormGroup({
@@ -71,15 +81,16 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-
-    this.activityColorMap =  this.colorMapService.colorMap;
-    this.colorMapService.colorMap$.subscribe((map) => {
-      this.activityColorMap = map
-    })
+    this.colorMapService.colorMap$
+        .pipe(takeUntil(this._destroy$))
+        .subscribe((colorMap) => {
+          this.activityColorMap = colorMap;
+        });
   }
 
-  ngOnDestroy(): void {
-    this._destroy$.next();
+    this.variantFilterService.variantFilters$.subscribe((filter) => {
+      this.queryfilteractive = filter.has('query filter');
+    });
   }
 
   onSubmit() {
@@ -88,7 +99,11 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe((res) => {
         if (!res.error) {
-          this.query_selection.emit(new Set(res.ids as Array<number>));
+          this.variantFilterService.addVariantFilter(
+            'query filter',
+            new Set(res.ids as Array<number>),
+            this.highlightText.nativeElement.innerHTML
+          );
         } else {
           this.variantQuery.setErrors({ backendError: res.error });
           this.backendErrorIndex = res.error_index;
@@ -96,6 +111,9 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
+  resetQuery() {
+    this.variantFilterService.removeVariantFilter('query filter');
+  }
 
   onEditorChange(value) {
 
@@ -111,6 +129,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.variantQueryInput.get('variantQuery')!;
   }
 
+>>>>>>> 237-miscellaneous-changes-for-query-editor
   @HostListener('window:keydown.control.enter', ['$event'])
   onRunQuery(e) {
     if (this.variantQuery.valid) {
