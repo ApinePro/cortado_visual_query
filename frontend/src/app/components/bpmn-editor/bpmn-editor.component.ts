@@ -265,11 +265,13 @@ export class BpmnEditorComponent
           this.selectedStatistic
         ] !== undefined
       ) {
-        color = this.performanceColorMap.get(pt.id)(
-          pt.performance[this.selectedPerformanceIndicator][
-            this.selectedStatistic
-          ]
-        );
+        color = this.performanceColorMap
+          .get(pt.id)
+          .getColor(
+            pt.performance[this.selectedPerformanceIndicator][
+              this.selectedStatistic
+            ]
+          );
       } else {
         color = '#404040';
       }

@@ -10,11 +10,11 @@ export class VARIANT_Constants {
   public static ARROW_HEAD_ANGLE = 20;
   public static FONT_SIZE = 15;
   public static WAITING_WIDTH = 5;
-  public static WAITING_WIDTH_EXPANDED = 10;
   public static CHAR_WIDTH = 12;
   public static MAX_OFFSETWIDTH = 800;
   public static LEGEND_MARGIN_X = 10;
   public static LEGEND_MARGIN_Y = 5;
   public static POINT_RADIUS = 7;
   public static INTERVAL_LENGTH = 60;
+  public static SELECTION_STROKE_WIDTH = 2;
 }

@@ -5,6 +5,7 @@ import { SharedDataService } from './sharedDataService/shared-data.service';
 import * as d3 from 'd3';
 import { BehaviorSubject } from 'rxjs';
 import { COLORS_TEAL } from './variant-performance.service';
+import { PerformanceColorMap } from '../objects/Performance/PerformanceColorMap';
 
 @Injectable({
   providedIn: 'root',
@@ -112,7 +113,7 @@ export class ModelPerformanceColorScaleService {
     performanceValue = 'service_time',
     statistic = 'mean'
   ) {
-    const colorScales = new Map<number, any>();
+    const colorScales = new Map<number, PerformanceColorMap>();
 
     const values = this.getAllAllValues();
     const min = Math.min(...values);
@@ -128,7 +129,9 @@ export class ModelPerformanceColorScaleService {
       .range(COLORS_TEAL);
 
     const leafNodes = getAllNodes(this.performanceService.mergedPerformance);
-    leafNodes.forEach((n) => colorScales.set(n.id, colorScale));
+    leafNodes.forEach((n) =>
+      colorScales.set(n.id, new PerformanceColorMap(colorScale))
+    );
 
     return colorScales;
   }
@@ -137,7 +140,7 @@ export class ModelPerformanceColorScaleService {
     performanceValue = 'service_time',
     statistic = 'mean'
   ) {
-    const colorScales = new Map<number, any>();
+    const colorScales = new Map<number, PerformanceColorMap>();
     this.performanceService.allValues.forEach((performanceValues, treeId) => {
       const values = Array.from(performanceValues.values())
         .filter((p) => p[performanceValue])
@@ -154,7 +157,7 @@ export class ModelPerformanceColorScaleService {
         .domain(thresholds)
         .range(COLORS_TEAL);
 
-      colorScales.set(treeId, colorScale);
+      colorScales.set(treeId, new PerformanceColorMap(colorScale));
     });
     return colorScales;
   }

@@ -19,6 +19,12 @@ import { VariantViewModeService } from 'src/app/services/variantViewModeService/
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import {
+  LeafNode,
+  ParallelGroup,
+  SequenceGroup,
+  VariantElement,
+} from 'src/app/objects/Variants/variant_element';
 
 @Component({
   selector: 'app-sub-variant',
@@ -44,6 +50,9 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
 
   @Input()
   onClickCbFc: (SubvariantVisualization) => void;
+
+  @Input()
+  private mainVariant: VariantElement;
 
   private isLoaded = false;
 
@@ -242,11 +251,15 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
     }
     if (!subvariantData.isWaitingTimeNode) {
       let stat = this.variantPerformanceService.serviceTimeStatistic;
-      return this.serviceTimeColorMap(subvariantData.performanceStats[stat]);
+      return this.serviceTimeColorMap.getColor(
+        subvariantData.performanceStats[stat]
+      );
     }
 
     let stat = this.variantPerformanceService.waitingTimeStatistic;
-    return this.waitingTimeColorMap(subvariantData.performanceStats[stat]);
+    return this.waitingTimeColorMap.getColor(
+      subvariantData.performanceStats[stat]
+    );
   }
 
   private wrapInnerLabelText(
@@ -293,9 +306,15 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
     const gapLength = (20 + VARIANT_Constants.POINT_RADIUS) / intervalWidth;
 
     let xValues = new Set<number>();
-    let usedYIndices = new Set<number>();
     const starts = new Map<string, [number, number]>();
     const data = new Map<string, SubvariantVisualization>();
+    let activeYIndices = new Set<number>();
+
+    let [yIndicesFromMainVariant, _] = this.computeYIndicesFromVariantElement(
+      this.mainVariant,
+      new Map<string, number[]>(),
+      0
+    );
 
     let xIndex = 0;
     this._variant.subvariant.forEach((group) => {
@@ -307,8 +326,25 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
       );
 
       starting.forEach((subvariantNode) => {
-        let yIndex = this.getNextFreeYIndex(usedYIndices);
-        usedYIndices.add(yIndex);
+        let yIndicesForActivity = yIndicesFromMainVariant.get(
+          subvariantNode.activity
+        );
+        let yIndex = yIndicesForActivity.shift();
+        yIndicesFromMainVariant.set(
+          subvariantNode.activity,
+          yIndicesForActivity
+        );
+
+        // The tracking of active y-indices is necessary to ensure that we do not draw multiple overlapping subvariant nodes at the same y index.
+        // This is only necessary if there are two parallel activity instances with the same label (activity name).
+        // E.g. in the following subvariant, we have to ensure that the 'b' node and the second 'a' node are not drawn both at y-index 0, because they would overlap.
+        //   x--a--x  x--b--x
+        //  x-----a-----x
+        while (activeYIndices.has(yIndex)) {
+          yIndex++;
+        }
+
+        activeYIndices.add(yIndex);
 
         starts[subvariantNode.activity + subvariantNode.activity_instance] = [
           xIndex,
@@ -332,8 +368,7 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
         xValues.add(m.xEnd);
 
         data.set(subvariantNode.activity + subvariantNode.activity_instance, m);
-
-        usedYIndices.delete(startIndices[1]);
+        activeYIndices.delete(m.yIndex);
 
         starts.delete(
           (subvariantNode.activity, subvariantNode.activity_instance)
@@ -451,16 +486,55 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
     return yData;
   }
 
-  private getNextFreeYIndex(usedYIndices: Set<number>): number {
-    let index = 0;
-    while (true) {
-      if (usedYIndices.has(index)) {
-        index++;
-        continue;
+  private computeYIndicesFromVariantElement(
+    variantElement: VariantElement,
+    results: Map<string, number[]>,
+    currentYIndex: number
+  ): [Map<string, number[]>, number] {
+    if (variantElement instanceof LeafNode) {
+      for (let i = 0; i < variantElement.activity.length; i++) {
+        let activity = variantElement.activity[i];
+        if (results.has(activity)) {
+          let currentValues = results.get(activity);
+          currentValues.push(currentYIndex);
+          results.set(activity, currentValues);
+        } else {
+          results.set(activity, [currentYIndex]);
+        }
       }
 
-      return index;
+      return [results, currentYIndex];
     }
+
+    if (variantElement instanceof SequenceGroup) {
+      let maxIndices: number[] = [];
+      let maxIndex = 0;
+      for (let child of variantElement.elements) {
+        [results, maxIndex] = this.computeYIndicesFromVariantElement(
+          child,
+          results,
+          currentYIndex
+        );
+        maxIndices.push(maxIndex);
+      }
+
+      return [results, Math.max(...maxIndices)];
+    }
+
+    if (variantElement instanceof ParallelGroup) {
+      let maxYIndex = currentYIndex;
+      for (let child of variantElement.elements) {
+        [results, maxYIndex] = this.computeYIndicesFromVariantElement(
+          child,
+          results,
+          maxYIndex
+        );
+        maxYIndex++;
+      }
+
+      return [results, maxYIndex - 1];
+    }
+    return [results, 0];
   }
 
   public setExpanded(expanded: boolean): void {

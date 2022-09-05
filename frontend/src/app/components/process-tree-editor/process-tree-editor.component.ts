@@ -431,11 +431,13 @@ export class ProcessTreeEditorComponent
           this.selectedStatistic
         ] !== undefined
       ) {
-        return this.performanceColorMap.get(d.data.id)(
-          d.data.performance[this.selectedPerformanceIndicator][
-            this.selectedStatistic
-          ]
-        );
+        return this.performanceColorMap
+          .get(d.data.id)
+          .getColor(
+            d.data.performance[this.selectedPerformanceIndicator][
+              this.selectedStatistic
+            ]
+          );
       } else {
         return '#404040';
       }
@@ -495,11 +497,13 @@ export class ProcessTreeEditorComponent
       this.performanceColorMap.has(d.data.id) &&
       d.data.performance[this.selectedPerformanceIndicator]
     ) {
-      nodeColor = this.performanceColorMap.get(d.data.id)(
-        d.data.performance[this.selectedPerformanceIndicator][
-          this.selectedStatistic
-        ]
-      );
+      nodeColor = this.performanceColorMap
+        .get(d.data.id)
+        .getColor(
+          d.data.performance[this.selectedPerformanceIndicator][
+            this.selectedStatistic
+          ]
+        );
     }
 
     const isVisibleActivity =
