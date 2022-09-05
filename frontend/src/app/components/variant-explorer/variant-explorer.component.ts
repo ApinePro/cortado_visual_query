@@ -2,6 +2,7 @@ import {
   VariantFilter,
   VariantFilterService,
 } from './../../services/variantFilterService/variant-filter.service';
+
 import {
   AfterViewInit,
   Component,
@@ -79,8 +80,6 @@ import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
-import { EditorOptions } from './variant-query/variant-query.component';
-
 @Component({
   selector: 'app-variant-explorer',
   templateUrl: './variant-explorer.component.html',
@@ -122,8 +121,6 @@ export class VariantExplorerComponent
   public displayed_variants: Variant[] = [];
   public colorMap: Map<string, string>;
   public sidebarHeight = 0;
-
-  public options: EditorOptions = new EditorOptions();
 
   public logStats: LogStats = null;
 
@@ -369,14 +366,6 @@ export class VariantExplorerComponent
       .subscribe((logStat) => {
         this.logStats = logStat;
       });
-  }
-
-  changeQueryOption(event, option) {
-    const newOptions: EditorOptions = new EditorOptions();
-    Object.entries(this.options).forEach((v) => (newOptions[v[0]] = v[1]));
-    newOptions[option] = event.target.checked;
-
-    this.options = newOptions;
   }
 
   private listenForLogChange() {

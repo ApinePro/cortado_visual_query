@@ -40,9 +40,6 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input()
   active: boolean = false;
 
-  @Input()
-  options: EditorOptions = new EditorOptions();
-
   queryfilteractive: boolean = false;
 
   apostropheString = '<span class="syntax-operator">\'</span>';
@@ -86,7 +83,6 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
         .subscribe((colorMap) => {
           this.activityColorMap = colorMap;
         });
-  }
 
     this.variantFilterService.variantFilters$.subscribe((filter) => {
       this.queryfilteractive = filter.has('query filter');
@@ -116,27 +112,19 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onEditorChange(value) {
-
-
     this.editorZone.registerValidatorFunction(this.validateMonaco)
-  }
-
-  resetQuery() {
-    this.query_selection.emit(null);
   }
 
   get variantQuery(): FormControl {
     return this.variantQueryInput.get('variantQuery')!;
   }
 
->>>>>>> 237-miscellaneous-changes-for-query-editor
   @HostListener('window:keydown.control.enter', ['$event'])
   onRunQuery(e) {
     if (this.variantQuery.valid) {
       this.onSubmit();
     }
   }
-
 
   private validateMonaco = function(model: Monaco.editor.ITextModel) {
     const markers = [];
