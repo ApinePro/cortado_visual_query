@@ -526,7 +526,6 @@ export class VariantExplorerComponent
     this.options = newOptions;
   }
 
-
   genSimpleVariants(variant: VariantElement): any {
     if (variant instanceof SequenceGroup) {
       return variant.elements;

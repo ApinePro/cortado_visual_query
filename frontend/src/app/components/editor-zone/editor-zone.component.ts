@@ -14,11 +14,16 @@ import {
 } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { vqlEditorOptions } from './editor-languages/vql-editor-options';
-import { ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
+import {
+  ControlValueAccessor,
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR,
+  ValidationErrors,
+  Validator,
+} from '@angular/forms';
 
 import * as Monaco from 'monaco-editor';
 declare var monaco: typeof Monaco;
-
 
 @Component({
   selector: 'app-editor-zone',
@@ -27,27 +32,30 @@ declare var monaco: typeof Monaco;
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     {
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: forwardRef(() => EditorZoneComponent),
-        multi: true
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => EditorZoneComponent),
+      multi: true,
     },
     {
-        provide: NG_VALIDATORS,
-        useExisting: forwardRef(() => EditorZoneComponent),
-        multi: true,
-    }
-]
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => EditorZoneComponent),
+      multi: true,
+    },
+  ],
 })
-export class EditorZoneComponent implements OnInit, AfterViewInit, OnDestroy, ControlValueAccessor, Validator{
+export class EditorZoneComponent
+  implements OnInit, AfterViewInit, OnDestroy, ControlValueAccessor, Validator
+{
   constructor(private monacoEditorService: EditorService) {}
 
-
   validate(): ValidationErrors {
-    return !this.parsedError ? null : {
-        monaco: {
+    return !this.parsedError
+      ? null
+      : {
+          monaco: {
             value: this.parsedError.split('|'),
-        }
-    };
+          },
+        };
   }
 
   get model() {
@@ -55,36 +63,37 @@ export class EditorZoneComponent implements OnInit, AfterViewInit, OnDestroy, Co
   }
 
   get modelMarkers() {
-    return this.model && monaco.editor.getModelMarkers({
-      resource: this.model.uri
-    });
+    return (
+      this.model &&
+      monaco.editor.getModelMarkers({
+        resource: this.model.uri,
+      })
+    );
   }
 
   writeValue(value: string): void {
     this._editorContent = value;
     if (this._editor && value) {
-        this._editor.setValue(value);
+      this._editor.setValue(value);
     } else if (this._editor) {
-        this._editor.setValue('');
+      this._editor.setValue('');
     }
   }
 
   registerOnChange(fn: any): void {
     this._propagateChange = fn;
-}
-
-  registerOnTouched(fn: any): void {
-      this._onTouched = fn;
   }
 
-
+  registerOnTouched(fn: any): void {
+    this._onTouched = fn;
+  }
 
   ngOnInit(): void {
     this.monacoEditorService.load();
   }
 
   protected _options;
-  protected _editorContent : string = '';
+  protected _editorContent: string = '';
 
   parsedError: string;
 
@@ -117,7 +126,6 @@ export class EditorZoneComponent implements OnInit, AfterViewInit, OnDestroy, Co
 
     this.registerEditorListeners();
     this.editor.emit(this._editor);
-
   }
 
   ngAfterViewInit(): void {
@@ -130,7 +138,7 @@ export class EditorZoneComponent implements OnInit, AfterViewInit, OnDestroy, Co
     });
   }
 
-  registerValidatorFunction(fn){
+  registerValidatorFunction(fn) {
     this._editor.onDidChangeModelContent((event) => {
       fn(this._editor.getModel());
     });
@@ -142,13 +150,16 @@ export class EditorZoneComponent implements OnInit, AfterViewInit, OnDestroy, Co
     });
 
     this._editor.onDidChangeModelDecorations(() => {
-        const currentParsedError = this.modelMarkers.map(({ message }) => message).join('|');
-        const hasValidationStatusChanged = this.parsedError !== currentParsedError;
+      const currentParsedError = this.modelMarkers
+        .map(({ message }) => message)
+        .join('|');
+      const hasValidationStatusChanged =
+        this.parsedError !== currentParsedError;
 
-        if (hasValidationStatusChanged) {
-            this.parsedError = currentParsedError;
-            this._onErrorStatusChange();
-        }
+      if (hasValidationStatusChanged) {
+        this.parsedError = currentParsedError;
+        this._onErrorStatusChange();
+      }
     });
 
     this._editor.onDidBlurEditorText(() => {
@@ -156,10 +167,9 @@ export class EditorZoneComponent implements OnInit, AfterViewInit, OnDestroy, Co
     });
   }
 
-
   ngOnDestroy() {
     if (this._editor) {
-        this._editor.dispose();
+      this._editor.dispose();
     }
   }
 }

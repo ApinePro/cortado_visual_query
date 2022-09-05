@@ -21,8 +21,8 @@ export function generateVQLTheme(
       ...activityTokens,
     ],
     colors: {
-      'editorBracketMatch.background' : '00FF00',
-      'editorBracketMatch.border' : 'FF0000',
+      'editorBracketMatch.background': '00FF00',
+      'editorBracketMatch.border': 'FF0000',
     },
   };
 }

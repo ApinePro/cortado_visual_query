@@ -13,7 +13,7 @@ import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-c
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.css'],
 })
-export class EditorComponent extends LayoutChangeDirective  {
+export class EditorComponent extends LayoutChangeDirective {
   constructor(
     private ref: ChangeDetectorRef,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)

@@ -12,10 +12,7 @@ import {
   Input,
   OnDestroy,
 } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-} from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -74,8 +71,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     this.variantQueryInput = new FormGroup({
       variantQuery: new FormControl('', {
-        validators: [
-        ],
+        validators: [],
         updateOn: 'change',
       }),
     });
@@ -83,10 +79,10 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.colorMapService.colorMap$
-        .pipe(takeUntil(this._destroy$))
-        .subscribe((colorMap) => {
-          this.activityColorMap = colorMap;
-        });
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        this.activityColorMap = colorMap;
+      });
 
     this.variantFilterService.variantFilters$.subscribe((filter) => {
       this.queryfilteractive = filter.has('query filter');
@@ -116,7 +112,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onEditorChange(value) {
-    this.editorZone.registerValidatorFunction(this.validateMonaco)
+    this.editorZone.registerValidatorFunction(this.validateMonaco);
   }
 
   get variantQuery(): FormControl {
@@ -130,32 +126,47 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private validateMonaco = function(model: Monaco.editor.ITextModel) {
+  private validateMonaco = function (model: Monaco.editor.ITextModel) {
     const markers = [];
     // lines start at 1
 
-    for (let match of model.findMatches("'([^']*)'", true, true, true, null, true)) {
-
-      if(!this.activityColorMap.has(match.matches[1])){
-        const actvityRange = match.range
+    for (let match of model.findMatches(
+      "'([^']*)'",
+      true,
+      true,
+      true,
+      null,
+      true
+    )) {
+      if (!this.activityColorMap.has(match.matches[1])) {
+        const actvityRange = match.range;
         markers.push({
-          message: 'Unknown Activity ' + match.matches[1] + ' in Line ' + actvityRange.startLineNumber,
+          message:
+            'Unknown Activity ' +
+            match.matches[1] +
+            ' in Line ' +
+            actvityRange.startLineNumber,
           severity: monaco.MarkerSeverity.Error,
           startLineNumber: actvityRange.startLineNumber,
           startColumn: actvityRange.startColumn,
           endLineNumber: actvityRange.endLineNumber,
           endColumn: actvityRange.endColumn,
         });
-
       }
     }
 
-    const semicolon_matches = model.findMatches(";", true, true, true, null, true)
+    const semicolon_matches = model.findMatches(
+      ';',
+      true,
+      true,
+      true,
+      null,
+      true
+    );
 
-    if( semicolon_matches.length > 1){
-
+    if (semicolon_matches.length > 1) {
       for (let match of semicolon_matches.slice(1)) {
-        const semicolonRange = match.range
+        const semicolonRange = match.range;
 
         markers.push({
           message: 'Too many Semicolons',
@@ -166,12 +177,8 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
           endColumn: semicolonRange.endColumn,
         });
       }
-
-    } else if(semicolon_matches.length > 0){
-
-
+    } else if (semicolon_matches.length > 0) {
     } else {
-
       markers.push({
         message: 'Missing Semicolon',
         severity: monaco.MarkerSeverity.Error,
@@ -180,14 +187,11 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
         endLineNumber: 1,
         endColumn: 1,
       });
-
     }
 
     monaco.editor.setModelMarkers(model, 'owner', markers);
   }.bind(this);
-
 }
-
 
 export class EditorOptions {
   highlightActivityNames: boolean;
