@@ -1,12 +1,10 @@
 <div class="query-container">
   <form [formGroup]="variantQueryInput" (ngSubmit)="onSubmit()" class="form">
     <div class="form-container">
-      <div>
-        <app-editor-zone
-          (editor)="onEditorChange($event)"
-          [formControl]="variantQuery"
-        ></app-editor-zone>
-      </div>
+      <app-editor-zone
+        (editor)="onEditorChange($event)"
+        [formControl]="variantQuery"
+      ></app-editor-zone>
     </div>
 
     <div class="syntax-error-container">
