@@ -7,24 +7,24 @@ import {
   AfterViewInit,
   Output,
   EventEmitter,
-  OnChanges,
   OnDestroy,
-  SimpleChanges,
   forwardRef,
   Input,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { vqlEditorOptions } from './editor-languages/vql-editor-options';
+import { ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
 
 import * as Monaco from 'monaco-editor';
-
-import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
 declare var monaco: typeof Monaco;
+
 
 @Component({
   selector: 'app-editor-zone',
   templateUrl: './editor-zone.component.html',
   styleUrls: ['./editor-zone.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     {
         provide: NG_VALUE_ACCESSOR,
@@ -94,63 +94,9 @@ export class EditorZoneComponent implements OnInit, AfterViewInit, OnDestroy, Co
 
   private _editor: Monaco.editor.IStandaloneCodeEditor;
 
-
-  @Input()
-  @Input()
-  @Input()
-
   @Output() editor: EventEmitter<any> = new EventEmitter();
 
   @ViewChild('editorContainer', { static: true }) _editorContainer: ElementRef;
-
-
-
-  validateMonaco(model: Monaco.editor.ITextModel) {
-    const markers = [];
-    // lines start at 1
-
-    console.log(
-      model.findMatches(
-        '-?(d*.)?d+([eE][+-]?d+)?[jJ]?[lL]?',
-        false,
-        true,
-        false,
-        ' `~!@#$%^&*()-=+[{]}\\|;:\'",.<>/?',
-        true
-      )
-    );
-
-    for (let i = 1; i < model.getLineCount() + 1; i++) {
-      const range = {
-        startLineNumber: i,
-        startColumn: 1,
-        endLineNumber: i,
-        endColumn: model.getLineLength(i) + 1,
-      };
-      const content = model.getValueInRange(range).trim();
-      const number = Number(content);
-      if (Number.isNaN(number)) {
-        markers.push({
-          message: 'not a number',
-          severity: monaco.MarkerSeverity.Error,
-          startLineNumber: range.startLineNumber,
-          startColumn: range.startColumn,
-          endLineNumber: range.endLineNumber,
-          endColumn: range.endColumn,
-        });
-      } else if (!Number.isInteger(number)) {
-        markers.push({
-          message: 'not an integer',
-          severity: monaco.MarkerSeverity.Warning,
-          startLineNumber: range.startLineNumber,
-          startColumn: range.startColumn,
-          endLineNumber: range.endLineNumber,
-          endColumn: range.endColumn,
-        });
-      }
-    }
-    monaco.editor.setModelMarkers(model, 'owner', markers);
-  }
 
   private initMonaco(): void {
     if (!this.monacoEditorService.loaded) {
@@ -168,13 +114,10 @@ export class EditorZoneComponent implements OnInit, AfterViewInit, OnDestroy, Co
     );
 
     const model: Monaco.editor.ITextModel = this._editor.getModel();
-    console.log(model);
 
     this.registerEditorListeners();
     this.editor.emit(this._editor);
 
-    console.log('Validating...');
-    this.validateMonaco(model);
   }
 
   ngAfterViewInit(): void {
@@ -182,9 +125,14 @@ export class EditorZoneComponent implements OnInit, AfterViewInit, OnDestroy, Co
   }
 
   registerOnChangeCallback(fn: (val: string) => void) {
-    console.log('registered callback');
     this._editor.onDidChangeModelContent((event) => {
       fn(this._editor.getValue());
+    });
+  }
+
+  registerValidatorFunction(fn){
+    this._editor.onDidChangeModelContent((event) => {
+      fn(this._editor.getModel());
     });
   }
 

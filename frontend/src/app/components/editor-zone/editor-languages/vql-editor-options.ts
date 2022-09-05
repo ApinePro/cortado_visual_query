@@ -21,5 +21,14 @@ export const vqlEditorOptions: Monaco.editor.IStandaloneEditorConstructionOption
       enabled: true,
       independentColorPoolPerBracketType: true,
     },
+    scrollbar:{
+      useShadows : true,
+      verticalHasArrows : false,
+      horizontalHasArrows : false,
+      horizontal : 'auto',
+      vertical : 'auto',
+      verticalScrollbarSize: 5,
+      horizontalScrollbarSize: 5,
+    },
     dragAndDrop: true,
   };

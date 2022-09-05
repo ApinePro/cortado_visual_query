@@ -1,7 +1,10 @@
 <div class="query-container">
   <form [formGroup]="variantQueryInput" (ngSubmit)="onSubmit()" class="form">
     <div class="form-container">
-      <app-editor-zone (editor)="onEditorChange($event)"></app-editor-zone>
+      <app-editor-zone
+        (editor)="onEditorChange($event)"
+        [formControl]="variantQuery"
+      ></app-editor-zone>
     </div>
 
     <ul
@@ -12,6 +15,12 @@
       "
       class="syntax-error"
     >
+      <div *ngIf="variantQuery.errors?.['monaco']">
+        <li *ngFor="let parserError of variantQuery.errors?.['monaco'].value">
+          Error {{ parserError }}
+        </li>
+      </div>
+
       <div *ngIf="variantQuery.errors?.['unknowActivities']">
         <li
           *ngFor="let unknownActivity of variantQuery.errors?.['unknowActivities']"
