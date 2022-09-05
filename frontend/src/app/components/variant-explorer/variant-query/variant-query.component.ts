@@ -35,18 +35,22 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(EditorZoneComponent) editorZone: EditorZoneComponent;
   @ViewChild('queryEditorBackdrop')
   queryEditorBackdrop: ElementRef<HTMLDivElement>;
-  @ViewChild('highlightText') highlightText: ElementRef<HTMLDivElement>;
 
   @Input()
   active: boolean = false;
 
+  @Input()
+  options: EditorOptions = new EditorOptions();
+
   queryfilteractive: boolean = false;
 
   apostropheString = '<span class="syntax-operator">\'</span>';
+
   activityNameRegEx = new RegExp(
     this.apostropheString + "([^']*)" + this.apostropheString,
     'g'
   );
+
   activityColorMap: Map<string, string>;
   backendErrorMessage: boolean = false;
   backendErrorIndex: number;
@@ -98,7 +102,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
           this.variantFilterService.addVariantFilter(
             'query filter',
             new Set(res.ids as Array<number>),
-            this.highlightText.nativeElement.innerHTML
+            this.variantQuery.value
           );
         } else {
           this.variantQuery.setErrors({ backendError: res.error });
@@ -182,4 +186,13 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     monaco.editor.setModelMarkers(model, 'owner', markers);
   }.bind(this);
 
+}
+
+
+export class EditorOptions {
+  highlightActivityNames: boolean;
+
+  constructor() {
+    this.highlightActivityNames = true;
+  }
 }
