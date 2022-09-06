@@ -7,17 +7,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- https://www.electronjs.org/docs/faq#i-can-not-use-jqueryrequirejsmeteorangularjs-in-electron -->
-  <!-- <script>
-    window.nodeRequire = require;
-    delete window.require;
-    delete window.exports;
-    delete window.module;
-  </script> -->
+
+  <!---
+    <script>
+      window.nodeRequire = require;
+      delete window.require;
+      delete window.exports;
+      delete window.module;
+    </script>
+  -->
 
   <!--<link rel="icon" type="image/x-icon" href="favicon.ico">-->
   <script>
-    var electron = require('electron');
-    window.$ = window.jQuery = require('jquery');
+    var electron = window.require('electron');
+    window.$ = window.jQuery = window.require('jquery');
 </script>
 </head>
 <body id="body">

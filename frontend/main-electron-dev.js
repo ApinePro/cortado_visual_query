@@ -14,7 +14,7 @@ function createWindow() {
     titleBarStyle: true,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: true
     },
     icon: "./icon/cortado_icon_colorful_transparent.png"
   })

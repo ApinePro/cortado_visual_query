@@ -14,6 +14,7 @@ import { InfoBoxComponent } from '../../info-box/info-box.component';
 import { ActivityOverviewComponent } from '../../activity-overview/activity-overview.component';
 import { ModelPerformanceComponent } from '../../performance/performance.component';
 import { VariantPerformanceComponent } from '../../variant-performance/variant-performance.component';
+import { EditorComponent } from '../../editor/editor.component';
 
 export const baseLayout: LayoutConfig = {
   dimensions: {
@@ -43,6 +44,15 @@ export const baseLayout: LayoutConfig = {
             },
             isClosable: true,
             content: [
+              {
+                type: 'component',
+                title: 'Editor',
+                isClosable: false,
+                reorderEnabled: false,
+                id: EditorComponent.componentName,
+                componentType: EditorComponent.componentName,
+                componentState: { cssParentClass: 'process-tree-editor-stack' },
+              } as ComponentItemConfig,
               {
                 type: 'component',
                 title: 'Process Tree Editor',
