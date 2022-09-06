@@ -202,6 +202,7 @@ export class VariantDrawerDirective
       .attr('width', width)
       .attr('height', height);
 
+
     const height_offset = (height - 2 * VARIANT_Constants.MARGIN_Y) / 2 - 7.65;
     switch (infixType) {
       case InfixType.NOT_AN_INFIX:
@@ -226,7 +227,8 @@ export class VariantDrawerDirective
       infixType === InfixType.POSTFIX ||
       infixType === InfixType.PROPER_INFIX
     ) {
-      variant_svg.attr('transform', `translate(${PREFIX_OFFSET}, 0)`);
+
+      variant_svg.attr('transform', `translate(${PREFIX_OFFSET}, ${VARIANT_Constants.SELECTION_STROKE_WIDTH})`);
 
       svg
         .append('g')
@@ -234,12 +236,16 @@ export class VariantDrawerDirective
         .append('use')
         .attr('href', '#infixDots')
         .attr('transform', 'scale(1.7)');
+
+    } else {
+      variant_svg.attr('transform', `translate(0, ${VARIANT_Constants.SELECTION_STROKE_WIDTH})`);
     }
 
     if (
       infixType === InfixType.PREFIX ||
       infixType === InfixType.PROPER_INFIX
     ) {
+
       svg
         .append('g')
         .attr(
@@ -266,10 +272,6 @@ export class VariantDrawerDirective
     if (outerElement) {
       svgElement
         .datum(element)
-        .attr(
-          'transform',
-          `translate(0, ${VARIANT_Constants.SELECTION_STROKE_WIDTH})`
-        );
     }
 
     if (element instanceof ParallelGroup) {
@@ -285,10 +287,6 @@ export class VariantDrawerDirective
     } else if (element instanceof LeafNode) {
       this.drawLeafNode(element.asLeafNode(), svgElement);
     } else if (element instanceof WaitingTimeNode) {
-      this.drawWaitingNode(element.asLeafNode(), svgElement);
-    } else if (element instanceof StartGroup) {
-      this.drawWaitingNode(element.asLeafNode(), svgElement);
-    } else if (element instanceof EndGroup) {
       this.drawWaitingNode(element.asLeafNode(), svgElement);
     }
   }
