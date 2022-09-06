@@ -155,9 +155,7 @@ export class VariantMinerComponent
 
     // Return everything to its previous state
     visibleComponents.forEach((c, i) => c.setExpanded(state[i]));
-
   }.bind(this);
-
 
   filterInfix = function () {
     const bids = this.displayedVariantsPatterns.filter(
@@ -181,8 +179,10 @@ export class VariantMinerComponent
       element: VariantElement,
       directive: VariantDrawerDirective
     ) => {}
-  >([['Use infix as filter', this.filterInfix],
-     ['Export Pattern as SVG', this.exportSVG]]);
+  >([
+    ['Use infix as filter', this.filterInfix],
+    ['Export Pattern as SVG', this.exportSVG],
+  ]);
 
   currentConfig: MiningConfig = null;
 
