@@ -193,23 +193,18 @@ export class VariantQueryComponent
         });
       }
     } else if (semicolon_matches.length > 0) {
-      const line = model.getLineCount();
-      const last = model.getLineLastNonWhitespaceColumn(line);
-      const val = model.getValueInRange({
-        startLineNumber: line,
-        startColumn: last - 1,
-        endColumn: last,
-        endLineNumber: line,
-      });
+      const semicolonRange = semicolon_matches[0].range;
 
-      if (val !== ';') {
+      const firstWhiteSpace = model.getLineLastNonWhitespaceColumn(semicolonRange.endLineNumber)
+
+      if (firstWhiteSpace !== semicolonRange.startColumn + 1 ) {
         markers.push({
           message: 'Input after Semicolon',
           severity: monaco.MarkerSeverity.Error,
-          startLineNumber: line,
-          startColumn: last,
-          endLineNumber: line,
-          endColumn: last,
+          startLineNumber: semicolonRange.endLineNumber,
+          startColumn: semicolonRange.endColumn,
+          endLineNumber: semicolonRange.endLineNumber,
+          endColumn:  model.getLineMaxColumn(semicolonRange.endLineNumber),
         });
       }
     } else {
