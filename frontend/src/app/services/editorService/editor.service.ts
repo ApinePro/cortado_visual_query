@@ -10,6 +10,7 @@ import { ColorMapService } from '../colorMapService/color-map.service';
 import { getVQLCompletionProvider } from 'src/app/components/editor-zone/editor-languages/vql-language-completion-provider';
 
 import * as Monaco from 'monaco-editor';
+import { EditorOptions } from 'src/app/components/variant-explorer/variant-query/variant-query.component';
 declare var monaco: typeof Monaco;
 @Injectable({
   providedIn: 'root',
@@ -119,7 +120,7 @@ export class EditorService {
     // Define a new theme that matches the activity names and Colormap
     monaco.editor.defineTheme(
       'VQLTheme',
-      generateVQLTheme(this.colorMapService.colorMap)
+      generateVQLTheme(this.colorMapService.colorMap, new EditorOptions())
     );
 
     const createProposals = getVQLCompletionProvider(

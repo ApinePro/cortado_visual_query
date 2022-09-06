@@ -1,18 +1,26 @@
 import * as Monaco from 'monaco-editor';
+import { EditorOptions } from '../../variant-explorer/variant-query/variant-query.component';
 
 export function generateVQLTheme(
-  colorMap: Map<string, string>
+  colorMap: Map<string, string>,
+  options  : EditorOptions ,
 ): Monaco.editor.IStandaloneThemeData {
+
+
   const activityTokens = [];
-  colorMap.forEach((v, k) =>
-    activityTokens.push({ token: 'activites.' + k, foreground: v })
-  );
+  if(options.highlightActivityNames){
+
+    activityTokens.push({ token: 'activites', foreground: 'ffc107', fontStyle: 'bold' });
+
+    colorMap.forEach((v, k) =>
+      activityTokens.push({ token: 'activites.' + k, foreground: v })
+    );
+  }
 
   return {
     base: 'vs-dark',
     inherit: true,
     rules: [
-      { token: 'activites', foreground: 'ffc107', fontStyle: 'bold' },
       { token: 'quantifier', foreground: '008800', fontStyle: 'bold' },
       { token: 'string', foreground: 'FFFFFF' },
       { token: 'text', foreground: 'a0a0a0' },

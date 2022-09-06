@@ -11,6 +11,8 @@ import {
   HostListener,
   Input,
   OnDestroy,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
@@ -19,13 +21,14 @@ import { takeUntil } from 'rxjs/operators';
 import { EditorZoneComponent } from '../../editor-zone/editor-zone.component';
 
 import * as Monaco from 'monaco-editor';
+import { generateVQLTheme } from '../../editor-zone/editor-languages/vql-language-theme';
 declare var monaco: typeof Monaco;
 @Component({
   selector: 'app-variant-query',
   templateUrl: './variant-query.component.html',
   styleUrls: ['./variant-query.component.scss'],
 })
-export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
+export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   variantQueryInput: any;
 
   @ViewChild('queryEditor') queryEditor: ElementRef<HTMLTextAreaElement>;
@@ -63,6 +66,15 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     private backendService: BackendService,
     private variantFilterService: VariantFilterService
   ) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if(this.editorInstance){
+      monaco.editor.defineTheme(
+        'VQLTheme',
+        generateVQLTheme(this.colorMapService.colorMap, this.options)
+      );
+    }
+  }
 
   ngOnDestroy(): void {
     this._destroy$.next();
@@ -113,6 +125,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onEditorChange(value) {
     this.editorZone.registerValidatorFunction(this.validateMonaco);
+    this.editorInstance = value;
   }
 
   get variantQuery(): FormControl {
@@ -146,7 +159,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
             match.matches[1] +
             ' in Line ' +
             actvityRange.startLineNumber,
-          severity: monaco.MarkerSeverity.Error,
+          severity: monaco.MarkerSeverity.Warning,
           startLineNumber: actvityRange.startLineNumber,
           startColumn: actvityRange.startColumn,
           endLineNumber: actvityRange.endLineNumber,
@@ -178,14 +191,34 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
         });
       }
     } else if (semicolon_matches.length > 0) {
+      const line = model.getLineCount()
+      const last = model.getLineLastNonWhitespaceColumn(line)
+      const val = model.getValueInRange({startLineNumber : line,
+                            startColumn: last-1,
+                            endColumn : last,
+                            endLineNumber : line})
+
+      if(val !== ';'){
+        markers.push({
+          message: 'Input after Semicolon',
+          severity: monaco.MarkerSeverity.Error,
+          startLineNumber: line,
+          startColumn: last,
+          endLineNumber: line,
+          endColumn: last,
+        });
+      }
+
     } else {
+      const line = model.getLineCount()
+      const last = model.getLineMaxColumn(line)
       markers.push({
         message: 'Missing Semicolon',
-        severity: monaco.MarkerSeverity.Error,
-        startLineNumber: 1,
-        startColumn: 1,
-        endLineNumber: 1,
-        endColumn: 1,
+        severity: monaco.MarkerSeverity.Warning,
+        startLineNumber: line,
+        startColumn: last,
+        endLineNumber: line,
+        endColumn: last,
       });
     }
 

@@ -21,9 +21,11 @@
             Error {{ parserError }}
           </li>
         </div>
+        <li *ngIf="variantQuery.errors?.['backendError']" class="backend-error">
+          <span> {{ variantQuery.errors?.['backendError'] }} </span>
+        </li>
       </ul>
     </div>
-
     <div class="variant-query-tool-bar">
       <button
         type="submit"
