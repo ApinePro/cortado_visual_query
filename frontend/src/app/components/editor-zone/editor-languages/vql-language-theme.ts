@@ -3,14 +3,15 @@ import { EditorOptions } from '../../variant-explorer/variant-query/variant-quer
 
 export function generateVQLTheme(
   colorMap: Map<string, string>,
-  options  : EditorOptions ,
+  options: EditorOptions
 ): Monaco.editor.IStandaloneThemeData {
-
-
   const activityTokens = [];
-  if(options.highlightActivityNames){
-
-    activityTokens.push({ token: 'activites', foreground: 'ffc107', fontStyle: 'bold' });
+  if (options.highlightActivityNames) {
+    activityTokens.push({
+      token: 'activites',
+      foreground: 'ffc107',
+      fontStyle: 'bold',
+    });
 
     colorMap.forEach((v, k) =>
       activityTokens.push({ token: 'activites.' + k, foreground: v })

@@ -28,7 +28,9 @@ declare var monaco: typeof Monaco;
   templateUrl: './variant-query.component.html',
   styleUrls: ['./variant-query.component.scss'],
 })
-export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
+export class VariantQueryComponent
+  implements OnInit, AfterViewInit, OnDestroy, OnChanges
+{
   variantQueryInput: any;
 
   @ViewChild('queryEditor') queryEditor: ElementRef<HTMLTextAreaElement>;
@@ -68,7 +70,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy, 
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if(this.editorInstance){
+    if (this.editorInstance) {
       monaco.editor.defineTheme(
         'VQLTheme',
         generateVQLTheme(this.colorMapService.colorMap, this.options)
@@ -191,14 +193,16 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy, 
         });
       }
     } else if (semicolon_matches.length > 0) {
-      const line = model.getLineCount()
-      const last = model.getLineLastNonWhitespaceColumn(line)
-      const val = model.getValueInRange({startLineNumber : line,
-                            startColumn: last-1,
-                            endColumn : last,
-                            endLineNumber : line})
+      const line = model.getLineCount();
+      const last = model.getLineLastNonWhitespaceColumn(line);
+      const val = model.getValueInRange({
+        startLineNumber: line,
+        startColumn: last - 1,
+        endColumn: last,
+        endLineNumber: line,
+      });
 
-      if(val !== ';'){
+      if (val !== ';') {
         markers.push({
           message: 'Input after Semicolon',
           severity: monaco.MarkerSeverity.Error,
@@ -208,10 +212,9 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy, 
           endColumn: last,
         });
       }
-
     } else {
-      const line = model.getLineCount()
-      const last = model.getLineMaxColumn(line)
+      const line = model.getLineCount();
+      const last = model.getLineMaxColumn(line);
       markers.push({
         message: 'Missing Semicolon',
         severity: monaco.MarkerSeverity.Warning,
