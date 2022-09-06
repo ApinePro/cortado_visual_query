@@ -1,28 +1,13 @@
 <app-drop-zone
-  *ngIf="!queryActive"
   [dropzoneConfig]="dropZoneConfig"
   (fileOnHover)="toggleBlur($event)"
 ></app-drop-zone>
 
 <app-performance-progress-bar> </app-performance-progress-bar>
 
-<div class="sidebar" [style.width.px]="sidebarHeigth">
-  <div
-    class="sidebar-button"
-    [ngClass]="!performanceMode ? 'active' : ''"
-    (click)="setPerformanceModeClicked(false)"
-  >
-    <span class="sidebar-button-text user-select-none"> Standard View</span>
-  </div>
-
-  <div
-    class="sidebar-button"
-    [ngClass]="performanceMode ? 'active' : ''"
-    (click)="setPerformanceModeClicked(true)"
-  >
-    <span class="sidebar-button-text user-select-none"> Performance View </span>
-  </div>
-</div>
+<app-variant-explorer-sidebar
+  [sidebarHeight]="sidebarHeight"
+></app-variant-explorer-sidebar>
 
 <div
   class="d-flex flex-column h-100 container-variant-explorer"
@@ -248,29 +233,30 @@
       </div>
     </div>
 
-    <span class="vl" *ngIf="!performanceMode"></span>
-    <button
-      *ngIf="!performanceMode"
-      class="button"
-      (click)="unExpandAll()"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      data-bs-html="true"
-      title="(un)expand all variants"
-    >
-      <i
-        *ngIf="areAllVariantsExpanded()"
-        class="bi bi-arrows-collapse btn-icon cursor-pointer rotate-90"
-      ></i>
-      <i
-        *ngIf="!areAllVariantsExpanded()"
-        class="bi bi-arrows-expand btn-icon cursor-pointer rotate-90"
-      ></i>
-    </button>
+    <ng-container *ngIf="variantViewModeService.viewMode !== VM.PERFORMANCE">
+      <span class="vl"></span>
+      <button
+        class="button"
+        (click)="unExpandAll()"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        data-bs-html="true"
+        title="(un)expand all variants"
+      >
+        <i
+          *ngIf="areAllVariantsExpanded()"
+          class="bi bi-arrows-collapse btn-icon cursor-pointer rotate-90"
+        ></i>
+        <i
+          *ngIf="!areAllVariantsExpanded()"
+          class="bi bi-arrows-expand btn-icon cursor-pointer rotate-90"
+        ></i>
+      </button>
+    </ng-container>
 
     <span class="vl"></span>
 
-    <div *ngIf="!performanceMode">
+    <div *ngIf="variantViewModeService.viewMode !== VM.PERFORMANCE">
       <button
         *ngIf="!traceInfixSelectionMode"
         class="button"
@@ -348,16 +334,51 @@
     class="variant-query-button"
     [@openCloseComponent]="queryActive ? 'openComponent' : 'closeComponent'"
   >
-    <div class="query-header d-flex" (click)="toggleQuery()">
-      <div class="query-button me-auto">
+    <div class="query-header d-flex">
+      <div class="query-button me-auto" (click)="toggleQuery()">
         <i
           [ngClass]="{
             'bi-arrows-angle-contract': queryActive,
-            'bi bi-search': !queryActive
+            'bi bi-funnel': !queryActive
           }"
           class=""
         ></i>
-        <span *ngIf="queryActive" class="ms-2">Variant Query</span>
+        <span *ngIf="queryActive" class="ms-2 user-select-none"
+          >Variant Query</span
+        >
+      </div>
+
+      <div class="me-2 dropdown">
+        <button
+          class="query-info-button"
+          type="button"
+          id="Options"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <i
+            class="bi bi-gear font-large secondary-text fs-6 question-icon"
+          ></i>
+        </button>
+        <ul
+          class="dropdown-menu query-bar-drop query-bar-dropdown"
+          aria-labelledby="Files"
+        >
+          <li>
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="flexSwitchCheckChecked"
+                checked
+                (change)="changeQueryOption($event, 'highlightActivityNames')"
+              />
+              <label class="form-check-label" for="flexSwitchCheckChecked"
+                >Syntax Highlighting</label
+              >
+            </div>
+          </li>
+        </ul>
       </div>
       <div class="me-2">
         <button
@@ -381,8 +402,8 @@
       "
     >
       <app-variant-query
-        (query_selection)="apply_query_filter($event)"
         [active]="queryActive"
+        [options]="options"
       ></app-variant-query>
     </div>
   </div>
@@ -400,15 +421,19 @@
       <div class="chart-variant__percentage">
         <table>
           <tr class="user-select-none">
-            <th style="padding-right: 15px; padding-left: 5px">Nr.</th>
-            <th style="display: flex; align-items: center">
-              <app-variant-selection-button
-                [isSelected]="areAllDisplayedVariantsSelected()"
-                (selectionChanged)="unSelectAllChanged($event)"
-                tooltipText="(un)select all variants"
-              >
-              </app-variant-selection-button>
-              Info
+            <th style="padding-right: 15px; padding-left: 5px">
+              <div class="variant-filter-container">Nr.</div>
+            </th>
+            <th>
+              <div class="variant-filter-container">
+                <app-variant-selection-button
+                  [isSelected]="areAllDisplayedVariantsSelected()"
+                  (selectionChanged)="unSelectAllChanged($event)"
+                  tooltipText="(un)select all variants"
+                >
+                </app-variant-selection-button>
+                Info
+              </div>
             </th>
             <th
               style="
@@ -417,7 +442,7 @@
                 padding-left: 10px;
               "
             >
-              Sub-Variants
+              <div class="variant-filter-container">Sub-Variants</div>
             </th>
             <th
               *ngIf="currentlyDisplayedProcessTree"
@@ -467,23 +492,45 @@
             </th>
 
             <th class="text-start">
-              Variant
-              <i
-                *ngIf="displayed_variants.length !== variants.length"
-                class="bi bi-funnel-fill text-primary"
-                data-bs-toggle="tooltip"
-                data-placement="bottom"
-                title="Filter active"
-                (dblclick)="removeAllFilters()"
-              ></i>
-              <br />
-              <span class="variant-number"
-                >({{
-                  displayed_variants.length === variants.length
-                    ? displayed_variants.length
-                    : displayed_variants.length + "/" + variants.length
-                }})</span
-              >
+              <div class="variant-filter-container p-2">
+                <div>
+                  <span>Variant </span>
+                  <br />
+                  <span class="variant-number"
+                    >({{
+                      displayed_variants.length === variants.length
+                        ? displayed_variants.length
+                        : displayed_variants.length + "/" + variants.length
+                    }})</span
+                  >
+                </div>
+
+                <div class="filter-container">
+                  <div
+                    *ngFor="let filter of filterMap | keyvalue"
+                    class="badge-container"
+                  >
+                    <button
+                      class="btn badge-button"
+                      (click)="removeFilter(filter.key)"
+                    >
+                      <span
+                        class="badge rounded-pill bg-danger badge-close-position cursor-pointer"
+                        ><i class="bi bi-x-lg close-icon"></i>
+                      </span>
+                    </button>
+                    <span
+                      class="badge text-bg-primary ms-1"
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="bottom"
+                      data-bs-html="true"
+                      [title]="filter.value.tooltip"
+                    >
+                      <i class="bi bi-funnel-fill"> </i> {{ filter.key }}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </th>
           </tr>
           <ng-container
@@ -496,7 +543,6 @@
               [processTreeAvailable]="
                 processTreeService.currentDisplayedProcessTree
               "
-              [performanceMode]="performanceMode"
               [traceInfixSelectionMode]="traceInfixSelectionMode"
               [rootElement]="variantExplorerDiv"
             >
@@ -552,7 +598,6 @@
                     [variant]="variant['variant']"
                     [onClickCbFc]="variantClickCallBack"
                     [onRightMouseClickCbFc]="openContextCallback"
-                    [performanceMode]="performanceMode"
                     [traceInfixSelectionMode]="traceInfixSelectionMode"
                     [computeActivityColor]="computeActivityColor"
                     [infixType]="variant.infixType"
@@ -583,7 +628,7 @@
     ></app-conformance-info-bar>
   </div>
 
-  <div class="tooltip" role="tooltip" #tooltipContainer>
+  <div role="tooltip" #tooltipContainer>
     <div class="tooltip-inner"></div>
   </div>
 </div>

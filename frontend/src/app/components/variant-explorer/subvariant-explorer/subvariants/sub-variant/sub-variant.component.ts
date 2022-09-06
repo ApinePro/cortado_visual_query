@@ -4,6 +4,7 @@ import {
   Component,
   ElementRef,
   Input,
+  OnDestroy,
   ViewChild,
 } from '@angular/core';
 import * as d3 from 'd3';
@@ -14,13 +15,23 @@ import { ColorMapService } from 'src/app/services/colorMapService/color-map.serv
 
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 import { SubvariantVisualization } from 'src/app/objects/Variants/subvariant';
+import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
+import { ViewMode } from 'src/app/objects/ViewMode';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import {
+  LeafNode,
+  ParallelGroup,
+  SequenceGroup,
+  VariantElement,
+} from 'src/app/objects/Variants/variant_element';
 
 @Component({
   selector: 'app-sub-variant',
   templateUrl: './sub-variant.component.html',
   styleUrls: ['./sub-variant.component.scss'],
 })
-export class SubVariantComponent implements AfterViewInit {
+export class SubVariantComponent implements AfterViewInit, OnDestroy {
   @ViewChild('svg')
   svgElement: ElementRef;
 
@@ -33,13 +44,15 @@ export class SubVariantComponent implements AfterViewInit {
   }
 
   private _variant;
-  isPerformanceMode: boolean;
 
   @Input()
   private expanded = false;
 
   @Input()
   onClickCbFc: (SubvariantVisualization) => void;
+
+  @Input()
+  private mainVariant: VariantElement;
 
   private isLoaded = false;
 
@@ -48,44 +61,56 @@ export class SubVariantComponent implements AfterViewInit {
   public serviceTimeColorMap: any;
   public waitingTimeColorMap: any;
 
+  private _destroy$ = new Subject();
+
   constructor(
     private sharedDataService: SharedDataService,
     private colorMapService: ColorMapService,
     private tooltipService: ActivateTooltipsService,
-    private variantPerformanceService: VariantPerformanceService
+    private variantPerformanceService: VariantPerformanceService,
+    private variantViewModeService: VariantViewModeService
   ) {}
 
   ngAfterViewInit(): void {
     this.svg = d3.select(this.svgElement.nativeElement);
     this.isLoaded = true;
 
-    this.colorMapService.colorMap$.subscribe((cMap) => {
-      this.colorMap = cMap;
-      if (this._variant) {
-        this.draw();
-      }
-    });
+    this.colorMapService.colorMap$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((cMap) => {
+        this.colorMap = cMap;
+        if (this._variant) {
+          this.draw();
+        }
+      });
 
-    this.variantPerformanceService.serviceTimeColorMap.subscribe((colorMap) => {
-      if (colorMap !== undefined) {
-        this.serviceTimeColorMap = colorMap;
-        this.draw();
-      }
-    });
+    this.variantPerformanceService.serviceTimeColorMap
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        if (colorMap !== undefined) {
+          this.serviceTimeColorMap = colorMap;
+          this.draw();
+        }
+      });
 
-    this.variantPerformanceService.waitingTimeColorMap.subscribe((colorMap) => {
-      if (colorMap !== undefined) {
-        this.waitingTimeColorMap = colorMap;
-        this.draw();
-      }
-    });
+    this.variantPerformanceService.waitingTimeColorMap
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        if (colorMap !== undefined) {
+          this.waitingTimeColorMap = colorMap;
+          this.draw();
+        }
+      });
 
-    this.variantPerformanceService.variantPerformanceMode.subscribe(
-      (isPerformanceModeActive: boolean) => {
-        this.isPerformanceMode = isPerformanceModeActive;
+    this.variantViewModeService.viewMode$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((viewMode: ViewMode) => {
         this.draw();
-      }
-    );
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   draw(textColor: string = 'whitesmoke'): void {
@@ -115,7 +140,10 @@ export class SubVariantComponent implements AfterViewInit {
     this.svg.attr('height', height);
     this.svg.attr('width', width);
 
-    const helpLineOpacity = this.isPerformanceMode ? 0.1 : 0.04;
+    const helpLineOpacity =
+      this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+        ? 0.1
+        : 0.04;
 
     this.svg
       .selectAll('line')
@@ -130,7 +158,7 @@ export class SubVariantComponent implements AfterViewInit {
       .attr('stroke-width', 2 * VARIANT_Constants.POINT_RADIUS)
       .attr('stroke-opacity', helpLineOpacity);
 
-    if (this.isPerformanceMode) {
+    if (this.variantViewModeService.viewMode === ViewMode.PERFORMANCE) {
       dataArray = dataArray.concat(this.buildWaitingTimeData(data));
 
       this.svg
@@ -218,16 +246,20 @@ export class SubVariantComponent implements AfterViewInit {
   }
 
   private computeActivityColor(subvariantData: SubvariantVisualization) {
-    if (!this.isPerformanceMode) {
+    if (this.variantViewModeService.viewMode === ViewMode.STANDARD) {
       return this.colorMap.get(subvariantData.activity);
     }
     if (!subvariantData.isWaitingTimeNode) {
       let stat = this.variantPerformanceService.serviceTimeStatistic;
-      return this.serviceTimeColorMap(subvariantData.performanceStats[stat]);
+      return this.serviceTimeColorMap.getColor(
+        subvariantData.performanceStats[stat]
+      );
     }
 
     let stat = this.variantPerformanceService.waitingTimeStatistic;
-    return this.waitingTimeColorMap(subvariantData.performanceStats[stat]);
+    return this.waitingTimeColorMap.getColor(
+      subvariantData.performanceStats[stat]
+    );
   }
 
   private wrapInnerLabelText(
@@ -274,9 +306,15 @@ export class SubVariantComponent implements AfterViewInit {
     const gapLength = (20 + VARIANT_Constants.POINT_RADIUS) / intervalWidth;
 
     let xValues = new Set<number>();
-    let usedYIndices = new Set<number>();
     const starts = new Map<string, [number, number]>();
     const data = new Map<string, SubvariantVisualization>();
+    let activeYIndices = new Set<number>();
+
+    let [yIndicesFromMainVariant, _] = this.computeYIndicesFromVariantElement(
+      this.mainVariant,
+      new Map<string, number[]>(),
+      0
+    );
 
     let xIndex = 0;
     this._variant.subvariant.forEach((group) => {
@@ -288,8 +326,25 @@ export class SubVariantComponent implements AfterViewInit {
       );
 
       starting.forEach((subvariantNode) => {
-        let yIndex = this.getNextFreeYIndex(usedYIndices);
-        usedYIndices.add(yIndex);
+        let yIndicesForActivity = yIndicesFromMainVariant.get(
+          subvariantNode.activity
+        );
+        let yIndex = yIndicesForActivity.shift();
+        yIndicesFromMainVariant.set(
+          subvariantNode.activity,
+          yIndicesForActivity
+        );
+
+        // The tracking of active y-indices is necessary to ensure that we do not draw multiple overlapping subvariant nodes at the same y index.
+        // This is only necessary if there are two parallel activity instances with the same label (activity name).
+        // E.g. in the following subvariant, we have to ensure that the 'b' node and the second 'a' node are not drawn both at y-index 0, because they would overlap.
+        //   x--a--x  x--b--x
+        //  x-----a-----x
+        while (activeYIndices.has(yIndex)) {
+          yIndex++;
+        }
+
+        activeYIndices.add(yIndex);
 
         starts[subvariantNode.activity + subvariantNode.activity_instance] = [
           xIndex,
@@ -313,8 +368,7 @@ export class SubVariantComponent implements AfterViewInit {
         xValues.add(m.xEnd);
 
         data.set(subvariantNode.activity + subvariantNode.activity_instance, m);
-
-        usedYIndices.delete(startIndices[1]);
+        activeYIndices.delete(m.yIndex);
 
         starts.delete(
           (subvariantNode.activity, subvariantNode.activity_instance)
@@ -432,16 +486,55 @@ export class SubVariantComponent implements AfterViewInit {
     return yData;
   }
 
-  private getNextFreeYIndex(usedYIndices: Set<number>): number {
-    let index = 0;
-    while (true) {
-      if (usedYIndices.has(index)) {
-        index++;
-        continue;
+  private computeYIndicesFromVariantElement(
+    variantElement: VariantElement,
+    results: Map<string, number[]>,
+    currentYIndex: number
+  ): [Map<string, number[]>, number] {
+    if (variantElement instanceof LeafNode) {
+      for (let i = 0; i < variantElement.activity.length; i++) {
+        let activity = variantElement.activity[i];
+        if (results.has(activity)) {
+          let currentValues = results.get(activity);
+          currentValues.push(currentYIndex);
+          results.set(activity, currentValues);
+        } else {
+          results.set(activity, [currentYIndex]);
+        }
       }
 
-      return index;
+      return [results, currentYIndex];
     }
+
+    if (variantElement instanceof SequenceGroup) {
+      let maxIndices: number[] = [];
+      let maxIndex = 0;
+      for (let child of variantElement.elements) {
+        [results, maxIndex] = this.computeYIndicesFromVariantElement(
+          child,
+          results,
+          currentYIndex
+        );
+        maxIndices.push(maxIndex);
+      }
+
+      return [results, Math.max(...maxIndices)];
+    }
+
+    if (variantElement instanceof ParallelGroup) {
+      let maxYIndex = currentYIndex;
+      for (let child of variantElement.elements) {
+        [results, maxYIndex] = this.computeYIndicesFromVariantElement(
+          child,
+          results,
+          maxYIndex
+        );
+        maxYIndex++;
+      }
+
+      return [results, maxYIndex - 1];
+    }
+    return [results, 0];
   }
 
   public setExpanded(expanded: boolean): void {

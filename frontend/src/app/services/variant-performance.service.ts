@@ -16,6 +16,9 @@ import {
 } from '../objects/Variants/variant_element';
 import { BackendService } from './backendService/backend.service';
 import { setParent } from '../objects/Variants/infix_selection';
+import { ViewMode } from '../objects/ViewMode';
+import { VariantViewModeService } from './variantViewModeService/variant-view-mode.service';
+import { PerformanceColorMap } from '../objects/Performance/PerformanceColorMap';
 
 // https://observablehq.com/@philippkoytek/celonis-data-visualization-colors
 export const COLORS_CYAN = [
@@ -111,12 +114,11 @@ export class VariantPerformanceService {
     ]);
   }
 
-  public variantPerformanceMode = new BehaviorSubject<boolean>(false);
-
   constructor(
     private logService: LogService,
     private variantService: VariantService,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private variantViewModeService: VariantViewModeService
   ) {
     this.logService.loadedEventLog$.subscribe((log) => {
       if (log !== undefined) {
@@ -197,7 +199,7 @@ export class VariantPerformanceService {
     colors,
     performanceIndicator,
     value
-  ) {
+  ): PerformanceColorMap {
     let values = this.getAllValues(performanceIndicator, value).filter(
       (v) => v !== undefined
     );
@@ -217,7 +219,7 @@ export class VariantPerformanceService {
       .domain(thresholds)
       .range(colors);
 
-    return colorScale;
+    return new PerformanceColorMap(colorScale);
   }
 
   getAllValues(performanceIndicator, value): number[] {
@@ -296,7 +298,7 @@ export class VariantPerformanceService {
         setTimeout(() => {
           this.performanceInformationLoaded = true;
           this.performanceUpdateIsInProgress = false;
-          this.variantPerformanceMode.next(true);
+          this.variantViewModeService.viewMode = ViewMode.PERFORMANCE;
         }, 1000);
       })
     );

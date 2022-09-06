@@ -1,66 +1,74 @@
 <div class="query-container">
   <form [formGroup]="variantQueryInput" (ngSubmit)="onSubmit()" class="form">
-    <div class="form-container">
-      <div class="query-editor-backdrop" #queryEditorBackdrop>
-        <div class="query-editor-highlights" #highlightText></div>
+    <div class="form-flex">
+      <div class="form-container">
+        <div class="query-editor-backdrop" #queryEditorBackdrop>
+          <div class="query-editor-highlights" #highlightText></div>
+        </div>
+        <textarea
+          class="query-editor"
+          #queryEditor
+          [formControl]="variantQuery"
+          spellcheck="false"
+        >
+        </textarea>
       </div>
-      <textarea
-        class="query-editor"
-        #queryEditor
-        [formControl]="variantQuery"
-        spellcheck="false"
-      >
-      </textarea>
+
+      <div class="syntax-error-container">
+        <ul
+          *ngIf="
+            (variantQuery.invalid &&
+              (variantQuery.dirty || variantQuery.touched)) ||
+            backendErrorMessage
+          "
+          class="syntax-error"
+        >
+          <div *ngIf="variantQuery.errors?.['unknowActivities']">
+            <li
+              *ngFor="let unknownActivity of variantQuery.errors?.['unknowActivities']"
+            >
+              Unknown activity name {{ unknownActivity.name }} at position
+              {{ unknownActivity.index }}
+            </li>
+          </div>
+
+          <div *ngIf="variantQuery.errors?.['unkownOperator']">
+            <li
+              *ngFor="let unkownOperator of variantQuery.errors?.['unkownOperator']"
+            >
+              Unknown Operator {{ unkownOperator }}
+            </li>
+          </div>
+
+          <div *ngIf="variantQuery.errors?.['imbalanced']">
+            <li
+              *ngFor="let imbalancedItem of variantQuery.errors?.['imbalanced']"
+            >
+              Imbalanced {{ imbalancedItem.symbol }} at position
+              {{ imbalancedItem.index + 1 }}
+            </li>
+          </div>
+          <li *ngIf="variantQuery.errors?.['apostrophe']">
+            Imbalanced Apostrophes
+          </li>
+
+          <li *ngIf="variantQuery.errors?.['nonWhiteSpace']">
+            Input after Semicolon
+          </li>
+
+          <li *ngIf="variantQuery.errors?.['missingSemicolon']">
+            Missing Semicolon
+          </li>
+
+          <li
+            *ngIf="variantQuery.errors?.['backendError']"
+            class="backend-error"
+          >
+            <span> {{ variantQuery.errors?.['backendError'] }} </span>
+          </li>
+        </ul>
+      </div>
     </div>
-
-    <ul
-      *ngIf="
-        (variantQuery.invalid &&
-          (variantQuery.dirty || variantQuery.touched)) ||
-        backendErrorMessage
-      "
-      class="syntax-error"
-    >
-      <div *ngIf="variantQuery.errors?.['unknowActivities']">
-        <li
-          *ngFor="let unknownActivity of variantQuery.errors?.['unknowActivities']"
-        >
-          Unknown activity name {{ unknownActivity.name }} at position
-          {{ unknownActivity.index }}
-        </li>
-      </div>
-
-      <div *ngIf="variantQuery.errors?.['unkownOperator']">
-        <li
-          *ngFor="let unkownOperator of variantQuery.errors?.['unkownOperator']"
-        >
-          Unknown Operator {{ unkownOperator }}
-        </li>
-      </div>
-
-      <div *ngIf="variantQuery.errors?.['imbalanced']">
-        <li *ngFor="let imbalancedItem of variantQuery.errors?.['imbalanced']">
-          Imbalanced {{ imbalancedItem.symbol }} at position
-          {{ imbalancedItem.index + 1 }}
-        </li>
-      </div>
-      <li *ngIf="variantQuery.errors?.['apostrophe']">
-        Imbalanced Apostrophes
-      </li>
-
-      <li *ngIf="variantQuery.errors?.['nonWhiteSpace']">
-        Input after Semicolon
-      </li>
-
-      <li *ngIf="variantQuery.errors?.['missingSemicolon']">
-        Missing Semicolon
-      </li>
-
-      <li *ngIf="variantQuery.errors?.['backendError']" class="backend-error">
-        <span> {{ variantQuery.errors?.['backendError'] }} </span>
-      </li>
-    </ul>
-
     <div class="variant-query-tool-bar">
       <button
         type="submit"
@@ -71,12 +79,13 @@
       </button>
 
       <button
+        *ngIf="queryfilteractive"
         type="button"
         class="button"
         [disabled]="!active"
         (click)="resetQuery()"
       >
-        Clear Query Results
+        Remove active query
       </button>
     </div>
   </form>

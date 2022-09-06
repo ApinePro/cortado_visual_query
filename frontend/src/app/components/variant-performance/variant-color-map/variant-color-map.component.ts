@@ -1,4 +1,6 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 import {
   buildColorValues,
@@ -10,7 +12,7 @@ import {
   templateUrl: './variant-color-map.component.html',
   styleUrls: ['./variant-color-map.component.scss'],
 })
-export class VariantColorMapComponent {
+export class VariantColorMapComponent implements OnDestroy {
   availablePerformanceValues = [
     ['Mean', 'mean'],
     ['Minimum', 'min'],
@@ -21,19 +23,29 @@ export class VariantColorMapComponent {
   public serviceTimeValues: ColorMapValue[];
   public waitingTimeValues: ColorMapValue[];
 
+  private _destroy$ = new Subject();
+
   constructor(
     public variantPerformanceService: VariantPerformanceService,
     private changeDetectorRef: ChangeDetectorRef
   ) {
-    this.variantPerformanceService.serviceTimeColorMap.subscribe((colorMap) => {
-      this.updateServiceTimeValues(colorMap);
-      changeDetectorRef.markForCheck();
-    });
+    this.variantPerformanceService.serviceTimeColorMap
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        this.updateServiceTimeValues(colorMap);
+        changeDetectorRef.markForCheck();
+      });
 
-    this.variantPerformanceService.waitingTimeColorMap.subscribe((colorMap) => {
-      this.updateWaitingTimeValues(colorMap);
-      changeDetectorRef.markForCheck();
-    });
+    this.variantPerformanceService.waitingTimeColorMap
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        this.updateWaitingTimeValues(colorMap);
+        changeDetectorRef.markForCheck();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   private updateServiceTimeValues(colorMap) {

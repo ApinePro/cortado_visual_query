@@ -8,12 +8,15 @@ import {
   Renderer2,
   AfterViewInit,
   ChangeDetectorRef,
+  OnDestroy,
 } from '@angular/core';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { ColorMapService } from '../../services/colorMapService/color-map.service';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { VariantService } from 'src/app/services/variantService/variant.service';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-activity-overview',
@@ -22,7 +25,7 @@ import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-c
 })
 export class ActivityOverviewComponent
   extends LayoutChangeDirective
-  implements OnInit, AfterViewInit
+  implements OnInit, AfterViewInit, OnDestroy
 {
   constructor(
     private colorMapService: ColorMapService,
@@ -55,6 +58,8 @@ export class ActivityOverviewComponent
 
   resetAvailable: boolean = false;
 
+  private _destroy$ = new Subject();
+
   ngOnInit(): void {
     this.dropZoneConfig = new DropzoneConfig(
       '.xes',
@@ -66,46 +71,58 @@ export class ActivityOverviewComponent
     this.activityFields = [];
 
     // Handle change of loaded log
-    this.logService.loadedEventLog$.subscribe((eventLogName) => {
-      console.log(
-        'new loadedEventLog$ in activity-overview.component:' + eventLogName
-      );
+    this.logService.loadedEventLog$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((eventLogName) => {
+        console.log(
+          'new loadedEventLog$ in activity-overview.component:' + eventLogName
+        );
 
-      this.resetActivityFields();
-    });
+        this.resetActivityFields();
+      });
 
-    this.variantService.cachedChange$.subscribe((change) => {
-      this.resetAvailable = change;
-    });
+    this.variantService.cachedChange$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((change) => {
+        this.resetAvailable = change;
+      });
   }
 
   ngAfterViewInit(): void {
-    this.colorMapService.colorMap$.subscribe((colorMap) => {
-      this.activityColorMap = colorMap;
+    this.colorMapService.colorMap$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        this.activityColorMap = colorMap;
 
-      if (this.activityFields) {
-        for (let activityField of this.activityFields) {
-          activityField.color = this.activityColorMap.get(
-            activityField.activityName
-          );
+        if (this.activityFields) {
+          for (let activityField of this.activityFields) {
+            activityField.color = this.activityColorMap.get(
+              activityField.activityName
+            );
+          }
         }
-      }
-    });
+      });
 
     // Handle change of current activies in the loaded model
-    this.processTreeService.activitiesInCurrentTree$.subscribe(
-      (activitiesInTree) => {
+    this.processTreeService.activitiesInCurrentTree$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((activitiesInTree) => {
         for (let field of this.activityFields) {
           field.inModel = activitiesInTree.has(field.activityName);
         }
-      }
-    );
+      });
 
-    this.variantService.variants$.subscribe(() => {
-      if (this.activityColorMap) {
-        this.resetActivityFields();
-      }
-    });
+    this.variantService.variants$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe(() => {
+        if (this.activityColorMap) {
+          this.resetActivityFields();
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   resetActivityFields() {
@@ -174,7 +191,7 @@ export class ActivityOverviewComponent
 
   resetActivityColors(): void {
     this.colorMapService.createColorMap(
-      Object.keys(this.logService.activitiesInEventLog)
+      Array.from(this.activityColorMap.keys())
     );
   }
 
