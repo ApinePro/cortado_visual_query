@@ -186,7 +186,6 @@ export class VariantService {
       compute_delete_activity_variants(activityName, this.variants);
 
     this.logService.deleteActivityInEventLog(activityName);
-    this.colorMapService.deleteActivityInColorMap(activityName);
 
     this.propagateActivityDeletion(
       activityName,
@@ -334,10 +333,6 @@ export class VariantService {
         this.logService.performanceInfoAvailable = true;
         this.logService.timeGranularity = res['timeGranularity'];
         this.logService.logGranularity = res['timeGranularity'];
-
-        this.colorMapService.createColorMap(
-          Object.keys(this.logService.activitiesInEventLog)
-        );
 
         this.cachedChange = false;
 

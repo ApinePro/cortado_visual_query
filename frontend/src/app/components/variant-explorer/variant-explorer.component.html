@@ -510,17 +510,22 @@
                     *ngFor="let filter of filterMap | keyvalue"
                     class="badge-container"
                   >
-                    <span
-                      class="badge rounded-pill bg-danger badge-close-position cursor-pointer"
+                    <button
+                      class="btn badge-button"
+                      (click)="removeFilter(filter.key)"
                     >
-                      <button
-                        class="btn badge-button"
-                        (click)="removeFilter(filter.key)"
-                      >
-                        <i class="bi bi-x-lg close-icon"></i>
-                      </button>
-                    </span>
-                    <span class="badge text-bg-primary ms-1">
+                      <span
+                        class="badge rounded-pill bg-danger badge-close-position cursor-pointer"
+                        ><i class="bi bi-x-lg close-icon"></i>
+                      </span>
+                    </button>
+                    <span
+                      class="badge text-bg-primary ms-1"
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="bottom"
+                      data-bs-html="true"
+                      [title]="filter.value.tooltip"
+                    >
                       <i class="bi bi-funnel-fill"> </i> {{ filter.key }}
                     </span>
                   </div>

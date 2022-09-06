@@ -238,6 +238,14 @@ th {
   color :rgb(65, 141, 213);
 }
 
+.query-operator{
+  color :rgb(65, 141, 213);
+}
+
+.number-operator{
+  color :rgb(238, 205, 21);
+}
+
 .syntax-operator{
   color :rgb(255, 255, 255);
 }
@@ -396,6 +404,11 @@ th {
   border: 1px dashed lightgrey;
 }
 
+.selected-polygon {
+  stroke: whitesmoke !important;
+  stroke-width: 3 !important;
+  stroke-dasharray: 2;
+}
 
 
 .selected-bpmn-operator{

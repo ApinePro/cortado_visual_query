@@ -749,12 +749,7 @@ export class WaitingTimeNode extends VariantElement {
     if (this.width) {
       return this.width;
     }
-    if (this.expanded) {
-      this.width = VARIANT_Constants.WAITING_WIDTH_EXPANDED;
-    } else {
-      this.width = VARIANT_Constants.WAITING_WIDTH;
-    }
-    this.width += VARIANT_Constants.MARGIN_X;
+    this.width = VARIANT_Constants.WAITING_WIDTH + VARIANT_Constants.MARGIN_X;
 
     return this.width;
   }
