@@ -25,7 +25,9 @@ async def change_activity_name_in_log(d: ChangeActivityName):
 
     cache_current_data()
 
-    update_map = rename_activities(d.mergeList, d.renameList, d.activityName, d.newActivityName)
+    update_map = rename_activities(
+        d.mergeList, d.renameList, d.activityName, d.newActivityName
+    )
 
     # TODO Return an Error if needed
     return update_map

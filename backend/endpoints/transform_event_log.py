@@ -187,21 +187,26 @@ def rename_merge_activities_in_graph(
     return graph
 
 
-def rename_activities_in_trace(trace, oldActivityName, newActivityName, instanceDict = None):
+def rename_activities_in_trace(
+    trace, oldActivityName, newActivityName, instanceDict=None
+):
 
-
-    if not instanceDict: 
+    if not instanceDict:
         instanceDict = __get_instance_dict(trace, oldActivityName, newActivityName)
 
     for event in trace:
-        
+
         if event[DEFAULT_NAME_KEY] == newActivityName:
-            event[ACTIVITY_INSTANCE_KEY] = instanceDict[event[DEFAULT_NAME_KEY], event[ACTIVITY_INSTANCE_KEY]]
-        
+            event[ACTIVITY_INSTANCE_KEY] = instanceDict[
+                event[DEFAULT_NAME_KEY], event[ACTIVITY_INSTANCE_KEY]
+            ]
+
         if event[DEFAULT_NAME_KEY] == oldActivityName:
-            event[ACTIVITY_INSTANCE_KEY] = instanceDict[event[DEFAULT_NAME_KEY], event[ACTIVITY_INSTANCE_KEY]]
+            event[ACTIVITY_INSTANCE_KEY] = instanceDict[
+                event[DEFAULT_NAME_KEY], event[ACTIVITY_INSTANCE_KEY]
+            ]
             event[DEFAULT_NAME_KEY] = newActivityName
-            
+
     return trace
 
 
@@ -238,47 +243,55 @@ def __get_instance_dict(trace, activityName, newActivityName):
     newInstance = 0
 
     for e in trace:
-        
-        if e['concept:name'] == activityName: 
+
+        if e["concept:name"] == activityName:
             instanceDict[(activityName, actInstance)] = nInstances
             actInstance += 1
             nInstances += 1
 
-        if e['concept:name'] == newActivityName: 
+        if e["concept:name"] == newActivityName:
             instanceDict[(newActivityName, newInstance)] = nInstances
             newInstance += 1
             nInstances += 1
-            
+
     return instanceDict
 
+
 def rename_activites_in_subvariant(subvariants, activityName, newActivityName):
-    
+
     new_subvariants = defaultdict(list)
 
     for sv, ts in subvariants.items():
 
         new_variant = []
-        
+
         instanceDict = __get_instance_dict(ts[0], activityName, newActivityName)
-        
+
         for node in sv:
 
-            node : Tuple[SubvariantNode]
+            node: Tuple[SubvariantNode]
 
-            for svNode in node: 
-                
+            for svNode in node:
+
                 if svNode.activity == newActivityName:
-                    svNode.activity_instance = instanceDict[(svNode.activity, svNode.activity_instance)] 
-                
+                    svNode.activity_instance = instanceDict[
+                        (svNode.activity, svNode.activity_instance)
+                    ]
+
                 if svNode.activity == activityName:
-                    svNode.activity_instance = instanceDict[(svNode.activity, svNode.activity_instance)] 
+                    svNode.activity_instance = instanceDict[
+                        (svNode.activity, svNode.activity_instance)
+                    ]
                     svNode.activity = newActivityName
-                
+
             new_variant.append(node)
 
-        new_subvariants[tuple(new_variant)] +=  [
-               rename_activities_in_trace(trace, activityName, newActivityName, instanceDict)  for trace in ts
-            ]
+        new_subvariants[tuple(new_variant)] += [
+            rename_activities_in_trace(
+                trace, activityName, newActivityName, instanceDict
+            )
+            for trace in ts
+        ]
 
     return new_subvariants
 
@@ -336,9 +349,9 @@ def handle_rename_merge_variants(
 
         for bid in ls:
             (_, traces, sv) = cache.variants[bid]
-            
+
             new_sv = rename_activites_in_subvariant(sv, activityName, newActivityName)
-            
+
             renamed_traces += [
                 rename_activities_in_trace(trace, activityName, newActivityName)
                 for trace in traces
@@ -370,11 +383,11 @@ def handle_rename_single_variant(
         renamed_variant.graph = rename_merge_activities_in_graph(
             variant.graph, activityName, newActivityName
         )
-        
+
         renamed_subvariants = rename_activites_in_subvariant(
             subvariants, activityName, newActivityName
         )
-        
+
         renamed_traces = [
             rename_activities_in_trace(trace, activityName, newActivityName)
             for trace in traces
@@ -488,10 +501,10 @@ def remove_activitiy_from_subvariant(subvariants, activityName):
         new_variant = []
 
         for node in sv:
-            node : Tuple[SubvariantNode] 
-            
-            tup = [svNode for svNode in node if not svNode.activity == activityName] 
-            
+            node: Tuple[SubvariantNode]
+
+            tup = [svNode for svNode in node if not svNode.activity == activityName]
+
             if len(tup) > 0:
                 new_variant.append(tuple(tup))
 
@@ -629,11 +642,7 @@ def handle_fallthrough(activityName, fallthrough, new_variants, update_res_varia
                     break
 
             if foundMatch:
-                new_variants[n_bid] = (
-                    n_variant,
-                    n_traces + c_traces,
-                    None
-                )
+                new_variants[n_bid] = (n_variant, n_traces + c_traces, None)
 
             else:
                 newVariants.append((cache.parameters["nBids"] + 1, c_variant, c_traces))
