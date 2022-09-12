@@ -20,14 +20,11 @@ class InputPerformanceSubvariant(BaseModel):
 async def get_subvariants(data: InputPerformanceSubvariant):
     
     sub_variants = cache.variants[data.bid][2]
-    #print('Cache Keys', len(sub_variants.keys()))
-    
     result = []
 
     total_sub_traces = sum(len(sub_variants[v]) for v in sub_variants)
 
     for subvariant, traces in sub_variants.items():
-        print(traces)
         subvariant_performance = calculate_subvariant_performance(
             subvariant, traces, data.time_granularity
         )
