@@ -483,8 +483,6 @@ def apply_filter_copy(trace, activityName):
 def remove_activitiy_from_subvariant(subvariants, activityName):
 
     new_subvariants = defaultdict(list)
-
-    print(subvariants)
     for sv, ts in subvariants.items():
 
         new_variant = []
