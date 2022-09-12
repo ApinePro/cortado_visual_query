@@ -180,8 +180,8 @@ export class VariantMinerComponent
       directive: VariantDrawerDirective
     ) => {}
   >([
-    ['Use infix as filter', this.filterInfix],
-    ['Export Pattern as SVG', this.exportSVG],
+    ['Use infix to filter concurrency variants', this.filterInfix],
+    ['Export pattern as SVG', this.exportSVG],
   ]);
 
   currentConfig: MiningConfig = null;
