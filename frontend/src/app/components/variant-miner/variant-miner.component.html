@@ -363,23 +363,46 @@
                     aria-labelledby="dropdownMenuButton1"
                   >
                     <div class="filter-option-container">
-                      <span>Align:</span>
                       <div class="form-check form-switch" style="width: 250px">
-                        <label
-                          class="form-check-label"
-                          for="flexSwitchCheckChecked"
-                          >Only Fitting Patterns</label
+                        <div
+                          class="btn-group-sm"
+                          role="group"
+                          aria-label="Basic radio toggle button group"
                         >
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          id="flexSwitchCheckChecked"
-                          (change)="
-                            showOnlyClosed = !showOnlyClosed;
-                            handleFilterChange($event)
-                          "
-                          [checked]="showOnlyClosed"
-                        />
+                          <input
+                            type="checkbox"
+                            class="btn-check"
+                            name="btnradio"
+                            id="btnradio1"
+                            autocomplete="off"
+                            checked
+                          />
+                          <label class="btn btn-outline-primary" for="btnradio1"
+                            >Fitting</label
+                          >
+
+                          <input
+                            type="checkbox"
+                            class="btn-check"
+                            name="btnradio"
+                            id="btnradio2"
+                            autocomplete="off"
+                          />
+                          <label class="btn btn-outline-primary" for="btnradio2"
+                            >Not Fitting</label
+                          >
+
+                          <input
+                            type="checkbox"
+                            class="btn-check"
+                            name="btnradio"
+                            id="btnradio3"
+                            autocomplete="off"
+                          />
+                          <label class="btn btn-outline-primary" for="btnradio3"
+                            >Unknown</label
+                          >
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -467,6 +490,7 @@
             <th
               class="text-center border-start border-lightgrey"
               style="padding-right: 10px; padding-left: 10px"
+              colspan="2"
             >
               <div class="header-text-container">
                 <div class="dropdown filter-button">
@@ -521,7 +545,7 @@
             <th
               style="padding-right: 2.5px; padding-left: 2.5px"
               class="border-lightgrey border-start text-center"
-              rowspan="2"
+              colspan="2"
             >
               <div class="header-text-container">
                 <div class="dropdown filter-button">
@@ -540,105 +564,36 @@
                     class="dropdown-menu filter-toggle-drop-down"
                     aria-labelledby="dropdownMenuButton1"
                   >
-                    <div class="form-check form-switch" style="width: 270px">
-                      <label
-                        class="form-check-label"
-                        for="flexSwitchCheckChecked"
-                        >Only Maximal Patterns</label
-                      >
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="flexSwitchCheckChecked"
-                        (change)="
-                          showOnlyMaximal = !showOnlyMaximal;
-                          handleFilterChange($event)
-                        "
-                        [checked]="showOnlyMaximal"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="header-text"
-                  (click)="sort(VariantSortKey.maximal)"
-                  [ngClass]="{
-                    'selected-header-text':
-                      currentSortKey === VariantSortKey.maximal
-                  }"
-                >
-                  Max
-                </div>
-              </div>
-              <i
-                class="bi"
-                [ngClass]="{
-                  'bi-sort-up': ascending,
-                  'bi-sort-down': !ascending,
-                  invisible: !(currentSortKey === VariantSortKey.maximal)
-                }"
-              ></i>
-            </th>
-            <th
-              style="padding-right: 2.5px; padding-left: 2.5px"
-              class="border-lightgrey border-start text-center"
-              rowspan="2"
-            >
-              <div class="header-text-container">
-                <div class="dropdown filter-button">
-                  <button
-                    class="filter-button"
-                    type="button"
-                    id="dropdownMenuButton1"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                    data-bs-reference="parent"
-                    data-bs-auto-close="outside"
-                  >
-                    <i class="bi bi-filter"></i>
-                  </button>
-                  <div
-                    class="dropdown-menu filter-toggle-drop-down"
-                    aria-labelledby="dropdownMenuButton1"
-                  >
-                    <div class="form-check form-switch" style="width: 250px">
-                      <label
-                        class="form-check-label"
-                        for="flexSwitchCheckChecked"
-                        >Only Closed Patterns</label
-                      >
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="flexSwitchCheckChecked"
-                        (change)="
-                          showOnlyClosed = !showOnlyClosed;
-                          handleFilterChange($event)
-                        "
-                        [checked]="showOnlyClosed"
-                      />
+                    <div class="btn-group-sm" role="group" aria-label="Basic checkbox toggle button group">
+                      <input type="checkbox" class="btn-check" id="btncheck1" autocomplete="off">
+                      <label class="btn btn-outline-primary" for="btncheck1">Not Closed</label>
+
+                      <input type="checkbox" class="btn-check" id="btncheck2" autocomplete="off">
+                      <label class="btn btn-outline-primary" for="btncheck2">Closed</label>
+
+                      <input type="checkbox" class="btn-check" id="btncheck3" autocomplete="off">
+                      <label class="btn btn-outline-primary" for="btncheck3">Maximal</label>
                     </div>
                   </div>
                 </div>
                 <div
                   class="header-text"
                   (click)="sort(VariantSortKey.closed)"
-                  [ngClass]="{
-                    'selected-header-text':
-                      currentSortKey === VariantSortKey.closed
-                  }"
                 >
-                  Closed
+                Type
                 </div>
+                <i
+                  [ngClass]="{
+                    'bi-sort-numeric-down': ascending,
+                    'bi-sort-numeric-down-alt': !ascending,
+                    invisible: !(
+                      currentSortKey ===
+                        VariantSortKey.closed ||
+                      currentSortKey === VariantSortKey.maximal
+                    )
+                  }"
+                ></i>
               </div>
-              <i
-                class="bi"
-                [ngClass]="{
-                  'bi-sort-up': ascending,
-                  'bi-sort-down': !ascending,
-                  invisible: !(currentSortKey === VariantSortKey.closed)
-                }"
-              ></i>
             </th>
             <th
               class="text-start border-lightgrey border-start"
@@ -650,7 +605,7 @@
                   <button
                     class="filter-button"
                     type="button"
-                    id="dropdownMenuButton1"
+                    id="dropdownMenuButton2"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                     data-bs-reference="parent"
@@ -660,19 +615,33 @@
                   </button>
                   <div
                     class="dropdown-menu filter-toggle-drop-down"
-                    aria-labelledby="dropdownMenuButton1"
-                  ></div>
+                    aria-labelledby="dropdownMenuButton2"
+                  >
+                    <div class="btn-group-sm" role="group" aria-label="Basic checkbox toggle button group">
+                      <input type="checkbox" class="btn-check" id="btncheck7" autocomplete="off">
+                      <label class="btn btn-outline-primary" for="btncheck7">Full Variant</label>
+
+                      <input type="checkbox" class="btn-check" id="btncheck4" autocomplete="off">
+                      <label class="btn btn-outline-primary" for="btncheck4">Proper Infix</label>
+
+                      <input type="checkbox" class="btn-check" id="btncheck5" autocomplete="off">
+                      <label class="btn btn-outline-primary" for="btncheck5">Suffix</label>
+
+                      <input type="checkbox" class="btn-check" id="btncheck6" autocomplete="off">
+                      <label class="btn btn-outline-primary" for="btncheck6">Prefix</label>
+                    </div>
+                  </div>
                 </div>
                 <div class="header-text">Variant</div>
+                <i
+                  class="bi"
+                  [ngClass]="{
+                    'bi-sort-up': ascending,
+                    'bi-sort-down': !ascending,
+                    invisible: true
+                  }"
+                ></i>
               </div>
-              <i
-                class="bi"
-                [ngClass]="{
-                  'bi-sort-up': ascending,
-                  'bi-sort-down': !ascending,
-                  invisible: true
-                }"
-              ></i>
             </th>
           </tr>
           <tr class="sticky-header-row" style="top: 33px">
@@ -690,6 +659,48 @@
                 Child-Parent
               </div>
             </th>
+            <th
+            class="confidence-names text-center border-lightgrey border-start"
+          >
+            <div
+              (click)="sort(VariantSortKey.subpattern_confidence)"
+              class="header-text"
+              [ngClass]="{
+                'selected-header-text':
+                  currentSortKey === VariantSortKey.subpattern_confidence
+              }"
+            >
+              Subpattern
+            </div>
+            </th>
+            <th
+            class="confidence-names text-center border-lightgrey border-start"
+          >
+            <div
+              (click)="sort(VariantSortKey.closed)"
+              class="header-text"
+              [ngClass]="{
+                'selected-header-text':
+                  currentSortKey === VariantSortKey.closed
+              }"
+            >
+              Closed
+            </div>
+          </th>
+          <th
+          class="confidence-names text-center border-lightgrey border-start"
+        >
+          <div
+            (click)="sort(VariantSortKey.maximal)"
+            class="header-text"
+            [ngClass]="{
+              'selected-header-text':
+                currentSortKey === VariantSortKey.maximal
+            }"
+          >
+            Maximal
+          </div>
+        </th>
             <!---
             <th class="confidence-names text-center">
               <div

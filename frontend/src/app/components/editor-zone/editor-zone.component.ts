@@ -44,7 +44,7 @@ declare var monaco: typeof Monaco;
   ],
 })
 export class EditorZoneComponent
-  implements OnInit, AfterViewInit, OnDestroy, ControlValueAccessor, Validator
+  implements AfterViewInit, OnDestroy, ControlValueAccessor, Validator
 {
   constructor(private monacoEditorService: EditorService) {}
 
@@ -86,10 +86,6 @@ export class EditorZoneComponent
 
   registerOnTouched(fn: any): void {
     this._onTouched = fn;
-  }
-
-  ngOnInit(): void {
-    this.monacoEditorService.load();
   }
 
   protected _options;

@@ -749,7 +749,7 @@ export class VariantMinerComponent
 
     const resubscribe = this.conformanceCheckingService.calculateConformance(
       pattern.index.toLocaleString(),
-      InfixType.PROPER_INFIX,
+      pattern.infixType,
       this.processTreeService.currentDisplayedProcessTree,
       pattern.variant.serialize(this.currentConfig.loop),
       timeout,

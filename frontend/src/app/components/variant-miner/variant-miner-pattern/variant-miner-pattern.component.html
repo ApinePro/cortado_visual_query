@@ -63,6 +63,11 @@
     {{ pattern.child_parent_confidence }}
   </div>
 </td>
+<td class="border-start border-lightgrey">
+  <div class="text-center">
+    {{ pattern.child_parent_confidence }}
+  </div>
+</td>
 <!--
 <td class="center-element">
   <div class="text-center">
@@ -77,12 +82,12 @@
 -->
 <td class="border-start border-lightgrey">
   <div class="text-center">
-    <i class="bi bi-check2" *ngIf="pattern.maximal"></i>
+    <i class="bi bi-check2" *ngIf="pattern.closed"></i>
   </div>
 </td>
 <td class="border-start border-lightgrey">
   <div class="text-center">
-    <i class="bi bi-check2" *ngIf="pattern.closed"></i>
+    <i class="bi bi-check2" *ngIf="pattern.maximal"></i>
   </div>
 </td>
 

@@ -173,7 +173,7 @@ export class HeaderBarComponent {
       isClosable: true,
       reorderEnabled: true,
       header: {
-        show: false,
+        show: Side.left,
       },
       componentType: componentID,
     };

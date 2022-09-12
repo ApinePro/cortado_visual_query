@@ -6,18 +6,20 @@ import {
   HostListener,
   Inject,
   OnDestroy,
+  OnInit,
   ViewChild,
 } from '@angular/core';
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
 import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 import * as d3 from 'd3';
+import { EditorService } from './services/editorService/editor.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements AfterViewInit, OnDestroy {
+export class AppComponent implements AfterViewInit, OnDestroy, OnInit {
   title = 'interactive-process-mining-angular-app';
 
   @ViewChild('goldenLayoutHost')
@@ -26,8 +28,14 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   constructor(
     private goldenLayoutComponentService: GoldenLayoutComponentService,
+    private monacoEditorService : EditorService,
     @Inject(APP_INITIALIZER) public appInit: ApplicationInitStatus
   ) {}
+
+
+  ngOnInit(): void {
+    this.monacoEditorService.load();
+  }
 
   _sideBarWidth: number = 30;
 
