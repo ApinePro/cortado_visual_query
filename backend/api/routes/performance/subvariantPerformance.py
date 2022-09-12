@@ -19,11 +19,7 @@ class InputPerformanceSubvariant(BaseModel):
 @router.post("/subvariants")
 async def get_subvariants(data: InputPerformanceSubvariant):
     
-    
-    variant_traces = cache.variants[data.bid][1]
-    sub_variants = get_detailed_variants(variant_traces, data.time_granularity)
-    
-    #sub_variants = cache.variants[data.bid][2]
+    sub_variants = cache.variants[data.bid][2]
     #print('Cache Keys', len(sub_variants.keys()))
     
     result = []
@@ -31,6 +27,7 @@ async def get_subvariants(data: InputPerformanceSubvariant):
     total_sub_traces = sum(len(sub_variants[v]) for v in sub_variants)
 
     for subvariant, traces in sub_variants.items():
+        print(traces)
         subvariant_performance = calculate_subvariant_performance(
             subvariant, traces, data.time_granularity
         )
