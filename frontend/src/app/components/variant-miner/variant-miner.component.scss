@@ -23,6 +23,36 @@
   flex-wrap: wrap;
 }
 
+.close-icon{
+  color : white
+}
+
+.badge-position{
+  position: relative;
+  left: -25%;
+  top: -30%;
+  transform: scale(0.6);
+  display: inline;
+}
+
+.badge-close{
+  font-size: 8px;
+}
+
+.badge-close-position:hover{
+  filter: brightness(150%);
+}
+
+.badge-button{
+  padding: 0;
+  font-size: unset;
+  display: contents;
+}
+
+.badge-container{
+  margin-left : -20px;
+}
+
 ::ng-deep {
 
 
@@ -130,10 +160,11 @@
 
 .filter-button{
   cursor: pointer;
-  display: inline-block;
+  display: inline-flex;
   font-weight: 400;
   line-height: 1.5;
   color: whitesmoke;
+  margin-right: -12px;
   text-align: center;
   text-decoration: none;
   vertical-align: middle;
@@ -142,8 +173,14 @@
   user-select: none;
   background-color: transparent;
   font-size: 1rem;
-  border : none;
+  border: none;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  color: whitesmoke;
+  background-color: black;
+  font-size: 12px;
+  padding: 1px 4px 3px 4px;
+  box-shadow: none;
+  border-radius: 0px 0px 5px 0px;
 }
 
 
@@ -161,6 +198,12 @@
   padding: 2px 4px 2px 3px;
   box-shadow: none;
   border-radius: 0px 5px 0px 0px;
+}
+
+.filter-button-container{
+  position: absolute;
+  top: -4px;
+  z-index: 15;
 }
 
 .export-button-container{

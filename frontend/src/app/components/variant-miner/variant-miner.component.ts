@@ -1,3 +1,4 @@
+
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import { VariantFilterService } from './../../services/variantFilterService/variant-filter.service';
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
@@ -123,6 +124,12 @@ export class VariantMinerComponent
   contextMenu_variant: VariantElement;
   contextMenu_directive: VariantDrawerDirective;
 
+  kFilter : IntervalFilter = new IntervalFilter('k', 2, 2, 1,  3, 15);
+  supFilter : IntervalFilter = new IntervalFilter('support', 100, 200, 1, 0, 1000);
+  indexFilter : IntervalFilter = new IntervalFilter('index', 1, 2, 1,  0, 15);
+  cpConfFilter : IntervalFilter = new IntervalFilter('child_parent_confidence', 0.1, 0.2, 0.01, 0, 1);
+  supConfFilter : IntervalFilter  = new IntervalFilter('subpattern_confidence',  0.1, 0.2, 0.01, 0, 1);
+
   openContextCallback = contextMenuCallback.bind(this);
 
   exportSVG = function () {
@@ -188,6 +195,7 @@ export class VariantMinerComponent
 
   showControls: boolean = true;
   relSup = 25;
+
   supportSliderOptions: Options = {
     floor: 0,
     ceil: 100,
@@ -200,74 +208,29 @@ export class VariantMinerComponent
     },
   };
 
-  kLow: number = 0;
-  kHigh: number = 5;
-  kOptions: Options = {
-    floor: 0,
-    ceil: 15,
-    draggableRange: true,
-    showTicksValues: true,
-    tickStep: 1,
-    tickValueStep: 2,
-  };
+  closedMaximalChecks : Choice[] = [
+    new Choice('Maximal', (p:SubvariantPattern) => {return p.maximal}),
+    new Choice('Closed', (p:SubvariantPattern) => {return p.closed}),
+    new Choice('Valid', (p:SubvariantPattern) => {return true}),
+  ]
+  selClosedMaximal : string = 'Valid';
 
-  supLow: number = 0;
-  supHigh: number = 500;
-  supOptions: Options = {
-    floor: 0,
-    ceil: 1000,
-    draggableRange: true,
-    showTicksValues: true,
-    tickStep: 100,
-    tickValueStep: 200,
-  };
+  infixChecks : Choice[] = [
+    new Choice('Proper Infix', (p:SubvariantPattern) => {return p.infixType === InfixType.PROPER_INFIX}),
+    new Choice('Suffix', (p:SubvariantPattern) => {return p.infixType === InfixType.POSTFIX}),
+    new Choice('Prefix', (p:SubvariantPattern) => {return p.infixType === InfixType.PREFIX}),
+    new Choice('Variant', (p:SubvariantPattern) => {return p.infixType === InfixType.NOT_AN_INFIX}),
+  ]
 
-  indexLow: number = 0;
-  indexHigh: number = 5;
-  indexOptions: Options = {
-    floor: 0,
-    ceil: 15,
-    draggableRange: true,
-    showTicksValues: true,
-    tickStep: 1,
-    tickValueStep: 2,
-  };
+  alignChecks : Choice[] = [
+    new Choice('Fitting', (p:SubvariantPattern) => {return p.deviation}),
+    new Choice('Not Fitting', (p:SubvariantPattern) => {return p.deviation}),
+    new Choice('Unknown', (p:SubvariantPattern) => {return p.deviation}),
+  ]
 
-  crossConfLow: number = 0;
-  crossConfHigh: number = 1;
-  crossConfOptions: Options = {
-    floor: 0,
-    ceil: 1,
-    draggableRange: true,
-    showTicksValues: true,
-    tickStep: 0.1,
-    tickValueStep: 0.2,
-    step: 0.01,
-  };
-
-  spConfLow: number = 0;
-  spConfHigh: number = 1;
-  spConfOptions: Options = {
-    floor: 0,
-    ceil: 1,
-    draggableRange: true,
-    showTicksValues: true,
-    tickStep: 0.1,
-    tickValueStep: 0.2,
-    step: 0.01,
-  };
-
-  cpConfLow: number = 0;
-  cpConfHigh: number = 1;
-  cpConfOptions: Options = {
-    floor: 0,
-    ceil: 1,
-    draggableRange: true,
-    showTicksValues: true,
-    tickStep: 0.1,
-    tickValueStep: 0.2,
-    step: 0.01,
-  };
+  infixFilterList = this.infixChecks.map(c => c)
+  alignmentFilterList = this.alignChecks.map(c => c)
+  closedMaxFilter : (p:SubvariantPattern) => boolean = (p : SubvariantPattern) => {return true};
 
   variantMinerOutOfFocus: boolean = false;
 
@@ -428,18 +391,19 @@ export class VariantMinerComponent
 
   handleFilterChange(event) {
     this.displayedVariantsPatterns = this.variantPatterns.filter((vp) => {
-      if (
-        vp.k >= this.kLow &&
-        vp.k <= this.kHigh &&
-        ((this.showOnlyMaximal && vp.maximal) || !this.showOnlyMaximal) &&
-        ((this.showOnlyClosed && vp.closed) || !this.showOnlyClosed) &&
-        vp.support >= this.supLow &&
-        vp.support <= this.supHigh &&
-        vp.child_parent_confidence >= this.cpConfLow &&
-        vp.child_parent_confidence <= this.cpConfHigh
-      ) {
-        return true;
-      }
+      let res = true;
+      res = res && this.kFilter.apply(vp);
+      res = res && this.supFilter.apply(vp);
+      res = res && this.indexFilter.apply(vp);
+      res = res && this.cpConfFilter.apply(vp);
+      res = res && this.supConfFilter.apply(vp);
+
+      res = res && this.closedMaxFilter(vp);
+
+      //res = res && this.alignmentFilterList.map(f => f.filterFnc(vp)).some(v => v)
+      res = res && this.infixFilterList.map(f => f.filterFnc(vp)).some(v => v)
+
+      return res
     });
 
     this.sortDisplayedVariants(this.currentSortKey);
@@ -451,7 +415,6 @@ export class VariantMinerComponent
     });
 
     this.logService.loadedEventLog$.subscribe((log) => {
-      console.log('Log Changed', log);
       this.variantPatterns = [];
       this.displayedVariantsPatterns = [];
     });
@@ -521,81 +484,20 @@ export class VariantMinerComponent
         });
 
         this.maxSup = Math.max(...this.variantPatterns.map((v) => v.support));
+        this.minsup = Math.min(...this.variantPatterns.map((v) => v.support));
         this.maxK = Math.max(...this.variantPatterns.map((v) => v.k));
         this.nClosed = this.variantPatterns.filter((v) => v.closed).length;
         this.nValid = this.variantPatterns.filter((v) => v.valid).length;
         this.nMaximal = this.variantPatterns.filter((v) => v.maximal).length;
 
-        this.variantPatterns.map((v) => v.support);
-        this.showOnlyMaximal = false;
-        this.showOnlyClosed = false;
+        this.set_interval_filter_configs()
         this.displayedVariantsPatterns = this.variantPatterns;
-
-        let maxK: number = 0;
-        let maxSup: number = 0;
-
-        this.variantPatterns.forEach((p, i) => {
-          if (p.k > maxK) {
-            maxK = p.k;
-          }
-
-          if (p.support > maxSup) {
-            maxSup = p.support;
-          }
-        });
-
-        this.kOptions = {
-          floor: 3,
-          ceil: maxK,
-          draggableRange: true,
-          showTicksValues: true,
-          tickStep: 2,
-          tickValueStep: 2,
-        };
-
-        this.kLow = 3;
-        this.kHigh = maxK;
-
-        this.supLow = this.minsup;
-        this.supHigh = maxSup;
-        this.supOptions = {
-          floor: this.minsup,
-          ceil: maxSup,
-          draggableRange: true,
-          showTicksValues: true,
-          tickStep: 100,
-          tickValueStep: 200,
-        };
-
-        this.indexLow = 0;
-        this.indexHigh = this.variantPatterns.length;
-        this.indexOptions = {
-          floor: 0,
-          ceil: this.variantPatterns.length,
-          draggableRange: true,
-          showTicksValues: true,
-          tickStep: 10,
-          tickValueStep: 100,
-        };
-
-        this.cpConfLow = 0;
-        this.cpConfHigh = 1;
-        this.cpConfOptions = {
-          floor: 0,
-          ceil: 1,
-          draggableRange: true,
-          showTicksValues: true,
-          tickStep: 0.1,
-          tickValueStep: 0.2,
-          step: 0.01,
-        };
       } else {
-        console.log('No Results');
         this.variantPatterns = [];
         this.displayedVariantsPatterns = this.variantPatterns;
 
-        this.maxSup = null;
-        this.maxK = null;
+        this.maxSup = 0;
+        this.maxK = 0;
         this.nClosed = 0;
         this.nValid = 0;
         this.nMaximal = 0;
@@ -636,6 +538,19 @@ export class VariantMinerComponent
         }
       }
     );
+  }
+
+
+  private set_interval_filter_configs(){
+    this.kFilter.set_config(3, this.maxK);
+    this.supFilter.set_config(this.minsup, this.maxSup);
+    this.indexFilter.set_config(0, this.variantPatterns.length);
+    this.cpConfFilter.set_config(0,1);
+    this.supConfFilter.set_config(0,1);
+
+    this.resetClosedMaximalFilter();
+    this.resetAlignFilter();
+    this.resetInfixFilter();
   }
 
   exportVariantMiner() {
@@ -739,6 +654,41 @@ export class VariantMinerComponent
     this.conformanceCheckedTree = this.processTree;
   }
 
+
+  onCheckRadioChange(desc, func){
+    this.selClosedMaximal = desc;
+    this.closedMaxFilter = func;
+  }
+
+  resetClosedMaximalFilter(){
+    this.closedMaximalChecks= [
+      new Choice('Maximal', (p:SubvariantPattern) => {return p.maximal}),
+      new Choice('Closed', (p:SubvariantPattern) => {return p.closed}),
+      new Choice('Valid', (p:SubvariantPattern) => {return true}),
+    ]
+    this.selClosedMaximal= 'Valid';
+    this.closedMaxFilter = (p:SubvariantPattern) => {return true};
+  }
+
+  resetAlignFilter(){
+    this.alignmentFilterList  = this.alignChecks.map(c => c)
+  }
+
+  resetInfixFilter(){
+    this.infixFilterList = this.infixChecks.map(c => c)
+  }
+
+  onCheckChange(event, fList : Array<any>, choice) {
+    /* Selected */
+    if(event.target.checked){
+      fList.push(choice);
+    } else {
+      fList.forEach( (c, i) => {
+        if(c.desc === choice.desc) fList.splice(i,1);
+      });
+    }
+  }
+
   updateConformanceForVariant(
     pattern: SubvariantPattern,
     timeout: number
@@ -760,6 +710,7 @@ export class VariantMinerComponent
       this.subscribeForConformanceCheckingResults();
     }
   }
+
 
   subscribeForConformanceCheckingResults(): void {
     this.conformanceCheckingService.patternResults.subscribe(
@@ -793,4 +744,71 @@ export class VariantMinerComponent
 
 export namespace VariantMinerComponent {
   export const componentName = 'VariantMinerComponent';
+}
+
+export class IntervalFilter{
+
+  apply(p : SubvariantPattern ) {
+    return !p[this.attr] || (p[this.attr] >= this.low && p[this.attr] <= this.high)
+  }
+
+  low : number;
+  high : number;
+  config : Options
+  attr : string;
+  tickStep : number
+  tickValueStep : number
+  step : number
+  defaultLow : number
+  defaultHigh : number
+
+  set_config(floor, ceil){
+    this.config =
+     {
+      floor: floor,
+      ceil: ceil,
+      draggableRange: true,
+      showTicksValues: true,
+      tickStep: this.tickStep,
+      tickValueStep:  this.tickValueStep,
+      step: this.step
+    };
+
+    this.defaultLow = floor;
+    this.defaultHigh = ceil;
+
+    this.low = floor;
+    this.high = ceil;
+  }
+
+  reset_filter(){
+    this.low = this.defaultLow
+    this.high = this.defaultHigh
+  }
+
+  touched(){
+    return this.low !== this.defaultLow || this.high !== this.defaultHigh;
+  }
+
+  constructor(attr, tickStep : number, tickValueStep : number, step : number, defaultLow: number, defaultHigh: number ){
+    this.attr = attr
+    this.tickStep = tickStep;
+    this.tickValueStep = tickValueStep;
+    this.step = step;
+
+    this.set_config(defaultLow, defaultHigh)
+  }
+}
+
+
+export class Choice {
+
+  desc : string
+  filterFnc : (p : SubvariantPattern) => boolean;
+
+  constructor(desc : string, filterFnc : (p : SubvariantPattern) => boolean   ) {
+    this.desc = desc;
+    this.filterFnc = filterFnc;
+  }
+
 }
