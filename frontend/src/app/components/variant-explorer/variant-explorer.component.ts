@@ -80,6 +80,7 @@ import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
 import { EditorOptions } from './variant-query/variant-query.component';
+import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -110,7 +111,8 @@ export class VariantExplorerComponent
     public variantPerformanceService: VariantPerformanceService,
     private conformanceCheckingService: ConformanceCheckingService,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
-    public variantViewModeService: VariantViewModeService
+    public variantViewModeService: VariantViewModeService,
+    private tooltipService: ActivateTooltipsService
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -940,6 +942,10 @@ export class VariantExplorerComponent
       .subscribe((granularity) => {
         this.selectedGranularity = granularity;
       });
+  }
+
+  onScroll(): void {
+    this.tooltipService.hideAll();
   }
 }
 
