@@ -106,6 +106,8 @@ export class VariantMinerComponent
   VariantSortKey = VariantSortKey;
   currentSortKey: VariantSortKey;
 
+  currentHeight: number;
+
   processTree: ProcessTree = null;
   conformanceCheckedTree: ProcessTree = null;
 
@@ -632,7 +634,9 @@ export class VariantMinerComponent
     top: number,
     width: number,
     height: number
-  ): void {}
+  ): void {
+    this.currentHeight = height;
+  }
 
   handleVisibilityChange(visibility: boolean): void {}
 

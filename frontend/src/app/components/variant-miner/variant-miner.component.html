@@ -235,7 +235,7 @@
 
       <div class="filter-button-container dropdown">
         <button
-          class="filter-button"
+          class="btn filter-button"
           type="button"
           id="dropdownMenuButton1"
           data-bs-toggle="dropdown"
@@ -266,111 +266,144 @@
         <div
           class="dropdown-menu filter-drop-down"
           aria-labelledby="dropdownMenuButton1"
+          [style.max-height.px]="currentHeight"
         >
-          <div class="filter-option-container">
-            <span>K:</span>
-            <div class="slider-container sup-selector">
-              <ngx-slider
-                [(value)]="kFilter.low"
-                [(highValue)]="kFilter.high"
-                [options]="kFilter.config"
-                (userChangeEnd)="handleFilterChange($event)"
-              ></ngx-slider>
+          <div class="filter-drop-down-content">
+            <div class="filter-option-container">
+              <span>K:</span>
+              <div class="slider-container sup-selector">
+                <ngx-slider
+                  [(value)]="kFilter.low"
+                  [(highValue)]="kFilter.high"
+                  [options]="kFilter.config"
+                  (userChangeEnd)="handleFilterChange($event)"
+                ></ngx-slider>
+              </div>
             </div>
-          </div>
-          <div
-            *ngFor="let choice of alignChecks; let i = index"
-            class="btn-group btn-group-sm"
-            role="group"
-          >
-            <input
-              checked
-              type="checkbox"
-              class="btn-check"
-              name="btncheckbox"
-              id="{{ 'AlignCheck' + i }}"
-              autocomplete="off"
-              (change)="
-                onCheckChange($event, alignmentFilterList, choice);
-                this.handleFilterChange($event)
-              "
-            />
-            <label class="btn btn-outline-primary" for="{{ 'AlignCheck' + i }}">
-              {{ choice.desc }}</label
-            >
-          </div>
-          <div class="filter-option-container">
-            <span>Sup:</span>
-            <div class="slider-container sup-selector">
-              <ngx-slider
-                [(value)]="supFilter.low"
-                [(highValue)]="supFilter.high"
-                [options]="supFilter.config"
-                (userChangeEnd)="handleFilterChange($event)"
-              ></ngx-slider>
+            <div class="radio-content">
+              <span>Model Alignment:</span>
+              <div class="btn-group btn-group-sm" role="group">
+                <ng-template
+                  ngFor
+                  let-choice
+                  [ngForOf]="alignChecks"
+                  let-i="index"
+                >
+                  <input
+                    checked
+                    type="checkbox"
+                    class="btn-check"
+                    name="btncheckbox"
+                    id="{{ 'AlignCheck' + i }}"
+                    autocomplete="off"
+                    (change)="
+                      onCheckChange($event, alignmentFilterList, choice);
+                      this.handleFilterChange($event)
+                    "
+                  />
+                  <label
+                    class="btn btn-outline-primary"
+                    for="{{ 'AlignCheck' + i }}"
+                  >
+                    {{ choice.desc }}</label
+                  >
+                </ng-template>
+              </div>
             </div>
-          </div>
-          <div class="filter-option-container">
-            <span>Child-Parent:</span>
-            <div class="slider-container sup-selector">
-              <ngx-slider
-                [(value)]="cpConfFilter.low"
-                [(highValue)]="cpConfFilter.high"
-                [options]="cpConfFilter.config"
-                (userChangeEnd)="handleFilterChange($event)"
-              ></ngx-slider>
-              <br>
-              <span>Subpattern:</span>
-              <ngx-slider
-                [(value)]="supConfFilter.low"
-                [(highValue)]="supConfFilter.high"
-                [options]="supConfFilter.config"
-                (userChangeEnd)="handleFilterChange($event)"
-              ></ngx-slider>
+            <div class="filter-option-container">
+              <span>Sup:</span>
+              <div class="slider-container sup-selector">
+                <ngx-slider
+                  [(value)]="supFilter.low"
+                  [(highValue)]="supFilter.high"
+                  [options]="supFilter.config"
+                  (userChangeEnd)="handleFilterChange($event)"
+                ></ngx-slider>
+              </div>
             </div>
-          </div>
-          <div
-            *ngFor="let choice of closedMaximalChecks; let i = index"
-            class="btn-group btn-group-sm"
-            role="group"
-          >
-            <input
-              type="radio"
-              class="btn-check"
-              name="btnradio"
-              id="{{ 'Radio' + i }}"
-              autocomplete="off"
-              (change)="
-                onCheckRadioChange(choice.desc, choice.filterFnc);
-                this.handleFilterChange($event)
-              "
-              [checked]="choice.desc === 'Valid'"
-            />
-            <label class="btn btn-outline-primary" for="{{ 'Radio' + i }}">
-              {{ choice.desc }}</label
-            >
-          </div>
-          <br>
-          <div
-            *ngFor="let choice of infixChecks; let i = index"
-            class="btn-group btn-group-sm"
-            role="group"
-          >
-            <input
-              checked
-              type="checkbox"
-              class="btn-check"
-              name="btncheckbox"
-              id="{{ 'InfixCheck' + i }}"
-              autocomplete="off"
-              (change)="
-                onCheckChange($event, infixFilterList, choice);
-                this.handleFilterChange($event)
-              "
-            />
-            <label class="btn btn-outline-primary" for="{{ 'InfixCheck' + i }}">
-              {{ choice.desc }}</label
-            >
+            <div class="slider-group">
+              <span> Confidence: </span>
+              <div class="filter-option-container">
+                <span>Child-Parent:</span>
+                <div class="slider-container sup-selector">
+                  <ngx-slider
+                    [(value)]="cpConfFilter.low"
+                    [(highValue)]="cpConfFilter.high"
+                    [options]="cpConfFilter.config"
+                    (userChangeEnd)="handleFilterChange($event)"
+                  ></ngx-slider>
+                </div>
+                <div class="slider-container sup-selector">
+                  <span>Subpattern:</span>
+                  <ngx-slider
+                    [(value)]="supConfFilter.low"
+                    [(highValue)]="supConfFilter.high"
+                    [options]="supConfFilter.config"
+                    (userChangeEnd)="handleFilterChange($event)"
+                  ></ngx-slider>
+                </div>
+              </div>
+            </div>
+            <div class="radio-content">
+              <span> Closed and Maximal: </span>
+              <div class="btn-group btn-group-sm" role="group">
+                <ng-template
+                  ngFor
+                  let-choice
+                  [ngForOf]="closedMaximalChecks"
+                  let-i="index"
+                >
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="btnradio"
+                    id="{{ 'Radio' + i }}"
+                    autocomplete="off"
+                    (change)="
+                      onCheckRadioChange(choice.desc, choice.filterFnc);
+                      this.handleFilterChange($event)
+                    "
+                    [checked]="choice.desc === 'Valid'"
+                  />
+                  <label
+                    class="btn btn-outline-primary"
+                    for="{{ 'Radio' + i }}"
+                  >
+                    {{ choice.desc }}</label
+                  >
+                </ng-template>
+              </div>
+            </div>
+            <div class="radio-content">
+              <span> Infix Types: </span>
+              <div class="btn-group btn-group-sm" role="group">
+                <ng-template
+                  ngFor
+                  let-choice
+                  [ngForOf]="infixChecks"
+                  let-i="index"
+                >
+                  <input
+                    checked
+                    type="checkbox"
+                    class="btn-check"
+                    name="btncheckbox"
+                    id="{{ 'InfixCheck' + i }}"
+                    autocomplete="off"
+                    (change)="
+                      onCheckChange($event, infixFilterList, choice);
+                      this.handleFilterChange($event)
+                    "
+                  />
+                  <label
+                    class="btn btn-outline-primary"
+                    for="{{ 'InfixCheck' + i }}"
+                  >
+                    {{ choice.desc }}</label
+                  >
+                </ng-template>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -550,7 +583,7 @@
                     currentSortKey === VariantSortKey.subpattern_confidence
                 }"
               >
-              Subpattern
+                Subpattern
               </div>
             </th>
             <th

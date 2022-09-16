@@ -116,6 +116,7 @@ export class EditorService {
 
   private updateVQLTheme() {
     console.log('Updating Theme');
+    console.log(this.colorMapService.colorMap)
 
     // Define a new theme that matches the activity names and Colormap
     monaco.editor.defineTheme(

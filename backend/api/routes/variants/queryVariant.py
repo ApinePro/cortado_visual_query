@@ -15,4 +15,7 @@ def variant_query(query: variantQuery):
         query, cache.variants, cache.parameters["activites"]
     )
 
+    for bid in res['ids']: 
+        print(cache.variants[bid][0])
+
     return res

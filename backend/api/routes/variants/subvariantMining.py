@@ -74,7 +74,7 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
             k_it=config.k,
             min_sup=config.min_sup,
             artifical_start=config.artifical_start,
-            fold_loops=config.loop,
+            loop=config.loop,
         )
 
     else:
@@ -87,11 +87,13 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
             k_it=config.k,
             min_sup=config.min_sup,
             artifical_start=config.artifical_start,
+            loop=config.loop,
         )
     
     print()
     print('Post-Processing...')
-    set_maximaly_closed_patterns(k_patterns) 
+    print('DEV:  CURRENTLY NOT SETTING CLOSED')
+    #set_maximaly_closed_patterns(k_patterns) 
         
     df = dataframe_from_k_patterns(k_patterns)
 
