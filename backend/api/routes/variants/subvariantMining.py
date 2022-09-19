@@ -28,7 +28,6 @@ import numpy as np
 
 router = APIRouter(tags=["subvariantMining"], prefix="/subvariantMining")
 
-
 class VariantMinerConfig(BaseModel):
     k: int
     min_sup: int
@@ -45,7 +44,6 @@ freq_strat_mapping = {
     3: FrequencyCountingStrategy.TraceOccurence,
     4: FrequencyCountingStrategy.VariantOccurence,
 }
-
 
 @router.post("/frequentSubtreeMining")
 def mineFrequentSubtrees(config: VariantMinerConfig):

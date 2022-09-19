@@ -541,6 +541,7 @@ export class VariantDrawerDirective
         element.getWidth() -
         element.getHeadLength() * 2 -
         VARIANT_Constants.MARGIN_X;
+
       const tr = this.wrapInnerLabelText(tspan, a, maxWidth);
       truncated ||= tr;
     });
