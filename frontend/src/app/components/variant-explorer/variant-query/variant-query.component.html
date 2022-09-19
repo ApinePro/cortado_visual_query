@@ -10,7 +10,7 @@
     <div class="syntax-error-container">
       <ul
         *ngIf="
-          (variantQuery.invalid &&
+          (!variantQuery.valid &&
             (variantQuery.dirty || variantQuery.touched)) ||
           backendErrorMessage
         "

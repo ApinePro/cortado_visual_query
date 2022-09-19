@@ -11,6 +11,7 @@ import { getVQLCompletionProvider } from 'src/app/components/editor-zone/editor-
 
 import * as Monaco from 'monaco-editor';
 import { EditorOptions } from 'src/app/components/variant-explorer/variant-query/variant-query.component';
+
 declare var monaco: typeof Monaco;
 @Injectable({
   providedIn: 'root',
@@ -18,6 +19,7 @@ declare var monaco: typeof Monaco;
 export class EditorService {
   loaded: boolean = false;
   nodeRequire: any;
+  completionProvider : Monaco.IDisposable
 
   private _monacoPath = 'assets/monaco-editor/min/vs';
 
@@ -123,11 +125,17 @@ export class EditorService {
       generateVQLTheme(this.colorMapService.colorMap, new EditorOptions())
     );
 
+
+    if (this.completionProvider){
+      this.completionProvider.dispose()
+    }
+
     const createProposals = getVQLCompletionProvider(
       this.colorMapService.colorMap.keys()
     );
 
-    monaco.languages.registerCompletionItemProvider('VQL', {
+
+    this.completionProvider = monaco.languages.registerCompletionItemProvider('VQL', {
       provideCompletionItems: function (model, position) {
         var word = model.getWordUntilPosition(position);
         var range = {

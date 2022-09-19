@@ -14,10 +14,10 @@ export const binaryOperator = [
 ];
 
 export const unaryOperator = [
-  'isStart',
   'isS',
-  'isEnd',
+  'isStart',
   'isE',
-  'isContained',
+  'isEnd',
   'isC',
+  'isContained',
 ];
