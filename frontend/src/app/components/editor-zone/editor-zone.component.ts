@@ -160,8 +160,6 @@ export class EditorZoneComponent
 
       this.parsedError = currentParsedError;
       this._onErrorStatusChange();
-
-
     });
 
     this._editor.onDidBlurEditorText(() => {

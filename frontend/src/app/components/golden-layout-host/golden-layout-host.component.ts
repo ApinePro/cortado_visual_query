@@ -1,4 +1,3 @@
-
 import { GoldenLayoutDummyComponent } from './golden-layout-dummy/golden-layout-dummy.component';
 import {
   Component,
