@@ -14,10 +14,12 @@ def evaluate_query_against_variant_graphs(query, variants, activities):
 
         for bid, (variant, _, _) in variants.items():
 
-            b = check_query_tree(qt, variant, activities, True)
+            for g in variant.graphs.keys(): 
+                b = check_query_tree(qt, g, activities, True)
 
-            if b:
-                ids.append(bid)
+                if b:
+                    ids.append(bid)
+                    break
 
     except ParseError as PE:
         res = {"error": PE.msg, "error_index": PE.column}

@@ -340,10 +340,18 @@ def handle_rename_merge_variants(
         renamed_variant = rename_activities_in_variant_group(
             variant, activityName, newActivityName
         )
-        renamed_variant.graph = rename_merge_activities_in_graph(
-            variant.graph, activityName, newActivityName
-        )
-
+        
+        
+        graphs = {}
+        
+        for graph, ts in variant.graphs.values:
+            new_graph =  rename_merge_activities_in_graph(
+            graph, activityName, newActivityName
+             )
+            graphs[new_graph] = graphs.get(new_graph, 0) + ts
+            
+        renamed_variant.graphs = graphs
+       
         renamed_subvariants = defaultdict(list)
         renamed_traces = []
 
@@ -370,7 +378,6 @@ def handle_rename_merge_variants(
 
     return new_variant_dict, update_res_variants
 
-
 def handle_rename_single_variant(
     renameList, activityName, newActivityName, new_variant_dict, update_res_variants
 ):
@@ -380,9 +387,17 @@ def handle_rename_single_variant(
         renamed_variant = rename_activities_in_variant_group(
             variant, activityName, newActivityName
         )
-        renamed_variant.graph = rename_merge_activities_in_graph(
-            variant.graph, activityName, newActivityName
-        )
+        
+        graphs = {}
+        
+        for graph, ts in variant.graphs.values:
+            new_graph =  rename_merge_activities_in_graph(
+            graph, activityName, newActivityName
+             )
+            graphs[new_graph] = graphs.get(new_graph, 0) + ts
+            
+        renamed_variant.graphs = graphs
+        
 
         renamed_subvariants = rename_activites_in_subvariant(
             subvariants, activityName, newActivityName
@@ -582,7 +597,13 @@ def handle_merge_members(activityName, merge_list, new_variants, update_res_vari
             for s, tr in new_sv.items():
                 new_subvariants[s] += tr
 
-        new_variant.graph = create_new_graph(new_traces[0])
+        graphs = {}
+        
+        for trace in new_traces: 
+            g = create_new_graph(trace)
+            graphs[g] = graphs.get(g, 0) + 1
+
+        new_variant.graphs = graphs 
 
         new_variants[min(ls)] = (new_variant, new_traces, new_subvariants)
         update_res_variants[min(ls)] = {
@@ -602,7 +623,14 @@ def handle_delete_member(
 
         new_variant = remove_activitiy_from_group(variant, activityName)
         ts = [apply_filter_copy(trace, activityName) for trace in traces]
-        new_variant.graph = create_new_graph(ts[0])
+
+        graphs = {}
+        
+        for trace in ts: 
+            g = create_new_graph(trace)
+            graphs[g] = graphs.get(g, 0) + 1
+
+        new_variant.graphs = graphs 
 
         new_subvariant = remove_activitiy_from_subvariant(subvariants, activityName)
 
