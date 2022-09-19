@@ -154,18 +154,15 @@ export class EditorZoneComponent
     });
 
     this._editor.onDidChangeModelDecorations(() => {
-
-
       const currentParsedError = this.modelMarkers
         .map(({ message }) => message)
         .join('|');
 
       this.parsedError = currentParsedError;
-
-
       this._onErrorStatusChange();
-    }
-    );
+
+
+    });
 
     this._editor.onDidBlurEditorText(() => {
       this._onTouched();

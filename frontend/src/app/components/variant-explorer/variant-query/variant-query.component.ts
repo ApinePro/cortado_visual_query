@@ -32,7 +32,7 @@ export class VariantQueryComponent
   implements OnInit, AfterViewInit, OnDestroy, OnChanges
 {
   variantQueryInput: FormGroup;
-  variantQuery : FormControl;
+  variantQuery: FormControl;
 
   @ViewChild('queryEditor') queryEditor: ElementRef<HTMLTextAreaElement>;
   @ViewChild(EditorZoneComponent) editorZone: EditorZoneComponent;
@@ -84,16 +84,13 @@ export class VariantQueryComponent
   }
 
   ngOnInit() {
-
-    this.variantQuery = new FormControl('', {
+    (this.variantQuery = new FormControl('', {
       validators: [],
       updateOn: 'change',
-    }),
-    this.variantQueryInput = new FormGroup({
-      variantQuery : this.variantQuery
-    });
-
-
+    })),
+      (this.variantQueryInput = new FormGroup({
+        variantQuery: this.variantQuery,
+      }));
   }
 
   ngAfterViewInit(): void {
@@ -106,7 +103,6 @@ export class VariantQueryComponent
     this.variantFilterService.variantFilters$.subscribe((filter) => {
       this.queryfilteractive = filter.has('query filter');
     });
-
   }
 
   onSubmit() {
@@ -138,19 +134,16 @@ export class VariantQueryComponent
     this.editorInstance = value;
   }
 
-
   @HostListener('window:keydown.control.enter', ['$event'])
   onRunQuery(e) {
     if (this.variantQuery.valid) {
       this.onSubmit();
     }
-
-
   }
 
-  private onErrorStatusChange = function() {
-    this.variantQuery.updateValueAndValidity()
-  }.bind(this)
+  private onErrorStatusChange = function () {
+    this.variantQuery.updateValueAndValidity();
+  }.bind(this);
 
   private validateMonaco = function (model: Monaco.editor.ITextModel) {
     const markers = [];

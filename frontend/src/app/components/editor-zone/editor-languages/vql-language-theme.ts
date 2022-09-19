@@ -15,9 +15,11 @@ export function generateVQLTheme(
 
     colorMap.forEach((v, k) => {
       // The replace is used, due to the tokenizer converting certain char into -, if there is a bug during Tokenizing start checking here
-      activityTokens.push({ token: 'activites.' + k.replace(/(<|_|>)/g, '-'), foreground: v })
-      }
-    );
+      activityTokens.push({
+        token: 'activites.' + k.replace(/(<|_|>)/g, '-'),
+        foreground: v,
+      });
+    });
   }
 
   return {

@@ -19,7 +19,7 @@ declare var monaco: typeof Monaco;
 export class EditorService {
   loaded: boolean = false;
   nodeRequire: any;
-  completionProvider : Monaco.IDisposable
+  completionProvider: Monaco.IDisposable;
 
   private _monacoPath = 'assets/monaco-editor/min/vs';
 
@@ -125,29 +125,30 @@ export class EditorService {
       generateVQLTheme(this.colorMapService.colorMap, new EditorOptions())
     );
 
-
-    if (this.completionProvider){
-      this.completionProvider.dispose()
+    if (this.completionProvider) {
+      this.completionProvider.dispose();
     }
 
     const createProposals = getVQLCompletionProvider(
       this.colorMapService.colorMap.keys()
     );
 
-
-    this.completionProvider = monaco.languages.registerCompletionItemProvider('VQL', {
-      provideCompletionItems: function (model, position) {
-        var word = model.getWordUntilPosition(position);
-        var range = {
-          startLineNumber: position.lineNumber,
-          endLineNumber: position.lineNumber,
-          startColumn: word.startColumn,
-          endColumn: word.endColumn,
-        };
-        return {
-          suggestions: createProposals(range),
-        };
-      },
-    });
+    this.completionProvider = monaco.languages.registerCompletionItemProvider(
+      'VQL',
+      {
+        provideCompletionItems: function (model, position) {
+          var word = model.getWordUntilPosition(position);
+          var range = {
+            startLineNumber: position.lineNumber,
+            endLineNumber: position.lineNumber,
+            startColumn: word.startColumn,
+            endColumn: word.endColumn,
+          };
+          return {
+            suggestions: createProposals(range),
+          };
+        },
+      }
+    );
   }
 }
