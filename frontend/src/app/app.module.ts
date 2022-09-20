@@ -65,7 +65,6 @@ import { InfixSelectionControllsComponent } from './components/variant-explorer/
 import { ZoomFieldComponent } from './components/zoom-field/zoom-field.component';
 import { VariantExplorerSidebarComponent } from './components/variant-explorer/variant-explorer-sidebar/variant-explorer-sidebar.component';
 import { EditorZoneComponent } from './components/editor-zone/editor-zone.component';
-import { EditorComponent } from './components/editor/editor.component';
 import { FilterOptionsComponent } from './components/variant-miner/filter-options/filter-options.component';
 
 @NgModule({
@@ -125,7 +124,6 @@ import { FilterOptionsComponent } from './components/variant-miner/filter-option
     InfixSelectionControllsComponent,
     ZoomFieldComponent,
     VariantExplorerSidebarComponent,
-    EditorComponent,
     FilterOptionsComponent,
   ],
   imports: [

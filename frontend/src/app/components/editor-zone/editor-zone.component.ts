@@ -84,6 +84,10 @@ export class EditorZoneComponent
     this._propagateChange = fn;
   }
 
+  registerOnErrorStatusChange(fn: any): void {
+    this._onErrorStatusChange = fn;
+  }
+
   registerOnTouched(fn: any): void {
     this._onTouched = fn;
   }
@@ -149,13 +153,9 @@ export class EditorZoneComponent
       const currentParsedError = this.modelMarkers
         .map(({ message }) => message)
         .join('|');
-      const hasValidationStatusChanged =
-        this.parsedError !== currentParsedError;
 
-      if (hasValidationStatusChanged) {
-        this.parsedError = currentParsedError;
-        this._onErrorStatusChange();
-      }
+      this.parsedError = currentParsedError;
+      this._onErrorStatusChange();
     });
 
     this._editor.onDidBlurEditorText(() => {

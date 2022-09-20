@@ -45,15 +45,12 @@ def add_middleware(app: FastAPI):
         allow_headers=["*"],
     )
 
-
 def add_exception_handlers(app: FastAPI):
     app.add_exception_handler(HTTPException, http_exception_handler)
     # app.add_exception_handler(Exception, exception_handler)
     app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
-
 app = get_application()
-
 
 @app.get("/info")
 async def get_info():

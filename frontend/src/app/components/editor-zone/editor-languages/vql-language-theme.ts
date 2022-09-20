@@ -13,9 +13,13 @@ export function generateVQLTheme(
       fontStyle: 'bold',
     });
 
-    colorMap.forEach((v, k) =>
-      activityTokens.push({ token: 'activites.' + k, foreground: v })
-    );
+    colorMap.forEach((v, k) => {
+      // The replace is used, due to the tokenizer converting certain char into -, if there is a bug during Tokenizing start checking here
+      activityTokens.push({
+        token: 'activites.' + k.replace(/(<|_|>)/g, '-'),
+        foreground: v,
+      });
+    });
   }
 
   return {

@@ -31,7 +31,8 @@ declare var monaco: typeof Monaco;
 export class VariantQueryComponent
   implements OnInit, AfterViewInit, OnDestroy, OnChanges
 {
-  variantQueryInput: any;
+  variantQueryInput: FormGroup;
+  variantQuery: FormControl;
 
   @ViewChild('queryEditor') queryEditor: ElementRef<HTMLTextAreaElement>;
   @ViewChild(EditorZoneComponent) editorZone: EditorZoneComponent;
@@ -83,12 +84,13 @@ export class VariantQueryComponent
   }
 
   ngOnInit() {
-    this.variantQueryInput = new FormGroup({
-      variantQuery: new FormControl('', {
-        validators: [],
-        updateOn: 'change',
-      }),
-    });
+    (this.variantQuery = new FormControl('', {
+      validators: [],
+      updateOn: 'change',
+    })),
+      (this.variantQueryInput = new FormGroup({
+        variantQuery: this.variantQuery,
+      }));
   }
 
   ngAfterViewInit(): void {
@@ -127,11 +129,9 @@ export class VariantQueryComponent
 
   onEditorChange(value) {
     this.editorZone.registerValidatorFunction(this.validateMonaco);
+    this.editorZone.registerOnErrorStatusChange(this.onErrorStatusChange);
+    this.editorZone.registerOnTouched(this.onErrorStatusChange);
     this.editorInstance = value;
-  }
-
-  get variantQuery(): FormControl {
-    return this.variantQueryInput.get('variantQuery')!;
   }
 
   @HostListener('window:keydown.control.enter', ['$event'])
@@ -140,6 +140,10 @@ export class VariantQueryComponent
       this.onSubmit();
     }
   }
+
+  private onErrorStatusChange = function () {
+    this.variantQuery.updateValueAndValidity();
+  }.bind(this);
 
   private validateMonaco = function (model: Monaco.editor.ITextModel) {
     const markers = [];
@@ -163,9 +167,9 @@ export class VariantQueryComponent
             actvityRange.startLineNumber,
           severity: monaco.MarkerSeverity.Warning,
           startLineNumber: actvityRange.startLineNumber,
-          startColumn: actvityRange.startColumn,
+          startColumn: actvityRange.startColumn + 1,
           endLineNumber: actvityRange.endLineNumber,
-          endColumn: actvityRange.endColumn,
+          endColumn: actvityRange.endColumn - 1,
         });
       }
     }
