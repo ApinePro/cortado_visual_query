@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, from, Observable, of } from 'rxjs';
-import { map, finalize, concatMap, tap } from 'rxjs/operators';
+import { map, finalize, concatMap, tap, catchError } from 'rxjs/operators';
 import * as d3 from 'd3';
 import { LogService } from './logService/log.service';
 import { VariantService } from './variantService/variant.service';
@@ -281,6 +281,12 @@ export class VariantPerformanceService {
       tap((res) => {
         this.addVariantPerformanceResults(res);
         this.performanceUpdateProgress = this.results.size / nVariants;
+      }),
+      catchError((_) => {
+        this.performanceUpdateIsInProgress = false;
+        this.performanceInformationLoaded = false;
+        this.performanceUpdateProgress = 0;
+        return of('error when loading performance data');
       }),
       finalize(() => {
         this.variantService.variants.forEach((v) => {

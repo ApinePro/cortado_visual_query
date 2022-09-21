@@ -29,6 +29,10 @@ export class ActivateTooltipsService {
     });
   }
 
+  public hideAll(): void {
+    $('[data-bs-toggle="tooltip"]').tooltip('hide');
+  }
+
   public initializeTooltip(element: any): void {
     const tooltip = new bootstrap.Tooltip(element, {
       container: 'body',
@@ -41,9 +45,9 @@ export class ActivateTooltipsService {
     });
 
     element.addEventListener('click', (_) => {
-      $('[data-bs-toggle="tooltip"]').tooltip('hide');
+      this.hideAll();
       setTimeout(() => {
-        tooltip.hide();
+        if (tooltip !== null) tooltip.hide();
       }, 500);
     });
   }
@@ -54,7 +58,6 @@ export class ActivateTooltipsService {
 
   public destroyTooltip(element: any): void {
     const tooltip = bootstrap.Tooltip.getInstance(element);
-    tooltip.hide();
-    tooltip.dispose();
+    if (tooltip !== null) tooltip.dispose();
   }
 }
