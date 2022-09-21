@@ -344,7 +344,7 @@ def handle_rename_merge_variants(
         
         graphs = {}
         
-        for graph, ts in variant.graphs.values:
+        for graph, ts in variant.graphs.items():
             new_graph =  rename_merge_activities_in_graph(
             graph, activityName, newActivityName
              )
@@ -390,7 +390,7 @@ def handle_rename_single_variant(
         
         graphs = {}
         
-        for graph, ts in variant.graphs.values:
+        for graph, ts in variant.graphs.items():
             new_graph =  rename_merge_activities_in_graph(
             graph, activityName, newActivityName
              )
