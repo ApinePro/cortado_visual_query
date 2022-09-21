@@ -223,7 +223,10 @@ export class VariantDrawerDirective
       infixType === InfixType.POSTFIX ||
       infixType === InfixType.PROPER_INFIX
     ) {
-      variant_svg.attr('transform', `translate(${PREFIX_OFFSET}, 0)`);
+      variant_svg.attr(
+        'transform',
+        `translate(${PREFIX_OFFSET}, ${VARIANT_Constants.SELECTION_STROKE_WIDTH})`
+      );
 
       svg
         .append('g')
@@ -231,6 +234,11 @@ export class VariantDrawerDirective
         .append('use')
         .attr('href', '#infixDots')
         .attr('transform', 'scale(1.7)');
+    } else {
+      variant_svg.attr(
+        'transform',
+        `translate(0, ${VARIANT_Constants.SELECTION_STROKE_WIDTH})`
+      );
     }
 
     if (
@@ -261,12 +269,7 @@ export class VariantDrawerDirective
     svgElement.datum(element).classed('variant-element-group', true);
 
     if (outerElement) {
-      svgElement
-        .datum(element)
-        .attr(
-          'transform',
-          `translate(0, ${VARIANT_Constants.SELECTION_STROKE_WIDTH})`
-        );
+      svgElement.datum(element);
     }
 
     if (element instanceof ParallelGroup) {
