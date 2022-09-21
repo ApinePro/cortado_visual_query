@@ -1,3 +1,4 @@
+import { element } from 'protractor';
 import * as d3 from 'd3';
 import { LeafNode } from 'src/app/objects/Variants/variant_element';
 
@@ -8,12 +9,6 @@ export function exportVariantDrawer() {
   this.svgRenderingInProgress = true;
 
   const visibleComponents = this.variantDrawers;
-
-  // Get current expansion state
-  visibleComponents.forEach((c) => state.push(c.isExpanded()));
-
-  // Expand the elements and redraw them
-  visibleComponents.forEach((c) => c.setExpanded(true));
 
   // Collect the SVG and pass them to the SVG Service
   visibleComponents.forEach((c) => svgs.push(c.getSVGGraphicElement()));
@@ -49,12 +44,16 @@ export function exportVariantDrawer() {
   this.polygonDrawingService.drawLegend(leafnodes, legend, this.colorMap);
 
   svgs.unshift(legend.node());
+  svgs.push(
+    d3
+      .select('#infixDotsForDrawer')
+      .attr('width', 0)
+      .attr('height', 0)
+      .node() as SVGGraphicsElement
+  );
 
   // Send all Elements to the export service
   this.imageExportService.export('variant_explorer', 0, 0, ...svgs);
-
-  // Return everything to its previous state
-  visibleComponents.forEach((c, i) => c.setExpanded(state[i]));
 
   // Hide the Spinner
   this.svgRenderingInProgress = false;
