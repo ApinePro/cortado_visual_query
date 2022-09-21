@@ -32,7 +32,7 @@
         class="button"
         [disabled]="!active || variantQuery.invalid"
       >
-        Execute Query
+        <i class="bi bi-funnel"></i> Execute Query
       </button>
 
       <button
@@ -42,7 +42,7 @@
         [disabled]="!active"
         (click)="resetQuery()"
       >
-        Remove active query
+        <i class="bi bi-x-lg text-danger"></i> Remove active query
       </button>
     </div>
   </form>

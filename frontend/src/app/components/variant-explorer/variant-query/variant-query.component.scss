@@ -5,22 +5,22 @@
 
 .form-container{
   width: 90%;
-  height: 65%;
+  height: 45%;
   display: block;
   transform: translateZ(0);
   -webkit-text-size-adjust: none;
-  margin: 1rem auto 1rem auto;
+  margin: 0.75rem auto 0.5rem auto;
 }
 
 .form{
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: space-between;
   align-items: stretch;
-  flex-wrap: nowrap;
-  align-content: center;
+  justify-content: center;
 }
 
 
@@ -52,9 +52,7 @@
 .syntax-error-container{
   width: 100%;
   overflow: scroll;
-  max-height: 3em;
-  margin-top: 0.5rem;
-  margin-bottom: 0.25rem;
+  max-height: 3rem;
   margin-right: 0.25rem;
   margin-left: 0.25rem;
 }
@@ -98,5 +96,12 @@ textarea:focus{
 
 .variant-query-tool-bar{
   background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  width: 100%;
+  align-content: flex-start;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
 }
 
