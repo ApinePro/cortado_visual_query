@@ -663,7 +663,7 @@ def handle_fallthrough(activityName, fallthrough, new_variants, update_res_varia
 
         for c_variant, c_traces in c_variants.items():
             foundMatch = False
-            for n_bid, (n_variant, n_traces) in new_variants.items():
+            for n_bid, (n_variant, n_traces, _) in new_variants.items():
                 if str(n_variant) == str(c_variant):
                     mergeVariants.append((n_bid, c_variant, n_traces + c_traces))
                     foundMatch = True
