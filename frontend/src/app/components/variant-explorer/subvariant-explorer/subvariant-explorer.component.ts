@@ -84,10 +84,7 @@ export class SubvariantExplorerComponent
 
   ngOnInit(): void {
     this.backendService
-      .getSubvariantsForVariant(
-        this.mainVariant.bid,
-        this.logService.logGranularity
-      )
+      .getSubvariantsForVariant(this.mainVariant.bid)
       .pipe(takeUntil(this._destroy$))
       .subscribe((r) => {
         this.subvariants = r;

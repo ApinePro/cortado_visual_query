@@ -3,7 +3,6 @@ import pm4pycvxopt
 from cortado_core.performance.subvariant_performance import (
     calculate_subvariant_performance,
 )
-from cortado_core.utils.timestamp_utils import TimeUnit
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 from cortado_core.utils.cvariants import get_detailed_variants
@@ -13,7 +12,6 @@ router = APIRouter(tags=["subvariantPerformance"], prefix="/subvariantPerformanc
 
 class InputPerformanceSubvariant(BaseModel):
     bid: int
-    time_granularity: TimeUnit = Field(alias="timeGranularity")
 
 
 @router.post("/subvariants")
@@ -26,7 +24,7 @@ async def get_subvariants(data: InputPerformanceSubvariant):
 
     for subvariant, traces in sub_variants.items():
         subvariant_performance = calculate_subvariant_performance(
-            subvariant, traces, data.time_granularity
+            subvariant, traces, cache.parameters["cur_time_granularity"]
         )
         subvariant_response = {
             "variant": subvariant_performance,
