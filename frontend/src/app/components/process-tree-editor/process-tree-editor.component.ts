@@ -241,7 +241,6 @@ export class ProcessTreeEditorComponent
   }
 
   ngAfterViewInit(): void {
-
     this._goldenLayoutHostComponent =
       this.goldenLayoutComponentService.goldenLayoutHostComponent;
     this._goldenLayout = this.goldenLayoutComponentService.goldenLayout;

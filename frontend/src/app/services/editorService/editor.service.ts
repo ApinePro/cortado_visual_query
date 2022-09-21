@@ -52,10 +52,8 @@ export class EditorService {
   }
 
   public load() {
-
-    console.log('Loading Monaco...')
+    console.log('Loading Monaco...');
     const onGotAmdLoader = () => {
-
       let vsPath = this._monacoPath;
       (<any>window).amdRequire = (<any>window).require;
       (<any>window).amdRequire.config({ paths: { vs: vsPath } });

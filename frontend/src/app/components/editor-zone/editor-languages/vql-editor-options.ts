@@ -16,8 +16,10 @@ export const vqlEditorOptions: Monaco.editor.IStandaloneEditorConstructionOption
     lineDecorationsWidth: 0,
     lineNumbersMinChars: 0,
     fontSize: 12,
-    fixedOverflowWidgets : true,
-    overflowWidgetsDomNode: document.getElementById('monaco-editor-overflow-widgets-root')!,
+    fixedOverflowWidgets: true,
+    overflowWidgetsDomNode: document.getElementById(
+      'monaco-editor-overflow-widgets-root'
+    )!,
     minimap: { enabled: false },
     bracketPairColorization: {
       enabled: true,

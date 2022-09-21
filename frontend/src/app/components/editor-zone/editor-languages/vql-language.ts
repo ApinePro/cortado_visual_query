@@ -14,10 +14,12 @@ export function getVQLTokenizer(): Monaco.languages.IMonarchLanguage {
     wordPattern:
       /(-?\d*\.\d\w*)|([^\`\~\!\#\%\^\&\*\(\)\-\=\+\{\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/g,
 
-    logicalOperator : groupOperator.concat(unarylogicalOperator, binarylogicalOperator),
-
-    operator: unaryOperator.concat(binaryOperator
+    logicalOperator: groupOperator.concat(
+      unarylogicalOperator,
+      binarylogicalOperator
     ),
+
+    operator: unaryOperator.concat(binaryOperator),
 
     symbols: /[=><!~?:&|+\-*\/\^%]+/,
 
