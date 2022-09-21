@@ -30,7 +30,9 @@ export function generateVQLTheme(
       { token: 'string', foreground: 'FFFFFF' },
       { token: 'text', foreground: 'a0a0a0' },
       { token: 'identifier', foreground: 'a0a0a0' },
-      { token: 'string.invalid', foreground: 'dc3545', fontstyle: 'underline' },
+      { token: 'logicalOperator', foreground: '569cd6', fontStyle:'bold'},
+      { token: 'operator', foreground: '569cd6', fontStyle:'underline'},
+      { token: 'string.invalid', foreground: 'dc3545' },
       ...activityTokens,
     ],
     colors: {

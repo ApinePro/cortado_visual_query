@@ -10,7 +10,7 @@
 
   <!---
     <script>
-      window.nodeRequire = require;
+
       delete window.require;
       delete window.exports;
       delete window.module;
@@ -18,10 +18,7 @@
   -->
 
   <!--<link rel="icon" type="image/x-icon" href="favicon.ico">-->
-  <script>
-    var electron = window.require('electron');
-    window.$ = window.jQuery = window.require('jquery');
-</script>
+
 </head>
 <body id="body">
 <app-root>
@@ -29,5 +26,6 @@
     <img class="cortadoLogo" src="./assets/favicon.ico">
   </div>
 </app-root>
+<div id="monaco-editor-overflow-widgets-root" class="monaco-editor" style="z-index: 999;"></div>
 </body>
 </html>

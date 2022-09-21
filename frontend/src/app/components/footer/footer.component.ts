@@ -78,7 +78,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   restartBackend(): void {
     this.backendInfoService.setRunning(false);
-    electron.ipcRenderer.send('restartBackend');
+    (<any>window).electronAPI.requestRestart();
   }
 
   get element() {
