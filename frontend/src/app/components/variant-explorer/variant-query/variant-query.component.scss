@@ -5,7 +5,7 @@
 
 .form-container{
   width: 90%;
-  height: 45%;
+  height: 65%;
   display: block;
   transform: translateZ(0);
   -webkit-text-size-adjust: none;
@@ -18,7 +18,7 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  align-content: space-between;
+  align-content: stretch;
   align-items: stretch;
   justify-content: center;
 }
@@ -103,5 +103,7 @@ textarea:focus{
   align-content: flex-start;
   justify-content: flex-start;
   flex-wrap: nowrap;
+  position: absolute;
+  bottom: 0px;
 }
 

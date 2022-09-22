@@ -16,6 +16,7 @@ export const vqlEditorOptions: Monaco.editor.IStandaloneEditorConstructionOption
     lineDecorationsWidth: 0,
     lineNumbersMinChars: 0,
     fontSize: 12,
+    lineHeight : 16,
     fixedOverflowWidgets: true,
     overflowWidgetsDomNode: document.getElementById(
       'monaco-editor-overflow-widgets-root'
