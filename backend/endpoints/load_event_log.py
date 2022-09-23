@@ -67,22 +67,21 @@ def calculate_event_log_properties(
 
 
 def compute_log_stats(variants: Mapping[int, Tuple[Group, Trace]]):
-    start_activities = set.union(
-        *[set(v.graph.start_activities.keys()) for (v, _, _) in variants.values()]
-    )
-    end_activities = set.union(
-        *[set(v.graph.end_activities.keys()) for (v, _, _) in variants.values()]
-    )
-    nActivities = dict(
-        sum(
-            [
-                Counter({k: (len(ls) * len(ts)) for k, ls in v.graph.events.items()})
-                for (v, ts, _) in variants.values()
-            ],
-            Counter(),
-        )
-    )
+    
+    start_activities = set()
+    end_activities = set()
+    activites = []
+    
+    for v, _ , _  in variants.values(): 
+        for g, ts in v.graphs.items(): 
 
+            start_activities.update(g.start_activities.keys())
+            end_activities.update(g.end_activities.keys())
+            
+            for k, ls in g.events.items():
+                activites.append(Counter({k: (len(ls) * ts)})) 
+                
+    nActivities = sum(activites, Counter())
     return start_activities, end_activities, nActivities
 
 def get_c_variants(
@@ -114,7 +113,6 @@ def get_c_variants(
 def create_variant_object(time_granularity, total_traces, bid, v, ts):
 
     sub_variants = create_subvariants(ts, time_granularity)
-
 
     variant = {
         "count": len(ts),

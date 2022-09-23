@@ -47,6 +47,7 @@ function createLicenseDialog(){
 }
 
 ipcMain.on('restartBackend', () => {
+  console.log('Restarting Backend')
   killBackendProcess();
   backendProcess = startBackend();
 })
@@ -72,8 +73,9 @@ function createMainApplicationWindow() {
     height: 800,
     frame: true,
     webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true,
-      contextIsolation: false,
+      contextIsolation: true,
     },
     iconUrl: "./icon/cortado_icon_colorful_transparent.png",
     darkTheme: true

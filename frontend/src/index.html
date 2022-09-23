@@ -7,18 +7,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- https://www.electronjs.org/docs/faq#i-can-not-use-jqueryrequirejsmeteorangularjs-in-electron -->
-  <!-- <script>
-    window.nodeRequire = require;
-    delete window.require;
-    delete window.exports;
-    delete window.module;
-  </script> -->
+
+  <!---
+    <script>
+
+      delete window.require;
+      delete window.exports;
+      delete window.module;
+    </script>
+  -->
 
   <!--<link rel="icon" type="image/x-icon" href="favicon.ico">-->
-  <script>
-    var electron = require('electron');
-    window.$ = window.jQuery = require('jquery');
-</script>
+
 </head>
 <body id="body">
 <app-root>
@@ -26,5 +26,6 @@
     <img class="cortadoLogo" src="./assets/favicon.ico">
   </div>
 </app-root>
+<div id="monaco-editor-overflow-widgets-root" class="monaco-editor" style="z-index: 999;"></div>
 </body>
 </html>

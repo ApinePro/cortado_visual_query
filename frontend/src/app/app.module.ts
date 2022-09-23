@@ -53,7 +53,6 @@ import { ToasterComponent } from './components/toast/toaster/toaster.component';
 import { PerformanceProgressBarComponent } from './components/performance/performance-progress-bar/performance-progress-bar.component';
 import { VariantQueryInfoComponent } from './components/variant-explorer/variant-query/query-info/variant-query-info/variant-query-info.component';
 import { VariantExplorerContextMenuComponent } from './components/variant-explorer/variant-explorer-context-menu/variant-explorer-context-menu.component';
-import { ContentEditableDirective } from './directives/content-editable/content-editable.directive';
 import { SyntaxHighlightedTextareaDirective } from './directives/syntax-highlighted-textarea/syntax-highlighted-textarea.directive';
 import { VariantDrawerDirective } from './directives/variant-drawer/variant-drawer.directive';
 import { ProcessTreeDrawerDirective } from './directives/process-tree-drawer/process-tree-drawer.directive';
@@ -62,12 +61,13 @@ import { TreePerformanceButtonComponent } from './components/variant-explorer/va
 import { InfixSelectionControllsComponent } from './components/variant-explorer/variant/subcomponents/infix-selection-controlls/infix-selection-controlls.component';
 import { ZoomFieldComponent } from './components/zoom-field/zoom-field.component';
 import { VariantExplorerSidebarComponent } from './components/variant-explorer/variant-explorer-sidebar/variant-explorer-sidebar.component';
-
+import { EditorZoneComponent } from './components/editor-zone/editor-zone.component';
 @NgModule({
   declarations: [
     AppComponent,
     FooterComponent,
     StrFilterPipe,
+    EditorZoneComponent,
     ActivityOverviewSortingPipe,
     GoldenLayoutHostComponent,
     VariantExplorerComponent,
@@ -90,7 +90,6 @@ import { VariantExplorerSidebarComponent } from './components/variant-explorer/v
     TreePerformanceColorMapComponent,
     VariantInfoComponent,
     ExpertModeComponent,
-    ContentEditableDirective,
     SettingsComponent,
     DropZoneComponent,
     DropZoneDirective,
