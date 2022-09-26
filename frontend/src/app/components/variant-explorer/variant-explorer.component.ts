@@ -189,8 +189,6 @@ export class VariantExplorerComponent
 
   public visibleVariantsHeight = 1000;
 
-  showConformanceDialogEvent: Subject<Variant> = new Subject<Variant>();
-
   public deletedVariants: Variant[][] = [];
 
   timeUnit = TimeUnit;
@@ -449,6 +447,7 @@ export class VariantExplorerComponent
   }
 
   updateConformanceForVariant(variant: Variant, timeout: number): void {
+    console.log(variant, timeout);
     variant.calculationInProgress = true;
     variant.deviation = undefined;
 
@@ -467,7 +466,10 @@ export class VariantExplorerComponent
 
   updateConformanceForSingleVariantClicked(variant: Variant): void {
     if (variant.isTimeouted) {
-      this.showConformanceDialogEvent.next(variant);
+      this.conformanceCheckingService.showConformanceTimeoutDialog(
+        variant,
+        this.updateConformanceForVariant.bind(this)
+      );
     } else {
       this.updateConformanceForVariant(variant, 0);
     }

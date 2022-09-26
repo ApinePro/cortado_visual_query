@@ -637,13 +637,6 @@
   </div>
 </div>
 
-<app-variant-conformance-dialog
-  [showConformanceDialog]="showConformanceDialogEvent.asObservable()"
-  (updateConformanceWithCustomTimeout)="
-    updateConformanceForVariant($event.variant, $event.timeout)
-  "
-></app-variant-conformance-dialog>
-
 <app-variant-query-info [(showInfo)]="showQueryInfo"> </app-variant-query-info>
 
 <app-variant-explorer-context-menu
