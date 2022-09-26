@@ -16,7 +16,7 @@
     >
       <thead class="activity-overview-table-header">
         <tr class="user-select-none">
-          <th scope="col" class="bg-dark th-dropdown-colors">
+          <th resizable scope="col" class="bg-dark th-dropdown-colors">
             <div
               class="btn-group align-baseline dropDownParent dropdown ms-auto center"
               data-bs-toggle="tooltip"
@@ -40,10 +40,11 @@
               </div>
             </div>
           </th>
-          <th
+          <th resizable
             scope="col"
             class="bg-dark border-end border-color toggle-select"
             (click)="toggleSort('activityName')"
+
           >
             <div class="d-flex justify-content-between">
               <div>
@@ -78,6 +79,7 @@
             scope="col"
             class="bg-dark text-center border-end border-color toggle-select"
             (click)="toggleSort('inModel')"
+            resizable
           >
             <em class="user-select-none">in model</em>
             <br />
