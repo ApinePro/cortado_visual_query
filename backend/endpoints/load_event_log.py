@@ -114,7 +114,6 @@ def create_variant_object(time_granularity, total_traces, bid, v, ts):
 
     sub_variants = create_subvariants(ts, time_granularity)
 
-
     variant = {
         "count": len(ts),
         "variant": v.serialize(),

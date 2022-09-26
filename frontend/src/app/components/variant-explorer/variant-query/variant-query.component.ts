@@ -11,30 +11,33 @@ import {
   HostListener,
   Input,
   OnDestroy,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  ValidationErrors,
-  ValidatorFn,
-} from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { EditorZoneComponent } from '../../editor-zone/editor-zone.component';
 
+import * as Monaco from 'monaco-editor';
+import { generateVQLTheme } from '../../editor-zone/editor-languages/vql-language-theme';
+declare var monaco: typeof Monaco;
 @Component({
   selector: 'app-variant-query',
   templateUrl: './variant-query.component.html',
   styleUrls: ['./variant-query.component.scss'],
 })
-export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
-  variantQueryInput: any;
+export class VariantQueryComponent
+  implements OnInit, AfterViewInit, OnDestroy, OnChanges
+{
+  variantQueryInput: FormGroup;
+  variantQuery: FormControl;
 
   @ViewChild('queryEditor') queryEditor: ElementRef<HTMLTextAreaElement>;
+  @ViewChild(EditorZoneComponent) editorZone: EditorZoneComponent;
   @ViewChild('queryEditorBackdrop')
   queryEditorBackdrop: ElementRef<HTMLDivElement>;
-  @ViewChild('highlightText') highlightText: ElementRef<HTMLDivElement>;
 
   @Input()
   active: boolean = false;
@@ -45,14 +48,17 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   queryfilteractive: boolean = false;
 
   apostropheString = '<span class="syntax-operator">\'</span>';
+
   activityNameRegEx = new RegExp(
     this.apostropheString + "([^']*)" + this.apostropheString,
     'g'
   );
+
   activityColorMap: Map<string, string>;
-  imbalancedItems: imbalancedItem[];
   backendErrorMessage: boolean = false;
   backendErrorIndex: number;
+
+  editorInstance: Monaco.editor.IStandaloneCodeEditor;
 
   private _destroy$ = new Subject();
 
@@ -64,39 +70,34 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     private variantFilterService: VariantFilterService
   ) {}
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.editorInstance) {
+      monaco.editor.defineTheme(
+        'VQLTheme',
+        generateVQLTheme(this.colorMapService.colorMap, this.options)
+      );
+    }
+  }
+
   ngOnDestroy(): void {
     this._destroy$.next();
   }
 
   ngOnInit() {
-    this.variantQueryInput = new FormGroup({
-      variantQuery: new FormControl('', {
-        validators: [
-          this.balancedParenthesisValidator(),
-          this.unknownActivityNameValidator(),
-          this.unknownOperatorNameValidator(),
-          this.balancedApostropheValidator(),
-          this.nonTerminatedQueryValidator(),
-        ],
-        updateOn: 'change',
-      }),
-    });
+    (this.variantQuery = new FormControl('', {
+      validators: [],
+      updateOn: 'change',
+    })),
+      (this.variantQueryInput = new FormGroup({
+        variantQuery: this.variantQuery,
+      }));
   }
 
   ngAfterViewInit(): void {
-    this.renderer.listen(this.queryEditor.nativeElement, 'input', (input) => {
-      this.handleInput();
-    });
-
-    this.renderer.listen(this.queryEditor.nativeElement, 'scroll', (input) => {
-      this.handleScroll();
-    });
-
     this.colorMapService.colorMap$
       .pipe(takeUntil(this._destroy$))
       .subscribe((colorMap) => {
         this.activityColorMap = colorMap;
-        this.handleInput();
       });
 
     this.variantFilterService.variantFilters$.subscribe((filter) => {
@@ -113,7 +114,7 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
           this.variantFilterService.addVariantFilter(
             'query filter',
             new Set(res.ids as Array<number>),
-            this.highlightText.nativeElement.innerHTML
+            this.variantQuery.value
           );
         } else {
           this.variantQuery.setErrors({ backendError: res.error });
@@ -126,131 +127,11 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.variantFilterService.removeVariantFilter('query filter');
   }
 
-  get variantQuery(): FormControl {
-    return this.variantQueryInput.get('variantQuery')!;
-  }
-
-  handleInput() {
-    const text = this.applyHighlights(this.queryEditor.nativeElement.value);
-
-    this.renderer.setProperty(
-      this.highlightText.nativeElement,
-      'innerHTML',
-      text
-    );
-  }
-
-  handleScroll() {
-    this.renderer.setProperty(
-      this.queryEditorBackdrop.nativeElement,
-      'scrollTop',
-      this.queryEditor.nativeElement.scrollTop
-    );
-    this.renderer.setProperty(
-      this.queryEditorBackdrop.nativeElement,
-      'scrollLeft',
-      this.queryEditor.nativeElement.scrollLeft
-    );
-  }
-
-  applyHighlights(text: string) {
-    var highlighted_text = text;
-
-    highlighted_text = highlighted_text.replace(/\n$/g, '\n\n');
-
-    highlighted_text = this.colorSyntaxOperators(highlighted_text);
-
-    if (this.options.highlightActivityNames) {
-      highlighted_text = this.colorActivityNames(highlighted_text);
-    }
-
-    highlighted_text = this.colorLogicalOperators(highlighted_text);
-
-    highlighted_text = this.colorOperators(highlighted_text);
-
-    return highlighted_text;
-  }
-
-  colorLogicalOperators(value: any): string {
-    value = value.replace(
-      /\b(NOT|AND|OR|ANY|ALL)\b/g,
-      '<span class="logical-operator">$&</span>'
-    );
-    return value;
-  }
-
-  colorSyntaxOperators(value: any): string {
-    value = value.replace(
-      /(\'|\~|\{|\}|\(|\)|\,|\;|\=|\<|\>)/g,
-      '<span class="syntax-operator">$&</span>'
-    );
-    return value;
-  }
-
-  colorNumber(value: any): string {
-    value = value.replace(/\d+/g, '<span class="number-operator">$&</span>');
-    return value;
-  }
-
-  // Color activity names of known activities in the colormap color and highlight those of unknown name
-  colorActivityNames(value: any): string {
-    const matches = value.matchAll(this.activityNameRegEx);
-    let knownActivities = new Set();
-    let unknowActivities = new Set();
-
-    for (let match of matches) {
-      if (this.activityColorMap.has(match[1])) {
-        knownActivities.add(match[1]);
-      } else {
-        unknowActivities.add(match[1]);
-      }
-    }
-
-    knownActivities.forEach((activityName: string) => {
-      value = value.replace(
-        new RegExp(
-          this.apostropheString +
-            this.escapeActivityNameChars(activityName) +
-            this.apostropheString,
-          'g'
-        ),
-        this.apostropheString +
-          `<span style="color:${this.activityColorMap.get(activityName)}">` +
-          activityName +
-          '</span>' +
-          this.apostropheString
-      );
-    });
-
-    unknowActivities.forEach((activityName: string) => {
-      value = value.replace(
-        new RegExp(
-          this.apostropheString +
-            this.escapeActivityNameChars(activityName) +
-            this.apostropheString,
-          'g'
-        ),
-        this.apostropheString +
-          '<span class="warning-highlight">' +
-          activityName +
-          '</span>' +
-          this.apostropheString
-      );
-    });
-
-    return value;
-  }
-
-  escapeActivityNameChars(activityName: String) {
-    return activityName.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-  }
-
-  colorOperators(value: any): string {
-    const res = value.replace(
-      /\b(isEF|isEventuallyFollowed|isDF|isDirectlyFollowed|isP|isParallel|isStart|isS|isEnd|isE|isContained|isC)\b/g,
-      '<span class="query-operator">$&</span>'
-    );
-    return res;
+  onEditorChange(value) {
+    this.editorZone.registerValidatorFunction(this.validateMonaco);
+    this.editorZone.registerOnErrorStatusChange(this.onErrorStatusChange);
+    this.editorZone.registerOnTouched(this.onErrorStatusChange);
+    this.editorInstance = value;
   }
 
   @HostListener('window:keydown.control.enter', ['$event'])
@@ -260,170 +141,93 @@ export class VariantQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  balancedParenthesisValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      let stack = new Array<imbalancedItem>();
-      let imbalanced = false;
+  private onErrorStatusChange = function () {
+    this.variantQuery.updateValueAndValidity();
+  }.bind(this);
 
-      let imbalancedItems = new Array<imbalancedItem>();
+  private validateMonaco = function (model: Monaco.editor.ITextModel) {
+    const markers = [];
+    // lines start at 1
 
-      const popStack = function (
-        checkSymbol: string,
-        index: number,
-        expected: string
-      ) {
-        let item = stack.pop();
-
-        // If we have a mismatch, add it to the imbalanced Items
-        if (item && item.symbol !== checkSymbol) {
-          imbalancedItems.push(item);
-          imbalanced = true;
-
-          // If the stack is already empty we get a mismatch
-        } else if (!item) {
-          imbalancedItems.push(new imbalancedItem(expected, index));
-          imbalanced = true;
-        }
-      };
-
-      for (let i = 0; i < control.value.length; i++) {
-        switch (control.value[i]) {
-          case '(':
-            stack.push(new imbalancedItem('(', i));
-            break;
-          case ')':
-            popStack('(', i, ')');
-            break;
-          case '{':
-            stack.push(new imbalancedItem('{', i));
-            break;
-          case '}':
-            popStack('{', i, '}');
-            break;
-          case '[':
-            stack.push(new imbalancedItem('[', i));
-            break;
-          case ']':
-            popStack('[', i, ']');
-            break;
-          default:
-            continue;
-        }
+    for (let match of model.findMatches(
+      "'([^']*)'",
+      true,
+      true,
+      true,
+      null,
+      true
+    )) {
+      if (!this.activityColorMap.has(match.matches[1])) {
+        const actvityRange = match.range;
+        markers.push({
+          message:
+            'Unknown Activity ' +
+            match.matches[1] +
+            ' in Line ' +
+            actvityRange.startLineNumber,
+          severity: monaco.MarkerSeverity.Warning,
+          startLineNumber: actvityRange.startLineNumber,
+          startColumn: actvityRange.startColumn + 1,
+          endLineNumber: actvityRange.endLineNumber,
+          endColumn: actvityRange.endColumn - 1,
+        });
       }
+    }
 
-      if (stack.length > 0) {
-        imbalancedItems.push(...stack);
-        imbalanced = true;
+    const semicolon_matches = model.findMatches(
+      ';',
+      true,
+      true,
+      true,
+      null,
+      true
+    );
+
+    if (semicolon_matches.length > 1) {
+      for (let match of semicolon_matches.slice(1)) {
+        const semicolonRange = match.range;
+
+        markers.push({
+          message: 'Too many Semicolons',
+          severity: monaco.MarkerSeverity.Error,
+          startLineNumber: semicolonRange.startLineNumber,
+          startColumn: semicolonRange.startColumn,
+          endLineNumber: semicolonRange.endLineNumber,
+          endColumn: semicolonRange.endColumn,
+        });
       }
+    } else if (semicolon_matches.length > 0) {
+      const semicolonRange = semicolon_matches[0].range;
 
-      this.imbalancedItems = imbalancedItems;
+      const firstWhiteSpace = model.getLineLastNonWhitespaceColumn(
+        semicolonRange.endLineNumber
+      );
 
-      return imbalanced ? { imbalanced: imbalancedItems } : null;
-    };
-  }
-
-  unknownActivityNameValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      let unknowActivities = new Set();
-
-      const res = control.value.matchAll(this.activityNameRegEx);
-      for (let match of res) {
-        if (!this.logService.activitiesInEventLog[match[1]]) {
-          unknowActivities.add({ index: match.index, name: match[1] });
-        }
+      if (firstWhiteSpace !== semicolonRange.startColumn + 1) {
+        markers.push({
+          message: 'Input after Semicolon',
+          severity: monaco.MarkerSeverity.Error,
+          startLineNumber: semicolonRange.endLineNumber,
+          startColumn: semicolonRange.endColumn,
+          endLineNumber: semicolonRange.endLineNumber,
+          endColumn: model.getLineMaxColumn(semicolonRange.endLineNumber),
+        });
       }
-      return unknowActivities.size > 0
-        ? { unknowActivities: unknowActivities }
-        : null;
-    };
-  }
+    } else {
+      const line = model.getLineCount();
+      const last = model.getLineMaxColumn(line);
+      markers.push({
+        message: 'Missing Semicolon',
+        severity: monaco.MarkerSeverity.Warning,
+        startLineNumber: line,
+        startColumn: last,
+        endLineNumber: line,
+        endColumn: last,
+      });
+    }
 
-  private _operators: Set<string> = new Set<string>([
-    'ALL',
-    'ANY',
-    'NOT',
-    'AND',
-    'OR',
-    'isEF',
-    'isEventuallyFollowed',
-    'isDF',
-    'isDirectlyFollowed',
-    'isP',
-    'isParallel',
-    'isStart',
-    'isS',
-    'isEnd',
-    'isE',
-    'isContained',
-    'isC',
-  ]);
-
-  unknownOperatorNameValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      let unkownOperator = new Set();
-
-      const res = control.value
-        .replace(this.activityNameRegEx, '')
-        .matchAll(/\b[A-Z]+\b/g);
-
-      for (let match of res) {
-        if (!this._operators.has(match[0])) {
-          unkownOperator.add(match[0]);
-        }
-      }
-
-      return unkownOperator.size > 0
-        ? { unkownOperator: unkownOperator }
-        : null;
-    };
-  }
-
-  balancedApostropheValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      let occurences = 0;
-
-      if (control.value) {
-        let matches = control.value.match(/'/g || []);
-
-        if (matches) {
-          occurences = matches.length;
-        }
-      }
-
-      return occurences % 2 === 1 ? { apostrophe: true } : null;
-    };
-  }
-
-  nonTerminatedQueryValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      let nMatches = 0;
-
-      for (let match of control.value.matchAll(/;/g)) {
-        nMatches++;
-        const slice = control.value.slice(match.index + 1);
-
-        if (slice.match(/\S/g)) {
-          return { nonWhiteSpace: true };
-        }
-      }
-
-      if (nMatches === 0) {
-        return { missingSemicolon: true };
-      }
-
-      return null;
-    };
-  }
-}
-
-class imbalancedItem {
-  symbol: string;
-  index: number;
-
-  constructor(symbol: string, index: number) {
-    this.symbol = symbol;
-    this.index = index;
-  }
+    monaco.editor.setModelMarkers(model, 'owner', markers);
+  }.bind(this);
 }
 
 export class EditorOptions {
