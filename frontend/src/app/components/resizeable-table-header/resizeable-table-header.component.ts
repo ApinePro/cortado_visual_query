@@ -1,7 +1,7 @@
 import { Component, HostBinding, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'th[resizeable]', // eslint-disable-line
+  selector: 'th[resizeable]', // eslint-disable-line @angular-eslint/component-selector
   templateUrl: './resizeable-table-header.component.html',
   styleUrls: ['./resizeable-table-header.component.scss'],
 })
