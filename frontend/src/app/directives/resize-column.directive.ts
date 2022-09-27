@@ -5,12 +5,12 @@ import { distinctUntilChanged, map, switchMap, takeUntil, tap,} from 'rxjs/opera
 import { fromEvent } from 'rxjs';
 
 @Directive({
-  selector: '[resizable]',
+  selector: '[resizeable]',
 })
 export class ResizeColumnDirective {
 
   @Output()
-  readonly resizable = fromEvent<MouseEvent>(
+  readonly resizeable = fromEvent<MouseEvent>(
     this.elementRef.nativeElement,
     'mousedown'
   ).pipe(

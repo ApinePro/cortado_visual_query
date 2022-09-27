@@ -17,16 +17,16 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 2px;
-  margin: 0 -16px 0 16px;
+  width: 6px;
+  margin: 0px -7px 0px 0px;
   justify-self: flex-end;
   border-left: 2px solid transparent;
   border-right: 2px solid transparent;
-  background: blueviolet;
+  background: #b9b9b9;
   background-clip: content-box;
-  cursor: ew-resize;
+  cursor: col-resize;
   opacity: 0;
-  transition: opacity .3s;
+  transition: opacity 0.3s;
 
   &:hover,
   &:active {

@@ -409,13 +409,9 @@
       </div>
 
       <table class="pattern-table">
-        <thead>
-          <tr class="user-select-none sticky-header-row">
-            <th
-              style="padding-right: 2.5px; padding-left: 2.5px"
-              class="text-center"
-              rowspan="2"
-            >
+        <thead class="user-select-none sticky-header-row">
+          <tr>
+            <th resizeable class="text-center" rowspan="1">
               <div class="header-text-container">
                 <div
                   class="header-text"
@@ -427,18 +423,11 @@
                   K
                 </div>
               </div>
-              <i
-                [ngClass]="{
-                  'bi-sort-numeric-down': ascending,
-                  'bi-sort-numeric-down-alt': !ascending,
-                  invisible: !(currentSortKey === VariantSortKey.k)
-                }"
-              ></i>
             </th>
             <th
-              style="padding-right: 2.5px; padding-left: 2.5px"
+              resizeable
               class="text-center border-start border-lightgrey"
-              rowspan="2"
+              rowspan="1"
             >
               <div class="header-text-container">
                 <div
@@ -459,18 +448,11 @@
                   <i class="bi bi-layers-fill btn-icon"></i>
                 </button>
               </div>
-              <i
-                [ngClass]="{
-                  'bi-sort-numeric-down': ascending,
-                  'bi-sort-numeric-down-alt': !ascending,
-                  invisible: !(currentSortKey === VariantSortKey.alignment)
-                }"
-              ></i>
             </th>
             <th
-              style="padding-right: 2.5px; padding-left: 2.5px"
+              resizeable
               class="text-center border-start border-lightgrey"
-              rowspan="2"
+              rowspan="1"
             >
               <div class="header-text-container">
                 <div
@@ -484,17 +466,10 @@
                   Sup.
                 </div>
               </div>
-              <i
-                [ngClass]="{
-                  'bi-sort-numeric-down': ascending,
-                  'bi-sort-numeric-down-alt': !ascending,
-                  invisible: !(currentSortKey === VariantSortKey.support)
-                }"
-              ></i>
             </th>
             <th
+              resizeable
               class="text-center border-start border-lightgrey"
-              style="padding-right: 10px; padding-left: 10px"
               colspan="2"
             >
               <div class="header-text-container">
@@ -519,7 +494,7 @@
               </div>
             </th>
             <th
-              style="padding-right: 2.5px; padding-left: 2.5px"
+              resizeable
               class="border-lightgrey border-start text-center"
               colspan="2"
             >
@@ -540,11 +515,14 @@
               </div>
             </th>
             <th
+              resizeable
               class="text-start border-lightgrey border-start"
-              style="padding-right: 10px; padding-left: 5px"
-              rowspan="2"
+              rowspan="1"
             >
-              <div class="header-text-container variant-header">
+              <div
+                class="header-text-container variant-header"
+                [style.min-width.px]="maxWidth + 90"
+              >
                 <div class="header-text">Variant</div>
                 <i
                   class="bi"
@@ -558,6 +536,33 @@
             </th>
           </tr>
           <tr class="sticky-header-row" style="top: 33px">
+            <th class="text-center">
+              <i
+                [ngClass]="{
+                  'bi-sort-numeric-down': ascending,
+                  'bi-sort-numeric-down-alt': !ascending,
+                  invisible: !(currentSortKey === VariantSortKey.k)
+                }"
+              ></i>
+            </th>
+            <th class="text-center border-lightgrey border-start">
+              <i
+                [ngClass]="{
+                  'bi-sort-numeric-down': ascending,
+                  'bi-sort-numeric-down-alt': !ascending,
+                  invisible: !(currentSortKey === VariantSortKey.alignment)
+                }"
+              ></i>
+            </th>
+            <th class="text-center border-lightgrey border-start">
+              <i
+                [ngClass]="{
+                  'bi-sort-numeric-down': ascending,
+                  'bi-sort-numeric-down-alt': !ascending,
+                  invisible: !(currentSortKey === VariantSortKey.support)
+                }"
+              ></i>
+            </th>
             <th
               class="confidence-names text-center border-lightgrey border-start"
             >
@@ -613,6 +618,11 @@
               >
                 Maximal
               </div>
+            </th>
+            <th
+              class="confidence-names text-center border-lightgrey border-start"
+            >
+              <div class="header-text"></div>
             </th>
             <!---
             <th class="confidence-names text-center">

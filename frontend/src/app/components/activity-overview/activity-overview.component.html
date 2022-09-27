@@ -16,7 +16,11 @@
     >
       <thead class="activity-overview-table-header">
         <tr class="user-select-none">
-          <th resizable scope="col" class="bg-dark th-dropdown-colors">
+          <th
+            resizeable
+            scope="col"
+            class="bg-dark th-dropdown-colors resizeable-header-element"
+          >
             <div
               class="btn-group align-baseline dropDownParent dropdown ms-auto center"
               data-bs-toggle="tooltip"
@@ -40,131 +44,137 @@
               </div>
             </div>
           </th>
-          <th resizable
+          <th
+            resizeable
             scope="col"
-            class="bg-dark border-end border-color toggle-select"
+            class="bg-dark border-end border-color toggle-select resizeable-header-element"
             (click)="toggleSort('activityName')"
-
           >
             <div class="d-flex justify-content-between">
-              <div>
+              <div class="table-header-sort-group">
                 <em class="user-select-none">Activity name</em>
-                <br />
                 <i
                   class="bi"
-                  *ngIf="sortKey === 'activityName'"
                   [ngClass]="{
                     'bi-sort-alpha-down': !ascending,
-                    'bi-sort-alpha-down-alt': ascending
+                    'bi-sort-alpha-down-alt': ascending,
+                    invisible: sortKey !== 'activityName'
                   }"
                 ></i>
               </div>
-
-              <div class="p-2">
-                <button
-                  class="reset-button"
-                  (click)="revertLastChange($event)"
-                  *ngIf="resetAvailable"
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="bottom"
-                  title="revert large change to the event log"
-                >
-                  <i class="bi bi-arrow-counterclockwise btn-icon"></i>
-                </button>
-              </div>
+              <button
+                class="reset-button"
+                (click)="revertLastChange($event)"
+                *ngIf="resetAvailable"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                title="revert large change to the event log"
+              >
+                <i class="bi bi-arrow-counterclockwise btn-icon"></i>
+              </button>
             </div>
           </th>
-
           <th
+            resizeable
             scope="col"
-            class="bg-dark text-center border-end border-color toggle-select"
+            class="bg-dark text-center border-end border-color toggle-select resizeable-header-element"
             (click)="toggleSort('inModel')"
-            resizable
           >
-            <em class="user-select-none">in model</em>
-            <br />
-            <i
-              class="bi"
-              *ngIf="sortKey === 'inModel'"
-              [ngClass]="{
-                'bi-sort-up': ascending,
-                'bi-sort-down': !ascending
-              }"
-            ></i>
+            <div class="table-header-sort-group">
+              <em class="user-select-none">in model</em>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-up': ascending,
+                  'bi-sort-down': !ascending,
+                  invisible: sortKey !== 'inModel'
+                }"
+              ></i>
+            </div>
           </th>
           <th
+            resizeable
             scope="col"
-            class="bg-dark text-center border-end border-color text-nowrap toggle-select"
+            class="bg-dark text-center border-end border-color text-nowrap toggle-select resizeable-header-element"
             (click)="toggleSort('isStart')"
           >
-            <div
-              data-bs-toggle="tooltip"
-              data-bs-placement="bottom"
-              data-bs-html="true"
-              title="<b class='text-primary'>start-activity</b> (in the event log, there exists a case that starts with the given activity)"
-            >
-              <i class="bi bi-chevron-right text-white"></i>
+            <div class="table-header-sort-group">
+              <div
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                data-bs-html="true"
+                title="<b class='text-primary'>start-activity</b> (in the event log, there exists a case that starts with the given activity)"
+              >
+                <i class="bi bi-chevron-right text-white"></i>
+                <i
+                  class="bi bi-chevron-double-right"
+                  style="margin-left: -9px"
+                ></i>
+                <!--            <i class="bi bi-chevron-double-right" style="margin-left: -6px;"></i>-->
+              </div>
               <i
-                class="bi bi-chevron-double-right"
-                style="margin-left: -9px"
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-up': ascending,
+                  'bi-sort-down': !ascending,
+                  invisible: sortKey !== 'isStart'
+                }"
               ></i>
-              <!--            <i class="bi bi-chevron-double-right" style="margin-left: -6px;"></i>-->
             </div>
-            <i
-              class="bi"
-              *ngIf="sortKey === 'isStart'"
-              [ngClass]="{
-                'bi-sort-up': ascending,
-                'bi-sort-down': !ascending
-              }"
-            ></i>
           </th>
           <th
+            resizeable
             scope="col"
-            class="bg-dark text-center border-end border-color text-nowrap toggle-select"
+            class="bg-dark text-center border-end border-color text-nowrap toggle-select resizeable-header-element"
             (click)="toggleSort('isEnd')"
           >
-            <div
-              data-bs-toggle="tooltip"
-              data-bs-placement="bottom"
-              data-bs-html="true"
-              title="<b class='text-primary'>end-activity</b> (in the event log, there exists a case that ends with the given activity)"
-            >
-              <!--            <i class="bi bi-chevron-double-right"></i>-->
+            <div class="table-header-sort-group">
+              <div
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                data-bs-html="true"
+                title="<b class='text-primary'>end-activity</b> (in the event log, there exists a case that ends with the given activity)"
+              >
+                <!--            <i class="bi bi-chevron-double-right"></i>-->
+                <i
+                  class="bi bi-chevron-double-right"
+                  style="margin-left: 0px"
+                ></i>
+                <i
+                  class="bi bi-chevron-right text-white"
+                  style="margin-left: -7px"
+                ></i>
+              </div>
               <i
-                class="bi bi-chevron-double-right"
-                style="margin-left: 0px"
-              ></i>
-              <i
-                class="bi bi-chevron-right text-white"
-                style="margin-left: -7px"
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-up': ascending,
+                  'bi-sort-down': !ascending,
+                  invisible: sortKey !== 'isEnd'
+                }"
               ></i>
             </div>
-            <i
-              class="bi"
-              *ngIf="sortKey === 'isEnd'"
-              [ngClass]="{
-                'bi-sort-up': ascending,
-                'bi-sort-down': !ascending
-              }"
-            ></i>
           </th>
           <th
+            resizeable
             scope="col"
-            class="bg-dark text-center toggle-select"
+            class="bg-dark text-center toggle-select resizeable-header-element"
             (click)="toggleSort('occurences')"
           >
-            <i class="bi bi-hash"></i
-            ><em class="user-select-none">occurrence</em>
-            <br />
-            <i
-              class="bi"
-              *ngIf="sortKey === 'occurences'"
-              [ngClass]="{
-                'bi-sort-numeric-down': ascending,
-                'bi-sort-numeric-down-alt': !ascending
-              }"
-            ></i>
+            <div class="table-header-sort-group">
+              <div>
+                <i class="bi bi-hash"></i
+                ><em class="user-select-none">occurrence</em>
+              </div>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-numeric-down': ascending,
+                  'bi-sort-numeric-down-alt': !ascending,
+                  invisible: sortKey !== 'occurences'
+                }"
+              ></i>
+            </div>
           </th>
         </tr>
       </thead>

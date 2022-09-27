@@ -66,6 +66,8 @@ import { ZoomFieldComponent } from './components/zoom-field/zoom-field.component
 import { VariantExplorerSidebarComponent } from './components/variant-explorer/variant-explorer-sidebar/variant-explorer-sidebar.component';
 import { EditorZoneComponent } from './components/editor-zone/editor-zone.component';
 import { FilterOptionsComponent } from './components/variant-miner/filter-options/filter-options.component';
+import { ResizeableTableHeaderComponent } from './components/resizeable-table-header/resizeable-table-header.component';
+import { ResizeColumnDirective } from './directives/resize-column.directive';
 
 @NgModule({
   declarations: [
@@ -125,6 +127,8 @@ import { FilterOptionsComponent } from './components/variant-miner/filter-option
     ZoomFieldComponent,
     VariantExplorerSidebarComponent,
     FilterOptionsComponent,
+    ResizeableTableHeaderComponent,
+    ResizeColumnDirective,
   ],
   imports: [
     BrowserModule,

@@ -239,6 +239,8 @@ export class VariantMinerComponent
   ascending: boolean = false;
   minsup: number = 0;
 
+  maxWidth : number = 0;
+
   variantMinerResults: any;
   colorMap;
 
@@ -491,6 +493,9 @@ export class VariantMinerComponent
         this.nClosed = this.variantPatterns.filter((v) => v.closed).length;
         this.nValid = this.variantPatterns.filter((v) => v.valid).length;
         this.nMaximal = this.variantPatterns.filter((v) => v.maximal).length;
+
+
+        this.maxWidth = Math.max(...this.variantPatterns.map((v) => v.variant.getWidth(false)));
 
         this.set_interval_filter_configs()
         this.displayedVariantsPatterns = this.variantPatterns;

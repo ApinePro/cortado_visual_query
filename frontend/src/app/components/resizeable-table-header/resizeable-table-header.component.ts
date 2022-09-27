@@ -1,7 +1,7 @@
 import { Component, HostBinding, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'th[resizable]',
+  selector: 'th[resizeable], resizeable-header',
   templateUrl: './resizeable-table-header.component.html',
   styleUrls: ['./resizeable-table-header.component.scss']
 })
