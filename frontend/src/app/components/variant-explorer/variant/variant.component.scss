@@ -16,9 +16,9 @@
   align-items: center;
 }
 
-.infix-selection-buttons-panel {
+.fixed-right {
   right: 0;
   position: sticky;
-  background-color: var(--box-background-color);
+  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
   vertical-align: middle;
 }

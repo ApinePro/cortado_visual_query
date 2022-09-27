@@ -263,8 +263,6 @@ export class VariantExplorerComponent
     this.variantFilterService.variantFilters$.subscribe((filterMap) => {
       this.filterMap = filterMap;
 
-      console.log(filterMap);
-
       if (filterMap.size > 0) {
         const intersectSets = function (a: Set<number>, b: Set<number>) {
           const c: Set<number> = new Set<number>();
