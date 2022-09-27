@@ -28,10 +28,9 @@ export class AppComponent implements AfterViewInit, OnDestroy, OnInit {
 
   constructor(
     private goldenLayoutComponentService: GoldenLayoutComponentService,
-    private monacoEditorService : EditorService,
+    private monacoEditorService: EditorService,
     @Inject(APP_INITIALIZER) public appInit: ApplicationInitStatus
   ) {}
-
 
   ngOnInit(): void {
     this.monacoEditorService.load();

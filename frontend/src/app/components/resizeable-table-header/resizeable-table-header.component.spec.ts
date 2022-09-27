@@ -1,5 +1,5 @@
 /* tslint:disable:no-unused-variable */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ResizeableTableHeaderComponent } from './resizeable-table-header.component';
 
@@ -9,9 +9,8 @@ describe('ResizeableTableHeaderComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ResizeableTableHeaderComponent ]
-    })
-    .compileComponents();
+      declarations: [ResizeableTableHeaderComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

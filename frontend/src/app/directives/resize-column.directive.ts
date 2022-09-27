@@ -1,14 +1,18 @@
-
 import { DOCUMENT } from '@angular/common';
 import { Directive, ElementRef, Inject, Output } from '@angular/core';
-import { distinctUntilChanged, map, switchMap, takeUntil, tap,} from 'rxjs/operators';
+import {
+  distinctUntilChanged,
+  map,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
 import { fromEvent } from 'rxjs';
 
 @Directive({
-  selector: '[resizeable]',
+  selector: '[resizeable]', // eslint-disable-line @angular-eslint/directive-selector
 })
 export class ResizeColumnDirective {
-
   @Output()
   readonly resizeable = fromEvent<MouseEvent>(
     this.elementRef.nativeElement,
@@ -33,6 +37,6 @@ export class ResizeColumnDirective {
     @Inject(ElementRef)
     private readonly elementRef: ElementRef<HTMLElement>
   ) {
-    console.log('Created Resizeable Column')
+    console.log('Created Resizeable Column');
   }
 }

@@ -1,14 +1,15 @@
 import { Component, HostBinding, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'th[resizeable], resizeable-header',
+  selector: 'th[resizeable]', // eslint-disable-line
   templateUrl: './resizeable-table-header.component.html',
-  styleUrls: ['./resizeable-table-header.component.scss']
+  styleUrls: ['./resizeable-table-header.component.scss'],
 })
-export class ResizeableTableHeaderComponent{
 
+// https://stackblitz.com/edit/angular-resizable-columns
+export class ResizeableTableHeaderComponent {
   constructor() {
-    console.log('Created Resizeable Column')
+    console.log('Created Resizeable Column');
   }
   @HostBinding('style.width.px')
   width: number | null = null;
@@ -16,5 +17,4 @@ export class ResizeableTableHeaderComponent{
   onResize(width: any) {
     this.width = width;
   }
-
 }

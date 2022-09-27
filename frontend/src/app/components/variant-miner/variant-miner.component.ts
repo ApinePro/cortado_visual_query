@@ -1,4 +1,3 @@
-
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import { VariantFilterService } from './../../services/variantFilterService/variant-filter.service';
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
@@ -126,11 +125,32 @@ export class VariantMinerComponent
   contextMenu_variant: VariantElement;
   contextMenu_directive: VariantDrawerDirective;
 
-  kFilter : IntervalFilter = new IntervalFilter('k', 2, 2, 1,  3, 15);
-  supFilter : IntervalFilter = new IntervalFilter('support', 100, 200, 1, 0, 1000);
-  indexFilter : IntervalFilter = new IntervalFilter('index', 1, 2, 1,  0, 15);
-  cpConfFilter : IntervalFilter = new IntervalFilter('child_parent_confidence', 0.1, 0.2, 0.01, 0, 1);
-  supConfFilter : IntervalFilter  = new IntervalFilter('subpattern_confidence',  0.1, 0.2, 0.01, 0, 1);
+  kFilter: IntervalFilter = new IntervalFilter('k', 2, 2, 1, 3, 15);
+  supFilter: IntervalFilter = new IntervalFilter(
+    'support',
+    100,
+    200,
+    1,
+    0,
+    1000
+  );
+  indexFilter: IntervalFilter = new IntervalFilter('index', 1, 2, 1, 0, 15);
+  cpConfFilter: IntervalFilter = new IntervalFilter(
+    'child_parent_confidence',
+    0.1,
+    0.2,
+    0.01,
+    0,
+    1
+  );
+  supConfFilter: IntervalFilter = new IntervalFilter(
+    'subpattern_confidence',
+    0.1,
+    0.2,
+    0.01,
+    0,
+    1
+  );
 
   openContextCallback = contextMenuCallback.bind(this);
 
@@ -210,36 +230,60 @@ export class VariantMinerComponent
     },
   };
 
-  closedMaximalChecks : Choice[] = [
-    new Choice('Maximal', (p:SubvariantPattern) => {return p.maximal}),
-    new Choice('Closed', (p:SubvariantPattern) => {return p.closed}),
-    new Choice('Valid', (p:SubvariantPattern) => {return true}),
-  ]
-  selClosedMaximal : string = 'Valid';
+  closedMaximalChecks: Choice[] = [
+    new Choice('Maximal', (p: SubvariantPattern) => {
+      return p.maximal;
+    }),
+    new Choice('Closed', (p: SubvariantPattern) => {
+      return p.closed;
+    }),
+    new Choice('Valid', (p: SubvariantPattern) => {
+      return true;
+    }),
+  ];
+  selClosedMaximal: string = 'Valid';
 
-  infixChecks : Choice[] = [
-    new Choice('Proper Infix', (p:SubvariantPattern) => {return p.infixType === InfixType.PROPER_INFIX}),
-    new Choice('Suffix', (p:SubvariantPattern) => {return p.infixType === InfixType.POSTFIX}),
-    new Choice('Prefix', (p:SubvariantPattern) => {return p.infixType === InfixType.PREFIX}),
-    new Choice('Variant', (p:SubvariantPattern) => {return p.infixType === InfixType.NOT_AN_INFIX}),
-  ]
+  infixChecks: Choice[] = [
+    new Choice('Proper Infix', (p: SubvariantPattern) => {
+      return p.infixType === InfixType.PROPER_INFIX;
+    }),
+    new Choice('Suffix', (p: SubvariantPattern) => {
+      return p.infixType === InfixType.POSTFIX;
+    }),
+    new Choice('Prefix', (p: SubvariantPattern) => {
+      return p.infixType === InfixType.PREFIX;
+    }),
+    new Choice('Variant', (p: SubvariantPattern) => {
+      return p.infixType === InfixType.NOT_AN_INFIX;
+    }),
+  ];
 
-  alignChecks : Choice[] = [
-    new Choice('Fitting', (p:SubvariantPattern) => {return p.deviation}),
-    new Choice('Not Fitting', (p:SubvariantPattern) => {return p.deviation}),
-    new Choice('Unknown', (p:SubvariantPattern) => {return p.deviation}),
-  ]
+  alignChecks: Choice[] = [
+    new Choice('Fitting', (p: SubvariantPattern) => {
+      return p.deviation;
+    }),
+    new Choice('Not Fitting', (p: SubvariantPattern) => {
+      return p.deviation;
+    }),
+    new Choice('Unknown', (p: SubvariantPattern) => {
+      return p.deviation;
+    }),
+  ];
 
-  infixFilterList = this.infixChecks.map(c => c)
-  alignmentFilterList = this.alignChecks.map(c => c)
-  closedMaxFilter : (p:SubvariantPattern) => boolean = (p : SubvariantPattern) => {return true};
+  infixFilterList = this.infixChecks.map((c) => c);
+  alignmentFilterList = this.alignChecks.map((c) => c);
+  closedMaxFilter: (p: SubvariantPattern) => boolean = (
+    p: SubvariantPattern
+  ) => {
+    return true;
+  };
 
   variantMinerOutOfFocus: boolean = false;
 
   ascending: boolean = false;
   minsup: number = 0;
 
-  maxWidth : number = 0;
+  maxWidth: number = 0;
 
   variantMinerResults: any;
   colorMap;
@@ -405,9 +449,10 @@ export class VariantMinerComponent
       res = res && this.closedMaxFilter(vp);
 
       //res = res && this.alignmentFilterList.map(f => f.filterFnc(vp)).some(v => v)
-      res = res && this.infixFilterList.map(f => f.filterFnc(vp)).some(v => v)
+      res =
+        res && this.infixFilterList.map((f) => f.filterFnc(vp)).some((v) => v);
 
-      return res
+      return res;
     });
 
     this.sortDisplayedVariants(this.currentSortKey);
@@ -494,10 +539,11 @@ export class VariantMinerComponent
         this.nValid = this.variantPatterns.filter((v) => v.valid).length;
         this.nMaximal = this.variantPatterns.filter((v) => v.maximal).length;
 
+        this.maxWidth = Math.max(
+          ...this.variantPatterns.map((v) => v.variant.getWidth(false))
+        );
 
-        this.maxWidth = Math.max(...this.variantPatterns.map((v) => v.variant.getWidth(false)));
-
-        this.set_interval_filter_configs()
+        this.set_interval_filter_configs();
         this.displayedVariantsPatterns = this.variantPatterns;
       } else {
         this.variantPatterns = [];
@@ -547,13 +593,12 @@ export class VariantMinerComponent
     );
   }
 
-
-  private set_interval_filter_configs(){
+  private set_interval_filter_configs() {
     this.kFilter.set_config(3, this.maxK);
     this.supFilter.set_config(this.minsup, this.maxSup);
     this.indexFilter.set_config(0, this.variantPatterns.length);
-    this.cpConfFilter.set_config(0,1);
-    this.supConfFilter.set_config(0,1);
+    this.cpConfFilter.set_config(0, 1);
+    this.supConfFilter.set_config(0, 1);
 
     this.resetClosedMaximalFilter();
     this.resetAlignFilter();
@@ -663,37 +708,44 @@ export class VariantMinerComponent
     this.conformanceCheckedTree = this.processTree;
   }
 
-
-  onCheckRadioChange(desc, func){
+  onCheckRadioChange(desc, func) {
     this.selClosedMaximal = desc;
     this.closedMaxFilter = func;
   }
 
-  resetClosedMaximalFilter(){
-    this.closedMaximalChecks= [
-      new Choice('Maximal', (p:SubvariantPattern) => {return p.maximal}),
-      new Choice('Closed', (p:SubvariantPattern) => {return p.closed}),
-      new Choice('Valid', (p:SubvariantPattern) => {return true}),
-    ]
-    this.selClosedMaximal= 'Valid';
-    this.closedMaxFilter = (p:SubvariantPattern) => {return true};
+  resetClosedMaximalFilter() {
+    this.closedMaximalChecks = [
+      new Choice('Maximal', (p: SubvariantPattern) => {
+        return p.maximal;
+      }),
+      new Choice('Closed', (p: SubvariantPattern) => {
+        return p.closed;
+      }),
+      new Choice('Valid', (p: SubvariantPattern) => {
+        return true;
+      }),
+    ];
+    this.selClosedMaximal = 'Valid';
+    this.closedMaxFilter = (p: SubvariantPattern) => {
+      return true;
+    };
   }
 
-  resetAlignFilter(){
-    this.alignmentFilterList  = this.alignChecks.map(c => c)
+  resetAlignFilter() {
+    this.alignmentFilterList = this.alignChecks.map((c) => c);
   }
 
-  resetInfixFilter(){
-    this.infixFilterList = this.infixChecks.map(c => c)
+  resetInfixFilter() {
+    this.infixFilterList = this.infixChecks.map((c) => c);
   }
 
-  onCheckChange(event, fList : Array<any>, choice) {
+  onCheckChange(event, fList: Array<any>, choice) {
     /* Selected */
-    if(event.target.checked){
+    if (event.target.checked) {
       fList.push(choice);
     } else {
-      fList.forEach( (c, i) => {
-        if(c.desc === choice.desc) fList.splice(i,1);
+      fList.forEach((c, i) => {
+        if (c.desc === choice.desc) fList.splice(i, 1);
       });
     }
   }
@@ -719,7 +771,6 @@ export class VariantMinerComponent
       this.subscribeForConformanceCheckingResults();
     }
   }
-
 
   subscribeForConformanceCheckingResults(): void {
     this.conformanceCheckingService.patternResults.subscribe(
@@ -755,32 +806,32 @@ export namespace VariantMinerComponent {
   export const componentName = 'VariantMinerComponent';
 }
 
-export class IntervalFilter{
-
-  apply(p : SubvariantPattern ) {
-    return !p[this.attr] || (p[this.attr] >= this.low && p[this.attr] <= this.high)
+export class IntervalFilter {
+  apply(p: SubvariantPattern) {
+    return (
+      !p[this.attr] || (p[this.attr] >= this.low && p[this.attr] <= this.high)
+    );
   }
 
-  low : number;
-  high : number;
-  config : Options
-  attr : string;
-  tickStep : number
-  tickValueStep : number
-  step : number
-  defaultLow : number
-  defaultHigh : number
+  low: number;
+  high: number;
+  config: Options;
+  attr: string;
+  tickStep: number;
+  tickValueStep: number;
+  step: number;
+  defaultLow: number;
+  defaultHigh: number;
 
-  set_config(floor, ceil){
-    this.config =
-     {
+  set_config(floor, ceil) {
+    this.config = {
       floor: floor,
       ceil: ceil,
       draggableRange: true,
       showTicksValues: true,
       tickStep: this.tickStep,
-      tickValueStep:  this.tickValueStep,
-      step: this.step
+      tickValueStep: this.tickValueStep,
+      step: this.step,
     };
 
     this.defaultLow = floor;
@@ -790,34 +841,38 @@ export class IntervalFilter{
     this.high = ceil;
   }
 
-  reset_filter(){
-    this.low = this.defaultLow
-    this.high = this.defaultHigh
+  reset_filter() {
+    this.low = this.defaultLow;
+    this.high = this.defaultHigh;
   }
 
-  touched(){
+  touched() {
     return this.low !== this.defaultLow || this.high !== this.defaultHigh;
   }
 
-  constructor(attr, tickStep : number, tickValueStep : number, step : number, defaultLow: number, defaultHigh: number ){
-    this.attr = attr
+  constructor(
+    attr,
+    tickStep: number,
+    tickValueStep: number,
+    step: number,
+    defaultLow: number,
+    defaultHigh: number
+  ) {
+    this.attr = attr;
     this.tickStep = tickStep;
     this.tickValueStep = tickValueStep;
     this.step = step;
 
-    this.set_config(defaultLow, defaultHigh)
+    this.set_config(defaultLow, defaultHigh);
   }
 }
 
-
 export class Choice {
+  desc: string;
+  filterFnc: (p: SubvariantPattern) => boolean;
 
-  desc : string
-  filterFnc : (p : SubvariantPattern) => boolean;
-
-  constructor(desc : string, filterFnc : (p : SubvariantPattern) => boolean   ) {
+  constructor(desc: string, filterFnc: (p: SubvariantPattern) => boolean) {
     this.desc = desc;
     this.filterFnc = filterFnc;
   }
-
 }

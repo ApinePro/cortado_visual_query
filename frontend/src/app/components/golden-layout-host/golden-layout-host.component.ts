@@ -1,4 +1,3 @@
-
 import { VariantMinerComponent } from './../variant-miner/variant-miner.component';
 import { GoldenLayoutDummyComponent } from './golden-layout-dummy/golden-layout-dummy.component';
 import {
