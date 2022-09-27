@@ -18,7 +18,7 @@ import { BackendService } from './backendService/backend.service';
 import { setParent } from '../objects/Variants/infix_selection';
 import { ViewMode } from '../objects/ViewMode';
 import { VariantViewModeService } from './viewModeServices/variant-view-mode.service';
-import { PerformanceColorMap } from '../objects/Performance/PerformanceColorMap';
+import { ColorMap } from '../objects/ColorMap';
 import { COLORS_CYAN, COLORS_PINK } from '../objects/Colors';
 
 @Injectable({
@@ -158,7 +158,7 @@ export class VariantPerformanceService {
     colors,
     performanceIndicator,
     value
-  ): PerformanceColorMap {
+  ): ColorMap {
     let values = this.getAllValues(performanceIndicator, value).filter(
       (v) => v !== undefined
     );
@@ -180,7 +180,7 @@ export class VariantPerformanceService {
       .domain(thresholds)
       .range(colors);
 
-    return new PerformanceColorMap(colorScale);
+    return new ColorMap(colorScale);
   }
 
   getAllValues(performanceIndicator, value): number[] {

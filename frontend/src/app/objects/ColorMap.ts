@@ -1,6 +1,6 @@
 export const ZERO_VALUE_COLOR = '#FFFFFF';
 
-export class PerformanceColorMap {
+export class ColorMap {
   scale: d3.ScaleThreshold<any, any, any>;
 
   constructor(scale: d3.ScaleThreshold<any, any, any>) {
@@ -8,7 +8,7 @@ export class PerformanceColorMap {
   }
 
   getColor(value: number) {
-    return value < 0.5 ? ZERO_VALUE_COLOR : this.scale(value);
+    return this.scale(value);
   }
 
   domain() {

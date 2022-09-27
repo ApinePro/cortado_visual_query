@@ -1,8 +1,5 @@
 import { Component, Input } from '@angular/core';
-import {
-  PerformanceColorMap,
-  ZERO_VALUE_COLOR,
-} from 'src/app/objects/Performance/PerformanceColorMap';
+import { ColorMap, ZERO_VALUE_COLOR } from 'src/app/objects/ColorMap';
 
 @Component({
   selector: 'app-color-map',
@@ -12,6 +9,10 @@ import {
 export class ColorMapComponent {
   @Input()
   colorMapValues: ColorMapValue[];
+  @Input()
+  timeBasedLabel: Boolean = true;
+  @Input()
+  suffix: string = '';
 
   constructor() {}
 }
