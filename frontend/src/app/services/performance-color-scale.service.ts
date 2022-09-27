@@ -4,7 +4,7 @@ import { PerformanceService } from './performance.service';
 import { SharedDataService } from './sharedDataService/shared-data.service';
 import * as d3 from 'd3';
 import { BehaviorSubject } from 'rxjs';
-import { COLORS_TEAL } from './variant-performance.service';
+import { COLORS_TEAL } from '../objects/Colors';
 import { PerformanceColorMap } from '../objects/Performance/PerformanceColorMap';
 
 @Injectable({
