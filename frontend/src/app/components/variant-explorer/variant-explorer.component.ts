@@ -253,7 +253,7 @@ export class VariantExplorerComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe((variants) => {
         this.variants = variants;
-        this.displayed_variants = variants;
+        this.displayed_variants = variants.filter((v) => v.isDisplayed);
         this.sort(this.sortingFeature);
         this.closeAllSubvariantWindows();
 
@@ -945,6 +945,11 @@ export class VariantExplorerComponent
 
   onScroll(): void {
     this.tooltipService.hideAll();
+  }
+
+  deleteVisibleVariants(): void {
+    const bids = this.displayed_variants.map((v) => v.bid);
+    this.variantService.deleteVariants(bids);
   }
 }
 
