@@ -19,6 +19,6 @@
 .fixed-right {
   right: 0;
   position: sticky;
-  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+  background-color: var(--box-background-color);
   vertical-align: middle;
 }

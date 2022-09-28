@@ -618,7 +618,9 @@
                 </ng-template>
               </ng-template>
               <ng-template #removeVariantButton>
-                <app-variant-delete-button></app-variant-delete-button>
+                <app-variant-delete-button
+                  [variant]="variant.variant"
+                ></app-variant-delete-button>
               </ng-template>
             </tr>
           </ng-container>
