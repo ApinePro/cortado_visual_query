@@ -133,6 +133,8 @@ export abstract class VariantElement {
   public abstract updateSelectionAttributes(): void;
   public abstract getActivities(): Set<string>;
 
+  public abstract updateConformance(confValue: number): void;
+
   public setInfixSelectableState(
     state: SelectableState,
     recursive: boolean = false
@@ -399,6 +401,10 @@ export class SequenceGroup extends VariantElement {
       );
     }
   }
+
+  public updateConformance(confValue: number): void {
+    this.elements.forEach((el) => el.updateConformance(confValue));
+  }
 }
 
 export class ParallelGroup extends VariantElement {
@@ -563,6 +569,10 @@ export class ParallelGroup extends VariantElement {
       }
     });
   }
+
+  public updateConformance(confValue: number): void {
+    this.elements.forEach((el) => el.updateConformance(confValue));
+  }
 }
 
 export class LeafNode extends VariantElement {
@@ -594,7 +604,11 @@ export class LeafNode extends VariantElement {
     return this.activity.join(';');
   }
 
-  constructor(public activity: string[], performance: any = undefined) {
+  constructor(
+    public activity: string[],
+    performance: any = undefined,
+    public conformance: number[] = undefined
+  ) {
     super(performance);
   }
 
@@ -658,6 +672,10 @@ export class LeafNode extends VariantElement {
 
   public updateSelectionAttributes(): void {
     // pass
+  }
+
+  public updateConformance(confValue: number): void {
+    this.conformance = new Array(this.activity.length).fill(confValue);
   }
 }
 
@@ -777,6 +795,10 @@ export class WaitingTimeNode extends VariantElement {
 
   public updateSelectionAttributes(): void {
     // pass
+  }
+
+  public updateConformance(confValue: number): void {
+    //pass
   }
 }
 
@@ -926,7 +948,15 @@ export function deserialize(obj: any): VariantElement {
     if (obj['leaf'][0].includes('_LOOP')) {
       return new LeafLoopNode(obj['leaf'][0].replace('_LOOP', ''));
     } else {
-      return new LeafNode(obj['leaf'], obj['performance']);
+      return new LeafNode(
+      obj['leaf'].map((el) => {
+        return typeof el === 'string' ? el : el[0];
+      }),
+      obj['performance'],
+      obj['leaf'].map((el) => {
+        return typeof el === 'string' ? undefined : el[1];
+      })
+    );
     }
   }
 }

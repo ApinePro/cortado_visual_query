@@ -58,7 +58,7 @@ export class VariantInfoComponent implements OnInit, OnDestroy {
       !this.variant.calculationInProgress &&
       (this.variant.isConformanceOutdated ||
         this.variant.isTimeouted ||
-        this.variant.deviation === undefined)
+        this.variant.deviations === undefined)
     );
   }
 }

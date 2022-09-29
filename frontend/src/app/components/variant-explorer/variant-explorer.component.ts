@@ -67,6 +67,7 @@ import {
   VariantElement,
   SequenceGroup,
   ParallelGroup,
+  deserialize,
 } from 'src/app/objects/Variants/variant_element';
 import {
   activityColor,
@@ -419,19 +420,24 @@ export class VariantExplorerComponent
           variant.isConformanceOutdated = res.isTimeout;
 
           if (!res.isTimeout) {
-            variant.deviation = res.deviation;
+            variant.alignment = deserialize(res.alignment);
+            variant.deviations = res.deviations;
           }
 
           this.updateAlignmentStatistics();
+          this.variantDrawers
+            .find((drawer) => drawer.variant.id == res.id)
+            .redraw();
         },
         (_) => {
           this.variants.forEach((v) => {
             v.calculationInProgress = false;
             v.alignment = undefined;
-            v.deviation = undefined;
+            v.deviations = undefined;
           });
 
           this.updateAlignmentStatistics();
+          this.redraw_components();
         }
       );
   }
@@ -450,7 +456,7 @@ export class VariantExplorerComponent
     let numberFittingTraces = 0;
 
     this.variants.forEach((v) => {
-      if (v.deviation !== undefined && !v.deviation) {
+      if (v.deviations == 0) {
         numberFittingVariants++;
         numberFittingTraces += v.count;
       }
@@ -465,7 +471,7 @@ export class VariantExplorerComponent
   updateConformanceForVariant(variant: Variant, timeout: number): void {
     console.log(variant, timeout);
     variant.calculationInProgress = true;
-    variant.deviation = undefined;
+    variant.deviations = undefined;
 
     const resubscribe = this.conformanceCheckingService.calculateConformance(
       variant.id,
@@ -768,10 +774,10 @@ export class VariantExplorerComponent
     selectedVariants: Variant[]
   ): void {
     const fittingVariants = selectedVariants
-      .filter((v) => !v.deviation)
+      .filter((v) => v.deviations == 0)
       .map((v) => v.variant);
     const variantsToAdd = selectedVariants
-      .filter((v) => v.deviation)
+      .filter((v) => v.deviations > 0)
       .map((v) => v.variant);
 
     this.backendService
@@ -785,17 +791,29 @@ export class VariantExplorerComponent
   refreshConformanceIconsAfterModelChange(wasInitialDiscovery: boolean): void {
     if (wasInitialDiscovery) {
       this.variants.forEach((v) => {
-        v.deviation = undefined;
+        v.deviations = undefined;
         v.calculationInProgress = false;
       });
     }
 
     this.getSelectedVariants().forEach((v) => {
       v.isAddedFittingVariant = true;
-      v.deviation = false;
+      v.deviations = 0;
+      // Make variant as fitting alignment
+      v.alignment = v.variant;
+      v.alignment.updateConformance(1);
+
       v.calculationInProgress = false;
       v.isConformanceOutdated = false;
     });
+
+    // redraw if in conformance view
+    if (this.variantViewModeService.viewMode === ViewMode.CONFORMANCE)
+      this.getSelectedVariants().forEach((v) => {
+        this.variantDrawers
+          .find((drawer) => drawer.variant.id == v.id)
+          .redraw();
+      });
 
     this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
   }
@@ -836,7 +854,7 @@ export class VariantExplorerComponent
     this.variantDrawers.forEach((c) => {
       if (
         this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE &&
-        shouldExpand != c.variant.expanded
+        shouldExpand != c.variant.variant.expanded
       ) {
         c.setExpanded(shouldExpand);
         c.redraw();

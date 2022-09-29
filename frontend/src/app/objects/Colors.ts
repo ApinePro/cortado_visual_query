@@ -34,3 +34,14 @@ export const COLORS_TEAL = [
   '#025254',
   '#024042',
 ];
+
+export const COLORS_RED_GREEN = [
+  '#f01523',
+  '#f4501a',
+  '#f98b12',
+  '#fdc609',
+  '#dbdc04',
+  '#92cd03',
+  '#49be01',
+  '#00af00',
+];

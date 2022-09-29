@@ -36,6 +36,7 @@ import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { Variant } from 'src/app/objects/Variants/variant';
 
 @Directive({
   selector: '[appVariantDrawer]',
@@ -45,7 +46,8 @@ export class VariantDrawerDirective
   implements AfterViewInit, OnChanges, OnDestroy
 {
   setExpanded(expanded: boolean) {
-    this.variant.setExpanded(expanded);
+    this.variant.variant.setExpanded(expanded);
+    this.variant.alignment?.setExpanded(expanded);
     this.redraw();
   }
 
@@ -62,7 +64,7 @@ export class VariantDrawerDirective
   svgHtmlElement: ElementRef;
 
   @Input()
-  variant: VariantElement;
+  variant: Variant;
 
   @Input()
   traceInfixSelectionMode: boolean = false;
@@ -74,21 +76,21 @@ export class VariantDrawerDirective
   computeActivityColor: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
-    variant: VariantElement
+    variant: Variant
   ) => string;
 
   @Input()
   onClickCbFc: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
-    variant: VariantElement
+    variant: Variant
   ) => void;
 
   @Input()
   onMouseOverCbFc: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
-    variant: VariantElement,
+    variant: Variant,
     selection
   ) => void;
 
@@ -96,7 +98,7 @@ export class VariantDrawerDirective
   onRightMouseClickCbFc: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
-    variant: VariantElement,
+    variant: Variant,
     event: Event
   ) => void;
 
@@ -151,16 +153,24 @@ export class VariantDrawerDirective
   redraw(): void {
     this.svgSelection.selectAll('*').remove();
 
-    if (this.variant) {
-      const height = this.variant.recalculateHeight(
+    if (this.variant.variant) {
+      const height = this.variant.variant.recalculateHeight(
         this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
       );
-      const width = this.variant.recalculateWidth(
+      const width = this.variant.variant.recalculateWidth(
         this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
       );
 
+      if (
+        this.variantViewModeService.viewMode === ViewMode.CONFORMANCE &&
+        this.variant.alignment
+      ) {
+        const height = this.variant.alignment.recalculateHeight(false);
+        const width = this.variant.alignment.recalculateWidth(false);
+      }
+
       const svg_container = d3.select(this.svgHtmlElement.nativeElement);
-      this.variant.updateWidth(
+      this.variant.variant.updateWidth(
         this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
       );
 
@@ -174,12 +184,17 @@ export class VariantDrawerDirective
         .attr('width', width + width_offset)
         .attr('height', height + 2 * VARIANT_Constants.SELECTION_STROKE_WIDTH);
 
-      this.draw(this.variant, svg, true);
+      if (
+        this.variantViewModeService.viewMode === ViewMode.CONFORMANCE &&
+        this.variant.alignment
+      )
+        this.draw(this.variant.alignment, svg, true);
+      else this.draw(this.variant.variant, svg, true);
 
       this.tooltipService.initializeChildren(this.svgHtmlElement);
 
       if (
-        this.variant instanceof SequenceGroup &&
+        this.variant.variant instanceof SequenceGroup &&
         this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE
       ) {
         this.svgSelection.select('polygon').style('fill', 'transparent');
@@ -700,7 +715,7 @@ export class VariantDrawerDirective
   }
 
   isExpanded(): boolean {
-    return this.variant.expanded;
+    return this.variant.variant.expanded;
   }
 
   setInspectVariant() {

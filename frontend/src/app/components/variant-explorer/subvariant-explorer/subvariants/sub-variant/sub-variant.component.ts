@@ -253,20 +253,24 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
   }
 
   private computeActivityColor(subvariantData: SubvariantVisualization) {
-    if (this.variantViewModeService.viewMode === ViewMode.STANDARD) {
-      return this.colorMap.get(subvariantData.activity);
-    }
-    if (!subvariantData.isWaitingTimeNode) {
-      let stat = this.variantPerformanceService.serviceTimeStatistic;
-      return this.serviceTimeColorMap.getColor(
-        subvariantData.performanceStats[stat]
-      );
-    }
+    switch (this.variantViewModeService.viewMode) {
+      case ViewMode.STANDARD:
+        return this.colorMap.get(subvariantData.activity);
+      case ViewMode.PERFORMANCE:
+        if (!subvariantData.isWaitingTimeNode) {
+          let stat = this.variantPerformanceService.serviceTimeStatistic;
+          return this.serviceTimeColorMap.getColor(
+            subvariantData.performanceStats[stat]
+          );
+        }
 
-    let stat = this.variantPerformanceService.waitingTimeStatistic;
-    return this.waitingTimeColorMap.getColor(
-      subvariantData.performanceStats[stat]
-    );
+        let stat = this.variantPerformanceService.waitingTimeStatistic;
+        return this.waitingTimeColorMap.getColor(
+          subvariantData.performanceStats[stat]
+        );
+      default:
+        return this.colorMap.get(subvariantData.activity);
+    }
   }
 
   private wrapInnerLabelText(

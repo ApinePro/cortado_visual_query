@@ -3,19 +3,22 @@ export class ConformanceCheckingResult {
   type: number;
   isTimeout: boolean;
   cost: number;
-  deviation: boolean;
+  deviations: number;
+  alignment: string;
 
   constructor(
     id: string,
     type: number,
     isTimeout: boolean,
     cost: number,
-    deviation: boolean
+    deviations: number,
+    alignment: string
   ) {
     this.id = id;
     this.type = type;
     this.isTimeout = isTimeout;
     this.cost = cost;
-    this.deviation = deviation;
+    this.deviations = deviations;
+    this.alignment = alignment;
   }
 }

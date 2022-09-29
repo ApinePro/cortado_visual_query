@@ -65,13 +65,13 @@ export class VariantSorter {
       return -1;
     } else if (!a.isConformanceOutdated && b.isConformanceOutdated) {
       return 1;
-    } else if (a.deviation === undefined && b.deviation !== undefined) {
+    } else if (a.deviations === undefined && b.deviations !== undefined) {
       return -1;
-    } else if (b.deviation === undefined && a.deviation !== undefined) {
+    } else if (b.deviations === undefined && a.deviations !== undefined) {
       return 1;
-    } else if (a.deviation && !b.deviation) {
+    } else if (a.deviations > b.deviations) {
       return -1;
-    } else if (!a.deviation && b.deviation) {
+    } else if (a.deviations < b.deviations) {
       return 1;
     }
 

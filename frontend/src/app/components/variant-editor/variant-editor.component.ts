@@ -618,7 +618,7 @@ export class VariantEditorComponent
     );
 
     newVariant.alignment = undefined;
-    newVariant.deviation = undefined;
+    newVariant.deviations = undefined;
     newVariant.id = objectHash(newVariant);
 
     this.variantService.nUserVariants += 1;

@@ -15,9 +15,8 @@ export class Variant {
   percentage: number;
   calculationInProgress: boolean | undefined;
   userDefined: boolean;
-  // TODO alignment is unused it will not be returned by calculateAlignmentsCVariant backend endpoint
-  alignment: any | undefined;
-  deviation: any | undefined;
+  alignment: VariantElement | undefined;
+  deviations: number | undefined;
   isTimeouted: boolean;
   isConformanceOutdated: boolean;
   nSubVariants: number;

@@ -32,6 +32,7 @@ import { ViewMode } from 'src/app/objects/ViewMode';
 import { activityColor } from '../functions/variant-drawer-callbacks';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
 
 @Component({
   selector: 'app-subvariant-explorer',
@@ -71,7 +72,8 @@ export class SubvariantExplorerComponent
     private polygonDrawingService: PolygonDrawingService,
     private backendService: BackendService,
     public variantPerformanceService: VariantPerformanceService,
-    public variantViewModeService: VariantViewModeService
+    public variantViewModeService: VariantViewModeService,
+    private conformanceCheckingService: ConformanceCheckingService
   ) {
     super(elRef.nativeElement, renderer);
     let state = this.container.initialState;
