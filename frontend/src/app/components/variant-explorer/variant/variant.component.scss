@@ -6,7 +6,6 @@
 }
 
 .variant-cell {
-  padding: 5px;
   width: 100%;
 }
 
@@ -21,4 +20,12 @@
   position: sticky;
   background-color: var(--box-background-color);
   vertical-align: middle;
+}
+
+td {
+  padding-left: 15px;
+}
+
+td:first-child {
+  padding-left: 15px + 4px;
 }
