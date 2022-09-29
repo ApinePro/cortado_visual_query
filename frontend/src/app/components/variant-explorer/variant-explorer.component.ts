@@ -82,6 +82,7 @@ import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
 import { EditorOptions } from './variant-query/variant-query.component';
 import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
+import { ToastService } from 'src/app/services/toast/toast.service';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -113,7 +114,8 @@ export class VariantExplorerComponent
     private conformanceCheckingService: ConformanceCheckingService,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     public variantViewModeService: VariantViewModeService,
-    private tooltipService: ActivateTooltipsService
+    private tooltipService: ActivateTooltipsService,
+    private toastService: ToastService
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -952,6 +954,15 @@ export class VariantExplorerComponent
   deleteVisibleVariants(): void {
     const bids = this.displayed_variants.map((v) => v.bid);
     this.variantService.deleteVariants(bids);
+    for (let filter of this.filterMap.keys()) {
+      this.removeFilter(filter);
+    }
+
+    this.toastService.showSuccessToast(
+      'Variants removed',
+      'Removed all (filtered) variants. Filters are cleared.',
+      'bi-trash'
+    );
   }
 }
 
