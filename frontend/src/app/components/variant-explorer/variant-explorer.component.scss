@@ -239,7 +239,7 @@
   filter: brightness(1.75);
 }
 
-tr:hover {
+.hover-variant-row:hover {
   background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
 }
 
