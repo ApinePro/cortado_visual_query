@@ -437,130 +437,111 @@
     <div class="d-flex">
       <div class="chart-variant__percentage">
         <table>
-          <tr class="user-select-none">
-            <th style="padding-right: 15px; padding-left: 5px">
-              <div class="variant-filter-container">Nr.</div>
-            </th>
-            <th>
-              <div class="variant-filter-container">
-                <app-variant-selection-button
-                  [isSelected]="areAllDisplayedVariantsSelected()"
-                  (selectionChanged)="unSelectAllChanged($event)"
-                  tooltipText="(un)select all variants"
-                >
-                </app-variant-selection-button>
-                Info
-              </div>
-            </th>
-            <th
-              style="
-                text-align: center;
-                padding-right: 10px;
-                padding-left: 10px;
-              "
-            >
-              <div class="variant-filter-container">Sub-Variants</div>
-            </th>
-            <th
-              *ngIf="currentlyDisplayedProcessTree"
-              style="text-align: center"
-            >
-              <div
-                *ngIf="
-                  currentlyDisplayedProcessTree && anyPerforamnceAvailable()
-                "
-                style="
-                  display: flex;
-                  flex-direction: row;
-                  padding: 5px;
-                  margin: 5px 10px 5px 10px;
-                  border-radius: 5px;
-                  border: 1px dashed lightgrey;
-                "
-                [ngClass]="{
-                  'selected-variant-performance': isMeanPerformanceActive()
-                }"
-              >
-                <button
-                  type="button"
-                  class="btn variant-performance-button"
-                  (click)="showMeanPerformance()"
-                  [style.background]="variantPerformanceColor()"
-                  data-bs-toggle="tooltip"
-                  data-bs-trigger="hover"
-                  [title]="meanPerformance()"
-                  id="performanceButtonMean"
-                >
-                  <i
-                    class="bi bi-graph-up align-middle font-large variant-performance-icon"
-                    [style.color]="textColorForBackgroundColor()"
-                  ></i>
-                </button>
-                <button
-                  style="padding: 0"
-                  class="btn"
-                  (click)="performanceService.removeAll()"
-                  data-bs-toggle="tooltip"
-                  title="remove performance values of all variants"
-                >
-                  <i class="bi bi-x-lg" style="color: white"></i>
-                </button>
-              </div>
-            </th>
-
-            <th class="text-start">
-              <div class="variant-filter-container p-2">
-                <div>
-                  <span>Variant </span>
-                  <br />
-                  <span class="variant-number"
-                    >({{
-                      displayed_variants.length === variants.length
-                        ? displayed_variants.length
-                        : displayed_variants.length + "/" + variants.length
-                    }})</span
+          <thead>
+            <tr class="user-select-none">
+              <th class="centered">
+                <div class="variant-filter-container">Nr.</div>
+              </th>
+              <th>
+                <div class="variant-filter-container">
+                  <app-variant-selection-button
+                    [isSelected]="areAllDisplayedVariantsSelected()"
+                    (selectionChanged)="unSelectAllChanged($event)"
+                    tooltipText="(un)select all variants"
                   >
+                  </app-variant-selection-button>
+                  Info
                 </div>
-
-                <div class="filter-container">
-                  <div
-                    *ngFor="let filter of filterMap | keyvalue"
-                    class="badge-container"
+              </th>
+              <th class="centered">
+                <div class="variant-filter-container">Sub-Variants</div>
+              </th>
+              <th *ngIf="currentlyDisplayedProcessTree" class="centered">
+                <div
+                  *ngIf="
+                    currentlyDisplayedProcessTree && anyPerforamnceAvailable()
+                  "
+                  style="
+                    display: flex;
+                    flex-direction: row;
+                    padding: 5px;
+                    margin: 5px 10px 5px 10px;
+                    border-radius: 5px;
+                    border: 1px dashed lightgrey;
+                  "
+                  [ngClass]="{
+                    'selected-variant-performance': isMeanPerformanceActive()
+                  }"
+                >
+                  <button
+                    type="button"
+                    class="btn variant-performance-button"
+                    (click)="showMeanPerformance()"
+                    [style.background]="variantPerformanceColor()"
+                    data-bs-toggle="tooltip"
+                    data-bs-trigger="hover"
+                    [title]="meanPerformance()"
+                    id="performanceButtonMean"
                   >
-                    <button
-                      class="btn badge-button"
-                      (click)="removeFilter(filter.key)"
+                    <i
+                      class="bi bi-graph-up align-middle font-large variant-performance-icon"
+                      [style.color]="textColorForBackgroundColor()"
+                    ></i>
+                  </button>
+                  <button
+                    style="padding: 0"
+                    class="btn"
+                    (click)="performanceService.removeAll()"
+                    data-bs-toggle="tooltip"
+                    title="remove performance values of all variants"
+                  >
+                    <i class="bi bi-x-lg" style="color: white"></i>
+                  </button>
+                </div>
+              </th>
+
+              <th class="text-start variant-header">
+                <div class="variant-filter-container">
+                  <div>
+                    <span>Variant </span>
+                    <span class="variant-number"
+                      >({{
+                        displayed_variants.length === variants.length
+                          ? displayed_variants.length
+                          : displayed_variants.length + "/" + variants.length
+                      }})</span
                     >
+                  </div>
+
+                  <div class="filter-container">
+                    <div
+                      *ngFor="let filter of filterMap | keyvalue"
+                      class="badge-container"
+                    >
+                      <button
+                        class="btn badge-button"
+                        (click)="removeFilter(filter.key)"
+                      >
+                        <span
+                          class="badge rounded-pill bg-danger badge-close-position cursor-pointer"
+                          ><i class="bi bi-x-lg close-icon"></i>
+                        </span>
+                      </button>
                       <span
-                        class="badge rounded-pill bg-danger badge-close-position cursor-pointer"
-                        ><i class="bi bi-x-lg close-icon"></i>
+                        class="badge text-bg-primary ms-1"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="bottom"
+                        data-bs-html="true"
+                        [title]="filter.value.tooltip"
+                      >
+                        <i class="bi bi-funnel-fill"> </i> {{ filter.key }}
                       </span>
-                    </button>
-                    <span
-                      class="badge text-bg-primary ms-1"
-                      data-bs-toggle="tooltip"
-                      data-bs-placement="bottom"
-                      data-bs-html="true"
-                      [title]="filter.value.tooltip"
-                    >
-                      <i class="bi bi-funnel-fill"> </i> {{ filter.key }}
-                    </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </th>
-            <th class="text-start">
-              <div
-                class="cursor-pointer remove-variant-button"
-                (click)="deleteVisibleVariants()"
-                data-bs-toggle="tooltip"
-                data-bs-placement="bottom"
-                title="remove (visible) variants from event log"
-              >
-                <i class="bi bi-trash"></i>
-              </div>
-            </th>
-          </tr>
+              </th>
+            </tr>
+          </thead>
           <ng-container
             *ngFor="let variant of displayed_variants; let i = index"
           >
@@ -665,13 +646,6 @@
     <div class="tooltip-inner"></div>
   </div>
 </div>
-
-<app-variant-conformance-dialog
-  [showConformanceDialog]="showConformanceDialogEvent.asObservable()"
-  (updateConformanceWithCustomTimeout)="
-    updateConformanceForVariant($event.variant, $event.timeout)
-  "
-></app-variant-conformance-dialog>
 
 <app-variant-query-info [(showInfo)]="showQueryInfo"> </app-variant-query-info>
 
