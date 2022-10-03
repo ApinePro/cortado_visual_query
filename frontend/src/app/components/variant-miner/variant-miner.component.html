@@ -310,6 +310,7 @@
                 </ng-template>
               </div>
             </div>
+
             <div class="filter-option-container">
               <span>Sup:</span>
               <div class="slider-container sup-selector">
@@ -319,29 +320,6 @@
                   [options]="supFilter.config"
                   (userChangeEnd)="handleFilterChange($event)"
                 ></ngx-slider>
-              </div>
-            </div>
-            <div class="slider-group">
-              <span> Confidence: </span>
-              <div class="filter-option-container">
-                <span>Child-Parent:</span>
-                <div class="slider-container sup-selector">
-                  <ngx-slider
-                    [(value)]="cpConfFilter.low"
-                    [(highValue)]="cpConfFilter.high"
-                    [options]="cpConfFilter.config"
-                    (userChangeEnd)="handleFilterChange($event)"
-                  ></ngx-slider>
-                </div>
-                <div class="slider-container sup-selector">
-                  <span>Subpattern:</span>
-                  <ngx-slider
-                    [(value)]="supConfFilter.low"
-                    [(highValue)]="supConfFilter.high"
-                    [options]="supConfFilter.config"
-                    (userChangeEnd)="handleFilterChange($event)"
-                  ></ngx-slider>
-                </div>
               </div>
             </div>
             <div class="radio-content">
@@ -404,6 +382,11 @@
                 </ng-template>
               </div>
             </div>
+            <app-activity-button-area
+              [activityNames]="activityNames"
+              (activityButtonClick)="handleActivityButtonClick($event)"
+            >
+            </app-activity-button-area>
           </div>
         </div>
       </div>
@@ -411,7 +394,7 @@
       <table class="pattern-table">
         <thead class="user-select-none sticky-header-row">
           <tr>
-            <th resizeable class="text-center" rowspan="1">
+            <th resizeable class="text-center" rowspan="1" [margin]="-4">
               <div class="header-text-container">
                 <div
                   class="header-text"
@@ -428,6 +411,7 @@
               resizeable
               class="text-center border-start border-lightgrey"
               rowspan="1"
+              [margin]="-4"
             >
               <div class="header-text-container">
                 <div
@@ -453,6 +437,7 @@
               resizeable
               class="text-center border-start border-lightgrey"
               rowspan="1"
+              [margin]="-4"
             >
               <div class="header-text-container">
                 <div
@@ -469,34 +454,9 @@
             </th>
             <th
               resizeable
-              class="text-center border-start border-lightgrey"
+              class="border-lightgrey border-start border-end text-center"
               colspan="2"
-            >
-              <div class="header-text-container">
-                <div
-                  class="header-text"
-                  (click)="sort(VariantSortKey.child_parent_confidence)"
-                >
-                  Confidence
-                </div>
-                <i
-                  [ngClass]="{
-                    'bi-sort-numeric-down': ascending,
-                    'bi-sort-numeric-down-alt': !ascending,
-                    invisible: !(
-                      currentSortKey ===
-                        VariantSortKey.child_parent_confidence ||
-                      currentSortKey === VariantSortKey.subpattern_confidence ||
-                      currentSortKey === VariantSortKey.cross_support_confidence
-                    )
-                  }"
-                ></i>
-              </div>
-            </th>
-            <th
-              resizeable
-              class="border-lightgrey border-start text-center"
-              colspan="2"
+              [margin]="-4"
             >
               <div class="header-text-container">
                 <div class="header-text" (click)="sort(VariantSortKey.closed)">
@@ -518,6 +478,7 @@
               resizeable
               class="text-start border-lightgrey border-start"
               rowspan="1"
+              [margin]="-4"
             >
               <div
                 class="header-text-container variant-header"
@@ -545,7 +506,7 @@
                 }"
               ></i>
             </th>
-            <th class="text-center border-lightgrey border-start">
+            <th class="text-center border-start border-lightgrey">
               <i
                 [ngClass]="{
                   'bi-sort-numeric-down': ascending,
@@ -554,7 +515,7 @@
                 }"
               ></i>
             </th>
-            <th class="text-center border-lightgrey border-start">
+            <th class="text-center border-start border-lightgrey">
               <i
                 [ngClass]="{
                   'bi-sort-numeric-down': ascending,
@@ -564,35 +525,7 @@
               ></i>
             </th>
             <th
-              class="confidence-names text-center border-lightgrey border-start"
-            >
-              <div
-                (click)="sort(VariantSortKey.child_parent_confidence)"
-                class="header-text"
-                [ngClass]="{
-                  'selected-header-text':
-                    currentSortKey === VariantSortKey.child_parent_confidence
-                }"
-              >
-                Child-Parent
-              </div>
-            </th>
-            <th
-              class="confidence-names text-center border-lightgrey border-start"
-            >
-              <div
-                (click)="sort(VariantSortKey.subpattern_confidence)"
-                class="header-text"
-                [ngClass]="{
-                  'selected-header-text':
-                    currentSortKey === VariantSortKey.subpattern_confidence
-                }"
-              >
-                Subpattern
-              </div>
-            </th>
-            <th
-              class="confidence-names text-center border-lightgrey border-start"
+              class="confidence-names text-center border-start border-lightgrey"
             >
               <div
                 (click)="sort(VariantSortKey.closed)"
@@ -606,7 +539,7 @@
               </div>
             </th>
             <th
-              class="confidence-names text-center border-lightgrey border-start"
+              class="confidence-names text-center border-start border-lightgrey"
             >
               <div
                 (click)="sort(VariantSortKey.maximal)"
@@ -624,31 +557,6 @@
             >
               <div class="header-text"></div>
             </th>
-            <!---
-            <th class="confidence-names text-center">
-              <div
-                (click)="sort(VariantSortKey.subpattern_confidence)"
-                class="header-text"
-                [ngClass]="{
-                  'selected-header-text':
-                    currentSortKey === VariantSortKey.subpattern_confidence
-                }"
-              >
-                Subpattern
-              </div>
-            </th>
-            <th class="confidence-names text-center">
-              <div
-                (click)="sort(VariantSortKey.cross_support_confidence)"
-                class="header-text"
-                [ngClass]="{
-                  'selected-header-text':
-                    currentSortKey === VariantSortKey.cross_support_confidence
-                }"
-              >
-                Cross-Support
-              </div>
-            </th>-->
           </tr>
         </thead>
         <tbody>

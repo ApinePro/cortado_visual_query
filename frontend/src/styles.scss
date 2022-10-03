@@ -467,6 +467,14 @@ th {
   background-color: var(--box-background-color);
 }
 
+.activity-button-out{
+  filter : opacity(0.35);
+}
+
+.activity-button-in{
+  filter: brightness(1.4) drop-shadow(2px 4px 6px black);
+}
+
 .collapsed-golden-layout-container{
   background-color: var(--box-background-color);
 }

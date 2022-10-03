@@ -90,7 +90,6 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
     
     print()
     print('Post-Processing...')
-    print('DEV:  CURRENTLY NOT SETTING CLOSED')
     set_maximaly_closed_patterns(k_patterns) 
         
     df = dataframe_from_k_patterns(k_patterns)
@@ -100,10 +99,6 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
         df = df[df.valid] 
         
         df['bids'] = df.obj.apply(lambda x : set(x.rmo.keys()))
-        
-        print("Adding Confidence Information...")
-        df = add_confidence_information_to_df(k_patterns, df)
-        print("Finished Confidence...")
         
         df.obj = df.obj.apply(
             lambda x: x.to_concurrency_group().serialize(include_performance=False)

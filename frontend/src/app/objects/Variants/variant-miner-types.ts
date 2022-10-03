@@ -84,6 +84,7 @@ export class SubvariantPattern {
   valid: boolean;
   closed: boolean;
   bids: Set<number>;
+  activities : Set<string>;
 
   calculationInProgress;
   isConformanceOutdated;
@@ -119,5 +120,6 @@ export class SubvariantPattern {
     this.closed = closed;
     this.infixType = infixType;
     this.bids = bids;
+    this.activities = this.variant.getActivities();
   }
 }

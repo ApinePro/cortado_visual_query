@@ -20,6 +20,7 @@
             resizeable
             scope="col"
             class="bg-dark th-dropdown-colors resizeable-header-element"
+            [margin]="-7"
           >
             <div
               class="btn-group align-baseline dropDownParent dropdown ms-auto center"
@@ -49,7 +50,8 @@
             scope="col"
             class="bg-dark border-end border-color toggle-select resizeable-header-element"
             (click)="toggleSort('activityName')"
-          >
+            [margin]="-7"
+            >
             <div class="d-flex justify-content-between">
               <div class="table-header-sort-group">
                 <em class="user-select-none">Activity name</em>
@@ -79,6 +81,7 @@
             scope="col"
             class="bg-dark text-center border-end border-color toggle-select resizeable-header-element"
             (click)="toggleSort('inModel')"
+            [margin]="-7"
           >
             <div class="table-header-sort-group">
               <em class="user-select-none">in model</em>
@@ -97,6 +100,7 @@
             scope="col"
             class="bg-dark text-center border-end border-color text-nowrap toggle-select resizeable-header-element"
             (click)="toggleSort('isStart')"
+            [margin]="-7"
           >
             <div class="table-header-sort-group">
               <div
@@ -127,6 +131,7 @@
             scope="col"
             class="bg-dark text-center border-end border-color text-nowrap toggle-select resizeable-header-element"
             (click)="toggleSort('isEnd')"
+            [margin]="-7"
           >
             <div class="table-header-sort-group">
               <div
@@ -160,6 +165,7 @@
             scope="col"
             class="bg-dark text-center toggle-select resizeable-header-element"
             (click)="toggleSort('occurences')"
+            [margin]="-7"
           >
             <div class="table-header-sort-group">
               <div>

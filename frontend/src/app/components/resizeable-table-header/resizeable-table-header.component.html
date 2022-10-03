@@ -2,5 +2,5 @@
   <div class="content">
     <ng-content></ng-content>
   </div>
-  <div class="bar" (resizeable)="onResize($event)"></div>
+  <div class="bar" (resizeable)="onResize($event)" [style.marginRight.px]="margin"></div>
 </div>

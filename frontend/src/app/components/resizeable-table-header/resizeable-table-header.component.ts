@@ -1,4 +1,4 @@
-import { Component, HostBinding, OnInit } from '@angular/core';
+import { Component, HostBinding, Input } from '@angular/core';
 
 @Component({
   selector: 'th[resizeable]', // eslint-disable-line @angular-eslint/component-selector
@@ -13,6 +13,9 @@ export class ResizeableTableHeaderComponent {
   }
   @HostBinding('style.width.px')
   width: number | null = null;
+
+  @Input()
+  margin: number;
 
   onResize(width: any) {
     this.width = width;

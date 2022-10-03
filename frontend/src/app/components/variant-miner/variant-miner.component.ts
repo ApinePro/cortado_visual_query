@@ -52,6 +52,8 @@ import {
 } from 'src/app/objects/Variants/variant_element';
 import { contextMenuCallback } from '../variant-explorer/functions/variant-drawer-callbacks';
 import { ImageExportService } from 'src/app/services/imageExportService/image-export-service';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-variant-miner',
@@ -91,6 +93,14 @@ export class VariantMinerComponent
     renderer: Renderer2
   ) {
     super(elRef.nativeElement, renderer);
+
+    const activitites = this.logService.activitiesInEventLog;
+
+    for (let activity in activitites) {
+      this.activityNames.push(activity);
+      this.activityNames.sort();
+      this.activityNamesFilter.set(activity, ActvitiyFilterState.Default);
+    }
   }
 
   @ViewChildren(VariantDrawerDirective)
@@ -106,7 +116,10 @@ export class VariantMinerComponent
   currentSortKey: VariantSortKey;
 
   currentHeight: number;
+  private _destroy$ = new Subject();
 
+  activityNames = [];
+  activityNamesFilter : Map<string, ActvitiyFilterState> = new  Map<string, ActvitiyFilterState>();
   processTree: ProcessTree = null;
   conformanceCheckedTree: ProcessTree = null;
 
@@ -187,7 +200,7 @@ export class VariantMinerComponent
   }.bind(this);
 
   filterInfix = function () {
-    const bids = this.displayedVariantsPatterns.filter(
+    const bids = this.filter(
       (v) => v.variant === this.contextMenu_variant
     )[0].bids;
 
@@ -438,6 +451,17 @@ export class VariantMinerComponent
   }
 
   handleFilterChange(event) {
+
+    const pos = []
+    const neg = []
+
+    this.activityNamesFilter.forEach((v, k) => {
+      switch(v){
+        case ActvitiyFilterState.In : {pos.push(k); break;};
+        case ActvitiyFilterState.Out : {neg.push(k); break;};
+      }
+    })
+
     this.displayedVariantsPatterns = this.variantPatterns.filter((vp) => {
       let res = true;
       res = res && this.kFilter.apply(vp);
@@ -445,8 +469,9 @@ export class VariantMinerComponent
       res = res && this.indexFilter.apply(vp);
       res = res && this.cpConfFilter.apply(vp);
       res = res && this.supConfFilter.apply(vp);
-
       res = res && this.closedMaxFilter(vp);
+
+      res = res && this.applyActivityNameFilter(vp, pos, neg)
 
       //res = res && this.alignmentFilterList.map(f => f.filterFnc(vp)).some(v => v)
       res =
@@ -458,17 +483,38 @@ export class VariantMinerComponent
     this.sortDisplayedVariants(this.currentSortKey);
   }
 
+  applyActivityNameFilter: (p: SubvariantPattern, pos : Array<string>, neg : Array<string>) => boolean = (
+    p: SubvariantPattern, pos : Array<string>, neg : Array<string>
+  ) => {
+    if (neg.some((a) => p.activities.has(a)) || (pos.length > 0 && !pos.some((a) => p.activities.has(a)))){
+      return false;
+    }
+
+    return true;
+  };
+
   ngAfterViewInit(): void {
-    this.colorMapService.colorMap$.subscribe((cMap) => {
+    this.logService.activitiesInEventLog$
+    .pipe(takeUntil(this._destroy$))
+    .subscribe((activities) => {
+      this.activityNames = [];
+      for (let activity in activities) {
+        this.activityNames.push(activity);
+        this.activityNames.sort();
+        this.activityNamesFilter.set(activity, ActvitiyFilterState.Default);
+      }
+    });
+
+    this.colorMapService.colorMap$.pipe(takeUntil(this._destroy$)).subscribe((cMap) => {
       this.colorMap = cMap;
     });
 
-    this.logService.loadedEventLog$.subscribe((log) => {
+    this.logService.loadedEventLog$.pipe(takeUntil(this._destroy$)).subscribe((log) => {
       this.variantPatterns = [];
       this.displayedVariantsPatterns = [];
     });
 
-    this.processTreeService.currentDisplayedProcessTree$.subscribe((tree) => {
+    this.processTreeService.currentDisplayedProcessTree$.pipe(takeUntil(this._destroy$)).subscribe((tree) => {
       this.processTree = tree;
 
       const treeHasChanged = processTreesEqual(
@@ -483,11 +529,11 @@ export class VariantMinerComponent
       }
     });
 
-    this.backendService.getConfiguration().subscribe((config) => {
+    this.backendService.getConfiguration().pipe(takeUntil(this._destroy$)).subscribe((config) => {
       this.conformanceTimeout = config.timeoutCVariantAlignmentComputation + 30;
     });
 
-    this.sharedDataService.frequentMiningResults$.subscribe((res) => {
+    this.sharedDataService.frequentMiningResults$.pipe(takeUntil(this._destroy$)).subscribe((res) => {
       if (res) {
         this.variantPatterns = new Array<SubvariantPattern>();
 
@@ -659,6 +705,41 @@ export class VariantMinerComponent
     // Hide the Spinner
   }
 
+
+
+  handleActivityButtonClick(e){
+
+    const state = this.activityNamesFilter.get(e.activityName);
+    let nextState;
+
+    switch(state){
+      case ActvitiyFilterState.Default : {
+        nextState = ActvitiyFilterState.In;
+        d3.select(e.svg).classed('activity-button-in', true)
+        break;
+      }
+
+      case ActvitiyFilterState.Out : {
+        nextState = ActvitiyFilterState.Default;
+        d3.select(e.svg).classed('activity-button-out', false)
+        break;
+      }
+
+      case ActvitiyFilterState.In : {
+        nextState = ActvitiyFilterState.Out;
+        d3.select(e.svg).classed('activity-button-in', false)
+        d3.select(e.svg).classed('activity-button-out', true)
+        break;
+      }
+      default : nextState = ActvitiyFilterState.Default; break;
+    }
+
+    this.activityNamesFilter.set(e.activityName, nextState);
+
+    this.handleFilterChange(null);
+
+  }
+
   computeActivityColor = (
     self: VariantDrawerDirective,
     element: VariantElement,
@@ -799,7 +880,9 @@ export class VariantMinerComponent
   ngOnDestroy(): void {
     this.sharedDataService.frequentMiningResults = null;
     this.lazyLoadingServiceService.destoryVariantMinerObserver();
+    this._destroy$.next();
   }
+
 }
 
 export namespace VariantMinerComponent {
@@ -875,4 +958,10 @@ export class Choice {
     this.desc = desc;
     this.filterFnc = filterFnc;
   }
+}
+
+enum ActvitiyFilterState{
+  In = 1,
+  Out = 2,
+  Default = 3,
 }

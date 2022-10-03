@@ -244,7 +244,12 @@
 }
 
 .radio-content{
-
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  padding: 10px;
+  align-items: center;
+  align-content: center;
 }
 
 

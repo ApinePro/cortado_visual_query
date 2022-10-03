@@ -204,6 +204,8 @@ export abstract class VariantElement {
 }
 
 export class SequenceGroup extends VariantElement {
+
+
   public getActivities(): Set<string> {
     const res: Set<string> = new Set<string>();
 
