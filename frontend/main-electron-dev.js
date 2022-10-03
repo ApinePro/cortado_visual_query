@@ -13,6 +13,7 @@ function createWindow() {
     frame: true,
     titleBarStyle: true,
     webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true,
       contextIsolation: true
     },
@@ -32,6 +33,7 @@ function createWindow() {
   // prevent external links from being opened in an electron window
   win.webContents.on('new-window', function (e, url) {
     e.preventDefault();
+
     require('electron').shell.openExternal(url);
   });
 
@@ -44,6 +46,10 @@ app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+ipcMain.on('restartBackend', () => {
+  console.log('DEV: Restarting Backend')
 })
 
 app.on('activate', function () {

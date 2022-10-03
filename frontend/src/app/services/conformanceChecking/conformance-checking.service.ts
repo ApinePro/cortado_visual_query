@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, partition } from 'rxjs';
+import { Observable, partition, Subject } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { BackgroundTaskInfoService } from '../backgroundTaskInfoService/background-task-info.service';
@@ -8,6 +8,7 @@ import Swal from 'sweetalert2';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import { VariantService } from '../variantService/variant.service';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
+import { Variant } from 'src/app/objects/Variants/variant';
 export const WS_ENDPOINT = 'ws://127.0.0.1:41211/conformance/conformancews';
 
 @Injectable({
@@ -23,6 +24,8 @@ export class ConformanceCheckingService {
   private runningRequests: number[] = [];
   public varResults: Observable<ConformanceCheckingResult>;
   public patternResults: Observable<ConformanceCheckingResult>;
+  public showConformanceCheckingTimeoutDialog: Subject<any> =
+  new Subject<any>();
 
   public connect(): boolean {
     if (!this.socket || this.socket.closed) {
@@ -110,6 +113,10 @@ export class ConformanceCheckingService {
       v.calculationInProgress = false;
     });
     this.socket.unsubscribe();
+  }
+
+  public showConformanceTimeoutDialog(variant: Variant, callbackFunc) {
+    this.showConformanceCheckingTimeoutDialog.next([variant, callbackFunc]);
   }
 }
 

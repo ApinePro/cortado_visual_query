@@ -1,5 +1,4 @@
 .chart-variant__percentage {
-  margin-left: 4px;
   display: inline-flex;
   flex-direction: column;
   /*
@@ -23,7 +22,6 @@
 .subvariants {
   text-align: center;
   cursor: pointer;
-  margin-left: 10px;
 }
 
 .variant-query-button {
@@ -41,17 +39,19 @@
   border-left: black solid 1px;
   border-top: black solid 1px;
   z-index: 1;
+  max-width: 500px;
+  max-height: 350px;
 }
 
-.query-bar-drop{
+.query-bar-drop {
   background-color: var(--box-background-color) !important;
-  z-index :  100;
+  z-index: 100;
   border-radius: 0;
 }
 
-.query-bar-dropdown{
-  transform : translate(0, 22px) !important;
-  color:whitesmoke;
+.query-bar-dropdown {
+  transform: translate(0, 22px) !important;
+  color: whitesmoke;
   font-size: small;
   position: absolute;
   inset: 0px 0px auto auto;
@@ -61,7 +61,7 @@
   border-radius: 4px !important;
 }
 
-.query-app-container{
+.query-app-container {
   width: 100%;
   height: 100%;
   background-color: var(--box-background-color);
@@ -91,7 +91,6 @@
 }
 
 .variant-cell {
-  padding: 5px;
   width: 100%;
 }
 
@@ -127,14 +126,14 @@
   margin: auto;
 }
 
-.badge-close-position{
+.badge-close-position {
   transform: translate(-50%, -35%) scale(0.6);
   left: 100%;
   top: 0%;
-  position:relative;
+  position: relative;
 }
 
-.badge-close-position:hover{
+.badge-close-position:hover {
   filter: brightness(150%);
 }
 
@@ -148,11 +147,11 @@
   margin-left : -20px;
 }
 
-.close-icon{
-  color : white
+.close-icon {
+  color: white;
 }
 
-.filter-container{
+.filter-container {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -165,7 +164,7 @@
   align-self: baseline;
 }
 
-.variant-filter-container{
+.variant-filter-container {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -239,4 +238,28 @@
 
 .question-icon:hover {
   filter: brightness(1.75);
+}
+
+th {
+  padding-left: 15px;
+  padding-bottom: 2px;
+}
+
+th:first-child {
+  padding-left: 15px + 4px;
+}
+
+th.centered {
+  text-align: center;
+}
+
+.variant-header {
+  padding-left: 15 + 5px;
+}
+
+thead {
+  position: sticky;
+  top: 0px;
+  background-color: var(--box-background-color);
+  box-shadow: inset 0 -2px 1px var(--thin-border-color);
 }

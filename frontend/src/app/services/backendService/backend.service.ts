@@ -411,13 +411,9 @@ export class BackendService {
     );
   }
 
-  getSubvariantsForVariant(
-    bid: number,
-    timeGranularity: TimeUnit
-  ): Observable<any> {
+  getSubvariantsForVariant(bid: number): Observable<any> {
     let body = {
       bid: bid,
-      timeGranularity: timeGranularity,
     };
     return this.httpClient.post(
       ROUTES.BASE_URL + ROUTES.SUBVARIANT_PERFORMANCE + 'subvariants',

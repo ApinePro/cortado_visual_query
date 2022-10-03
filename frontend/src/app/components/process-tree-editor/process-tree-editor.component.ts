@@ -227,7 +227,6 @@ export class ProcessTreeEditorComponent
   }
 
   redraw(tree) {
-    console.log('redrawing');
     this.selectedStatistic =
       this.performanceColorScaleService.selectedColorScale.statistic;
     this.selectedPerformanceIndicator =
@@ -247,11 +246,6 @@ export class ProcessTreeEditorComponent
     this._goldenLayout = this.goldenLayoutComponentService.goldenLayout;
 
     this.initializeSvg();
-
-    // do not close the insert new node dropdown menu
-    $(document).on('click', '#positionMethodSelection', function (e) {
-      e.stopPropagation();
-    });
 
     this._goldenLayoutHostComponent =
       this.goldenLayoutComponentService.goldenLayoutHostComponent;

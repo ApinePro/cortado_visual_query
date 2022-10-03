@@ -1,15 +1,9 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-} from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Variant } from 'src/app/objects/Variants/variant';
 import { BackendService } from 'src/app/services/backendService/backend.service';
+import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
 
 declare var $: any;
 
@@ -19,23 +13,22 @@ declare var $: any;
   styleUrls: ['./variant-conformance-dialog.component.scss'],
 })
 export class VariantConformanceDialogComponent implements OnInit, OnDestroy {
-  @Input()
-  showConformanceDialog: Observable<Variant>;
-
-  @Output()
-  public updateConformanceWithCustomTimeout = new EventEmitter<VariantTimeout>();
-
   variant: Variant;
   conformanceTimeout: number = 30;
+  callback;
 
   private _destroy$ = new Subject();
 
-  constructor(private backendService: BackendService) {}
+  constructor(
+    private backendService: BackendService,
+    private conformanceCheckingService: ConformanceCheckingService
+  ) {}
 
   ngOnInit(): void {
-    this.showConformanceDialog
+    this.conformanceCheckingService.showConformanceCheckingTimeoutDialog
       .pipe(takeUntil(this._destroy$))
-      .subscribe((variant: Variant) => {
+      .subscribe(([variant, callback]) => {
+        this.callback = callback;
         this.variant = variant;
         this.backendService
           .getConfiguration()
@@ -57,15 +50,7 @@ export class VariantConformanceDialogComponent implements OnInit, OnDestroy {
   }
 
   calculateConformance(): void {
-    const vt = new VariantTimeout();
-    vt.variant = this.variant;
-    vt.timeout = this.conformanceTimeout;
-    this.updateConformanceWithCustomTimeout.emit(vt);
+    this.callback(this.variant, this.conformanceTimeout);
     this.hideModal();
   }
-}
-
-class VariantTimeout {
-  variant: Variant;
-  timeout: number;
 }

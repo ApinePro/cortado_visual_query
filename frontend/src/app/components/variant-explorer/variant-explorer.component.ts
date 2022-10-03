@@ -84,6 +84,8 @@ import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
 import { EditorOptions } from './variant-query/variant-query.component';
+import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
+
 @Component({
   selector: 'app-variant-explorer',
   templateUrl: './variant-explorer.component.html',
@@ -113,7 +115,8 @@ export class VariantExplorerComponent
     public variantPerformanceService: VariantPerformanceService,
     private conformanceCheckingService: ConformanceCheckingService,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
-    public variantViewModeService: VariantViewModeService
+    public variantViewModeService: VariantViewModeService,
+    private tooltipService: ActivateTooltipsService
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -188,8 +191,6 @@ export class VariantExplorerComponent
   tooltipContainer: ElementRef<HTMLDivElement>;
 
   public visibleVariantsHeight = 1000;
-
-  showConformanceDialogEvent: Subject<Variant> = new Subject<Variant>();
 
   public deletedVariants: Variant[][] = [];
 
@@ -286,8 +287,6 @@ export class VariantExplorerComponent
 
     this.variantFilterService.variantFilters$.subscribe((filterMap) => {
       this.filterMap = filterMap;
-
-      console.log(filterMap);
 
       if (filterMap.size > 0) {
         const intersectSets = function (a: Set<number>, b: Set<number>) {
@@ -473,6 +472,7 @@ export class VariantExplorerComponent
   }
 
   updateConformanceForVariant(variant: Variant, timeout: number): void {
+    console.log(variant, timeout);
     variant.calculationInProgress = true;
     variant.deviation = undefined;
 
@@ -492,7 +492,10 @@ export class VariantExplorerComponent
 
   updateConformanceForSingleVariantClicked(variant: Variant): void {
     if (variant.isTimeouted) {
-      this.showConformanceDialogEvent.next(variant);
+      this.conformanceCheckingService.showConformanceTimeoutDialog(
+        variant,
+        this.updateConformanceForVariant.bind(this)
+      );
     } else {
       this.updateConformanceForVariant(variant, 0);
     }
@@ -968,6 +971,10 @@ export class VariantExplorerComponent
       .subscribe((granularity) => {
         this.selectedGranularity = granularity;
       });
+  }
+
+  onScroll(): void {
+    this.tooltipService.hideAll();
   }
 }
 
