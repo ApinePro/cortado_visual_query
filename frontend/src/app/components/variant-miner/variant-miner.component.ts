@@ -119,7 +119,10 @@ export class VariantMinerComponent
   private _destroy$ = new Subject();
 
   activityNames = [];
-  activityNamesFilter : Map<string, ActvitiyFilterState> = new  Map<string, ActvitiyFilterState>();
+  activityNamesFilter: Map<string, ActvitiyFilterState> = new Map<
+    string,
+    ActvitiyFilterState
+  >();
   processTree: ProcessTree = null;
   conformanceCheckedTree: ProcessTree = null;
 
@@ -200,9 +203,8 @@ export class VariantMinerComponent
   }.bind(this);
 
   filterInfix = function () {
-    const bids = this.filter(
-      (v) => v.variant === this.contextMenu_variant
-    )[0].bids;
+    const bids = this.filter((v) => v.variant === this.contextMenu_variant)[0]
+      .bids;
 
     this.variantFilterService.addVariantFilter('infix filter', new Set(bids));
   }.bind(this);
@@ -451,16 +453,21 @@ export class VariantMinerComponent
   }
 
   handleFilterChange(event) {
-
-    const pos = []
-    const neg = []
+    const pos = [];
+    const neg = [];
 
     this.activityNamesFilter.forEach((v, k) => {
-      switch(v){
-        case ActvitiyFilterState.In : {pos.push(k); break;};
-        case ActvitiyFilterState.Out : {neg.push(k); break;};
+      switch (v) {
+        case ActvitiyFilterState.In: {
+          pos.push(k);
+          break;
+        }
+        case ActvitiyFilterState.Out: {
+          neg.push(k);
+          break;
+        }
       }
-    })
+    });
 
     this.displayedVariantsPatterns = this.variantPatterns.filter((vp) => {
       let res = true;
@@ -471,7 +478,7 @@ export class VariantMinerComponent
       res = res && this.supConfFilter.apply(vp);
       res = res && this.closedMaxFilter(vp);
 
-      res = res && this.applyActivityNameFilter(vp, pos, neg)
+      res = res && this.applyActivityNameFilter(vp, pos, neg);
 
       //res = res && this.alignmentFilterList.map(f => f.filterFnc(vp)).some(v => v)
       res =
@@ -483,10 +490,19 @@ export class VariantMinerComponent
     this.sortDisplayedVariants(this.currentSortKey);
   }
 
-  applyActivityNameFilter: (p: SubvariantPattern, pos : Array<string>, neg : Array<string>) => boolean = (
-    p: SubvariantPattern, pos : Array<string>, neg : Array<string>
+  applyActivityNameFilter: (
+    p: SubvariantPattern,
+    pos: Array<string>,
+    neg: Array<string>
+  ) => boolean = (
+    p: SubvariantPattern,
+    pos: Array<string>,
+    neg: Array<string>
   ) => {
-    if (neg.some((a) => p.activities.has(a)) || (pos.length > 0 && !pos.some((a) => p.activities.has(a)))){
+    if (
+      neg.some((a) => p.activities.has(a)) ||
+      (pos.length > 0 && !pos.some((a) => p.activities.has(a)))
+    ) {
       return false;
     }
 
@@ -495,113 +511,125 @@ export class VariantMinerComponent
 
   ngAfterViewInit(): void {
     this.logService.activitiesInEventLog$
-    .pipe(takeUntil(this._destroy$))
-    .subscribe((activities) => {
-      this.activityNames = [];
-      for (let activity in activities) {
-        this.activityNames.push(activity);
-        this.activityNames.sort();
-        this.activityNamesFilter.set(activity, ActvitiyFilterState.Default);
-      }
-    });
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((activities) => {
+        this.activityNames = [];
+        for (let activity in activities) {
+          this.activityNames.push(activity);
+          this.activityNames.sort();
+          this.activityNamesFilter.set(activity, ActvitiyFilterState.Default);
+        }
+      });
 
-    this.colorMapService.colorMap$.pipe(takeUntil(this._destroy$)).subscribe((cMap) => {
-      this.colorMap = cMap;
-    });
+    this.colorMapService.colorMap$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((cMap) => {
+        this.colorMap = cMap;
+      });
 
-    this.logService.loadedEventLog$.pipe(takeUntil(this._destroy$)).subscribe((log) => {
-      this.variantPatterns = [];
-      this.displayedVariantsPatterns = [];
-    });
+    this.logService.loadedEventLog$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((log) => {
+        this.variantPatterns = [];
+        this.displayedVariantsPatterns = [];
+      });
 
-    this.processTreeService.currentDisplayedProcessTree$.pipe(takeUntil(this._destroy$)).subscribe((tree) => {
-      this.processTree = tree;
+    this.processTreeService.currentDisplayedProcessTree$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((tree) => {
+        this.processTree = tree;
 
-      const treeHasChanged = processTreesEqual(
-        this.conformanceCheckedTree,
-        this.processTree
-      );
-
-      if (treeHasChanged) {
-        this.variantPatterns.forEach((v) => {
-          v.isConformanceOutdated = true;
-        });
-      }
-    });
-
-    this.backendService.getConfiguration().pipe(takeUntil(this._destroy$)).subscribe((config) => {
-      this.conformanceTimeout = config.timeoutCVariantAlignmentComputation + 30;
-    });
-
-    this.sharedDataService.frequentMiningResults$.pipe(takeUntil(this._destroy$)).subscribe((res) => {
-      if (res) {
-        this.variantPatterns = new Array<SubvariantPattern>();
-
-        res.forEach((p, i) => {
-          if (p.valid) {
-            const variant: VariantElement = deserialize(p.obj);
-            const [isPrefix, isSuffix] = this.checkInfix(p.obj);
-            let infixtype: InfixType;
-
-            if (isPrefix && isSuffix) {
-              infixtype = InfixType.NOT_AN_INFIX;
-            } else if (isPrefix) {
-              infixtype = InfixType.PREFIX;
-            } else if (isSuffix) {
-              infixtype = InfixType.POSTFIX;
-            } else {
-              infixtype = InfixType.PROPER_INFIX;
-            }
-            const k = p.k - (+isSuffix + +isPrefix);
-
-            variant.setExpanded(true);
-
-            const pattern = new SubvariantPattern(
-              i,
-              k,
-              variant,
-              p.sup,
-              p.child_parent_confidence,
-              p.subpattern_confidence,
-              p.cross_support_confidence,
-              p.maximal,
-              p.valid,
-              p.closed,
-              infixtype,
-              p.bids
-            );
-
-            pattern.isConformanceOutdated = true;
-            pattern.isTimeouted = false;
-
-            this.variantPatterns.push(pattern);
-          }
-        });
-
-        this.maxSup = Math.max(...this.variantPatterns.map((v) => v.support));
-        this.minsup = Math.min(...this.variantPatterns.map((v) => v.support));
-        this.maxK = Math.max(...this.variantPatterns.map((v) => v.k));
-        this.nClosed = this.variantPatterns.filter((v) => v.closed).length;
-        this.nValid = this.variantPatterns.filter((v) => v.valid).length;
-        this.nMaximal = this.variantPatterns.filter((v) => v.maximal).length;
-
-        this.maxWidth = Math.max(
-          ...this.variantPatterns.map((v) => v.variant.getWidth(false))
+        const treeHasChanged = processTreesEqual(
+          this.conformanceCheckedTree,
+          this.processTree
         );
 
-        this.set_interval_filter_configs();
-        this.displayedVariantsPatterns = this.variantPatterns;
-      } else {
-        this.variantPatterns = [];
-        this.displayedVariantsPatterns = this.variantPatterns;
+        if (treeHasChanged) {
+          this.variantPatterns.forEach((v) => {
+            v.isConformanceOutdated = true;
+          });
+        }
+      });
 
-        this.maxSup = 0;
-        this.maxK = 0;
-        this.nClosed = 0;
-        this.nValid = 0;
-        this.nMaximal = 0;
-      }
-    });
+    this.backendService
+      .getConfiguration()
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((config) => {
+        this.conformanceTimeout =
+          config.timeoutCVariantAlignmentComputation + 30;
+      });
+
+    this.sharedDataService.frequentMiningResults$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((res) => {
+        if (res) {
+          this.variantPatterns = new Array<SubvariantPattern>();
+
+          res.forEach((p, i) => {
+            if (p.valid) {
+              const variant: VariantElement = deserialize(p.obj);
+              const [isPrefix, isSuffix] = this.checkInfix(p.obj);
+              let infixtype: InfixType;
+
+              if (isPrefix && isSuffix) {
+                infixtype = InfixType.NOT_AN_INFIX;
+              } else if (isPrefix) {
+                infixtype = InfixType.PREFIX;
+              } else if (isSuffix) {
+                infixtype = InfixType.POSTFIX;
+              } else {
+                infixtype = InfixType.PROPER_INFIX;
+              }
+              const k = p.k - (+isSuffix + +isPrefix);
+
+              variant.setExpanded(true);
+
+              const pattern = new SubvariantPattern(
+                i,
+                k,
+                variant,
+                p.sup,
+                p.child_parent_confidence,
+                p.subpattern_confidence,
+                p.cross_support_confidence,
+                p.maximal,
+                p.valid,
+                p.closed,
+                infixtype,
+                p.bids
+              );
+
+              pattern.isConformanceOutdated = true;
+              pattern.isTimeouted = false;
+
+              this.variantPatterns.push(pattern);
+            }
+          });
+
+          this.maxSup = Math.max(...this.variantPatterns.map((v) => v.support));
+          this.minsup = Math.min(...this.variantPatterns.map((v) => v.support));
+          this.maxK = Math.max(...this.variantPatterns.map((v) => v.k));
+          this.nClosed = this.variantPatterns.filter((v) => v.closed).length;
+          this.nValid = this.variantPatterns.filter((v) => v.valid).length;
+          this.nMaximal = this.variantPatterns.filter((v) => v.maximal).length;
+
+          this.maxWidth = Math.max(
+            ...this.variantPatterns.map((v) => v.variant.getWidth(false))
+          );
+
+          this.set_interval_filter_configs();
+          this.displayedVariantsPatterns = this.variantPatterns;
+        } else {
+          this.variantPatterns = [];
+          this.displayedVariantsPatterns = this.variantPatterns;
+
+          this.maxSup = 0;
+          this.maxK = 0;
+          this.nClosed = 0;
+          this.nValid = 0;
+          this.nMaximal = 0;
+        }
+      });
   }
 
   checkInfix(obj) {
@@ -705,39 +733,37 @@ export class VariantMinerComponent
     // Hide the Spinner
   }
 
-
-
-  handleActivityButtonClick(e){
-
+  handleActivityButtonClick(e) {
     const state = this.activityNamesFilter.get(e.activityName);
     let nextState;
 
-    switch(state){
-      case ActvitiyFilterState.Default : {
+    switch (state) {
+      case ActvitiyFilterState.Default: {
         nextState = ActvitiyFilterState.In;
-        d3.select(e.svg).classed('activity-button-in', true)
+        d3.select(e.svg).classed('activity-button-in', true);
         break;
       }
 
-      case ActvitiyFilterState.Out : {
+      case ActvitiyFilterState.Out: {
         nextState = ActvitiyFilterState.Default;
-        d3.select(e.svg).classed('activity-button-out', false)
+        d3.select(e.svg).classed('activity-button-out', false);
         break;
       }
 
-      case ActvitiyFilterState.In : {
+      case ActvitiyFilterState.In: {
         nextState = ActvitiyFilterState.Out;
-        d3.select(e.svg).classed('activity-button-in', false)
-        d3.select(e.svg).classed('activity-button-out', true)
+        d3.select(e.svg).classed('activity-button-in', false);
+        d3.select(e.svg).classed('activity-button-out', true);
         break;
       }
-      default : nextState = ActvitiyFilterState.Default; break;
+      default:
+        nextState = ActvitiyFilterState.Default;
+        break;
     }
 
     this.activityNamesFilter.set(e.activityName, nextState);
 
     this.handleFilterChange(null);
-
   }
 
   computeActivityColor = (
@@ -882,7 +908,6 @@ export class VariantMinerComponent
     this.lazyLoadingServiceService.destoryVariantMinerObserver();
     this._destroy$.next();
   }
-
 }
 
 export namespace VariantMinerComponent {
@@ -960,7 +985,7 @@ export class Choice {
   }
 }
 
-enum ActvitiyFilterState{
+enum ActvitiyFilterState {
   In = 1,
   Out = 2,
   Default = 3,

@@ -25,7 +25,7 @@ export class ConformanceCheckingService {
   public varResults: Observable<ConformanceCheckingResult>;
   public patternResults: Observable<ConformanceCheckingResult>;
   public showConformanceCheckingTimeoutDialog: Subject<any> =
-  new Subject<any>();
+    new Subject<any>();
 
   public connect(): boolean {
     if (!this.socket || this.socket.closed) {

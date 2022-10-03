@@ -84,7 +84,7 @@ export class SubvariantPattern {
   valid: boolean;
   closed: boolean;
   bids: Set<number>;
-  activities : Set<string>;
+  activities: Set<string>;
 
   calculationInProgress;
   isConformanceOutdated;
