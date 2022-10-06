@@ -504,7 +504,12 @@
                 <div class="variant-filter-container">
                   <div>
                     <span>Variant </span>
-                    <span class="variant-number"
+                    <span
+                      class="variant-number"
+                      [ngClass]="{
+                        'text-primary':
+                          displayed_variants.length !== variants.length
+                      }"
                       >({{
                         displayed_variants.length === variants.length
                           ? displayed_variants.length
