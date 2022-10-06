@@ -544,6 +544,10 @@ export class VariantDrawerDirective
 
       const tr = this.wrapInnerLabelText(tspan, a, maxWidth);
       truncated ||= tr;
+
+      if (a === 'W_Nabellen incomplete dossiers' && !tr){
+        console.log('Did not wrap', a, tspan, maxWidth)
+      }
     });
 
     if (truncated) {
@@ -655,6 +659,8 @@ export class VariantDrawerDirective
     maxWidth: number
   ): boolean {
     let textLength = this.getComputedTextLength(textSelection);
+
+
     let truncated = false;
     while (textLength > maxWidth && text.length > 1) {
       text = text.slice(0, -1);
@@ -662,6 +668,11 @@ export class VariantDrawerDirective
       textLength = this.getComputedTextLength(textSelection);
       truncated = true;
     }
+
+    if (text === 'W_Nabellen incomplete dossiers' && !truncated){
+      console.log('Inner Text length after Wrap', text, textLength, maxWidth)
+    }
+
     return truncated;
   }
 

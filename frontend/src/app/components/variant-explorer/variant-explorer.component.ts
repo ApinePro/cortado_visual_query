@@ -939,7 +939,7 @@ export class VariantExplorerComponent
       this.displayed_variants,
       this.sortingFeature,
       this.isAscendingOrder
-    );
+    ) as Variant[];
     this.variantExplorerDiv.nativeElement.scroll(0, 0);
     this.updateAllSubvariantWindows();
   }

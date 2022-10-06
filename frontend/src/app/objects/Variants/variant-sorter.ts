@@ -1,13 +1,14 @@
+import { SubvariantPattern } from './variant-miner-types';
 import { Variant } from 'src/app/objects/Variants/variant';
 
 export class VariantSorter {
   static sort(
-    variants: Variant[],
+    variants: Variant[] | SubvariantPattern[],
     sortKey: string,
     isAscendingOrder: boolean
-  ): Variant[] {
+  ): Variant[] | SubvariantPattern[] {
     let sortFn: any;
-    sortFn = (a: Variant, b: Variant) =>
+    sortFn = (a: Variant | SubvariantPattern, b: Variant | SubvariantPattern) =>
       VariantSorter.attributeSorting(a, b, sortKey);
 
     if (sortKey == 'conformance') {
@@ -18,12 +19,12 @@ export class VariantSorter {
       sortFn = VariantSorter.subvariantsSorting;
     }
 
-    return variants.sort((a: Variant, b: Variant) =>
+    return variants.sort((a: Variant | SubvariantPattern , b: Variant | SubvariantPattern) =>
       VariantSorter.applyOrder(sortFn(a, b), isAscendingOrder)
     );
   }
 
-  static attributeSorting(a: Variant, b: Variant, sortAttribute: string) {
+  static attributeSorting(a: Variant | SubvariantPattern, b: Variant | SubvariantPattern, sortAttribute: string) {
     if (a[sortAttribute] < b[sortAttribute]) {
       return -1;
     } else if (a[sortAttribute] > b[sortAttribute]) {
@@ -33,7 +34,7 @@ export class VariantSorter {
     }
   }
 
-  static subvariantsSorting(a: Variant, b: Variant) {
+  static subvariantsSorting(a: Variant | SubvariantPattern , b: Variant | SubvariantPattern ) {
     if (a['sub_variants'].length < b['sub_variants'].length) {
       return -1;
     } else if (a['sub_variants'].length > b['sub_variants'].length) {
@@ -43,7 +44,7 @@ export class VariantSorter {
     }
   }
 
-  static conformanceSorting(a: Variant, b: Variant) {
+  static conformanceSorting(a: Variant| SubvariantPattern, b: Variant| SubvariantPattern) {
     if (a.calculationInProgress && !b.calculationInProgress) {
       return -1;
     } else if (!a.calculationInProgress && b.calculationInProgress) {

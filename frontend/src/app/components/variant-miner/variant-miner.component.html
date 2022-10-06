@@ -416,10 +416,10 @@
               <div class="header-text-container">
                 <div
                   class="header-text"
-                  (click)="sort(VariantSortKey.alignment)"
+                  (click)="sort(VariantSortKey.conformance)"
                   [ngClass]="{
                     'selected-header-text':
-                      currentSortKey === VariantSortKey.alignment
+                      currentSortKey === VariantSortKey.conformance
                   }"
                 >
                   Fitting
@@ -511,7 +511,7 @@
                 [ngClass]="{
                   'bi-sort-numeric-down': ascending,
                   'bi-sort-numeric-down-alt': !ascending,
-                  invisible: !(currentSortKey === VariantSortKey.alignment)
+                  invisible: !(currentSortKey === VariantSortKey.conformance)
                 }"
               ></i>
             </th>

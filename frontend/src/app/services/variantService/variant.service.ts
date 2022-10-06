@@ -149,7 +149,7 @@ export class VariantService {
       this.variants,
       sortingFeature,
       isAscending
-    );
+    ) as Variant[];
 
     this.toastService.showSuccessToast(
       'Variant Explorer',

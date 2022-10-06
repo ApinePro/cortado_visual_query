@@ -17,10 +17,12 @@ from cortado_core.subprocess_discovery.subtree_mining.maximal_connected_componen
 )
 from cortado_core.subprocess_discovery.subtree_mining.output import (
     dataframe_from_k_patterns,
-    add_confidence_information_to_df,
 )
 from cortado_core.subprocess_discovery.subtree_mining.blanket_mining.cm_grow import (
     cm_min_sub_mining,
+)
+from cortado_core.subprocess_discovery.subtree_mining.folding_label import (
+    fold_loops
 )
 
 import cache.cache as cache
@@ -61,6 +63,10 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
 
     treeBank = create_treebank_from_cv_variants(variants, config.artifical_start)
     
+    if config.loop: 
+        print('Folding Loops...')
+        fold_loops(treeBank, config.loop)
+        
     print()
 
     if config.algo == 1:

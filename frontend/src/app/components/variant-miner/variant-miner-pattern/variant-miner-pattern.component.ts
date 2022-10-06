@@ -22,7 +22,7 @@ export class VariantMinerPatternComponent implements AfterViewInit {
   infixtype = InfixType;
 
   @Input()
-  index: number;
+  id: number;
 
   @ViewChild('row')
   rowElement: ElementRef;

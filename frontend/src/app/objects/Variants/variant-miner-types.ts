@@ -50,12 +50,9 @@ export enum FrequentMiningAlgorithm {
 
 export enum VariantSortKey {
   k = 'k',
-  index = 'index',
+  id = 'id',
   support = 'support',
-  alignment = 'alignment',
-  child_parent_confidence = 'child_parent_confidence',
-  subpattern_confidence = 'subpattern_confidence',
-  cross_support_confidence = 'cross_support_confidence',
+  conformance = 'conformance',
   maximal = 'maximal',
   closed = 'closed',
 }
@@ -63,7 +60,7 @@ export enum VariantSortKey {
 export enum VariantFilterKey {
   k = 'k',
   support = 'support',
-  index = 'index',
+  id = 'id',
   deviation = 'deviation',
   child_parent_confidence = 'child_parent_confidence',
   subpattern_confidence = 'subpattern_confidence',
@@ -73,7 +70,7 @@ export enum VariantFilterKey {
 }
 
 export class SubvariantPattern {
-  index: number;
+  id: number;
   k: number;
   variant: VariantElement;
   support: number;
@@ -95,7 +92,7 @@ export class SubvariantPattern {
   infixType: InfixType;
 
   constructor(
-    index: number,
+    id: number,
     k: number,
     variant: VariantElement,
     support: number,
@@ -108,7 +105,7 @@ export class SubvariantPattern {
     infixType: InfixType,
     bids: Set<number>
   ) {
-    this.index = index;
+    this.id = id;
     this.k = k;
     this.variant = variant;
     this.support = support;

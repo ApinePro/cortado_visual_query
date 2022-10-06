@@ -54,6 +54,7 @@ import { contextMenuCallback } from '../variant-explorer/functions/variant-drawe
 import { ImageExportService } from 'src/app/services/imageExportService/image-export-service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
 
 @Component({
   selector: 'app-variant-miner',
@@ -150,7 +151,7 @@ export class VariantMinerComponent
     0,
     1000
   );
-  indexFilter: IntervalFilter = new IntervalFilter('index', 1, 2, 1, 0, 15);
+  idFilter: IntervalFilter = new IntervalFilter('id', 1, 2, 1, 0, 15);
   cpConfFilter: IntervalFilter = new IntervalFilter(
     'child_parent_confidence',
     0.1,
@@ -203,7 +204,7 @@ export class VariantMinerComponent
   }.bind(this);
 
   filterInfix = function () {
-    const bids = this.filter((v) => v.variant === this.contextMenu_variant)[0]
+    const bids = this.displayedVariantsPatterns.filter((v) => v.variant === this.contextMenu_variant)[0]
       .bids;
 
     this.variantFilterService.addVariantFilter('infix filter', new Set(bids));
@@ -473,7 +474,7 @@ export class VariantMinerComponent
       let res = true;
       res = res && this.kFilter.apply(vp);
       res = res && this.supFilter.apply(vp);
-      res = res && this.indexFilter.apply(vp);
+      res = res && this.idFilter.apply(vp);
       res = res && this.cpConfFilter.apply(vp);
       res = res && this.supConfFilter.apply(vp);
       res = res && this.closedMaxFilter(vp);
@@ -487,7 +488,7 @@ export class VariantMinerComponent
       return res;
     });
 
-    this.sortDisplayedVariants(this.currentSortKey);
+    this.sort(this.currentSortKey);
   }
 
   applyActivityNameFilter: (
@@ -648,29 +649,18 @@ export class VariantMinerComponent
       this.ascending = false;
     }
 
-    this.sortDisplayedVariants(key);
-
+    this.displayedVariantsPatterns = VariantSorter.sort(
+      this.displayedVariantsPatterns,
+      key,
+      this.ascending
+    ) as SubvariantPattern[];
     this.currentSortKey = key;
-  }
-
-  sortDisplayedVariants(key: VariantSortKey) {
-    this.displayedVariantsPatterns.sort(
-      (a: SubvariantPattern, b: SubvariantPattern) => {
-        if (a[key] < b[key]) {
-          return this.ascending ? -1 : 1;
-        } else if (a[key] > b[key]) {
-          return this.ascending ? 1 : -1;
-        } else {
-          return 0;
-        }
-      }
-    );
   }
 
   private set_interval_filter_configs() {
     this.kFilter.set_config(3, this.maxK);
     this.supFilter.set_config(this.minsup, this.maxSup);
-    this.indexFilter.set_config(0, this.variantPatterns.length);
+    this.idFilter.set_config(0, this.variantPatterns.length);
     this.cpConfFilter.set_config(0, 1);
     this.supConfFilter.set_config(0, 1);
 
@@ -866,7 +856,7 @@ export class VariantMinerComponent
     //variant.deviation = undefined;
 
     const resubscribe = this.conformanceCheckingService.calculateConformance(
-      pattern.index.toLocaleString(),
+      pattern.id.toLocaleString(),
       pattern.infixType,
       this.processTreeService.currentDisplayedProcessTree,
       pattern.variant.serialize(this.currentConfig.loop),
@@ -883,7 +873,7 @@ export class VariantMinerComponent
     this.conformanceCheckingService.patternResults.subscribe(
       (res) => {
         const pattern = this.variantPatterns.find(
-          (p) => p.index.toLocaleString() == res.id
+          (p) => p.id.toLocaleString() == res.id
         );
         pattern.calculationInProgress = false;
         pattern.isTimeouted = res.isTimeout;
@@ -908,7 +898,10 @@ export class VariantMinerComponent
     this.lazyLoadingServiceService.destoryVariantMinerObserver();
     this._destroy$.next();
   }
+
 }
+
+
 
 export namespace VariantMinerComponent {
   export const componentName = 'VariantMinerComponent';
