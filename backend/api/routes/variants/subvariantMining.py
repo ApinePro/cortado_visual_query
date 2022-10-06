@@ -67,12 +67,9 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
         print("Mining K Patterns...")
         k_patterns = min_sub_mining(
             treeBank,
-            variants,
             frequency_counting_strat=freq_strat_mapping[config.strat],
             k_it=config.k,
             min_sup=config.min_sup,
-            artifical_start=config.artifical_start,
-            loop=config.loop,
         )
 
     else:
@@ -80,12 +77,9 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
         print("Mining CM K Patterns...")
         k_patterns = cm_min_sub_mining(
             treeBank,
-            variants,
             frequency_counting_strat=freq_strat_mapping[config.strat],
             k_it=config.k,
             min_sup=config.min_sup,
-            artifical_start=config.artifical_start,
-            loop=config.loop,
         )
     
     print()
