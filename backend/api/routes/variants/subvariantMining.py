@@ -31,7 +31,7 @@ import numpy as np
 router = APIRouter(tags=["subvariantMining"], prefix="/subvariantMining")
 
 class VariantMinerConfig(BaseModel):
-    k: int
+    size: int
     min_sup: int
     strat: int
     algo: int
@@ -50,9 +50,9 @@ freq_strat_mapping = {
 @router.post("/frequentSubtreeMining")
 def mineFrequentSubtrees(config: VariantMinerConfig):
     
-    print()
+    print(config)
     
-    print("K:", config.k)
+    print("K:", config.size)
     print("min_sup:", config.min_sup)
     print("Strat:", freq_strat_mapping[config.strat])
     print("Mining Algo:", config.algo)
@@ -74,7 +74,7 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
         k_patterns = min_sub_mining(
             treeBank,
             frequency_counting_strat=freq_strat_mapping[config.strat],
-            k_it=config.k,
+            k_it=config.size,
             min_sup=config.min_sup,
         )
 
@@ -84,7 +84,7 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
         k_patterns = cm_min_sub_mining(
             treeBank,
             frequency_counting_strat=freq_strat_mapping[config.strat],
-            k_it=config.k,
+            k_it=config.size,
             min_sup=config.min_sup,
         )
     

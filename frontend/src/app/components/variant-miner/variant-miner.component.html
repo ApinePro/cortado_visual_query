@@ -88,11 +88,11 @@
           </div>
 
           <div class="form-element">
-            <label for="k" class="input-label">K: </label>
+            <label for="size" class="input-label">K: </label>
             <input
-              id="k"
+              id="size"
               type="text"
-              formControlName="k"
+              formControlName="size"
               class="input-field"
               step="1"
               min="0"
@@ -270,7 +270,7 @@
         >
           <div class="filter-drop-down-content">
             <div class="filter-option-container">
-              <span>K:</span>
+              <span>Size:</span>
               <div class="slider-container sup-selector">
                 <ngx-slider
                   [(value)]="kFilter.low"
@@ -398,12 +398,13 @@
               <div class="header-text-container">
                 <div
                   class="header-text"
-                  (click)="sort(VariantSortKey.k)"
+                  (click)="sort(VariantSortKey.size)"
                   [ngClass]="{
-                    'selected-header-text': currentSortKey === VariantSortKey.k
+                    'selected-header-text':
+                      currentSortKey === VariantSortKey.size
                   }"
                 >
-                  K
+                  Size
                 </div>
               </div>
             </th>
@@ -502,7 +503,7 @@
                 [ngClass]="{
                   'bi-sort-numeric-down': ascending,
                   'bi-sort-numeric-down-alt': !ascending,
-                  invisible: !(currentSortKey === VariantSortKey.k)
+                  invisible: !(currentSortKey === VariantSortKey.size)
                 }"
               ></i>
             </th>

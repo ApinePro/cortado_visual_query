@@ -131,7 +131,7 @@ export class VariantMinerComponent
   math = Math;
 
   maxSup: number;
-  maxK: number;
+  maxSize: number;
   nClosed: number;
   nValid: number;
   nMaximal: number;
@@ -204,8 +204,9 @@ export class VariantMinerComponent
   }.bind(this);
 
   filterInfix = function () {
-    const bids = this.displayedVariantsPatterns.filter((v) => v.variant === this.contextMenu_variant)[0]
-      .bids;
+    const bids = this.displayedVariantsPatterns.filter(
+      (v) => v.variant === this.contextMenu_variant
+    )[0].bids;
 
     this.variantFilterService.addVariantFilter('infix filter', new Set(bids));
   }.bind(this);
@@ -343,7 +344,7 @@ export class VariantMinerComponent
     );
 
     this.variantMinerConfigInput = new FormGroup({
-      k: new FormControl(20, {
+      size: new FormControl(20, {
         updateOn: 'change',
       }),
 
@@ -441,7 +442,7 @@ export class VariantMinerComponent
     }
 
     this.currentConfig = new MiningConfig(
-      form_values.k,
+      form_values.size,
       form_values.min_sup,
       form_values.frequent_mining_strat,
       loop,
@@ -609,7 +610,7 @@ export class VariantMinerComponent
 
           this.maxSup = Math.max(...this.variantPatterns.map((v) => v.support));
           this.minsup = Math.min(...this.variantPatterns.map((v) => v.support));
-          this.maxK = Math.max(...this.variantPatterns.map((v) => v.k));
+          this.maxSize = Math.max(...this.variantPatterns.map((v) => v.size));
           this.nClosed = this.variantPatterns.filter((v) => v.closed).length;
           this.nValid = this.variantPatterns.filter((v) => v.valid).length;
           this.nMaximal = this.variantPatterns.filter((v) => v.maximal).length;
@@ -625,7 +626,7 @@ export class VariantMinerComponent
           this.displayedVariantsPatterns = this.variantPatterns;
 
           this.maxSup = 0;
-          this.maxK = 0;
+          this.maxSize = 0;
           this.nClosed = 0;
           this.nValid = 0;
           this.nMaximal = 0;
@@ -658,7 +659,7 @@ export class VariantMinerComponent
   }
 
   private set_interval_filter_configs() {
-    this.kFilter.set_config(3, this.maxK);
+    this.kFilter.set_config(3, this.maxSize);
     this.supFilter.set_config(this.minsup, this.maxSup);
     this.idFilter.set_config(0, this.variantPatterns.length);
     this.cpConfFilter.set_config(0, 1);
@@ -898,10 +899,7 @@ export class VariantMinerComponent
     this.lazyLoadingServiceService.destoryVariantMinerObserver();
     this._destroy$.next();
   }
-
 }
-
-
 
 export namespace VariantMinerComponent {
   export const componentName = 'VariantMinerComponent';

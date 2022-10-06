@@ -19,12 +19,17 @@ export class VariantSorter {
       sortFn = VariantSorter.subvariantsSorting;
     }
 
-    return variants.sort((a: Variant | SubvariantPattern , b: Variant | SubvariantPattern) =>
-      VariantSorter.applyOrder(sortFn(a, b), isAscendingOrder)
+    return variants.sort(
+      (a: Variant | SubvariantPattern, b: Variant | SubvariantPattern) =>
+        VariantSorter.applyOrder(sortFn(a, b), isAscendingOrder)
     );
   }
 
-  static attributeSorting(a: Variant | SubvariantPattern, b: Variant | SubvariantPattern, sortAttribute: string) {
+  static attributeSorting(
+    a: Variant | SubvariantPattern,
+    b: Variant | SubvariantPattern,
+    sortAttribute: string
+  ) {
     if (a[sortAttribute] < b[sortAttribute]) {
       return -1;
     } else if (a[sortAttribute] > b[sortAttribute]) {
@@ -34,7 +39,10 @@ export class VariantSorter {
     }
   }
 
-  static subvariantsSorting(a: Variant | SubvariantPattern , b: Variant | SubvariantPattern ) {
+  static subvariantsSorting(
+    a: Variant | SubvariantPattern,
+    b: Variant | SubvariantPattern
+  ) {
     if (a['sub_variants'].length < b['sub_variants'].length) {
       return -1;
     } else if (a['sub_variants'].length > b['sub_variants'].length) {
@@ -44,7 +52,10 @@ export class VariantSorter {
     }
   }
 
-  static conformanceSorting(a: Variant| SubvariantPattern, b: Variant| SubvariantPattern) {
+  static conformanceSorting(
+    a: Variant | SubvariantPattern,
+    b: Variant | SubvariantPattern
+  ) {
     if (a.calculationInProgress && !b.calculationInProgress) {
       return -1;
     } else if (!a.calculationInProgress && b.calculationInProgress) {

@@ -2,15 +2,15 @@ import { InfixType } from 'src/app/objects/Variants/infix_selection';
 import { VariantElement } from 'src/app/objects/Variants/variant_element';
 
 export class MiningConfig {
-  k: number;
+  size: number;
   min_sup: number;
   strat: number;
   loop: number;
   algo: number;
   artifical_start: boolean;
 
-  constructor(k, min_sup, strat, loop, algo, art_start) {
-    this.k = k;
+  constructor(size, min_sup, strat, loop, algo, art_start) {
+    this.size = size;
     this.min_sup = min_sup;
     this.strat = strat;
     this.loop = loop;
@@ -20,7 +20,7 @@ export class MiningConfig {
 
   serialize() {
     return {
-      k: this.k,
+      size: this.size,
       min_sup: this.min_sup,
       strat: this.strat,
       algo: this.algo,
@@ -49,7 +49,7 @@ export enum FrequentMiningAlgorithm {
 }
 
 export enum VariantSortKey {
-  k = 'k',
+  size = 'size',
   id = 'id',
   support = 'support',
   conformance = 'conformance',
@@ -58,7 +58,7 @@ export enum VariantSortKey {
 }
 
 export enum VariantFilterKey {
-  k = 'k',
+  size = 'size',
   support = 'support',
   id = 'id',
   deviation = 'deviation',
@@ -71,7 +71,7 @@ export enum VariantFilterKey {
 
 export class SubvariantPattern {
   id: number;
-  k: number;
+  size: number;
   variant: VariantElement;
   support: number;
   child_parent_confidence: number;
@@ -93,7 +93,7 @@ export class SubvariantPattern {
 
   constructor(
     id: number,
-    k: number,
+    size: number,
     variant: VariantElement,
     support: number,
     child_parent_confidence: number,
@@ -106,7 +106,7 @@ export class SubvariantPattern {
     bids: Set<number>
   ) {
     this.id = id;
-    this.k = k;
+    this.size = size;
     this.variant = variant;
     this.support = support;
     this.child_parent_confidence = child_parent_confidence;
