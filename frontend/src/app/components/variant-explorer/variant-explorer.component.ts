@@ -951,16 +951,28 @@ export class VariantExplorerComponent
     this.tooltipService.hideAll();
   }
 
-  deleteVisibleVariants(): void {
-    const bids = this.displayed_variants.map((v) => v.bid);
+  executeRemovalActionOnFilteredVariants(removeFiltered: boolean): void {
+    let bids = [];
+    let infoText = '';
+    if (removeFiltered) {
+      // remove all filtered variants
+      bids = this.displayed_variants.map((v) => v.bid);
+      infoText = 'Removed all filtered variants. Filters are cleared.';
+    } else {
+      // keep only filtered variants
+      bids = this.variants.filter((v) => !v.isDisplayed).map((v) => v.bid);
+      infoText = 'Removed all not filtered variants. Filters are cleared.';
+    }
+
     this.variantService.deleteVariants(bids);
+
     for (let filter of this.filterMap.keys()) {
       this.removeFilter(filter);
     }
 
     this.toastService.showSuccessToast(
       'Variants removed',
-      'Removed all (filtered) variants. Filters are cleared.',
+      infoText,
       'bi-trash'
     );
   }

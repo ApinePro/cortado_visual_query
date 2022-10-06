@@ -328,19 +328,6 @@
     >
       <i class="bi bi-save"></i>
     </button>
-
-    <span class="vl"></span>
-
-    <button
-      class="button"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      data-bs-trigger="hover"
-      title="remove all (filtered) variants"
-      (click)="deleteVisibleVariants()"
-    >
-      <i class="bi bi-trash"></i>
-    </button>
   </div>
 
   <div
@@ -417,6 +404,9 @@
       <app-variant-query
         [active]="queryActive"
         [options]="options"
+        (executeFilteredVariantsAction)="
+          executeRemovalActionOnFilteredVariants($event)
+        "
       ></app-variant-query>
     </div>
   </div>
