@@ -124,7 +124,7 @@ export function activityColor(
         break;
 
       case ViewMode.CONFORMANCE:
-        if (variant.alignment) {
+        if (variant.alignment && !variant.isConformanceOutdated) {
           const p = element.asLeafNode().conformance[0];
           color =
             this.conformanceCheckingService.conformanceColorMap.getColor(p);

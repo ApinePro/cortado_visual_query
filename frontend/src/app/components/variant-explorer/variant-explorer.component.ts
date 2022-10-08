@@ -361,6 +361,7 @@ export class VariantExplorerComponent
             v.isConformanceOutdated = true;
           });
         }
+        this.redraw_components();
       });
   }
 
