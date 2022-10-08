@@ -427,7 +427,7 @@ export class VariantExplorerComponent
           this.updateAlignmentStatistics();
           this.variantDrawers
             .find((drawer) => drawer.variant.id == res.id)
-            .redraw();
+            ?.redraw();
         },
         (_) => {
           this.variants.forEach((v) => {

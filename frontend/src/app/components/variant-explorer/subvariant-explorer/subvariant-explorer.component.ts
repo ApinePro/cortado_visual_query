@@ -33,6 +33,7 @@ import { activityColor } from '../functions/variant-drawer-callbacks';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 
 @Component({
   selector: 'app-subvariant-explorer',
@@ -73,7 +74,8 @@ export class SubvariantExplorerComponent
     private backendService: BackendService,
     public variantPerformanceService: VariantPerformanceService,
     public variantViewModeService: VariantViewModeService,
-    private conformanceCheckingService: ConformanceCheckingService
+    private conformanceCheckingService: ConformanceCheckingService,
+    private processTreeService: ProcessTreeService
   ) {
     super(elRef.nativeElement, renderer);
     let state = this.container.initialState;
@@ -387,6 +389,30 @@ export class SubvariantExplorerComponent
   }
 
   computeActivityColor = activityColor.bind(this);
+
+  updateConformanceForSingleVariantClicked(variant: Variant): void {
+    if (variant.isTimeouted) {
+      this.conformanceCheckingService.showConformanceTimeoutDialog(
+        variant,
+        this.updateConformanceForVariant.bind(this)
+      );
+    } else {
+      this.updateConformanceForVariant(variant, 0);
+    }
+  }
+
+  updateConformanceForVariant(variant: Variant, timeout: number): void {
+    variant.calculationInProgress = true;
+    variant.deviations = undefined;
+
+    this.conformanceCheckingService.calculateConformance(
+      variant.id,
+      variant.infixType,
+      this.processTreeService.currentDisplayedProcessTree,
+      variant.variant.serialize(),
+      timeout
+    );
+  }
 }
 
 export namespace SubvariantExplorerComponent {

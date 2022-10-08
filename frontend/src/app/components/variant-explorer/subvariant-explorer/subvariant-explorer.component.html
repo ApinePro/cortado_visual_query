@@ -89,6 +89,9 @@
               <app-variant-info
                 [selectable]="false"
                 [variant]="mainVariant"
+                (updateConformance)="
+                  updateConformanceForSingleVariantClicked($event)
+                "
               ></app-variant-info>
             </td>
             <td class="variant-cell">
