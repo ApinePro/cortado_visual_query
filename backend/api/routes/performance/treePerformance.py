@@ -107,91 +107,86 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
     tree_cache_key = str(pt)
     variants_fitness = []
 
-    for bid, (_, traces, _) in cache.variants.items():
-
-        if d.delete and bid in d.delete:
-
+    if d.delete:
+        for bid in d.delete:
             if tree_cache_key in pcache and bid in cache.pcache[tree_cache_key]:
                 del cache.pcache[tree_cache_key][bid]
 
-        elif bid in d.variants:
+    for bid in d.variants:
+        (_, traces, _) = cache.variants[bid]
+        if tree_cache_key in cache.pcache and bid in cache.pcache[tree_cache_key]:
 
-            if tree_cache_key in cache.pcache and bid in cache.pcache[tree_cache_key]:
-
-                p_values = cache.pcache[tree_cache_key][bid]
-                service_times_aggregated = p_values["service_times"]
-                idle_times_aggregated = p_values["idle_times"]
-                waiting_times_aggregated = p_values["waiting_times"]
-                cycle_times_aggregated = p_values["cycle_times"]
-                mean_fitness = p_values["mean_fitness"]
-
-            else:
-
-                test_log = traces
-                test_log = EventLog(test_log)
-
-                (
-                    service_times,
-                    idle_times,
-                    waiting_times,
-                    cycle_times,
-                ), mean_fitness = tree_performance.get_tree_performance_intervals(
-                    pt,
-                    test_log,
-                    alignment_variant=net_alignment.Variants.VERSION_STATE_EQUATION_A_STAR,
-                )
-
-                service_times_aggregated = tree_performance.apply_aggregation(
-                    service_times, noop, avg, avg
-                )
-                idle_times_aggregated = tree_performance.apply_aggregation(
-                    idle_times, noop, avg, avg
-                )
-                waiting_times_aggregated = tree_performance.apply_aggregation(
-                    waiting_times, noop, avg, avg
-                )
-                cycle_times_aggregated = tree_performance.apply_aggregation(
-                    cycle_times, noop, avg, avg
-                )
-
-            perf_stats = {
-                str(t): {
-                    "service_time": stats(service_times_aggregated[t])
-                    if t in service_times_aggregated
-                    else None,
-                    "cycle_time": stats(cycle_times_aggregated[t])
-                    if t in cycle_times_aggregated
-                    else None,
-                    "waiting_time": stats(waiting_times_aggregated[t])
-                    if t in waiting_times_aggregated
-                    else None,
-                    "idle_time": stats(idle_times_aggregated[t])
-                    if t in idle_times_aggregated
-                    else None,
-                }
-                for t in tree_nodes
-            }
-
-            tau_0_values(tree_nodes, perf_stats)
-
-            pt_dict_variant = process_tree_to_dict(pt, performance=perf_stats)
-            variants_tree_performance.append(pt_dict_variant)
-            variants_fitness.append(mean_fitness)
-
-            if tree_cache_key not in cache.pcache:
-
-                cache.pcache[tree_cache_key] = {}
-
-            cache.pcache[tree_cache_key][bid] = {
-                "service_times": service_times_aggregated,
-                "idle_times": idle_times_aggregated,
-                "cycle_times": cycle_times_aggregated,
-                "waiting_times": waiting_times_aggregated,
-                "mean_fitness": mean_fitness,
-            }
+            p_values = cache.pcache[tree_cache_key][bid]
+            service_times_aggregated = p_values["service_times"]
+            idle_times_aggregated = p_values["idle_times"]
+            waiting_times_aggregated = p_values["waiting_times"]
+            cycle_times_aggregated = p_values["cycle_times"]
+            mean_fitness = p_values["mean_fitness"]
 
         else:
-            continue
+
+            test_log = traces
+            test_log = EventLog(test_log)
+
+            (
+                service_times,
+                idle_times,
+                waiting_times,
+                cycle_times,
+            ), mean_fitness = tree_performance.get_tree_performance_intervals(
+                pt,
+                test_log,
+                alignment_variant=net_alignment.Variants.VERSION_STATE_EQUATION_A_STAR,
+            )
+
+            service_times_aggregated = tree_performance.apply_aggregation(
+                service_times, noop, avg, avg
+            )
+            idle_times_aggregated = tree_performance.apply_aggregation(
+                idle_times, noop, avg, avg
+            )
+            waiting_times_aggregated = tree_performance.apply_aggregation(
+                waiting_times, noop, avg, avg
+            )
+            cycle_times_aggregated = tree_performance.apply_aggregation(
+                cycle_times, noop, avg, avg
+            )
+
+        perf_stats = {
+            str(t): {
+                "service_time": stats(service_times_aggregated[t])
+                if t in service_times_aggregated
+                else None,
+                "cycle_time": stats(cycle_times_aggregated[t])
+                if t in cycle_times_aggregated
+                else None,
+                "waiting_time": stats(waiting_times_aggregated[t])
+                if t in waiting_times_aggregated
+                else None,
+                "idle_time": stats(idle_times_aggregated[t])
+                if t in idle_times_aggregated
+                else None,
+            }
+            for t in tree_nodes
+        }
+
+        tau_0_values(tree_nodes, perf_stats)
+
+        pt_dict_variant = process_tree_to_dict(pt, performance=perf_stats)
+        variants_tree_performance.append(pt_dict_variant)
+        variants_fitness.append(mean_fitness)
+
+        if tree_cache_key not in cache.pcache:
+
+            cache.pcache[tree_cache_key] = {}
+
+        cache.pcache[tree_cache_key][bid] = {
+            "service_times": service_times_aggregated,
+            "idle_times": idle_times_aggregated,
+            "cycle_times": cycle_times_aggregated,
+            "waiting_times": waiting_times_aggregated,
+            "mean_fitness": mean_fitness,
+        }
 
     pt_dict = get_merged_performances(pt)
 
