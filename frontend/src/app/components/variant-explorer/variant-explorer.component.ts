@@ -702,7 +702,7 @@ export class VariantExplorerComponent
     }
   }
 
-  anyPerforamnceAvailable = () => {
+  anyPerformanceAvailable = () => {
     return this.performanceService.availablePerformances.size > 0;
   };
 
