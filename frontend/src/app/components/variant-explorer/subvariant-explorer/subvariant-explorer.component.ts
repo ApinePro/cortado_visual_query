@@ -20,6 +20,7 @@ import { LogService } from 'src/app/services/logService/log.service';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
 import {
+  deserialize,
   LeafNode,
   VariantElement,
 } from 'src/app/objects/Variants/variant_element';
@@ -130,6 +131,34 @@ export class SubvariantExplorerComponent
       .subscribe((viewMode: ViewMode) => {
         this.onViewModeChange(viewMode);
       });
+
+    this.conformanceCheckingService.results
+      .pipe(takeUntil(this._destroy$))
+      .subscribe(
+        (res) => {
+          if (this.mainVariant.id == res.id) {
+            this.mainVariant.calculationInProgress = false;
+            this.mainVariant.isTimeouted = res.isTimeout;
+            this.mainVariant.isConformanceOutdated = res.isTimeout;
+
+            if (!res.isTimeout) {
+              this.mainVariant.alignment = deserialize(res.alignment);
+              this.mainVariant.deviations = res.deviations;
+            }
+
+            if (this.variantViewModeService.viewMode === ViewMode.CONFORMANCE)
+              this.mainvariantDrawer.redraw();
+          }
+        },
+        (_) => {
+          this.mainVariant.calculationInProgress = false;
+          this.mainVariant.alignment = undefined;
+          this.mainVariant.deviations = undefined;
+
+          if (this.variantViewModeService.viewMode === ViewMode.CONFORMANCE)
+            this.mainvariantDrawer.redraw();
+        }
+      );
   }
 
   ngOnDestroy(): void {
