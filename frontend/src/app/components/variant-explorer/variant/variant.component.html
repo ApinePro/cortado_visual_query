@@ -40,8 +40,7 @@
 
   <td
     *ngIf="
-      traceInfixSelectionMode &&
-      variantViewModeService.viewMode !== VM.PERFORMANCE
+      traceInfixSelectionMode && variantViewModeService.viewMode === VM.STANDARD
     "
     class="infix-selection-buttons-panel"
   >

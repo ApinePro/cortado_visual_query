@@ -256,7 +256,7 @@
 
     <span class="vl"></span>
 
-    <div *ngIf="variantViewModeService.viewMode !== VM.PERFORMANCE">
+    <div *ngIf="variantViewModeService.viewMode === VM.STANDARD">
       <button
         *ngIf="!traceInfixSelectionMode"
         class="button"

@@ -239,6 +239,7 @@ export class VariantExplorerComponent
     this.subscribeForConformanceCheckingResults();
     this.listenForLogGranularityChange();
     this.listenForLogStatChange();
+    this.listenForViewModeChange();
   }
 
   ngOnDestroy(): void {
@@ -1015,6 +1016,15 @@ export class VariantExplorerComponent
       infoText,
       'bi-trash'
     );
+  }
+
+  private listenForViewModeChange() {
+    this.variantViewModeService.viewMode$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((viewMode) => {
+        if (viewMode !== ViewMode.STANDARD && this.traceInfixSelectionMode)
+          this.toggleTraceInfixSelectionMode();
+      });
   }
 }
 
