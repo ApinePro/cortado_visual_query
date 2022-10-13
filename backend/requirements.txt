@@ -6,7 +6,7 @@ python-multipart
 git+https://gitlab.fit.fraunhofer.de/pm4py/pm4py-core.git@2ec1b7604ffa59681166fc4283c8bfa4cab7bb2f#egg=pm4py
 appdirs
 websockets
-git+https://gitlab.fit.fraunhofer.de/cortado/cortado-core.git@master#egg=cortado_core
+git+https://gitlab.fit.fraunhofer.de/cortado/cortado-core.git@41-support-implication-operator-in-query-execution#egg=cortado_core
 cvxopt
 pm4pycvxopt
 pyinstaller
