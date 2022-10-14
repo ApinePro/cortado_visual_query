@@ -1,6 +1,10 @@
-const {app, BrowserWindow, ipcMain, Menu} = require('electron')
+const { app, BrowserWindow, ipcMain, Menu, dialog } = require('electron')
+var fs = require('fs');
+// const mainRemote = require("@electron/remote/main");
 const url = require("url");
 const path = require("path");
+const { showSaveDialog } = require("./util");
+const downloadFolder = app.getPath('downloads')
 
 let win;
 
@@ -37,6 +41,9 @@ function createWindow() {
     require('electron').shell.openExternal(url);
   });
 
+  // mainRemote.initialize();
+  // mainRemote.enable(win.webContents);
+
 }
 
 app.on('ready', createWindow)
@@ -53,11 +60,15 @@ ipcMain.on('restartBackend', () => {
 })
 
 app.on('activate', function () {
-    //macOS specific
-    if (win === null) {
-      createWindow()
-    }
+  //macOS specific
+  if (win === null) {
+    createWindow()
   }
+}
 )
+
+ipcMain.on('showSaveDialog', ((_, fileName, fileExtension, base64File, buttonLabel, title) => {
+  showSaveDialog(downloadFolder, dialog, fs, win, fileName, fileExtension, base64File, buttonLabel, title)
+}));
 
 
