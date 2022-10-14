@@ -1,6 +1,8 @@
-import { Injectable } from '@angular/core';
-import { saveAs } from 'file-saver';
+import { Inject, Injectable } from '@angular/core';
 import * as d3 from 'd3';
+import { saveAs } from 'file-saver';
+import { ELECTRON_SERVICE } from 'src/app/tokens';
+import { ElectronServiceInterface } from '../electronService/electron.service';
 
 /***
 A service that recieves SVG elements from member components and provides conversion and saving functionality.
@@ -10,7 +12,9 @@ A service that recieves SVG elements from member components and provides convers
   providedIn: 'root',
 })
 export class ImageExportService {
-  constructor() {}
+  constructor(
+    @Inject(ELECTRON_SERVICE) private electronService: ElectronServiceInterface
+  ) {}
 
   export(
     filename: string,
@@ -25,7 +29,7 @@ export class ImageExportService {
     if (height) svg.svg_width = width;
     if (width) svg.svg_height = height;
 
-    svg.store(filename);
+    svg.store(filename, this.electronService);
   }
 
   constructSVG(svgs: SVGGraphicsElement[]): SVG {
@@ -94,15 +98,22 @@ class SVG {
     return this.append(0, this.height, svgs);
   }
 
-  public store(filename: string) {
+  public store(filename: string, electronService: ElectronServiceInterface) {
     this.mainSVG.attr('height', this.height);
     this.mainSVG.attr('width', this.width);
 
     const file = new Blob([this.mainSVG.node().outerHTML], {
       type: 'image/svg+xml',
     });
-    filename = filename.endsWith('.svg') ? filename : filename + '.svg';
-    saveAs(file, filename);
+    //filename = filename.endsWith('.svg') ? filename : filename + '.svg';
+    electronService.showSaveDialog(
+      filename,
+      'svg',
+      file,
+      'Save svg',
+      'Save svg'
+    );
+    //saveAs(file, filename);
   }
 
   set svg_width(width: number) {
