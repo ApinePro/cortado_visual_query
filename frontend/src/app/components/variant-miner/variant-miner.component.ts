@@ -137,7 +137,7 @@ export class VariantMinerComponent
   nValid: number;
   nMaximal: number;
 
-  filterDropDownOpen : boolean = false;
+  filterDropDownOpen: boolean = false;
 
   contextMenu_xPos: number = 10;
   contextMenu_yPos: number = 10;
@@ -214,9 +214,13 @@ export class VariantMinerComponent
     this.variantFilterService.addVariantFilter('infix filter', new Set(bids));
   }.bind(this);
 
-  contextMenuOptions: Array<ContextMenuItem> =
-  [new ContextMenuItem('Use infix to filter concurrency variants', 'bi-funnel-fill', this.filterInfix),
-   new ContextMenuItem('Export pattern as SVG', 'bi-save', this.exportSVG)
+  contextMenuOptions: Array<ContextMenuItem> = [
+    new ContextMenuItem(
+      'Use infix to filter concurrency variants',
+      'bi-funnel-fill',
+      this.filterInfix
+    ),
+    new ContextMenuItem('Export pattern as SVG', 'bi-save', this.exportSVG),
   ];
 
   currentConfig: MiningConfig = null;

@@ -47,26 +47,27 @@ export class VariantExplorerContextMenuComponent
   }
 }
 
-export class ContextMenuItem{
-  constructor(text : string, icon : string, onClick : (
-    variant: VariantElement,
-    element: VariantElement,
-    directive: VariantDrawerDirective
-  ) => {}) {
+export class ContextMenuItem {
+  constructor(
+    text: string,
+    icon: string,
+    onClick: (
+      variant: VariantElement,
+      element: VariantElement,
+      directive: VariantDrawerDirective
+    ) => {}
+  ) {
     this.icon = icon;
     this.text = text;
     this.onClick = onClick;
+  }
 
-
-  };
-
-  onClick : (
+  onClick: (
     variant: VariantElement,
     element: VariantElement,
     directive: VariantDrawerDirective
   ) => {};
 
-  icon : string;
-  text : string;
-
+  icon: string;
+  text: string;
 }

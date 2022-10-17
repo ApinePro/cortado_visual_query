@@ -209,7 +209,9 @@ export class VariantExplorerComponent
     this.variantService.deleteVariants(bids);
   }.bind(this);
 
-  contextMenuOptions: Array<ContextMenuItem> = [new ContextMenuItem('Delete Variant', 'bi-trash', this.deleteVariant)];
+  contextMenuOptions: Array<ContextMenuItem> = [
+    new ContextMenuItem('Delete Variant', 'bi-trash', this.deleteVariant),
+  ];
 
   private _destroy$ = new Subject();
 
