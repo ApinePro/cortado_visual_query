@@ -44,6 +44,7 @@ export function getVQLTokenizer(): Monaco.languages.IMonarchLanguage {
           /@symbols/,
           {
             cases: {
+              '@logicalOperator': 'logicalOperator',
               '@quantifier': 'quantifier',
               '@default': 'text',
             },
