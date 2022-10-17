@@ -55,6 +55,7 @@ import { ImageExportService } from 'src/app/services/imageExportService/image-ex
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
+import { ContextMenuItem } from '../variant-explorer/variant-explorer-context-menu/variant-explorer-context-menu.component';
 
 @Component({
   selector: 'app-variant-miner',
@@ -136,6 +137,8 @@ export class VariantMinerComponent
   nValid: number;
   nMaximal: number;
 
+  filterDropDownOpen : boolean = false;
+
   contextMenu_xPos: number = 10;
   contextMenu_yPos: number = 10;
   contextMenu_element: VariantElement;
@@ -211,24 +214,10 @@ export class VariantMinerComponent
     this.variantFilterService.addVariantFilter('infix filter', new Set(bids));
   }.bind(this);
 
-  contextMenuOptions: Map<
-    string,
-    (
-      variant: VariantElement,
-      element: VariantElement,
-      directive: VariantDrawerDirective
-    ) => {}
-  > = new Map<
-    string,
-    (
-      variant: VariantElement,
-      element: VariantElement,
-      directive: VariantDrawerDirective
-    ) => {}
-  >([
-    ['Use infix to filter concurrency variants', this.filterInfix],
-    ['Export pattern as SVG', this.exportSVG],
-  ]);
+  contextMenuOptions: Array<ContextMenuItem> =
+  [new ContextMenuItem('Use infix to filter concurrency variants', 'bi-funnel-fill', this.filterInfix),
+   new ContextMenuItem('Export pattern as SVG', 'bi-save', this.exportSVG)
+  ];
 
   currentConfig: MiningConfig = null;
 

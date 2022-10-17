@@ -5,11 +5,11 @@
   *ngIf="displayMenu"
 >
   <ul class="context-menu-list">
-    <li *ngFor="let option of contextMenuOptions | keyvalue">
-      <button class="button align-bottom" (click)="option.value()">
+    <li *ngFor="let option of contextMenuOptions">
+      <button class="button align-bottom" (click)="option.onClick()">
         <div>
-          <i class="bi bi-diagram-2 btn-icon"></i>
-          <span>{{ option.key }}</span>
+          <i class="bi btn-icon pe-2" [class]="option.icon"></i>
+          <span>{{ option.text }}</span>
         </div>
       </button>
     </li>

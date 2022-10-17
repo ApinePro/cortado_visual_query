@@ -37,6 +37,5 @@ export class ResizeColumnDirective {
     @Inject(ElementRef)
     private readonly elementRef: ElementRef<HTMLElement>
   ) {
-    console.log('Created Resizeable Column');
   }
 }

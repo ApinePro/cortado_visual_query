@@ -236,8 +236,9 @@
           id="dropdownMenuButton1"
           data-bs-toggle="dropdown"
           data-bs-reference="parent"
-          data-bs-auto-close="outside"
+          data-bs-auto-close="false"
           aria-expanded="false"
+          (click)="filterDropDownOpen = !filterDropDownOpen"
         >
           <i class="bi bi-funnel-fill"></i>
           <!---
@@ -308,7 +309,7 @@
             </div>
 
             <div class="filter-option-container">
-              <span>Sup:</span>
+              <span>Support</span>
               <div class="slider-container sup-selector">
                 <ngx-slider
                   [(value)]="supFilter.low"
@@ -379,6 +380,7 @@
               </div>
             </div>
             <app-activity-button-area
+              *ngIf="filterDropDownOpen"
               [activityNames]="activityNames"
               (activityButtonClick)="handleActivityButtonClick($event)"
             >
@@ -445,7 +447,7 @@
                       currentSortKey === VariantSortKey.support
                   }"
                 >
-                  Sup.
+                  Support
                 </div>
               </div>
             </th>

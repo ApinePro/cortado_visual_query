@@ -27,21 +27,7 @@ export class VariantExplorerContextMenuComponent
   displayMenu: boolean = false;
 
   @Input()
-  contextMenuOptions: Map<
-    string,
-    (
-      variant: VariantElement,
-      element: VariantElement,
-      directive: VariantDrawerDirective
-    ) => {}
-  > = new Map<
-    string,
-    (
-      variant: VariantElement,
-      element: VariantElement,
-      directive: VariantDrawerDirective
-    ) => {}
-  >();
+  contextMenuOptions: Array<ContextMenuItem>;
 
   constructor() {}
 
@@ -59,4 +45,28 @@ export class VariantExplorerContextMenuComponent
   public onClick(event: any): void {
     this.displayMenu = false;
   }
+}
+
+export class ContextMenuItem{
+  constructor(text : string, icon : string, onClick : (
+    variant: VariantElement,
+    element: VariantElement,
+    directive: VariantDrawerDirective
+  ) => {}) {
+    this.icon = icon;
+    this.text = text;
+    this.onClick = onClick;
+
+
+  };
+
+  onClick : (
+    variant: VariantElement,
+    element: VariantElement,
+    directive: VariantDrawerDirective
+  ) => {};
+
+  icon : string;
+  text : string;
+
 }

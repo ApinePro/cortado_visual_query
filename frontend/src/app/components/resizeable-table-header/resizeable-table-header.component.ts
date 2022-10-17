@@ -9,7 +9,6 @@ import { Component, HostBinding, Input } from '@angular/core';
 // https://stackblitz.com/edit/angular-resizable-columns
 export class ResizeableTableHeaderComponent {
   constructor() {
-    console.log('Created Resizeable Column');
   }
   @HostBinding('style.width.px')
   width: number | null = null;

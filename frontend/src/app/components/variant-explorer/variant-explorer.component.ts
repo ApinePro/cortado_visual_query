@@ -85,6 +85,7 @@ import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
 import { EditorOptions } from './variant-query/variant-query.component';
 import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
+import { ContextMenuItem } from './variant-explorer-context-menu/variant-explorer-context-menu.component';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -208,21 +209,7 @@ export class VariantExplorerComponent
     this.variantService.deleteVariants(bids);
   }.bind(this);
 
-  contextMenuOptions: Map<
-    string,
-    (
-      variant: VariantElement,
-      element: VariantElement,
-      directive: VariantDrawerDirective
-    ) => {}
-  > = new Map<
-    string,
-    (
-      variant: VariantElement,
-      element: VariantElement,
-      directive: VariantDrawerDirective
-    ) => {}
-  >([['Delete Variant', this.deleteVariant]]);
+  contextMenuOptions: Array<ContextMenuItem> = [new ContextMenuItem('Delete Variant', 'bi-trash', this.deleteVariant)];
 
   private _destroy$ = new Subject();
 
