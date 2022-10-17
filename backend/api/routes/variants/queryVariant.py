@@ -1,5 +1,5 @@
 import cache.cache as cache
-import pm4pycvxopt
+# import pm4pycvxopt
 from endpoints.query_variant import evaluate_query_against_variant_graphs
 from fastapi import APIRouter
 from pydantic import BaseModel
