@@ -404,6 +404,9 @@
       <app-variant-query
         [active]="queryActive"
         [options]="options"
+        (executeFilteredVariantsAction)="
+          executeRemovalActionOnFilteredVariants($event)
+        "
       ></app-variant-query>
     </div>
   </div>
@@ -491,7 +494,12 @@
                 <div class="variant-filter-container">
                   <div>
                     <span>Variant </span>
-                    <span class="variant-number"
+                    <span
+                      class="variant-number"
+                      [ngClass]="{
+                        'text-primary':
+                          displayed_variants.length !== variants.length
+                      }"
                       >({{
                         displayed_variants.length === variants.length
                           ? displayed_variants.length
@@ -541,6 +549,7 @@
               "
               [traceInfixSelectionMode]="traceInfixSelectionMode"
               [rootElement]="variantExplorerDiv"
+              class="hover-variant-row"
             >
               <ng-template #treeButton>
                 <app-tree-performance-button
@@ -608,6 +617,11 @@
                     [variantDrawer]="drawer"
                   ></app-infix-selection-controlls>
                 </ng-template>
+              </ng-template>
+              <ng-template #removeVariantButton>
+                <app-variant-delete-button
+                  [variant]="variant.variant"
+                ></app-variant-delete-button>
               </ng-template>
             </tr>
           </ng-container>

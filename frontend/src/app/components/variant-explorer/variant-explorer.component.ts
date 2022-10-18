@@ -82,6 +82,7 @@ import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
 import { EditorOptions } from './variant-query/variant-query.component';
 import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
+import { ToastService } from 'src/app/services/toast/toast.service';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -113,7 +114,8 @@ export class VariantExplorerComponent
     private conformanceCheckingService: ConformanceCheckingService,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     public variantViewModeService: VariantViewModeService,
-    private tooltipService: ActivateTooltipsService
+    private tooltipService: ActivateTooltipsService,
+    private toastService: ToastService
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -251,7 +253,7 @@ export class VariantExplorerComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe((variants) => {
         this.variants = variants;
-        this.displayed_variants = variants;
+        this.displayed_variants = variants.filter((v) => v.isDisplayed);
         this.sort(this.sortingFeature);
         this.closeAllSubvariantWindows();
 
@@ -947,6 +949,32 @@ export class VariantExplorerComponent
 
   onScroll(): void {
     this.tooltipService.hideAll();
+  }
+
+  executeRemovalActionOnFilteredVariants(removeFiltered: boolean): void {
+    let bids = [];
+    let infoText = '';
+    if (removeFiltered) {
+      // remove all filtered variants
+      bids = this.displayed_variants.map((v) => v.bid);
+      infoText = 'Removed all filtered variants. Filters are cleared.';
+    } else {
+      // keep only filtered variants
+      bids = this.variants.filter((v) => !v.isDisplayed).map((v) => v.bid);
+      infoText = 'Removed all not filtered variants. Filters are cleared.';
+    }
+
+    this.variantService.deleteVariants(bids);
+
+    for (let filter of this.filterMap.keys()) {
+      this.removeFilter(filter);
+    }
+
+    this.toastService.showSuccessToast(
+      'Variants removed',
+      infoText,
+      'bi-trash'
+    );
   }
 }
 

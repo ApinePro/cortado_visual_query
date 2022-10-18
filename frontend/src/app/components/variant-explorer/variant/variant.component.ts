@@ -28,6 +28,7 @@ export class VariantComponent implements AfterViewInit {
   @ContentChild('variantDrawer') variantDrawer!: TemplateRef<any>;
   @ContentChild('subvariantButton') subvariantButton!: TemplateRef<any>;
   @ContentChild('infixSelection') infixSelection!: TemplateRef<any>;
+  @ContentChild('removeVariantButton') removeVariantButton!: TemplateRef<any>;
 
   @Input()
   index: number;
