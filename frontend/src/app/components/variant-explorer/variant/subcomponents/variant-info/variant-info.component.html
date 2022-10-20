@@ -11,74 +11,56 @@
     [ngClass]="isConformanceUpdatePossible() ? 'cursor-pointer' : ''"
     *ngIf="processTreeIsPresent"
   >
-    <!-- hourglass-split icon-->
-    <i
-      class="bi bi-hourglass-split font-large text-secondary"
-      *ngIf="variant.calculationInProgress"
-    ></i>
+    <ng-container
+      *ngIf="!variant.calculationInProgress; else calculationInProgress"
+    >
+      <!-- timeout icon-->
+      <i
+        class="bi bi-hourglass-bottom font-large text-warning"
+        *ngIf="variant.isTimeouted"
+        data-bs-toggle="tooltip"
+        title="(re)calculate conformance statistics"
+      ></i>
 
-    <!-- timeout icon-->
-    <i
-      class="bi bi-hourglass-bottom font-large text-warning"
-      *ngIf="variant.calculationInProgress === false && variant.isTimeouted"
-      data-bs-toggle="tooltip"
-      title="(re)calculate conformance statistics"
-    ></i>
+      <!-- check-square icon-->
+      <i
+        class="bi bi-check-square font-large text-success"
+        *ngIf="variant.deviations === 0 && !variant.isConformanceOutdated"
+      ></i>
+      <i
+        class="bi bi-check-square font-large text-warning"
+        *ngIf="variant.deviations === 0 && variant.isConformanceOutdated"
+        data-bs-toggle="tooltip"
+        title="(re)calculate conformance statistics"
+      >
+      </i>
+      <!-- x-square icon-->
+      <i
+        class="bi bi-x-square font-large text-danger"
+        *ngIf="variant.deviations > 0 && !variant.isConformanceOutdated"
+      >
+      </i>
+      <i
+        class="bi bi-x-square font-large text-warning"
+        *ngIf="variant.deviations > 0 && variant.isConformanceOutdated"
+        data-bs-toggle="tooltip"
+        title="(re)calculate conformance statistics"
+      >
+      </i>
 
-    <!-- check-square icon-->
-    <i
-      class="bi bi-check-square font-large text-success"
-      *ngIf="
-        variant.deviations === 0 &&
-        variant.calculationInProgress === false &&
-        (!variant.isConformanceOutdated || variant.isAddedFittingVariant)
-      "
-    ></i>
-    <i
-      class="bi bi-check-square font-large text-warning"
-      *ngIf="
-        variant.deviations === 0 &&
-        variant.calculationInProgress === false &&
-        !(!variant.isConformanceOutdated || variant.isAddedFittingVariant)
-      "
-      data-bs-toggle="tooltip"
-      title="(re)calculate conformance statistics"
-    >
-    </i>
-    <!-- x-square icon-->
-    <i
-      class="bi bi-x-square font-large text-danger"
-      *ngIf="
-        variant.deviations > 0 &&
-        variant.calculationInProgress === false &&
-        !variant.isConformanceOutdated
-      "
-    >
-    </i>
-    <i
-      class="bi bi-x-square font-large text-warning"
-      *ngIf="
-        variant.deviations > 0 &&
-        variant.calculationInProgress === false &&
-        variant.isConformanceOutdated
-      "
-      data-bs-toggle="tooltip"
-      title="(re)calculate conformance statistics"
-    >
-    </i>
-
-    <!-- question mark icon-->
-    <i
-      class="bi bi-question-square text-secondary align-middle font-large"
-      *ngIf="
-        variant.deviations === undefined &&
-        variant.calculationInProgress === false &&
-        !variant.isTimeouted
-      "
-      data-bs-toggle="tooltip"
-      title="(re)calculate conformance statistics"
-    >
-    </i>
+      <!-- question mark icon-->
+      <i
+        class="bi bi-question-square text-secondary align-middle font-large"
+        *ngIf="variant.deviations === undefined && !variant.isTimeouted"
+        data-bs-toggle="tooltip"
+        title="(re)calculate conformance statistics"
+      >
+      </i>
+    </ng-container>
+    <ng-template #calculationInProgress>
+      <!-- hourglass-split icon-->
+      <i class="bi bi-hourglass-split font-large text-secondary"></i>
+    </ng-template>
   </div>
 
   <small
@@ -91,7 +73,7 @@
     title="variant describes ~{{
       variant.percentage
     }}% of all traces in the event log<br>
-        <span class='text-secondary'>variant occurs {{
+  <span class='text-secondary'>variant occurs {{
       variant.count | number
     }} time(s) in total</span>"
   >

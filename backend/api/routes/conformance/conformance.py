@@ -21,7 +21,8 @@ def calculate_alignment_intern_with_timeout(
 ):
     try:
         return execute_with_timeout(
-            calculate_alignment_intern, timeout, args=(pt, c_variant, infix_type)
+            calculate_alignment_intern, timeout, args=(
+                pt, c_variant, infix_type)
         )
     except TimeoutException:
         return {"isTimeout": True}
@@ -65,7 +66,8 @@ def calculate_alignment_intern(pt: dict, c_variant: dict, infix_type: InfixType)
     return {
         "cost": total_cost/len(all_variants),
         "deviations": deviations/len(all_variants),
-        "alignment": project_alignments_on_cvariant(index_alignments_mapping, c_variant_indexed)
+        "alignment": project_alignments_on_cvariant(index_alignments_mapping, c_variant_indexed),
+        "pt": pt
     }
 
 

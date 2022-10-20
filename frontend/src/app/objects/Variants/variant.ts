@@ -1,3 +1,4 @@
+import { ProcessTree } from '../ProcessTree/ProcessTree';
 import { InfixType } from './infix_selection';
 import { VariantElement } from './variant_element';
 
@@ -19,6 +20,7 @@ export class Variant {
   deviations: number | undefined;
   isTimeouted: boolean;
   isConformanceOutdated: boolean;
+  usedTreeForConformanceChecking: ProcessTree;
   nSubVariants: number;
   infixType: InfixType;
   fragmentStatistics: any;

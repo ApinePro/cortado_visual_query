@@ -67,7 +67,8 @@ export class ConformanceCheckingService {
             result['isTimeout'],
             result['cost'],
             result['deviations'],
-            result['alignment']
+            result['alignment'],
+            result['pt']
           );
         })
       );

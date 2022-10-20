@@ -35,6 +35,7 @@ import {
   take,
   tap,
   takeUntil,
+  filter,
 } from 'rxjs/operators';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
@@ -88,6 +89,7 @@ import { EditorOptions } from './variant-query/variant-query.component';
 import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
 import { ContextMenuItem } from './variant-explorer-context-menu/variant-explorer-context-menu.component';
 import { ToastService } from 'src/app/services/toast/toast.service';
+import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -136,7 +138,6 @@ export class VariantExplorerComponent
   public logStats: LogStats = null;
 
   public currentlyDisplayedProcessTree;
-  public usedTreeForConformanceChecking;
   protected unsubscribe: Subject<void> = new Subject<void>();
 
   public correctTreeSyntax = false;
@@ -348,20 +349,22 @@ export class VariantExplorerComponent
 
   private listenForProcessTreeChange() {
     this.processTreeService.currentDisplayedProcessTree$
-      .pipe(takeUntil(this._destroy$))
+      .pipe(
+        takeUntil(this._destroy$),
+        filter(
+          (tree) => !processTreesEqual(tree, this.currentlyDisplayedProcessTree)
+        )
+      )
       .subscribe((tree) => {
         this.currentlyDisplayedProcessTree = tree;
-        const treeHasChanged = !processTreesEqual(
-          this.usedTreeForConformanceChecking,
-          this.currentlyDisplayedProcessTree
-        );
 
-        if (treeHasChanged) {
-          this.variants.forEach((v) => {
-            v.isAddedFittingVariant = false;
-            v.isConformanceOutdated = true;
-          });
-        }
+        this.variants.forEach((variant) => {
+          if (variant.usedTreeForConformanceChecking)
+            variant.isConformanceOutdated = !processTreesEqual(
+              tree,
+              variant.usedTreeForConformanceChecking
+            );
+        });
         this.redraw_components();
       });
   }
@@ -424,6 +427,7 @@ export class VariantExplorerComponent
           if (!res.isTimeout) {
             variant.alignment = deserialize(res.alignment);
             variant.deviations = res.deviations;
+            variant.usedTreeForConformanceChecking = res.processTree;
           }
 
           this.updateAlignmentStatistics();
@@ -436,6 +440,7 @@ export class VariantExplorerComponent
             v.calculationInProgress = false;
             v.alignment = undefined;
             v.deviations = undefined;
+            v.usedTreeForConformanceChecking = undefined;
           });
 
           this.updateAlignmentStatistics();
@@ -445,8 +450,6 @@ export class VariantExplorerComponent
   }
 
   updateAlignments(): void {
-    this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
-
     this.variants.forEach((v) => {
       this.updateConformanceForVariant(v, 0);
     });
@@ -545,7 +548,9 @@ export class VariantExplorerComponent
     this.backendService
       .discoverProcessModelFromConcurrencyVariants(variants)
       .pipe(takeUntil(this._destroy$))
-      .subscribe((_) => this.refreshConformanceIconsAfterModelChange(true));
+      .subscribe((tree) =>
+        this.refreshConformanceIconsAfterModelChange(true, tree)
+      );
   }
 
   changeQueryOption(event, option) {
@@ -767,8 +772,8 @@ export class VariantExplorerComponent
         selectedVariantElements
       )
       .pipe(takeUntil(this._destroy$))
-      .subscribe((_) => {
-        this.refreshConformanceIconsAfterModelChange(false);
+      .subscribe((tree) => {
+        this.refreshConformanceIconsAfterModelChange(false, tree);
       });
   }
 
@@ -785,16 +790,20 @@ export class VariantExplorerComponent
     this.backendService
       .addConcurrencyVariantsToProcessModel(variantsToAdd, fittingVariants)
       .pipe(takeUntil(this._destroy$))
-      .subscribe((_) => {
-        this.refreshConformanceIconsAfterModelChange(false);
+      .subscribe((tree) => {
+        this.refreshConformanceIconsAfterModelChange(false, tree);
       });
   }
 
-  refreshConformanceIconsAfterModelChange(wasInitialDiscovery: boolean): void {
+  refreshConformanceIconsAfterModelChange(
+    wasInitialDiscovery: boolean,
+    pt: ProcessTree
+  ): void {
     if (wasInitialDiscovery) {
       this.variants.forEach((v) => {
         v.deviations = undefined;
         v.calculationInProgress = false;
+        v.usedTreeForConformanceChecking = undefined;
       });
     }
 
@@ -804,6 +813,7 @@ export class VariantExplorerComponent
       // Make variant as fitting alignment
       v.alignment = v.variant;
       v.alignment.updateConformance(1);
+      v.usedTreeForConformanceChecking = pt;
 
       v.calculationInProgress = false;
       v.isConformanceOutdated = false;
@@ -816,8 +826,6 @@ export class VariantExplorerComponent
           .find((drawer) => drawer.variant.id == v.id)
           .redraw();
       });
-
-    this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
   }
 
   isAnyVariantSelected(): boolean {
