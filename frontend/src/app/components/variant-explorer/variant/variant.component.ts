@@ -24,7 +24,7 @@ import { VariantViewModeService } from 'src/app/services/viewModeServices/varian
 })
 export class VariantComponent implements AfterViewInit {
   @ContentChild('variantInfo') variantInfo!: TemplateRef<any>;
-  @ContentChild('treeButton') performanceButton!: TemplateRef<any>;
+  @ContentChild('treeButton') treeButton!: TemplateRef<any>;
   @ContentChild('variantDrawer') variantDrawer!: TemplateRef<any>;
   @ContentChild('subvariantButton') subvariantButton!: TemplateRef<any>;
   @ContentChild('infixSelection') infixSelection!: TemplateRef<any>;
