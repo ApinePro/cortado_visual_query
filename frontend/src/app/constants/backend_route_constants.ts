@@ -12,6 +12,7 @@ export class ROUTES {
   public static VARIANT = 'variant/';
   public static VARIANT_PERFORMANCE = 'variantPerformance/';
   public static SUBVARIANT_PERFORMANCE = 'subvariantPerformance/';
+  public static TREE_CONFORMANCE = 'treeConformance/';
   public static VARIANT_CONFORMANCE = 'variantConformance/';
   public static QUERY = 'variantQuery/';
   public static CONFIG = 'config/';
