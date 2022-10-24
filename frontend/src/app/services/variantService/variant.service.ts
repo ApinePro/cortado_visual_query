@@ -112,7 +112,7 @@ export class VariantService {
       0,
       reducedInfix,
       false,
-      false,
+      true,
       false,
       0,
       false,
