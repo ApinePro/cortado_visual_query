@@ -22,6 +22,7 @@ export class Variant {
   isConformanceOutdated: boolean;
   nSubVariants: number;
   infixType: InfixType;
+  fragmentStatistics: any;
 
   constructor(
     count: number,

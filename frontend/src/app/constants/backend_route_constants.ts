@@ -7,6 +7,7 @@ export class ROUTES {
   public static MODIFY_TREE = 'modifyTree/';
   public static PT_STRING = 'treeSting/';
   public static TREE_PERFORMANCE = 'treePerformance/';
+  public static VARIANT = 'variant/';
   public static VARIANT_PERFORMANCE = 'variantPerformance/';
   public static SUBVARIANT_PERFORMANCE = 'subvariantPerformance/';
   public static CONFORMANCE = 'conformance/';

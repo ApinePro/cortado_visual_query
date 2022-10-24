@@ -110,4 +110,21 @@
   >
     <i class="bi bi-person-circle fs-5 ms-2"></i>
   </small>
+  <small
+    *ngIf="variant.userDefined"
+    class="ms-1 float-end cursor-help"
+    data-bs-toggle="tooltip"
+    data-bs-placement="right"
+    data-bs-container="body"
+    data-bs-html="true"
+    title="#Variants that contain the fragment at least once:  {{
+      variant.fragmentStatistics['variantOccurrences']
+    }} <br> #Occurrences in variants: {{
+      variant.fragmentStatistics['totalOccurrences']
+    }} <br> #Traces that contain the fragment: {{
+      variant.fragmentStatistics['traceOccurrences']
+    }}"
+  >
+    <i class="bi bi-info fs-5 ms-2"></i>
+  </small>
 </div>
