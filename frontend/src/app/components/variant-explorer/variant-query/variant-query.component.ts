@@ -13,6 +13,8 @@ import {
   OnDestroy,
   OnChanges,
   SimpleChanges,
+  EventEmitter,
+  Output,
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
@@ -44,6 +46,9 @@ export class VariantQueryComponent
 
   @Input()
   options: EditorOptions = new EditorOptions();
+
+  @Output()
+  executeFilteredVariantsAction: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   queryfilteractive: boolean = false;
 
@@ -125,6 +130,10 @@ export class VariantQueryComponent
 
   resetQuery() {
     this.variantFilterService.removeVariantFilter('query filter');
+  }
+
+  executeRemovalActionOnFilteredVariants(removeFiltered: boolean) {
+    this.executeFilteredVariantsAction.emit(removeFiltered);
   }
 
   onEditorChange(value) {

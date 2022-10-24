@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import * as FileSaver from 'file-saver';
 import { Observable } from 'rxjs';
 import { take, tap } from 'rxjs/operators';
@@ -13,6 +13,8 @@ import { ProcessTreeService } from './../processTreeService/process-tree.service
 import { VariantElement } from 'src/app/objects/Variants/variant_element';
 import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { addVariantInformation } from '../variantService/variant-transformation';
+import { ElectronServiceInterface } from '../electronService/electron.service';
+import { ELECTRON_SERVICE } from 'src/app/tokens';
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +24,8 @@ export class BackendService {
     private httpClient: HttpClient,
     private logService: LogService,
     private variantService: VariantService,
-    private processTreeService: ProcessTreeService
+    private processTreeService: ProcessTreeService,
+    @Inject(ELECTRON_SERVICE) private electronService: ElectronServiceInterface
   ) {}
 
   exportEventLogFromLog(bids: number[]) {
@@ -34,7 +37,13 @@ export class BackendService {
       )
       .pipe(take(1))
       .subscribe((blob) => {
-        FileSaver.saveAs(blob, 'log.xes');
+        this.electronService.showSaveDialog(
+          'log',
+          'xes',
+          blob,
+          'Save event log',
+          'Export event log'
+        );
       });
   }
 
@@ -157,7 +166,14 @@ export class BackendService {
             { responseType: 'blob' }
           )
           .subscribe((blob) => {
-            FileSaver.saveAs(blob, 'bpmn_model.bpmn');
+            this.electronService.showSaveDialog(
+              'bpmn_model',
+              'bpmn',
+              blob,
+              'Save BPMN model',
+              'Download current tree as BPMN'
+            );
+            // FileSaver.saveAs(blob, 'bpmn_model.bpmn');
           });
       });
   }
@@ -173,7 +189,14 @@ export class BackendService {
             { responseType: 'blob' }
           )
           .subscribe((blob) => {
-            FileSaver.saveAs(blob, 'process_tree.ptml');
+            this.electronService.showSaveDialog(
+              'process_tree',
+              'ptml',
+              blob,
+              'Save as ptml',
+              'Download current tree as PTML'
+            );
+            // FileSaver.saveAs(blob, 'process_tree.ptml');
           });
       });
   }
@@ -189,7 +212,14 @@ export class BackendService {
             { responseType: 'blob' }
           )
           .subscribe((blob) => {
-            FileSaver.saveAs(blob, 'petri_net.pnml');
+            this.electronService.showSaveDialog(
+              'petri_net',
+              'pnml',
+              blob,
+              'Save as pnml',
+              'Download current tree as PNML'
+            );
+            // FileSaver.saveAs(blob, 'petri_net.pnml');
           });
       });
   }

@@ -44,6 +44,32 @@
       >
         <i class="bi bi-x-lg text-danger"></i> Remove active query
       </button>
+
+      <div class="text-right">
+        <button
+          *ngIf="queryfilteractive"
+          type="button"
+          class="button"
+          [disabled]="!active"
+          (click)="executeRemovalActionOnFilteredVariants(true)"
+          data-bs-toggle="tooltip"
+          title="remove filtered variants from event log"
+        >
+          <i class="bi bi-trash text-danger"></i>
+        </button>
+
+        <button
+          *ngIf="queryfilteractive"
+          type="button"
+          class="button"
+          [disabled]="!active"
+          (click)="executeRemovalActionOnFilteredVariants(false)"
+          data-bs-toggle="tooltip"
+          title="keep only filtered variants in event log"
+        >
+          <i class="bi bi-trash text-danger"></i>
+        </button>
+      </div>
     </div>
   </form>
 </div>

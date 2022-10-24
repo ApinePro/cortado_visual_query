@@ -1,4 +1,6 @@
 const {app, BrowserWindow, dialog, ipcMain} = require('electron')
+var fs = require('fs');
+const { showSaveDialog } = require("./util");
 const nativeImage = require('electron').nativeImage
 const url = require("url");
 const path = require("path");
@@ -6,9 +8,7 @@ const kill = require("tree-kill")
 const ChildProcess = require('child_process');
 const Store = require('electron-store');
 const executablePath = app.getPath('exe');
-
-
-
+const downloadFolder = app.getPath('downloads')
 const backendWorkDirWindows = executablePath.substring(0, executablePath.lastIndexOf("\\")) +
 "\\cortado-backend";
 const backendWorkDirLinux = executablePath.substring(0, executablePath.lastIndexOf("/")) +
@@ -72,6 +72,10 @@ ipcMain.on('license-dialog', (event, arg) => {
     app.quit()
   }
 })
+
+ipcMain.on('showSaveDialog', ((_, fileName, fileExtension, base64File, buttonLabel, title) => {
+  showSaveDialog(downloadFolder, dialog, fs, win, fileName, fileExtension, base64File, buttonLabel, title)
+}));
 
 function createMainApplicationWindow() {
   mainCortadoWin = new BrowserWindow({

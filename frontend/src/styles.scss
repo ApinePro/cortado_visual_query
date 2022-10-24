@@ -497,3 +497,16 @@ th {
   transform:translate(-50%, -50%);
   color: white;
 }
+
+tr:hover > td .remove-variant-button {
+  display: inline !important;
+}
+
+tr:hover > .fixed-right {
+  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
+}
+
+.remove-variant-button {
+  display: none;
+  background-color: var(--box-background-color);
+}

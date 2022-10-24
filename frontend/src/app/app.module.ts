@@ -62,6 +62,10 @@ import { InfixSelectionControllsComponent } from './components/variant-explorer/
 import { ZoomFieldComponent } from './components/zoom-field/zoom-field.component';
 import { VariantExplorerSidebarComponent } from './components/variant-explorer/variant-explorer-sidebar/variant-explorer-sidebar.component';
 import { EditorZoneComponent } from './components/editor-zone/editor-zone.component';
+import { VariantDeleteButtonComponent } from './components/variant-explorer/variant-delete-button/variant-delete-button.component';
+import { ELECTRON_SERVICE } from './tokens';
+import { ElectronService } from './services/electronService/electron.service';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -117,6 +121,7 @@ import { EditorZoneComponent } from './components/editor-zone/editor-zone.compon
     InfixSelectionControllsComponent,
     ZoomFieldComponent,
     VariantExplorerSidebarComponent,
+    VariantDeleteButtonComponent,
   ],
   imports: [
     BrowserModule,
@@ -141,6 +146,8 @@ import { EditorZoneComponent } from './components/editor-zone/editor-zone.compon
       deps: [InitService],
       multi: true,
     },
+    { provide: ELECTRON_SERVICE, useClass: ElectronService },
+
     GoldenLayoutComponentService,
   ],
   entryComponents: [

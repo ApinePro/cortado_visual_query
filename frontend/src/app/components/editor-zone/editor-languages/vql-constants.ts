@@ -1,4 +1,4 @@
-export const binarylogicalOperator = ['AND', 'OR'];
+export const binarylogicalOperator = ['AND', 'OR', '->'];
 
 export const unarylogicalOperator = ['NOT'];
 
