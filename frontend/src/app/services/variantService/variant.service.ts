@@ -5,7 +5,7 @@ import { LogService } from 'src/app/services/logService/log.service';
 import * as objectHash from 'object-hash';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { skip } from 'rxjs/operators';
+import { skip, tap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { mapVariants } from 'src/app/utils/util';
 import {
@@ -19,6 +19,7 @@ import { Variant } from 'src/app/objects/Variants/variant';
 import {
   deserialize,
   SequenceGroup,
+  VariantElement,
 } from 'src/app/objects/Variants/variant_element';
 import {
   addVariantInformation,
@@ -142,23 +143,33 @@ export class VariantService {
       return;
     }
 
-    currentVariants.push(newVariant);
-    this.variants = currentVariants;
+    this.countFragmentOccurrences(newVariant)
+      .pipe(
+        tap((statistics) => {
+          newVariant.fragmentStatistics = statistics;
+          currentVariants.push(newVariant);
+          this.variants = currentVariants;
+        })
+      )
+      .pipe(
+        tap((_) => {
+          let sortedVariants = VariantSorter.sort(
+            this.variants,
+            sortingFeature,
+            isAscending
+          );
 
-    let sortedVariants = VariantSorter.sort(
-      this.variants,
-      sortingFeature,
-      isAscending
-    );
-
-    this.toastService.showSuccessToast(
-      'Variant Explorer',
-      `The selected infix is added at position ${
-        sortedVariants.indexOf(newVariant) + 1
-      }.`,
-      'bi-list-ul'
-    );
-    variant.variant.resetSelectionStatus();
+          this.toastService.showSuccessToast(
+            'Variant Explorer',
+            `The selected infix is added at position ${
+              sortedVariants.indexOf(newVariant) + 1
+            }.`,
+            'bi-list-ul'
+          );
+          variant.variant.resetSelectionStatus();
+        })
+      )
+      .subscribe();
   }
 
   public deleteVariants(bids: number[]): void {
@@ -179,6 +190,20 @@ export class VariantService {
       });
     }
     // Count deleted Activites, Recompute if an Activity is a Start or End Activity.
+  }
+
+  countFragmentOccurrences(variant: Variant): Observable<number> {
+    let variantElement: VariantElement = variant.variant;
+
+    const payload = {
+      infixType: InfixType[variant.infixType],
+      fragment: variantElement.serialize(),
+    };
+
+    return this.httpClient.post<number>(
+      ROUTES.BASE_URL + ROUTES.VARIANT + 'countFragmentOccurrences',
+      payload
+    );
   }
 
   public deleteActivity(activityName: string) {
