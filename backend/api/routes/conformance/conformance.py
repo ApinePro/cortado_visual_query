@@ -1,7 +1,7 @@
 import asyncio
 from multiprocessing import Pool
 
-# import pm4pycvxopt
+import pm4pycvxopt
 from backend_utilities.configuration.repository import ConfigurationRepositoryFactory
 from backend_utilities.timeout.helper_functions import (
     TimeoutException,
