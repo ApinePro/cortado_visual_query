@@ -149,12 +149,12 @@
     <div
       class="btn-group align-baseline dropdown dropDownParent"
       (click)="nodeInsertionStrategy = null"
+      data-bs-toggle="tooltip"
+      title="change selected node"
     >
       <button
         class="button"
-        data-bs-toggle="tooltip"
         data-bs-placement="top"
-        title="change selected node"
         [disabled]="
           !selectedRootNode ||
           (nodeSelectionStrategy === NodeSeletionStrategy.TREE &&
@@ -163,6 +163,7 @@
         (click)="nodeInsertionStrategy = NodeInsertionStrategy.CHANGE"
         type="button"
         data-bs-toggle="dropdown"
+        data-bs-auto-close="outside"
         aria-haspopup="true"
         aria-expanded="false"
       >
