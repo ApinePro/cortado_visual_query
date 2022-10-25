@@ -13,10 +13,15 @@ const backendWorkDirWindows = executablePath.substring(0, executablePath.lastInd
 "\\cortado-backend";
 const backendWorkDirLinux = executablePath.substring(0, executablePath.lastIndexOf("/")) +
   "/cortado-backend";
+let backendWorkDirMac = executablePath.substring(0, executablePath.lastIndexOf("/"))
+backendWorkDirMac = backendWorkDirMac.substring(0, backendWorkDirMac.lastIndexOf("/")) +
+  "/cortado-backend";
 const backendExecutablePathWindows = '"' + executablePath.substring(0, executablePath.lastIndexOf("\\")) +
   "\\cortado-backend\\cortado-backend.exe" + '"';
 const backendExecutablePathLinux = executablePath.substring(0, executablePath.lastIndexOf("/")) +
   "/cortado-backend/cortado-backend";
+const backendExecutablePathMac = backendWorkDirMac +
+  "/cortado-backend";
 const lastAcceptedVersionKey = "lastAcceptedVersion";
 
 let mainCortadoWin;
@@ -30,7 +35,7 @@ function startBackend() {
     case 'win32':
       return ChildProcess.spawn(backendExecutablePathWindows, {shell: true, detached: true, windowsHide: false, cwd: backendWorkDirWindows});
     default:
-      return;
+      return ChildProcess.spawn(backendExecutablePathMac, [], {shell: true, detached: true, windowsHide: false, cwd: backendWorkDirMac});
   }
 }
 
@@ -105,9 +110,10 @@ function createMainApplicationWindow() {
 
 function killBackendProcess() {
   if (backendProcess){
-    if (process.platform !== 'linux'){
+    if (process.platform == 'win32'){
       kill(backendProcess.pid);
-    } else {
+    } 
+    else {
       ChildProcess.execSync("killall -9 cortado-backend", {shell: '/bin/sh'});
     }
   }
