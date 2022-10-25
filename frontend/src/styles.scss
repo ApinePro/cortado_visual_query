@@ -500,6 +500,7 @@ th {
 
 tr:hover > td .remove-variant-button {
   display: inline !important;
+  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
 }
 
 tr:hover > .fixed-right {
