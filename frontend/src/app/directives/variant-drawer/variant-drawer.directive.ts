@@ -27,6 +27,7 @@ import {
   LeafNode,
   WaitingTimeNode,
   InvisibleSequenceGroup,
+  LoopGroup,
 } from 'src/app/objects/Variants/variant_element';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { ViewMode } from 'src/app/objects/ViewMode';
@@ -284,6 +285,8 @@ export class VariantDrawerDirective
       this.drawLeafNode(element.asLeafNode(), svgElement);
     } else if (element instanceof WaitingTimeNode) {
       this.drawWaitingNode(element.asLeafNode(), svgElement);
+    } else if (element instanceof LoopGroup) {
+      this.drawLoopGroup(element.asLoopGroup(), svgElement);
     }
   }
 
@@ -547,6 +550,96 @@ export class VariantDrawerDirective
 
     if (this.onMouseOverCbFc) {
       this.onMouseOverCbFc(this, element, this.variant, parent);
+    }
+  }
+
+  public drawLoopGroup(
+    loopGroup: LoopGroup,
+    parent: Selection<any, any, any, any>
+  ): void {
+    const width = loopGroup.getWidth();
+    const height = loopGroup.getHeight();
+
+    let leafNode = loopGroup.elements[0].asLeafNode();
+
+    const polygonPoints = this.polygonService.getPolygonPoints(width, height);
+
+    const color = this.computeActivityColor(this, leafNode, this.variant);
+
+    let laElement = getLowestSelectionActionableElement(loopGroup);
+    let actionable =
+      laElement.parent !== null &&
+      laElement.infixSelectableState !== SelectableState.None;
+
+    let polygon = this.createPolygon(parent, polygonPoints, color, actionable);
+
+    if (this.traceInfixSelectionMode) {
+      this.addInfixSelectionAttributes(loopGroup, polygon, true);
+    }
+
+    if (this.onClickCbFc) {
+      parent.on('click', (e: PointerEvent) => {
+        this.onClickCbFc(this, loopGroup, this.variant);
+        e.stopPropagation();
+      });
+    }
+
+    const textcolor = textColorForBackgroundColor(
+      color,
+      this.traceInfixSelectionMode && !loopGroup.selected
+    );
+
+    const activityText = parent
+      .append('text')
+      .attr('x', width / 2)
+      .attr('y', height / 2)
+      .classed('user-select-none', true)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr('font-size', VARIANT_Constants.FONT_SIZE)
+      .attr('fill', textcolor)
+      .classed('activity-text', true);
+
+    let y = height / 2;
+    if (leafNode.activity.length > 1) {
+      y =
+        height / 2 -
+        ((leafNode.activity.length - 1) / 2) *
+          (VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y);
+    }
+
+    let truncated = false;
+    let dy = 0;
+    leafNode.activity.forEach((a, _i) => {
+      const tspan = activityText
+        .append('tspan')
+        .attr('x', width / 2)
+        .attr('y', y + dy)
+        .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable)
+        .text(a);
+
+      dy += VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y;
+      tspan.attr(
+        'height',
+        VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y
+      );
+
+      const maxWidth =
+        loopGroup.getWidth() -
+        loopGroup.getHeadLength() * 2 -
+        VARIANT_Constants.MARGIN_X;
+      const tr = this.wrapInnerLabelText(tspan, a, maxWidth);
+      truncated ||= tr;
+    });
+
+    if (truncated) {
+      activityText
+        .attr('title', leafNode.activity.join(';'))
+        .attr('data-bs-toggle', 'tooltip');
+    }
+
+    if (this.onMouseOverCbFc) {
+      this.onMouseOverCbFc(this, loopGroup, this.variant, parent);
     }
   }
 

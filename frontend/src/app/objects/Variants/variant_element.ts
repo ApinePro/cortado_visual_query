@@ -1,3 +1,4 @@
+import { ChildrenOutletContexts } from '@angular/router';
 import { VARIANT_Constants } from 'src/app/constants/variant_element_drawer_constants';
 import {
   setParent,
@@ -64,6 +65,11 @@ export abstract class VariantElement {
   public asLeafNode(): LeafNode {
     let self: unknown = this;
     return <LeafNode>self;
+  }
+
+  public asLoopGroup(): LoopGroup {
+    let self: unknown = this;
+    return <LoopGroup>self;
   }
 
   public setExpanded(expanded: boolean) {
@@ -565,6 +571,107 @@ export class ParallelGroup extends VariantElement {
   }
 }
 
+export class LoopGroup extends VariantElement {
+  public getActivities(): Set<string> {
+    return this.elements[0].getActivities();
+  }
+
+  public renameActivity(activityName: string, newActivityName: string) {
+    this.elements[0].renameActivity(activityName, newActivityName);
+  }
+
+  // TODO niklas: check if correct
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    let res = this.elements[0].deleteActivity(activityName);
+    if (res[0].length == 0) {
+      return [null, res[1]];
+    }
+
+    return [[new LoopGroup(res[0])], res[1]];
+  }
+
+  constructor(public elements: VariantElement[], performance: any = undefined) {
+    super(performance);
+  }
+
+  public asString(): string {
+    return 'L(' + this.elements[0].asString() + ')';
+  }
+
+  public setExpanded(expanded: boolean) {
+    super.setExpanded(expanded);
+
+    for (let el of this.elements) {
+      el.setExpanded(expanded);
+    }
+  }
+
+  public setElements(elements: VariantElement[]) {
+    this.elements = elements;
+  }
+
+  public getElements() {
+    return this.elements;
+  }
+
+  public getHeight(): number {
+    return this.elements[0].getHeight() * 2;
+  }
+
+  public getWidth(includeWaiting = false): number {
+    return this.elements[0].getWidth(includeWaiting);
+  }
+
+  public copy(): LoopGroup {
+    const res = new LoopGroup(this.elements.map((e) => e.copy()));
+    res.expanded = this.expanded;
+    return res;
+  }
+
+  public updateWidth(includeWaiting) {
+    let headLength = this.getHeadLength();
+    for (let el of this.elements) {
+      el.width = this.width - VARIANT_Constants.MARGIN_X - 2 * headLength;
+    }
+
+    for (let el of this.elements) {
+      el.updateWidth(includeWaiting);
+    }
+  }
+
+  public recalculateHeight(includeWating = false): number {
+    return this.elements[0].recalculateHeight(includeWating) * 2;
+  }
+
+  public recalculateWidth(includeWaiting = false): number {
+    return this.elements[0].recalculateWidth(includeWaiting);
+  }
+
+  public serialize() {
+    return {
+      loop: this.elements
+        .map((e) => e.serialize())
+        .flat()
+        .filter((e) => e !== null),
+    };
+  }
+
+  public updateSelectionAttributes(): void {
+    updateSelectionAttributesForGroup(this);
+  }
+
+  public updateSurroundingSelectableElements(): void {
+    let children = this.elements.filter((c) => isElementWithActivity(c));
+    children.forEach((c) => {
+      if (!c.selected) {
+        c.setInfixSelectableState(SelectableState.Selectable, false);
+      } else {
+        c.setInfixSelectableState(SelectableState.Unselectable, false);
+      }
+    });
+  }
+}
+
 export class LeafNode extends VariantElement {
   public getActivities(): Set<string> {
     return new Set<string>(this.activity);
@@ -670,6 +777,11 @@ export function deserialize(obj: any): VariantElement {
   } else if ('parallel' in obj) {
     return new ParallelGroup(
       obj['parallel'].map((e: any) => deserialize(e)),
+      obj['performance']
+    );
+  } else if ('loop' in obj) {
+    return new LoopGroup(
+      obj['loop'].map((e: any) => deserialize(e)),
       obj['performance']
     );
   } else {
