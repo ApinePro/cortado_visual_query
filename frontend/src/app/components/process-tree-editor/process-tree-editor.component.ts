@@ -103,7 +103,8 @@ export class ProcessTreeEditorComponent
   nodeSelectionStrategy: NodeSeletionStrategy = NodeSeletionStrategy.TREE;
 
   NodeInsertionStrategy = NodeInsertionStrategy;
-  nodeInsertionStrategy: NodeInsertionStrategy = NodeInsertionStrategy.BELOW;
+  nodeInsertionStrategy: NodeInsertionStrategy = NodeInsertionStrategy.ABOVE;
+  lastNodeInsertionStrategy: NodeInsertionStrategy;
 
   selectedRootNodeId: number;
   selectedRootNode: d3.HierarchyNode<any>;
@@ -113,7 +114,7 @@ export class ProcessTreeEditorComponent
 
   insertPositionLeftRightDisabled = false;
   insertPositionAboveDisabled = false;
-  insertPostitonBelowDisabled = false;
+  insertPositionBelowDisabled = false;
 
   root: d3.HierarchyNode<any>;
 
@@ -279,7 +280,7 @@ export class ProcessTreeEditorComponent
       this.insertPositionAboveDisabled = Boolean(
         this.selectedRootNode.parent
       ).valueOf();
-      this.insertPostitonBelowDisabled = Boolean(
+      this.insertPositionBelowDisabled = Boolean(
         this.selectedRootNode.data.operator
       ).valueOf();
     }
@@ -721,6 +722,38 @@ export class ProcessTreeEditorComponent
 
   toggleBlur(event) {
     this.processEditorOutOfFocus = event;
+  }
+
+  checkNodeInsertionStrategy() {
+    switch (this.nodeInsertionStrategy) {
+      case NodeInsertionStrategy.ABOVE:
+        if (this.insertPositionAboveDisabled)
+          this.nodeInsertionStrategy =
+            this.getFirstAvailableNodeInsertionStrategy();
+        break;
+      case NodeInsertionStrategy.BELOW:
+        if (this.insertPositionBelowDisabled)
+          this.nodeInsertionStrategy =
+            this.getFirstAvailableNodeInsertionStrategy();
+        break;
+      case NodeInsertionStrategy.LEFT:
+      case NodeInsertionStrategy.RIGHT:
+        if (this.insertPositionLeftRightDisabled)
+          this.nodeInsertionStrategy =
+            this.getFirstAvailableNodeInsertionStrategy();
+        break;
+      default:
+        this.nodeInsertionStrategy =
+          this.getFirstAvailableNodeInsertionStrategy();
+    }
+  }
+
+  getFirstAvailableNodeInsertionStrategy(): NodeInsertionStrategy {
+    if (!this.insertPositionAboveDisabled) return NodeInsertionStrategy.ABOVE;
+    if (!this.insertPositionLeftRightDisabled)
+      return NodeInsertionStrategy.LEFT;
+    if (!this.insertPositionBelowDisabled) return NodeInsertionStrategy.BELOW;
+    return NodeInsertionStrategy.CHANGE;
   }
 }
 
