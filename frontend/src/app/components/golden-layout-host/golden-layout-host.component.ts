@@ -13,7 +13,6 @@ import {
   GoldenLayout,
   LogicalZIndex,
   ResolvedComponentItemConfig,
-  Stack,
 } from 'golden-layout';
 
 import { baseLayout } from './LayoutTemplates/golden-layout-cortado-base';
@@ -21,10 +20,7 @@ import { ProcessTreeEditorComponent } from '../process-tree-editor/process-tree-
 import { VariantExplorerComponent } from '../variant-explorer/variant-explorer.component';
 import { ActivityOverviewComponent } from '../activity-overview/activity-overview.component';
 import { SubvariantExplorerComponent } from '../variant-explorer/subvariant-explorer/subvariant-explorer.component';
-import {
-  findContentItemByUniqueID,
-  GoldenLayoutComponentService,
-} from '../../services/goldenLayoutService/golden-layout-component.service';
+import { GoldenLayoutComponentService } from '../../services/goldenLayoutService/golden-layout-component.service';
 import { BpmnEditorComponent } from '../bpmn-editor/bpmn-editor.component';
 import { VariantEditorComponent } from '../variant-editor/variant-editor.component';
 import { InfoBoxComponent } from '../info-box/info-box.component';
@@ -32,8 +28,6 @@ import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-c
 
 import { ModelPerformanceComponent } from '../performance/performance.component';
 import { VariantPerformanceComponent } from '../variant-performance/variant-performance.component';
-import { ViewMode } from 'src/app/objects/ViewMode';
-import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
 @Component({
   selector: 'app-golden-layout-host',
   templateUrl: './golden-layout-host.component.html',
@@ -70,8 +64,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
   constructor(
     private _elRef: ElementRef<HTMLElement>,
     private renderer: Renderer2,
-    private goldenLayoutComponentService: GoldenLayoutComponentService,
-    private variantViewModeService: VariantViewModeService
+    private goldenLayoutComponentService: GoldenLayoutComponentService
   ) {
     // Get the Layout Host Component
     this._goldenLayoutElement = this._elRef.nativeElement;
@@ -136,10 +129,6 @@ export class GoldenLayoutHostComponent implements OnDestroy {
 
     this.goldenLayoutComponentService.goldenLayout = this.goldenLayout;
     this.goldenLayoutComponentService.goldenLayoutHostComponent = this;
-
-    this.variantViewModeService.viewMode$.subscribe((viewMode) => {
-      this.reactOnViewModeChange(viewMode);
-    });
   }
 
   initializeLayout() {
@@ -352,35 +341,6 @@ export class GoldenLayoutHostComponent implements OnDestroy {
         this.goldenLayout.width - 4,
         this.goldenLayout.height - 4
       );
-    }
-  }
-
-  reactOnViewModeChange(viewMode: ViewMode) {
-    if (this.goldenLayout.rootItem) {
-      const stackItem = findContentItemByUniqueID(
-        ActivityOverviewComponent.componentName + '_Container_Stack',
-        this.goldenLayout.rootItem
-      ) as Stack;
-
-      switch (viewMode) {
-        case ViewMode.PERFORMANCE:
-          stackItem.setActiveComponentItem(
-            this.goldenLayout.findFirstComponentItemById(
-              VariantPerformanceComponent.componentName
-            ),
-            true
-          );
-          break;
-
-        default:
-          stackItem.setActiveComponentItem(
-            this.goldenLayout.findFirstComponentItemById(
-              ActivityOverviewComponent.componentName
-            ),
-            true
-          );
-          break;
-      }
     }
   }
 }

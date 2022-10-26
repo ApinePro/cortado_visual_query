@@ -170,7 +170,7 @@ export class GoldenLayoutComponentService {
   }
 }
 
-export function findContentItemByUniqueID(
+function findContentItemByUniqueID(
   id: string,
   groundItem: ContentItem
 ): ContentItem | undefined {
