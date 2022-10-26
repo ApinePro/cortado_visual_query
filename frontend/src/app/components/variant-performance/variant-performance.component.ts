@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   ElementRef,
@@ -6,12 +7,16 @@ import {
   OnDestroy,
   OnInit,
   Renderer2,
+  ViewChild,
 } from '@angular/core';
+import { Tab } from 'bootstrap';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
+import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
 
 @Component({
   selector: 'app-variant-performance',
@@ -20,15 +25,19 @@ import { VariantPerformanceService } from 'src/app/services/variant-performance.
 })
 export class VariantPerformanceComponent
   extends LayoutChangeDirective
-  implements OnInit, OnDestroy
+  implements OnInit, AfterViewInit, OnDestroy
 {
+  @ViewChild('colorMapTab') colorMapTabRef: ElementRef;
+  colorMapTab: Tab;
+
   constructor(
     public variantPerformanceService: VariantPerformanceService,
     private changeDetectorRef: ChangeDetectorRef,
     renderer: Renderer2,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
-    elRef: ElementRef
+    elRef: ElementRef,
+    private variantViewModeService: VariantViewModeService
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -69,6 +78,18 @@ export class VariantPerformanceComponent
           this.title = 'Waiting Time';
         }
         this.changeDetectorRef.markForCheck();
+      });
+  }
+
+  ngAfterViewInit(): void {
+    this.colorMapTab = Tab.getOrCreateInstance(
+      this.colorMapTabRef.nativeElement
+    );
+
+    this.variantViewModeService.viewMode$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((viewMode) => {
+        if (viewMode === ViewMode.PERFORMANCE) this.colorMapTab.show();
       });
   }
 
