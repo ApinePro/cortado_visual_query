@@ -755,6 +755,10 @@ export class ProcessTreeEditorComponent
     if (!this.insertPositionBelowDisabled) return NodeInsertionStrategy.BELOW;
     return NodeInsertionStrategy.CHANGE;
   }
+
+  hideAllTooltips() {
+    this.activateTooltipsService.hideAll();
+  }
 }
 
 // TODO should be solved differently

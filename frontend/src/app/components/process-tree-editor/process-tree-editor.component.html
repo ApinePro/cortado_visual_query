@@ -23,6 +23,7 @@
         data-bs-auto-close="outside"
         id="addNodeDropdown"
         (show.bs.dropdown)="checkNodeInsertionStrategy()"
+        (mouseleave)="hideAllTooltips()"
       >
         <i class="bi bi-plus-square-fill btn-icon"></i>
       </button>
@@ -155,6 +156,7 @@
         nodeInsertionStrategy = NodeInsertionStrategy.CHANGE
       "
       (hide.bs.dropdown)="nodeInsertionStrategy = lastNodeInsertionStrategy"
+      (mouseleave)="hideAllTooltips()"
     >
       <button
         class="button"
