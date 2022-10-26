@@ -1,28 +1,56 @@
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   Inject,
-  OnInit,
+  OnDestroy,
   Renderer2,
+  ViewChild,
 } from '@angular/core';
+import { Tab } from 'bootstrap';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { ViewMode } from 'src/app/objects/ViewMode';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
+import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
 
 @Component({
   selector: 'app-variant-conformance',
   templateUrl: './variant-conformance.component.html',
   styleUrls: ['./variant-conformance.component.css'],
 })
-export class VariantConformanceComponent extends LayoutChangeDirective {
+export class VariantConformanceComponent
+  extends LayoutChangeDirective
+  implements AfterViewInit, OnDestroy
+{
+  @ViewChild('colorMapTab') colorMapTab: ElementRef;
+
+  private _destroy$ = new Subject();
+
   constructor(
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
     elRef: ElementRef,
     renderer: Renderer2,
-    private conformanceCheckingService: ConformanceCheckingService
+    private conformanceCheckingService: ConformanceCheckingService,
+    private variantViewModeService: VariantViewModeService
   ) {
     super(elRef.nativeElement, renderer);
+  }
+
+  ngAfterViewInit(): void {
+    this.variantViewModeService.viewMode$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((viewMode) => {
+        if (viewMode === ViewMode.CONFORMANCE)
+          this.colorMapTab.nativeElement.click();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 
   handleResponsiveChange(

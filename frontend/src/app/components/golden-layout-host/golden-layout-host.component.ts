@@ -383,6 +383,15 @@ export class GoldenLayoutHostComponent implements OnDestroy {
           );
           break;
 
+        case ViewMode.CONFORMANCE:
+          stackItem.setActiveComponentItem(
+            this.goldenLayout.findFirstComponentItemById(
+              VariantConformanceComponent.componentName
+            ),
+            true
+          );
+          break;
+
         default:
           stackItem.setActiveComponentItem(
             this.goldenLayout.findFirstComponentItemById(
