@@ -68,6 +68,8 @@ import { EditorZoneComponent } from './components/editor-zone/editor-zone.compon
 import { FilterOptionsComponent } from './components/variant-miner/filter-options/filter-options.component';
 import { ResizeableTableHeaderComponent } from './components/resizeable-table-header/resizeable-table-header.component';
 import { ResizeColumnDirective } from './directives/resize-column.directive';
+import { ELECTRON_SERVICE } from './tokens';
+import { ElectronService } from './services/electronService/electron.service';
 
 @NgModule({
   declarations: [
@@ -154,6 +156,8 @@ import { ResizeColumnDirective } from './directives/resize-column.directive';
       deps: [InitService],
       multi: true,
     },
+    { provide: ELECTRON_SERVICE, useClass: ElectronService },
+
     GoldenLayoutComponentService,
   ],
   entryComponents: [
