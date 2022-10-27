@@ -34,7 +34,6 @@ export class VariantSorter {
   }
 
   static subvariantsSorting(a: Variant, b: Variant) {
-    console.log(a);
     if (a.nSubVariants < b.nSubVariants) {
       return -1;
     } else if (a.nSubVariants > b.nSubVariants) {
