@@ -13,7 +13,7 @@ from api.routes.performance import (
     variantPerformance,
 )
 from api.routes.process_tree import discoverTree, modifyTree, treeString
-from api.routes.variants import variants
+from api.routes.variants import variants, queryVariant
 
 router = APIRouter()
 router.include_router(log.router)
@@ -30,4 +30,5 @@ router.include_router(discoverTree.router)
 router.include_router(modifyTree.router)
 router.include_router(treeString.router)
 router.include_router(variants.router)
+router.include_router(queryVariant.router)
 
