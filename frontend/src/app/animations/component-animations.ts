@@ -20,7 +20,7 @@ export const openCloseComponent = trigger('openCloseComponent', [
     'closeComponent',
     style({
       height: '25px',
-      width: '25px',
+      width: '125px',
       overflow: 'hidden',
     })
   ),

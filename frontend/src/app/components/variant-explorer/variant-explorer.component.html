@@ -343,12 +343,10 @@
           }"
           class=""
         ></i>
-        <span *ngIf="queryActive" class="ms-2 user-select-none"
-          >Variant Query</span
-        >
+        <span class="ms-2 user-select-none">Variant Query</span>
       </div>
 
-      <div class="me-2 dropdown">
+      <div class="me-2 dropdown" *ngIf="queryActive">
         <button
           class="query-info-button"
           type="button"
