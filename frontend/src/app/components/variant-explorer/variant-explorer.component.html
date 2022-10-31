@@ -147,7 +147,7 @@
         <i class="bi bi-sort-alpha-down btn-icon"></i>
       </button>
       <div
-        class="dropdown-menu dropdown-sort"
+        class="dropdown-menu custom-dropdown"
         id="sortDropdownMenu"
         aria-labelledby="sortDropdown"
       >
@@ -300,8 +300,10 @@
       >
         <i class="bi bi-clock btn-icon"></i>
       </button>
-
-      <ul class="dropdown-menu" aria-labelledby="granularityDropdown">
+      <ul
+        class="dropdown-menu custom-dropdown"
+        aria-labelledby="granularityDropdown"
+      >
         <li *ngFor="let unit of timeUnit | keyvalue: originalOrder">
           <button
             (click)="onGranularityChange(unit.value)"
@@ -343,12 +345,10 @@
           }"
           class=""
         ></i>
-        <span *ngIf="queryActive" class="ms-2 user-select-none"
-          >Variant Query</span
-        >
+        <span class="ms-2 user-select-none">Variant Query</span>
       </div>
 
-      <div class="me-2 dropdown">
+      <div class="me-2 dropdown" *ngIf="queryActive">
         <button
           class="query-info-button"
           type="button"

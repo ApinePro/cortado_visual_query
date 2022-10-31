@@ -511,3 +511,12 @@ tr:hover > .fixed-right {
   display: none;
   background-color: var(--box-background-color);
 }
+
+.custom-dropdown {
+  font-size: small;
+  max-height: 90vh;
+  user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+}

@@ -42,33 +42,42 @@
         [disabled]="!active"
         (click)="resetQuery()"
       >
-        <i class="bi bi-x-lg text-danger"></i> Remove active query
+        <i class="bi bi-x-lg text-danger"></i> Remove query filter
       </button>
 
-      <div class="text-right">
+      <div class="dropdown" *ngIf="queryfilteractive">
         <button
-          *ngIf="queryfilteractive"
+          class="button dropdown-toggle"
           type="button"
-          class="button"
-          [disabled]="!active"
-          (click)="executeRemovalActionOnFilteredVariants(true)"
-          data-bs-toggle="tooltip"
-          title="remove filtered variants from event log"
+          id="filterRemovalDropdown"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
         >
-          <i class="bi bi-trash text-danger"></i>
+          <i class="bi bi-trash text-danger"></i> Delete variants by query
         </button>
 
-        <button
-          *ngIf="queryfilteractive"
-          type="button"
-          class="button"
-          [disabled]="!active"
-          (click)="executeRemovalActionOnFilteredVariants(false)"
-          data-bs-toggle="tooltip"
-          title="keep only filtered variants in event log"
+        <ul
+          class="dropdown-menu custom-dropdown"
+          aria-labelledby="filterRemovalDropdown"
         >
-          <i class="bi bi-trash text-danger"></i>
-        </button>
+          <li>
+            <button
+              (click)="executeRemovalActionOnFilteredVariants(true)"
+              class="dropdown-item"
+            >
+              remove variants satisfying the current query (visible variants)
+            </button>
+          </li>
+          <li>
+            <button
+              (click)="executeRemovalActionOnFilteredVariants(false)"
+              class="dropdown-item"
+            >
+              remove variants non-satisfying the current query (filtered
+              variants)
+            </button>
+          </li>
+        </ul>
       </div>
     </div>
   </form>
