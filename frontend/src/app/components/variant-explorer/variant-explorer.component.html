@@ -523,11 +523,12 @@
                         </span>
                       </button>
                       <span
-                        class="badge text-bg-primary ms-1"
+                        class="badge text-bg-primary ms-1 cursor-pointer"
                         data-bs-toggle="tooltip"
                         data-bs-placement="bottom"
                         data-bs-html="true"
                         [title]="filter.value.tooltip"
+                        (click)="toggleQuery()"
                       >
                         <i class="bi bi-funnel-fill"> </i> {{ filter.key }}
                       </span>
