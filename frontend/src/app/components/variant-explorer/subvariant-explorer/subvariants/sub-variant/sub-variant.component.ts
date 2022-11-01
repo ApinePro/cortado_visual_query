@@ -79,6 +79,8 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.svg = d3.select(this.svgElement.nativeElement);
     this.isLoaded = true;
+    this.expanded =
+      this.variantViewModeService.viewMode == ViewMode.PERFORMANCE;
 
     this.colorMapService.colorMap$
       .pipe(takeUntil(this._destroy$))
