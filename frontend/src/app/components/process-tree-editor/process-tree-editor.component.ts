@@ -206,10 +206,10 @@ export class ProcessTreeEditorComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe((res) => {
         // If the tree was loaded via the process tree import or Drag&Drop that does not contain the current activites
+        this.currentlyDisplayedTreeInEditor = res;
 
         if (res) {
           console.warn('update tree triggered by service');
-          this.currentlyDisplayedTreeInEditor = res;
 
           this.processTreeSyntaxInfo = checkSyntax(res);
           this.processTreeService.correctTreeSyntax =
