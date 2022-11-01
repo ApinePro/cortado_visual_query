@@ -825,6 +825,10 @@ export class VariantExplorerComponent
         c.redraw();
       }
     });
+
+    // Necessary, because there are only variant drawers for children that are rendered.
+    // This is often only a subset of variants because of lazy loading.
+    this.variants.forEach((v) => v.variant.setExpanded(shouldExpand));
   }
 
   handleResponsiveChange(
