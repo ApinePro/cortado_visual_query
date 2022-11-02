@@ -80,6 +80,10 @@ export class SubvariantExplorerComponent
     this.colorMap = this.colorMapService.colorMap;
     this.sortAscending = false;
     this.svgRenderingInProgress = false;
+    this.serviceTimeColorMap =
+      variantPerformanceService.serviceTimeColorMap.getValue();
+    this.waitingTimeColorMap =
+      variantPerformanceService.waitingTimeColorMap.getValue();
   }
 
   ngOnInit(): void {
