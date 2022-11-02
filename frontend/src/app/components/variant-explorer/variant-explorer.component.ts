@@ -333,7 +333,7 @@ export class VariantExplorerComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe((tree) => {
         this.currentlyDisplayedProcessTree = tree;
-        const treeHasChanged = processTreesEqual(
+        const treeHasChanged = !processTreesEqual(
           this.usedTreeForConformanceChecking,
           this.currentlyDisplayedProcessTree
         );
