@@ -269,9 +269,12 @@ export class VariantPerformanceService {
   addPerformanceInformationToVariants(): Observable<any> {
     this.performanceUpdateIsInProgress = true;
     let chunks = [];
+    const maxVariantId = Math.max(
+      ...this.variantService.variants.map((v) => v.bid)
+    );
     const nVariants = this.variantService.variants.length;
     for (let i = 0; i < nVariants; i += 100) {
-      chunks.push([i, Math.min(i + 99, nVariants - 1)]);
+      chunks.push([i, Math.min(i + 99, maxVariantId)]);
     }
 
     return from(chunks).pipe(
