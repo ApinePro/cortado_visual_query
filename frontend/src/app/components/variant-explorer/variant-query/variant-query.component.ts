@@ -1,3 +1,4 @@
+import { EditorService } from './../../../services/editorService/editor.service';
 import { VariantFilterService } from './../../../services/variantFilterService/variant-filter.service';
 import { LogService } from 'src/app/services/logService/log.service';
 import { BackendService } from 'src/app/services/backendService/backend.service';
@@ -60,6 +61,8 @@ export class VariantQueryComponent
   );
 
   activityColorMap: Map<string, string>;
+
+  activites: Set<string>;
   backendErrorMessage: boolean = false;
   backendErrorIndex: number;
 
@@ -72,15 +75,22 @@ export class VariantQueryComponent
     private colorMapService: ColorMapService,
     private logService: LogService,
     private backendService: BackendService,
-    private variantFilterService: VariantFilterService
+    private variantFilterService: VariantFilterService,
+    private editorService: EditorService
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.editorInstance) {
-      monaco.editor.defineTheme(
-        'VQLTheme',
-        generateVQLTheme(this.colorMapService.colorMap, this.options)
-      );
+      const cMap = new Map<string, string>();
+
+      this.colorMapService.colorMap.forEach((v, k) => {
+        if (this.activites.has(k)) {
+          cMap.set(k, v);
+        }
+      });
+
+      this.editorService.options = this.options;
+      this.editorService.updateTheme();
     }
   }
 
@@ -99,10 +109,10 @@ export class VariantQueryComponent
   }
 
   ngAfterViewInit(): void {
-    this.colorMapService.colorMap$
+    this.logService.activitiesInEventLog$
       .pipe(takeUntil(this._destroy$))
-      .subscribe((colorMap) => {
-        this.activityColorMap = colorMap;
+      .subscribe((act) => {
+        this.activites = new Set(Object.keys(act));
       });
 
     this.variantFilterService.variantFilters$.subscribe((filter) => {
@@ -166,7 +176,7 @@ export class VariantQueryComponent
       null,
       true
     )) {
-      if (!this.activityColorMap.has(match.matches[1])) {
+      if (!this.activites.has(match.matches[1])) {
         const actvityRange = match.range;
         markers.push({
           message:

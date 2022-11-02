@@ -272,6 +272,7 @@ export class VariantService {
       activityName,
       newActivityName
     );
+
     this.colorMapService.renameColorInActivityColorMap(
       activityName,
       newActivityName
