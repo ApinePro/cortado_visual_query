@@ -124,9 +124,7 @@ export class VariantPerformanceService {
       if (log !== undefined) {
         this.updateServiceTimeColorMap();
         this.updateWaitingTimeColorMap();
-        this.performanceInformationLoaded = false;
-        this.performanceUpdateProgress = 0;
-        this.results = new Map<string, any>();
+        this.resetVariantPerformance();
       }
     });
 
@@ -232,6 +230,12 @@ export class VariantPerformanceService {
     return values;
   }
 
+  resetVariantPerformance(): void {
+    this.performanceInformationLoaded = false;
+    this.performanceUpdateProgress = 0;
+    this.results = new Map<string, any>();
+  }
+
   getAllValuesElement(
     variantElement: VariantElement,
     performanceIndicator,
@@ -287,8 +291,7 @@ export class VariantPerformanceService {
       }),
       catchError((_) => {
         this.performanceUpdateIsInProgress = false;
-        this.performanceInformationLoaded = false;
-        this.performanceUpdateProgress = 0;
+        this.resetVariantPerformance();
         return of('error when loading performance data');
       }),
       finalize(() => {
@@ -305,8 +308,8 @@ export class VariantPerformanceService {
         );
 
         setTimeout(() => {
-          this.performanceInformationLoaded = true;
           this.performanceUpdateIsInProgress = false;
+          this.resetVariantPerformance();
           this.variantViewModeService.viewMode = ViewMode.PERFORMANCE;
         }, 1000);
       })
