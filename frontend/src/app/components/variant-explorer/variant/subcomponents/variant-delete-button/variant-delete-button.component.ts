@@ -14,10 +14,6 @@ export class VariantDeleteButtonComponent {
   constructor(private variantService: VariantService) {}
 
   deleteVariant() {
-    const bids = this.variantService.variants
-      .filter((v) => v.variant === this.variant)
-      .map((v) => v.bid);
-
-    this.variantService.deleteVariants(bids);
+    this.variantService.deleteVariant(this.variant);
   }
 }

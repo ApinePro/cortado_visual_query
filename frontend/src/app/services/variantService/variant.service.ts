@@ -172,23 +172,29 @@ export class VariantService {
       .subscribe();
   }
 
-  public deleteVariants(bids: number[]): void {
-    const delVariants = this.variants.filter((v) => bids.includes(v.bid));
+  public deleteVariant(variant: VariantElement): void {
+    const matchingVariant = this.variants.filter(
+      (v) => v.variant === variant
+    )[0];
 
-    if (delVariants.every((v) => v.userDefined)) {
-      this.variants = this.variants.filter((v) => !bids.includes(v.bid));
+    if (matchingVariant.userDefined) {
+      this.variants = this.variants.filter((v) => v !== matchingVariant);
     } else {
-      this.propagateVariantDeletions(bids).subscribe((res) => {
-        this.logService.activitiesInEventLog = res['activities'];
-        this.logService.startActivitiesInEventLog = new Set(
-          res['startActivities']
-        );
-        this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
-        this.logService.computeLogStats(this.variants);
-        this.variants = this.variants.filter((v) => !bids.includes(v.bid));
-        this.cachedChange = true;
-      });
+      this.deleteVariants([matchingVariant.bid]);
     }
+  }
+
+  public deleteVariants(bids: number[]): void {
+    this.propagateVariantDeletions(bids).subscribe((res) => {
+      this.logService.activitiesInEventLog = res['activities'];
+      this.logService.startActivitiesInEventLog = new Set(
+        res['startActivities']
+      );
+      this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
+      this.logService.computeLogStats(this.variants);
+      this.variants = this.variants.filter((v) => !bids.includes(v.bid));
+      this.cachedChange = true;
+    });
     // Count deleted Activites, Recompute if an Activity is a Start or End Activity.
   }
 
