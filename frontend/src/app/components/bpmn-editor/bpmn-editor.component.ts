@@ -30,6 +30,8 @@ import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { NodeSeletionStrategy } from 'src/app/objects/ProcessTree/utility-functions/process-tree-edit-tree';
 import { takeUntil } from 'rxjs/operators';
 import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
+import { ViewMode } from 'src/app/objects/ViewMode';
+
 @Component({
   selector: 'app-bpmn-editor',
   templateUrl: './bpmn-editor.component.html',
@@ -256,28 +258,32 @@ export class BpmnEditorComponent
   computeNodeColor = (root, pt: ProcessTree) => {
     let color;
 
-    if (root.performance) {
-      if (
-        this.performanceColorMap.has(pt.id) &&
-        pt.performance?.[this.selectedPerformanceIndicator]?.[
-          this.selectedStatistic
-        ] !== undefined
-      ) {
-        color = this.performanceColorMap
-          .get(pt.id)
-          .getColor(
-            pt.performance[this.selectedPerformanceIndicator][
-              this.selectedStatistic
-            ]
-          );
-      } else {
-        color = '#404040';
-      }
-    } else {
-      color =
-        pt.label !== '\u03C4'
-          ? this.activityColorMap.get(pt.label)
-          : BPMN_Constant.INVISIBLE_ACTIVITIY_DEFAULT_COLOR;
+    switch (this.modelViewModeService.viewMode) {
+      case ViewMode.PERFORMANCE:
+        if (
+          this.performanceColorMap.has(pt.id) &&
+          pt.performance?.[this.selectedPerformanceIndicator]?.[
+            this.selectedStatistic
+          ] !== undefined
+        ) {
+          color = this.performanceColorMap
+            .get(pt.id)
+            .getColor(
+              pt.performance[this.selectedPerformanceIndicator][
+                this.selectedStatistic
+              ]
+            );
+        } else {
+          color = '#404040';
+        }
+
+        break;
+      default:
+        color =
+          pt.label !== '\u03C4'
+            ? this.activityColorMap.get(pt.label)
+            : BPMN_Constant.INVISIBLE_ACTIVITIY_DEFAULT_COLOR;
+        break;
     }
 
     return color;
