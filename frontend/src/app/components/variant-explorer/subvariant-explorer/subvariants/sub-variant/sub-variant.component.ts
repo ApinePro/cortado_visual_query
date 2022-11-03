@@ -15,7 +15,7 @@ import { ColorMapService } from 'src/app/services/colorMapService/color-map.serv
 
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 import { SubvariantVisualization } from 'src/app/objects/Variants/subvariant';
-import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
+import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';

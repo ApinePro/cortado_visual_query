@@ -15,7 +15,7 @@ import { takeUntil } from 'rxjs/operators';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
-import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
+import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 
 @Component({
   selector: 'app-variant-performance',

@@ -17,7 +17,7 @@ import {
 import { BackendService } from './backendService/backend.service';
 import { setParent } from '../objects/Variants/infix_selection';
 import { ViewMode } from '../objects/ViewMode';
-import { VariantViewModeService } from './variantViewModeService/variant-view-mode.service';
+import { VariantViewModeService } from './viewModeServices/variant-view-mode.service';
 import { PerformanceColorMap } from '../objects/Performance/PerformanceColorMap';
 
 // https://observablehq.com/@philippkoytek/celonis-data-visualization-colors
