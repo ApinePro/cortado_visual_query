@@ -14,7 +14,7 @@ import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/l
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
 import { ViewMode } from 'src/app/objects/ViewMode';
-import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
+import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector

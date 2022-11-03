@@ -48,6 +48,8 @@ import {
 } from 'src/app/objects/ProcessTree/utility-functions/process-tree-edit-tree';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
+import { ViewMode } from 'src/app/objects/ViewMode';
 
 @Component({
   selector: 'app-process-tree-editor',
@@ -71,6 +73,7 @@ export class ProcessTreeEditorComponent
     private performanceService: PerformanceService,
     private performanceColorScaleService: ModelPerformanceColorScaleService,
     private processTreeService: ProcessTreeService,
+    private modelViewModeService: ModelViewModeService,
     private renderer: Renderer2,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
@@ -123,8 +126,6 @@ export class ProcessTreeEditorComponent
   activityColorMap: Map<string, string>;
   performanceColorMap: Map<number, any>;
 
-  performanceMode: boolean = false;
-
   processEditorOutOfFocus: boolean = false;
 
   dropZoneConfig: DropzoneConfig;
@@ -168,10 +169,9 @@ export class ProcessTreeEditorComponent
         this.nodeSelectionStrategy = strategy;
       });
 
-    this.performanceService.performanceMode$
+    this.modelViewModeService.viewMode$
       .pipe(takeUntil(this._destroy$))
-      .subscribe((mode) => {
-        this.performanceMode = mode;
+      .subscribe((viewMode) => {
         if (this.currentlyDisplayedTreeInEditor) {
           this.redraw(this.currentlyDisplayedTreeInEditor);
         }
@@ -419,7 +419,10 @@ export class ProcessTreeEditorComponent
   }
 
   computeNodeColor = (root, d: d3.HierarchyNode<ProcessTree>) => {
-    if (this.performanceMode && d.data.label !== ProcessTreeOperator.tau) {
+    if (
+      this.modelViewModeService.viewMode === ViewMode.PERFORMANCE &&
+      d.data.label !== ProcessTreeOperator.tau
+    ) {
       if (
         this.performanceColorMap.has(d.data.id) &&
         d.data.performance?.[this.selectedPerformanceIndicator]?.[
@@ -448,7 +451,7 @@ export class ProcessTreeEditorComponent
 
   tooltipContent = (d: d3.HierarchyNode<ProcessTree>) => {
     if (
-      this.performanceMode &&
+      this.modelViewModeService.viewMode === ViewMode.PERFORMANCE &&
       d.data.hasPerformance() &&
       d.data.label !== ProcessTreeOperator.tau
     ) {
@@ -488,7 +491,7 @@ export class ProcessTreeEditorComponent
     let nodeColor = this.activityColorMap.get(d.data.label);
 
     if (
-      this.performanceMode &&
+      this.modelViewModeService.viewMode === ViewMode.PERFORMANCE &&
       this.performanceColorMap.has(d.data.id) &&
       d.data.performance[this.selectedPerformanceIndicator]
     ) {
@@ -503,7 +506,8 @@ export class ProcessTreeEditorComponent
 
     const isVisibleActivity =
       (d.data.label !== null && d.data.label !== ProcessTreeOperator.tau) ||
-      (this.performanceMode && nodeColor !== undefined);
+      (this.modelViewModeService.viewMode === ViewMode.PERFORMANCE &&
+        nodeColor !== undefined);
     return isVisibleActivity ? textColorForBackgroundColor(nodeColor) : 'white';
   };
 

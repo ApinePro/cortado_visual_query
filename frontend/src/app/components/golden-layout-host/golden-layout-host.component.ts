@@ -33,7 +33,7 @@ import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-c
 import { ModelPerformanceComponent } from '../performance/performance.component';
 import { VariantPerformanceComponent } from '../variant-performance/variant-performance.component';
 import { ViewMode } from 'src/app/objects/ViewMode';
-import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
+import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 @Component({
   selector: 'app-golden-layout-host',
   templateUrl: './golden-layout-host.component.html',

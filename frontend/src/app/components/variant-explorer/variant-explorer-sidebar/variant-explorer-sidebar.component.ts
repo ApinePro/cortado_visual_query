@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
-import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
+import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 
 @Component({
   selector: 'app-variant-explorer-sidebar',

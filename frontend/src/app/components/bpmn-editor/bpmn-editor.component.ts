@@ -29,6 +29,9 @@ import { getPerformanceTable } from '../process-tree-editor/utils';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { NodeSeletionStrategy } from 'src/app/objects/ProcessTree/utility-functions/process-tree-edit-tree';
 import { takeUntil } from 'rxjs/operators';
+import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
+import { ViewMode } from 'src/app/objects/ViewMode';
+
 @Component({
   selector: 'app-bpmn-editor',
   templateUrl: './bpmn-editor.component.html',
@@ -63,8 +66,6 @@ export class BpmnEditorComponent
 
   private _destroy$ = new Subject();
 
-  performanceMode: boolean = false;
-
   constructor(
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
@@ -75,7 +76,8 @@ export class BpmnEditorComponent
     private performanceService: PerformanceService,
     private processTreeService: ProcessTreeService,
     private activateTooltipsService: ActivateTooltipsService,
-    private imageExportService: ImageExportService
+    private imageExportService: ImageExportService,
+    private modelViewModeService: ModelViewModeService
   ) {
     super(elRef.nativeElement, renderer);
     const state = this.container.initialState;
@@ -114,11 +116,9 @@ export class BpmnEditorComponent
     this.selectedPerformanceIndicator =
       this.performanceColorScaleService.selectedColorScale.performanceIndicator;
 
-    this.performanceService.performanceMode$
+    this.modelViewModeService.viewMode$
       .pipe(takeUntil(this._destroy$))
-      .subscribe((mode) => {
-        this.performanceMode = mode;
-
+      .subscribe((viewMode) => {
         if (this.currentTree) {
           this.redraw(this.currentTree);
         }
@@ -258,28 +258,32 @@ export class BpmnEditorComponent
   computeNodeColor = (root, pt: ProcessTree) => {
     let color;
 
-    if (root.performance) {
-      if (
-        this.performanceColorMap.has(pt.id) &&
-        pt.performance?.[this.selectedPerformanceIndicator]?.[
-          this.selectedStatistic
-        ] !== undefined
-      ) {
-        color = this.performanceColorMap
-          .get(pt.id)
-          .getColor(
-            pt.performance[this.selectedPerformanceIndicator][
-              this.selectedStatistic
-            ]
-          );
-      } else {
-        color = '#404040';
-      }
-    } else {
-      color =
-        pt.label !== '\u03C4'
-          ? this.activityColorMap.get(pt.label)
-          : BPMN_Constant.INVISIBLE_ACTIVITIY_DEFAULT_COLOR;
+    switch (this.modelViewModeService.viewMode) {
+      case ViewMode.PERFORMANCE:
+        if (
+          this.performanceColorMap.has(pt.id) &&
+          pt.performance?.[this.selectedPerformanceIndicator]?.[
+            this.selectedStatistic
+          ] !== undefined
+        ) {
+          color = this.performanceColorMap
+            .get(pt.id)
+            .getColor(
+              pt.performance[this.selectedPerformanceIndicator][
+                this.selectedStatistic
+              ]
+            );
+        } else {
+          color = '#404040';
+        }
+
+        break;
+      default:
+        color =
+          pt.label !== '\u03C4'
+            ? this.activityColorMap.get(pt.label)
+            : BPMN_Constant.INVISIBLE_ACTIVITIY_DEFAULT_COLOR;
+        break;
     }
 
     return color;
