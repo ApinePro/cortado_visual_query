@@ -10,6 +10,8 @@ import { HumanizeDurationPipe } from '../pipes/humanize-duration.pipe';
 import { ProcessTreeService } from './processTreeService/process-tree.service';
 import { VariantService } from './variantService/variant.service';
 import { Variant } from '../objects/Variants/variant';
+import { ModelViewModeService } from './viewModeServices/model-view-mode.service';
+import { ViewMode } from '../objects/ViewMode';
 
 @Injectable({
   providedIn: 'root',
@@ -45,29 +47,14 @@ export class PerformanceService {
   latestRequest: Subscription;
   fitness = new Map<Variant, number>();
 
-  _performanceMode: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
-    false
-  );
-
-  set performanceMode(value: boolean) {
-    this._performanceMode.next(value);
-  }
-
-  get performanceMode() {
-    return this._performanceMode.value;
-  }
-
-  get performanceMode$() {
-    return this._performanceMode.asObservable();
-  }
-
   private currentPt: ProcessTree;
 
   constructor(
     private variantService: VariantService,
     private backendService: BackendService,
     private tooltipService: ActivateTooltipsService,
-    private processTreeService: ProcessTreeService
+    private processTreeService: ProcessTreeService,
+    private modelViewModeService: ModelViewModeService
   ) {
     this.currentPt = processTreeService.currentDisplayedProcessTree;
 
@@ -172,7 +159,7 @@ export class PerformanceService {
             this.clear();
             return;
           } else {
-            this.performanceMode = true;
+            this.modelViewModeService.viewMode = ViewMode.PERFORMANCE;
           }
 
           variants.forEach((v) => {
@@ -199,7 +186,7 @@ export class PerformanceService {
   }
 
   public unselectPerformance() {
-    this.performanceMode = false;
+    this.modelViewModeService.viewMode = ViewMode.STANDARD;
     this.activeVariant = null;
   }
 
@@ -263,7 +250,7 @@ export class PerformanceService {
     if (this.variantsPerformance.has(variant)) {
       this.processTreeService.currentDisplayedProcessTree =
         this.variantsPerformance.get(variant);
-      this.performanceMode = true;
+      this.modelViewModeService.viewMode = ViewMode.PERFORMANCE;
     } else {
       console.error(`No performance values available: ${variant}`);
     }
@@ -274,7 +261,7 @@ export class PerformanceService {
       this.unselectPerformance();
     } else {
       this.activeVariant = undefined;
-      this.performanceMode = true;
+      this.modelViewModeService.viewMode = ViewMode.PERFORMANCE;
       this.processTreeService.currentDisplayedProcessTree =
         this.mergedPerformance;
     }
@@ -290,7 +277,7 @@ export class PerformanceService {
     this.calculationInProgress.clear();
     this.treeSelection.next(undefined);
 
-    this.performanceMode = false;
+    this.modelViewModeService.viewMode = ViewMode.STANDARD;
   }
 
   private deletePerformance(variant: Variant) {
