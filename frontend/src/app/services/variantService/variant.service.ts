@@ -365,6 +365,7 @@ export class VariantService {
         this.logService.timeGranularity = res['timeGranularity'];
         this.logService.logGranularity = res['timeGranularity'];
 
+        const lastNameChange = this.lastChangeRenaming;
         this.cachedChange = false;
 
         const variants = addVariantInformation(res['variants']);
@@ -372,6 +373,9 @@ export class VariantService {
 
         this.variants = variants;
         this.logService.computeLogStats(variants);
+        if (lastNameChange !== null) {
+          this.nameChanges.next([lastNameChange[1], lastNameChange[0]]);
+        }
       });
   }
 }

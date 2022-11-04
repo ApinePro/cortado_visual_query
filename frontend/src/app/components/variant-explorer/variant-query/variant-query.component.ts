@@ -177,8 +177,6 @@ export class VariantQueryComponent
     )) {
       model.applyEdits([{ range: match.range, text: "'" + newName + "'" }]);
     }
-
-    this.validateMonaco(model);
   }
 
   private validateMonaco = function (model: Monaco.editor.ITextModel) {

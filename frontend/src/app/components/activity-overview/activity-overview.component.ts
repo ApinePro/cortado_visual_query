@@ -218,13 +218,6 @@ export class ActivityOverviewComponent
   revertLastChange(e: Event) {
     e.stopPropagation();
     this.resetAvailable = false;
-    const lastNameChange = this.variantService.lastChangeRenaming;
-    if (lastNameChange !== null) {
-      this.variantService.nameChanges.next([
-        lastNameChange[1],
-        lastNameChange[0],
-      ]);
-    }
     this.variantService.revertChangeInBackend();
   }
 }
