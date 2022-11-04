@@ -65,6 +65,7 @@ import { EditorZoneComponent } from './components/editor-zone/editor-zone.compon
 import { VariantDeleteButtonComponent } from './components/variant-explorer/variant/subcomponents/variant-delete-button/variant-delete-button.component';
 import { ELECTRON_SERVICE } from './tokens';
 import { ElectronService } from './services/electronService/electron.service';
+import { UnavailableInfoComponent } from './components/unavailable-info/unavailable-info.component';
 
 @NgModule({
   declarations: [
@@ -122,6 +123,7 @@ import { ElectronService } from './services/electronService/electron.service';
     ZoomFieldComponent,
     VariantExplorerSidebarComponent,
     VariantDeleteButtonComponent,
+    UnavailableInfoComponent,
   ],
   imports: [
     BrowserModule,
