@@ -308,8 +308,8 @@ export class VariantPerformanceService {
         );
 
         setTimeout(() => {
+          this.performanceInformationLoaded = true;
           this.performanceUpdateIsInProgress = false;
-          this.resetVariantPerformance();
           this.variantViewModeService.viewMode = ViewMode.PERFORMANCE;
         }, 1000);
       })
