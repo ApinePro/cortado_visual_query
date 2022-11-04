@@ -30,7 +30,7 @@ export class EditorService {
   constructor(
     private colorMapService: ColorMapService,
     private logService: LogService
-    ) {
+  ) {
     this.colorMapService.colorMap$.subscribe((colormap: any) => {
       console.log('Colormap Changed', colormap);
       if (colormap && this.loaded) {
