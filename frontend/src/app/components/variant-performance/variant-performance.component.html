@@ -44,7 +44,20 @@
     role="tabpanel"
     aria-labelledby="variant-color-map"
   >
-    <app-variant-color-map></app-variant-color-map>
+    <app-variant-color-map
+      *ngIf="
+        variantPerformanceService.performanceInformationLoaded;
+        else unavailableInfoColorMap
+      "
+    ></app-variant-color-map>
+    <ng-template #unavailableInfoColorMap>
+      <app-unavailable-info>
+        No performance values available.
+        <br />
+        To load performance values change into Performance View in the Variant
+        Explorer.
+      </app-unavailable-info>
+    </ng-template>
   </div>
 </div>
 
