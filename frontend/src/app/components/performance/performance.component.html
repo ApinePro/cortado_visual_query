@@ -28,6 +28,7 @@
   </li>
 </ul>
 <div class="tab-content" id="myTabContent">
+  >
   <div
     class="tab-pane fade show active"
     id="selection"
@@ -35,7 +36,12 @@
     aria-labelledby="selection-tab"
   >
     <div
-      *ngIf="performanceService.treeSelection && performanceValues.length > 0"
+      *ngIf="
+        modelViewModeService.viewMode === VM.PERFORMANCE &&
+          performanceService.treeSelection &&
+          performanceValues.length > 0;
+        else unavailableInfoNodeSelection
+      "
       style="overflow: auto; display: flex; flex-direction: column"
     >
       <app-tree-string-renderer
@@ -45,16 +51,17 @@
         <app-node-selection-performance></app-node-selection-performance>
       </div>
     </div>
-    <div
-      *ngIf="performanceValues.length === 0"
-      class="performance-unaviable-warning"
-    >
-      <i class="b bi bi-info-lg" style="font-size: 2.5rem"></i>
-      <br />
-      No performance values aviable yet. Discover a tree model and compute the
-      performance for a variant in the variant explorer by clicking on the
-      <i class="bi bi-stopwatch" style="color: white"></i> symbol.
-    </div>
+    <ng-template #unavailableInfoNodeSelection>
+      <app-unavailable-info>
+        No performance values available.
+        <br />
+        Discover a tree model and compute the performance for a variant in the
+        variant explorer by clicking on the
+        <i class="bi bi-stopwatch" style="color: white"></i> symbol.
+        <br />
+        Then you can select a tree node for detailed performance values.
+      </app-unavailable-info>
+    </ng-template>
   </div>
   <div
     class="tab-pane fade color-map-tab"
@@ -62,6 +69,22 @@
     role="tabpanel"
     aria-labelledby="colormap-tab"
   >
-    <app-tree-performance-color-map></app-tree-performance-color-map>
+    <app-tree-performance-color-map
+      *ngIf="
+        modelViewModeService.viewMode === VM.PERFORMANCE &&
+          performanceService.treeSelection &&
+          performanceValues.length > 0;
+        else unavailableInfoColorMap
+      "
+    ></app-tree-performance-color-map>
+    <ng-template #unavailableInfoColorMap>
+      <app-unavailable-info>
+        No performance values available.
+        <br />
+        Discover a tree model and compute the performance for a variant in the
+        variant explorer by clicking on the
+        <i class="bi bi-stopwatch" style="color: white"></i> symbol.
+      </app-unavailable-info>
+    </ng-template>
   </div>
 </div>
