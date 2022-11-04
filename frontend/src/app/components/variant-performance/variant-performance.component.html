@@ -49,12 +49,10 @@
 </div>
 
 <ng-template #selectionPerformance>
-  <div *ngIf="!performanceStats" class="performance-unaviable-warning">
-    <i class="b bi bi-info-lg" style="font-size: 2.5rem"></i>
-    <br />
+  <app-unavailable-info *ngIf="!performanceStats">
     To show variant performance, change into Performance View and click on the
     variant chevron in the Variant Explorer.
-  </div>
+  </app-unavailable-info>
 
   <div *ngIf="performanceStats">
     <table
