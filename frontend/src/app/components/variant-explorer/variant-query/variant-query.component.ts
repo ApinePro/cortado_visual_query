@@ -1,3 +1,4 @@
+import { EditorService } from './../../../services/editorService/editor.service';
 import { VariantFilterService } from './../../../services/variantFilterService/variant-filter.service';
 import { LogService } from 'src/app/services/logService/log.service';
 import { BackendService } from 'src/app/services/backendService/backend.service';
@@ -24,6 +25,7 @@ import { EditorZoneComponent } from '../../editor-zone/editor-zone.component';
 
 import * as Monaco from 'monaco-editor';
 import { generateVQLTheme } from '../../editor-zone/editor-languages/vql-language-theme';
+import { VariantService } from 'src/app/services/variantService/variant.service';
 declare var monaco: typeof Monaco;
 @Component({
   selector: 'app-variant-query',
@@ -60,6 +62,8 @@ export class VariantQueryComponent
   );
 
   activityColorMap: Map<string, string>;
+
+  activites: Set<string>;
   backendErrorMessage: boolean = false;
   backendErrorIndex: number;
 
@@ -72,15 +76,15 @@ export class VariantQueryComponent
     private colorMapService: ColorMapService,
     private logService: LogService,
     private backendService: BackendService,
-    private variantFilterService: VariantFilterService
+    private variantFilterService: VariantFilterService,
+    private editorService: EditorService,
+    private variantService: VariantService
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.editorInstance) {
-      monaco.editor.defineTheme(
-        'VQLTheme',
-        generateVQLTheme(this.colorMapService.colorMap, this.options)
-      );
+      this.editorService.options = this.options;
+      this.editorService.updateTheme();
     }
   }
 
@@ -96,13 +100,20 @@ export class VariantQueryComponent
       (this.variantQueryInput = new FormGroup({
         variantQuery: this.variantQuery,
       }));
+
+    this.variantService.nameChanges.subscribe((v) => {
+      if (v !== null) {
+        let [oldName, newName] = v;
+        this.onRenameActivity(oldName, newName);
+      }
+    });
   }
 
   ngAfterViewInit(): void {
-    this.colorMapService.colorMap$
+    this.logService.activitiesInEventLog$
       .pipe(takeUntil(this._destroy$))
-      .subscribe((colorMap) => {
-        this.activityColorMap = colorMap;
+      .subscribe((act) => {
+        this.activites = new Set(Object.keys(act));
       });
 
     this.variantFilterService.variantFilters$.subscribe((filter) => {
@@ -154,6 +165,20 @@ export class VariantQueryComponent
     this.variantQuery.updateValueAndValidity();
   }.bind(this);
 
+  private onRenameActivity(oldName: string, newName: string) {
+    let model = this.editorZone.model;
+    for (let match of model.findMatches(
+      "'" + oldName + "'",
+      true,
+      true,
+      true,
+      null,
+      true
+    )) {
+      model.applyEdits([{ range: match.range, text: "'" + newName + "'" }]);
+    }
+  }
+
   private validateMonaco = function (model: Monaco.editor.ITextModel) {
     const markers = [];
     // lines start at 1
@@ -166,7 +191,7 @@ export class VariantQueryComponent
       null,
       true
     )) {
-      if (!this.activityColorMap.has(match.matches[1])) {
+      if (!this.activites.has(match.matches[1])) {
         const actvityRange = match.range;
         markers.push({
           message:

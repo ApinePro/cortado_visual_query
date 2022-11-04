@@ -35,6 +35,7 @@ import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
 })
 export class VariantService {
   variantService: any;
+  nameChanges: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   constructor(
     private logService: LogService,
     private httpClient: HttpClient,
@@ -62,6 +63,7 @@ export class VariantService {
     return this._variants.getValue();
   }
 
+  public lastChangeRenaming = null;
   private _cachedChange = new BehaviorSubject<boolean>(false);
 
   get cachedChange$(): Observable<boolean> {
@@ -69,6 +71,7 @@ export class VariantService {
   }
 
   set cachedChange(change: boolean) {
+    this.lastChangeRenaming = null;
     this._cachedChange.next(change);
   }
 
@@ -278,6 +281,7 @@ export class VariantService {
       activityName,
       newActivityName
     );
+
     this.colorMapService.renameColorInActivityColorMap(
       activityName,
       newActivityName
@@ -303,6 +307,8 @@ export class VariantService {
 
     this.logService.update_log_stats(null, null, null, updateMap.size);
     this.cachedChange = true;
+    this.lastChangeRenaming = [activityName, newActivityName];
+    this.nameChanges.next([activityName, newActivityName]);
   }
 
   private propagateActivityNameChange(
@@ -365,6 +371,7 @@ export class VariantService {
         this.logService.timeGranularity = res['timeGranularity'];
         this.logService.logGranularity = res['timeGranularity'];
 
+        const lastNameChange = this.lastChangeRenaming;
         this.cachedChange = false;
 
         const variants = addVariantInformation(res['variants']);
@@ -372,6 +379,9 @@ export class VariantService {
 
         this.variants = variants;
         this.logService.computeLogStats(variants);
+        if (lastNameChange !== null) {
+          this.nameChanges.next([lastNameChange[1], lastNameChange[0]]);
+        }
       });
   }
 }
