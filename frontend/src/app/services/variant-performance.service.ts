@@ -299,7 +299,9 @@ export class VariantPerformanceService {
       finalize(() => {
         this.variantService.variants.forEach((v) => {
           if (!v.userDefined) {
-            v.variant = deserialize(this.results.get(v.bid.toString()));
+            let newVariant = deserialize(this.results.get(v.bid.toString()));
+            newVariant.setExpanded(v.variant.getExpanded());
+            v.variant = newVariant;
             setParent(v.variant);
           }
         });
