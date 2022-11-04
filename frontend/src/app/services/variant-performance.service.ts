@@ -205,6 +205,8 @@ export class VariantPerformanceService {
     let min = Math.min(...values);
     let max = Math.max(...values);
 
+    if (min == max) colors = [colors[0]];
+
     this.minValues[performanceIndicator] = min;
     this.maxValues[performanceIndicator] = max;
 

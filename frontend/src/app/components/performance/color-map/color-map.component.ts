@@ -30,12 +30,14 @@ export function buildColorValues(
     let min = Math.min(...values);
     let max = Math.max(...values);
 
-    // set min value to one for distinguishing the special value zero, which is always added to the thresholds later
-    if (min < 0.5) {
-      min += 1;
-    }
+    if (min != max) {
+      // set min value to one for distinguishing the special value zero, which is always added to the thresholds later
+      if (min < 0.5) {
+        min += 1;
+      }
 
-    thresholds = [0, min, ...thresholds, max];
+      thresholds = [0, min, ...thresholds, max];
+    } else thresholds = [min];
   }
   let colors = colorScale.range();
   colors = [...colors, null];
