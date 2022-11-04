@@ -25,6 +25,7 @@ import { EditorZoneComponent } from '../../editor-zone/editor-zone.component';
 
 import * as Monaco from 'monaco-editor';
 import { generateVQLTheme } from '../../editor-zone/editor-languages/vql-language-theme';
+import { VariantService } from 'src/app/services/variantService/variant.service';
 declare var monaco: typeof Monaco;
 @Component({
   selector: 'app-variant-query',
@@ -76,19 +77,12 @@ export class VariantQueryComponent
     private logService: LogService,
     private backendService: BackendService,
     private variantFilterService: VariantFilterService,
-    private editorService: EditorService
+    private editorService: EditorService,
+    private variantService: VariantService
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.editorInstance) {
-      const cMap = new Map<string, string>();
-
-      this.colorMapService.colorMap.forEach((v, k) => {
-        if (this.activites.has(k)) {
-          cMap.set(k, v);
-        }
-      });
-
       this.editorService.options = this.options;
       this.editorService.updateTheme();
     }
@@ -106,6 +100,13 @@ export class VariantQueryComponent
       (this.variantQueryInput = new FormGroup({
         variantQuery: this.variantQuery,
       }));
+
+    this.variantService.nameChanges.subscribe((v) => {
+      if (v !== null) {
+        let [oldName, newName] = v;
+        this.onRenameActivity(oldName, newName);
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -163,6 +164,22 @@ export class VariantQueryComponent
   private onErrorStatusChange = function () {
     this.variantQuery.updateValueAndValidity();
   }.bind(this);
+
+  private onRenameActivity(oldName: string, newName: string) {
+    let model = this.editorZone.model;
+    for (let match of model.findMatches(
+      "'" + oldName + "'",
+      true,
+      true,
+      true,
+      null,
+      true
+    )) {
+      model.applyEdits([{ range: match.range, text: "'" + newName + "'" }]);
+    }
+
+    this.validateMonaco(model);
+  }
 
   private validateMonaco = function (model: Monaco.editor.ITextModel) {
     const markers = [];

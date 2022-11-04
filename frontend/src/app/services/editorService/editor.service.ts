@@ -32,7 +32,6 @@ export class EditorService {
     private logService: LogService
   ) {
     this.colorMapService.colorMap$.subscribe((colormap: any) => {
-      console.log('Colormap Changed', colormap);
       if (colormap && this.loaded) {
         this.updateVQLTheme();
       }
@@ -96,14 +95,10 @@ export class EditorService {
       }
     });
 
-    console.log('Updating theme with', cMap);
-
     monaco.editor.defineTheme('VQLTheme', generateVQLTheme(cMap, this.options));
   }
 
   private updateVQLTheme() {
-    console.log('Updating Theme');
-
     // Define a new theme that matches the activity names and Colormap
 
     if (this.completionProvider) {
