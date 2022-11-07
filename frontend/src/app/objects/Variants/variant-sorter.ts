@@ -40,8 +40,8 @@ export class VariantSorter {
   }
 
   static subvariantsSorting(
-    a: Variant | SubvariantPattern,
-    b: Variant | SubvariantPattern
+    a: Variant,
+    b: Variant
   ) {
     if (a.nSubVariants < b.nSubVariants) {
       return -1;

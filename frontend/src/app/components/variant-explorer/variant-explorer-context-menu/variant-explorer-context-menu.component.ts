@@ -6,7 +6,6 @@ import {
   OnChanges,
   SimpleChanges,
 } from '@angular/core';
-import { VariantService } from 'src/app/services/variantService/variant.service';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
 import { VariantElement } from 'src/app/objects/Variants/variant_element';
 
@@ -71,7 +70,4 @@ export class ContextMenuItem {
   icon: string;
   text: string;
 
-  deleteVariant(e: Event) {
-    this.variantService.deleteVariant(this.variant);
-  }
 }

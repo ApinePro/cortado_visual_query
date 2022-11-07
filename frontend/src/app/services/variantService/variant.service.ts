@@ -163,13 +163,13 @@ export class VariantService {
           ) as Variant[];
 
           this.toastService.showSuccessToast(
-                  'Variant Explorer',
-                  `The selected infix is added at position ${
-                    sortedVariants.indexOf(newVariant) + 1
-                  }.`,
-                  'bi-list-ul'
-                );
-                variant.variant.resetSelectionStatus();
+            'Variant Explorer',
+            `The selected infix is added at position ${
+              sortedVariants.indexOf(newVariant) + 1
+            }.`,
+            'bi-list-ul'
+          );
+          variant.variant.resetSelectionStatus();
         })
       )
       .subscribe();

@@ -128,7 +128,7 @@ export abstract class VariantElement {
 
   public abstract updateWidth(includeWaiting);
 
-  public abstract serialize(l): Object;
+  public abstract serialize(l?): Object;
 
   public abstract updateSelectionAttributes(): void;
   public abstract getActivities(): Set<string>;

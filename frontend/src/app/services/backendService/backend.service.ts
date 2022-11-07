@@ -27,7 +27,7 @@ export class BackendService {
     private logService: LogService,
     private variantService: VariantService,
     private processTreeService: ProcessTreeService,
-    private sharedDataService: SharedDataService
+    private sharedDataService: SharedDataService,
     @Inject(ELECTRON_SERVICE) private electronService: ElectronServiceInterface
   ) {}
 
