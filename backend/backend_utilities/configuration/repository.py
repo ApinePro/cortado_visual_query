@@ -46,7 +46,7 @@ class FileBasedConfigurationRepository(ConfigurationRepository):
             return Configuration(timeout_cvariant_alignment_computation=DEFAULT_TIMEOUT)
 
         with open(os.path.join(directory, CONFIG_FILENAME), 'r', encoding='utf-8') as f:
-            data = json.load(f, encoding='utf-8')
+            data = json.load(f)
 
             min_traces_variant_detection_mp = (data['min_traces_variant_detection_mp']
                                                if "min_traces_variant_detection_mp" in data 

@@ -42,8 +42,43 @@
         [disabled]="!active"
         (click)="resetQuery()"
       >
-        <i class="bi bi-x-lg text-danger"></i> Remove active query
+        <i class="bi bi-x-lg text-danger"></i> Remove query filter
       </button>
+
+      <div class="dropdown" *ngIf="queryfilteractive">
+        <button
+          class="button dropdown-toggle"
+          type="button"
+          id="filterRemovalDropdown"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <i class="bi bi-trash text-danger"></i> Delete variants by query
+        </button>
+
+        <ul
+          class="dropdown-menu custom-dropdown"
+          aria-labelledby="filterRemovalDropdown"
+        >
+          <li>
+            <button
+              (click)="executeRemovalActionOnFilteredVariants(true)"
+              class="dropdown-item"
+            >
+              remove variants satisfying the current query (visible variants)
+            </button>
+          </li>
+          <li>
+            <button
+              (click)="executeRemovalActionOnFilteredVariants(false)"
+              class="dropdown-item"
+            >
+              remove variants non-satisfying the current query (filtered
+              variants)
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
   </form>
 </div>

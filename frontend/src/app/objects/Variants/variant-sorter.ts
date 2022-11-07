@@ -43,9 +43,9 @@ export class VariantSorter {
     a: Variant | SubvariantPattern,
     b: Variant | SubvariantPattern
   ) {
-    if (a['sub_variants'].length < b['sub_variants'].length) {
+    if (a.nSubVariants < b.nSubVariants) {
       return -1;
-    } else if (a['sub_variants'].length > b['sub_variants'].length) {
+    } else if (a.nSubVariants > b.nSubVariants) {
       return 1;
     } else {
       return a.id > b.id ? 1 : -1;

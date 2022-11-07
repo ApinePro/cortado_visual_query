@@ -162,7 +162,7 @@ def rename_merge_activities_in_graph(
         else:
 
             if x == oldActivityName and y == oldActivityName:
-                pair = tuple(newActivityName, newActivityName)
+                pair = (newActivityName, newActivityName)
 
                 new_cc[pair] = graph.concurrency_pairs.get((x, y)).union(
                     graph.concurrency_pairs.get(pair, set())

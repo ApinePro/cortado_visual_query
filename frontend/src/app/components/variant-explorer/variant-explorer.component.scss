@@ -38,7 +38,7 @@
   border-bottom: black solid 1px;
   border-left: black solid 1px;
   border-top: black solid 1px;
-  z-index: 1;
+  z-index: 2;
   max-width: 500px;
   max-height: 350px;
 }
@@ -240,6 +240,10 @@
   filter: brightness(1.75);
 }
 
+.hover-variant-row:hover {
+  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+}
+
 th {
   padding-left: 15px;
   padding-bottom: 2px;
@@ -260,6 +264,7 @@ th.centered {
 thead {
   position: sticky;
   top: 0px;
+  z-index: 1;
   background-color: var(--box-background-color);
   box-shadow: inset 0 -2px 1px var(--thin-border-color);
 }

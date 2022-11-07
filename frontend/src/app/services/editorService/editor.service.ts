@@ -11,6 +11,7 @@ import { getVQLCompletionProvider } from 'src/app/components/editor-zone/editor-
 
 import * as Monaco from 'monaco-editor';
 import { EditorOptions } from 'src/app/components/variant-explorer/variant-query/variant-query.component';
+import { LogService } from '../logService/log.service';
 
 declare var monaco: typeof Monaco;
 @Injectable({
@@ -20,13 +21,24 @@ export class EditorService {
   loaded: boolean = false;
   completionProvider: Monaco.IDisposable;
 
+  options: EditorOptions = new EditorOptions();
+
   private _monacoPath = 'assets/monaco-editor/min/vs';
 
   public loadingFinished: Subject<void> = new Subject<void>();
 
-  constructor(private colorMapService: ColorMapService) {
-    this.colorMapService.colorMap$.subscribe((colormap) => {
+  constructor(
+    private colorMapService: ColorMapService,
+    private logService: LogService
+  ) {
+    this.colorMapService.colorMap$.subscribe((colormap: any) => {
       if (colormap && this.loaded) {
+        this.updateVQLTheme();
+      }
+    });
+
+    this.logService.activitiesInEventLog$.subscribe((act) => {
+      if (this.colorMapService.colorMap && this.loaded) {
         this.updateVQLTheme();
       }
     });
@@ -52,7 +64,6 @@ export class EditorService {
   }
 
   public load() {
-    console.log('Loading Monaco...');
     const onGotAmdLoader = () => {
       let vsPath = this._monacoPath;
       (<any>window).amdRequire = (<any>window).require;
@@ -75,23 +86,30 @@ export class EditorService {
     document.body.appendChild(loaderScript);
   }
 
-  private updateVQLTheme() {
-    console.log('Updating Theme');
-    console.log(this.colorMapService.colorMap);
+  updateTheme() {
+    const cMap: Map<string, string> = new Map<string, string>();
 
+    this.colorMapService.colorMap.forEach((v, k) => {
+      if (Object.keys(this.logService.activitiesInEventLog).includes(k)) {
+        cMap.set(k, v);
+      }
+    });
+
+    monaco.editor.defineTheme('VQLTheme', generateVQLTheme(cMap, this.options));
+  }
+
+  private updateVQLTheme() {
     // Define a new theme that matches the activity names and Colormap
-    monaco.editor.defineTheme(
-      'VQLTheme',
-      generateVQLTheme(this.colorMapService.colorMap, new EditorOptions())
-    );
 
     if (this.completionProvider) {
       this.completionProvider.dispose();
     }
 
     const createProposals = getVQLCompletionProvider(
-      this.colorMapService.colorMap.keys()
+      Object.keys(this.logService.activitiesInEventLog)
     );
+
+    this.updateTheme();
 
     this.completionProvider = monaco.languages.registerCompletionItemProvider(
       'VQL',

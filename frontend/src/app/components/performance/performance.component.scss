@@ -6,7 +6,6 @@
   position: absolute;
 }
 
-
 .color-span {
   height: 5%;
   width: 100%;
@@ -32,13 +31,5 @@
 }
 
 .color-map-tab {
-  padding: 10px;
-}
-
-.performance-unaviable-warning{
-  font-size: small;
-  margin: 15px;
-  text-align: center;
-  color: var(--bs-warning);
-
+  padding: 0px 10px;
 }

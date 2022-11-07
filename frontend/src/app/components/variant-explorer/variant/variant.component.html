@@ -46,9 +46,21 @@
     traceInfixSelectionMode &&
     variantViewModeService.viewMode !== VM.PERFORMANCE
   "
-  class="infix-selection-buttons-panel"
+  class="fixed-right"
 >
   <ng-container [ngTemplateOutlet]="infixSelection"> </ng-container>
+</td>
+
+<td
+  *ngIf="
+    isVisible &&
+    !traceInfixSelectionMode &&
+    variantViewModeService.viewMode !== VM.PERFORMANCE
+  "
+  class="fixed-right"
+  style="padding-left: 0px"
+>
+  <ng-container [ngTemplateOutlet]="removeVariantButton"></ng-container>
 </td>
 
 <td *ngIf="!isVisible">

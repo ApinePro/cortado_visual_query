@@ -27,7 +27,7 @@ import { Variant } from 'src/app/objects/Variants/variant';
 import { BackendService } from 'src/app/services/backendService/backend.service';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 import { SubvariantVisualization } from 'src/app/objects/Variants/subvariant';
-import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
+import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { activityColor } from '../functions/variant-drawer-callbacks';
 import { Subject } from 'rxjs';
@@ -80,6 +80,10 @@ export class SubvariantExplorerComponent
     this.colorMap = this.colorMapService.colorMap;
     this.sortAscending = false;
     this.svgRenderingInProgress = false;
+    this.serviceTimeColorMap =
+      variantPerformanceService.serviceTimeColorMap.getValue();
+    this.waitingTimeColorMap =
+      variantPerformanceService.waitingTimeColorMap.getValue();
   }
 
   ngOnInit(): void {

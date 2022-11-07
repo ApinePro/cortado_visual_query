@@ -70,4 +70,8 @@ export class ContextMenuItem {
 
   icon: string;
   text: string;
+
+  deleteVariant(e: Event) {
+    this.variantService.deleteVariant(this.variant);
+  }
 }

@@ -68,8 +68,10 @@ import { EditorZoneComponent } from './components/editor-zone/editor-zone.compon
 import { FilterOptionsComponent } from './components/variant-miner/filter-options/filter-options.component';
 import { ResizeableTableHeaderComponent } from './components/resizeable-table-header/resizeable-table-header.component';
 import { ResizeColumnDirective } from './directives/resize-column.directive';
+import { VariantDeleteButtonComponent } from './components/variant-explorer/variant/subcomponents/variant-delete-button/variant-delete-button.component';
 import { ELECTRON_SERVICE } from './tokens';
 import { ElectronService } from './services/electronService/electron.service';
+import { UnavailableInfoComponent } from './components/unavailable-info/unavailable-info.component';
 
 @NgModule({
   declarations: [
@@ -131,6 +133,8 @@ import { ElectronService } from './services/electronService/electron.service';
     FilterOptionsComponent,
     ResizeableTableHeaderComponent,
     ResizeColumnDirective,
+    VariantDeleteButtonComponent,
+    UnavailableInfoComponent,
   ],
   imports: [
     BrowserModule,

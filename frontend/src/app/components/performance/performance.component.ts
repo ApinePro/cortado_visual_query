@@ -24,6 +24,8 @@ import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-c
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
+import { ViewMode } from 'src/app/objects/ViewMode';
 @Component({
   selector: 'app-performance',
   templateUrl: './performance.component.html',
@@ -44,10 +46,13 @@ export class ModelPerformanceComponent
 
   private _destroy$ = new Subject();
 
+  public VM = ViewMode;
+
   constructor(
     public performanceService: PerformanceService,
     private processTreeService: ProcessTreeService,
     public performanceColorScaleService: ModelPerformanceColorScaleService,
+    public modelViewModeService: ModelViewModeService,
     private changeDetectionRef: ChangeDetectorRef,
     renderer: Renderer2,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)

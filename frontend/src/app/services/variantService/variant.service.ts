@@ -5,7 +5,7 @@ import { LogService } from 'src/app/services/logService/log.service';
 import * as objectHash from 'object-hash';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { skip } from 'rxjs/operators';
+import { skip, tap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { mapVariants } from 'src/app/utils/util';
 import {
@@ -19,6 +19,7 @@ import { Variant } from 'src/app/objects/Variants/variant';
 import {
   deserialize,
   SequenceGroup,
+  VariantElement,
 } from 'src/app/objects/Variants/variant_element';
 import {
   addVariantInformation,
@@ -34,6 +35,7 @@ import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
 })
 export class VariantService {
   variantService: any;
+  nameChanges: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   constructor(
     private logService: LogService,
     private httpClient: HttpClient,
@@ -50,7 +52,7 @@ export class VariantService {
   private _variants = new BehaviorSubject<Variant[]>([]);
 
   get variants$(): Observable<Variant[]> {
-    return this._variants.asObservable().pipe();
+    return this._variants.asObservable();
   }
 
   set variants(activities: Variant[]) {
@@ -61,6 +63,7 @@ export class VariantService {
     return this._variants.getValue();
   }
 
+  public lastChangeRenaming = null;
   private _cachedChange = new BehaviorSubject<boolean>(false);
 
   get cachedChange$(): Observable<boolean> {
@@ -68,6 +71,7 @@ export class VariantService {
   }
 
   set cachedChange(change: boolean) {
+    this.lastChangeRenaming = null;
     this._cachedChange.next(change);
   }
 
@@ -112,7 +116,7 @@ export class VariantService {
       0,
       reducedInfix,
       false,
-      false,
+      true,
       false,
       0,
       false,
@@ -142,43 +146,78 @@ export class VariantService {
       return;
     }
 
-    currentVariants.push(newVariant);
-    this.variants = currentVariants;
+    this.countFragmentOccurrences(newVariant)
+      .pipe(
+        tap((statistics) => {
+          newVariant.fragmentStatistics = statistics;
+          currentVariants.push(newVariant);
+          this.variants = currentVariants;
+        })
+      )
+      .pipe(
+        tap((_) => {
+          let sortedVariants = VariantSorter.sort(
+            this.variants,
+            sortingFeature,
+            isAscending
+          ) as Variant[];
 
-    let sortedVariants = VariantSorter.sort(
-      this.variants,
-      sortingFeature,
-      isAscending
-    ) as Variant[];
+          this.toastService.showSuccessToast(
+                  'Variant Explorer',
+                  `The selected infix is added at position ${
+                    sortedVariants.indexOf(newVariant) + 1
+                  }.`,
+                  'bi-list-ul'
+                );
+                variant.variant.resetSelectionStatus();
+        })
+      )
+      .subscribe();
+  }
 
-    this.toastService.showSuccessToast(
-      'Variant Explorer',
-      `The selected infix is added at position ${
-        sortedVariants.indexOf(newVariant) + 1
-      }.`,
-      'bi-list-ul'
-    );
-    variant.variant.resetSelectionStatus();
+  public deleteVariant(variant: VariantElement): void {
+    const matchingVariant = this.variants.filter(
+      (v) => v.variant === variant
+    )[0];
+
+    if (matchingVariant.userDefined) {
+      this.variants = this.variants.filter((v) => v !== matchingVariant);
+    } else {
+      this.deleteVariants([matchingVariant.bid]);
+    }
   }
 
   public deleteVariants(bids: number[]): void {
-    const delVariants = this.variants.filter((v) => bids.includes(v.bid));
+    this.propagateVariantDeletions(bids).subscribe((res) => {
+      this.logService.activitiesInEventLog = res['activities'];
+      this.logService.startActivitiesInEventLog = new Set(
+        res['startActivities']
+      );
+      this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
 
-    if (delVariants.every((v) => v.userDefined)) {
-      this.variants = this.variants.filter((v) => !bids.includes(v.bid));
-    } else {
-      this.propagateVariantDeletions(bids).subscribe((res) => {
-        this.logService.activitiesInEventLog = res['activities'];
-        this.logService.startActivitiesInEventLog = new Set(
-          res['startActivities']
-        );
-        this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
-        this.logService.computeLogStats(this.variants);
-        this.variants = this.variants.filter((v) => !bids.includes(v.bid));
-        this.cachedChange = true;
-      });
-    }
+      let filtered_variants = this.variants.filter(
+        (v) => !bids.includes(v.bid)
+      );
+
+      this.logService.computeLogStats(filtered_variants);
+      this.variants = filtered_variants;
+      this.cachedChange = true;
+    });
     // Count deleted Activites, Recompute if an Activity is a Start or End Activity.
+  }
+
+  countFragmentOccurrences(variant: Variant): Observable<number> {
+    let variantElement: VariantElement = variant.variant;
+
+    const payload = {
+      infixType: InfixType[variant.infixType],
+      fragment: variantElement.serialize(),
+    };
+
+    return this.httpClient.post<number>(
+      ROUTES.BASE_URL + ROUTES.VARIANT + 'countFragmentOccurrences',
+      payload
+    );
   }
 
   public deleteActivity(activityName: string) {
@@ -247,6 +286,7 @@ export class VariantService {
       activityName,
       newActivityName
     );
+
     this.colorMapService.renameColorInActivityColorMap(
       activityName,
       newActivityName
@@ -272,6 +312,8 @@ export class VariantService {
 
     this.logService.update_log_stats(null, null, null, updateMap.size);
     this.cachedChange = true;
+    this.lastChangeRenaming = [activityName, newActivityName];
+    this.nameChanges.next([activityName, newActivityName]);
   }
 
   private propagateActivityNameChange(
@@ -334,6 +376,7 @@ export class VariantService {
         this.logService.timeGranularity = res['timeGranularity'];
         this.logService.logGranularity = res['timeGranularity'];
 
+        const lastNameChange = this.lastChangeRenaming;
         this.cachedChange = false;
 
         const variants = addVariantInformation(res['variants']);
@@ -341,6 +384,9 @@ export class VariantService {
 
         this.variants = variants;
         this.logService.computeLogStats(variants);
+        if (lastNameChange !== null) {
+          this.nameChanges.next([lastNameChange[1], lastNameChange[0]]);
+        }
       });
   }
 }

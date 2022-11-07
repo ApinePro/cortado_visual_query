@@ -17,7 +17,7 @@ import {
 import { BackendService } from './backendService/backend.service';
 import { setParent } from '../objects/Variants/infix_selection';
 import { ViewMode } from '../objects/ViewMode';
-import { VariantViewModeService } from './variantViewModeService/variant-view-mode.service';
+import { VariantViewModeService } from './viewModeServices/variant-view-mode.service';
 import { PerformanceColorMap } from '../objects/Performance/PerformanceColorMap';
 
 // https://observablehq.com/@philippkoytek/celonis-data-visualization-colors
@@ -124,9 +124,7 @@ export class VariantPerformanceService {
       if (log !== undefined) {
         this.updateServiceTimeColorMap();
         this.updateWaitingTimeColorMap();
-        this.performanceInformationLoaded = false;
-        this.performanceUpdateProgress = 0;
-        this.results = new Map<string, any>();
+        this.resetVariantPerformance();
       }
     });
 
@@ -207,6 +205,8 @@ export class VariantPerformanceService {
     let min = Math.min(...values);
     let max = Math.max(...values);
 
+    if (min == max) colors = [colors[0]];
+
     this.minValues[performanceIndicator] = min;
     this.maxValues[performanceIndicator] = max;
 
@@ -230,6 +230,12 @@ export class VariantPerformanceService {
       values.push(...vs);
     });
     return values;
+  }
+
+  resetVariantPerformance(): void {
+    this.performanceInformationLoaded = false;
+    this.performanceUpdateProgress = 0;
+    this.results = new Map<string, any>();
   }
 
   getAllValuesElement(
@@ -269,9 +275,12 @@ export class VariantPerformanceService {
   addPerformanceInformationToVariants(): Observable<any> {
     this.performanceUpdateIsInProgress = true;
     let chunks = [];
+    const maxVariantId = Math.max(
+      ...this.variantService.variants.map((v) => v.bid)
+    );
     const nVariants = this.variantService.variants.length;
     for (let i = 0; i < nVariants; i += 100) {
-      chunks.push([i, Math.min(i + 99, nVariants - 1)]);
+      chunks.push([i, Math.min(i + 99, maxVariantId)]);
     }
 
     return from(chunks).pipe(
@@ -284,14 +293,15 @@ export class VariantPerformanceService {
       }),
       catchError((_) => {
         this.performanceUpdateIsInProgress = false;
-        this.performanceInformationLoaded = false;
-        this.performanceUpdateProgress = 0;
+        this.resetVariantPerformance();
         return of('error when loading performance data');
       }),
       finalize(() => {
         this.variantService.variants.forEach((v) => {
           if (!v.userDefined) {
-            v.variant = deserialize(this.results.get(v.bid.toString()));
+            let newVariant = deserialize(this.results.get(v.bid.toString()));
+            newVariant.setExpanded(v.variant.getExpanded());
+            v.variant = newVariant;
             setParent(v.variant);
           }
         });

@@ -9,6 +9,10 @@ export function checkForLoadedTreeIntegrity(
 ): Set<string> {
   let unknownActivities = new Set<string>();
 
+  if (tree === null) {
+    return unknownActivities;
+  }
+
   for (let subtree of tree.children) {
     // If it is a operator, recurse on the children
     if (!subtree.label) {

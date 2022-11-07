@@ -33,7 +33,7 @@ import {
 } from 'src/app/objects/Variants/variant_element';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { ViewMode } from 'src/app/objects/ViewMode';
-import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
+import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 

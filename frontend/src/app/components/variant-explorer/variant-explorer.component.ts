@@ -82,10 +82,11 @@ import { collapsingText } from 'src/app/animations/text-animations';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
 import { ViewMode } from 'src/app/objects/ViewMode';
-import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
+import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 import { EditorOptions } from './variant-query/variant-query.component';
 import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
 import { ContextMenuItem } from './variant-explorer-context-menu/variant-explorer-context-menu.component';
+import { ToastService } from 'src/app/services/toast/toast.service';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -117,7 +118,8 @@ export class VariantExplorerComponent
     private conformanceCheckingService: ConformanceCheckingService,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     public variantViewModeService: VariantViewModeService,
-    private tooltipService: ActivateTooltipsService
+    private tooltipService: ActivateTooltipsService,
+    private toastService: ToastService
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -267,7 +269,7 @@ export class VariantExplorerComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe((variants) => {
         this.variants = variants;
-        this.displayed_variants = variants;
+        this.displayed_variants = variants.filter((v) => v.isDisplayed);
         this.sort(this.sortingFeature);
         this.closeAllSubvariantWindows();
 
@@ -347,7 +349,7 @@ export class VariantExplorerComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe((tree) => {
         this.currentlyDisplayedProcessTree = tree;
-        const treeHasChanged = processTreesEqual(
+        const treeHasChanged = !processTreesEqual(
           this.usedTreeForConformanceChecking,
           this.currentlyDisplayedProcessTree
         );
@@ -840,6 +842,10 @@ export class VariantExplorerComponent
         c.redraw();
       }
     });
+
+    // Necessary, because there are only variant drawers for children that are rendered.
+    // This is often only a subset of variants because of lazy loading.
+    this.variants.forEach((v) => v.variant.setExpanded(shouldExpand));
   }
 
   handleResponsiveChange(
@@ -964,6 +970,32 @@ export class VariantExplorerComponent
 
   onScroll(): void {
     this.tooltipService.hideAll();
+  }
+
+  executeRemovalActionOnFilteredVariants(removeFiltered: boolean): void {
+    let bids = [];
+    let infoText = '';
+    if (removeFiltered) {
+      // remove all filtered variants
+      bids = this.displayed_variants.map((v) => v.bid);
+      infoText = 'Removed all filtered variants. Filters are cleared.';
+    } else {
+      // keep only filtered variants
+      bids = this.variants.filter((v) => !v.isDisplayed).map((v) => v.bid);
+      infoText = 'Removed all not filtered variants. Filters are cleared.';
+    }
+
+    this.variantService.deleteVariants(bids);
+
+    for (let filter of this.filterMap.keys()) {
+      this.removeFilter(filter);
+    }
+
+    this.toastService.showSuccessToast(
+      'Variants removed',
+      infoText,
+      'bi-trash'
+    );
   }
 }
 

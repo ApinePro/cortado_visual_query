@@ -17,6 +17,7 @@ import { VariantService } from 'src/app/services/variantService/variant.service'
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 
 @Component({
   selector: 'app-activity-overview',
@@ -36,7 +37,8 @@ export class ActivityOverviewComponent
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
     elRef: ElementRef,
-    renderer: Renderer2
+    renderer: Renderer2,
+    private variantPerformanceService: VariantPerformanceService
   ) {
     super(elRef.nativeElement, renderer);
     const state = this.container.initialState;
@@ -176,6 +178,7 @@ export class ActivityOverviewComponent
   }
   deleteActivity(e: Event, activity: ActivityField) {
     this.variantService.deleteActivity(activity.activityName);
+    this.variantPerformanceService.resetVariantPerformance();
     this.resetActivityFields();
   }
 

@@ -22,6 +22,7 @@
       role="tab"
       aria-controls="variantColormap"
       aria-selected="false"
+      #colorMapTab
     >
       Color Map
     </button>
@@ -43,17 +44,28 @@
     role="tabpanel"
     aria-labelledby="variant-color-map"
   >
-    <app-variant-color-map></app-variant-color-map>
+    <app-variant-color-map
+      *ngIf="
+        variantPerformanceService.performanceInformationLoaded;
+        else unavailableInfoColorMap
+      "
+    ></app-variant-color-map>
+    <ng-template #unavailableInfoColorMap>
+      <app-unavailable-info>
+        No performance values available.
+        <br />
+        To load performance values change into Performance View in the Variant
+        Explorer.
+      </app-unavailable-info>
+    </ng-template>
   </div>
 </div>
 
 <ng-template #selectionPerformance>
-  <div *ngIf="!performanceStats" class="performance-unaviable-warning">
-    <i class="b bi bi-info-lg" style="font-size: 2.5rem"></i>
-    <br />
+  <app-unavailable-info *ngIf="!performanceStats">
     To show variant performance, change into Performance View and click on the
     variant chevron in the Variant Explorer.
-  </div>
+  </app-unavailable-info>
 
   <div *ngIf="performanceStats">
     <table

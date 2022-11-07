@@ -35,7 +35,7 @@
               >
                 <i class="bi bi-palette"></i>
               </button>
-              <div class="dropdown-menu dropdown-sort">
+              <div class="dropdown-menu custom-dropdown">
                 <div class="fst-italic fw-bold ps-2 text-center">
                   Edit activities
                 </div>
@@ -64,16 +64,19 @@
                   }"
                 ></i>
               </div>
-              <button
-                class="reset-button"
-                (click)="revertLastChange($event)"
-                *ngIf="resetAvailable"
-                data-bs-toggle="tooltip"
-                data-bs-placement="bottom"
-                title="revert large change to the event log"
-              >
-                <i class="bi bi-arrow-counterclockwise btn-icon"></i>
-              </button>
+
+              <div class="p-2">
+                <button
+                  class="reset-button"
+                  (click)="revertLastChange($event)"
+                  *ngIf="resetAvailable"
+                  data-bs-toggle="tooltip"
+                  data-bs-placement="bottom"
+                  title="revert last change to the event log"
+                >
+                  <i class="bi bi-arrow-counterclockwise btn-icon"></i>
+                </button>
+              </div>
             </div>
           </th>
           <th
