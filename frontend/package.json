@@ -1,6 +1,6 @@
 {
   "name": "Cortado",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "author": "Daniel Schuster (Fraunhofer FIT)",
   "main": "main-electron.js",
   "description": "An Interactive Tool for Data-Driven Process Discovery and Modeling",
@@ -25,7 +25,7 @@
       "executableName": "cortado",
       "extraFiles": ["cortado-backend/**"]
     },
-    
+
     "afterAllArtifactBuild": "build-hooks/afterAllArtifactBuild.js"
   },
   "scripts": {
