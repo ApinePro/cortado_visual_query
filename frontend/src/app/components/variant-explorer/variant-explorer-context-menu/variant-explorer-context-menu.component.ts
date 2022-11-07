@@ -69,5 +69,4 @@ export class ContextMenuItem {
 
   icon: string;
   text: string;
-
 }
