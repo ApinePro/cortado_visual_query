@@ -87,7 +87,7 @@ export class LogService {
   private _loadedEventLog = new BehaviorSubject<string>('');
 
   get loadedEventLog$(): Observable<string> {
-    return this._loadedEventLog.asObservable().pipe(skip(1));
+    return this._loadedEventLog.asObservable();
   }
 
   set loadedEventLog(name: string) {

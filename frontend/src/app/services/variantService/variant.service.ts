@@ -52,7 +52,7 @@ export class VariantService {
   private _variants = new BehaviorSubject<Variant[]>([]);
 
   get variants$(): Observable<Variant[]> {
-    return this._variants.asObservable().pipe(skip(1));
+    return this._variants.asObservable();
   }
 
   set variants(activities: Variant[]) {
@@ -194,8 +194,13 @@ export class VariantService {
         res['startActivities']
       );
       this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
-      this.logService.computeLogStats(this.variants);
-      this.variants = this.variants.filter((v) => !bids.includes(v.bid));
+
+      let filtered_variants = this.variants.filter(
+        (v) => !bids.includes(v.bid)
+      );
+
+      this.logService.computeLogStats(filtered_variants);
+      this.variants = filtered_variants;
       this.cachedChange = true;
     });
     // Count deleted Activites, Recompute if an Activity is a Start or End Activity.
