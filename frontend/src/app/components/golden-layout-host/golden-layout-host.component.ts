@@ -1,3 +1,4 @@
+import { VariantMinerComponent } from './../variant-miner/variant-miner.component';
 import { GoldenLayoutDummyComponent } from './golden-layout-dummy/golden-layout-dummy.component';
 import {
   Component,
@@ -103,6 +104,11 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     this.goldenLayoutComponentService.registerComponentType(
       SubvariantExplorerComponent.componentName,
       SubvariantExplorerComponent
+    );
+
+    this.goldenLayoutComponentService.registerComponentType(
+      VariantMinerComponent.componentName,
+      VariantMinerComponent
     );
 
     this.goldenLayoutComponentService.registerComponentType(
@@ -255,10 +261,9 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     const parent = container.parent;
     const grand_parent = parent.parent;
     const grand_parent_children_elements = grand_parent.element.children;
-
     const component = componentRef.instance;
 
-    if (width < 150 || height < 100) {
+    if (width < 250 || height < 150) {
       for (let i = 0; i < grand_parent_children_elements.length; i++) {
         this.renderer.setStyle(
           grand_parent_children_elements[i],

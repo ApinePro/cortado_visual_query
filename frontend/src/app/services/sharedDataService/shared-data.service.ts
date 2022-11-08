@@ -24,4 +24,14 @@ export class SharedDataService {
   set treePerformance(performance) {
     this._treePerformance.next(performance);
   }
+
+  private _frequentMiningResults = new BehaviorSubject<Array<any>>(null);
+
+  get frequentMiningResults$(): Observable<Array<any>> {
+    return this._frequentMiningResults.asObservable();
+  }
+
+  set frequentMiningResults(res: Array<any>) {
+    this._frequentMiningResults.next(res);
+  }
 }

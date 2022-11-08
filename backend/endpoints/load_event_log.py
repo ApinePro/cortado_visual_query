@@ -41,6 +41,9 @@ def calculate_event_log_properties(
 
     res_variants, cache.variants, subvariants = get_c_variants(event_log, use_mp, time_granularity)
 
+
+
+
     cache.variants = {
         bid: (variant, traces, subvars)
         for bid, ((variant, traces), subvars ) in enumerate(zip(cache.variants.items(), subvariants))
@@ -98,7 +101,7 @@ def get_c_variants(
 
     sub_variants = []
 
-    for bid, (v, ts) in enumerate(variants.items()):
+    for bid, (v, ts) in enumerate(sorted(list(variants.items()), key = lambda e : len(e[1]), reverse = True)):
 
         variant, sub_vars = create_variant_object(time_granularity, total_traces, bid, v, ts)
         sub_variants.append(sub_vars)

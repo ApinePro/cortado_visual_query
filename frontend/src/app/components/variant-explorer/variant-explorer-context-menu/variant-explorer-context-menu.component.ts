@@ -6,7 +6,6 @@ import {
   OnChanges,
   SimpleChanges,
 } from '@angular/core';
-import { VariantService } from 'src/app/services/variantService/variant.service';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
 import { VariantElement } from 'src/app/objects/Variants/variant_element';
 
@@ -24,18 +23,12 @@ export class VariantExplorerContextMenuComponent
   @Input()
   yPos: number;
 
-  @Input()
-  variant: VariantElement;
-
-  @Input()
-  element: VariantElement;
-
-  @Input()
-  directive: VariantDrawerDirective;
-
   displayMenu: boolean = false;
 
-  constructor(private variantService: VariantService) {}
+  @Input()
+  contextMenuOptions: Array<ContextMenuItem>;
+
+  constructor() {}
 
   ngAfterViewInit(): void {
     this.displayMenu = false;
@@ -51,8 +44,29 @@ export class VariantExplorerContextMenuComponent
   public onClick(event: any): void {
     this.displayMenu = false;
   }
+}
 
-  deleteVariant(e: Event) {
-    this.variantService.deleteVariant(this.variant);
+export class ContextMenuItem {
+  constructor(
+    text: string,
+    icon: string,
+    onClick: (
+      variant: VariantElement,
+      element: VariantElement,
+      directive: VariantDrawerDirective
+    ) => {}
+  ) {
+    this.icon = icon;
+    this.text = text;
+    this.onClick = onClick;
   }
+
+  onClick: (
+    variant: VariantElement,
+    element: VariantElement,
+    directive: VariantDrawerDirective
+  ) => {};
+
+  icon: string;
+  text: string;
 }

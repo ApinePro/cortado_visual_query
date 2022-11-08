@@ -13,6 +13,15 @@
   font-size: small;
 }
 
+.resizeable-header-element{
+  padding : 0.2rem;
+}
+
+.table-header-sort-group{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
 .table-container {
   overflow-y: auto;

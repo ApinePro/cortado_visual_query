@@ -23,7 +23,6 @@ from fastapi import APIRouter
 # because otherwise the generated api docs are not really convenient 
 router = APIRouter(tags=['Variants'], prefix="/variant")
 
-
 class VariantFragment(BaseModel):
     fragment: dict
     infixType: str

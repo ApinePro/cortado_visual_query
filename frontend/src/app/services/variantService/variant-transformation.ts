@@ -1,7 +1,6 @@
 import { InfixType, setParent } from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
 import * as objectHash from 'object-hash';
-import { injectWaitingTimeNodes } from 'src/app/objects/Variants/variant_element';
 
 export function compute_delete_activity_variants(
   activityName: string,

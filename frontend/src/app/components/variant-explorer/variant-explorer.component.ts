@@ -42,7 +42,10 @@ import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/varian
 
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { HumanizeDurationPipe } from 'src/app/pipes/humanize-duration.pipe';
-import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
+import {
+  AlignmentType,
+  ConformanceCheckingService,
+} from 'src/app/services/conformanceChecking/conformance-checking.service';
 import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
 import { LogService, LogStats } from 'src/app/services/logService/log.service';
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
@@ -82,6 +85,7 @@ import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 import { EditorOptions } from './variant-query/variant-query.component';
 import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
+import { ContextMenuItem } from './variant-explorer-context-menu/variant-explorer-context-menu.component';
 import { ToastService } from 'src/app/services/toast/toast.service';
 
 @Component({
@@ -198,6 +202,18 @@ export class VariantExplorerComponent
   selectedGranularity = TimeUnit.SEC;
 
   originalOrder = originalOrder;
+
+  deleteVariant = function () {
+    const bids = this.variantService.variants
+      .filter((v) => v.variant === this.contextMenu_variant)
+      .map((v) => v.bid);
+
+    this.variantService.deleteVariants(bids);
+  }.bind(this);
+
+  contextMenuOptions: Array<ContextMenuItem> = [
+    new ContextMenuItem('Delete Variant', 'bi-trash', this.deleteVariant),
+  ];
 
   private _destroy$ = new Subject();
 
@@ -393,7 +409,7 @@ export class VariantExplorerComponent
   }
 
   subscribeForConformanceCheckingResults(): void {
-    this.conformanceCheckingService.results
+    this.conformanceCheckingService.varResults
       .pipe(takeUntil(this._destroy$))
       .subscribe(
         (res) => {
@@ -455,8 +471,9 @@ export class VariantExplorerComponent
       variant.id,
       variant.infixType,
       this.processTreeService.currentDisplayedProcessTree,
-      variant.variant.serialize(),
-      timeout
+      variant.variant.serialize(1),
+      timeout,
+      AlignmentType.VariantAlignment
     );
 
     if (resubscribe) {
@@ -917,7 +934,7 @@ export class VariantExplorerComponent
       this.displayed_variants,
       this.sortingFeature,
       this.isAscendingOrder
-    );
+    ) as Variant[];
     this.variantExplorerDiv.nativeElement.scroll(0, 0);
     this.updateAllSubvariantWindows();
   }

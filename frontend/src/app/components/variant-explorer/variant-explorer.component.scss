@@ -137,8 +137,14 @@
   filter: brightness(150%);
 }
 
-.badge-container {
-  margin-left: -20px;
+.badge-button{
+  padding: 0;
+  font-size: unset;
+  display: contents;
+}
+
+.badge-container{
+  margin-left : -20px;
 }
 
 .close-icon {
@@ -176,11 +182,6 @@
   padding: 5px;
 }
 
-.badge-button {
-  padding: 0;
-  font-size: unset;
-  display: contents;
-}
 .button-text {
   display: inline-block;
 }

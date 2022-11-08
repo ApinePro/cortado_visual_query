@@ -26,6 +26,9 @@ import {
   ParallelGroup,
   LeafNode,
   WaitingTimeNode,
+  StartGroup,
+  EndGroup,
+  LeafLoopNode,
   InvisibleSequenceGroup,
 } from 'src/app/objects/Variants/variant_element';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
@@ -280,6 +283,8 @@ export class VariantDrawerDirective
         svgElement,
         outerElement
       );
+    } else if (element instanceof LeafLoopNode) {
+      this.drawLeafLoopNode(element, svgElement);
     } else if (element instanceof LeafNode) {
       this.drawLeafNode(element.asLeafNode(), svgElement);
     } else if (element instanceof WaitingTimeNode) {
@@ -460,7 +465,7 @@ export class VariantDrawerDirective
     parent: Selection<any, any, any, any>
   ): void {
     const width = element.getWidth();
-    const height = element.getHeight();
+    let height = element.getHeight();
 
     const polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
@@ -474,6 +479,7 @@ export class VariantDrawerDirective
     const inversed = rgb_code.map((d) => 255 - parseInt(d, 16));
 
     let laElement = getLowestSelectionActionableElement(element);
+
     let actionable =
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
@@ -535,8 +541,13 @@ export class VariantDrawerDirective
         element.getWidth() -
         element.getHeadLength() * 2 -
         VARIANT_Constants.MARGIN_X;
+
       const tr = this.wrapInnerLabelText(tspan, a, maxWidth);
       truncated ||= tr;
+
+      if (a === 'W_Nabellen incomplete dossiers' && !tr) {
+        console.log('Did not wrap', a, tspan, maxWidth);
+      }
     });
 
     if (truncated) {
@@ -548,6 +559,34 @@ export class VariantDrawerDirective
     if (this.onMouseOverCbFc) {
       this.onMouseOverCbFc(this, element, this.variant, parent);
     }
+  }
+
+  public drawLeafLoopNode(
+    element: LeafLoopNode,
+    parent: Selection<any, any, any, any>
+  ): void {
+    const width = element.getWidth(false);
+    const height = element.getHeight();
+    const group = parent
+      .append('g')
+      .attr('transform', `translate(${0}, ${15})`);
+
+    group
+      .append('text')
+      .attr('x', width / 2)
+      .attr('y', -12.5)
+      .classed('user-select-none', true)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr('font-size', VARIANT_Constants.FONT_SIZE)
+      .attr('fill', 'white')
+      .classed('activity-text', true)
+      .append('tspan')
+      .attr('x', width / 2)
+      .attr('y', -12.5)
+      .text('\u21BA');
+
+    this.drawLeafNode(element.leafNode, group);
   }
 
   private addInfixSelectionAttributes(
@@ -620,6 +659,7 @@ export class VariantDrawerDirective
     maxWidth: number
   ): boolean {
     let textLength = this.getComputedTextLength(textSelection);
+
     let truncated = false;
     while (textLength > maxWidth && text.length > 1) {
       text = text.slice(0, -1);
@@ -627,6 +667,11 @@ export class VariantDrawerDirective
       textLength = this.getComputedTextLength(textSelection);
       truncated = true;
     }
+
+    if (text === 'W_Nabellen incomplete dossiers' && !truncated) {
+      console.log('Inner Text length after Wrap', text, textLength, maxWidth);
+    }
+
     return truncated;
   }
 

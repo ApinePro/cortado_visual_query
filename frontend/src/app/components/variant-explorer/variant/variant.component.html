@@ -66,7 +66,9 @@
 <td *ngIf="!isVisible">
   <div
     class="variant-spacer"
-    [ngStyle]="{ height: variant.variant.getHeight() + 'px' }"
+    [ngStyle]="{
+      height: variant.variant.getHeight() + 'px'
+    }"
   >
     Loading...
   </div>

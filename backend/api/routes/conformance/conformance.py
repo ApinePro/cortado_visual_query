@@ -36,15 +36,15 @@ def calculate_alignment_intern(pt: dict, c_variant: dict, infix_type: InfixType)
     return {"cost": 0, "deviation": False}
 
 
-def get_alignment_callback(idx: str, websocket: WebSocket):
+def get_alignment_callback(idx: str, alignType, websocket: WebSocket):
     def callback(result):
         data = {
             "id": idx,
             "isTimeout": False,
             "cost": 0,
+            "type" : alignType,
             "deviation": False,
         }
-
         for key, value in result.items():
             data[key] = value
 
@@ -80,7 +80,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         InfixType(data["infixType"]),
                         timeout,
                     ),
-                    callback=get_alignment_callback(data["id"], websocket),
+                    callback=get_alignment_callback(data["id"], data['alignType'], websocket),
                 )
     except WebSocketDisconnect:
         print("websocket disconnected")

@@ -9,8 +9,6 @@ import {
 
 import { ProcessTreeEditorComponent } from '../../process-tree-editor/process-tree-editor.component';
 import { VariantExplorerComponent } from '../../variant-explorer/variant-explorer.component';
-import { InfoBoxComponent } from '../../info-box/info-box.component';
-
 import { ActivityOverviewComponent } from '../../activity-overview/activity-overview.component';
 import { ModelPerformanceComponent } from '../../performance/performance.component';
 import { VariantPerformanceComponent } from '../../variant-performance/variant-performance.component';
