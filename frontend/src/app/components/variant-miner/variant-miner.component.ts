@@ -653,7 +653,12 @@ export class VariantMinerComponent
 
   private set_interval_filter_configs() {
     this.kFilter.set_config(3, this.maxSize);
-    this.supFilter.set_config(this.minsup, this.maxSup, Math.round((this.maxSup - this.minsup) / 10), Math.round((this.maxSup - this.minsup) / 20));
+    this.supFilter.set_config(
+      this.minsup,
+      this.maxSup,
+      Math.round((this.maxSup - this.minsup) / 10),
+      Math.round((this.maxSup - this.minsup) / 20)
+    );
     this.idFilter.set_config(0, this.variantPatterns.length);
     this.cpConfFilter.set_config(0, 1);
     this.supConfFilter.set_config(0, 1);
@@ -916,7 +921,6 @@ export class IntervalFilter {
   defaultHigh: number;
 
   set_config(floor, ceil, tickStep?, tickValueStep?) {
-
     this.tickStep = tickStep ? tickStep : this.tickStep;
     this.tickValueStep = tickValueStep ? tickValueStep : this.tickStep;
 
@@ -928,7 +932,8 @@ export class IntervalFilter {
       tickStep: this.tickStep,
       tickValueStep: this.tickValueStep,
       step: this.step,
-    };3
+    };
+    3;
 
     this.defaultLow = floor;
     this.defaultHigh = ceil;
