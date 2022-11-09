@@ -1,5 +1,7 @@
+import multiprocessing
 from typing import Any, List
 
+from backend_utilities.multiprocessing.pool_factory import PoolFactory
 from backend_utilities.process_tree_conversion import (
     dict_to_process_tree,
     process_tree_to_dict,
@@ -46,7 +48,7 @@ def discover_process_model_from_variants(variants):
 
 @router.post("/discoverProcessModelFromConcurrencyVariants")
 async def discover_process_model_from_cvariants(
-    d: InputDiscoverProcessModelFromVariants,
+        d: InputDiscoverProcessModelFromVariants,
 ):
     all_variants = set(
         [
@@ -71,7 +73,7 @@ class InputAddVariantsToProcessModel(BaseModel):
 async def add_simple_variants_to_process_model(d: InputAddVariantsToProcessModel):
     fitting_variants = [v["events"] for v in d.fitting_variants]
     to_add = [v["events"] for v in d.variants_to_add]
-    return add_variants_to_process_model(d.pt, fitting_variants, to_add)
+    return add_variants_to_process_model(d.pt, fitting_variants, to_add, PoolFactory.instance().get_pool())
 
 
 @router.post("/addConcurrencyVariantsToProcessModel")
@@ -90,7 +92,7 @@ async def add_cvariants_to_process_model(d: InputAddVariantsToProcessModel):
             for variant in generate_variants(cvariant)
         ]
     )
-    return add_variants_to_process_model(d.pt, fitting_variants, to_add)
+    return add_variants_to_process_model(d.pt, fitting_variants, to_add, PoolFactory.instance().get_pool())
 
 
 class InputAddVariantsToProcessModelUnknownConformance(BaseModel):
@@ -100,7 +102,7 @@ class InputAddVariantsToProcessModelUnknownConformance(BaseModel):
 
 @router.post("/addConcurrencyVariantsToProcessModelUnknownConformance")
 async def add_cvariants_to_process_model_unknown_conformance(
-    d: InputAddVariantsToProcessModelUnknownConformance,
+        d: InputAddVariantsToProcessModelUnknownConformance,
 ):
     selected_variants = set(
         [
@@ -120,4 +122,4 @@ async def add_cvariants_to_process_model_unknown_conformance(
         else:
             variants_to_add.add(selected_variant)
 
-    return add_variants_to_process_model(d.pt, fitting_variants, variants_to_add)
+    return add_variants_to_process_model(d.pt, fitting_variants, variants_to_add, PoolFactory.instance().get_pool())
