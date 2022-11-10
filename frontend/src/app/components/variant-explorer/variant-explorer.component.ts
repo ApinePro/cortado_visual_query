@@ -426,6 +426,7 @@ export class VariantExplorerComponent
 
           if (!res.isTimeout) {
             variant.alignment = deserialize(res.alignment);
+            variant.alignment.setExpanded(variant.variant.getExpanded());
             variant.deviations = res.deviations;
             variant.usedTreeForConformanceChecking = res.processTree;
           }
