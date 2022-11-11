@@ -1,5 +1,6 @@
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
 import { VariantElement } from 'src/app/objects/Variants/variant_element';
+import { ProcessTree } from '../ProcessTree/ProcessTree';
 
 export class MiningConfig {
   size: number;
@@ -84,10 +85,12 @@ export class SubvariantPattern {
   activities: Set<string>;
 
   calculationInProgress;
-  isConformanceOutdated;
-  isTimeouted;
-  deviation;
-  alignment;
+
+  alignment: VariantElement | undefined;
+  deviations: number | undefined;
+  isTimeouted: boolean;
+  isConformanceOutdated: boolean;
+  usedTreeForConformanceChecking: ProcessTree;
 
   infixType: InfixType;
 

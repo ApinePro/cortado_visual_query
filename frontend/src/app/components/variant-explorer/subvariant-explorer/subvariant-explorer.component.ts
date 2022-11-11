@@ -33,7 +33,10 @@ import { ViewMode } from 'src/app/objects/ViewMode';
 import { activityColor } from '../functions/variant-drawer-callbacks';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
+import {
+  AlignmentType,
+  ConformanceCheckingService,
+} from 'src/app/services/conformanceChecking/conformance-checking.service';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 
 @Component({
@@ -132,7 +135,7 @@ export class SubvariantExplorerComponent
         this.onViewModeChange(viewMode);
       });
 
-    this.conformanceCheckingService.results
+    this.conformanceCheckingService.varResults
       .pipe(takeUntil(this._destroy$))
       .subscribe(
         (res) => {
@@ -439,7 +442,8 @@ export class SubvariantExplorerComponent
       variant.infixType,
       this.processTreeService.currentDisplayedProcessTree,
       variant.variant.serialize(),
-      timeout
+      timeout,
+      AlignmentType.VariantAlignment
     );
   }
 }

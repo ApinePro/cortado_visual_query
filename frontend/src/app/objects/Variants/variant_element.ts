@@ -133,7 +133,9 @@ export abstract class VariantElement {
   public abstract updateSelectionAttributes(): void;
   public abstract getActivities(): Set<string>;
 
-  public abstract updateConformance(confValue: number): void;
+  public updateConformance(confValue: number): void {
+    //pass
+  }
 
   public setInfixSelectableState(
     state: SelectableState,
@@ -796,10 +798,6 @@ export class WaitingTimeNode extends VariantElement {
   public updateSelectionAttributes(): void {
     // pass
   }
-
-  public updateConformance(confValue: number): void {
-    //pass
-  }
 }
 
 export class InvisibleSequenceGroup extends SequenceGroup {
@@ -949,14 +947,14 @@ export function deserialize(obj: any): VariantElement {
       return new LeafLoopNode(obj['leaf'][0].replace('_LOOP', ''));
     } else {
       return new LeafNode(
-      obj['leaf'].map((el) => {
-        return typeof el === 'string' ? el : el[0];
-      }),
-      obj['performance'],
-      obj['leaf'].map((el) => {
-        return typeof el === 'string' ? undefined : el[1];
-      })
-    );
+        obj['leaf'].map((el) => {
+          return typeof el === 'string' ? el : el[0];
+        }),
+        obj['performance'],
+        obj['leaf'].map((el) => {
+          return typeof el === 'string' ? undefined : el[1];
+        })
+      );
     }
   }
 }

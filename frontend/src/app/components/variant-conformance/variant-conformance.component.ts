@@ -14,7 +14,7 @@ import { takeUntil } from 'rxjs/operators';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
-import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
+import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 
 @Component({
   selector: 'app-variant-conformance',
