@@ -206,7 +206,7 @@ export class VariantService {
     // Count deleted Activites, Recompute if an Activity is a Start or End Activity.
   }
 
-  countFragmentOccurrences(variant: Variant): Observable<number> {
+  countFragmentOccurrences(variant: Variant): Observable<any> {
     let variantElement: VariantElement = variant.variant;
 
     const payload = {
@@ -214,7 +214,7 @@ export class VariantService {
       fragment: variantElement.serialize(),
     };
 
-    return this.httpClient.post<number>(
+    return this.httpClient.post<any>(
       ROUTES.BASE_URL + ROUTES.VARIANT + 'countFragmentOccurrences',
       payload
     );

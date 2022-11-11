@@ -34,8 +34,8 @@ import {
 import { collapsingText, fadeInText } from 'src/app/animations/text-animations';
 import { findPathToSelectedNode } from 'src/app/objects/Variants/utility_functions';
 import { applyInverseStrokeToPoly } from 'src/app/utils/render-utils';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Observable, of, Subject } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-variant-editor',
@@ -628,13 +628,27 @@ export class VariantEditorComponent
 
     if (!duplicate.includes(true)) {
       currentVariants.push(newVariant);
-      this.variantService.variants = currentVariants;
+      this.addStatistics(newVariant).subscribe(() => {
+        // set new variants list after adding statistics
+        this.variantService.variants = currentVariants;
+      });
     } else {
       this.redundancyWarning = true;
       setTimeout(() => (this.redundancyWarning = false), 500);
     }
 
     this.applySortOnVariantEditor();
+  }
+
+  private addStatistics(newVariant: Variant): Observable<any> {
+    if (newVariant.infixType != InfixType.NOT_AN_INFIX) {
+      return this.variantService.countFragmentOccurrences(newVariant).pipe(
+        tap((statistics) => {
+          newVariant.fragmentStatistics = statistics;
+        })
+      );
+    }
+    return of();
   }
 
   applySortOnVariantEditor() {
