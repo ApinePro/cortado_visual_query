@@ -3,6 +3,7 @@ import pickle
 from typing import Callable
 
 import cache.cache as cache
+from backend_utilities.multiprocessing.pool_factory import PoolFactory
 
 from endpoints import load_event_log
 from fastapi import FastAPI
@@ -18,6 +19,8 @@ def create_start_app_handler(
         cache.pcache = {}
         cache.variants = pickle.load(open("./resources/variants.p", "rb"))
         cache.parameters = pickle.load(open("./resources/parameters.p", "rb"))
+        # create process pool
+        PoolFactory.instance()
         
         print('loaded parameters', cache.parameters)
     return start_app

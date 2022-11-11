@@ -3,6 +3,7 @@ from multiprocessing import Pool
 
 import pm4pycvxopt
 from backend_utilities.configuration.repository import ConfigurationRepositoryFactory
+from backend_utilities.multiprocessing.pool_factory import PoolFactory
 from backend_utilities.timeout.helper_functions import (
     TimeoutException,
     execute_with_timeout,
@@ -59,28 +60,27 @@ async def websocket_endpoint(websocket: WebSocket):
     configuration = config_repository.get_configuration()
 
     try:
-        with Pool() as pool:
-            await websocket.accept()
-            while True:
-                data = await websocket.receive_json()
+        pool = PoolFactory.instance().get_pool()
+        await websocket.accept()
+        while True:
+            data = await websocket.receive_json()
 
-                if "isCancellationRequested" in data:
-                    pool.terminate()
-                    await websocket.close(1000)
-                    return
+            if "isCancellationRequested" in data:
+                await websocket.close(1000)
+                return
 
-                timeout = configuration.timeout_cvariant_alignment_computation
-                if data["timeout"] != 0:
-                    timeout = data["timeout"]
-                pool.apply_async(
-                    calculate_alignment_intern_with_timeout,
-                    (
-                        data["pt"],
-                        data["variant"],
-                        InfixType(data["infixType"]),
-                        timeout,
-                    ),
-                    callback=get_alignment_callback(data["id"], data['alignType'], websocket),
-                )
+            timeout = configuration.timeout_cvariant_alignment_computation
+            if data["timeout"] != 0:
+                timeout = data["timeout"]
+            pool.apply_async(
+                calculate_alignment_intern_with_timeout,
+                (
+                    data["pt"],
+                    data["variant"],
+                    InfixType(data["infixType"]),
+                    timeout,
+                ),
+                callback=get_alignment_callback(data["id"], data['alignType'], websocket),
+            )
     except WebSocketDisconnect:
         print("websocket disconnected")
