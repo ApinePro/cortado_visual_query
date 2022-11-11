@@ -9,6 +9,9 @@ import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import { VariantService } from '../variantService/variant.service';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
+import { ColorMap } from 'src/app/objects/ColorMap';
+import * as d3 from 'd3';
+import { COLORS_RED_GREEN } from 'src/app/objects/Colors';
 export const WS_ENDPOINT = 'ws://127.0.0.1:41211/conformance/conformancews';
 
 @Injectable({
@@ -63,7 +66,9 @@ export class ConformanceCheckingService {
             result['type'],
             result['isTimeout'],
             result['cost'],
-            result['deviation']
+            result['deviations'],
+            result['alignment'],
+            result['pt']
           );
         })
       );
@@ -117,6 +122,12 @@ export class ConformanceCheckingService {
 
   public showConformanceTimeoutDialog(variant: Variant, callbackFunc) {
     this.showConformanceCheckingTimeoutDialog.next([variant, callbackFunc]);
+  }
+
+  get conformanceColorMap() {
+    return new ColorMap(
+      d3.scaleQuantize<any, any>().domain([0, 1]).range(COLORS_RED_GREEN)
+    );
   }
 }
 

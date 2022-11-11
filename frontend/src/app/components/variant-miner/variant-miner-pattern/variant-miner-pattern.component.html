@@ -13,7 +13,7 @@
     <i
       class="bi bi-check-square font-large text-success"
       *ngIf="
-        pattern.deviation === false &&
+        pattern.deviations === 0 &&
         pattern.calculationInProgress === false &&
         !pattern.isConformanceOutdated
       "
@@ -23,7 +23,7 @@
     <i
       class="bi bi-x-square font-large text-danger"
       *ngIf="
-        pattern.deviation &&
+        pattern.deviations > 0 &&
         pattern.calculationInProgress === false &&
         !pattern.isConformanceOutdated
       "
@@ -32,7 +32,7 @@
     <i
       class="bi bi-x-square font-large text-warning"
       *ngIf="
-        pattern.deviation &&
+        pattern.deviations > 0 &&
         pattern.calculationInProgress === false &&
         pattern.isConformanceOutdated
       "
@@ -43,7 +43,7 @@
     <i
       class="bi bi-question-square text-secondary align-middle font-large"
       *ngIf="
-        pattern.deviation === undefined &&
+        pattern.deviations === undefined &&
         pattern.calculationInProgress === false &&
         !pattern.isTimeouted
       "

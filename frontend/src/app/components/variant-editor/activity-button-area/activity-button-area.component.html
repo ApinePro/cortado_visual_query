@@ -5,7 +5,7 @@
     <svg
       #ActivityButton
       appVariantDrawer
-      [variant]="activityDummyVariants.get(activity)"
+      [variant]="{ variant: activityDummyVariants.get(activity) }"
       [computeActivityColor]="computeActivityColor"
       [onMouseOverCbFc]="onMouseOverCbFc"
       [highlightOnMouseover]="true"

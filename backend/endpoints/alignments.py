@@ -47,5 +47,4 @@ def calculate_alignment(variant, pt, infix_type: InfixType):
     # remove non essential information
     res = {k: align[k] for k in ['alignment', 'cost', 'deviation']}
 
-    del res["alignment"]
     return res

@@ -33,6 +33,7 @@ import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-c
 
 import { ModelPerformanceComponent } from '../performance/performance.component';
 import { VariantPerformanceComponent } from '../variant-performance/variant-performance.component';
+import { VariantConformanceComponent } from '../variant-conformance/variant-conformance.component';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 @Component({
@@ -95,6 +96,11 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     this.goldenLayoutComponentService.registerComponentType(
       ModelPerformanceComponent.componentName,
       ModelPerformanceComponent
+    );
+
+    this.goldenLayoutComponentService.registerComponentType(
+      VariantConformanceComponent.componentName,
+      VariantConformanceComponent
     );
 
     this.goldenLayoutComponentService.registerComponentType(
@@ -372,6 +378,15 @@ export class GoldenLayoutHostComponent implements OnDestroy {
           stackItem.setActiveComponentItem(
             this.goldenLayout.findFirstComponentItemById(
               VariantPerformanceComponent.componentName
+            ),
+            true
+          );
+          break;
+
+        case ViewMode.CONFORMANCE:
+          stackItem.setActiveComponentItem(
+            this.goldenLayout.findFirstComponentItemById(
+              VariantConformanceComponent.componentName
             ),
             true
           );

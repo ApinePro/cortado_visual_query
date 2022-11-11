@@ -228,7 +228,7 @@ export class HeaderBarComponent {
         this.backendService.exportEventLogFromLog(
           variant
             .filter((v) => {
-              return !v.deviation;
+              return v.deviations == 0;
             })
             .map((v) => v.bid)
         );
@@ -238,7 +238,7 @@ export class HeaderBarComponent {
         this.backendService.exportEventLogFromLog(
           variant
             .filter((v) => {
-              return v.deviation;
+              return v.deviations > 0;
             })
             .map((v) => v.bid)
         );

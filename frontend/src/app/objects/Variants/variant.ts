@@ -1,3 +1,4 @@
+import { ProcessTree } from '../ProcessTree/ProcessTree';
 import { InfixType } from './infix_selection';
 import { VariantElement } from './variant_element';
 
@@ -15,11 +16,11 @@ export class Variant {
   percentage: number;
   calculationInProgress: boolean | undefined;
   userDefined: boolean;
-  // TODO alignment is unused it will not be returned by calculateAlignmentsCVariant backend endpoint
-  alignment: any | undefined;
-  deviation: any | undefined;
+  alignment: VariantElement | undefined;
+  deviations: number | undefined;
   isTimeouted: boolean;
   isConformanceOutdated: boolean;
+  usedTreeForConformanceChecking: ProcessTree;
   nSubVariants: number;
   infixType: InfixType;
   fragmentStatistics: any;

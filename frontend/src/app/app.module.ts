@@ -72,6 +72,7 @@ import { VariantDeleteButtonComponent } from './components/variant-explorer/vari
 import { ELECTRON_SERVICE } from './tokens';
 import { ElectronService } from './services/electronService/electron.service';
 import { UnavailableInfoComponent } from './components/unavailable-info/unavailable-info.component';
+import { VariantConformanceComponent } from './components/variant-conformance/variant-conformance.component';
 
 @NgModule({
   declarations: [
@@ -135,6 +136,7 @@ import { UnavailableInfoComponent } from './components/unavailable-info/unavaila
     ResizeColumnDirective,
     VariantDeleteButtonComponent,
     UnavailableInfoComponent,
+    VariantConformanceComponent,
   ],
   imports: [
     BrowserModule,

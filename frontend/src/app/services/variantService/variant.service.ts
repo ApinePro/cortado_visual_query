@@ -130,7 +130,7 @@ export class VariantService {
     let currentVariants = this.variants;
 
     newVariant.alignment = undefined;
-    newVariant.deviation = undefined;
+    newVariant.deviations = undefined;
     newVariant.id = objectHash(newVariant);
 
     const containsDuplicate =

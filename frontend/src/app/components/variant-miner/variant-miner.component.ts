@@ -270,13 +270,13 @@ export class VariantMinerComponent
 
   alignChecks: Choice[] = [
     new Choice('Fitting', (p: SubvariantPattern) => {
-      return p.deviation;
+      return p.deviations > 0;
     }),
     new Choice('Not Fitting', (p: SubvariantPattern) => {
-      return p.deviation;
+      return p.deviations > 0;
     }),
     new Choice('Unknown', (p: SubvariantPattern) => {
-      return p.deviation;
+      return p.deviations > 0;
     }),
   ];
 
@@ -879,14 +879,14 @@ export class VariantMinerComponent
         pattern.isConformanceOutdated = res.isTimeout;
 
         if (!res.isTimeout) {
-          pattern.deviation = res.deviation;
+          pattern.deviations = res.deviations;
         }
       },
       (_) => {
         this.variantPatterns.forEach((p) => {
           p.calculationInProgress = false;
           p.alignment = undefined;
-          p.deviation = undefined;
+          p.deviations = undefined;
         });
       }
     );

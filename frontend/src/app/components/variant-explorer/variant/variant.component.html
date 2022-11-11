@@ -1,55 +1,73 @@
 <td #row style="text-align: center">{{ index + 1 }}.</td>
 
-<ng-container
-  *ngIf="
-    isVisible &&
-    !(variant.userDefined && variantViewModeService.viewMode === VM.PERFORMANCE)
-  "
->
-  <td>
-    <div [ngTemplateOutlet]="variantInfo"></div>
+<ng-container *ngIf="isVisible; else loadingPlaceholder">
+  <ng-container
+    *ngIf="
+      !variant.userDefined || variantViewModeService.viewMode !== VM.PERFORMANCE
+    "
+  >
+    <td>
+      <div [ngTemplateOutlet]="variantInfo"></div>
+    </td>
+    <td>
+      <ng-container [ngTemplateOutlet]="subvariantButton"> </ng-container>
+    </td>
+    <td *ngIf="processTreeAvailable" style="text-align: center">
+      <div [ngTemplateOutlet]="performanceButton"></div>
+    </td>
+    <td class="variant-cell">
+      <ng-container [ngTemplateOutlet]="variantDrawer"> </ng-container>
+    </td>
+  </ng-container>
+
+  <ng-container
+    *ngIf="
+      variant.userDefined && variantViewModeService.viewMode === VM.PERFORMANCE
+    "
+  >
+    <td></td>
+
+    <td>
+      <ng-container [ngTemplateOutlet]="subvariantButton"> </ng-container>
+    </td>
+
+    <td *ngIf="processTreeAvailable"></td>
+
+    <td>
+      <tspan class="ms-2"> Performance not available </tspan>
+    </td>
+  </ng-container>
+
+  <td
+    *ngIf="
+      traceInfixSelectionMode && variantViewModeService.viewMode === VM.STANDARD
+    "
+    class="infix-selection-buttons-panel"
+  >
+    <ng-container [ngTemplateOutlet]="infixSelection"> </ng-container>
   </td>
-  <td>
-    <ng-container [ngTemplateOutlet]="subvariantButton"> </ng-container>
+
+  <td
+    *ngIf="
+      traceInfixSelectionMode &&
+      variantViewModeService.viewMode !== VM.PERFORMANCE
+    "
+    class="fixed-right"
+  >
+    <ng-container [ngTemplateOutlet]="infixSelection"> </ng-container>
   </td>
-  <td *ngIf="processTreeAvailable" style="text-align: center">
-    <div [ngTemplateOutlet]="performanceButton"></div>
-  </td>
-  <td class="variant-cell">
-    <ng-container [ngTemplateOutlet]="variantDrawer"> </ng-container>
+
+  <td
+    *ngIf="
+      !traceInfixSelectionMode &&
+      variantViewModeService.viewMode !== VM.PERFORMANCE
+    "
+    class="fixed-right"
+    style="padding-left: 0px"
+  >
+    <ng-container [ngTemplateOutlet]="removeVariantButton"></ng-container>
   </td>
 </ng-container>
-
-<ng-container
-  *ngIf="
-    isVisible &&
-    variant.userDefined &&
-    variantViewModeService.viewMode === VM.PERFORMANCE
-  "
->
-  <td></td>
-
-  <td>
-    <ng-container [ngTemplateOutlet]="subvariantButton"> </ng-container>
-  </td>
-
-  <td *ngIf="processTreeAvailable"></td>
-
-  <td>
-    <tspan class="ms-2"> Performance not available </tspan>
-  </td>
-</ng-container>
-
-<td
-  *ngIf="
-    isVisible &&
-    traceInfixSelectionMode &&
-    variantViewModeService.viewMode !== VM.PERFORMANCE
-  "
-  class="fixed-right"
->
-  <ng-container [ngTemplateOutlet]="infixSelection"> </ng-container>
-</td>
 
 <td
   *ngIf="
@@ -63,13 +81,13 @@
   <ng-container [ngTemplateOutlet]="removeVariantButton"></ng-container>
 </td>
 
-<td *ngIf="!isVisible">
-  <div
-    class="variant-spacer"
-    [ngStyle]="{
-      height: variant.variant.getHeight() + 'px'
-    }"
-  >
-    Loading...
-  </div>
-</td>
+<ng-template #loadingPlaceholder>
+  <td>
+    <div
+      class="variant-spacer"
+      [ngStyle]="{ height: variant.variant.getHeight() + 'px' }"
+    >
+      Loading...
+    </div>
+  </td>
+</ng-template>

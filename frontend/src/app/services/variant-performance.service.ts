@@ -18,47 +18,8 @@ import { BackendService } from './backendService/backend.service';
 import { setParent } from '../objects/Variants/infix_selection';
 import { ViewMode } from '../objects/ViewMode';
 import { VariantViewModeService } from './viewModeServices/variant-view-mode.service';
-import { PerformanceColorMap } from '../objects/Performance/PerformanceColorMap';
-
-// https://observablehq.com/@philippkoytek/celonis-data-visualization-colors
-export const COLORS_CYAN = [
-  '#3ad7f7',
-  '#15bfdf',
-  '#03a6c6',
-  '#028eac',
-  '#027694',
-  '#025f7c',
-  '#024965',
-  '#01344f',
-  '#012138',
-];
-// export const COLORS_CYAN = ["#3ad7f7", "#0ab0d0", "#0289a7", "#026481", "#02415c", "#012138"];
-
-export const COLORS_PINK = [
-  '#ffeaff',
-  '#ffcaf5',
-  '#ffabde',
-  '#fd8ac8',
-  '#fc63b0',
-  '#f4378f',
-  '#d62578',
-  '#b91260',
-  '#9b0048',
-];
-// export const COLORS_PINK = ["#ffeaff", "#ffb7e7", "#fd82c3", "#f64096", "#ca1d6e", "#9b0048"];
-
-// export const COLORS_TEAL = ["#00e8c0", "#05c3ab", "#06a093", "#067e79", "#035e5e", "#024042"];
-export const COLORS_TEAL = [
-  '#00e8c0',
-  '#04d1b3',
-  '#06baa5',
-  '#06a496',
-  '#068f87',
-  '#067a76',
-  '#046665',
-  '#025254',
-  '#024042',
-];
+import { ColorMap } from '../objects/ColorMap';
+import { COLORS_CYAN, COLORS_PINK } from '../objects/Colors';
 
 @Injectable({
   providedIn: 'root',
@@ -197,7 +158,7 @@ export class VariantPerformanceService {
     colors,
     performanceIndicator,
     value
-  ): PerformanceColorMap {
+  ): ColorMap {
     let values = this.getAllValues(performanceIndicator, value).filter(
       (v) => v !== undefined
     );
@@ -219,7 +180,7 @@ export class VariantPerformanceService {
       .domain(thresholds)
       .range(colors);
 
-    return new PerformanceColorMap(colorScale);
+    return new ColorMap(colorScale);
   }
 
   getAllValues(performanceIndicator, value): number[] {

@@ -20,6 +20,7 @@ import { LogService } from 'src/app/services/logService/log.service';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
 import {
+  deserialize,
   LeafNode,
   VariantElement,
 } from 'src/app/objects/Variants/variant_element';
@@ -32,6 +33,11 @@ import { ViewMode } from 'src/app/objects/ViewMode';
 import { activityColor } from '../functions/variant-drawer-callbacks';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import {
+  AlignmentType,
+  ConformanceCheckingService,
+} from 'src/app/services/conformanceChecking/conformance-checking.service';
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 
 @Component({
   selector: 'app-subvariant-explorer',
@@ -71,7 +77,9 @@ export class SubvariantExplorerComponent
     private polygonDrawingService: PolygonDrawingService,
     private backendService: BackendService,
     public variantPerformanceService: VariantPerformanceService,
-    public variantViewModeService: VariantViewModeService
+    public variantViewModeService: VariantViewModeService,
+    private conformanceCheckingService: ConformanceCheckingService,
+    private processTreeService: ProcessTreeService
   ) {
     super(elRef.nativeElement, renderer);
     let state = this.container.initialState;
@@ -126,6 +134,34 @@ export class SubvariantExplorerComponent
       .subscribe((viewMode: ViewMode) => {
         this.onViewModeChange(viewMode);
       });
+
+    this.conformanceCheckingService.varResults
+      .pipe(takeUntil(this._destroy$))
+      .subscribe(
+        (res) => {
+          if (this.mainVariant.id == res.id) {
+            this.mainVariant.calculationInProgress = false;
+            this.mainVariant.isTimeouted = res.isTimeout;
+            this.mainVariant.isConformanceOutdated = res.isTimeout;
+
+            if (!res.isTimeout) {
+              this.mainVariant.alignment = deserialize(res.alignment);
+              this.mainVariant.deviations = res.deviations;
+            }
+
+            if (this.variantViewModeService.viewMode === ViewMode.CONFORMANCE)
+              this.mainvariantDrawer.redraw();
+          }
+        },
+        (_) => {
+          this.mainVariant.calculationInProgress = false;
+          this.mainVariant.alignment = undefined;
+          this.mainVariant.deviations = undefined;
+
+          if (this.variantViewModeService.viewMode === ViewMode.CONFORMANCE)
+            this.mainvariantDrawer.redraw();
+        }
+      );
   }
 
   ngOnDestroy(): void {
@@ -385,6 +421,31 @@ export class SubvariantExplorerComponent
   }
 
   computeActivityColor = activityColor.bind(this);
+
+  updateConformanceForSingleVariantClicked(variant: Variant): void {
+    if (variant.isTimeouted) {
+      this.conformanceCheckingService.showConformanceTimeoutDialog(
+        variant,
+        this.updateConformanceForVariant.bind(this)
+      );
+    } else {
+      this.updateConformanceForVariant(variant, 0);
+    }
+  }
+
+  updateConformanceForVariant(variant: Variant, timeout: number): void {
+    variant.calculationInProgress = true;
+    variant.deviations = undefined;
+
+    this.conformanceCheckingService.calculateConformance(
+      variant.id,
+      variant.infixType,
+      this.processTreeService.currentDisplayedProcessTree,
+      variant.variant.serialize(),
+      timeout,
+      AlignmentType.VariantAlignment
+    );
+  }
 }
 
 export namespace SubvariantExplorerComponent {

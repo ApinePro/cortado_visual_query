@@ -1,21 +1,13 @@
-export class ConformanceCheckingResult {
-  id: string;
-  type: number;
-  isTimeout: boolean;
-  cost: number;
-  deviation: boolean;
+import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 
+export class ConformanceCheckingResult {
   constructor(
-    id: string,
-    type: number,
-    isTimeout: boolean,
-    cost: number,
-    deviation: boolean
-  ) {
-    this.id = id;
-    this.type = type;
-    this.isTimeout = isTimeout;
-    this.cost = cost;
-    this.deviation = deviation;
-  }
+    public id: string,
+    public type: number,
+    public isTimeout: boolean,
+    public cost: number,
+    public deviations: number,
+    public alignment: string,
+    public processTree: ProcessTree
+  ) {}
 }
