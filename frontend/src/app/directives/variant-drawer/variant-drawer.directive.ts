@@ -102,6 +102,9 @@ export class VariantDrawerDirective
     event: Event
   ) => void;
 
+  @Input()
+  keepStandardView: boolean = false;
+
   @Output()
   selection = new EventEmitter<Selection<any, any, any, any>>();
 
@@ -155,13 +158,16 @@ export class VariantDrawerDirective
 
     if (this.variant.variant) {
       const height = this.variant.variant.recalculateHeight(
-        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+        !this.keepStandardView &&
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
       );
       const width = this.variant.variant.recalculateWidth(
-        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+        !this.keepStandardView &&
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
       );
 
       if (
+        !this.keepStandardView &&
         this.variantViewModeService.viewMode === ViewMode.CONFORMANCE &&
         this.variant.alignment
       ) {
@@ -171,7 +177,8 @@ export class VariantDrawerDirective
 
       const svg_container = d3.select(this.svgHtmlElement.nativeElement);
       this.variant.variant.updateWidth(
-        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+        !this.keepStandardView &&
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
       );
 
       const [svg, width_offset] = this.handleInfix(
@@ -185,6 +192,7 @@ export class VariantDrawerDirective
         .attr('height', height + 2 * VARIANT_Constants.SELECTION_STROKE_WIDTH);
 
       if (
+        !this.keepStandardView &&
         this.variantViewModeService.viewMode === ViewMode.CONFORMANCE &&
         this.variant.alignment
       )
@@ -195,7 +203,8 @@ export class VariantDrawerDirective
 
       if (
         this.variant.variant instanceof SequenceGroup &&
-        this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE
+        (this.keepStandardView ||
+          this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE)
       ) {
         this.svgSelection.select('polygon').style('fill', 'transparent');
       }
@@ -352,7 +361,8 @@ export class VariantDrawerDirective
 
     let x =
       outerElement &&
-      this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE
+      (this.keepStandardView ||
+        this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE)
         ? 0
         : element.getHeadLength() +
           element.getMarginX() -
@@ -361,13 +371,15 @@ export class VariantDrawerDirective
     for (const child of element.elements) {
       if (
         child instanceof WaitingTimeNode &&
-        this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE
+        (this.keepStandardView ||
+          this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE)
       ) {
         continue;
       }
 
       const width = child.getWidth(
-        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+        !this.keepStandardView &&
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
       );
       const childHeight = child.getHeight();
       const y = height / 2 - childHeight / 2;
@@ -438,7 +450,8 @@ export class VariantDrawerDirective
     for (const child of element.elements) {
       if (
         child instanceof WaitingTimeNode &&
-        this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE
+        (this.keepStandardView ||
+          this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE)
       ) {
         continue;
       }
@@ -609,7 +622,11 @@ export class VariantDrawerDirective
     polygon: any,
     isLeafNode: boolean
   ) {
-    if (this.variantViewModeService.viewMode === ViewMode.PERFORMANCE) return;
+    if (
+      !this.keepStandardView &&
+      this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+    )
+      return;
 
     if (element.selected) {
       polygon.attr('stroke-opacity', '0.5');
@@ -722,11 +739,13 @@ export class VariantDrawerDirective
     d3.select('.selected-polygon').classed('selected-polygon', false);
     d3.selectAll('.variant-polygon').classed(
       'cursor-pointer',
-      this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+      !this.keepStandardView &&
+        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
     );
     d3.selectAll('.activity-text').classed(
       'cursor-pointer',
-      this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+      !this.keepStandardView &&
+        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
     );
   }
 
