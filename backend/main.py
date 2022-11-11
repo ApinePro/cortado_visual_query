@@ -65,9 +65,8 @@ def get_all_urls():
 if __name__ == "__main__":
     # print(DEFAULT_LP_SOLVER_VARIANT)
     freeze_support()
-    num_workers = max(1, cpu_count() - 2)
     uvicorn.run(
-        "main:app", host="0.0.0.0", port=41211, workers=num_workers, reload=True
+        "main:app", host="0.0.0.0", port=41211, workers=1, reload=True
     )
     # dev mode
     # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
