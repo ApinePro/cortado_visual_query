@@ -1,6 +1,9 @@
+import uuid
 from collections import Counter
 import pickle
-from typing import Mapping, Tuple
+from typing import Mapping, Tuple, List, Dict
+
+from cortado_core.utils.collapse_variants import collapse_variant
 
 import cache.cache as cache
 from cortado_core.utils.cvariants import get_concurrency_variants, get_detailed_variants
@@ -40,7 +43,7 @@ def calculate_event_log_properties(
     else:
         cache.parameters["lifecycle_available"] = True
 
-    res_variants, cache.variants, subvariants = get_c_variants(event_log, use_mp, time_granularity)
+    res_variants, cache.variants, subvariants, collapsed_variants = get_c_variants(event_log, use_mp, time_granularity)
 
     cache.variants = {
         bid: (variant, traces, subvars)
@@ -56,6 +59,7 @@ def calculate_event_log_properties(
         "endActivities": end_activities,
         "activities": nActivities,
         "variants": res_variants,
+        "collapsedVariants": collapsed_variants,
         "performanceInfoAvailable": cache.parameters["lifecycle_available"],
         "timeGranularity": time_granularity,
     }
@@ -89,24 +93,43 @@ def compute_log_stats(variants: Mapping[int, Tuple[Group, Trace]]):
 def get_c_variants(event_log: EventLog, use_mp: bool = False, time_granularity: TimeUnit = min(TimeUnit)):
     variants = get_concurrency_variants(event_log, use_mp, time_granularity, PoolFactory.instance().get_pool())
 
+    collapsed_variants, variant_to_collapsed_variant = create_collapsed_variants(variants)
+    collapsed_variants = serialize_collapsed_variants(collapsed_variants)
+
     total_traces = len(event_log)
     res_variants = []
 
     sub_variants = []
 
     for bid, (v, ts) in enumerate(sorted(list(variants.items()), key=lambda e: len(e[1]), reverse=True)):
-        variant, sub_vars = create_variant_object(time_granularity, total_traces, bid, v, ts)
+        variant, sub_vars = create_variant_object(time_granularity, total_traces, bid, v, ts,
+                                                  variant_to_collapsed_variant[v])
         sub_variants.append(sub_vars)
 
         res_variants.append(variant)
 
-    return (
-        sorted(res_variants, key=lambda variant: variant["count"], reverse=True),
-        variants, sub_variants
-    )
+    return sorted(res_variants, key=lambda variant: variant["count"],
+                  reverse=True), variants, sub_variants, collapsed_variants
 
 
-def create_variant_object(time_granularity, total_traces, bid, v, ts):
+def create_collapsed_variants(variants: Dict[Group, List[Trace]]):
+    collapsed_variants = dict()
+    variant_to_collapsed_variant = dict()
+    for variant, traces in variants.items():
+        collapsed_variant = collapse_variant(variant)
+        if collapsed_variant not in collapsed_variants:
+            collapsed_variants[collapsed_variant] = str(uuid.uuid4())
+        variant_to_collapsed_variant[variant] = collapsed_variants[collapsed_variant]
+
+    return {idx: collapsed_variant for collapsed_variant, idx in
+            collapsed_variants.items()}, variant_to_collapsed_variant
+
+
+def serialize_collapsed_variants(collapsed_variants: Dict[str, Group]):
+    return {idx: v.serialize() for idx, v in collapsed_variants.items()}
+
+
+def create_variant_object(time_granularity, total_traces, bid, v, ts, collapsed_variant_id):
     sub_variants = create_subvariants(ts, time_granularity)
 
     variant = {
@@ -117,6 +140,7 @@ def create_variant_object(time_granularity, total_traces, bid, v, ts):
         "number_of_activities": v.number_of_activities(),
         "percentage": round(len(ts) / total_traces * 100, 2),
         "nSubVariants": len(sub_variants.keys()),
+        "collapsedVariantId": collapsed_variant_id
     }
 
     # If the variant is only a single activity leaf, wrap it up as a sequence
