@@ -15,7 +15,7 @@ import { ColorMapService } from 'src/app/services/colorMapService/color-map.serv
 
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
 import { SubvariantVisualization } from 'src/app/objects/Variants/subvariant';
-import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
+import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -69,11 +69,18 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
     private tooltipService: ActivateTooltipsService,
     private variantPerformanceService: VariantPerformanceService,
     private variantViewModeService: VariantViewModeService
-  ) {}
+  ) {
+    this.serviceTimeColorMap =
+      variantPerformanceService.serviceTimeColorMap.getValue();
+    this.waitingTimeColorMap =
+      variantPerformanceService.waitingTimeColorMap.getValue();
+  }
 
   ngAfterViewInit(): void {
     this.svg = d3.select(this.svgElement.nativeElement);
     this.isLoaded = true;
+    this.expanded =
+      this.variantViewModeService.viewMode == ViewMode.PERFORMANCE;
 
     this.colorMapService.colorMap$
       .pipe(takeUntil(this._destroy$))
@@ -246,20 +253,24 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
   }
 
   private computeActivityColor(subvariantData: SubvariantVisualization) {
-    if (this.variantViewModeService.viewMode === ViewMode.STANDARD) {
-      return this.colorMap.get(subvariantData.activity);
-    }
-    if (!subvariantData.isWaitingTimeNode) {
-      let stat = this.variantPerformanceService.serviceTimeStatistic;
-      return this.serviceTimeColorMap.getColor(
-        subvariantData.performanceStats[stat]
-      );
-    }
+    switch (this.variantViewModeService.viewMode) {
+      case ViewMode.STANDARD:
+        return this.colorMap.get(subvariantData.activity);
+      case ViewMode.PERFORMANCE:
+        if (!subvariantData.isWaitingTimeNode) {
+          let stat = this.variantPerformanceService.serviceTimeStatistic;
+          return this.serviceTimeColorMap.getColor(
+            subvariantData.performanceStats[stat]
+          );
+        }
 
-    let stat = this.variantPerformanceService.waitingTimeStatistic;
-    return this.waitingTimeColorMap.getColor(
-      subvariantData.performanceStats[stat]
-    );
+        let stat = this.variantPerformanceService.waitingTimeStatistic;
+        return this.waitingTimeColorMap.getColor(
+          subvariantData.performanceStats[stat]
+        );
+      default:
+        return this.colorMap.get(subvariantData.activity);
+    }
   }
 
   private wrapInnerLabelText(

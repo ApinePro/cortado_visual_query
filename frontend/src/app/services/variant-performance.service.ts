@@ -4,7 +4,6 @@ import { map, finalize, concatMap, tap, catchError } from 'rxjs/operators';
 import * as d3 from 'd3';
 import { LogService } from './logService/log.service';
 import { VariantService } from './variantService/variant.service';
-import { injectWaitingTimeNodes } from 'src/app/objects/Variants/variant_element';
 
 import {
   VariantElement,
@@ -13,52 +12,14 @@ import {
   SequenceGroup,
   WaitingTimeNode,
   deserialize,
+  injectWaitingTimeNodes,
 } from '../objects/Variants/variant_element';
 import { BackendService } from './backendService/backend.service';
 import { setParent } from '../objects/Variants/infix_selection';
 import { ViewMode } from '../objects/ViewMode';
-import { VariantViewModeService } from './variantViewModeService/variant-view-mode.service';
-import { PerformanceColorMap } from '../objects/Performance/PerformanceColorMap';
-
-// https://observablehq.com/@philippkoytek/celonis-data-visualization-colors
-export const COLORS_CYAN = [
-  '#3ad7f7',
-  '#15bfdf',
-  '#03a6c6',
-  '#028eac',
-  '#027694',
-  '#025f7c',
-  '#024965',
-  '#01344f',
-  '#012138',
-];
-// export const COLORS_CYAN = ["#3ad7f7", "#0ab0d0", "#0289a7", "#026481", "#02415c", "#012138"];
-
-export const COLORS_PINK = [
-  '#ffeaff',
-  '#ffcaf5',
-  '#ffabde',
-  '#fd8ac8',
-  '#fc63b0',
-  '#f4378f',
-  '#d62578',
-  '#b91260',
-  '#9b0048',
-];
-// export const COLORS_PINK = ["#ffeaff", "#ffb7e7", "#fd82c3", "#f64096", "#ca1d6e", "#9b0048"];
-
-// export const COLORS_TEAL = ["#00e8c0", "#05c3ab", "#06a093", "#067e79", "#035e5e", "#024042"];
-export const COLORS_TEAL = [
-  '#00e8c0',
-  '#04d1b3',
-  '#06baa5',
-  '#06a496',
-  '#068f87',
-  '#067a76',
-  '#046665',
-  '#025254',
-  '#024042',
-];
+import { VariantViewModeService } from './viewModeServices/variant-view-mode.service';
+import { ColorMap } from '../objects/ColorMap';
+import { COLORS_CYAN, COLORS_PINK } from '../objects/Colors';
 
 @Injectable({
   providedIn: 'root',
@@ -124,9 +85,7 @@ export class VariantPerformanceService {
       if (log !== undefined) {
         this.updateServiceTimeColorMap();
         this.updateWaitingTimeColorMap();
-        this.performanceInformationLoaded = false;
-        this.performanceUpdateProgress = 0;
-        this.results = new Map<string, any>();
+        this.resetVariantPerformance();
       }
     });
 
@@ -199,13 +158,15 @@ export class VariantPerformanceService {
     colors,
     performanceIndicator,
     value
-  ): PerformanceColorMap {
+  ): ColorMap {
     let values = this.getAllValues(performanceIndicator, value).filter(
       (v) => v !== undefined
     );
 
     let min = Math.min(...values);
     let max = Math.max(...values);
+
+    if (min == max) colors = [colors[0]];
 
     this.minValues[performanceIndicator] = min;
     this.maxValues[performanceIndicator] = max;
@@ -219,7 +180,7 @@ export class VariantPerformanceService {
       .domain(thresholds)
       .range(colors);
 
-    return new PerformanceColorMap(colorScale);
+    return new ColorMap(colorScale);
   }
 
   getAllValues(performanceIndicator, value): number[] {
@@ -230,6 +191,12 @@ export class VariantPerformanceService {
       values.push(...vs);
     });
     return values;
+  }
+
+  resetVariantPerformance(): void {
+    this.performanceInformationLoaded = false;
+    this.performanceUpdateProgress = 0;
+    this.results = new Map<string, any>();
   }
 
   getAllValuesElement(
@@ -269,9 +236,12 @@ export class VariantPerformanceService {
   addPerformanceInformationToVariants(): Observable<any> {
     this.performanceUpdateIsInProgress = true;
     let chunks = [];
+    const maxVariantId = Math.max(
+      ...this.variantService.variants.map((v) => v.bid)
+    );
     const nVariants = this.variantService.variants.length;
     for (let i = 0; i < nVariants; i += 100) {
-      chunks.push([i, Math.min(i + 99, nVariants - 1)]);
+      chunks.push([i, Math.min(i + 99, maxVariantId)]);
     }
 
     return from(chunks).pipe(
@@ -284,14 +254,15 @@ export class VariantPerformanceService {
       }),
       catchError((_) => {
         this.performanceUpdateIsInProgress = false;
-        this.performanceInformationLoaded = false;
-        this.performanceUpdateProgress = 0;
+        this.resetVariantPerformance();
         return of('error when loading performance data');
       }),
       finalize(() => {
         this.variantService.variants.forEach((v) => {
           if (!v.userDefined) {
-            v.variant = deserialize(this.results.get(v.bid.toString()));
+            let newVariant = deserialize(this.results.get(v.bid.toString()));
+            newVariant.setExpanded(v.variant.getExpanded());
+            v.variant = newVariant;
             setParent(v.variant);
           }
         });

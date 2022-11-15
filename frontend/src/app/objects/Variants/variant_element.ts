@@ -1,4 +1,3 @@
-import { ChildrenOutletContexts } from '@angular/router';
 import { VARIANT_Constants } from 'src/app/constants/variant_element_drawer_constants';
 import {
   setParent,
@@ -67,11 +66,6 @@ export abstract class VariantElement {
     return <LeafNode>self;
   }
 
-  public asLoopGroup(): LoopGroup {
-    let self: unknown = this;
-    return <LoopGroup>self;
-  }
-
   public setExpanded(expanded: boolean) {
     this.expanded = expanded;
   }
@@ -134,10 +128,14 @@ export abstract class VariantElement {
 
   public abstract updateWidth(includeWaiting);
 
-  public abstract serialize(): Object;
+  public abstract serialize(l?): Object;
 
   public abstract updateSelectionAttributes(): void;
   public abstract getActivities(): Set<string>;
+
+  public updateConformance(confValue: number): void {
+    //pass
+  }
 
   public setInfixSelectableState(
     state: SelectableState,
@@ -354,10 +352,10 @@ export class SequenceGroup extends VariantElement {
     return this.width;
   }
 
-  public serialize(): any {
+  public serialize(l = 1): any {
     return {
       follows: this.elements
-        .map((e) => e.serialize())
+        .map((e) => e.serialize(l))
         .flat()
         .filter((e) => e !== null),
     };
@@ -404,6 +402,10 @@ export class SequenceGroup extends VariantElement {
         false
       );
     }
+  }
+
+  public updateConformance(confValue: number): void {
+    this.elements.forEach((el) => el.updateConformance(confValue));
   }
 }
 
@@ -546,10 +548,10 @@ export class ParallelGroup extends VariantElement {
     return this.width;
   }
 
-  public serialize() {
+  public serialize(l = 1) {
     return {
       parallel: this.elements
-        .map((e) => e.serialize())
+        .map((e) => e.serialize(l))
         .flat()
         .filter((e) => e !== null),
     };
@@ -569,106 +571,9 @@ export class ParallelGroup extends VariantElement {
       }
     });
   }
-}
 
-export class LoopGroup extends VariantElement {
-  public getActivities(): Set<string> {
-    return this.elements[0].getActivities();
-  }
-
-  public renameActivity(activityName: string, newActivityName: string) {
-    this.elements[0].renameActivity(activityName, newActivityName);
-  }
-
-  // TODO niklas: check if correct
-  public deleteActivity(activityName: string): [VariantElement[], boolean] {
-    let res = this.elements[0].deleteActivity(activityName);
-    if (res[0].length == 0) {
-      return [null, res[1]];
-    }
-
-    return [[new LoopGroup(res[0])], res[1]];
-  }
-
-  constructor(public elements: VariantElement[], performance: any = undefined) {
-    super(performance);
-  }
-
-  public asString(): string {
-    return 'L(' + this.elements[0].asString() + ')';
-  }
-
-  public setExpanded(expanded: boolean) {
-    super.setExpanded(expanded);
-
-    for (let el of this.elements) {
-      el.setExpanded(expanded);
-    }
-  }
-
-  public setElements(elements: VariantElement[]) {
-    this.elements = elements;
-  }
-
-  public getElements() {
-    return this.elements;
-  }
-
-  public getHeight(): number {
-    return this.elements[0].getHeight() * 2;
-  }
-
-  public getWidth(includeWaiting = false): number {
-    return this.elements[0].getWidth(includeWaiting);
-  }
-
-  public copy(): LoopGroup {
-    const res = new LoopGroup(this.elements.map((e) => e.copy()));
-    res.expanded = this.expanded;
-    return res;
-  }
-
-  public updateWidth(includeWaiting) {
-    let headLength = this.getHeadLength();
-    for (let el of this.elements) {
-      el.width = this.width - VARIANT_Constants.MARGIN_X - 2 * headLength;
-    }
-
-    for (let el of this.elements) {
-      el.updateWidth(includeWaiting);
-    }
-  }
-
-  public recalculateHeight(includeWating = false): number {
-    return this.elements[0].recalculateHeight(includeWating) * 2;
-  }
-
-  public recalculateWidth(includeWaiting = false): number {
-    return this.elements[0].recalculateWidth(includeWaiting);
-  }
-
-  public serialize() {
-    return {
-      loop: this.elements
-        .map((e) => e.serialize())
-        .flat()
-        .filter((e) => e !== null),
-    };
-  }
-
-  public updateSelectionAttributes(): void {
-    updateSelectionAttributesForGroup(this);
-  }
-
-  public updateSurroundingSelectableElements(): void {
-    let children = this.elements.filter((c) => isElementWithActivity(c));
-    children.forEach((c) => {
-      if (!c.selected) {
-        c.setInfixSelectableState(SelectableState.Selectable, false);
-      } else {
-        c.setInfixSelectableState(SelectableState.Unselectable, false);
-      }
-    });
+  public updateConformance(confValue: number): void {
+    this.elements.forEach((el) => el.updateConformance(confValue));
   }
 }
 
@@ -701,7 +606,11 @@ export class LeafNode extends VariantElement {
     return this.activity.join(';');
   }
 
-  constructor(public activity: string[], performance: any = undefined) {
+  constructor(
+    public activity: string[],
+    performance: any = undefined,
+    public conformance: number[] = undefined
+  ) {
     super(performance);
   }
 
@@ -759,33 +668,77 @@ export class LeafNode extends VariantElement {
     return this.width;
   }
 
-  public serialize() {
+  public serialize(l = 1) {
     return { leaf: this.activity };
   }
 
   public updateSelectionAttributes(): void {
     // pass
   }
+
+  public updateConformance(confValue: number): void {
+    this.conformance = new Array(this.activity.length).fill(confValue);
+  }
 }
 
-export function deserialize(obj: any): VariantElement {
-  if ('follows' in obj) {
-    return new SequenceGroup(
-      obj['follows'].map((e: any) => deserialize(e)),
-      obj['performance']
-    );
-  } else if ('parallel' in obj) {
-    return new ParallelGroup(
-      obj['parallel'].map((e: any) => deserialize(e)),
-      obj['performance']
-    );
-  } else if ('loop' in obj) {
-    return new LoopGroup(
-      obj['loop'].map((e: any) => deserialize(e)),
-      obj['performance']
-    );
-  } else {
-    return new LeafNode(obj['leaf'], obj['performance']);
+export class LeafLoopNode extends VariantElement {
+  public updateSelectionAttributes(): void {}
+
+  public getActivities(): Set<string> {
+    return this.leafNode.getActivities();
+  }
+  public asString(): string {
+    return 'LOOP' + this.leafNode.asString();
+  }
+
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    return this.leafNode.deleteActivity(activityName); // TODO IMPLEMENT THIS CORRECTLY
+  }
+
+  public renameActivity(activityName: string, newActivityName: string): void {
+    return this.leafNode.renameActivity(activityName, newActivityName); // TODO IMPLEMENT THIS CORRECTLY
+  }
+
+  public setExpanded(expanded: boolean) {
+    super.setExpanded(expanded);
+    this.leafNode.setExpanded(expanded);
+  }
+
+  public getWidth(includeWaiting: any): number {
+    return this.leafNode.getWidth();
+  }
+  public recalculateWidth(includeWaiting: any): number {
+    return this.leafNode.recalculateWidth();
+  }
+  public updateWidth(includeWaiting: any) {}
+
+  public serialize(l = 1): Object {
+    const leaf = this.leafNode.serialize(l);
+    const res = [];
+
+    // Serialize it as l+1 many activites of the folded loop,
+    for (let k; k < l + 1; k++) {
+      res.push(leaf);
+    }
+
+    return res;
+  }
+
+  public calculateSelectableElements(): void {}
+
+  leafNode: LeafNode;
+
+  constructor(activity: string) {
+    super();
+    this.leafNode = new LeafNode([activity], null);
+  }
+
+  public getHeight(): number {
+    return this.leafNode.getHeight() + 30;
+  }
+
+  public recalculateHeight(): number {
+    return VARIANT_Constants.LEAF_HEIGHT + 30;
   }
 }
 
@@ -838,7 +791,7 @@ export class WaitingTimeNode extends VariantElement {
     return this.width;
   }
 
-  public serialize() {
+  public serialize(l = 1) {
     return null;
   }
 
@@ -897,8 +850,112 @@ export class InvisibleSequenceGroup extends SequenceGroup {
     return this.width;
   }
 
-  public serialize() {
-    return this.elements.map((e) => e.serialize()).filter((e) => e !== null);
+  public serialize(l = 1) {
+    return this.elements.map((e) => e.serialize(l)).filter((e) => e !== null);
+  }
+}
+
+export class StartGroup extends VariantElement {
+  public updateSelectionAttributes(): void {}
+
+  public getActivities(): Set<string> {
+    return new Set<string>();
+  }
+  public asString(): string {
+    return 'END';
+  }
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    return [[this], false];
+  }
+  public renameActivity(activityName: string, newActivityName: string): void {}
+  public calculateSelectableElements(): void {}
+
+  public getHeight(): number {
+    return VARIANT_Constants.LEAF_HEIGHT;
+  }
+
+  public getWidth(includeWaiting: any): number {
+    return 25;
+  }
+
+  public recalculateWidth(includeWaiting: any): number {
+    return 25;
+  }
+
+  public recalculateHeight(includeWaiting: any): number {
+    return VARIANT_Constants.LEAF_HEIGHT;
+  }
+
+  public updateWidth(includeWaiting: any) {}
+
+  public serialize(l = 1): Object {
+    return { start: true };
+  }
+}
+
+export class EndGroup extends VariantElement {
+  public updateSelectionAttributes(): void {}
+
+  public getActivities(): Set<string> {
+    return new Set<string>();
+  }
+  public asString(): string {
+    return 'START';
+  }
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    return [[this], false];
+  }
+  public renameActivity(activityName: string, newActivityName: string): void {}
+
+  public calculateSelectableElements(): void {}
+
+  public getHeight(): number {
+    return VARIANT_Constants.LEAF_HEIGHT;
+  }
+
+  public getWidth(includeWaiting: any): number {
+    return 25;
+  }
+
+  public recalculateWidth(includeWaiting: any): number {
+    return 25;
+  }
+
+  public recalculateHeight(includeWaiting: any): number {
+    return VARIANT_Constants.LEAF_HEIGHT;
+  }
+  public updateWidth(includeWaiting: any) {}
+
+  public serialize(l = 1): Object {
+    return { end: true };
+  }
+}
+
+export function deserialize(obj: any): VariantElement {
+  if ('follows' in obj) {
+    return new SequenceGroup(
+      obj['follows'].map((e: any) => deserialize(e)).filter((e) => e),
+      obj['performance']
+    );
+  } else if ('parallel' in obj) {
+    return new ParallelGroup(
+      obj['parallel'].map((e: any) => deserialize(e)).filter((e) => e),
+      obj['performance']
+    );
+  } else if ('leaf' in obj) {
+    if (obj['leaf'][0].includes('_LOOP')) {
+      return new LeafLoopNode(obj['leaf'][0].replace('_LOOP', ''));
+    } else {
+      return new LeafNode(
+        obj['leaf'].map((el) => {
+          return typeof el === 'string' ? el : el[0];
+        }),
+        obj['performance'],
+        obj['leaf'].map((el) => {
+          return typeof el === 'string' ? undefined : el[1];
+        })
+      );
+    }
   }
 }
 

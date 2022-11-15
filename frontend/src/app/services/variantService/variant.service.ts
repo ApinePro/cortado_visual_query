@@ -35,6 +35,7 @@ import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
 })
 export class VariantService {
   variantService: any;
+  nameChanges: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   constructor(
     private logService: LogService,
     private httpClient: HttpClient,
@@ -51,7 +52,7 @@ export class VariantService {
   private _variants = new BehaviorSubject<Variant[]>([]);
 
   get variants$(): Observable<Variant[]> {
-    return this._variants.asObservable().pipe(skip(1));
+    return this._variants.asObservable();
   }
 
   set variants(activities: Variant[]) {
@@ -62,6 +63,7 @@ export class VariantService {
     return this._variants.getValue();
   }
 
+  public lastChangeRenaming = null;
   private _cachedChange = new BehaviorSubject<boolean>(false);
 
   get cachedChange$(): Observable<boolean> {
@@ -69,6 +71,7 @@ export class VariantService {
   }
 
   set cachedChange(change: boolean) {
+    this.lastChangeRenaming = null;
     this._cachedChange.next(change);
   }
 
@@ -127,7 +130,7 @@ export class VariantService {
     let currentVariants = this.variants;
 
     newVariant.alignment = undefined;
-    newVariant.deviation = undefined;
+    newVariant.deviations = undefined;
     newVariant.id = objectHash(newVariant);
 
     const containsDuplicate =
@@ -157,7 +160,7 @@ export class VariantService {
             this.variants,
             sortingFeature,
             isAscending
-          );
+          ) as Variant[];
 
           this.toastService.showSuccessToast(
             'Variant Explorer',
@@ -172,27 +175,38 @@ export class VariantService {
       .subscribe();
   }
 
-  public deleteVariants(bids: number[]): void {
-    const delVariants = this.variants.filter((v) => bids.includes(v.bid));
+  public deleteVariant(variant: VariantElement): void {
+    const matchingVariant = this.variants.filter(
+      (v) => v.variant === variant
+    )[0];
 
-    if (delVariants.every((v) => v.userDefined)) {
-      this.variants = this.variants.filter((v) => !bids.includes(v.bid));
+    if (matchingVariant.userDefined) {
+      this.variants = this.variants.filter((v) => v !== matchingVariant);
     } else {
-      this.propagateVariantDeletions(bids).subscribe((res) => {
-        this.logService.activitiesInEventLog = res['activities'];
-        this.logService.startActivitiesInEventLog = new Set(
-          res['startActivities']
-        );
-        this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
-        this.logService.computeLogStats(this.variants);
-        this.variants = this.variants.filter((v) => !bids.includes(v.bid));
-        this.cachedChange = true;
-      });
+      this.deleteVariants([matchingVariant.bid]);
     }
+  }
+
+  public deleteVariants(bids: number[]): void {
+    this.propagateVariantDeletions(bids).subscribe((res) => {
+      this.logService.activitiesInEventLog = res['activities'];
+      this.logService.startActivitiesInEventLog = new Set(
+        res['startActivities']
+      );
+      this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
+
+      let filtered_variants = this.variants.filter(
+        (v) => !bids.includes(v.bid)
+      );
+
+      this.logService.computeLogStats(filtered_variants);
+      this.variants = filtered_variants;
+      this.cachedChange = true;
+    });
     // Count deleted Activites, Recompute if an Activity is a Start or End Activity.
   }
 
-  countFragmentOccurrences(variant: Variant): Observable<number> {
+  countFragmentOccurrences(variant: Variant): Observable<any> {
     let variantElement: VariantElement = variant.variant;
 
     const payload = {
@@ -200,7 +214,7 @@ export class VariantService {
       fragment: variantElement.serialize(),
     };
 
-    return this.httpClient.post<number>(
+    return this.httpClient.post<any>(
       ROUTES.BASE_URL + ROUTES.VARIANT + 'countFragmentOccurrences',
       payload
     );
@@ -272,6 +286,7 @@ export class VariantService {
       activityName,
       newActivityName
     );
+
     this.colorMapService.renameColorInActivityColorMap(
       activityName,
       newActivityName
@@ -297,6 +312,8 @@ export class VariantService {
 
     this.logService.update_log_stats(null, null, null, updateMap.size);
     this.cachedChange = true;
+    this.lastChangeRenaming = [activityName, newActivityName];
+    this.nameChanges.next([activityName, newActivityName]);
   }
 
   private propagateActivityNameChange(
@@ -359,6 +376,7 @@ export class VariantService {
         this.logService.timeGranularity = res['timeGranularity'];
         this.logService.logGranularity = res['timeGranularity'];
 
+        const lastNameChange = this.lastChangeRenaming;
         this.cachedChange = false;
 
         const variants = addVariantInformation(res['variants']);
@@ -366,6 +384,9 @@ export class VariantService {
 
         this.variants = variants;
         this.logService.computeLogStats(variants);
+        if (lastNameChange !== null) {
+          this.nameChanges.next([lastNameChange[1], lastNameChange[0]]);
+        }
       });
   }
 }

@@ -467,6 +467,14 @@ th {
   background-color: var(--box-background-color);
 }
 
+.activity-button-out{
+  filter : opacity(0.35);
+}
+
+.activity-button-in{
+  filter: brightness(1.4) drop-shadow(2px 4px 6px black);
+}
+
 .collapsed-golden-layout-container{
   background-color: var(--box-background-color);
 }
@@ -500,6 +508,7 @@ th {
 
 tr:hover > td .remove-variant-button {
   display: inline !important;
+  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
 }
 
 tr:hover > .fixed-right {
@@ -509,4 +518,13 @@ tr:hover > .fixed-right {
 .remove-variant-button {
   display: none;
   background-color: var(--box-background-color);
+}
+
+.custom-dropdown {
+  font-size: small;
+  max-height: 90vh;
+  user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
 }

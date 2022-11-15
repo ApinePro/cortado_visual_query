@@ -74,7 +74,7 @@ ipcMain.on('license-dialog', (event, arg) => {
 })
 
 ipcMain.on('showSaveDialog', ((_, fileName, fileExtension, base64File, buttonLabel, title) => {
-  showSaveDialog(downloadFolder, dialog, fs, win, fileName, fileExtension, base64File, buttonLabel, title)
+  showSaveDialog(downloadFolder, dialog, fs, mainCortadoWin, fileName, fileExtension, base64File, buttonLabel, title)
 }));
 
 function createMainApplicationWindow() {

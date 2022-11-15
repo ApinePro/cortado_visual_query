@@ -35,6 +35,7 @@ import {
   take,
   tap,
   takeUntil,
+  filter,
 } from 'rxjs/operators';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
@@ -42,7 +43,10 @@ import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/varian
 
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { HumanizeDurationPipe } from 'src/app/pipes/humanize-duration.pipe';
-import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
+import {
+  AlignmentType,
+  ConformanceCheckingService,
+} from 'src/app/services/conformanceChecking/conformance-checking.service';
 import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
 import { LogService, LogStats } from 'src/app/services/logService/log.service';
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
@@ -64,6 +68,7 @@ import {
   VariantElement,
   SequenceGroup,
   ParallelGroup,
+  deserialize,
 } from 'src/app/objects/Variants/variant_element';
 import {
   activityColor,
@@ -79,10 +84,12 @@ import { collapsingText } from 'src/app/animations/text-animations';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
 import { ViewMode } from 'src/app/objects/ViewMode';
-import { VariantViewModeService } from 'src/app/services/variantViewModeService/variant-view-mode.service';
+import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 import { EditorOptions } from './variant-query/variant-query.component';
 import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
+import { ContextMenuItem } from './variant-explorer-context-menu/variant-explorer-context-menu.component';
 import { ToastService } from 'src/app/services/toast/toast.service';
+import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -131,7 +138,6 @@ export class VariantExplorerComponent
   public logStats: LogStats = null;
 
   public currentlyDisplayedProcessTree;
-  public usedTreeForConformanceChecking;
   protected unsubscribe: Subject<void> = new Subject<void>();
 
   public correctTreeSyntax = false;
@@ -199,6 +205,18 @@ export class VariantExplorerComponent
 
   originalOrder = originalOrder;
 
+  deleteVariant = function () {
+    const bids = this.variantService.variants
+      .filter((v) => v.variant === this.contextMenu_variant)
+      .map((v) => v.bid);
+
+    this.variantService.deleteVariants(bids);
+  }.bind(this);
+
+  contextMenuOptions: Array<ContextMenuItem> = [
+    new ContextMenuItem('Delete Variant', 'bi-trash', this.deleteVariant),
+  ];
+
   private _destroy$ = new Subject();
 
   ngOnInit(): void {
@@ -222,6 +240,7 @@ export class VariantExplorerComponent
     this.subscribeForConformanceCheckingResults();
     this.listenForLogGranularityChange();
     this.listenForLogStatChange();
+    this.listenForViewModeChange();
   }
 
   ngOnDestroy(): void {
@@ -330,20 +349,23 @@ export class VariantExplorerComponent
 
   private listenForProcessTreeChange() {
     this.processTreeService.currentDisplayedProcessTree$
-      .pipe(takeUntil(this._destroy$))
+      .pipe(
+        takeUntil(this._destroy$),
+        filter(
+          (tree) => !processTreesEqual(tree, this.currentlyDisplayedProcessTree)
+        )
+      )
       .subscribe((tree) => {
         this.currentlyDisplayedProcessTree = tree;
-        const treeHasChanged = processTreesEqual(
-          this.usedTreeForConformanceChecking,
-          this.currentlyDisplayedProcessTree
-        );
 
-        if (treeHasChanged) {
-          this.variants.forEach((v) => {
-            v.isAddedFittingVariant = false;
-            v.isConformanceOutdated = true;
-          });
-        }
+        this.variants.forEach((variant) => {
+          if (variant.usedTreeForConformanceChecking)
+            variant.isConformanceOutdated = !processTreesEqual(
+              tree,
+              variant.usedTreeForConformanceChecking
+            );
+        });
+        this.redraw_components();
       });
   }
 
@@ -393,7 +415,7 @@ export class VariantExplorerComponent
   }
 
   subscribeForConformanceCheckingResults(): void {
-    this.conformanceCheckingService.results
+    this.conformanceCheckingService.varResults
       .pipe(takeUntil(this._destroy$))
       .subscribe(
         (res) => {
@@ -403,26 +425,32 @@ export class VariantExplorerComponent
           variant.isConformanceOutdated = res.isTimeout;
 
           if (!res.isTimeout) {
-            variant.deviation = res.deviation;
+            variant.alignment = deserialize(res.alignment);
+            variant.alignment.setExpanded(variant.variant.getExpanded());
+            variant.deviations = res.deviations;
+            variant.usedTreeForConformanceChecking = res.processTree;
           }
 
           this.updateAlignmentStatistics();
+          this.variantDrawers
+            .find((drawer) => drawer.variant.id == res.id)
+            ?.redraw();
         },
         (_) => {
           this.variants.forEach((v) => {
             v.calculationInProgress = false;
             v.alignment = undefined;
-            v.deviation = undefined;
+            v.deviations = undefined;
+            v.usedTreeForConformanceChecking = undefined;
           });
 
           this.updateAlignmentStatistics();
+          this.redraw_components();
         }
       );
   }
 
   updateAlignments(): void {
-    this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
-
     this.variants.forEach((v) => {
       this.updateConformanceForVariant(v, 0);
     });
@@ -434,7 +462,7 @@ export class VariantExplorerComponent
     let numberFittingTraces = 0;
 
     this.variants.forEach((v) => {
-      if (v.deviation !== undefined && !v.deviation) {
+      if (v.deviations == 0) {
         numberFittingVariants++;
         numberFittingTraces += v.count;
       }
@@ -449,14 +477,15 @@ export class VariantExplorerComponent
   updateConformanceForVariant(variant: Variant, timeout: number): void {
     console.log(variant, timeout);
     variant.calculationInProgress = true;
-    variant.deviation = undefined;
+    variant.deviations = undefined;
 
     const resubscribe = this.conformanceCheckingService.calculateConformance(
       variant.id,
       variant.infixType,
       this.processTreeService.currentDisplayedProcessTree,
-      variant.variant.serialize(),
-      timeout
+      variant.variant.serialize(1),
+      timeout,
+      AlignmentType.VariantAlignment
     );
 
     if (resubscribe) {
@@ -520,7 +549,9 @@ export class VariantExplorerComponent
     this.backendService
       .discoverProcessModelFromConcurrencyVariants(variants)
       .pipe(takeUntil(this._destroy$))
-      .subscribe((_) => this.refreshConformanceIconsAfterModelChange(true));
+      .subscribe((tree) =>
+        this.refreshConformanceIconsAfterModelChange(true, tree)
+      );
   }
 
   changeQueryOption(event, option) {
@@ -742,8 +773,8 @@ export class VariantExplorerComponent
         selectedVariantElements
       )
       .pipe(takeUntil(this._destroy$))
-      .subscribe((_) => {
-        this.refreshConformanceIconsAfterModelChange(false);
+      .subscribe((tree) => {
+        this.refreshConformanceIconsAfterModelChange(false, tree);
       });
   }
 
@@ -751,36 +782,51 @@ export class VariantExplorerComponent
     selectedVariants: Variant[]
   ): void {
     const fittingVariants = selectedVariants
-      .filter((v) => !v.deviation)
+      .filter((v) => v.deviations == 0)
       .map((v) => v.variant);
     const variantsToAdd = selectedVariants
-      .filter((v) => v.deviation)
+      .filter((v) => v.deviations > 0)
       .map((v) => v.variant);
 
     this.backendService
       .addConcurrencyVariantsToProcessModel(variantsToAdd, fittingVariants)
       .pipe(takeUntil(this._destroy$))
-      .subscribe((_) => {
-        this.refreshConformanceIconsAfterModelChange(false);
+      .subscribe((tree) => {
+        this.refreshConformanceIconsAfterModelChange(false, tree);
       });
   }
 
-  refreshConformanceIconsAfterModelChange(wasInitialDiscovery: boolean): void {
+  refreshConformanceIconsAfterModelChange(
+    wasInitialDiscovery: boolean,
+    pt: ProcessTree
+  ): void {
     if (wasInitialDiscovery) {
       this.variants.forEach((v) => {
-        v.deviation = undefined;
+        v.deviations = undefined;
         v.calculationInProgress = false;
+        v.usedTreeForConformanceChecking = undefined;
       });
     }
 
     this.getSelectedVariants().forEach((v) => {
       v.isAddedFittingVariant = true;
-      v.deviation = false;
+      v.deviations = 0;
+      // Make variant as fitting alignment
+      v.alignment = v.variant;
+      v.alignment.updateConformance(1);
+      v.usedTreeForConformanceChecking = pt;
+
       v.calculationInProgress = false;
       v.isConformanceOutdated = false;
     });
 
-    this.usedTreeForConformanceChecking = this.currentlyDisplayedProcessTree;
+    // redraw if in conformance view
+    if (this.variantViewModeService.viewMode === ViewMode.CONFORMANCE)
+      this.getSelectedVariants().forEach((v) => {
+        this.variantDrawers
+          .find((drawer) => drawer.variant.id == v.id)
+          .redraw();
+      });
   }
 
   isAnyVariantSelected(): boolean {
@@ -819,12 +865,16 @@ export class VariantExplorerComponent
     this.variantDrawers.forEach((c) => {
       if (
         this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE &&
-        shouldExpand != c.variant.expanded
+        shouldExpand != c.variant.variant.expanded
       ) {
         c.setExpanded(shouldExpand);
         c.redraw();
       }
     });
+
+    // Necessary, because there are only variant drawers for children that are rendered.
+    // This is often only a subset of variants because of lazy loading.
+    this.variants.forEach((v) => v.variant.setExpanded(shouldExpand));
   }
 
   handleResponsiveChange(
@@ -913,7 +963,7 @@ export class VariantExplorerComponent
       this.displayed_variants,
       this.sortingFeature,
       this.isAscendingOrder
-    );
+    ) as Variant[];
     this.variantExplorerDiv.nativeElement.scroll(0, 0);
     this.updateAllSubvariantWindows();
   }
@@ -975,6 +1025,15 @@ export class VariantExplorerComponent
       infoText,
       'bi-trash'
     );
+  }
+
+  private listenForViewModeChange() {
+    this.variantViewModeService.viewMode$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((viewMode) => {
+        if (viewMode !== ViewMode.STANDARD && this.traceInfixSelectionMode)
+          this.toggleTraceInfixSelectionMode();
+      });
   }
 }
 

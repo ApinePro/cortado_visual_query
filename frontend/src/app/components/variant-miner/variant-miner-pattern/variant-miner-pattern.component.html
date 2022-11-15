@@ -1,0 +1,104 @@
+<!-- <td class="text-center" #row>
+  {{ id }}
+</td> -->
+<td #row>
+  <div class="text-center">
+    {{ pattern.size }}
+  </div>
+</td>
+
+<td class="border-start border-lightgrey">
+  <div class="text-center">
+    <!-- check-square icon-->
+    <i
+      class="bi bi-check-square font-large text-success"
+      *ngIf="
+        pattern.deviations === 0 &&
+        pattern.calculationInProgress === false &&
+        !pattern.isConformanceOutdated
+      "
+    ></i>
+
+    <!-- x-square icon-->
+    <i
+      class="bi bi-x-square font-large text-danger"
+      *ngIf="
+        pattern.deviations > 0 &&
+        pattern.calculationInProgress === false &&
+        !pattern.isConformanceOutdated
+      "
+    >
+    </i>
+    <i
+      class="bi bi-x-square font-large text-warning"
+      *ngIf="
+        pattern.deviations > 0 &&
+        pattern.calculationInProgress === false &&
+        pattern.isConformanceOutdated
+      "
+    >
+    </i>
+
+    <!-- question mark icon-->
+    <i
+      class="bi bi-question-square text-secondary align-middle font-large"
+      *ngIf="
+        pattern.deviations === undefined &&
+        pattern.calculationInProgress === false &&
+        !pattern.isTimeouted
+      "
+    >
+    </i>
+  </div>
+</td>
+
+<td class="border-start border-lightgrey">
+  <div class="text-center">
+    {{ pattern.support }}
+  </div>
+</td>
+<!--
+<td class="center-element">
+  <div class="text-center">
+
+  </div>
+</td>
+<td>
+  <div class="text-center">
+
+  </div>
+</td>
+-->
+<td class="border-start border-lightgrey">
+  <div class="text-center">
+    <i class="bi bi-check2" *ngIf="pattern.closed"></i>
+  </div>
+</td>
+<td class="border-start border-lightgrey">
+  <div class="text-center">
+    <i class="bi bi-check2" *ngIf="pattern.maximal"></i>
+  </div>
+</td>
+
+<td class="border-start border-lightgrey ps-2 d-flex" *ngIf="isVisible">
+  <div
+    style="width: 35px"
+    *ngIf="
+      pattern.infixType === infixtype.PREFIX ||
+      pattern.infixType === infixtype.NOT_AN_INFIX
+    "
+  ></div>
+  <ng-content></ng-content>
+</td>
+
+<td *ngIf="!isVisible" class="border-start border-lightgrey ps-2">
+  <div
+    class="variant-spacer"
+    [ngStyle]="{
+      height: pattern.variant.getHeight() + 'px',
+      width: pattern.variant.getWidth() + 'px'
+    }"
+  >
+    Loading...
+  </div>
+</td>

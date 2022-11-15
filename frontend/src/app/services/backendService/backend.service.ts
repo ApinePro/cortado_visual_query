@@ -1,3 +1,4 @@
+import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import * as FileSaver from 'file-saver';
@@ -13,6 +14,7 @@ import { ProcessTreeService } from './../processTreeService/process-tree.service
 import { VariantElement } from 'src/app/objects/Variants/variant_element';
 import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { addVariantInformation } from '../variantService/variant-transformation';
+import { MiningConfig } from 'src/app/objects/Variants/variant-miner-types';
 import { ElectronServiceInterface } from '../electronService/electron.service';
 import { ELECTRON_SERVICE } from 'src/app/tokens';
 
@@ -25,6 +27,7 @@ export class BackendService {
     private logService: LogService,
     private variantService: VariantService,
     private processTreeService: ProcessTreeService,
+    private sharedDataService: SharedDataService,
     @Inject(ELECTRON_SERVICE) private electronService: ElectronServiceInterface
   ) {}
 
@@ -117,7 +120,7 @@ export class BackendService {
   discoverProcessModelFromConcurrencyVariants(
     variants: VariantElement[]
   ): Observable<any> {
-    const variantsSerialized = variants.map((v) => v.serialize());
+    const variantsSerialized = variants.map((v) => v.serialize(1));
     return this.httpClient
       .post(
         ROUTES.BASE_URL +
@@ -284,8 +287,8 @@ export class BackendService {
   ): Observable<any> {
     const body = {
       pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
-      variants_to_add: variantsToAdd.map((v) => v.serialize()),
-      fitting_variants: variantsInModelLanguage.map((v) => v.serialize()),
+      variants_to_add: variantsToAdd.map((v) => v.serialize(1)),
+      fitting_variants: variantsInModelLanguage.map((v) => v.serialize(1)),
     };
     return this.httpClient
       .post(
@@ -308,7 +311,7 @@ export class BackendService {
   ): Observable<any> {
     const body = {
       pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
-      selected_variants: selectedVariants.map((v) => v.serialize()),
+      selected_variants: selectedVariants.map((v) => v.serialize(1)),
     };
     return this.httpClient
       .post(
@@ -324,6 +327,20 @@ export class BackendService {
           );
         })
       );
+  }
+
+  frequentSubtreeMining(config: MiningConfig): void {
+    this.httpClient
+      .post<Array<any>>(
+        ROUTES.BASE_URL + ROUTES.VARIANTMINING + 'frequentSubtreeMining',
+        config.serialize()
+      )
+      .subscribe((res) => {
+        console.log('DataFrame');
+        console.log(res);
+
+        this.sharedDataService.frequentMiningResults = res;
+      });
   }
 
   saveConfiguration(configuration: Configuration): Observable<any> {

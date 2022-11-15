@@ -10,7 +10,6 @@ from cortado_core.alignments.infix_alignments import algorithm as infix_alignmen
 from cortado_core.alignments.prefix_alignments import algorithm as prefix_alignments
 from cortado_core.alignments.suffix_alignments import algorithm as suffix_alignments
 
-
 class InfixType(Enum):
     PROPER_INFIX = 1
     PREFIX = 2
@@ -48,5 +47,4 @@ def calculate_alignment(variant, pt, infix_type: InfixType):
     # remove non essential information
     res = {k: align[k] for k in ['alignment', 'cost', 'deviation']}
 
-    del res["alignment"]
     return res

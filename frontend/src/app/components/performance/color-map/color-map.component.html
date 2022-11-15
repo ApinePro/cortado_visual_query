@@ -7,7 +7,11 @@
       [style.background]="e.color"
     >
       <div class="colorMapLabel">
-        {{ e.lowerBound | humanizeDuration: false:true:3:true }}
+        {{
+          timeBasedLabel
+            ? (e.lowerBound | humanizeDuration: false:true:3:true)
+            : e.lowerBound
+        }}{{ suffix }}
       </div>
     </span>
 
@@ -18,7 +22,11 @@
       style="background: unset"
     >
       <div class="colorMapLabel">
-        {{ e.lowerBound | humanizeDuration: false:true:3:true }}
+        {{
+          timeBasedLabel
+            ? (e.lowerBound | humanizeDuration: false:true:3:true)
+            : e.lowerBound
+        }}{{ suffix }}
       </div>
     </span>
   </ng-container>

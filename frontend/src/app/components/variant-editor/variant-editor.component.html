@@ -297,7 +297,7 @@
       #VariantMainGroup
       appVariantDrawer
       id="VariantMainGroup"
-      [variant]="currentVariant"
+      [variant]="{ variant: currentVariant }"
       (selection)="handleRedraw($event)"
       [computeActivityColor]="computeActivityColor"
       [infixType]="curInfixType"

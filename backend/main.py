@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
+from error_handlers import http_exception_handler, validation_exception_handler
 from api.routes.api import router as api_router
 from core.events import create_start_app_handler, create_stop_app_handler
 from error_handlers import http_exception_handler, validation_exception_handler
@@ -64,9 +65,8 @@ def get_all_urls():
 if __name__ == "__main__":
     # print(DEFAULT_LP_SOLVER_VARIANT)
     freeze_support()
-    num_workers = max(1, cpu_count() - 2)
     uvicorn.run(
-        "main:app", host="0.0.0.0", port=41211, workers=num_workers, reload=True
+        "main:app", host="0.0.0.0", port=41211, workers=1, reload=True
     )
     # dev mode
     # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

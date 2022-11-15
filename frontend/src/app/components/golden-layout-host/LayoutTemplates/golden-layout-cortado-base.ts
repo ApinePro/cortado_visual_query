@@ -9,11 +9,10 @@ import {
 
 import { ProcessTreeEditorComponent } from '../../process-tree-editor/process-tree-editor.component';
 import { VariantExplorerComponent } from '../../variant-explorer/variant-explorer.component';
-import { InfoBoxComponent } from '../../info-box/info-box.component';
-
 import { ActivityOverviewComponent } from '../../activity-overview/activity-overview.component';
 import { ModelPerformanceComponent } from '../../performance/performance.component';
 import { VariantPerformanceComponent } from '../../variant-performance/variant-performance.component';
+import { VariantConformanceComponent } from '../../variant-conformance/variant-conformance.component';
 
 export const baseLayout: LayoutConfig = {
   dimensions: {
@@ -124,6 +123,19 @@ export const baseLayout: LayoutConfig = {
                 title: 'Variant Performance',
                 id: VariantPerformanceComponent.componentName,
                 componentType: VariantPerformanceComponent.componentName,
+                componentState: { cssParentClass: 'info-box-stack' },
+              } as ComponentItemConfig,
+              {
+                type: 'component',
+                header: {
+                  show: false,
+                },
+                width: 38.197,
+                isClosable: false,
+                reorderEnabled: true,
+                title: 'Variant Conformance',
+                id: VariantConformanceComponent.componentName,
+                componentType: VariantConformanceComponent.componentName,
                 componentState: { cssParentClass: 'info-box-stack' },
               } as ComponentItemConfig,
             ],

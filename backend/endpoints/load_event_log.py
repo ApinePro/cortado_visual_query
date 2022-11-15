@@ -10,11 +10,12 @@ from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.objects.log.util.interval_lifecycle import to_interval
 from pm4py.util.xes_constants import DEFAULT_START_TIMESTAMP_KEY, DEFAULT_TRANSITION_KEY
 
+from backend_utilities.multiprocessing.pool_factory import PoolFactory
+
 
 def calculate_event_log_properties(
-    event_log: EventLog, time_granularity: TimeUnit = None, use_mp: bool = False
+        event_log: EventLog, time_granularity: TimeUnit = None, use_mp: bool = False
 ):
-
     if time_granularity is None:
         time_granularity = min(TimeUnit)
 
@@ -22,8 +23,8 @@ def calculate_event_log_properties(
 
     cache.parameters["log_info"] = {
         "extensions": event_log._get_extensions(),
-        #'omni_present' : event_log._get_omni(),
-        #'attributes' : event_log._get_attributes(),
+        # 'omni_present' : event_log._get_omni(),
+        # 'attributes' : event_log._get_attributes(),
         "classifiers": event_log._get_classifiers(),
         "properties": event_log._get_properties(),
     }
@@ -32,8 +33,8 @@ def calculate_event_log_properties(
 
     # TODO: maybe implement more robust check if lifecycle/interval information is available
     if (
-        DEFAULT_TRANSITION_KEY not in event_log[0][0]
-        and DEFAULT_START_TIMESTAMP_KEY not in event_log[0][0]
+            DEFAULT_TRANSITION_KEY not in event_log[0][0]
+            and DEFAULT_START_TIMESTAMP_KEY not in event_log[0][0]
     ):
         event_log = to_interval(event_log)
     else:
@@ -43,7 +44,7 @@ def calculate_event_log_properties(
 
     cache.variants = {
         bid: (variant, traces, subvars)
-        for bid, ((variant, traces), subvars ) in enumerate(zip(cache.variants.items(), subvariants))
+        for bid, ((variant, traces), subvars) in enumerate(zip(cache.variants.items(), subvariants))
     }
 
     start_activities, end_activities, nActivities = compute_log_stats(cache.variants)
@@ -61,45 +62,39 @@ def calculate_event_log_properties(
 
     cache.parameters["nBids"] = len(cache.variants.keys())
 
-    #pickle.dump(cache.variants,  open( "./resources/variants.p", "wb" ))
-    #pickle.dump(cache.parameters,  open( "./resources/parameters.p", "wb" ))
+    # pickle.dump(cache.variants,  open( "./resources/variants.p", "wb" ))
+    # pickle.dump(cache.parameters,  open( "./resources/parameters.p", "wb" ))
 
     return res
 
 
 def compute_log_stats(variants: Mapping[int, Tuple[Group, Trace]]):
-    
     start_activities = set()
     end_activities = set()
     activites = []
-    
-    for v, _ , _  in variants.values(): 
-        for g, ts in v.graphs.items(): 
+
+    for v, _, _ in variants.values():
+        for g, ts in v.graphs.items():
 
             start_activities.update(g.start_activities.keys())
             end_activities.update(g.end_activities.keys())
-            
+
             for k, ls in g.events.items():
-                activites.append(Counter({k: (len(ls) * ts)})) 
-                
+                activites.append(Counter({k: (len(ls) * ts)}))
+
     nActivities = sum(activites, Counter())
     return start_activities, end_activities, nActivities
 
-def get_c_variants(
-    event_log: EventLog,
-    use_mp: bool = False,
-    time_granularity: TimeUnit = min(TimeUnit),
-):
 
-    variants = get_concurrency_variants(event_log, use_mp, time_granularity)
+def get_c_variants(event_log: EventLog, use_mp: bool = False, time_granularity: TimeUnit = min(TimeUnit)):
+    variants = get_concurrency_variants(event_log, use_mp, time_granularity, PoolFactory.instance().get_pool())
 
     total_traces = len(event_log)
     res_variants = []
 
     sub_variants = []
 
-    for bid, (v, ts) in enumerate(variants.items()):
-
+    for bid, (v, ts) in enumerate(sorted(list(variants.items()), key=lambda e: len(e[1]), reverse=True)):
         variant, sub_vars = create_variant_object(time_granularity, total_traces, bid, v, ts)
         sub_variants.append(sub_vars)
 
@@ -112,7 +107,6 @@ def get_c_variants(
 
 
 def create_variant_object(time_granularity, total_traces, bid, v, ts):
-
     sub_variants = create_subvariants(ts, time_granularity)
 
     variant = {
@@ -133,7 +127,6 @@ def create_variant_object(time_granularity, total_traces, bid, v, ts):
 
 
 def create_subvariants(ts, time_granularity):
-
     sub_vars = get_detailed_variants(ts, time_granularity=time_granularity)
 
     return sub_vars

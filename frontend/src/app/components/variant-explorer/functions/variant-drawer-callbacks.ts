@@ -40,7 +40,7 @@ export function computePerformanceButtonColor(variant: Variant) {
 export function clickCallback(
   drawer: VariantDrawerDirective,
   element: VariantElement,
-  variant: VariantElement
+  variant: Variant
 ) {
   if (this.variantViewModeService.viewMode === ViewMode.PERFORMANCE) {
     drawer.changeSelected(element);
@@ -59,7 +59,7 @@ export function clickCallback(
   } else if (this.traceInfixSelectionMode) {
     let lowestSelectableNode = getLowestSelectionActionableElement(element);
 
-    if (lowestSelectableNode != variant) {
+    if (lowestSelectableNode != variant.variant) {
       if (
         lowestSelectableNode.infixSelectableState ===
         SelectableState.Unselectable
@@ -67,11 +67,14 @@ export function clickCallback(
         lowestSelectableNode.setAllChildrenUnselected();
       else lowestSelectableNode.setAllChildrenSelected();
 
-      variant.updateSelectionAttributes();
+      variant.variant.updateSelectionAttributes();
       drawer.redraw();
     }
   } else {
-    variant.setExpanded(!variant.getExpanded());
+    variant.variant.setExpanded(!variant.variant.getExpanded());
+    if (variant.alignment) {
+      variant.alignment.setExpanded(variant.variant.getExpanded());
+    }
     drawer.redraw();
   }
 }
@@ -79,12 +82,12 @@ export function clickCallback(
 export function contextMenuCallback(
   self: VariantDrawerDirective,
   element: VariantElement,
-  variant: VariantElement,
+  variant: Variant,
   event: PointerEvent
 ) {
   this.contextMenu_xPos = event.clientX;
   this.contextMenu_yPos = event.clientY;
-  this.contextMenu_variant = variant;
+  this.contextMenu_variant = variant.variant;
   this.contextMenu_element = element;
   this.contextMenu_directive = self;
 }
@@ -118,6 +121,14 @@ export function activityColor(
         } else if (variant.variant?.serviceTime) {
           color = '#d3d3d3';
         }
+        break;
+
+      case ViewMode.CONFORMANCE:
+        if (variant.alignment && !variant.isConformanceOutdated) {
+          const p = element.asLeafNode().conformance[0];
+          color =
+            this.conformanceCheckingService.conformanceColorMap.getColor(p);
+        } else color = '#d3d3d3';
         break;
     }
   } else if (

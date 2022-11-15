@@ -22,6 +22,8 @@
         aria-expanded="false"
         data-bs-auto-close="outside"
         id="addNodeDropdown"
+        (show.bs.dropdown)="checkNodeInsertionStrategy()"
+        (mouseleave)="hideAllTooltips()"
       >
         <i class="bi bi-plus-square-fill btn-icon"></i>
       </button>
@@ -30,7 +32,6 @@
         [style.max-height.px]="currentEditorHeight"
         id="dropdownNewNode"
         aria-labelledby="addNodeDropdown"
-        (click)="nodeInsertionStrategy = null"
       >
         <div id="positionMethodSelection">
           <div class="fst-italic fw-bold ps-2 text-center">Position</div>
@@ -64,7 +65,7 @@
 
           <div
             class="dropdown-item"
-            *ngIf="insertPostitonBelowDisabled"
+            *ngIf="insertPositionBelowDisabled"
             [ngClass]="
               nodeInsertionStrategy === NodeInsertionStrategy.BELOW
                 ? 'insertion-position-active'
@@ -148,9 +149,14 @@
 
     <div
       class="btn-group align-baseline dropdown dropDownParent"
-      (click)="nodeInsertionStrategy = null"
       data-bs-toggle="tooltip"
       title="change selected node"
+      (show.bs.dropdown)="
+        lastNodeInsertionStrategy = nodeInsertionStrategy;
+        nodeInsertionStrategy = NodeInsertionStrategy.CHANGE
+      "
+      (hide.bs.dropdown)="nodeInsertionStrategy = lastNodeInsertionStrategy"
+      (mouseleave)="hideAllTooltips()"
     >
       <button
         class="button"
@@ -160,7 +166,6 @@
           (nodeSelectionStrategy === NodeSeletionStrategy.TREE &&
             !singleNodeSelected())
         "
-        (click)="nodeInsertionStrategy = NodeInsertionStrategy.CHANGE"
         type="button"
         data-bs-toggle="dropdown"
         data-bs-auto-close="outside"

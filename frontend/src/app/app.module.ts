@@ -45,6 +45,9 @@ import { ActivityButtonAreaComponent } from './components/variant-editor/activit
 import { HeaderBarComponent } from './components/header-bar/header-bar.component';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { DialogModule } from './components/dialogs/dialog.module';
+import { VariantMinerComponent } from './components/variant-miner/variant-miner.component';
+import { VariantMinerPatternComponent } from './components/variant-miner/variant-miner-pattern/variant-miner-pattern.component';
+import { NgxSliderModule } from '@angular-slider/ngx-slider';
 import { VariantQueryComponent } from './components/variant-explorer/variant-query/variant-query.component';
 import { ConformanceInfoBarComponent } from './components/variant-explorer/conformance-info/info-bar/conformance-info-bar.component';
 import { initApp, InitService } from './services/init.service';
@@ -62,9 +65,14 @@ import { InfixSelectionControllsComponent } from './components/variant-explorer/
 import { ZoomFieldComponent } from './components/zoom-field/zoom-field.component';
 import { VariantExplorerSidebarComponent } from './components/variant-explorer/variant-explorer-sidebar/variant-explorer-sidebar.component';
 import { EditorZoneComponent } from './components/editor-zone/editor-zone.component';
+import { FilterOptionsComponent } from './components/variant-miner/filter-options/filter-options.component';
+import { ResizeableTableHeaderComponent } from './components/resizeable-table-header/resizeable-table-header.component';
+import { ResizeColumnDirective } from './directives/resize-column.directive';
 import { VariantDeleteButtonComponent } from './components/variant-explorer/variant/subcomponents/variant-delete-button/variant-delete-button.component';
 import { ELECTRON_SERVICE } from './tokens';
 import { ElectronService } from './services/electronService/electron.service';
+import { UnavailableInfoComponent } from './components/unavailable-info/unavailable-info.component';
+import { VariantConformanceComponent } from './components/variant-conformance/variant-conformance.component';
 
 @NgModule({
   declarations: [
@@ -109,6 +117,8 @@ import { ElectronService } from './services/electronService/electron.service';
     SubVariantComponent,
     HeaderBarComponent,
     GoldenLayoutDummyComponent,
+    VariantMinerComponent,
+    VariantMinerPatternComponent,
     ConformanceInfoBarComponent,
     VariantQueryInfoComponent,
     ToastComponent,
@@ -121,7 +131,12 @@ import { ElectronService } from './services/electronService/electron.service';
     InfixSelectionControllsComponent,
     ZoomFieldComponent,
     VariantExplorerSidebarComponent,
+    FilterOptionsComponent,
+    ResizeableTableHeaderComponent,
+    ResizeColumnDirective,
     VariantDeleteButtonComponent,
+    UnavailableInfoComponent,
+    VariantConformanceComponent,
   ],
   imports: [
     BrowserModule,
@@ -133,6 +148,7 @@ import { ElectronService } from './services/electronService/electron.service';
     ColorPickerModule,
     SweetAlert2Module.forRoot(),
     DialogModule,
+    NgxSliderModule,
   ],
   providers: [
     {
