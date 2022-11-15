@@ -312,6 +312,8 @@ export class VariantDrawerDirective
       this.drawLeafNode(element.asLeafNode(), svgElement);
     } else if (element instanceof WaitingTimeNode) {
       this.drawWaitingNode(element.asLeafNode(), svgElement);
+    } else if (element instanceof LoopGroup) {
+      this.drawLoopGroup(element.asLoopGroup(), svgElement);
     }
   }
 
