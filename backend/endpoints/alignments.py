@@ -5,6 +5,7 @@ from pm4py.objects.log.obj import Trace, Event
 from pm4py.objects.petri_net.utils.align_utils import STD_MODEL_LOG_MOVE_COST
 from pm4py.objects.process_tree.obj import ProcessTree
 from backend_utilities.process_tree_conversion import dict_to_process_tree
+from cortado_core.utils.process_tree import convert_tree
 from pm4py.algo.conformance.alignments.process_tree.variants import search_graph_pt as tree_alignment
 from cortado_core.alignments.infix_alignments import algorithm as infix_alignments
 from cortado_core.alignments.prefix_alignments import algorithm as prefix_alignments
@@ -17,11 +18,15 @@ class InfixType(Enum):
     NOT_AN_INFIX = 4
 
 # @lru_cache(maxsize=None)
-def calculate_alignment(variant, pt, infix_type: InfixType):
+
+
+def calculate_alignment(variant, pt, infix_type: InfixType, use_unique_tree_nodes=False):
     # this function uses the specific tree alignment calculation
     pt: ProcessTree
     _: List[ProcessTree]
     pt, _ = dict_to_process_tree(pt)
+    if(use_unique_tree_nodes):
+        pt = convert_tree(pt)
     trace = Trace()
     for a in variant:
         e = Event()
@@ -33,9 +38,11 @@ def calculate_alignment(variant, pt, infix_type: InfixType):
                                                                    infix_alignments.VARIANT_TREE_BASED_PREPROCESSING,
                                                                    naive=False, use_dijkstra=True)
     elif infix_type == InfixType.PREFIX:
-        align = prefix_alignments.calculate_optimal_prefix_alignment(trace, pt, use_dijkstra=True)
+        align = prefix_alignments.calculate_optimal_prefix_alignment(
+            trace, pt, use_dijkstra=True)
     elif infix_type == InfixType.POSTFIX:
-        align = suffix_alignments.calculate_optimal_suffix_alignment(trace, pt, naive=False, use_dijkstra=True)
+        align = suffix_alignments.calculate_optimal_suffix_alignment(
+            trace, pt, naive=False, use_dijkstra=True)
     else:
         align = tree_alignment.apply_from_variants_list([tuple(variant)], pt)
         align = align[0]

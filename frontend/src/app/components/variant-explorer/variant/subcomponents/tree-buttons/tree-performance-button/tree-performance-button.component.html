@@ -13,7 +13,7 @@
 >
   <button
     type="button"
-    class="btn variant-performance-button"
+    class="btn variant-tree-projection-button"
     (click)="showSelectedPerformance()"
     [style.background]="computePerformanceButtonColor(variant)"
     ngbTooltip="calculate model performance of this variant"
@@ -45,7 +45,7 @@
     ></div>
   </button>
   <button
-    style="padding: 0"
+    style="padding: 0; margin-left: 5px"
     *ngIf="isPerformanceAvailable(variant) && !variant.userDefined"
     class="btn"
     (click)="removeCurrentPerformance()"

@@ -358,7 +358,7 @@ th {
   overflow: auto;
 }
 
-.performance-tooltip-hr {
+.tooltip-hr {
   height: 2px;
   opacity: 100%;
   margin-top: 5px
@@ -389,9 +389,8 @@ th {
   color: var(--text-secondary);
 }
 
-.variant-performance-button {
+.variant-tree-projection-button {
   padding: 1px 5px 1px 5px;
-  margin-right: 5px;
 }
 
 .selected-variant-performance {

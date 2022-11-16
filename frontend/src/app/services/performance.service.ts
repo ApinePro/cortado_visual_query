@@ -200,12 +200,12 @@ export class PerformanceService {
     }
 
     if (fitness !== undefined && fitness < 1) {
-      tooltipText = `${tooltipText}<hr class="performance-tooltip-hr"><i class="bi bi-exclamation-triangle-fill text-warning"> Unfitting traces: possibly unreliable model performance values!</i><br>Fitness: ${fitness.toFixed(
+      tooltipText = `${tooltipText}<hr class="tooltip-hr"><i class="bi bi-exclamation-triangle-fill text-warning"> Unfitting traces: possibly unreliable model performance values!</i><br>Fitness: ${fitness.toFixed(
         2
       )}`;
     }
 
-    tooltipText = `${tooltipText}<hr class="performance-tooltip-hr">click to visualize performance of this variant on model`;
+    tooltipText = `${tooltipText}<hr class="tooltip-hr">click to visualize performance of this variant on model`;
 
     button.setAttribute('title', tooltipText);
   }

@@ -11,3 +11,7 @@ export class ConformanceCheckingResult {
     public processTree: ProcessTree
   ) {}
 }
+export interface treeConformanceResult {
+  merged_conformance_tree: ProcessTree;
+  variants_tree_conformance: Map<number, ProcessTree>;
+}

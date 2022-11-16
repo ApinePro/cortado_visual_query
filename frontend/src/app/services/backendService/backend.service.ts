@@ -2,7 +2,7 @@ import { SharedDataService } from 'src/app/services/sharedDataService/shared-dat
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { take, tap } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 import { Configuration } from 'src/app/components/settings/model';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
@@ -16,6 +16,8 @@ import { addVariantInformation } from '../variantService/variant-transformation'
 import { MiningConfig } from 'src/app/objects/Variants/variant-miner-types';
 import { ElectronServiceInterface } from '../electronService/electron.service';
 import { ELECTRON_SERVICE } from 'src/app/tokens';
+import { InfixType } from 'src/app/objects/Variants/infix_selection';
+import { treeConformanceResult } from '../conformanceChecking/model';
 
 @Injectable({
   providedIn: 'root',
@@ -446,5 +448,49 @@ export class BackendService {
       .subscribe((res) => {
         this.processEventLog(res);
       });
+  }
+
+  public getTreeConformance(
+    pt: ProcessTree,
+    variants: number[],
+    infixType: InfixType,
+    remove?: number[]
+  ): Observable<treeConformanceResult> {
+    const body = {
+      pt: pt,
+      variants: variants,
+      delete: remove,
+      infix_type: infixType,
+    };
+
+    return this.httpClient
+      .post(
+        ROUTES.HTTP_BASE_URL +
+          ROUTES.TREE_CONFORMANCE +
+          'calculateVariantsConformance',
+        body
+      )
+      .pipe(
+        map(
+          (res: {
+            merged_conformance_tree: ProcessTree;
+            variants_tree_conformance: any;
+          }) => {
+            const treeConfRes = {
+              merged_conformance_tree: ProcessTree.fromObj(
+                res.merged_conformance_tree
+              ),
+              variants_tree_conformance: new Map(),
+            };
+            Object.keys(res.variants_tree_conformance).forEach((bid) => {
+              treeConfRes.variants_tree_conformance.set(
+                Number(bid),
+                res.variants_tree_conformance[bid]
+              );
+            });
+            return treeConfRes;
+          }
+        )
+      );
   }
 }

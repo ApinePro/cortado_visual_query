@@ -49,6 +49,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
 import { ViewMode } from 'src/app/objects/ViewMode';
+import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
 
 @Component({
   selector: 'app-process-tree-editor',
@@ -72,6 +73,7 @@ export class ProcessTreeEditorComponent
     private performanceColorScaleService: ModelPerformanceColorScaleService,
     private processTreeService: ProcessTreeService,
     private modelViewModeService: ModelViewModeService,
+    private conformanceCheckingService: ConformanceCheckingService,
     private renderer: Renderer2,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
@@ -416,33 +418,40 @@ export class ProcessTreeEditorComponent
   }
 
   computeNodeColor = (d: d3.HierarchyNode<ProcessTree>) => {
-    if (
-      this.modelViewModeService.viewMode === ViewMode.PERFORMANCE &&
-      d.data.label !== ProcessTreeOperator.tau
-    ) {
-      if (
-        this.performanceColorMap.has(d.data.id) &&
-        d.data.performance?.[this.selectedPerformanceIndicator]?.[
-          this.selectedStatistic
-        ] !== undefined
-      ) {
-        return this.performanceColorMap
-          .get(d.data.id)
-          .getColor(
-            d.data.performance[this.selectedPerformanceIndicator][
+    switch (this.modelViewModeService.viewMode) {
+      case ViewMode.CONFORMANCE:
+        if (d.data.conformance === null) return '#404041';
+        return this.conformanceCheckingService.conformanceColorMap.getColor(
+          d.data.conformance.value
+        );
+      case ViewMode.PERFORMANCE:
+        if (d.data.label !== ProcessTreeOperator.tau) {
+          if (
+            this.performanceColorMap.has(d.data.id) &&
+            d.data.performance?.[this.selectedPerformanceIndicator]?.[
               this.selectedStatistic
-            ]
-          );
-      } else {
-        return '#404040';
-      }
-    } else {
-      if (d.data.operator !== null) return PT_Constant.OPERATOR_COLOR;
-      if (d.data.label !== null && d.data.label === ProcessTreeOperator.tau)
-        return PT_Constant.INVISIBLE_ACTIVTIY_COLOR;
-      const isVisibleActivity =
-        d.data.label !== null && d.data.label !== ProcessTreeOperator.tau;
-      return isVisibleActivity ? this.activityColorMap.get(d.data.label) : null;
+            ] !== undefined
+          ) {
+            return this.performanceColorMap
+              .get(d.data.id)
+              .getColor(
+                d.data.performance[this.selectedPerformanceIndicator][
+                  this.selectedStatistic
+                ]
+              );
+          } else {
+            return '#404040';
+          }
+        }
+      default:
+        if (d.data.operator !== null) return PT_Constant.OPERATOR_COLOR;
+        if (d.data.label !== null && d.data.label === ProcessTreeOperator.tau)
+          return PT_Constant.INVISIBLE_ACTIVTIY_COLOR;
+        const isVisibleActivity =
+          d.data.label !== null && d.data.label !== ProcessTreeOperator.tau;
+        return isVisibleActivity
+          ? this.activityColorMap.get(d.data.label)
+          : null;
     }
   };
 
@@ -486,22 +495,7 @@ export class ProcessTreeEditorComponent
     if (d.data.frozen || d.data.label === ProcessTreeOperator.tau) {
       return 'white';
     }
-
-    let nodeColor = this.activityColorMap.get(d.data.label);
-
-    if (
-      this.modelViewModeService.viewMode === ViewMode.PERFORMANCE &&
-      this.performanceColorMap.has(d.data.id) &&
-      d.data.performance[this.selectedPerformanceIndicator]
-    ) {
-      nodeColor = this.performanceColorMap
-        .get(d.data.id)
-        .getColor(
-          d.data.performance[this.selectedPerformanceIndicator][
-            this.selectedStatistic
-          ]
-        );
-    }
+    const nodeColor = this.computeNodeColor(d);
 
     const isVisibleActivity =
       (d.data.label !== null && d.data.label !== ProcessTreeOperator.tau) ||
