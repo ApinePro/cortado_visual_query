@@ -11,7 +11,10 @@ import { mapVariants } from 'src/app/utils/util';
 import { LogService } from '../logService/log.service';
 import { VariantService } from '../variantService/variant.service';
 import { ProcessTreeService } from './../processTreeService/process-tree.service';
-import { VariantElement } from 'src/app/objects/Variants/variant_element';
+import {
+  deserialize,
+  VariantElement,
+} from 'src/app/objects/Variants/variant_element';
 import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { addVariantInformation } from '../variantService/variant-transformation';
 import { MiningConfig } from 'src/app/objects/Variants/variant-miner-types';
@@ -90,6 +93,17 @@ export class BackendService {
     this.logService.performanceInfoAvailable = true;
     this.logService.timeGranularity = res['timeGranularity'];
     this.logService.logGranularity = res['timeGranularity'];
+
+    console.log(res['variants']);
+
+    let collapsedVariants = new Map<string, VariantElement>();
+    for (let id in res['collapsedVariants']) {
+      collapsedVariants.set(id, deserialize(res['collapsedVariants'][id]));
+    }
+
+    console.log(collapsedVariants);
+
+    this.logService.collapsedVariants = collapsedVariants;
   }
 
   loadProcessTreeFromFilePath(filePath: string): void {

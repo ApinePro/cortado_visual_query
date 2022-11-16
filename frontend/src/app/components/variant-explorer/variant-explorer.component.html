@@ -233,6 +233,27 @@
       </div>
     </div>
 
+    <ng-container *ngIf="variantViewModeService.viewMode === VM.STANDARD">
+      <span class="vl"></span>
+      <button
+        class="button"
+        (click)="unCollapseLoops()"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        data-bs-html="true"
+        title="(un)collapse loops in variants"
+      >
+        <i
+          *ngIf="areLoopsCollapsed()"
+          class="bi bi-arrow-repeat btn-icon cursor-pointer text-success"
+        ></i>
+        <i
+          *ngIf="!areLoopsCollapsed()"
+          class="bi bi-arrow-repeat btn-icon cursor-pointer"
+        ></i>
+      </button>
+    </ng-container>
+
     <ng-container *ngIf="variantViewModeService.viewMode !== VM.PERFORMANCE">
       <span class="vl"></span>
       <button

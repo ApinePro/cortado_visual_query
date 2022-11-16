@@ -24,6 +24,7 @@ export class Variant {
   nSubVariants: number;
   infixType: InfixType;
   fragmentStatistics: any;
+  collapsedVariantId: string;
 
   constructor(
     count: number,

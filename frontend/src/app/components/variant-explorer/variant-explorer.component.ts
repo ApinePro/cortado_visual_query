@@ -1035,6 +1035,14 @@ export class VariantExplorerComponent
           this.toggleTraceInfixSelectionMode();
       });
   }
+
+  unCollapseLoops() {
+    console.log('uncollapse loops');
+  }
+
+  areLoopsCollapsed() {
+    return true;
+  }
 }
 
 export namespace VariantExplorerComponent {
