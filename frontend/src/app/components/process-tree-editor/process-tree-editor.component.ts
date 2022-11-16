@@ -415,7 +415,7 @@ export class ProcessTreeEditorComponent
     return d3.hierarchy(nodeData);
   }
 
-  computeNodeColor = (root, d: d3.HierarchyNode<ProcessTree>) => {
+  computeNodeColor = (d: d3.HierarchyNode<ProcessTree>) => {
     if (
       this.modelViewModeService.viewMode === ViewMode.PERFORMANCE &&
       d.data.label !== ProcessTreeOperator.tau

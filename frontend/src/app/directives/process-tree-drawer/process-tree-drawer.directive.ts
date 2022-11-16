@@ -91,7 +91,7 @@ export class ProcessTreeDrawerDirective {
       .attr('stroke', PT_Constant.STROKE_COLOR)
       .attr('stroke-width', PT_Constant.STROKE_WIDTH)
       .merge(node.select('.node'))
-      .style('fill', (d) => this.computeNodeColor(this.root, d))
+      .style('fill', (d) => this.computeNodeColor(d))
       .classed('node-operator', function (d: any) {
         return d.data.operator !== null;
       })
