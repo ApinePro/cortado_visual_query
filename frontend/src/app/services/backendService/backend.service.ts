@@ -101,9 +101,7 @@ export class BackendService {
       collapsedVariants.set(id, deserialize(res['collapsedVariants'][id]));
     }
 
-    console.log(collapsedVariants);
-
-    this.logService.collapsedVariants = collapsedVariants;
+    //this.variantService.collapsedVariants = collapsedVariants;
   }
 
   loadProcessTreeFromFilePath(filePath: string): void {

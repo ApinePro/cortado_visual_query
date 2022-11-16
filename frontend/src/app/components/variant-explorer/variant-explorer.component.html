@@ -237,18 +237,18 @@
       <span class="vl"></span>
       <button
         class="button"
-        (click)="unCollapseLoops()"
+        (click)="variantService.unCollapseLoopsInVariants()"
         data-bs-toggle="tooltip"
         data-bs-placement="top"
         data-bs-html="true"
         title="(un)collapse loops in variants"
       >
         <i
-          *ngIf="areLoopsCollapsed()"
+          *ngIf="variantService.areVariantLoopsCollapsed"
           class="bi bi-arrow-repeat btn-icon cursor-pointer text-success"
         ></i>
         <i
-          *ngIf="!areLoopsCollapsed()"
+          *ngIf="!variantService.areVariantLoopsCollapsed"
           class="bi bi-arrow-repeat btn-icon cursor-pointer"
         ></i>
       </button>

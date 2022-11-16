@@ -104,7 +104,7 @@ export class VariantExplorerComponent
   constructor(
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
-    private variantService: VariantService,
+    public variantService: VariantService,
     private variantFilterService: VariantFilterService,
     private backendService: BackendService,
     private logService: LogService,
@@ -1034,14 +1034,6 @@ export class VariantExplorerComponent
         if (viewMode !== ViewMode.STANDARD && this.traceInfixSelectionMode)
           this.toggleTraceInfixSelectionMode();
       });
-  }
-
-  unCollapseLoops() {
-    console.log('uncollapse loops');
-  }
-
-  areLoopsCollapsed() {
-    return true;
   }
 }
 

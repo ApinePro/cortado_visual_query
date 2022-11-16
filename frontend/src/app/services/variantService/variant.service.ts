@@ -50,6 +50,16 @@ export class VariantService {
   }
 
   private _variants = new BehaviorSubject<Variant[]>([]);
+  private _collapsedVariants = null;
+  public areVariantLoopsCollapsed = false;
+
+  get collapsedVariants(): Variant[] {
+    return this._collapsedVariants;
+  }
+
+  set collapsedVariants(variants: Variant[]) {
+    this._collapsedVariants = variants;
+  }
 
   get variants$(): Observable<Variant[]> {
     return this._variants.asObservable();
@@ -388,5 +398,15 @@ export class VariantService {
           this.nameChanges.next([lastNameChange[1], lastNameChange[0]]);
         }
       });
+  }
+
+  public unCollapseLoopsInVariants() {
+    if (this.areVariantLoopsCollapsed) {
+      // TODO niklas implement
+    } else {
+      // TODO niklas implement
+    }
+
+    this.areVariantLoopsCollapsed = !this.areVariantLoopsCollapsed;
   }
 }
