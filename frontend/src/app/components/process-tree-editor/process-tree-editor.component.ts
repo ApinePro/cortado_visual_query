@@ -447,17 +447,19 @@ export class ProcessTreeEditorComponent
   };
 
   tooltipContent = (d: d3.HierarchyNode<ProcessTree>) => {
+    const tableHead =
+      `<div style="display: flex; justify-content: space-between" class="bg-dark">
+        <h6 style="flex: 1; margin-top: 8px;">` +
+      (d.data.label || d.data.operator) +
+      `</h6>
+      </div>`;
     if (
       this.modelViewModeService.viewMode === ViewMode.PERFORMANCE &&
       d.data.hasPerformance() &&
       d.data.label !== ProcessTreeOperator.tau
     ) {
       return (
-        `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
-        <h6 style="flex: 1" class="performance-tooltip-header">` +
-        (d.data.label || d.data.operator) +
-        `</h6>
-      </div>` +
+        tableHead +
         getPerformanceTable(
           d.data.performance,
           this.selectedPerformanceIndicator,
