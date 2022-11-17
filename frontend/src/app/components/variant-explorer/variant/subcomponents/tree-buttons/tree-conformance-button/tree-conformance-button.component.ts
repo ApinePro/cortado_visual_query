@@ -39,7 +39,7 @@ export class TreeConformanceButtonComponent {
     if (!tree) return null;
 
     return this.conformanceCheckingService.conformanceColorMap.getColor(
-      tree.conformance.value
+      tree.conformance?.value
     );
   }
 

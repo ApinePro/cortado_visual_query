@@ -238,7 +238,7 @@ export class ConformanceCheckingService {
 
         this.updateTooltip(
           document.getElementById(`conformanceButtonMerged`),
-          this.mergedTreeConformance?.conformance.value
+          this.mergedTreeConformance?.conformance?.value
         );
       });
   }

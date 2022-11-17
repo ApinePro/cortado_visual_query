@@ -476,6 +476,24 @@ export class ProcessTreeEditorComponent
         )
       );
     }
+    if (
+      this.modelViewModeService.viewMode === ViewMode.CONFORMANCE &&
+      d.data.conformance !== null
+    )
+      return (
+        tableHead +
+        `<table class="table table-dark table-striped table-bordered">
+          <tr>
+            <td>Conformance:</td>
+            <td>${(d.data.conformance.value * 100).toFixed(2)}%</td>
+          </tr>
+          <tr>
+            <td>Weight:</td>
+            <td>${d.data.conformance.weight}</td>
+          </tr>
+        </table>`
+      );
+
     return d.data.label || d.data.operator;
   };
 
