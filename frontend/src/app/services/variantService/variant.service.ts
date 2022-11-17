@@ -29,6 +29,7 @@ import {
 import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { ToastService } from '../toast/toast.service';
 import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
+import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
 
 @Injectable({
   providedIn: 'root',
@@ -53,11 +54,11 @@ export class VariantService {
   private _collapsedVariants = null;
   public areVariantLoopsCollapsed = false;
 
-  get collapsedVariants(): Variant[] {
+  get collapsedVariants(): LoopCollapsedVariant[] {
     return this._collapsedVariants;
   }
 
-  set collapsedVariants(variants: Variant[]) {
+  set collapsedVariants(variants: LoopCollapsedVariant[]) {
     this._collapsedVariants = variants;
   }
 

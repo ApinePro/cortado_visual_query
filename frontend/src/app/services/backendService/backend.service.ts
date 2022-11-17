@@ -20,6 +20,7 @@ import { addVariantInformation } from '../variantService/variant-transformation'
 import { MiningConfig } from 'src/app/objects/Variants/variant-miner-types';
 import { ElectronServiceInterface } from '../electronService/electron.service';
 import { ELECTRON_SERVICE } from 'src/app/tokens';
+import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
 
 @Injectable({
   providedIn: 'root',
@@ -94,14 +95,27 @@ export class BackendService {
     this.logService.timeGranularity = res['timeGranularity'];
     this.logService.logGranularity = res['timeGranularity'];
 
-    console.log(res['variants']);
-
-    let collapsedVariants = new Map<string, VariantElement>();
+    let collapsedVariants = new Map<string, LoopCollapsedVariant>();
     for (let id in res['collapsedVariants']) {
-      collapsedVariants.set(id, deserialize(res['collapsedVariants'][id]));
+      collapsedVariants.set(
+        id,
+        new LoopCollapsedVariant(
+          id,
+          [],
+          deserialize(res['collapsedVariants'][id])
+        )
+      );
     }
 
-    //this.variantService.collapsedVariants = collapsedVariants;
+    for (let variant of this.variantService.variants) {
+      collapsedVariants.get(variant.collapsedVariantId).variants.push(variant);
+    }
+
+    this.variantService.collapsedVariants = Array.from(
+      collapsedVariants.values()
+    );
+
+    console.log(this.variantService.collapsedVariants);
   }
 
   loadProcessTreeFromFilePath(filePath: string): void {
