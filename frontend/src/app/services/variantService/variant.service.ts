@@ -402,12 +402,6 @@ export class VariantService {
   }
 
   public unCollapseLoopsInVariants() {
-    if (this.areVariantLoopsCollapsed) {
-      // TODO niklas implement
-    } else {
-      // TODO niklas implement
-    }
-
     this.areVariantLoopsCollapsed = !this.areVariantLoopsCollapsed;
   }
 }

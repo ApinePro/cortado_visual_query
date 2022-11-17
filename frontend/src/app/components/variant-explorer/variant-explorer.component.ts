@@ -421,7 +421,8 @@ export class VariantExplorerComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe(
         (res) => {
-          const variant = this.variants.find((v) => v.id == res.id);
+          console.log(res);
+          const variant = this.displayed_variants.find((v) => v.id == res.id);
           variant.calculationInProgress = false;
           variant.isTimeouted = res.isTimeout;
           variant.isConformanceOutdated = res.isTimeout;
@@ -439,7 +440,7 @@ export class VariantExplorerComponent
             ?.redraw();
         },
         (_) => {
-          this.variants.forEach((v) => {
+          this.displayed_variants.forEach((v) => {
             v.calculationInProgress = false;
             v.alignment = undefined;
             v.deviations = undefined;
@@ -453,7 +454,7 @@ export class VariantExplorerComponent
   }
 
   updateAlignments(): void {
-    this.variants.forEach((v) => {
+    this.displayed_variants.forEach((v) => {
       this.updateConformanceForVariant(v, 0);
     });
   }
@@ -477,7 +478,6 @@ export class VariantExplorerComponent
   }
 
   updateConformanceForVariant(variant: Variant, timeout: number): void {
-    console.log(variant, timeout);
     variant.calculationInProgress = true;
     variant.deviations = undefined;
 
@@ -750,7 +750,7 @@ export class VariantExplorerComponent
   };
 
   getSelectedVariants(): Variant[] {
-    return this.variants.filter((v) => v.isSelected);
+    return this.displayed_variants.filter((v) => v.isSelected);
   }
 
   isAnyVariantOutdated(variants: Variant[]): boolean {

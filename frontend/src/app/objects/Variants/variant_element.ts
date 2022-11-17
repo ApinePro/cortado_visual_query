@@ -658,10 +658,10 @@ export class LoopGroup extends VariantElement {
     return this.elements[0].recalculateWidth(includeWaiting);
   }
 
-  public serialize() {
+  public serialize(l = 1) {
     return {
       loop: this.elements
-        .map((e) => e.serialize())
+        .map((e) => e.serialize(l))
         .flat()
         .filter((e) => e !== null),
     };

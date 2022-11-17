@@ -14,9 +14,9 @@ export class LoopCollapsedVariant implements IVariant {
   alignment: VariantElement;
   deviations: number;
   isTimeouted: boolean;
-  isConformanceOutdated: boolean;
+  isConformanceOutdated: boolean = true;
   usedTreeForConformanceChecking: ProcessTree;
-  infixType: InfixType;
+  infixType: InfixType = InfixType.NOT_AN_INFIX;
   fragmentStatistics: any;
   collapsedVariantId: string;
 
@@ -49,6 +49,10 @@ export class LoopCollapsedVariant implements IVariant {
 
   get isSelected() {
     return this.variants.some((v) => v.isSelected);
+  }
+
+  set isSelected(isSelected: boolean) {
+    this.variants.forEach((v) => (v.isSelected = isSelected));
   }
 
   get percentage() {
