@@ -534,7 +534,7 @@ export class VariantMinerComponent
       .subscribe((tree) => {
         this.processTree = tree;
 
-        const treeHasChanged = processTreesEqual(
+        const treeHasChanged = !processTreesEqual(
           this.conformanceCheckedTree,
           this.processTree
         );
