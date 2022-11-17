@@ -35,7 +35,7 @@ import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { Variant } from 'src/app/objects/Variants/variant';
+import { IVariant } from 'src/app/objects/Variants/variant_interface';
 
 @Directive({
   selector: '[appVariantDrawer]',
@@ -63,7 +63,7 @@ export class VariantDrawerDirective
   svgHtmlElement: ElementRef;
 
   @Input()
-  variant: Variant;
+  variant: IVariant;
 
   @Input()
   traceInfixSelectionMode: boolean = false;
@@ -75,21 +75,21 @@ export class VariantDrawerDirective
   computeActivityColor: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
-    variant: Variant
+    variant: IVariant
   ) => string;
 
   @Input()
   onClickCbFc: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
-    variant: Variant
+    variant: IVariant
   ) => void;
 
   @Input()
   onMouseOverCbFc: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
-    variant: Variant,
+    variant: IVariant,
     selection
   ) => void;
 
@@ -97,7 +97,7 @@ export class VariantDrawerDirective
   onRightMouseClickCbFc: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
-    variant: Variant,
+    variant: IVariant,
     event: Event
   ) => void;
 

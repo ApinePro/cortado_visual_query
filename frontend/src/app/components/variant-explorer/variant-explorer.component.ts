@@ -90,6 +90,8 @@ import { ActivateTooltipsService } from 'src/app/services/activateTooltipsServic
 import { ContextMenuItem } from './variant-explorer-context-menu/variant-explorer-context-menu.component';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
+import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
+import { IVariant } from 'src/app/objects/Variants/variant_interface';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -131,7 +133,7 @@ export class VariantExplorerComponent
   maximized: boolean = false;
 
   public variants: Variant[] = [];
-  public displayed_variants: Variant[] = [];
+  public displayed_variants: IVariant[] = [];
   public colorMap: Map<string, string>;
   public sidebarHeight = 0;
 
@@ -1034,6 +1036,15 @@ export class VariantExplorerComponent
         if (viewMode !== ViewMode.STANDARD && this.traceInfixSelectionMode)
           this.toggleTraceInfixSelectionMode();
       });
+  }
+
+  unCollapseLoopsInVariants() {
+    this.variantService.unCollapseLoopsInVariants();
+    if (this.variantService.areVariantLoopsCollapsed) {
+      this.displayed_variants = this.variantService.collapsedVariants;
+    } else {
+      this.displayed_variants = this.variants;
+    }
   }
 }
 
