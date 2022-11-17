@@ -34,7 +34,7 @@ export class ConformanceCheckingService {
   ) {
     this.processTreeService.currentDisplayedProcessTree$.subscribe((pt) => {
       if (!processTreesEqual(pt, this.usedProcessTreeForTreeConformance)) {
-        this.activeTreeConformance = null;
+        this.activeTreeConformance = undefined;
         this.availableTreeConformances.clear();
         this.variantsConformance.clear();
       }
@@ -50,8 +50,8 @@ export class ConformanceCheckingService {
 
   private usedProcessTreeForTreeConformance: ProcessTree;
 
-  public activeTreeConformance: number;
-  public availableTreeConformances: Set<number> = new Set<number>();
+  private activeTreeConformance: number;
+  private availableTreeConformances: Set<number> = new Set<number>();
   public mergedTreeConformance: ProcessTree;
   public variantsConformance: Map<number, ProcessTree> = new Map<
     number,
@@ -163,11 +163,17 @@ export class ConformanceCheckingService {
   }
 
   public isTreeConformanceActive(v: Variant) {
-    return this.activeTreeConformance === v.bid;
+    return (
+      this.activeTreeConformance === v.bid &&
+      this.modelViewModeService.viewMode === ViewMode.CONFORMANCE
+    );
   }
 
   public isMergedTreeConformanceActive() {
-    return this.activeTreeConformance === -1;
+    return (
+      this.activeTreeConformance === -1 &&
+      this.modelViewModeService.viewMode === ViewMode.CONFORMANCE
+    );
   }
 
   public isTreeConformanceAvailable(v: Variant) {
@@ -233,7 +239,7 @@ export class ConformanceCheckingService {
         this.calculationInProgress.clear();
 
         if (variants.length == 1) this.setShownTreeConformance(variants[0]);
-        else if (variantsCombined.length > 1) this.showMergedTreeConformance();
+        else if (variantsCombined.length > 0) this.showMergedTreeConformance();
         else this.unselectTreeConformance();
 
         this.updateTooltip(
@@ -260,7 +266,7 @@ export class ConformanceCheckingService {
 
   public unselectTreeConformance() {
     this.modelViewModeService.viewMode = ViewMode.STANDARD;
-    this.activeTreeConformance = null;
+    this.activeTreeConformance = undefined;
   }
 
   public showMergedTreeConformance() {

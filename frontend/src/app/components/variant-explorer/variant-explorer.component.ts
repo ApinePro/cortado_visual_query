@@ -608,11 +608,11 @@ export class VariantExplorerComponent
   }
 
   handleSelectTreePerformance(variant: Variant) {
-    if (this.performanceService.availablePerformances.has(variant)) {
-      if (this.performanceService.activeVariant == variant) {
+    if (this.performanceService.isTreePerformanceAvailable(variant)) {
+      if (this.performanceService.isTreePerformanceActive(variant)) {
         this.performanceService.unselectPerformance();
       } else {
-        this.performanceService.setShownVariantPerformance(variant);
+        this.performanceService.setShownTreePerformance(variant);
       }
     } else {
       if (this.performanceService.calculationInProgress.has(variant)) {
@@ -701,14 +701,6 @@ export class VariantExplorerComponent
     this._subvariantcomponentItemsMap = new Map<string, ComponentItem>();
   }
 
-  isPerformanceCalcInProgress = (variant: Variant) => {
-    return this.performanceService.calculationInProgress.has(variant);
-  };
-
-  isPerformanceFitting = (variant: Variant) => {
-    return this.performanceService.fitness.get(variant) < 1;
-  };
-
   updateAllSubvariantWindows(): void {
     this._subvariantcomponentItemsMap.forEach((value) => {
       if (value) {
@@ -744,18 +736,6 @@ export class VariantExplorerComponent
       }
     }
   }
-
-  anyPerformanceAvailable = () => {
-    return this.performanceService.availablePerformances.size > 0;
-  };
-
-  isPerformanceAvailable = (variant: Variant) => {
-    return this.performanceService.availablePerformances.has(variant);
-  };
-
-  isPerformanceActive = (variant: Variant) => {
-    return this.performanceService.activeVariant === variant;
-  };
 
   getSelectedVariants(): Variant[] {
     return this.displayed_variants.filter((v) => v.isSelected);
@@ -908,14 +888,6 @@ export class VariantExplorerComponent
     this.maximized = logicalZIndex === 'stackMaximised';
   }
 
-  isMeanPerformanceActive(): boolean {
-    return this.performanceService.activeVariant === undefined;
-  }
-
-  showMeanPerformance(): void {
-    this.performanceService.showMeanPerformance();
-  }
-
   meanPerformance(): string {
     let p = this.performanceService.mergedPerformance?.performance;
     let selectedScale = this.performanceColorService.selectedColorScale;
@@ -1065,8 +1037,8 @@ export class VariantExplorerComponent
   }
 
   handleSelectTreeConformance(v: Variant) {
-    if (this.conformanceCheckingService.availableTreeConformances.has(v.bid)) {
-      if (this.conformanceCheckingService.activeTreeConformance == v.bid) {
+    if (this.conformanceCheckingService.isTreeConformanceAvailable(v)) {
+      if (this.conformanceCheckingService.isTreeConformanceActive(v)) {
         this.conformanceCheckingService.unselectTreeConformance();
       } else {
         this.conformanceCheckingService.setShownTreeConformance(v.bid);

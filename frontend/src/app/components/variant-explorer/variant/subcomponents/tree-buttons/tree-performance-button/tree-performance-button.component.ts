@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Variant } from 'src/app/objects/Variants/variant';
+import { PerformanceService } from 'src/app/services/performance.service';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 
 @Component({
@@ -8,22 +9,10 @@ import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
   styleUrls: ['./tree-performance-button.component.css'],
 })
 export class TreePerformanceButtonComponent {
-  constructor() {}
+  constructor(private performanceService: PerformanceService) {}
 
   @Input()
   variant: Variant;
-
-  @Input()
-  isPerformanceAvailable: (variant: Variant) => boolean;
-
-  @Input()
-  isPerformanceActive: (variant: Variant) => boolean;
-
-  @Input()
-  isPerformanceFitting: (variant: Variant) => boolean;
-
-  @Input()
-  isPerformanceCalcInProgress: (variant: Variant) => boolean;
 
   @Output()
   public showPerformance = new EventEmitter<Variant>();
@@ -33,6 +22,24 @@ export class TreePerformanceButtonComponent {
 
   @Input()
   computePerformanceButtonColor: (variant: Variant) => string;
+
+  get isPerformanceActive() {
+    return this.performanceService.isTreePerformanceActive(this.variant);
+  }
+
+  get isPerformanceAvailable() {
+    return this.performanceService.isTreePerformanceAvailable(this.variant);
+  }
+
+  get isPerformanceCalcInProgress() {
+    return this.performanceService.isTreePerformanceCalcInProgress(
+      this.variant
+    );
+  }
+
+  get isPerformanceFitting() {
+    return this.performanceService.isTreePerformanceFitting(this.variant);
+  }
 
   removeCurrentPerformance() {
     this.removePerformance.emit(this.variant);

@@ -6,9 +6,8 @@
     margin: 5px 10px 5px 10px;
   "
   [ngClass]="{
-    'selected-variant-performance': isPerformanceActive(variant),
-    'light-dashed-border':
-      isPerformanceAvailable(variant) && !isPerformanceActive(variant)
+    'selected-variant-performance': isPerformanceActive,
+    'light-dashed-border': isPerformanceAvailable && !isPerformanceActive
   }"
 >
   <button
@@ -22,23 +21,23 @@
     style="display: flex; flex-direction: column"
   >
     <i
-      *ngIf="isPerformanceAvailable(variant) && !variant.userDefined"
+      *ngIf="isPerformanceAvailable && !variant.userDefined"
       class="bi bi-graph-up align-middle font-large variant-performance-icon"
       [style.color]="textColorForBackgroundColor(variant)"
     >
       <i
-        *ngIf="isPerformanceFitting(variant) && !variant.userDefined"
+        *ngIf="isPerformanceFitting && !variant.userDefined"
         class="bi bi-exclamation-triangle-fill"
       ></i>
     </i>
     <i
       class="bi bi-stopwatch"
-      *ngIf="!isPerformanceAvailable(variant) && !variant.userDefined"
+      *ngIf="!isPerformanceAvailable && !variant.userDefined"
       style="color: white"
     >
     </i>
     <div
-      *ngIf="isPerformanceCalcInProgress(variant) && !variant.userDefined"
+      *ngIf="isPerformanceCalcInProgress && !variant.userDefined"
       class="spinner-border spinner-border-sm text-primary"
       role="status"
       style="margin-top: 5px"
@@ -46,7 +45,7 @@
   </button>
   <button
     style="padding: 0; margin-left: 5px"
-    *ngIf="isPerformanceAvailable(variant) && !variant.userDefined"
+    *ngIf="isPerformanceAvailable && !variant.userDefined"
     class="btn"
     (click)="removeCurrentPerformance()"
     ngbTooltip="remove performance values of this variant"

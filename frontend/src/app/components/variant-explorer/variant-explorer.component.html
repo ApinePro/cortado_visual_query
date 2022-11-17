@@ -522,8 +522,8 @@
                     <div
                       *ngIf="
                         currentlyDisplayedProcessTree &&
+                        performanceService.anyTreePerformanceAvailable()
                       "
-                        anyPerformanceAvailable()
                       style="
                         display: flex;
                         flex-direction: row;
@@ -534,7 +534,7 @@
                       "
                       [ngClass]="{
                         'selected-variant-performance':
-                          isMeanPerformanceActive()
+                          performanceService.isMergedTreePerformanceActive()
                       }"
                     >
                       <button
@@ -542,6 +542,11 @@
                         (click)="showMeanPerformance()"
                         class="btn variant-tree-projection-button"
                         type="button"
+                        class="btn variant-tree-projection-button"
+                        (click)="
+                          performanceService.toggleMergedTreePerformance()
+                        "
+                        [style.background]="variantPerformanceColor()"
                         [ngbTooltip]="meanPerformance()"
                         container="body"
                         id="performanceButtonMean"
@@ -642,8 +647,12 @@
                   <ng-container *ngSwitchDefault>
                     <app-tree-performance-button
                       [variant]="variant"
-                      [isPerformanceAvailable]="isPerformanceAvailable"
-                      [isPerformanceActive]="isPerformanceActive"
+                      [isPerformanceAvailable]="
+                        performanceService.isTreePerformanceAvailable
+                      "
+                      [isPerformanceActive]="
+                        performanceService.isTreePerformanceActive
+                      "
                       [isPerformanceFitting]="isPerformanceFitting"
                       [isPerformanceCalcInProgress]="
                         isPerformanceCalcInProgress
