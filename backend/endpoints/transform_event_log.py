@@ -1,3 +1,4 @@
+import os.path
 import pickle
 from collections import Counter, defaultdict
 from typing import List, Mapping, Set, Tuple
@@ -23,6 +24,9 @@ from endpoints.load_event_log import compute_log_stats, create_variant_object
 
 
 def cache_current_data():
+    if not os.path.isdir('./tmp'):
+        os.mkdir('./tmp')
+
     pickle.dump(cache.parameters, open("tmp/parameters_cache.p", "wb"))
     pickle.dump(cache.variants, open("tmp/variants_cache.p", "wb"))
 
