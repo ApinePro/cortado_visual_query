@@ -73,6 +73,7 @@ import { ELECTRON_SERVICE } from './tokens';
 import { ElectronService } from './services/electronService/electron.service';
 import { UnavailableInfoComponent } from './components/unavailable-info/unavailable-info.component';
 import { VariantConformanceComponent } from './components/variant-conformance/variant-conformance.component';
+import { ConformanceStatusIconComponent } from './components/variant-explorer/variant/subcomponents/variant-info/conformance-status-icon/conformance-status-icon.component';
 
 @NgModule({
   declarations: [
@@ -137,6 +138,7 @@ import { VariantConformanceComponent } from './components/variant-conformance/va
     VariantDeleteButtonComponent,
     UnavailableInfoComponent,
     VariantConformanceComponent,
+    ConformanceStatusIconComponent,
   ],
   imports: [
     BrowserModule,
