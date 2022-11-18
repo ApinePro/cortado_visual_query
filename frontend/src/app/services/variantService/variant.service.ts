@@ -5,15 +5,15 @@ import { LogService } from 'src/app/services/logService/log.service';
 import * as objectHash from 'object-hash';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { skip, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { mapVariants } from 'src/app/utils/util';
+import { v4 as uuidv4 } from 'uuid';
 import {
   getInfixTypeForSelectedInfix,
   getSelectedChildren,
   InfixType,
   removeIntermediateGroupsWithSingleElements,
-  someChildrenSelected,
 } from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
 import {
@@ -51,15 +51,17 @@ export class VariantService {
   }
 
   private _variants = new BehaviorSubject<Variant[]>([]);
-  private _collapsedVariants = null;
+  private _collapsedVariants = new BehaviorSubject<LoopCollapsedVariant[]>(
+    null
+  );
   public areVariantLoopsCollapsed = false;
 
-  get collapsedVariants(): LoopCollapsedVariant[] {
-    return this._collapsedVariants;
+  set collapsedVariants(variants: LoopCollapsedVariant[]) {
+    this._collapsedVariants.next(variants);
   }
 
-  set collapsedVariants(variants: LoopCollapsedVariant[]) {
-    this._collapsedVariants = variants;
+  get collapsedVariants$(): Observable<LoopCollapsedVariant[]> {
+    return this._collapsedVariants.asObservable();
   }
 
   get variants$(): Observable<Variant[]> {
@@ -402,6 +404,44 @@ export class VariantService {
   }
 
   public unCollapseLoopsInVariants() {
+    if (this.areVariantLoopsCollapsed) {
+      this.collapsedVariants = null;
+    } else {
+      this.loadLoopCollapsedVariants();
+    }
     this.areVariantLoopsCollapsed = !this.areVariantLoopsCollapsed;
+  }
+
+  private loadLoopCollapsedVariants() {
+    this.httpClient
+      .get(ROUTES.BASE_URL + ROUTES.IMPORT + 'collapsedVariants')
+      .subscribe((res) => {
+        let collapsedVariants = [];
+
+        let bidToVariant = new Map<number, Variant>();
+        for (let variant of this.variants) {
+          bidToVariant.set(variant.bid, variant);
+        }
+
+        for (let idx in res) {
+          let collapsedVariant = res[idx];
+
+          let underlyingVariants = [];
+
+          for (let bid of collapsedVariant['ids']) {
+            underlyingVariants.push(bidToVariant.get(bid));
+          }
+
+          collapsedVariants.push(
+            new LoopCollapsedVariant(
+              uuidv4(),
+              underlyingVariants,
+              deserialize(collapsedVariant['variant'])
+            )
+          );
+        }
+
+        this.collapsedVariants = collapsedVariants;
+      });
   }
 }

@@ -1,3 +1,7 @@
+from collections import defaultdict
+
+from cortado_core.utils.collapse_variants import collapse_variant
+
 import cache.cache as cache
 import pm4py.objects.log.importer.xes.importer as xes_importer
 from backend_utilities.configuration.repository import (
@@ -57,3 +61,15 @@ async def load_process_tree_from_file_path(d: FilePathInput):
     pt = import_pt_from_ptml(d.file_path)
     res = process_tree_to_dict(pt)
     return res
+
+
+@router.get("/collapsedVariants")
+async def load_loop_collapsed_variants():
+    collapsed_variants = defaultdict(list)
+
+    for bid, (variant, _, _) in cache.variants.items():
+        collapsed_variant = collapse_variant(variant)
+        collapsed_variants[collapsed_variant].append(bid)
+
+    return [{'variant': v.serialize(), 'ids': bids} for v, bids in collapsed_variants.items()]
+

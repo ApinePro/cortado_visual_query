@@ -243,6 +243,7 @@ export class VariantExplorerComponent
     this.listenForLogGranularityChange();
     this.listenForLogStatChange();
     this.listenForViewModeChange();
+    this.listenForLoopCollapsedVariantsChange();
   }
 
   ngOnDestroy(): void {
@@ -1038,13 +1039,17 @@ export class VariantExplorerComponent
       });
   }
 
-  unCollapseLoopsInVariants() {
-    this.variantService.unCollapseLoopsInVariants();
-    if (this.variantService.areVariantLoopsCollapsed) {
-      this.displayed_variants = this.variantService.collapsedVariants;
-    } else {
-      this.displayed_variants = this.variants;
-    }
+  private listenForLoopCollapsedVariantsChange() {
+    this.variantService.collapsedVariants$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((variants) => {
+        console.log(variants);
+        if (variants !== null) {
+          this.displayed_variants = variants;
+        } else {
+          this.displayed_variants = this.variants;
+        }
+      });
   }
 }
 

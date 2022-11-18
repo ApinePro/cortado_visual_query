@@ -10,16 +10,12 @@ import { mapVariants } from 'src/app/utils/util';
 import { LogService } from '../logService/log.service';
 import { VariantService } from '../variantService/variant.service';
 import { ProcessTreeService } from './../processTreeService/process-tree.service';
-import {
-  deserialize,
-  VariantElement,
-} from 'src/app/objects/Variants/variant_element';
+import { VariantElement } from 'src/app/objects/Variants/variant_element';
 import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { addVariantInformation } from '../variantService/variant-transformation';
 import { MiningConfig } from 'src/app/objects/Variants/variant-miner-types';
 import { ElectronServiceInterface } from '../electronService/electron.service';
 import { ELECTRON_SERVICE } from 'src/app/tokens';
-import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
 
 @Injectable({
   providedIn: 'root',
@@ -93,28 +89,6 @@ export class BackendService {
     this.logService.performanceInfoAvailable = true;
     this.logService.timeGranularity = res['timeGranularity'];
     this.logService.logGranularity = res['timeGranularity'];
-
-    let collapsedVariants = new Map<string, LoopCollapsedVariant>();
-    for (let id in res['collapsedVariants']) {
-      collapsedVariants.set(
-        id,
-        new LoopCollapsedVariant(
-          id,
-          [],
-          deserialize(res['collapsedVariants'][id])
-        )
-      );
-    }
-
-    for (let variant of this.variantService.variants) {
-      collapsedVariants.get(variant.collapsedVariantId).variants.push(variant);
-    }
-
-    this.variantService.collapsedVariants = Array.from(
-      collapsedVariants.values()
-    );
-
-    console.log(this.variantService.collapsedVariants);
   }
 
   loadProcessTreeFromFilePath(filePath: string): void {
