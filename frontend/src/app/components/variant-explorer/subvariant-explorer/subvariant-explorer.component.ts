@@ -38,6 +38,8 @@ import {
   ConformanceCheckingService,
 } from 'src/app/services/conformanceChecking/conformance-checking.service';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
+import { IVariant } from 'src/app/objects/Variants/variant_interface';
+import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
 
 @Component({
   selector: 'app-subvariant-explorer',
@@ -49,7 +51,7 @@ export class SubvariantExplorerComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
   mainVariant: Variant;
-  subvariants;
+  subvariants = [];
   public colorMap: Map<string, string>;
   public serviceTimeColorMap: any;
   public waitingTimeColorMap: any;
@@ -83,7 +85,7 @@ export class SubvariantExplorerComponent
   ) {
     super(elRef.nativeElement, renderer);
     let state = this.container.initialState;
-    this.mainVariant = state['variant'] as Variant;
+    this.mainVariant = state['variant'] as IVariant;
     this.index = state['index'] as number;
     this.colorMap = this.colorMapService.colorMap;
     this.sortAscending = false;
@@ -95,12 +97,22 @@ export class SubvariantExplorerComponent
   }
 
   ngOnInit(): void {
-    this.backendService
-      .getSubvariantsForVariant(this.mainVariant.bid)
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((r) => {
-        this.subvariants = r;
-      });
+    let underlyingVariants = [];
+    if (this.mainVariant instanceof LoopCollapsedVariant) {
+      underlyingVariants = this.mainVariant.variants;
+    } else {
+      underlyingVariants.push(this.mainVariant);
+    }
+
+    underlyingVariants.forEach((v) => {
+      this.backendService
+        .getSubvariantsForVariant(v.bid)
+        .pipe(takeUntil(this._destroy$))
+        .subscribe((r) => {
+          let res = r.map((subVariant) => [subVariant, v.variant]);
+          this.subvariants = this.subvariants.concat(res);
+        });
+    });
   }
 
   ngAfterViewInit() {

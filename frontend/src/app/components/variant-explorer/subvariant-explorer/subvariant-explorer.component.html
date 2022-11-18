@@ -118,14 +118,14 @@
                 data-bs-container="body"
                 data-bs-html="true"
                 title="sub-variant describes ~{{
-                  subVariant.percentage
+                  subVariant[0].percentage
                 }}% of all traces of the main-variant<br>
         <span class='text-secondary'>sub-variant occurs {{
-                  subVariant.count | number
+                  subVariant[0].count | number
                 }} time(s) in total</span>"
               >
-                {{ subVariant.percentage }}%<br />
-                ({{ subVariant.count | number }})
+                {{ subVariant[0].percentage }}%<br />
+                ({{ subVariant[0].count | number }})
               </small>
             </td>
             <td style="padding: 5px 5px 5px 50px">
@@ -133,10 +133,10 @@
                 class="cursor-pointer"
                 (click)="toggleExpanded()"
                 [expanded]="mainVariant.variant.expanded"
-                [variant]="subVariant.variant"
+                [variant]="subVariant[0].variant"
                 [colorMap]="colorMap"
                 [onClickCbFc]="subvariantClickCallBack.bind(this)"
-                [mainVariant]="mainVariant['variant']"
+                [mainVariant]="subVariant[1]"
               >
               </app-sub-variant>
             </td>
