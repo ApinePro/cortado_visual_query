@@ -60,10 +60,10 @@ export class HttpRequestInterceptor implements HttpInterceptor {
     return (
       // ignore timeouts for alignment computations because they are handled in the variant explorer
       (error.status == 504 &&
-        error.url.endsWith('calculateAlignmentsCVariant')) ||
+        error.url?.endsWith('calculateAlignmentsCVariant')) ||
       // info requests are made to show the backend state in the footer; therefore, we do not want to show the error dialog
-      error.url.endsWith('/info') ||
-      error.url.endsWith('resetLogCache')
+      error.url?.endsWith('/info') ||
+      error.url?.endsWith('resetLogCache')
     );
   }
 
