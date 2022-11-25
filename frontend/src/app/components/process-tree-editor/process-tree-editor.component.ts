@@ -518,7 +518,8 @@ export class ProcessTreeEditorComponent
     const isVisibleActivity =
       (d.data.label !== null && d.data.label !== ProcessTreeOperator.tau) ||
       (this.modelViewModeService.viewMode === ViewMode.PERFORMANCE &&
-        nodeColor !== undefined);
+        nodeColor !== undefined) ||
+      this.modelViewModeService.viewMode === ViewMode.CONFORMANCE;
     return isVisibleActivity ? textColorForBackgroundColor(nodeColor) : 'white';
   };
 
