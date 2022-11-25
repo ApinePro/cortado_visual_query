@@ -30,6 +30,7 @@ import { NodeSeletionStrategy } from 'src/app/objects/ProcessTree/utility-functi
 import { takeUntil } from 'rxjs/operators';
 import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
 import { ViewMode } from 'src/app/objects/ViewMode';
+import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
 
 @Component({
   selector: 'app-bpmn-editor',
@@ -75,7 +76,8 @@ export class BpmnEditorComponent
     private performanceService: PerformanceService,
     private processTreeService: ProcessTreeService,
     private imageExportService: ImageExportService,
-    private modelViewModeService: ModelViewModeService
+    private modelViewModeService: ModelViewModeService,
+    private conformanceCheckingService: ConformanceCheckingService
   ) {
     super(elRef.nativeElement, renderer);
     const state = this.container.initialState;
@@ -251,10 +253,16 @@ export class BpmnEditorComponent
     return d.label || d.operator;
   };
 
-  computeNodeColor = (root, pt: ProcessTree) => {
+  computeNodeColor = (pt: ProcessTree) => {
     let color;
 
     switch (this.modelViewModeService.viewMode) {
+      case ViewMode.CONFORMANCE:
+        console.log(pt);
+        if (pt.conformance === null) return '#404041';
+        return this.conformanceCheckingService.conformanceColorMap.getColor(
+          pt.conformance.value
+        );
       case ViewMode.PERFORMANCE:
         if (
           this.performanceColorMap.has(pt.id) &&
@@ -285,10 +293,10 @@ export class BpmnEditorComponent
     return color;
   };
 
-  computeTextColor = (root, pt: ProcessTree) => {
+  computeTextColor = (pt: ProcessTree) => {
     return pt.label === ProcessTreeOperator.tau || pt.frozen
       ? 'White'
-      : textColorForBackgroundColor(this.computeNodeColor(root, pt));
+      : textColorForBackgroundColor(this.computeNodeColor(pt));
   };
 
   ngOnDestroy() {

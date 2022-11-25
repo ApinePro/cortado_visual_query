@@ -687,8 +687,8 @@ export class BpmnDrawerDirective {
     node.classed('frozen-node-visible-activity', model._pt.frozen);
     selection.classed('cursor-pointer', true);
 
-    const color = this.computeNodeColor(this.root, model._pt);
-    const text_color = this.computeTextColor(this.root, model._pt);
+    const color = this.computeNodeColor(model._pt);
+    const text_color = this.computeTextColor(model._pt);
 
     const width = model.width;
 
