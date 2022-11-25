@@ -35,10 +35,10 @@
                 Variant Transaction
               </option>
               <option [ngValue]="FrequentMiningStrategy.TraceOccurence">
-                Trace Occurence
+                Trace Root-Occurence
               </option>
               <option [ngValue]="FrequentMiningStrategy.VariantOccurence">
-                Variant Occurence
+                Variant Root-Occurence
               </option>
             </select>
           </div>
@@ -58,7 +58,7 @@
                 Valid Tree Miner
               </option>
               <option [ngValue]="FrequentMiningAlgorithm.ClosedMaximalMiner">
-                Closed Maximal Miner
+                Blanket Tree Miner
               </option>
             </select>
           </div>
@@ -88,7 +88,7 @@
           </div>
 
           <div class="form-element">
-            <label for="size" class="input-label">K: </label>
+            <label for="size" class="input-label">Maximum Size: </label>
             <input
               id="size"
               type="text"
@@ -145,7 +145,7 @@
 
           <div class="form-element">
             <label for="artifical_start" class="input-label"
-              >Add artifical Start:
+              >Mine prefixes and suffixes:
             </label>
             <input
               id="artifical_start"
@@ -169,7 +169,7 @@
             class="form-element"
             *ngIf="this.variantMinerConfigInput.value.fold_loop"
           >
-            <label for="loop" class="input-label">Tau: </label>
+            <label for="loop" class="input-label">Loop Threshold: </label>
             <input
               id="loop"
               type="number"
@@ -380,7 +380,7 @@
               </div>
             </div>
             <app-activity-button-area
-              *ngIf="filterDropDownOpen"
+              *ngIf="filterDropDownOpen && minerVisibile"
               [activityNames]="activityNames"
               (activityButtonClick)="handleActivityButtonClick($event)"
             >
