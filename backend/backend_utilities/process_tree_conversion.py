@@ -52,11 +52,11 @@ def process_tree_to_dict_rec(
                         child_conformance, key=lambda conf: conf['value'])
                 else:
                     # mean of childrens conformance
-                    freq_sum = sum(
+                    weight_sum = sum(
                         list(map(lambda conf: conf['weight'], child_conformance)))
                     res['conformance'] = {
-                        'value': sum(list(map(lambda conf: conf['value'] * conf['weight'], child_conformance))) / freq_sum,
-                        'weight': freq_sum
+                        'value': sum(list(map(lambda conf: conf['value'] * conf['weight'], child_conformance))) / weight_sum,
+                        'weight': weight_sum
 
                     }
         elif str(pt) in conformance and conformance[str(pt)]['value'] is not None:

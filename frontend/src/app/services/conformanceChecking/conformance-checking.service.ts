@@ -224,11 +224,11 @@ export class ConformanceCheckingService {
     this.latestRequest = this.backendService
       .getTreeConformance(
         this.usedProcessTreeForTreeConformance,
-        variantsCombined,
-        removeVariants
+        variantsCombined
       )
       .subscribe((res: treeConformanceResult) => {
-        this.mergedTreeConformance = res.merged_conformance_tree;
+        this.mergedTreeConformance =
+          res.merged_conformance_tree.weighted_by_counts;
 
         variantsCombined.forEach((variant, index) => {
           const pt = res.variants_tree_conformance[index];
@@ -256,7 +256,7 @@ export class ConformanceCheckingService {
 
   public deleteTreeConformance(v: Variant): void {
     if (this.activeTreeConformance == v) {
-      this.unselectTreeConformance;
+      this.unselectTreeConformance();
     }
     this.availableTreeConformances.delete(v);
     this.variantsConformance.delete(v);

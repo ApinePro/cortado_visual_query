@@ -13,6 +13,9 @@ export class ConformanceCheckingResult {
   ) {}
 }
 export interface treeConformanceResult {
-  merged_conformance_tree: ProcessTree;
+  merged_conformance_tree: {
+    weighted_equally: ProcessTree;
+    weighted_by_counts: ProcessTree;
+  };
   variants_tree_conformance: ProcessTree[];
 }

@@ -453,8 +453,7 @@ export class BackendService {
 
   public getTreeConformance(
     pt: ProcessTree,
-    variants: Variant[],
-    remove?: Variant[]
+    variants: Variant[]
   ): Observable<treeConformanceResult> {
     const body = {
       pt: pt,
@@ -469,7 +468,6 @@ export class BackendService {
               : variant.fragmentStatistics.traceOccurrences,
         };
       }),
-      delete: remove,
     };
 
     return this.httpClient
@@ -480,22 +478,22 @@ export class BackendService {
         body
       )
       .pipe(
-        map(
-          (res: {
-            merged_conformance_tree: ProcessTree;
-            variants_tree_conformance: ProcessTree[];
-          }) => {
-            const treeConfRes = {
-              merged_conformance_tree: ProcessTree.fromObj(
-                res.merged_conformance_tree
+        map((res: treeConformanceResult) => {
+          const treeConfRes = {
+            merged_conformance_tree: {
+              weighted_equally: ProcessTree.fromObj(
+                res.merged_conformance_tree.weighted_equally
               ),
-              variants_tree_conformance: res.variants_tree_conformance.map(
-                (pt) => ProcessTree.fromObj(pt)
+              weighted_by_counts: ProcessTree.fromObj(
+                res.merged_conformance_tree.weighted_by_counts
               ),
-            };
-            return treeConfRes;
-          }
-        )
+            },
+            variants_tree_conformance: res.variants_tree_conformance.map((pt) =>
+              ProcessTree.fromObj(pt)
+            ),
+          };
+          return treeConfRes;
+        })
       );
   }
 }

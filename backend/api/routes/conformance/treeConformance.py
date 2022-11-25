@@ -72,27 +72,37 @@ async def calculate_tree_conformance(d: InputCalculateConformance):
         variants_tree_conformance.append(process_tree_to_dict(
             pt, conformance=variant_conf_stats))
 
-    merged_conf_stat = merge_conf_stats(all_conf_stats)
-    pt_dict = process_tree_to_dict(pt, conformance=merged_conf_stat)
-
     return {
-        "merged_conformance_tree": pt_dict,
+        "merged_conformance_tree": {
+            "weighted_equally": process_tree_to_dict(pt, conformance=merge_conf_stats(all_conf_stats)),
+            "weighted_by_counts": process_tree_to_dict(pt, conformance=merge_conf_stats(all_conf_stats, list(map(lambda x: x['count'], d.variants)))),
+        },
         "variants_tree_conformance": variants_tree_conformance,
     }
 
 
-def merge_conf_stats(conf_stats: List[dict]):
+def merge_conf_stats(conf_stats: List[dict], counts=None):
     if len(conf_stats) == 1:
-        return conf_stats[0]
+        if counts is not None:
+            for value in conf_stats[0].values():
+                value['weight'] *= counts[0]
+            return conf_stats[0]
+        else:
+            return conf_stats[0]
     merged_stats = {}
     if len(conf_stats) > 1:
-        for key in conf_stats[0].keys():
-            values = [stats[key]['value']
-                      for stats in conf_stats if key in stats and stats[key]['value'] is not None]
-            weights = [stats[key]['weight']
-                       for stats in conf_stats if key in stats and stats[key]['value'] is not None]
+        keys = set(
+            [key for conf_stat in conf_stats for key in conf_stat.keys()])
+        for key in keys:
+            values = []
+            weights = []
+            for index, stats in enumerate(conf_stats):
+                if key in stats and stats[key]['value'] is not None:
+                    values.append(stats[key]['value'])
+                    weights.append(
+                        stats[key]['weight'] * (counts[index] if counts is not None else 1))
             merged_stats[key] = {
-                'value': sum(values) / len(values) if len(values) > 0 else None,
+                'value': sum([value * weight for value, weight in zip(values, weights)])/sum(weights),
                 'weight': sum(weights)
             }
         return merged_stats
