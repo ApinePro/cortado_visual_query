@@ -1,4 +1,5 @@
 from typing import List, Optional
+from typing_extensions import TypedDict
 from collections import defaultdict
 from fastapi import APIRouter
 from pydantic import BaseModel
@@ -13,27 +14,31 @@ from endpoints.alignments import InfixType, calculate_alignment
 router = APIRouter(tags=["treeConformance"], prefix="/treeConformance")
 
 
+class ConformanceVariant(TypedDict):
+    variant: dict
+    count: int
+    infixType: InfixType
+
+
 class InputCalculateConformance(BaseModel):
     pt: dict
-    variants: List[int]
-    delete: Optional[List[int]]
-    infix_type: InfixType
+    variants: List[ConformanceVariant]
 
 
 @router.post("/calculateVariantsConformance")
 async def calculate_tree_conformance(d: InputCalculateConformance):
     pt, _ = dict_to_process_tree(d.pt)
     pt = convert_tree(pt)
-    variants_tree_conformance = {}
+    variants_tree_conformance = []
     all_conf_stats = []
 
-    for bid in d.variants:
-        (variant, _, _) = cache.variants[bid]
+    for c_variant in d.variants:
         # calc alignment
-        variants = generate_variants(variant.serialize())
+        variants = generate_variants(c_variant['variant'])
         variant_tree_conformances = []
         for variant in variants:
-            alignment = calculate_alignment(variant, d.pt, d.infix_type, True)
+            alignment = calculate_alignment(
+                variant, d.pt, c_variant['infixType'], True)
 
             conf_stats = defaultdict(lambda: {'value': None, 'weight': 0})
             for (log_move, model_move) in alignment['alignment']:
@@ -64,8 +69,8 @@ async def calculate_tree_conformance(d: InputCalculateConformance):
 
         variant_conf_stats = merge_conf_stats(variant_tree_conformances)
         all_conf_stats.append(variant_conf_stats)
-        variants_tree_conformance[bid] = process_tree_to_dict(
-            pt, conformance=variant_conf_stats)
+        variants_tree_conformance.append(process_tree_to_dict(
+            pt, conformance=variant_conf_stats))
 
     merged_conf_stat = merge_conf_stats(all_conf_stats)
     pt_dict = process_tree_to_dict(pt, conformance=merged_conf_stat)
@@ -83,9 +88,9 @@ def merge_conf_stats(conf_stats: List[dict]):
     if len(conf_stats) > 1:
         for key in conf_stats[0].keys():
             values = [stats[key]['value']
-                      for stats in conf_stats if stats[key]['value'] is not None]
+                      for stats in conf_stats if key in stats and stats[key]['value'] is not None]
             weights = [stats[key]['weight']
-                       for stats in conf_stats if stats[key]['value'] is not None]
+                       for stats in conf_stats if key in stats and stats[key]['value'] is not None]
             merged_stats[key] = {
                 'value': sum(values) / len(values) if len(values) > 0 else None,
                 'weight': sum(weights)

@@ -59,7 +59,7 @@ def process_tree_to_dict_rec(
                         'weight': freq_sum
 
                     }
-        elif conformance[str(pt)]['value'] is not None:
+        elif str(pt) in conformance and conformance[str(pt)]['value'] is not None:
             res['conformance'] = conformance[str(pt)]
     return res
 

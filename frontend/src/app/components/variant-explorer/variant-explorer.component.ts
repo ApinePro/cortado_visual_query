@@ -1041,20 +1041,20 @@ export class VariantExplorerComponent
       if (this.conformanceCheckingService.isTreeConformanceActive(v)) {
         this.conformanceCheckingService.unselectTreeConformance();
       } else {
-        this.conformanceCheckingService.setShownTreeConformance(v.bid);
+        this.conformanceCheckingService.setShownTreeConformance(v);
       }
     } else {
-      if (this.conformanceCheckingService.calculationInProgress.has(v.bid)) {
+      if (this.conformanceCheckingService.calculationInProgress.has(v)) {
         return;
       }
       if (this.currentlyDisplayedProcessTree) {
-        this.conformanceCheckingService.updateTreeConformance([v.bid]);
+        this.conformanceCheckingService.updateTreeConformance([v]);
       }
     }
   }
 
   handleConformanceRemove(v: Variant) {
-    this.conformanceCheckingService.updateTreeConformance([], [v.bid]);
+    this.conformanceCheckingService.updateTreeConformance([], [v]);
   }
 }
 

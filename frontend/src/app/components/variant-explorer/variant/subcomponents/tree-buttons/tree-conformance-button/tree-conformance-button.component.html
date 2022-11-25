@@ -32,14 +32,14 @@
     </i>
 
     <div
-      *ngIf="isConformanceCalcInProgress && !variant?.userDefined"
+      *ngIf="isConformanceCalcInProgress"
       class="spinner-border spinner-border-sm text-primary"
       role="status"
       style="margin-top: 5px"
     ></div>
   </button>
   <button
-    *ngIf="isConformanceAvailable && !variant?.userDefined"
+    *ngIf="isConformanceAvailable"
     style="padding: 0; margin-left: 5px"
     class="btn"
     (click)="removeCurrentConformance()"

@@ -18,6 +18,7 @@ import { ElectronServiceInterface } from '../electronService/electron.service';
 import { ELECTRON_SERVICE } from 'src/app/tokens';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
 import { treeConformanceResult } from '../conformanceChecking/model';
+import { Variant } from 'src/app/objects/Variants/variant';
 
 @Injectable({
   providedIn: 'root',
@@ -452,15 +453,23 @@ export class BackendService {
 
   public getTreeConformance(
     pt: ProcessTree,
-    variants: number[],
-    infixType: InfixType,
-    remove?: number[]
+    variants: Variant[],
+    remove?: Variant[]
   ): Observable<treeConformanceResult> {
     const body = {
       pt: pt,
-      variants: variants,
+      variants: variants.map((variant) => {
+        console.log(variant);
+        return {
+          variant: variant.variant.serialize(),
+          infixType: variant.infixType,
+          count:
+            variant.infixType == InfixType.NOT_AN_INFIX
+              ? variant.count
+              : variant.fragmentStatistics.traceOccurrences,
+        };
+      }),
       delete: remove,
-      infix_type: infixType,
     };
 
     return this.httpClient
@@ -474,20 +483,16 @@ export class BackendService {
         map(
           (res: {
             merged_conformance_tree: ProcessTree;
-            variants_tree_conformance: any;
+            variants_tree_conformance: ProcessTree[];
           }) => {
             const treeConfRes = {
               merged_conformance_tree: ProcessTree.fromObj(
                 res.merged_conformance_tree
               ),
-              variants_tree_conformance: new Map(),
+              variants_tree_conformance: res.variants_tree_conformance.map(
+                (pt) => ProcessTree.fromObj(pt)
+              ),
             };
-            Object.keys(res.variants_tree_conformance).forEach((bid) => {
-              treeConfRes.variants_tree_conformance.set(
-                Number(bid),
-                res.variants_tree_conformance[bid]
-              );
-            });
             return treeConfRes;
           }
         )

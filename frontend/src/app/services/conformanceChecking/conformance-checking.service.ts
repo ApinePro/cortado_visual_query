@@ -50,15 +50,15 @@ export class ConformanceCheckingService {
 
   private usedProcessTreeForTreeConformance: ProcessTree;
 
-  private activeTreeConformance: number;
-  private availableTreeConformances: Set<number> = new Set<number>();
+  private activeTreeConformance: Variant;
+  private availableTreeConformances: Set<Variant> = new Set<Variant>();
   public mergedTreeConformance: ProcessTree;
-  public variantsConformance: Map<number, ProcessTree> = new Map<
-    number,
+  public variantsConformance: Map<Variant, ProcessTree> = new Map<
+    Variant,
     ProcessTree
   >();
   private latestRequest: Subscription;
-  public calculationInProgress = new Set<number>();
+  public calculationInProgress = new Set<Variant>();
 
   public connect(): boolean {
     if (!this.socket || this.socket.closed) {
@@ -164,20 +164,20 @@ export class ConformanceCheckingService {
 
   public isTreeConformanceActive(v: Variant) {
     return (
-      this.activeTreeConformance === v.bid &&
+      this.activeTreeConformance === v &&
       this.modelViewModeService.viewMode === ViewMode.CONFORMANCE
     );
   }
 
   public isMergedTreeConformanceActive() {
     return (
-      this.activeTreeConformance === -1 &&
+      this.activeTreeConformance === null &&
       this.modelViewModeService.viewMode === ViewMode.CONFORMANCE
     );
   }
 
   public isTreeConformanceAvailable(v: Variant) {
-    return this.availableTreeConformances.has(v.bid);
+    return this.availableTreeConformances.has(v);
   }
 
   public isMergedTreeConformanceAvailable() {
@@ -185,14 +185,17 @@ export class ConformanceCheckingService {
   }
 
   public isTreeConformanceCalcInProgress(v: Variant) {
-    return this.calculationInProgress.has(v.bid);
+    return this.calculationInProgress.has(v);
   }
 
   public anyTreeConformanceAvailable() {
     return this.availableTreeConformances.size > 0;
   }
 
-  public updateTreeConformance(variants: number[], removeVariants?: number[]) {
+  public updateTreeConformance(
+    variants: Variant[],
+    removeVariants?: Variant[]
+  ) {
     this.latestRequest?.unsubscribe();
 
     if (removeVariants !== undefined) {
@@ -202,7 +205,7 @@ export class ConformanceCheckingService {
 
     // Add previously computed variants again to get updated merged values
     // conformance values should be cached in backend
-    const variantsCombined: number[] = Array.from(
+    const variantsCombined: Variant[] = Array.from(
       new Set([
         ...variants,
         ...this.variantsConformance.keys(),
@@ -222,17 +225,19 @@ export class ConformanceCheckingService {
       .getTreeConformance(
         this.usedProcessTreeForTreeConformance,
         variantsCombined,
-        InfixType.NOT_AN_INFIX, //TODO pass as value
         removeVariants
       )
       .subscribe((res: treeConformanceResult) => {
         this.mergedTreeConformance = res.merged_conformance_tree;
 
-        res.variants_tree_conformance.forEach((pt, bid) => {
-          this.availableTreeConformances.add(bid);
-          this.variantsConformance.set(bid, pt);
+        variantsCombined.forEach((variant, index) => {
+          const pt = res.variants_tree_conformance[index];
+          this.availableTreeConformances.add(variant);
+          this.variantsConformance.set(variant, pt);
 
-          const confButton = document.getElementById(`conformanceButton${bid}`);
+          const confButton = document.getElementById(
+            `conformanceButton${variant?.bid}`
+          );
           this.updateTooltip(confButton, pt.conformance?.value);
         });
 
@@ -249,18 +254,18 @@ export class ConformanceCheckingService {
       });
   }
 
-  public deleteTreeConformance(vBid: number): void {
-    if (this.activeTreeConformance == vBid) {
+  public deleteTreeConformance(v: Variant): void {
+    if (this.activeTreeConformance == v) {
       this.unselectTreeConformance;
     }
-    this.availableTreeConformances.delete(vBid);
-    this.variantsConformance.delete(vBid);
+    this.availableTreeConformances.delete(v);
+    this.variantsConformance.delete(v);
   }
 
-  public setShownTreeConformance(vBid: number) {
-    this.activeTreeConformance = vBid;
+  public setShownTreeConformance(v: Variant) {
+    this.activeTreeConformance = v;
     this.processTreeService.currentDisplayedProcessTree =
-      this.variantsConformance.get(vBid);
+      this.variantsConformance.get(v);
     this.modelViewModeService.viewMode = ViewMode.CONFORMANCE;
   }
 
@@ -270,7 +275,7 @@ export class ConformanceCheckingService {
   }
 
   public showMergedTreeConformance() {
-    this.activeTreeConformance = -1;
+    this.activeTreeConformance = null;
     this.processTreeService.currentDisplayedProcessTree =
       this.mergedTreeConformance;
     this.modelViewModeService.viewMode = ViewMode.CONFORMANCE;

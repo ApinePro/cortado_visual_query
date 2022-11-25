@@ -32,7 +32,7 @@ export class TreeConformanceButtonComponent {
     let tree: ProcessTree;
     if (this.variant)
       tree = this.conformanceCheckingService.variantsConformance.get(
-        this.variant.bid
+        this.variant
       );
     else tree = this.conformanceCheckingService.mergedTreeConformance;
 

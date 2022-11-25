@@ -1,4 +1,5 @@
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
+import { Variant } from 'src/app/objects/Variants/variant';
 
 export class ConformanceCheckingResult {
   constructor(
@@ -13,5 +14,5 @@ export class ConformanceCheckingResult {
 }
 export interface treeConformanceResult {
   merged_conformance_tree: ProcessTree;
-  variants_tree_conformance: Map<number, ProcessTree>;
+  variants_tree_conformance: ProcessTree[];
 }
