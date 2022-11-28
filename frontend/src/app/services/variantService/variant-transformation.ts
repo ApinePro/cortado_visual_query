@@ -169,7 +169,6 @@ export function compute_rename_activity_variants(
 export function addVariantInformation(variants: Variant[]): Variant[] {
   variants.forEach((v, i) => {
     v.isConformanceOutdated = true;
-    v.userDefined = false;
     v.isTimeouted = false;
     v.isSelected = false;
     v.isDisplayed = true;

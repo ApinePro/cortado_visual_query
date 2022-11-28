@@ -49,6 +49,7 @@ def reset_last_transaction():
             "number_of_activities": v.number_of_activities(),
             "percentage": round(len(ts) / total_traces * 100, 2),
             "nSubVariants": len(sv),
+            "userDefined": len(ts) == 0,
         }
 
         # If the variant is only a single activity leaf, wrap it up as a sequence
@@ -75,6 +76,8 @@ def reset_last_transaction():
         "performanceInfoAvailable": cache.parameters["lifecycle_available"],
         "timeGranularity": cache.parameters["cur_time_granularity"],
     }
+
+    print(res)
 
     return res
 

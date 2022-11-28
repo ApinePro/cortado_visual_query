@@ -30,7 +30,6 @@ import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { ToastService } from '../toast/toast.service';
 import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
 import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
-import { bind } from 'lodash';
 
 @Injectable({
   providedIn: 'root',

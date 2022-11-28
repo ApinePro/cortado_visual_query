@@ -114,6 +114,7 @@ def create_variant_object(time_granularity, total_traces, bid, v, ts):
         "number_of_activities": v.number_of_activities(),
         "percentage": round(len(ts) / total_traces * 100, 2),
         "nSubVariants": len(sub_variants.keys()),
+        "userDefined": len(ts) == 0,
     }
 
     # If the variant is only a single activity leaf, wrap it up as a sequence
