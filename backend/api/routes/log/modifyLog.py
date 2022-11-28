@@ -91,5 +91,5 @@ async def remove_activity_name_in_log(request: userDefinedVariant, response: Res
         response.status_code = status.HTTP_400_BAD_REQUEST
         return
 
-    cache.cache.variants[request.bid] = (v, [], [])
+    cache.cache.variants[request.bid] = (v, [], dict())
     return

@@ -60,7 +60,7 @@ export class LoopCollapsedVariant implements IVariant {
   }
 
   get userDefined() {
-    return this.variants.some((v) => v.userDefined);
+    return this.variants.every((v) => v.userDefined);
   }
 
   get nSubVariants() {

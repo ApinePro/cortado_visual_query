@@ -11,7 +11,7 @@ export function compute_delete_activity_variants(
   const changedStrings: Set<string> = new Set<string>();
   const delete_list = [];
 
-  for (let variant of cur_variants.filter((v) => !v.userDefined)) {
+  for (let variant of cur_variants) {
     let tmp;
 
     if (variant.variant.getActivities().has(activityName)) {
@@ -117,7 +117,7 @@ export function compute_rename_activity_variants(
   const updateMap: Map<string, Variant[]> = new Map<string, Variant[]>();
   const changedStrings: Set<string> = new Set<string>();
 
-  for (let variant of cur_variants.filter((v) => !v.userDefined)) {
+  for (let variant of cur_variants) {
     let change: boolean = false;
 
     if (variant.variant.getActivities().has(activityName)) {
@@ -140,13 +140,6 @@ export function compute_rename_activity_variants(
   }
 
   const variants = apply_update_map(updateMap);
-
-  const user_defined_variants = cur_variants.filter((v) => v.userDefined);
-  user_defined_variants.forEach((v) =>
-    v.variant.renameActivity(activityName, newActivityName)
-  );
-
-  variants.push(...user_defined_variants);
 
   let rename_list = [];
   let merge_list = [];

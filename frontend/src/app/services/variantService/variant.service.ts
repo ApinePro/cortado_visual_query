@@ -193,11 +193,7 @@ export class VariantService {
       (v) => v.variant === variant
     )[0];
 
-    if (matchingVariant.userDefined) {
-      this.variants = this.variants.filter((v) => v !== matchingVariant);
-    } else {
-      this.deleteVariants([matchingVariant.bid]);
-    }
+    this.deleteVariants([matchingVariant.bid]);
   }
 
   public deleteVariants(bids: number[]): void {
@@ -269,14 +265,6 @@ export class VariantService {
       const new_variants = addVariantInformation(res['new_variants']);
 
       variants.push(...new_variants);
-
-      const userDefinedVariants = this.variants.filter((v) => v.userDefined);
-
-      userDefinedVariants.forEach((v) =>
-        v.variant.deleteActivity(activityName)
-      );
-
-      variants.push(...userDefinedVariants);
 
       this.cachedChange = true;
       this.logService.computeLogStats(variants);
