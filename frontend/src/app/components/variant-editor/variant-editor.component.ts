@@ -632,6 +632,10 @@ export class VariantEditorComponent
         // set new variants list after adding statistics
         this.variantService.variants = currentVariants;
       });
+      this.variantService.addUserDefinedVariant(
+        newVariant.variant,
+        newVariant.bid
+      );
     } else {
       this.redundancyWarning = true;
       setTimeout(() => (this.redundancyWarning = false), 500);

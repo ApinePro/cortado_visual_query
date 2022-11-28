@@ -30,6 +30,7 @@ import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { ToastService } from '../toast/toast.service';
 import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
 import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
+import { bind } from 'lodash';
 
 @Injectable({
   providedIn: 'root',
@@ -401,6 +402,18 @@ export class VariantService {
           this.nameChanges.next([lastNameChange[1], lastNameChange[0]]);
         }
       });
+  }
+
+  public addUserDefinedVariant(variant: VariantElement, bid: number) {
+    this.httpClient
+      .post(ROUTES.BASE_URL + ROUTES.MODIFY_LOG + 'addUserDefinedVariant', {
+        variant: variant.serialize(),
+        bid: bid,
+      })
+      .subscribe(
+        (res) => console.log(res),
+        (err) => console.log('error ' + err)
+      );
   }
 
   public unCollapseLoopsInVariants() {

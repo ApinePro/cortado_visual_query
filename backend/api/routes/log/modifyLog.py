@@ -1,5 +1,9 @@
-from typing import List
+from typing import List, Any
 
+from cortado_core.utils.split_graph import Group
+from fastapi import Response, status
+
+import cache.cache
 from endpoints.transform_event_log import (
     cache_current_data,
     remove_activities,
@@ -22,7 +26,6 @@ class ChangeActivityName(BaseModel):
 
 @router.post("/changeActivityName")
 async def change_activity_name_in_log(d: ChangeActivityName):
-
     cache_current_data()
 
     update_map = rename_activities(
@@ -43,7 +46,6 @@ class removeActivityName(BaseModel):
 
 @router.post("/deleteActivity")
 async def remove_activity_name_in_log(d: removeActivityName):
-
     cache_current_data()
 
     res = remove_activities(
@@ -63,7 +65,6 @@ class removeVariants(BaseModel):
 
 @router.post("/deleteVariants")
 async def removeVariants(d: removeVariants):
-
     cache_current_data()
 
     res = remove_variant(d.bids)
@@ -73,7 +74,22 @@ async def removeVariants(d: removeVariants):
 
 @router.post("/revertLastChange")
 async def removeVariants():
-
     res = reset_last_transaction()
 
     return res
+
+
+class userDefinedVariant(BaseModel):
+    variant: Any
+    bid: int
+
+
+@router.post("/addUserDefinedVariant", status_code=201)
+async def remove_activity_name_in_log(request: userDefinedVariant, response: Response):
+    v = Group.deserialize(request.variant)
+    if request.bid in cache.cache.variants:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return
+
+    cache.cache.variants[request.bid] = (v, [], [])
+    return
