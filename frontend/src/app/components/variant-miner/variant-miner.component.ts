@@ -138,6 +138,7 @@ export class VariantMinerComponent
   nMaximal: number;
 
   filterDropDownOpen: boolean = false;
+  minerVisibile: boolean = true;
 
   contextMenu_xPos: number = 10;
   contextMenu_yPos: number = 10;
@@ -784,7 +785,10 @@ export class VariantMinerComponent
     this.currentHeight = height;
   }
 
-  handleVisibilityChange(visibility: boolean): void {}
+  handleVisibilityChange(visibility: boolean): void {
+    this.minerVisibile = visibility;
+    console.log('Visibility', visibility);
+  }
 
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
