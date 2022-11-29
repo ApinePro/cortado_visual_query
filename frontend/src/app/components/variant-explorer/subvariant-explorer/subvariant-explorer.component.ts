@@ -253,9 +253,9 @@ export class SubvariantExplorerComponent
   sortSubvariants(sortAttribute: string): void {
     const order = this.sortAscending ? 1 : -1;
     const subvariantSortFunction = (a, b) => {
-      if (a[sortAttribute] < b[sortAttribute]) {
+      if (a[0][sortAttribute] < b[0][sortAttribute]) {
         return -order;
-      } else if (a[sortAttribute] > b[sortAttribute]) {
+      } else if (a[0][sortAttribute] > b[0][sortAttribute]) {
         return order;
       } else return order;
     };
@@ -297,8 +297,8 @@ export class SubvariantExplorerComponent
     const counts = [];
     const percentages = [];
     for (let subVariant of this.subvariants) {
-      counts.push(subVariant.count);
-      percentages.push(subVariant.percentage);
+      counts.push(subVariant[0].count);
+      percentages.push(subVariant[0].percentage);
     }
 
     // Add frequency informations of the subvariants
