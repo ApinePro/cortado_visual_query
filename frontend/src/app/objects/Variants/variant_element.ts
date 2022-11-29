@@ -787,67 +787,6 @@ export class LeafNode extends VariantElement {
   }
 }
 
-export class LeafLoopNode extends VariantElement {
-  public updateSelectionAttributes(): void {}
-
-  public getActivities(): Set<string> {
-    return this.leafNode.getActivities();
-  }
-  public asString(): string {
-    return 'LOOP' + this.leafNode.asString();
-  }
-
-  public deleteActivity(activityName: string): [VariantElement[], boolean] {
-    return this.leafNode.deleteActivity(activityName); // TODO IMPLEMENT THIS CORRECTLY
-  }
-
-  public renameActivity(activityName: string, newActivityName: string): void {
-    return this.leafNode.renameActivity(activityName, newActivityName); // TODO IMPLEMENT THIS CORRECTLY
-  }
-
-  public setExpanded(expanded: boolean) {
-    super.setExpanded(expanded);
-    this.leafNode.setExpanded(expanded);
-  }
-
-  public getWidth(includeWaiting: any): number {
-    return this.leafNode.getWidth();
-  }
-  public recalculateWidth(includeWaiting: any): number {
-    return this.leafNode.recalculateWidth();
-  }
-  public updateWidth(includeWaiting: any) {}
-
-  public serialize(l = 1): Object {
-    const leaf = this.leafNode.serialize(l);
-    const res = [];
-
-    // Serialize it as l+1 many activites of the folded loop,
-    for (let k; k < l + 1; k++) {
-      res.push(leaf);
-    }
-
-    return res;
-  }
-
-  public calculateSelectableElements(): void {}
-
-  leafNode: LeafNode;
-
-  constructor(activity: string) {
-    super();
-    this.leafNode = new LeafNode([activity], null);
-  }
-
-  public getHeight(): number {
-    return this.leafNode.getHeight() + 30;
-  }
-
-  public recalculateHeight(): number {
-    return VARIANT_Constants.LEAF_HEIGHT + 30;
-  }
-}
-
 export class WaitingTimeNode extends VariantElement {
   public getActivities(): Set<string> {
     return new Set<string>();
@@ -1049,19 +988,15 @@ export function deserialize(obj: any): VariantElement {
       obj['performance']
     );
   } else if ('leaf' in obj) {
-    if (obj['leaf'][0].includes('_LOOP')) {
-      return new LeafLoopNode(obj['leaf'][0].replace('_LOOP', ''));
-    } else {
-      return new LeafNode(
-        obj['leaf'].map((el) => {
-          return typeof el === 'string' ? el : el[0];
-        }),
-        obj['performance'],
-        obj['leaf'].map((el) => {
-          return typeof el === 'string' ? undefined : el[1];
-        })
-      );
-    }
+    return new LeafNode(
+      obj['leaf'].map((el) => {
+        return typeof el === 'string' ? el : el[0];
+      }),
+      obj['performance'],
+      obj['leaf'].map((el) => {
+        return typeof el === 'string' ? undefined : el[1];
+      })
+    );
   } else if ('loop' in obj) {
     return new LoopGroup(
       obj['loop'].map((e: any) => deserialize(e)),

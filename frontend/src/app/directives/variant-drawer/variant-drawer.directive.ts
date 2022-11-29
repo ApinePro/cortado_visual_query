@@ -26,7 +26,6 @@ import {
   ParallelGroup,
   LeafNode,
   WaitingTimeNode,
-  LeafLoopNode,
   InvisibleSequenceGroup,
   LoopGroup,
 } from 'src/app/objects/Variants/variant_element';
@@ -306,8 +305,6 @@ export class VariantDrawerDirective
         svgElement,
         outerElement
       );
-    } else if (element instanceof LeafLoopNode) {
-      this.drawLeafLoopNode(element, svgElement);
     } else if (element instanceof LeafNode) {
       this.drawLeafNode(element.asLeafNode(), svgElement);
     } else if (element instanceof WaitingTimeNode) {
@@ -680,34 +677,6 @@ export class VariantDrawerDirective
     if (this.onMouseOverCbFc) {
       this.onMouseOverCbFc(this, element, this.variant, parent);
     }
-  }
-
-  public drawLeafLoopNode(
-    element: LeafLoopNode,
-    parent: Selection<any, any, any, any>
-  ): void {
-    const width = element.getWidth(false);
-    const height = element.getHeight();
-    const group = parent
-      .append('g')
-      .attr('transform', `translate(${0}, ${15})`);
-
-    group
-      .append('text')
-      .attr('x', width / 2)
-      .attr('y', -12.5)
-      .classed('user-select-none', true)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr('font-size', VARIANT_Constants.FONT_SIZE)
-      .attr('fill', 'white')
-      .classed('activity-text', true)
-      .append('tspan')
-      .attr('x', width / 2)
-      .attr('y', -12.5)
-      .text('\u21BA');
-
-    this.drawLeafNode(element.leafNode, group);
   }
 
   private addInfixSelectionAttributes(
