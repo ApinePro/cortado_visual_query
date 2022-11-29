@@ -1043,7 +1043,6 @@ export class VariantExplorerComponent
     this.variantService.collapsedVariants$
       .pipe(takeUntil(this._destroy$))
       .subscribe((variants) => {
-        console.log(variants);
         if (variants !== null) {
           this.displayed_variants = variants;
         } else {

@@ -519,10 +519,12 @@
                       class="variant-number"
                       [ngClass]="{
                         'text-primary':
-                          displayed_variants.length !== variants.length
+                          displayed_variants.length !== variants.length &&
+                          !variantService.areVariantLoopsCollapsed
                       }"
                       >({{
-                        displayed_variants.length === variants.length
+                        displayed_variants.length === variants.length ||
+                        variantService.areVariantLoopsCollapsed
                           ? displayed_variants.length
                           : displayed_variants.length + "/" + variants.length
                       }})</span
