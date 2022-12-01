@@ -91,17 +91,18 @@ def get_c_variants(event_log: EventLog, use_mp: bool = False, time_granularity: 
     cache_variants = dict()
 
     for bid, (v, ts) in enumerate(sorted(list(variants.items()), key=lambda e: len(e[1]), reverse=True)):
-        variant, sub_vars = create_variant_object(time_granularity, total_traces, bid, v, ts)
+        info = VariantInformation(infix_type=InfixType.NOT_AN_INFIX, is_user_defined=False)
+        variant, sub_vars = create_variant_object(time_granularity, total_traces, bid, v, ts, info)
 
         res_variants.append(variant)
         cache_variants[bid] = (
-        v, ts, sub_vars, VariantInformation(infix_type=InfixType.NOT_AN_INFIX, is_user_defined=False))
+        v, ts, sub_vars, info)
 
     return sorted(res_variants, key=lambda variant: variant["count"],
                   reverse=True), cache_variants
 
 
-def create_variant_object(time_granularity, total_traces, bid, v, ts):
+def create_variant_object(time_granularity, total_traces, bid, v, ts, info: VariantInformation):
     sub_variants = create_subvariants(ts, time_granularity)
 
     variant = {
@@ -112,7 +113,8 @@ def create_variant_object(time_granularity, total_traces, bid, v, ts):
         "number_of_activities": v.number_of_activities(),
         "percentage": round(len(ts) / total_traces * 100, 2),
         "nSubVariants": len(sub_variants.keys()),
-        "userDefined": len(ts) == 0,
+        "userDefined": info.is_user_defined,
+        "infixType": info.infix_type.value
     }
 
     # If the variant is only a single activity leaf, wrap it up as a sequence

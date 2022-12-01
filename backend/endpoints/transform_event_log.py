@@ -687,7 +687,7 @@ def handle_fallthrough(activityName, fallthrough, new_variants, update_res_varia
 
     for bid, v, ts, info in newVariants:
         variant, subvar = create_variant_object(
-            cache.parameters["cur_time_granularity"], 1, bid, v, ts
+            cache.parameters["cur_time_granularity"], 1, bid, v, ts, info
         )
 
         new_variants[bid] = (v, ts, subvar, info)

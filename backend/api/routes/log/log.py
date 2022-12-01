@@ -5,8 +5,6 @@ from typing import Optional
 import cache.cache as cache
 from cortado_core.utils.timestamp_utils import TimeUnit
 
-from api.routes.variants.variants import VariantInformation
-from endpoints.alignments import InfixType
 from endpoints.load_event_log import calculate_event_log_properties
 from fastapi import APIRouter
 from pm4py.objects.log.obj import EventLog
