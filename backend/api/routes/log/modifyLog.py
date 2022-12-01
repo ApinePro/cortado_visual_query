@@ -4,6 +4,8 @@ from cortado_core.utils.split_graph import Group
 from fastapi import Response, status
 
 import cache.cache
+from api.routes.variants.variants import VariantInformation
+from endpoints.alignments import InfixType
 from endpoints.transform_event_log import (
     cache_current_data,
     remove_activities,
@@ -91,5 +93,25 @@ async def remove_activity_name_in_log(request: userDefinedVariant, response: Res
         response.status_code = status.HTTP_400_BAD_REQUEST
         return
 
-    cache.cache.variants[request.bid] = (v, [], dict())
+    cache.cache.variants[request.bid] = (
+        v, [], dict(), VariantInformation(infix_type=InfixType.NOT_AN_INFIX, is_user_defined=True))
+    return
+
+
+class userDefinedInfix(BaseModel):
+    variant: Any
+    bid: int
+    infixType: int
+
+
+@router.post("/addUserDefinedInfix", status_code=201)
+async def remove_activity_name_in_log(request: userDefinedInfix, response: Response):
+    v = Group.deserialize(request.variant)
+    if request.bid in cache.cache.variants:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return
+
+    infix_type = InfixType(request.infixType)
+
+    cache.cache.variants[request.bid] = (v, [], dict(), VariantInformation(infix_type=infix_type, is_user_defined=True))
     return

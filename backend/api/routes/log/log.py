@@ -4,6 +4,9 @@ from typing import Optional
 
 import cache.cache as cache
 from cortado_core.utils.timestamp_utils import TimeUnit
+
+from api.routes.variants.variants import VariantInformation
+from endpoints.alignments import InfixType
 from endpoints.load_event_log import calculate_event_log_properties
 from fastapi import APIRouter
 from pm4py.objects.log.obj import EventLog
@@ -19,7 +22,7 @@ class PropertiesParams(BaseModel):
 @router.post("/properties")
 async def get_event_log_properties(params: PropertiesParams):
 
-    traces = list(itertools.chain(*[ts for _, (_, ts, _) in cache.variants.items()]))
+    traces = list(itertools.chain(*[ts for _, (_, ts, _, _) in cache.variants.items()]))
     log = EventLog(traces, **cache.parameters["log_info"])
 
     properties = calculate_event_log_properties(log, params.time_granularity)

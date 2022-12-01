@@ -67,7 +67,7 @@ async def load_process_tree_from_file_path(d: FilePathInput):
 async def load_loop_collapsed_variants():
     collapsed_variants = defaultdict(list)
 
-    for bid, (variant, _, _) in cache.variants.items():
+    for bid, (variant, _, _, _) in cache.variants.items():
         collapsed_variant = collapse_variant(variant)
         collapsed_variants[collapsed_variant].append(bid)
 

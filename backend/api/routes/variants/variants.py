@@ -1,5 +1,4 @@
-
-
+import dataclasses
 import functools
 import operator
 from typing import List, Mapping, Tuple
@@ -23,9 +22,16 @@ from fastapi import APIRouter
 # because otherwise the generated api docs are not really convenient 
 router = APIRouter(tags=['Variants'], prefix="/variant")
 
+
 class VariantFragment(BaseModel):
     fragment: dict
     infixType: str
+
+
+@dataclasses.dataclass
+class VariantInformation:
+    infix_type: InfixType
+    is_user_defined: bool
 
 
 def countFragmentOccurrences(variant: Group, fragment: Group, infixType: InfixType, idx):
@@ -39,23 +45,24 @@ def countFragmentOccurrences(variant: Group, fragment: Group, infixType: InfixTy
     return group.countInfixOccurrences(fragment, infixType=infixType, isRootNode=True)
 
 
-def get_trace_counts(variants: Mapping[int, Tuple[ConcurrencyGroup, Trace, List]]):
+def get_trace_counts(variants: Mapping[int, Tuple[ConcurrencyGroup, Trace, List, VariantInformation]]):
     return list(map(lambda variant: len(variant[1][1]), variants.items()))
 
 
-def get_fragment_counts(variants:  Mapping[int, Tuple[ConcurrencyGroup,
-                                                      Trace, List]], fragment: Group, infixType: InfixType):
+def get_fragment_counts(variants: Mapping[int, Tuple[ConcurrencyGroup,
+                                                     Trace, List, VariantInformation]], fragment: Group,
+                        infixType: InfixType):
+    filtered_variants = {k: v for k, v in variants.items() if not v[3].is_user_defined}
     return list(map(lambda variant: countFragmentOccurrences(
-        variant, fragment, infixType, variant[0]), variants.items()))
+        variant, fragment, infixType, variant[0]), filtered_variants.items()))
 
 
 @router.post("/countFragmentOccurrences")
 def count_fragment_occurrences(payload: VariantFragment):
-
     fragment: Group = Group.deserialize(payload.fragment)
 
-    variants:  Mapping[int, Tuple[ConcurrencyGroup,
-                                  Trace, List]] = cache.variants
+    variants: Mapping[int, Tuple[ConcurrencyGroup,
+                                 Trace, List, VariantInformation]] = cache.variants
 
     infixType = InfixType[payload.infixType]
 
@@ -68,7 +75,7 @@ def count_fragment_occurrences(payload: VariantFragment):
     variant_occurrences = np.count_nonzero(fragment_counts)
     # counts the number of traces that contain the fragment
     trace_occurrences = np.sum(np.array(trace_counts)[
-                               np.nonzero(fragment_counts)]).item()
+                                   np.nonzero(fragment_counts)]).item()
 
     return {
         'totalOccurrences': total_occurrences,

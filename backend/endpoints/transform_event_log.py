@@ -20,6 +20,8 @@ from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.util.xes_constants import DEFAULT_NAME_KEY
 from cortado_core.utils.cvariants import ACTIVITY_INSTANCE_KEY
 
+from api.routes.variants.variants import VariantInformation
+from endpoints.alignments import InfixType
 from endpoints.load_event_log import compute_log_stats, create_variant_object
 
 
@@ -32,14 +34,13 @@ def cache_current_data():
 
 
 def reset_last_transaction():
-
     cache.variants = pickle.load(open("tmp/variants_cache.p", "rb"))
     cache.parameters = pickle.load(open("tmp/parameters_cache.p", "rb"))
 
-    total_traces = sum([len(ts) for (_, ts, _) in cache.variants.values()])
+    total_traces = sum([len(ts) for (_, ts, _, _) in cache.variants.values()])
     res_variants = []
 
-    for bid, (v, ts, sv) in cache.variants.items():
+    for bid, (v, ts, sv, info) in cache.variants.items():
 
         variant = {
             "count": len(ts),
@@ -49,13 +50,13 @@ def reset_last_transaction():
             "number_of_activities": v.number_of_activities(),
             "percentage": round(len(ts) / total_traces * 100, 2),
             "nSubVariants": len(sv),
-            "userDefined": len(ts) == 0,
+            "userDefined": info.is_user_defined,
         }
 
         # If the variant is only a single activity leaf, wrap it up as a sequence
         if (
-            "leaf" in variant["variant"].keys()
-            or "parallel" in variant["variant"].keys()
+                "leaf" in variant["variant"].keys()
+                or "parallel" in variant["variant"].keys()
         ):
             variant["variant"] = {"follows": [variant["variant"]]}
 
@@ -83,9 +84,8 @@ def reset_last_transaction():
 
 
 def rename_merge_activities_in_graph(
-    graph: ConcurrencyGroup, oldActivityName, newActivityName
+        graph: ConcurrencyGroup, oldActivityName, newActivityName
 ):
-
     graph.events[newActivityName] = graph.events.pop(oldActivityName, set()).union(
         graph.events.get(oldActivityName, set())
     )
@@ -195,9 +195,8 @@ def rename_merge_activities_in_graph(
 
 
 def rename_activities_in_trace(
-    trace, oldActivityName, newActivityName, instanceDict=None
+        trace, oldActivityName, newActivityName, instanceDict=None
 ):
-
     if not instanceDict:
         instanceDict = __get_instance_dict(trace, oldActivityName, newActivityName)
 
@@ -218,7 +217,6 @@ def rename_activities_in_trace(
 
 
 def rename_activities_in_variant_group(group, oldActivityName, newActivityName):
-
     if isinstance(group, LeafGroup):
         lst = group[:]
         if oldActivityName in group:
@@ -265,7 +263,6 @@ def __get_instance_dict(trace, activityName, newActivityName):
 
 
 def rename_activites_in_subvariant(subvariants, activityName, newActivityName):
-
     new_subvariants = defaultdict(list)
 
     for sv, ts in subvariants.items():
@@ -304,7 +301,6 @@ def rename_activites_in_subvariant(subvariants, activityName, newActivityName):
 
 
 def rename_activities(mergeList, renameList, activityName, newActivityName):
-
     if cache.parameters["activites"].discard(activityName):
         cache.parameters["activites"].add(newActivityName)
 
@@ -340,32 +336,37 @@ def rename_activities(mergeList, renameList, activityName, newActivityName):
 
 
 def handle_rename_merge_variants(
-    mergeList, activityName, newActivityName, new_variant_dict, update_res_variants
+        mergeList, activityName, newActivityName, new_variant_dict, update_res_variants
 ):
     for ls in mergeList:
-        (variant, _, _) = cache.variants[ls[0]]
+        (variant, _, _, _) = cache.variants[ls[0]]
         renamed_variant = rename_activities_in_variant_group(
             variant, activityName, newActivityName
         )
-        
-        
+
         graphs = {}
-        
+
         for graph, ts in variant.graphs.items():
-            new_graph =  rename_merge_activities_in_graph(
-            graph, activityName, newActivityName
-             )
+            new_graph = rename_merge_activities_in_graph(
+                graph, activityName, newActivityName
+            )
             graphs[new_graph] = graphs.get(new_graph, 0) + ts
-            
+
         renamed_variant.graphs = graphs
-       
+
         renamed_subvariants = defaultdict(list)
         renamed_traces = []
+        are_all_user_defined = True
 
         for bid in ls:
-            (_, traces, sv) = cache.variants[bid]
+            (_, traces, sv, info) = cache.variants[bid]
 
-            new_sv = rename_activites_in_subvariant(sv, activityName, newActivityName)
+            are_all_user_defined &= info.is_user_defined
+
+            if info.is_user_defined:
+                new_sv = dict()
+            else:
+                new_sv = rename_activites_in_subvariant(sv, activityName, newActivityName)
 
             renamed_traces += [
                 rename_activities_in_trace(trace, activityName, newActivityName)
@@ -379,36 +380,42 @@ def handle_rename_merge_variants(
             renamed_variant,
             renamed_traces,
             renamed_subvariants,
+            # TODO niklas infix type
+            VariantInformation(infix_type=InfixType.NOT_AN_INFIX, is_user_defined=are_all_user_defined)
         )
 
         update_res_variants[min(ls)] = {"nSubVariants": len(renamed_subvariants.keys())}
 
     return new_variant_dict, update_res_variants
 
+
 def handle_rename_single_variant(
-    renameList, activityName, newActivityName, new_variant_dict, update_res_variants
+        renameList, activityName, newActivityName, new_variant_dict, update_res_variants
 ):
     for bid in renameList:
-        (variant, traces, subvariants) = cache.variants[bid]
+        (variant, traces, subvariants, info) = cache.variants[bid]
 
         renamed_variant = rename_activities_in_variant_group(
             variant, activityName, newActivityName
         )
-        
-        graphs = {}
-        
-        for graph, ts in variant.graphs.items():
-            new_graph =  rename_merge_activities_in_graph(
-            graph, activityName, newActivityName
-             )
-            graphs[new_graph] = graphs.get(new_graph, 0) + ts
-            
-        renamed_variant.graphs = graphs
-        
 
-        renamed_subvariants = rename_activites_in_subvariant(
-            subvariants, activityName, newActivityName
-        )
+        graphs = {}
+
+        if not info.is_user_defined:
+            for graph, ts in variant.graphs.items():
+                new_graph = rename_merge_activities_in_graph(
+                    graph, activityName, newActivityName
+                )
+                graphs[new_graph] = graphs.get(new_graph, 0) + ts
+
+        renamed_variant.graphs = graphs
+
+        if info.is_user_defined:
+            renamed_subvariants = dict()
+        else:
+            renamed_subvariants = rename_activites_in_subvariant(
+                subvariants, activityName, newActivityName
+            )
 
         renamed_traces = [
             rename_activities_in_trace(trace, activityName, newActivityName)
@@ -416,13 +423,12 @@ def handle_rename_single_variant(
         ]
 
         update_res_variants[bid] = {"nSubVariants": len(renamed_subvariants.keys())}
-        new_variant_dict[bid] = (renamed_variant, renamed_traces, renamed_subvariants)
+        new_variant_dict[bid] = (renamed_variant, renamed_traces, renamed_subvariants, info)
 
     return new_variant_dict, update_res_variants
 
 
 def remove_activity_from_trace(trace, activityName):
-
     for event in trace:
 
         if event[DEFAULT_NAME_KEY] == activityName:
@@ -432,7 +438,6 @@ def remove_activity_from_trace(trace, activityName):
 
 
 def remove_activitiy_from_group(group, activity_name):
-
     if isinstance(group, LeafGroup):
         lst = group[:]
         if activity_name in group and len(group) == 1:
@@ -501,7 +506,6 @@ def create_new_graph(trace):
 
 
 def apply_filter_copy(trace, activityName):
-
     new_attributes = {}
     for k, v in trace.attributes.items():
         new_attributes[k] = v
@@ -516,7 +520,6 @@ def apply_filter_copy(trace, activityName):
 
 
 def remove_activitiy_from_subvariant(subvariants, activityName):
-
     new_subvariants = defaultdict(list)
     for sv, ts in subvariants.items():
 
@@ -537,9 +540,8 @@ def remove_activitiy_from_subvariant(subvariants, activityName):
 
 
 def remove_activities(
-    activityName, fallthrough, delete_member_list, merge_list, delete_variant_list
+        activityName, fallthrough, delete_member_list, merge_list, delete_variant_list
 ):
-
     new_variants: Mapping[int, Tuple[ConcurrencyGroup, List]] = {}
     update_res_variants = {}
 
@@ -590,14 +592,14 @@ def remove_activities(
 
 def handle_merge_members(activityName, merge_list, new_variants, update_res_variants):
     for ls in merge_list:
-        (variant, _, _) = cache.variants[ls[0]]
+        (variant, _, _, _) = cache.variants[ls[0]]
         new_variant = remove_activitiy_from_group(variant, activityName)
 
         new_traces = []
         new_subvariants = defaultdict(list)
 
         for bid in ls:
-            (_, traces, sv) = cache.variants[bid]
+            (_, traces, sv, info) = cache.variants[bid]
             new_traces += [apply_filter_copy(trace, activityName) for trace in traces]
             new_sv = remove_activitiy_from_subvariant(sv, activityName)
 
@@ -605,14 +607,14 @@ def handle_merge_members(activityName, merge_list, new_variants, update_res_vari
                 new_subvariants[s] += tr
 
         graphs = {}
-        
-        for trace in new_traces: 
+
+        for trace in new_traces:
             g = create_new_graph(trace)
             graphs[g] = graphs.get(g, 0) + 1
 
-        new_variant.graphs = graphs 
+        new_variant.graphs = graphs
 
-        new_variants[min(ls)] = (new_variant, new_traces, new_subvariants)
+        new_variants[min(ls)] = (new_variant, new_traces, new_subvariants, info)
         update_res_variants[min(ls)] = {
             "count": len(new_traces),
             "nSubVariants": len(new_subvariants.keys()),
@@ -622,26 +624,25 @@ def handle_merge_members(activityName, merge_list, new_variants, update_res_vari
 
 
 def handle_delete_member(
-    activityName, delete_member_list, new_variants, update_res_variants
+        activityName, delete_member_list, new_variants, update_res_variants
 ):
-
     for bid in delete_member_list:
-        (variant, traces, subvariants) = cache.variants[bid]
+        variant, traces, subvariants, info = cache.variants[bid]
 
         new_variant = remove_activitiy_from_group(variant, activityName)
         ts = [apply_filter_copy(trace, activityName) for trace in traces]
 
         graphs = {}
-        
-        for trace in ts: 
+
+        for trace in ts:
             g = create_new_graph(trace)
             graphs[g] = graphs.get(g, 0) + 1
 
-        new_variant.graphs = graphs 
+        new_variant.graphs = graphs
 
         new_subvariant = remove_activitiy_from_subvariant(subvariants, activityName)
 
-        new_variants[bid] = (new_variant, ts, new_subvariant)
+        new_variants[bid] = (new_variant, ts, new_subvariant, info)
 
         update_res_variants[bid] = {
             "count": len(ts),
@@ -652,14 +653,13 @@ def handle_delete_member(
 
 
 def handle_fallthrough(activityName, fallthrough, new_variants, update_res_variants):
-
     mergeVariants = []
     newVariants = []
 
     if len(fallthrough) > 0:
         cLog = []
         for bid in fallthrough:
-            (_, traces, _) = cache.variants[bid]
+            (_, traces, _, _) = cache.variants[bid]
             cLog.extend([apply_filter_copy(trace, activityName) for trace in traces])
 
         log = EventLog(cLog)
@@ -670,14 +670,14 @@ def handle_fallthrough(activityName, fallthrough, new_variants, update_res_varia
 
         for c_variant, c_traces in c_variants.items():
             foundMatch = False
-            for n_bid, (n_variant, n_traces, _) in new_variants.items():
+            for n_bid, (n_variant, n_traces, _, n_info) in new_variants.items():
                 if str(n_variant) == str(c_variant):
                     mergeVariants.append((n_bid, c_variant, n_traces + c_traces))
                     foundMatch = True
                     break
 
             if foundMatch:
-                new_variants[n_bid] = (n_variant, n_traces + c_traces, None)
+                new_variants[n_bid] = (n_variant, n_traces + c_traces, None, n_info)
 
             else:
                 newVariants.append((cache.parameters["nBids"] + 1, c_variant, c_traces))
@@ -685,22 +685,20 @@ def handle_fallthrough(activityName, fallthrough, new_variants, update_res_varia
 
     new_res_variants = []
 
-    for bid, v, ts in newVariants:
-
+    for bid, v, ts, info in newVariants:
         variant, subvar = create_variant_object(
             cache.parameters["cur_time_granularity"], 1, bid, v, ts
         )
 
-        new_variants[bid] = (v, ts, subvar)
+        new_variants[bid] = (v, ts, subvar, info)
         new_res_variants.append(variant)
 
-    for bid, v, ts in mergeVariants:
-
+    for bid, v, ts, info in mergeVariants:
         subvars = get_detailed_variants(
             ts, time_granularity=cache.parameters["cur_time_granularity"]
         )
 
-        new_variants[bid] = (v, ts, subvar)
+        new_variants[bid] = (v, ts, subvars, info)
         update_res_variants[bid] = {
             "count": len(ts),
             "nSubVariants": len(subvars.keys()),
@@ -710,9 +708,8 @@ def handle_fallthrough(activityName, fallthrough, new_variants, update_res_varia
 
 
 def remove_variant(bids):
-
     cache.variants = {
-        bid: (v, t, sv) for bid, (v, t, sv) in cache.variants.items() if bid not in bids
+        bid: (v, t, sv, info) for bid, (v, t, sv, info) in cache.variants.items() if bid not in bids
     }
 
     start_activities, end_activities, nActivities = compute_log_stats(cache.variants)

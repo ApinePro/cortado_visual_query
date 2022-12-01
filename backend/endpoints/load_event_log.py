@@ -9,7 +9,9 @@ from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.objects.log.util.interval_lifecycle import to_interval
 from pm4py.util.xes_constants import DEFAULT_START_TIMESTAMP_KEY, DEFAULT_TRANSITION_KEY
 
+from api.routes.variants.variants import VariantInformation
 from backend_utilities.multiprocessing.pool_factory import PoolFactory
+from endpoints.alignments import InfixType
 
 
 def calculate_event_log_properties(
@@ -67,7 +69,7 @@ def compute_log_stats(variants: Mapping[int, Tuple[Group, Trace]]):
     end_activities = set()
     activites = []
 
-    for v, _, _ in variants.values():
+    for v, _, _, _ in variants.values():
         for g, ts in v.graphs.items():
 
             start_activities.update(g.start_activities.keys())
@@ -92,7 +94,8 @@ def get_c_variants(event_log: EventLog, use_mp: bool = False, time_granularity: 
         variant, sub_vars = create_variant_object(time_granularity, total_traces, bid, v, ts)
 
         res_variants.append(variant)
-        cache_variants[bid] = (v, ts, sub_vars)
+        cache_variants[bid] = (
+        v, ts, sub_vars, VariantInformation(infix_type=InfixType.NOT_AN_INFIX, is_user_defined=False))
 
     return sorted(res_variants, key=lambda variant: variant["count"],
                   reverse=True), cache_variants

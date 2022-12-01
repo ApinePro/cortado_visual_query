@@ -159,6 +159,11 @@ export class VariantService {
       return;
     }
 
+    this.nUserVariants += 1;
+    newVariant.bid = -this.nUserVariants;
+
+    this.addInfixToBackend(newVariant);
+
     this.countFragmentOccurrences(newVariant)
       .pipe(
         tap((statistics) => {
@@ -443,5 +448,23 @@ export class VariantService {
 
         this.collapsedVariants = collapsedVariants;
       });
+  }
+
+  private addInfixToBackend(variant: Variant) {
+    this.httpClient
+      .post(ROUTES.BASE_URL + ROUTES.MODIFY_LOG + 'addUserDefinedInfix', {
+        variant: variant.variant.serialize(),
+        bid: variant.bid,
+        infixType: variant.infixType,
+      })
+      .subscribe(
+        (_) => console.log('successfully added infix to backend'),
+        (_) =>
+          this.toastService.showErrorToast(
+            'Variant Explorer',
+            `Adding the selected infix failed`,
+            'bi-exclamation-circle'
+          )
+      );
   }
 }

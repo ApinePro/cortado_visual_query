@@ -62,7 +62,7 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
     print("Loop", config.loop)
     print("Artif. Start", config.artifical_start)
 
-    variants = {v: ts for _, (v, ts, _) in cache.variants.items()}
+    variants = {v: ts for _, (v, ts, _, info) in cache.variants.items() if not info.is_user_defined}
 
     treeBank = create_treebank_from_cv_variants(variants, config.artifical_start)
 
