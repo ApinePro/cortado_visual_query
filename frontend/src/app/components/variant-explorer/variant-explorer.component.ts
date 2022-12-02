@@ -90,7 +90,6 @@ import { ActivateTooltipsService } from 'src/app/services/activateTooltipsServic
 import { ContextMenuItem } from './variant-explorer-context-menu/variant-explorer-context-menu.component';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
-import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
 import { IVariant } from 'src/app/objects/Variants/variant_interface';
 
 @Component({
@@ -274,11 +273,11 @@ export class VariantExplorerComponent
     this.variantService.variants$
       .pipe(takeUntil(this._destroy$))
       .subscribe((variants) => {
+        this.variantService.areVariantLoopsCollapsed = false;
         this.variants = variants;
         this.displayed_variants = variants.filter((v) => v.isDisplayed);
         this.sort(this.sortingFeature);
         this.closeAllSubvariantWindows();
-
         this.redraw_components();
       });
 
@@ -403,6 +402,7 @@ export class VariantExplorerComponent
         tap(() => {
           this.closeAllSubvariantWindows();
           this.variantViewModeService.viewMode = ViewMode.STANDARD;
+          this.variantService.areVariantLoopsCollapsed = false;
         })
       )
       .pipe(takeUntil(this._destroy$))
@@ -997,6 +997,7 @@ export class VariantExplorerComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe((granularity) => {
         this.selectedGranularity = granularity;
+        this.variantService.areVariantLoopsCollapsed = false;
       });
   }
 

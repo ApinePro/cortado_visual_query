@@ -413,6 +413,11 @@ export class VariantService {
       this.collapsedVariants = null;
     } else {
       this.loadLoopCollapsedVariants();
+      this.toastService.showWarningToast(
+        'Variant Explorer',
+        `Disabled severeal features that are not applicable after collapsing loops.`,
+        'bi-arrow-repeat'
+      );
     }
     this.areVariantLoopsCollapsed = !this.areVariantLoopsCollapsed;
   }

@@ -277,7 +277,12 @@
 
     <span class="vl"></span>
 
-    <div *ngIf="variantViewModeService.viewMode === VM.STANDARD">
+    <div
+      *ngIf="
+        variantViewModeService.viewMode === VM.STANDARD &&
+        !variantService.areVariantLoopsCollapsed
+      "
+    >
       <button
         *ngIf="!traceInfixSelectionMode"
         class="button"
@@ -354,6 +359,7 @@
   </div>
 
   <div
+    *ngIf="!variantService.areVariantLoopsCollapsed"
     class="variant-query-button"
     [@openCloseComponent]="queryActive ? 'openComponent' : 'closeComponent'"
   >
