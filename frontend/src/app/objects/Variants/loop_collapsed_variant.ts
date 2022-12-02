@@ -16,7 +16,6 @@ export class LoopCollapsedVariant implements IVariant {
   isTimeouted: boolean;
   isConformanceOutdated: boolean = true;
   usedTreeForConformanceChecking: ProcessTree;
-  infixType: InfixType = InfixType.NOT_AN_INFIX;
   fragmentStatistics: any;
   collapsedVariantId: string;
 
@@ -30,12 +29,15 @@ export class LoopCollapsedVariant implements IVariant {
     this.variant = collapsedVariantElement;
   }
 
+  get infixType() {
+    return this.variants[0].infixType;
+  }
+
   get bid() {
-    return -1;
+    return -10000;
   }
 
   get length() {
-    // TODO not correct
     return Math.min(...this.variants.map((v) => v.length));
   }
 
