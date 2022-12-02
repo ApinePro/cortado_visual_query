@@ -91,6 +91,7 @@ import { ContextMenuItem } from './variant-explorer-context-menu/variant-explore
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import { IVariant } from 'src/app/objects/Variants/variant_interface';
+import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -423,7 +424,7 @@ export class VariantExplorerComponent
       .subscribe(
         (res) => {
           console.log(res);
-          const variant = this.displayed_variants.find((v) => v.id == res.id);
+          const variant = this.variants.find((v) => v.id == res.id);
           variant.calculationInProgress = false;
           variant.isTimeouted = res.isTimeout;
           variant.isConformanceOutdated = res.isTimeout;
@@ -441,7 +442,7 @@ export class VariantExplorerComponent
             ?.redraw();
         },
         (_) => {
-          this.displayed_variants.forEach((v) => {
+          this.variants.forEach((v) => {
             v.calculationInProgress = false;
             v.alignment = undefined;
             v.deviations = undefined;
@@ -455,7 +456,7 @@ export class VariantExplorerComponent
   }
 
   updateAlignments(): void {
-    this.displayed_variants.forEach((v) => {
+    this.variants.forEach((v) => {
       this.updateConformanceForVariant(v, 0);
     });
   }
@@ -478,25 +479,34 @@ export class VariantExplorerComponent
     );
   }
 
-  updateConformanceForVariant(variant: Variant, timeout: number): void {
-    variant.calculationInProgress = true;
-    variant.deviations = undefined;
-
-    const resubscribe = this.conformanceCheckingService.calculateConformance(
-      variant.id,
-      variant.infixType,
-      this.processTreeService.currentDisplayedProcessTree,
-      variant.variant.serialize(1),
-      timeout,
-      AlignmentType.VariantAlignment
-    );
-
-    if (resubscribe) {
-      this.subscribeForConformanceCheckingResults();
+  updateConformanceForVariant(variant: IVariant, timeout: number): void {
+    let underlyingVariants = [];
+    if (variant instanceof LoopCollapsedVariant) {
+      underlyingVariants = variant.variants;
+    } else {
+      underlyingVariants = [variant];
     }
+
+    underlyingVariants.forEach((v) => {
+      v.calculationInProgress = true;
+      v.deviations = undefined;
+
+      const resubscribe = this.conformanceCheckingService.calculateConformance(
+        v.id,
+        v.infixType,
+        this.processTreeService.currentDisplayedProcessTree,
+        v.variant.serialize(1),
+        timeout,
+        AlignmentType.VariantAlignment
+      );
+
+      if (resubscribe) {
+        this.subscribeForConformanceCheckingResults();
+      }
+    });
   }
 
-  updateConformanceForSingleVariantClicked(variant: Variant): void {
+  updateConformanceForSingleVariantClicked(variant: IVariant): void {
     if (variant.isTimeouted) {
       this.conformanceCheckingService.showConformanceTimeoutDialog(
         variant,

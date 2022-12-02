@@ -1,5 +1,4 @@
 import { ProcessTree } from '../ProcessTree/ProcessTree';
-import { InfixType } from './infix_selection';
 import { Variant } from './variant';
 import { VariantElement } from './variant_element';
 import { IVariant } from './variant_interface';
@@ -9,12 +8,7 @@ export class LoopCollapsedVariant implements IVariant {
   variants: Variant[];
   variant: VariantElement;
   isDisplayed: boolean;
-  isAddedFittingVariant: boolean;
-  calculationInProgress: boolean;
   alignment: VariantElement;
-  deviations: number;
-  isTimeouted: boolean;
-  isConformanceOutdated: boolean = true;
   usedTreeForConformanceChecking: ProcessTree;
   fragmentStatistics: any;
   collapsedVariantId: string;
@@ -67,5 +61,33 @@ export class LoopCollapsedVariant implements IVariant {
 
   get nSubVariants() {
     return this.variants.reduce((sum, v) => v.nSubVariants + sum, 0);
+  }
+
+  get isTimeouted() {
+    return this.variants.some((v) => v.isTimeouted);
+  }
+
+  get isConformanceOutdated() {
+    return this.variants.some((v) => v.isConformanceOutdated);
+  }
+
+  get isAddedFittingVariant() {
+    return this.variants.every((v) => v.isAddedFittingVariant);
+  }
+
+  get calculationInProgress() {
+    return this.variants.some((v) => v.calculationInProgress);
+  }
+
+  set calculationInProgress(value) {
+    this.variants.forEach((v) => (v.calculationInProgress = value));
+  }
+
+  get deviations() {
+    if (this.variants.some((v) => v.deviations === undefined)) {
+      return undefined;
+    }
+
+    return Math.max(...this.variants.map((v) => v.deviations));
   }
 }
