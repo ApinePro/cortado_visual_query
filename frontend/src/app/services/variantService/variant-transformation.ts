@@ -166,7 +166,7 @@ export function addVariantInformation(variants: Variant[]): Variant[] {
     v.isSelected = false;
     v.isDisplayed = true;
     v.isAddedFittingVariant = false;
-    v.infixType = InfixType.NOT_AN_INFIX;
+    v.infixType = v.infixType;
     setParent(v.variant);
   });
 
