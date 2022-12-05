@@ -136,7 +136,7 @@
           </div>
           <div
             class="dropdown-item"
-            *ngFor="let a of activitiesOccurringInLog | strFilter: searchText"
+            *ngFor="let a of activitiesOccurringInLog | strFilter : searchText"
             (click)="insertNewNode(null, a)"
           >
             <span class="">{{ a }}</span>

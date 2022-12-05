@@ -74,6 +74,7 @@ import { ElectronService } from './services/electronService/electron.service';
 import { UnavailableInfoComponent } from './components/unavailable-info/unavailable-info.component';
 import { VariantConformanceComponent } from './components/variant-conformance/variant-conformance.component';
 import { ConformanceStatusIconComponent } from './components/variant-explorer/variant/subcomponents/variant-info/conformance-status-icon/conformance-status-icon.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -151,6 +152,7 @@ import { ConformanceStatusIconComponent } from './components/variant-explorer/va
     SweetAlert2Module.forRoot(),
     DialogModule,
     NgxSliderModule,
+    NgbModule,
   ],
   providers: [
     {

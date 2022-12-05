@@ -17,6 +17,18 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 router = APIRouter(tags=["conformance"], prefix="/conformance")
 
 
+class ActivityWithIndex:
+    def __init__(self, name, index):
+        self.name = name
+        self.index = index
+
+    def __eq__(self, other):
+        return other == self.name
+
+    def __hash__(self):
+        return hash(self.name + str(self.index))
+
+
 def calculate_alignment_intern_with_timeout(
     pt: dict, c_variant: dict, infix_type: InfixType, timeout: int
 ):
@@ -30,40 +42,45 @@ def calculate_alignment_intern_with_timeout(
 
 
 def calculate_alignment_intern(pt: dict, c_variant: dict, infix_type: InfixType):
-    def index_leafs(variant, start_index=0):
+    def index_leafs(variant, indices=defaultdict(lambda: 1)):
         if 'follows' in variant:
             res = {'follows': []}
-            index = start_index
             for v in variant['follows']:
-                childs, index = index_leafs(v, index)
+                childs = index_leafs(v, indices)
                 res['follows'].append(childs)
-            return res, index
+            return res
         elif 'parallel' in variant:
             res = {'parallel': []}
-            index = start_index
             for v in variant['parallel']:
-                childs, index = index_leafs(v, index)
+                childs = index_leafs(v, indices)
                 res['parallel'].append(childs)
-            return res, index
+            return res
         else:
-            return {'leaf': [(act, index + start_index) for index, act in enumerate(variant['leaf'])]}, start_index + len(variant['leaf'])
+            leafs = []
+            for activity in variant['leaf']:
+                leafs.append(ActivityWithIndex(activity, indices[activity]))
+                indices[activity] += 1
+            return {'leaf': leafs}
 
-    c_variant_indexed = index_leafs(c_variant)[0]
+    c_variant_indexed = index_leafs(c_variant)
     all_variants = generate_variants(c_variant_indexed)
     index_alignments_mapping = defaultdict(lambda: 0)
     total_cost = 0
     deviations = 0
     for variant in all_variants:
-        alignment = calculate_alignment_endpoint(
-            list(map(lambda x: x[0], variant)), pt, infix_type)
+        alignment = calculate_alignment_endpoint(variant, pt, infix_type)
         total_cost = alignment["cost"]
         deviations += alignment["deviation"]
-        index_alignments_mapping.update(
-            {variant[i][1]: index_alignments_mapping[i] + (move[0] == str(move[1]))
-             for i, move in enumerate([move for move in alignment['alignment'] if move[0] != '>>'])})
+        for log_move, model_move in alignment['alignment']:
+            if log_move == '>>':
+                continue
+            index_alignments_mapping[log_move] += (
+                log_move.name == str(model_move))
 
-    index_alignments_mapping.update(
-        {k: v/len(all_variants) for k, v in index_alignments_mapping.items()})
+    if len(all_variants) > 1:
+        index_alignments_mapping.update(
+            {k: v/len(all_variants) for k, v in index_alignments_mapping.items()})
+
     return {
         "cost": total_cost/len(all_variants),
         "deviations": deviations/len(all_variants),
@@ -86,7 +103,7 @@ def project_alignments_on_cvariant(mapping, variant):
             res['parallel'].append(childs)
         return res
     else:
-        return {'leaf': [(act, mapping[index]) for act, index in variant['leaf']]}
+        return {'leaf': [(act.name, mapping[act]) for act in variant['leaf']]}
 
 
 def get_alignment_callback(idx: str, alignType, websocket: WebSocket):

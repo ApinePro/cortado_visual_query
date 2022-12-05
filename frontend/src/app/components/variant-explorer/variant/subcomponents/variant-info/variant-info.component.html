@@ -16,19 +16,20 @@
     ></app-conformance-status-icon>
   </div>
 
+  <ng-template #variantInfoTooltip
+    >variant describes ~{{ variant.percentage }}% of all traces in the event
+    log<br />
+    <span class="text-secondary"
+      >variant occurs {{ variant.count | number }} time(s) in total</span
+    ></ng-template
+  >
+
   <small
     *ngIf="!variant.userDefined"
     class="ms-1 float-end cursor-help"
-    data-bs-toggle="tooltip"
-    data-bs-placement="right"
-    data-bs-container="body"
-    data-bs-html="true"
-    title="variant describes ~{{
-      variant.percentage
-    }}% of all traces in the event log<br>
-  <span class='text-secondary'>variant occurs {{
-      variant.count | number
-    }} time(s) in total</span>"
+    [ngbTooltip]="variantInfoTooltip"
+    placement="end"
+    container="body"
   >
     {{ variant.percentage }}%<br />
     ({{ variant.count | number }})
@@ -37,28 +38,44 @@
   <small
     *ngIf="variant.userDefined"
     class="ms-1 float-end cursor-help"
-    data-bs-toggle="tooltip"
-    data-bs-placement="right"
-    data-bs-container="body"
-    data-bs-html="true"
-    title="User created Variant"
+    ngbTooltip="User created Variant"
+    placement="end"
+    container="body"
   >
     <i class="bi bi-person-circle fs-5 ms-2"></i>
   </small>
+
+  <ng-template #variantUserDefinedTooltip>
+    <div class="text-start">
+      <span class="fw-bold text-secondary"> #Variants </span> that contain the
+      fragment at least once:
+      {{ variantOccurrences ?? "-" }}
+      <span>(~{{ variantOccurrencesFraction | percent : "0.0-2" }})</span>
+    </div>
+    <div class="text-start">
+      <span class="fw-bold text-secondary">#Fragment occurrences</span> among
+      all variants:
+      {{ variant.fragmentStatistics?.totalOccurrences ?? "-" }}
+    </div>
+    <div class="text-start">
+      <span class="fw-bold text-secondary"> #Traces </span> that contain the
+      fragment at least once:
+      {{ traceOccurrences ?? "-" }}
+      <span>(~{{ traceOccurrencesFraction | percent : "0.0-2" }})</span>
+    </div>
+    <div class="text-start">
+      <span class="fw-bold text-secondary">#Fragment occurrences</span> among
+      all traces:
+      {{ variant.fragmentStatistics?.totalTraceOccurrences ?? "-" }}
+    </div>
+  </ng-template>
+
   <small
     *ngIf="variant.userDefined && variant.infixType !== 4"
     class="ms-1 float-end cursor-help"
-    data-bs-toggle="tooltip"
-    data-bs-placement="right"
-    data-bs-container="body"
-    data-bs-html="true"
-    title="#Variants that contain the fragment at least once:  {{
-      variant.fragmentStatistics?.variantOccurrences ?? '-'
-    }} <br> #Occurrences in variants: {{
-      variant.fragmentStatistics?.totalOccurrences ?? '-'
-    }} <br> #Traces that contain the fragment: {{
-      variant.fragmentStatistics?.traceOccurrences ?? '-'
-    }}"
+    [ngbTooltip]="variantUserDefinedTooltip"
+    placement="end"
+    container="body"
   >
     <i class="bi bi-info fs-5 ms-2"></i>
   </small>

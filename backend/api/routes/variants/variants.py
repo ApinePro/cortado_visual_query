@@ -15,11 +15,11 @@ from pydantic import BaseModel
 
 from fastapi import APIRouter
 
-# i think its better to have one prefix for everything which 
-# is related to variants instead of defining a prefix for 
+# i think its better to have one prefix for everything which
+# is related to variants instead of defining a prefix for
 # every endpoint.
 # e.g. /variantQuery should be /variant/query
-# because otherwise the generated api docs are not really convenient 
+# because otherwise the generated api docs are not really convenient
 router = APIRouter(tags=['Variants'], prefix="/variant")
 
 
@@ -27,14 +27,14 @@ class VariantFragment(BaseModel):
     fragment: dict
     infixType: str
 
-
 @dataclasses.dataclass
 class VariantInformation:
     infix_type: InfixType
     is_user_defined: bool
 
 
-def countFragmentOccurrences(variant: Group, fragment: Group, infixType: InfixType, idx):
+def count_fragment_occurrences(variant, fragment: Group, infixType: InfixType, idx):
+    # extract group from variant
     group: Group = variant[1][0]
 
     # We always need a sequence group as the root of the tree
@@ -53,7 +53,7 @@ def get_fragment_counts(variants: Mapping[int, Tuple[ConcurrencyGroup,
                                                      Trace, List, VariantInformation]], fragment: Group,
                         infixType: InfixType):
     filtered_variants = {k: v for k, v in variants.items() if not v[3].is_user_defined}
-    return list(map(lambda variant: countFragmentOccurrences(
+    return list(map(lambda variant: count_fragment_occurrences(
         variant, fragment, infixType, variant[0]), filtered_variants.items()))
 
 
@@ -69,16 +69,23 @@ def count_fragment_occurrences(payload: VariantFragment):
     trace_counts = get_trace_counts(variants)
     fragment_counts = get_fragment_counts(variants, fragment, infixType)
 
-    # sums up all occurrences in every variant.
-    total_occurrences = functools.reduce(operator.add, fragment_counts)
-    # counts in how many variants the fragment is contained
+    # number of pattern occurrences among all variants
+    total_variant_occurrences = functools.reduce(operator.add, fragment_counts)
+    # number of variants having at least once the pattern
     variant_occurrences = np.count_nonzero(fragment_counts)
-    # counts the number of traces that contain the fragment
+    # number traces having at least once the pattern
     trace_occurrences = np.sum(np.array(trace_counts)[
                                    np.nonzero(fragment_counts)]).item()
 
+    # number of pattern occurrences among all traces
+    total_trace_occurrences = np.sum(
+        np.array(trace_counts) * np.array(fragment_counts)).item()
+
     return {
-        'totalOccurrences': total_occurrences,
+        'totalOccurrences': total_variant_occurrences,
         'variantOccurrences': variant_occurrences,
-        'traceOccurrences': trace_occurrences
+        'traceOccurrences': trace_occurrences,
+        'totalTraceOccurrences': total_trace_occurrences,
+        'variantOccurrencesFraction': round(variant_occurrences / len(variants), 4),
+        'traceOccurrencesFraction': round(trace_occurrences / np.sum(trace_counts), 4)
     }
