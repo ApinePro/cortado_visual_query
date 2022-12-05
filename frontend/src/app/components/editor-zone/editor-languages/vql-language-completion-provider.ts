@@ -67,7 +67,7 @@ export function getVQLCompletionProvider(activityNames) {
         label: element,
         kind: Monaco.languages.CompletionItemKind.Snippet,
         documentation: 'Binary Operator',
-        insertText: element + " ${1:'Activity'}",
+        insertText: element + ' $0',
         range: range,
         insertTextRules:
           Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
@@ -79,7 +79,7 @@ export function getVQLCompletionProvider(activityNames) {
         label: element,
         kind: Monaco.languages.CompletionItemKind.Snippet,
         documentation: 'Unary Operator',
-        insertText: element,
+        insertText: element + ' $0',
         range: range,
         insertTextRules:
           Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
