@@ -423,7 +423,6 @@ export class VariantExplorerComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe(
         (res) => {
-          console.log(res);
           const variant = this.variants.find((v) => v.id == res.id);
           variant.calculationInProgress = false;
           variant.isTimeouted = res.isTimeout;
