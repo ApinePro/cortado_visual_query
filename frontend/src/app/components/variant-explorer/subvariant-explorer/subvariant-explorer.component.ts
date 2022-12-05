@@ -445,18 +445,27 @@ export class SubvariantExplorerComponent
     }
   }
 
-  updateConformanceForVariant(variant: Variant, timeout: number): void {
-    variant.calculationInProgress = true;
-    variant.deviations = undefined;
+  updateConformanceForVariant(variant: IVariant, timeout: number): void {
+    let underlyingVariants = [];
+    if (variant instanceof LoopCollapsedVariant) {
+      underlyingVariants = variant.variants;
+    } else {
+      underlyingVariants = [variant];
+    }
 
-    this.conformanceCheckingService.calculateConformance(
-      variant.id,
-      variant.infixType,
-      this.processTreeService.currentDisplayedProcessTree,
-      variant.variant.serialize(),
-      timeout,
-      AlignmentType.VariantAlignment
-    );
+    underlyingVariants.forEach((v) => {
+      v.calculationInProgress = true;
+      v.deviations = undefined;
+
+      this.conformanceCheckingService.calculateConformance(
+        v.id,
+        v.infixType,
+        this.processTreeService.currentDisplayedProcessTree,
+        v.variant.serialize(1),
+        timeout,
+        AlignmentType.VariantAlignment
+      );
+    });
   }
 }
 
