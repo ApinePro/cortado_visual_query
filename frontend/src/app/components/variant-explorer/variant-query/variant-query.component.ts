@@ -50,7 +50,8 @@ export class VariantQueryComponent
   options: EditorOptions = new EditorOptions();
 
   @Output()
-  executeFilteredVariantsAction: EventEmitter<boolean> = new EventEmitter<boolean>();
+  executeFilteredVariantsAction: EventEmitter<boolean> =
+    new EventEmitter<boolean>();
 
   queryfilteractive: boolean = false;
 
