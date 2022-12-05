@@ -10,6 +10,7 @@ import {
 import { Variant } from 'src/app/objects/Variants/variant';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { InfixType } from 'src/app/objects/Variants/infix_selection';
 
 @Component({
   selector: 'app-variant-info',
@@ -33,6 +34,13 @@ export class VariantInfoComponent implements OnInit, OnDestroy {
 
   private _destroy$ = new Subject();
 
+  variantOccurrences: number;
+  traceOccurrences: number;
+  totalVariantOccurrences: number;
+  totalTraceOccurrences: number;
+  traceOccurrencesFraction: number;
+  variantOccurrencesFraction: number;
+
   constructor(private processTreeService: ProcessTreeService) {}
 
   ngOnInit(): void {
@@ -41,6 +49,19 @@ export class VariantInfoComponent implements OnInit, OnDestroy {
       .subscribe((t) => {
         this.processTreeIsPresent = t !== undefined && t !== null;
       });
+
+    if (this.variant.infixType != InfixType.NOT_AN_INFIX) {
+      let fragmentStatistics: any = this.variant.fragmentStatistics;
+
+      this.variantOccurrences = fragmentStatistics.variantOccurrences;
+      this.traceOccurrences = fragmentStatistics.traceOccurrences;
+      this.totalVariantOccurrences = fragmentStatistics.totalOccurrences;
+      this.totalTraceOccurrences = fragmentStatistics.totalTraceOccurrences;
+      this.variantOccurrencesFraction =
+        fragmentStatistics.variantOccurrencesFraction;
+      this.traceOccurrencesFraction =
+        fragmentStatistics.traceOccurrencesFraction;
+    }
   }
 
   ngOnDestroy(): void {
