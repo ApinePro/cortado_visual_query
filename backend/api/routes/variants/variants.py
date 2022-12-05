@@ -52,17 +52,18 @@ def get_trace_counts(variants: Mapping[int, Tuple[ConcurrencyGroup, Trace, List,
 def get_fragment_counts(variants: Mapping[int, Tuple[ConcurrencyGroup,
                                                      Trace, List, VariantInformation]], fragment: Group,
                         infixType: InfixType):
-    filtered_variants = {k: v for k, v in variants.items() if not v[3].is_user_defined}
     return list(map(lambda variant: count_fragment_occurrences(
-        variant, fragment, infixType, variant[0]), filtered_variants.items()))
+        variant, fragment, infixType, variant[0]), variants.items()))
 
 
 @router.post("/countFragmentOccurrences")
-def count_fragment_occurrences(payload: VariantFragment):
+def get_fragment_statistics(payload: VariantFragment):
     fragment: Group = Group.deserialize(payload.fragment)
 
     variants: Mapping[int, Tuple[ConcurrencyGroup,
                                  Trace, List, VariantInformation]] = cache.variants
+    variants = {k: v for k, v in variants.items() if not v[3].is_user_defined}
+
 
     infixType = InfixType[payload.infixType]
 
