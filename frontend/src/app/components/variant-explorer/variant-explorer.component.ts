@@ -1054,7 +1054,9 @@ export class VariantExplorerComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe((variants) => {
         if (variants !== null) {
+          this.traceInfixSelectionMode = false;
           this.displayed_variants = variants;
+          this.sort(this.sortingFeature);
         } else {
           this.displayed_variants = this.variants;
         }

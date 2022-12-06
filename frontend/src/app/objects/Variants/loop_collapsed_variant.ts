@@ -52,7 +52,9 @@ export class LoopCollapsedVariant implements IVariant {
   }
 
   get percentage() {
-    return this.variants.reduce((sum, v) => sum + v.percentage, 0);
+    return Number(
+      this.variants.reduce((sum, v) => sum + v.percentage, 0).toFixed(2)
+    );
   }
 
   get userDefined() {
