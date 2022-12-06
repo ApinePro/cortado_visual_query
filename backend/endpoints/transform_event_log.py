@@ -340,7 +340,7 @@ def handle_rename_merge_variants(
         mergeList, activityName, newActivityName, new_variant_dict, update_res_variants
 ):
     for ls in mergeList:
-        (variant, _, _, _) = cache.variants[ls[0]]
+        (variant, _, _, info) = cache.variants[ls[0]]
         renamed_variant = rename_activities_in_variant_group(
             variant, activityName, newActivityName
         )
@@ -381,8 +381,7 @@ def handle_rename_merge_variants(
             renamed_variant,
             renamed_traces,
             renamed_subvariants,
-            # TODO niklas infix type
-            VariantInformation(infix_type=InfixType.NOT_AN_INFIX, is_user_defined=are_all_user_defined)
+            info
         )
 
         update_res_variants[min(ls)] = {"nSubVariants": len(renamed_subvariants.keys())}
