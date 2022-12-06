@@ -262,15 +262,17 @@ export class SubvariantExplorerComponent
     // Turn on the rendering spinner
     this.svgRenderingInProgress = true;
 
-    // TODO niklas
+    let mainVarDrawer = this.mainvariantDrawers.filter(
+      (v) => v.variant == this.mainVariant
+    )[0];
     // Add the main variant to the SVG array
-    // const mainVariantSVG = this.addVariantExportInformation(
-    //   this.mainvariantDrawer.getSVGGraphicElement(),
-    //   100,
-    //   100,
-    //   true
-    // // );
-    // svgs.push(mainVariantSVG);
+    const mainVariantSVG = this.addVariantExportInformation(
+      mainVarDrawer.getSVGGraphicElement(),
+      100,
+      100,
+      true
+    );
+    svgs.push(mainVariantSVG);
 
     // Temporarily change text color to black for readability in the svg
     this.subVariantComponents.forEach((svc) => svc.draw('black'));
