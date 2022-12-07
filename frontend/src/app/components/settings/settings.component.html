@@ -76,6 +76,61 @@
               <div class="invalid-feedback">Please provide a valid input.</div>
             </div>
           </div>
+          <div class="form-group row mx-0 d-flex flex-row align-items-center">
+            <label
+              for="timeout"
+              class="col-7 col-form-label text-light dialog-label"
+            >
+              Enable Randomized Sequentializations
+              <i
+                class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                data-bs-html="true"
+                title="Before applying standard process mining algorithms in the backend, concurrent variants are sequentialized. For variants with much concurrent behavior, this step can result in many sequentializations. If this configuration is enabled, the backend uses a subset of sequentializations."
+              >
+              </i>
+            </label>
+            <div class="col-5">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  id="enableNSeq"
+                  type="checkbox"
+                  id="flexSwitchCheckDefault"
+                  formControlName="isNSequentializationReductionEnabled"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="form-group row mx-0 d-flex flex-row align-items-center">
+            <label
+              for="timeout"
+              class="col-7 col-form-label text-light dialog-label"
+            >
+              Number of sequentializations
+              <i
+                class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                data-bs-html="true"
+                title="Before applying standard process mining algorithms in the backend, concurrent variants are sequentialized. This parameter changes the number of sequentializations. Only applied if <b>Enable Randomized Sequentializations</b> is enabled."
+              >
+              </i>
+            </label>
+            <div class="col-5">
+              <input
+                type="number"
+                class="form-control styled-input-field"
+                id="nseq"
+                aria-describedby="nSeqHelp"
+                placeholder=""
+                formControlName="numberOfSequentializationsPerVariant"
+                required
+              />
+              <div class="invalid-feedback">Please provide a valid input.</div>
+            </div>
+          </div>
         </form>
         <div class="modal-footer h-line-modal-top">
           <button
