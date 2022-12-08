@@ -41,6 +41,17 @@ export class ConformanceCheckingService {
     });
   }
 
+  public readonly conformanceColorMap = new ColorMap(
+    d3
+      .scaleThreshold<any, any>()
+      .domain(
+        COLORS_RED_GREEN.map(
+          (value, index) => index / (COLORS_RED_GREEN.length - 1)
+        )
+      )
+      .range(['#d3d3d3', ...COLORS_RED_GREEN])
+  );
+
   private socket: WebSocketSubject<any>;
   private runningRequests: number[] = [];
   public varResults: Observable<ConformanceCheckingResult>;
@@ -154,12 +165,6 @@ export class ConformanceCheckingService {
 
   public showConformanceTimeoutDialog(variant: Variant, callbackFunc) {
     this.showConformanceCheckingTimeoutDialog.next([variant, callbackFunc]);
-  }
-
-  get conformanceColorMap() {
-    return new ColorMap(
-      d3.scaleQuantize<any, any>().domain([0, 1]).range(COLORS_RED_GREEN)
-    );
   }
 
   public isTreeConformanceActive(v: Variant) {
