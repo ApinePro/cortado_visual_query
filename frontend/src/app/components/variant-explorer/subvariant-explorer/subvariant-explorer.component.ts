@@ -122,7 +122,7 @@ export class SubvariantExplorerComponent
       this.subvariants.set(variant, [subvariant]);
     }
 
-    if (variant !== this.mainVariant) {
+    if (variant.variant.asString() !== this.mainVariant.variant.asString()) {
       this.containsLoopCollapsedVariants = true;
     }
   }
