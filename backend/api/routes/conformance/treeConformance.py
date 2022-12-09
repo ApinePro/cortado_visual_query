@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from cortado_core.utils.process_tree import convert_tree
 from cortado_core.utils.cvariants import generate_variants
+from pm4py.objects.process_tree.obj import ProcessTree
 
 from cache import cache
 
@@ -38,29 +39,29 @@ async def calculate_tree_conformance(d: InputCalculateConformance):
         variant_tree_conformances = []
         for variant in variants:
             alignment = calculate_alignment(
-                variant, d.pt, c_variant['infixType'], True)
+                variant, pt, c_variant['infixType'])
 
             conf_stats = defaultdict(lambda: {'value': None, 'weight': 0})
             for (log_move, model_move) in alignment['alignment']:
-                model_move = str(model_move)
+                if isinstance(model_move, ProcessTree):
+                    model_move = model_move.label
 
                 if(model_move == '>>'):
                     continue
 
-                if conf_stats[model_move]['value'] is None:
-                    conf_stats[model_move]['value'] = 0
+                if conf_stats[model_move.full]['value'] is None:
+                    conf_stats[model_move.full]['value'] = 0
 
-                conf_stats[model_move]['weight'] += 1
+                conf_stats[model_move.full]['weight'] += 1
 
                 # when move is properly aligned
                 if(
-                    log_move == model_move.rsplit('_', 1)[0] or
+                    log_move == model_move or
                     (
-                        log_move == '>>' and
-                        model_move.rsplit('_', 1)[0] == 'tau'
+                        log_move == '>>' and model_move == 'tau'
                     )
                 ):
-                    conf_stats[model_move]['value'] += 1
+                    conf_stats[model_move.full]['value'] += 1
 
             for conf_stat in conf_stats.values():
                 conf_stat['value'] = conf_stat['value'] / conf_stat['weight']

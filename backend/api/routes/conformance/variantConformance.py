@@ -11,6 +11,8 @@ from backend_utilities.timeout.helper_functions import (
     TimeoutException,
     execute_with_timeout,
 )
+from backend_utilities.process_tree_conversion import dict_to_process_tree
+from cortado_core.utils.cvariants import generate_variants
 from endpoints.alignments import InfixType
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
@@ -61,7 +63,8 @@ def calculate_alignment_intern(pt: dict, c_variant: dict, infix_type: InfixType)
     total_cost = 0
     deviations = 0
     for variant in all_variants:
-        alignment = calculate_alignment_endpoint(variant, pt, infix_type)
+        alignment = calculate_alignment_endpoint(
+            variant, dict_to_process_tree(pt)[0], infix_type)
         total_cost += alignment["cost"]
         deviations += alignment["deviation"]
         for log_move, model_move in alignment['alignment']:

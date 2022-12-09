@@ -1,5 +1,6 @@
 from typing import List, Tuple
 
+from cortado_core.utils.process_tree import LabelWithIndex
 from cortado_core.process_tree_utils.miscellaneous import (
     subtree_is_part_of_tree_based_on_obj_id,
 )
@@ -29,7 +30,7 @@ def process_tree_to_dict_rec(
             pt_frozen = True
     res = {
         "operator": __get_root_operator_string_for_frontend(pt),
-        "label": __get_root_node_label(pt),
+        "label": None if __get_root_node_label(pt) is None else str(__get_root_node_label(pt)),
         "id": id(pt),
         "children": [],
         "frozen": pt_frozen,

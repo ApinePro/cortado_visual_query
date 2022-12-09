@@ -4,12 +4,11 @@ from enum import Enum
 from pm4py.objects.log.obj import Trace, Event
 from pm4py.objects.petri_net.utils.align_utils import STD_MODEL_LOG_MOVE_COST
 from pm4py.objects.process_tree.obj import ProcessTree
-from backend_utilities.process_tree_conversion import dict_to_process_tree
-from cortado_core.utils.process_tree import convert_tree
 from pm4py.algo.conformance.alignments.process_tree.variants import search_graph_pt as tree_alignment
 from cortado_core.alignments.infix_alignments import algorithm as infix_alignments
 from cortado_core.alignments.prefix_alignments import algorithm as prefix_alignments
 from cortado_core.alignments.suffix_alignments import algorithm as suffix_alignments
+
 
 class InfixType(Enum):
     PROPER_INFIX = 1
@@ -20,13 +19,8 @@ class InfixType(Enum):
 # @lru_cache(maxsize=None)
 
 
-def calculate_alignment(variant, pt, infix_type: InfixType, use_unique_tree_nodes=False):
+def calculate_alignment(variant, pt: ProcessTree, infix_type: InfixType):
     # this function uses the specific tree alignment calculation
-    pt: ProcessTree
-    _: List[ProcessTree]
-    pt, _ = dict_to_process_tree(pt)
-    if(use_unique_tree_nodes):
-        pt = convert_tree(pt)
     trace = Trace()
     for a in variant:
         e = Event()
