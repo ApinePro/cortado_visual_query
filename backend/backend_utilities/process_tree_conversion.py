@@ -47,19 +47,13 @@ def process_tree_to_dict_rec(
             child_conformance = [child['conformance']
                                  for child in res['children'] if child['conformance'] is not None]
             if len(child_conformance) > 0:
-                if pt.operator == Operator.XOR:
-                    # max of childrens conformance
-                    res['conformance'] = max(
-                        child_conformance, key=lambda conf: conf['value'])
-                else:
-                    # mean of childrens conformance
-                    weight_sum = sum(
-                        list(map(lambda conf: conf['weight'], child_conformance)))
-                    res['conformance'] = {
-                        'value': sum(list(map(lambda conf: conf['value'] * conf['weight'], child_conformance))) / weight_sum,
-                        'weight': weight_sum
-
-                    }
+                # mean of childrens conformance
+                weight_sum = sum(
+                    list(map(lambda conf: conf['weight'], child_conformance)))
+                res['conformance'] = {
+                    'value': sum(list(map(lambda conf: conf['value'] * conf['weight'], child_conformance))) / weight_sum,
+                    'weight': weight_sum
+                }
         elif str(pt) in conformance and conformance[str(pt)]['value'] is not None:
             res['conformance'] = conformance[str(pt)]
     return res
