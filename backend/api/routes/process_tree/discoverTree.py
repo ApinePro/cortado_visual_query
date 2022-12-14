@@ -63,7 +63,6 @@ async def discover_process_model_from_cvariants(
         ]
     )
     print(f"nVariants: {len(all_variants)}")
-    print(all_variants)
     res = discover_process_model_from_variants(all_variants)
     return res
 
