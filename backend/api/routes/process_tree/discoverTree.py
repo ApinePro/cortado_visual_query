@@ -11,9 +11,7 @@ from cortado_core.utils.alignment_utils import trace_fits_process_tree
 from cortado_core.utils.cvariants import generate_variants
 from endpoints.add_variants_to_process_model import add_variants_to_process_model
 from fastapi import APIRouter
-from pm4py.algo.discovery.inductive.variants.im_clean.algorithm import (
-    apply_tree as inductive_miner,
-)
+from pm4py.discovery import discover_process_tree_inductive
 from pm4py.objects.log.obj import Event, EventLog, Trace
 from pm4py.objects.process_tree.obj import ProcessTree
 from pydantic import BaseModel
@@ -41,7 +39,7 @@ def discover_process_model_from_variants(variants):
             event["concept:name"] = e
             t.append(event)
         log.append(t)
-    pt: ProcessTree = inductive_miner(log)
+    pt: ProcessTree = discover_process_tree_inductive(log)
     res = process_tree_to_dict(pt)
     return res
 
