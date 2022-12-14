@@ -4,4 +4,6 @@ export class Configuration {
   timeoutCVariantAlignmentComputation: number;
   timeGranularity: TimeUnit;
   minTracesVariantDetectionMultiprocessing: number;
+  isNSequentializationReductionEnabled: boolean;
+  numberOfSequentializationsPerVariant: number;
 }

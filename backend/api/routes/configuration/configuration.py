@@ -10,6 +10,7 @@ router = APIRouter(
     prefix="/config"
 )
 
+
 def get_config_repo():
     return ConfigurationRepositoryFactory.get_config_repository()
 
@@ -19,6 +20,10 @@ class Configuration(BaseModel):
         alias='timeoutCVariantAlignmentComputation')
     min_traces_variant_detection_mp: int = Field(
         alias="minTracesVariantDetectionMultiprocessing")
+    number_of_sequentializations_per_variant: int = Field(
+        alias="numberOfSequentializationsPerVariant")
+    is_n_sequentialization_reduction_enabled: bool = Field(
+        alias="isNSequentializationReductionEnabled")
 
     class Config:
         allow_population_by_field_name = True
@@ -29,7 +34,9 @@ async def save_configuration(config_dto: Configuration,
                              config_repository: ConfigurationRepository = Depends(get_config_repo)):
     config = DomainConfiguration(
         timeout_cvariant_alignment_computation=config_dto.timeout_cvariant_alignment_computation,
-        min_traces_variant_detection_mp=config_dto.min_traces_variant_detection_mp)
+        min_traces_variant_detection_mp=config_dto.min_traces_variant_detection_mp,
+        is_n_sequentialization_reduction_enabled=config_dto.is_n_sequentialization_reduction_enabled,
+        number_of_sequentializations_per_variant=config_dto.number_of_sequentializations_per_variant)
     config_repository.save_configuration(config)
 
 
@@ -37,5 +44,7 @@ async def save_configuration(config_dto: Configuration,
 async def get_configuration(config_repo: ConfigurationRepository = Depends(get_config_repo)):
     config = config_repo.get_configuration()
     config_dto = Configuration(timeout_cvariant_alignment_computation=config.timeout_cvariant_alignment_computation,
-                               min_traces_variant_detection_mp=config.min_traces_variant_detection_mp)
+                               min_traces_variant_detection_mp=config.min_traces_variant_detection_mp,
+                               is_n_sequentialization_reduction_enabled=config.is_n_sequentialization_reduction_enabled,
+                               number_of_sequentializations_per_variant=config.number_of_sequentializations_per_variant)
     return config_dto

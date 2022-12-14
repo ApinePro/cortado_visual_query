@@ -39,6 +39,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.configForm = this.fb.group({
       timeoutCVariantAlignmentComputation: [null, Validators.required],
       minTracesVariantDetectionMultiprocessing: [null, Validators.required],
+      isNSequentializationReductionEnabled: [null, Validators.required],
+      numberOfSequentializationsPerVariant: [null, Validators.required],
       // timeGranularity: [null, Validators.required],
     });
   }

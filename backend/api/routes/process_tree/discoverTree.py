@@ -1,6 +1,10 @@
 import multiprocessing
 from typing import Any, List
 
+from cortado_core.utils.sequentializations import generate_sequentializations
+from cortado_core.utils.split_graph import Group
+
+from backend_utilities.configuration.repository import ConfigurationRepositoryFactory
 from backend_utilities.multiprocessing.pool_factory import PoolFactory
 from backend_utilities.process_tree_conversion import (
     dict_to_process_tree,
@@ -8,7 +12,6 @@ from backend_utilities.process_tree_conversion import (
 )
 from backend_utilities.variant_trace_conversion import variant_to_trace
 from cortado_core.utils.alignment_utils import trace_fits_process_tree
-from cortado_core.utils.cvariants import generate_variants
 from endpoints.add_variants_to_process_model import add_variants_to_process_model
 from fastapi import APIRouter
 from pm4py.discovery import discover_process_tree_inductive
@@ -48,11 +51,15 @@ def discover_process_model_from_variants(variants):
 async def discover_process_model_from_cvariants(
         d: InputDiscoverProcessModelFromVariants,
 ):
+    config = ConfigurationRepositoryFactory().get_config_repository().get_configuration()
+    n_sequentializations = -1 if not config.is_n_sequentialization_reduction_enabled else config.number_of_sequentializations_per_variant
+
     all_variants = set(
         [
             tuple(variant)
             for cvariant in d.variants
-            for variant in generate_variants(cvariant)
+            for variant in
+            generate_sequentializations(Group.deserialize(cvariant), n_sequentializations=n_sequentializations)
         ]
     )
     print(f"nVariants: {len(all_variants)}")
@@ -76,18 +83,22 @@ async def add_simple_variants_to_process_model(d: InputAddVariantsToProcessModel
 
 @router.post("/addConcurrencyVariantsToProcessModel")
 async def add_cvariants_to_process_model(d: InputAddVariantsToProcessModel):
+    config = ConfigurationRepositoryFactory().get_config_repository().get_configuration()
+    n_sequentializations = -1 if not config.is_n_sequentialization_reduction_enabled else config.number_of_sequentializations_per_variant
     fitting_variants = set(
         [
             tuple(variant)
             for cvariant in d.fitting_variants
-            for variant in generate_variants(cvariant)
+            for variant in
+            generate_sequentializations(Group.deserialize(cvariant), n_sequentializations=n_sequentializations)
         ]
     )
     to_add = set(
         [
             tuple(variant)
             for cvariant in d.variants_to_add
-            for variant in generate_variants(cvariant)
+            for variant in
+            generate_sequentializations(Group.deserialize(cvariant), n_sequentializations=n_sequentializations)
         ]
     )
     return add_variants_to_process_model(d.pt, fitting_variants, to_add, PoolFactory.instance().get_pool())
@@ -102,11 +113,14 @@ class InputAddVariantsToProcessModelUnknownConformance(BaseModel):
 async def add_cvariants_to_process_model_unknown_conformance(
         d: InputAddVariantsToProcessModelUnknownConformance,
 ):
+    config = ConfigurationRepositoryFactory().get_config_repository().get_configuration()
+    n_sequentializations = -1 if not config.is_n_sequentialization_reduction_enabled else config.number_of_sequentializations_per_variant
     selected_variants = set(
         [
             tuple(variant)
             for cvariant in d.selected_variants
-            for variant in generate_variants(cvariant)
+            for variant in
+            generate_sequentializations(Group.deserialize(cvariant), n_sequentializations=n_sequentializations)
         ]
     )
 

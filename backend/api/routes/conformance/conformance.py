@@ -1,15 +1,15 @@
 import asyncio
 from collections import defaultdict
-from multiprocessing import Pool
-
 import pm4pycvxopt
+from cortado_core.utils.sequentializations import generate_sequentializations
+from cortado_core.utils.split_graph import Group
+
 from backend_utilities.configuration.repository import ConfigurationRepositoryFactory
 from backend_utilities.multiprocessing.pool_factory import PoolFactory
 from backend_utilities.timeout.helper_functions import (
     TimeoutException,
     execute_with_timeout,
 )
-from cortado_core.utils.cvariants import generate_variants
 from endpoints.alignments import InfixType
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
@@ -30,7 +30,7 @@ class ActivityWithIndex:
 
 
 def calculate_alignment_intern_with_timeout(
-    pt: dict, c_variant: dict, infix_type: InfixType, timeout: int
+        pt: dict, c_variant: dict, infix_type: InfixType, timeout: int
 ):
     try:
         return execute_with_timeout(
@@ -63,7 +63,11 @@ def calculate_alignment_intern(pt: dict, c_variant: dict, infix_type: InfixType)
             return {'leaf': leafs}
 
     c_variant_indexed = index_leafs(c_variant)
-    all_variants = generate_variants(c_variant_indexed)
+
+    config = ConfigurationRepositoryFactory().get_config_repository().get_configuration()
+    n_sequentializations = -1 if not config.is_n_sequentialization_reduction_enabled else config.number_of_sequentializations_per_variant
+    all_variants = generate_sequentializations(Group.deserialize(c_variant_indexed),
+                                               n_sequentializations=n_sequentializations)
     index_alignments_mapping = defaultdict(lambda: 0)
     total_cost = 0
     deviations = 0
@@ -75,15 +79,15 @@ def calculate_alignment_intern(pt: dict, c_variant: dict, infix_type: InfixType)
             if log_move == '>>':
                 continue
             index_alignments_mapping[log_move] += (
-                log_move.name == str(model_move))
+                    log_move.name == str(model_move))
 
     if len(all_variants) > 1:
         index_alignments_mapping.update(
-            {k: v/len(all_variants) for k, v in index_alignments_mapping.items()})
+            {k: v / len(all_variants) for k, v in index_alignments_mapping.items()})
 
     return {
-        "cost": total_cost/len(all_variants),
-        "deviations": deviations/len(all_variants),
+        "cost": total_cost / len(all_variants),
+        "deviations": deviations / len(all_variants),
         "alignment": project_alignments_on_cvariant(index_alignments_mapping, c_variant_indexed),
         "pt": pt
     }
@@ -112,7 +116,7 @@ def get_alignment_callback(idx: str, alignType, websocket: WebSocket):
             "id": idx,
             "isTimeout": False,
             "cost": 0,
-            "type" : alignType,
+            "type": alignType,
             "deviation": False,
         }
         for key, value in result.items():
