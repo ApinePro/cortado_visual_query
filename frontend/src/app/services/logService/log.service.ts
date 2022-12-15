@@ -1,7 +1,6 @@
 import { ColorMapService } from './../colorMapService/color-map.service';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { skip } from 'rxjs/operators';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { Variant } from 'src/app/objects/Variants/variant';
 

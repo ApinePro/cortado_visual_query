@@ -1,7 +1,6 @@
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import * as FileSaver from 'file-saver';
 import { Observable } from 'rxjs';
 import { take, tap } from 'rxjs/operators';
 import { Configuration } from 'src/app/components/settings/model';
@@ -336,9 +335,6 @@ export class BackendService {
         config.serialize()
       )
       .subscribe((res) => {
-        console.log('DataFrame');
-        console.log(res);
-
         this.sharedDataService.frequentMiningResults = res;
       });
   }
@@ -385,32 +381,9 @@ export class BackendService {
   ): Observable<any> {
     return this.getProperties(timeGranularity).pipe(
       tap((properties) => {
-        this.updateState(properties, logName);
+        this.processEventLog(properties, logName);
       })
     );
-  }
-
-  /**
-   * Updates the properties in sharedDataService (variants, activities, logName)
-   * @param properties
-   * @param logName
-   */
-  private updateState(properties: any, logName: string) {
-    this.logService.activitiesInEventLog = properties['activities'];
-    this.logService.startActivitiesInEventLog = new Set(
-      properties['startActivities']
-    );
-    this.logService.endActivitiesInEventLog = new Set(
-      properties['endActivities']
-    );
-
-    const variants = addVariantInformation(properties['variants']);
-    this.logService.computeLogStats(variants);
-    this.variantService.variants = variants;
-
-    this.logService.loadedEventLog = logName;
-
-    console.warn('Variants in Update State', properties['variants']);
   }
 
   public getProperties(timeGranularity?: TimeUnit): Observable<any> {

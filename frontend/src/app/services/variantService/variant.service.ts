@@ -5,15 +5,15 @@ import { LogService } from 'src/app/services/logService/log.service';
 import * as objectHash from 'object-hash';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { skip, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { mapVariants } from 'src/app/utils/util';
+import { v4 as uuidv4 } from 'uuid';
 import {
   getInfixTypeForSelectedInfix,
   getSelectedChildren,
   InfixType,
   removeIntermediateGroupsWithSingleElements,
-  someChildrenSelected,
 } from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
 import {
@@ -29,6 +29,7 @@ import {
 import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { ToastService } from '../toast/toast.service';
 import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
+import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
 
 @Injectable({
   providedIn: 'root',
@@ -50,6 +51,18 @@ export class VariantService {
   }
 
   private _variants = new BehaviorSubject<Variant[]>([]);
+  private _collapsedVariants = new BehaviorSubject<LoopCollapsedVariant[]>(
+    null
+  );
+  public areVariantLoopsCollapsed = false;
+
+  set collapsedVariants(variants: LoopCollapsedVariant[]) {
+    this._collapsedVariants.next(variants);
+  }
+
+  get collapsedVariants$(): Observable<LoopCollapsedVariant[]> {
+    return this._collapsedVariants.asObservable();
+  }
 
   get variants$(): Observable<Variant[]> {
     return this._variants.asObservable();
@@ -146,6 +159,11 @@ export class VariantService {
       return;
     }
 
+    this.nUserVariants += 1;
+    newVariant.bid = -this.nUserVariants;
+
+    this.addInfixToBackend(newVariant);
+
     this.countFragmentOccurrences(newVariant)
       .pipe(
         tap((statistics) => {
@@ -180,11 +198,7 @@ export class VariantService {
       (v) => v.variant === variant
     )[0];
 
-    if (matchingVariant.userDefined) {
-      this.variants = this.variants.filter((v) => v !== matchingVariant);
-    } else {
-      this.deleteVariants([matchingVariant.bid]);
-    }
+    this.deleteVariants([matchingVariant.bid]);
   }
 
   public deleteVariants(bids: number[]): void {
@@ -256,14 +270,6 @@ export class VariantService {
       const new_variants = addVariantInformation(res['new_variants']);
 
       variants.push(...new_variants);
-
-      const userDefinedVariants = this.variants.filter((v) => v.userDefined);
-
-      userDefinedVariants.forEach((v) =>
-        v.variant.deleteActivity(activityName)
-      );
-
-      variants.push(...userDefinedVariants);
 
       this.cachedChange = true;
       this.logService.computeLogStats(variants);
@@ -388,5 +394,82 @@ export class VariantService {
           this.nameChanges.next([lastNameChange[1], lastNameChange[0]]);
         }
       });
+  }
+
+  public addUserDefinedVariant(variant: VariantElement, bid: number) {
+    this.httpClient
+      .post(ROUTES.BASE_URL + ROUTES.MODIFY_LOG + 'addUserDefinedVariant', {
+        variant: variant.serialize(),
+        bid: bid,
+      })
+      .subscribe(
+        (res) => console.log(res),
+        (err) => console.log('error ' + err)
+      );
+  }
+
+  public unCollapseLoopsInVariants() {
+    if (this.areVariantLoopsCollapsed) {
+      this.collapsedVariants = null;
+    } else {
+      this.loadLoopCollapsedVariants();
+      this.toastService.showWarningToast(
+        'Variant Explorer',
+        `Disabled severeal features that are not applicable after collapsing loops.`,
+        'bi-arrow-repeat'
+      );
+    }
+    this.areVariantLoopsCollapsed = !this.areVariantLoopsCollapsed;
+  }
+
+  private loadLoopCollapsedVariants() {
+    this.httpClient
+      .get(ROUTES.BASE_URL + ROUTES.IMPORT + 'collapsedVariants')
+      .subscribe((res) => {
+        let collapsedVariants = [];
+
+        let bidToVariant = new Map<number, Variant>();
+        for (let variant of this.variants) {
+          bidToVariant.set(variant.bid, variant);
+        }
+
+        for (let idx in res) {
+          let collapsedVariant = res[idx];
+
+          let underlyingVariants = [];
+
+          for (let bid of collapsedVariant['ids']) {
+            underlyingVariants.push(bidToVariant.get(bid));
+          }
+
+          collapsedVariants.push(
+            new LoopCollapsedVariant(
+              uuidv4(),
+              underlyingVariants,
+              deserialize(collapsedVariant['variant'])
+            )
+          );
+        }
+
+        this.collapsedVariants = collapsedVariants;
+      });
+  }
+
+  private addInfixToBackend(variant: Variant) {
+    this.httpClient
+      .post(ROUTES.BASE_URL + ROUTES.MODIFY_LOG + 'addUserDefinedInfix', {
+        variant: variant.variant.serialize(),
+        bid: variant.bid,
+        infixType: variant.infixType,
+      })
+      .subscribe(
+        (_) => console.log('successfully added infix to backend'),
+        (_) =>
+          this.toastService.showErrorToast(
+            'Variant Explorer',
+            `Adding the selected infix failed`,
+            'bi-exclamation-circle'
+          )
+      );
   }
 }

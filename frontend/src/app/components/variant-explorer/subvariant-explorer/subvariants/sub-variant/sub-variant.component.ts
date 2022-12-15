@@ -335,7 +335,6 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
       let completing = group.filter(
         (subvariantNode) => subvariantNode.lifecycle === 'complete'
       );
-
       starting.forEach((subvariantNode) => {
         let yIndicesForActivity = yIndicesFromMainVariant.get(
           subvariantNode.activity

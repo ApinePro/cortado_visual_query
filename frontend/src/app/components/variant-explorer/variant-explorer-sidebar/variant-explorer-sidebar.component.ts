@@ -3,6 +3,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
+import { VariantService } from 'src/app/services/variantService/variant.service';
 import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 
 @Component({
@@ -20,7 +21,8 @@ export class VariantExplorerSidebarComponent implements OnInit, OnDestroy {
 
   constructor(
     public variantViewModeService: VariantViewModeService,
-    private variantPerformanceService: VariantPerformanceService
+    private variantPerformanceService: VariantPerformanceService,
+    public variantService: VariantService
   ) {}
 
   ngOnInit(): void {

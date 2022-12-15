@@ -1,16 +1,17 @@
 from collections import Counter
-import pickle
 from typing import Mapping, Tuple
 
 import cache.cache as cache
 from cortado_core.utils.cvariants import get_concurrency_variants, get_detailed_variants
 from cortado_core.utils.split_graph import Group
-from cortado_core.utils.timestamp_utils import TimeUnit, get_time_granularity
+from cortado_core.utils.timestamp_utils import TimeUnit
 from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.objects.log.util.interval_lifecycle import to_interval
 from pm4py.util.xes_constants import DEFAULT_START_TIMESTAMP_KEY, DEFAULT_TRANSITION_KEY
 
+from api.routes.variants.variants import VariantInformation
 from backend_utilities.multiprocessing.pool_factory import PoolFactory
+from endpoints.alignments import InfixType
 
 
 def calculate_event_log_properties(
@@ -40,12 +41,7 @@ def calculate_event_log_properties(
     else:
         cache.parameters["lifecycle_available"] = True
 
-    res_variants, cache.variants, subvariants = get_c_variants(event_log, use_mp, time_granularity)
-
-    cache.variants = {
-        bid: (variant, traces, subvars)
-        for bid, ((variant, traces), subvars) in enumerate(zip(cache.variants.items(), subvariants))
-    }
+    res_variants, cache.variants = get_c_variants(event_log, use_mp, time_granularity)
 
     start_activities, end_activities, nActivities = compute_log_stats(cache.variants)
 
@@ -73,7 +69,7 @@ def compute_log_stats(variants: Mapping[int, Tuple[Group, Trace]]):
     end_activities = set()
     activites = []
 
-    for v, _, _ in variants.values():
+    for v, _, _, _ in variants.values():
         for g, ts in v.graphs.items():
 
             start_activities.update(g.start_activities.keys())
@@ -92,21 +88,21 @@ def get_c_variants(event_log: EventLog, use_mp: bool = False, time_granularity: 
     total_traces = len(event_log)
     res_variants = []
 
-    sub_variants = []
+    cache_variants = dict()
 
     for bid, (v, ts) in enumerate(sorted(list(variants.items()), key=lambda e: len(e[1]), reverse=True)):
-        variant, sub_vars = create_variant_object(time_granularity, total_traces, bid, v, ts)
-        sub_variants.append(sub_vars)
+        info = VariantInformation(infix_type=InfixType.NOT_AN_INFIX, is_user_defined=False)
+        variant, sub_vars = create_variant_object(time_granularity, total_traces, bid, v, ts, info)
 
         res_variants.append(variant)
+        cache_variants[bid] = (
+        v, ts, sub_vars, info)
 
-    return (
-        sorted(res_variants, key=lambda variant: variant["count"], reverse=True),
-        variants, sub_variants
-    )
+    return sorted(res_variants, key=lambda variant: variant["count"],
+                  reverse=True), cache_variants
 
 
-def create_variant_object(time_granularity, total_traces, bid, v, ts):
+def create_variant_object(time_granularity, total_traces, bid, v, ts, info: VariantInformation):
     sub_variants = create_subvariants(ts, time_granularity)
 
     variant = {
@@ -117,6 +113,8 @@ def create_variant_object(time_granularity, total_traces, bid, v, ts):
         "number_of_activities": v.number_of_activities(),
         "percentage": round(len(ts) / total_traces * 100, 2),
         "nSubVariants": len(sub_variants.keys()),
+        "userDefined": info.is_user_defined,
+        "infixType": info.infix_type.value
     }
 
     # If the variant is only a single activity leaf, wrap it up as a sequence

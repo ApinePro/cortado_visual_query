@@ -26,17 +26,15 @@ import {
   ParallelGroup,
   LeafNode,
   WaitingTimeNode,
-  StartGroup,
-  EndGroup,
-  LeafLoopNode,
   InvisibleSequenceGroup,
+  LoopGroup,
 } from 'src/app/objects/Variants/variant_element';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { Variant } from 'src/app/objects/Variants/variant';
+import { IVariant } from 'src/app/objects/Variants/variant_interface';
 
 @Directive({
   selector: '[appVariantDrawer]',
@@ -64,7 +62,7 @@ export class VariantDrawerDirective
   svgHtmlElement: ElementRef;
 
   @Input()
-  variant: Variant;
+  variant: IVariant;
 
   @Input()
   traceInfixSelectionMode: boolean = false;
@@ -76,21 +74,21 @@ export class VariantDrawerDirective
   computeActivityColor: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
-    variant: Variant
+    variant: IVariant
   ) => string;
 
   @Input()
   onClickCbFc: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
-    variant: Variant
+    variant: IVariant
   ) => void;
 
   @Input()
   onMouseOverCbFc: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
-    variant: Variant,
+    variant: IVariant,
     selection
   ) => void;
 
@@ -98,7 +96,7 @@ export class VariantDrawerDirective
   onRightMouseClickCbFc: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
-    variant: Variant,
+    variant: IVariant,
     event: Event
   ) => void;
 
@@ -307,12 +305,104 @@ export class VariantDrawerDirective
         svgElement,
         outerElement
       );
-    } else if (element instanceof LeafLoopNode) {
-      this.drawLeafLoopNode(element, svgElement);
     } else if (element instanceof LeafNode) {
       this.drawLeafNode(element.asLeafNode(), svgElement);
     } else if (element instanceof WaitingTimeNode) {
       this.drawWaitingNode(element.asLeafNode(), svgElement);
+    } else if (element instanceof LoopGroup) {
+      this.drawLoopGroup(element.asLoopGroup(), svgElement);
+    }
+  }
+
+  public drawLoopGroup(
+    loopGroup: LoopGroup,
+    parent: Selection<any, any, any, any>
+  ): void {
+    const width = loopGroup.getWidth();
+    const height = loopGroup.getHeight();
+
+    let leafNode = loopGroup.elements[0].asLeafNode();
+
+    const polygonPoints = this.polygonService.getPolygonPoints(width, height);
+
+    const color = this.computeActivityColor(this, leafNode, this.variant);
+
+    let laElement = getLowestSelectionActionableElement(loopGroup);
+    let actionable =
+      laElement.parent !== null &&
+      laElement.infixSelectableState !== SelectableState.None;
+
+    let polygon = this.createPolygon(parent, polygonPoints, color, actionable);
+
+    if (this.traceInfixSelectionMode) {
+      this.addInfixSelectionAttributes(loopGroup, polygon, true);
+    }
+
+    if (this.onClickCbFc) {
+      parent.on('click', (e: PointerEvent) => {
+        this.onClickCbFc(this, loopGroup, this.variant);
+        e.stopPropagation();
+      });
+    }
+
+    const textcolor = textColorForBackgroundColor(
+      color,
+      this.traceInfixSelectionMode && !loopGroup.selected
+    );
+
+    const activityText = parent
+      .append('text')
+      .attr('x', width / 2)
+      .attr('y', height / 2)
+      .classed('user-select-none', true)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr('font-size', VARIANT_Constants.FONT_SIZE)
+      .attr('fill', textcolor)
+      .classed('activity-text', true);
+
+    let y = height / 2;
+    if (leafNode.activity.length > 1) {
+      y =
+        height / 2 -
+        ((leafNode.activity.length - 1) / 2) *
+          (VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y);
+    }
+
+    parent
+      .append('path')
+      .attr('fill', textcolor)
+      .attr(
+        'd',
+        'M11 5.466V4H5a4 4 0 0 0-3.584 5.777.5.5 0 1 1-.896.446A5 5 0 0 1 5 3h6V1.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192Zm3.81.086a.5.5 0 0 1 .67.225A5 5 0 0 1 11 13H5v1.466a.25.25 0 0 1-.41.192l-2.36-1.966a.25.25 0 0 1 0-.384l2.36-1.966a.25.25 0 0 1 .41.192V12h6a4 4 0 0 0 3.585-5.777.5.5 0 0 1 .225-.67Z'
+      )
+      .attr(
+        'transform',
+        'translate(' + (width / 2 - 8) + ',' + VARIANT_Constants.MARGIN_Y + ')'
+      );
+
+    let label = leafNode.activity[0];
+    const tspan = activityText
+      .append('tspan')
+      .attr('x', width / 2)
+      .attr('y', y + VARIANT_Constants.FONT_SIZE - VARIANT_Constants.MARGIN_Y)
+      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable)
+      .text(label);
+
+    const maxWidth =
+      loopGroup.getWidth() -
+      loopGroup.getHeadLength() * 2 -
+      VARIANT_Constants.MARGIN_X;
+    const truncated = this.wrapInnerLabelText(tspan, label, maxWidth);
+
+    if (truncated) {
+      activityText
+        .attr('title', leafNode.activity[0])
+        .attr('data-bs-toggle', 'tooltip');
+    }
+
+    if (this.onMouseOverCbFc) {
+      this.onMouseOverCbFc(this, loopGroup, this.variant, parent);
     }
   }
 
@@ -587,34 +677,6 @@ export class VariantDrawerDirective
     if (this.onMouseOverCbFc) {
       this.onMouseOverCbFc(this, element, this.variant, parent);
     }
-  }
-
-  public drawLeafLoopNode(
-    element: LeafLoopNode,
-    parent: Selection<any, any, any, any>
-  ): void {
-    const width = element.getWidth(false);
-    const height = element.getHeight();
-    const group = parent
-      .append('g')
-      .attr('transform', `translate(${0}, ${15})`);
-
-    group
-      .append('text')
-      .attr('x', width / 2)
-      .attr('y', -12.5)
-      .classed('user-select-none', true)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr('font-size', VARIANT_Constants.FONT_SIZE)
-      .attr('fill', 'white')
-      .classed('activity-text', true)
-      .append('tspan')
-      .attr('x', width / 2)
-      .attr('y', -12.5)
-      .text('\u21BA');
-
-    this.drawLeafNode(element.leafNode, group);
   }
 
   private addInfixSelectionAttributes(

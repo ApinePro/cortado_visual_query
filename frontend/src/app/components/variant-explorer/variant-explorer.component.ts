@@ -90,6 +90,8 @@ import { ActivateTooltipsService } from 'src/app/services/activateTooltipsServic
 import { ContextMenuItem } from './variant-explorer-context-menu/variant-explorer-context-menu.component';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
+import { IVariant } from 'src/app/objects/Variants/variant_interface';
+import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -104,7 +106,7 @@ export class VariantExplorerComponent
   constructor(
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
-    private variantService: VariantService,
+    public variantService: VariantService,
     private variantFilterService: VariantFilterService,
     private backendService: BackendService,
     private logService: LogService,
@@ -131,7 +133,7 @@ export class VariantExplorerComponent
   maximized: boolean = false;
 
   public variants: Variant[] = [];
-  public displayed_variants: Variant[] = [];
+  public displayed_variants: IVariant[] = [];
   public colorMap: Map<string, string>;
   public sidebarHeight = 0;
 
@@ -241,6 +243,7 @@ export class VariantExplorerComponent
     this.listenForLogGranularityChange();
     this.listenForLogStatChange();
     this.listenForViewModeChange();
+    this.listenForLoopCollapsedVariantsChange();
   }
 
   ngOnDestroy(): void {
@@ -271,11 +274,11 @@ export class VariantExplorerComponent
     this.variantService.variants$
       .pipe(takeUntil(this._destroy$))
       .subscribe((variants) => {
+        this.variantService.areVariantLoopsCollapsed = false;
         this.variants = variants;
         this.displayed_variants = variants.filter((v) => v.isDisplayed);
         this.sort(this.sortingFeature);
         this.closeAllSubvariantWindows();
-
         this.redraw_components();
       });
 
@@ -400,6 +403,7 @@ export class VariantExplorerComponent
         tap(() => {
           this.closeAllSubvariantWindows();
           this.variantViewModeService.viewMode = ViewMode.STANDARD;
+          this.variantService.areVariantLoopsCollapsed = false;
         })
       )
       .pipe(takeUntil(this._destroy$))
@@ -474,26 +478,34 @@ export class VariantExplorerComponent
     );
   }
 
-  updateConformanceForVariant(variant: Variant, timeout: number): void {
-    console.log(variant, timeout);
-    variant.calculationInProgress = true;
-    variant.deviations = undefined;
-
-    const resubscribe = this.conformanceCheckingService.calculateConformance(
-      variant.id,
-      variant.infixType,
-      this.processTreeService.currentDisplayedProcessTree,
-      variant.variant.serialize(1),
-      timeout,
-      AlignmentType.VariantAlignment
-    );
-
-    if (resubscribe) {
-      this.subscribeForConformanceCheckingResults();
+  updateConformanceForVariant(variant: IVariant, timeout: number): void {
+    let underlyingVariants = [];
+    if (variant instanceof LoopCollapsedVariant) {
+      underlyingVariants = variant.variants;
+    } else {
+      underlyingVariants = [variant];
     }
+
+    underlyingVariants.forEach((v) => {
+      v.calculationInProgress = true;
+      v.deviations = undefined;
+
+      const resubscribe = this.conformanceCheckingService.calculateConformance(
+        v.id,
+        v.infixType,
+        this.processTreeService.currentDisplayedProcessTree,
+        v.variant.serialize(1),
+        timeout,
+        AlignmentType.VariantAlignment
+      );
+
+      if (resubscribe) {
+        this.subscribeForConformanceCheckingResults();
+      }
+    });
   }
 
-  updateConformanceForSingleVariantClicked(variant: Variant): void {
+  updateConformanceForSingleVariantClicked(variant: IVariant): void {
     if (variant.isTimeouted) {
       this.conformanceCheckingService.showConformanceTimeoutDialog(
         variant,
@@ -748,7 +760,7 @@ export class VariantExplorerComponent
   };
 
   getSelectedVariants(): Variant[] {
-    return this.variants.filter((v) => v.isSelected);
+    return this.displayed_variants.filter((v) => v.isSelected);
   }
 
   isAnyVariantOutdated(variants: Variant[]): boolean {
@@ -994,6 +1006,7 @@ export class VariantExplorerComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe((granularity) => {
         this.selectedGranularity = granularity;
+        this.variantService.areVariantLoopsCollapsed = false;
       });
   }
 
@@ -1033,6 +1046,20 @@ export class VariantExplorerComponent
       .subscribe((viewMode) => {
         if (viewMode !== ViewMode.STANDARD && this.traceInfixSelectionMode)
           this.toggleTraceInfixSelectionMode();
+      });
+  }
+
+  private listenForLoopCollapsedVariantsChange() {
+    this.variantService.collapsedVariants$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((variants) => {
+        if (variants !== null) {
+          this.traceInfixSelectionMode = false;
+          this.displayed_variants = variants;
+          this.sort(this.sortingFeature);
+        } else {
+          this.displayed_variants = this.variants;
+        }
       });
   }
 }

@@ -64,10 +64,9 @@ class ExportLogXes(BaseModel):
 
 @router.post("/exportLogVariants")
 async def download_xes(d: ExportLogXes):
-
     traces = list(
         itertools.chain(
-            *[ts for bid, (_, ts, _) in cache.variants.items() if bid in d.bids]
+            *[ts for bid, (_, ts, _, info) in cache.variants.items() if bid in d.bids and not info.is_user_defined]
         )
     )
     log = EventLog(traces, **cache.parameters["log_info"])

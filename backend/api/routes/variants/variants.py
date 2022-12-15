@@ -1,5 +1,4 @@
-
-
+import dataclasses
 import functools
 import operator
 from typing import List, Mapping, Tuple
@@ -28,6 +27,11 @@ class VariantFragment(BaseModel):
     fragment: dict
     infixType: str
 
+@dataclasses.dataclass
+class VariantInformation:
+    infix_type: InfixType
+    is_user_defined: bool
+
 
 def count_fragment_occurrences(variant, fragment: Group, infixType: InfixType, idx):
     # extract group from variant
@@ -41,23 +45,25 @@ def count_fragment_occurrences(variant, fragment: Group, infixType: InfixType, i
     return group.countInfixOccurrences(fragment, infixType=infixType, isRootNode=True)
 
 
-def get_trace_counts(variants: Mapping[int, Tuple[ConcurrencyGroup, Trace, List]]):
+def get_trace_counts(variants: Mapping[int, Tuple[ConcurrencyGroup, Trace, List, VariantInformation]]):
     return list(map(lambda variant: len(variant[1][1]), variants.items()))
 
 
-def get_fragment_counts(variants:  Mapping[int, Tuple[ConcurrencyGroup,
-                                                      Trace, List]], fragment: Group, infixType: InfixType):
+def get_fragment_counts(variants: Mapping[int, Tuple[ConcurrencyGroup,
+                                                     Trace, List, VariantInformation]], fragment: Group,
+                        infixType: InfixType):
     return list(map(lambda variant: count_fragment_occurrences(
         variant, fragment, infixType, variant[0]), variants.items()))
 
 
 @router.post("/countFragmentOccurrences")
 def get_fragment_statistics(payload: VariantFragment):
-
     fragment: Group = Group.deserialize(payload.fragment)
 
-    variants:  Mapping[int, Tuple[ConcurrencyGroup,
-                                  Trace, List]] = cache.variants
+    variants: Mapping[int, Tuple[ConcurrencyGroup,
+                                 Trace, List, VariantInformation]] = cache.variants
+    variants = {k: v for k, v in variants.items() if not v[3].is_user_defined}
+
 
     infixType = InfixType[payload.infixType]
 
@@ -70,7 +76,7 @@ def get_fragment_statistics(payload: VariantFragment):
     variant_occurrences = np.count_nonzero(fragment_counts)
     # number traces having at least once the pattern
     trace_occurrences = np.sum(np.array(trace_counts)[
-                               np.nonzero(fragment_counts)]).item()
+                                   np.nonzero(fragment_counts)]).item()
 
     # number of pattern occurrences among all traces
     total_trace_occurrences = np.sum(
@@ -81,6 +87,6 @@ def get_fragment_statistics(payload: VariantFragment):
         'variantOccurrences': variant_occurrences,
         'traceOccurrences': trace_occurrences,
         'totalTraceOccurrences': total_trace_occurrences,
-        'variantOccurrencesFraction': round(variant_occurrences/len(variants), 4),
-        'traceOccurrencesFraction': round(trace_occurrences/np.sum(trace_counts), 4)
+        'variantOccurrencesFraction': round(variant_occurrences / len(variants), 4),
+        'traceOccurrencesFraction': round(trace_occurrences / np.sum(trace_counts), 4)
     }

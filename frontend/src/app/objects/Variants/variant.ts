@@ -1,11 +1,11 @@
 import { ProcessTree } from '../ProcessTree/ProcessTree';
 import { InfixType } from './infix_selection';
 import { VariantElement } from './variant_element';
+import { IVariant } from './variant_interface';
 
-export class Variant {
+export class Variant implements IVariant {
   id: string;
   bid: number; //Positive Numbers indicate Log Variants, Negative Number User Variants
-  number: number;
   count: number;
   length: number;
   number_of_activities: number;
@@ -24,6 +24,7 @@ export class Variant {
   nSubVariants: number;
   infixType: InfixType;
   fragmentStatistics: any;
+  collapsedVariantId: string;
 
   constructor(
     count: number,

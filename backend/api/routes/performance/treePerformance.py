@@ -113,7 +113,9 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
                 del cache.pcache[tree_cache_key][bid]
 
     for bid in d.variants:
-        (_, traces, _) = cache.variants[bid]
+        (_, traces, _, info) = cache.variants[bid]
+        if info.is_user_defined:
+            continue
         if tree_cache_key in cache.pcache and bid in cache.pcache[tree_cache_key]:
 
             p_values = cache.pcache[tree_cache_key][bid]
@@ -177,7 +179,6 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
         variants_fitness.append(mean_fitness)
 
         if tree_cache_key not in cache.pcache:
-
             cache.pcache[tree_cache_key] = {}
 
         cache.pcache[tree_cache_key][bid] = {

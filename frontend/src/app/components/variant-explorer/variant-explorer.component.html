@@ -233,6 +233,27 @@
       </div>
     </div>
 
+    <ng-container *ngIf="variantViewModeService.viewMode === VM.STANDARD">
+      <span class="vl"></span>
+      <button
+        class="button"
+        (click)="variantService.unCollapseLoopsInVariants()"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        data-bs-html="true"
+        title="(un)collapse loops in variants"
+      >
+        <i
+          *ngIf="variantService.areVariantLoopsCollapsed"
+          class="bi bi-arrow-repeat btn-icon cursor-pointer text-success"
+        ></i>
+        <i
+          *ngIf="!variantService.areVariantLoopsCollapsed"
+          class="bi bi-arrow-repeat btn-icon cursor-pointer"
+        ></i>
+      </button>
+    </ng-container>
+
     <ng-container *ngIf="variantViewModeService.viewMode !== VM.PERFORMANCE">
       <span class="vl"></span>
       <button
@@ -256,7 +277,12 @@
 
     <span class="vl"></span>
 
-    <div *ngIf="variantViewModeService.viewMode === VM.STANDARD">
+    <div
+      *ngIf="
+        variantViewModeService.viewMode === VM.STANDARD &&
+        !variantService.areVariantLoopsCollapsed
+      "
+    >
       <button
         *ngIf="!traceInfixSelectionMode"
         class="button"
@@ -333,6 +359,7 @@
   </div>
 
   <div
+    *ngIf="!variantService.areVariantLoopsCollapsed"
     class="variant-query-button"
     [@openCloseComponent]="queryActive ? 'openComponent' : 'closeComponent'"
   >
@@ -498,10 +525,12 @@
                       class="variant-number"
                       [ngClass]="{
                         'text-primary':
-                          displayed_variants.length !== variants.length
+                          displayed_variants.length !== variants.length &&
+                          !variantService.areVariantLoopsCollapsed
                       }"
                       >({{
-                        displayed_variants.length === variants.length
+                        displayed_variants.length === variants.length ||
+                        variantService.areVariantLoopsCollapsed
                           ? displayed_variants.length
                           : displayed_variants.length + "/" + variants.length
                       }})</span

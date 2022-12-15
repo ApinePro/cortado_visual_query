@@ -38,6 +38,8 @@ import {
   ConformanceCheckingService,
 } from 'src/app/services/conformanceChecking/conformance-checking.service';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
+import { IVariant } from 'src/app/objects/Variants/variant_interface';
+import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
 
 @Component({
   selector: 'app-subvariant-explorer',
@@ -49,14 +51,15 @@ export class SubvariantExplorerComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
   mainVariant: Variant;
-  subvariants;
+  containsLoopCollapsedVariants: boolean = false;
+  subvariants = new Map<Variant, any>();
   public colorMap: Map<string, string>;
   public serviceTimeColorMap: any;
   public waitingTimeColorMap: any;
   public index: number;
 
-  @ViewChild(VariantDrawerDirective)
-  mainvariantDrawer: VariantDrawerDirective;
+  @ViewChildren(VariantDrawerDirective)
+  mainvariantDrawers: QueryList<VariantDrawerDirective>;
 
   @ViewChildren(SubVariantComponent)
   subVariantComponents: QueryList<SubVariantComponent>;
@@ -83,7 +86,7 @@ export class SubvariantExplorerComponent
   ) {
     super(elRef.nativeElement, renderer);
     let state = this.container.initialState;
-    this.mainVariant = state['variant'] as Variant;
+    this.mainVariant = state['variant'] as IVariant;
     this.index = state['index'] as number;
     this.colorMap = this.colorMapService.colorMap;
     this.sortAscending = false;
@@ -95,12 +98,33 @@ export class SubvariantExplorerComponent
   }
 
   ngOnInit(): void {
-    this.backendService
-      .getSubvariantsForVariant(this.mainVariant.bid)
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((r) => {
-        this.subvariants = r;
-      });
+    let underlyingVariants = [];
+    if (this.mainVariant instanceof LoopCollapsedVariant) {
+      underlyingVariants = this.mainVariant.variants;
+    } else {
+      underlyingVariants.push(this.mainVariant);
+    }
+
+    underlyingVariants.forEach((v) => {
+      this.backendService
+        .getSubvariantsForVariant(v.bid)
+        .pipe(takeUntil(this._destroy$))
+        .subscribe((subvariant) => {
+          this.addSubvariantToVariant(v, subvariant);
+        });
+    });
+  }
+
+  addSubvariantToVariant(variant, subvariant) {
+    if (this.subvariants.has(variant)) {
+      this.subvariants.get(variant).push(subvariant);
+    } else {
+      this.subvariants.set(variant, [subvariant]);
+    }
+
+    if (variant.variant.asString() !== this.mainVariant.variant.asString()) {
+      this.containsLoopCollapsedVariants = true;
+    }
   }
 
   ngAfterViewInit() {
@@ -108,7 +132,7 @@ export class SubvariantExplorerComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe((cMap) => {
         this.colorMap = cMap;
-        this.mainvariantDrawer.redraw();
+        this.mainvariantDrawers.forEach((d) => d.redraw());
       });
 
     this.variantPerformanceService.serviceTimeColorMap
@@ -116,7 +140,7 @@ export class SubvariantExplorerComponent
       .subscribe((colorMap) => {
         if (colorMap !== undefined) {
           this.serviceTimeColorMap = colorMap;
-          this.mainvariantDrawer.redraw();
+          this.mainvariantDrawers.forEach((d) => d.redraw());
         }
       });
 
@@ -125,7 +149,7 @@ export class SubvariantExplorerComponent
       .subscribe((colorMap) => {
         if (colorMap !== undefined) {
           this.waitingTimeColorMap = colorMap;
-          this.mainvariantDrawer.redraw();
+          this.mainvariantDrawers.forEach((d) => d.redraw());
         }
       });
 
@@ -134,34 +158,6 @@ export class SubvariantExplorerComponent
       .subscribe((viewMode: ViewMode) => {
         this.onViewModeChange(viewMode);
       });
-
-    this.conformanceCheckingService.varResults
-      .pipe(takeUntil(this._destroy$))
-      .subscribe(
-        (res) => {
-          if (this.mainVariant.id == res.id) {
-            this.mainVariant.calculationInProgress = false;
-            this.mainVariant.isTimeouted = res.isTimeout;
-            this.mainVariant.isConformanceOutdated = res.isTimeout;
-
-            if (!res.isTimeout) {
-              this.mainVariant.alignment = deserialize(res.alignment);
-              this.mainVariant.deviations = res.deviations;
-            }
-
-            if (this.variantViewModeService.viewMode === ViewMode.CONFORMANCE)
-              this.mainvariantDrawer.redraw();
-          }
-        },
-        (_) => {
-          this.mainVariant.calculationInProgress = false;
-          this.mainVariant.alignment = undefined;
-          this.mainVariant.deviations = undefined;
-
-          if (this.variantViewModeService.viewMode === ViewMode.CONFORMANCE)
-            this.mainvariantDrawer.redraw();
-        }
-      );
   }
 
   ngOnDestroy(): void {
@@ -177,8 +173,8 @@ export class SubvariantExplorerComponent
   ): void {}
 
   handleVisibilityChange(visibility: boolean): void {
-    if (visibility && this.mainvariantDrawer) {
-      this.mainvariantDrawer.redraw();
+    if (visibility && this.mainvariantDrawers) {
+      this.mainvariantDrawers.forEach((d) => d.redraw());
       this.subVariantComponents.forEach((svc) => svc.draw());
     }
   }
@@ -192,7 +188,7 @@ export class SubvariantExplorerComponent
   }
 
   subvariantClickCallBack(vis: SubvariantVisualization) {
-    this.mainvariantDrawer.changeSelected(null);
+    this.mainvariantDrawers.forEach((d) => d.changeSelected(null));
     this.subVariantComponents.forEach((svc) => svc.changeSelection(vis));
   }
 
@@ -200,8 +196,8 @@ export class SubvariantExplorerComponent
     if (this.variantViewModeService.viewMode === ViewMode.PERFORMANCE) {
       return;
     }
-    let expanded = this.mainvariantDrawer.isExpanded();
-    this.mainvariantDrawer.setExpanded(!expanded);
+    let expanded = this.mainVariant.variant.expanded;
+    this.mainvariantDrawers.forEach((d) => d.setExpanded(!expanded));
     this.setExpandedSubVariants(!expanded);
   }
 
@@ -241,14 +237,16 @@ export class SubvariantExplorerComponent
   sortSubvariants(sortAttribute: string): void {
     const order = this.sortAscending ? 1 : -1;
     const subvariantSortFunction = (a, b) => {
-      if (a[sortAttribute] < b[sortAttribute]) {
+      if (a[0][sortAttribute] < b[0][sortAttribute]) {
         return -order;
-      } else if (a[sortAttribute] > b[sortAttribute]) {
+      } else if (a[0][sortAttribute] > b[0][sortAttribute]) {
         return order;
       } else return order;
     };
 
-    this.subvariants.sort(subvariantSortFunction);
+    this.subvariants.forEach((v, _) => {
+      v.sort(subvariantSortFunction);
+    });
   }
 
   exportSubvariantSVG(): void {
@@ -256,7 +254,7 @@ export class SubvariantExplorerComponent
     let svgs: SVGGraphicsElement[] = [];
 
     // Temporarily expand all subvariants
-    let expanded = this.mainvariantDrawer.isExpanded();
+    let expanded = this.mainVariant.variant.expanded;
     if (!expanded) {
       this.toggleExpanded();
     }
@@ -264,9 +262,12 @@ export class SubvariantExplorerComponent
     // Turn on the rendering spinner
     this.svgRenderingInProgress = true;
 
+    let mainVarDrawer = this.mainvariantDrawers.filter(
+      (v) => v.variant == this.mainVariant
+    )[0];
     // Add the main variant to the SVG array
     const mainVariantSVG = this.addVariantExportInformation(
-      this.mainvariantDrawer.getSVGGraphicElement(),
+      mainVarDrawer.getSVGGraphicElement(),
       100,
       100,
       true
@@ -285,8 +286,8 @@ export class SubvariantExplorerComponent
     const counts = [];
     const percentages = [];
     for (let subVariant of this.subvariants) {
-      counts.push(subVariant.count);
-      percentages.push(subVariant.percentage);
+      counts.push(subVariant[0].count);
+      percentages.push(subVariant[0].percentage);
     }
 
     // Add frequency informations of the subvariants
@@ -414,7 +415,7 @@ export class SubvariantExplorerComponent
         this.setExpandedSubVariants(true);
         break;
       default:
-        if (!this.mainvariantDrawer.isExpanded())
+        if (!this.mainVariant.variant.expanded)
           this.setExpandedSubVariants(false);
         break;
     }
@@ -433,18 +434,27 @@ export class SubvariantExplorerComponent
     }
   }
 
-  updateConformanceForVariant(variant: Variant, timeout: number): void {
-    variant.calculationInProgress = true;
-    variant.deviations = undefined;
+  updateConformanceForVariant(variant: IVariant, timeout: number): void {
+    let underlyingVariants = [];
+    if (variant instanceof LoopCollapsedVariant) {
+      underlyingVariants = variant.variants;
+    } else {
+      underlyingVariants = [variant];
+    }
 
-    this.conformanceCheckingService.calculateConformance(
-      variant.id,
-      variant.infixType,
-      this.processTreeService.currentDisplayedProcessTree,
-      variant.variant.serialize(),
-      timeout,
-      AlignmentType.VariantAlignment
-    );
+    underlyingVariants.forEach((v) => {
+      v.calculationInProgress = true;
+      v.deviations = undefined;
+
+      this.conformanceCheckingService.calculateConformance(
+        v.id,
+        v.infixType,
+        this.processTreeService.currentDisplayedProcessTree,
+        v.variant.serialize(1),
+        timeout,
+        AlignmentType.VariantAlignment
+      );
+    });
   }
 }
 
