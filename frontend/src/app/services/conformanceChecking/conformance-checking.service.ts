@@ -1,5 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Observable, partition, Subject, Subscription } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  partition,
+  Subject,
+  Subscription,
+} from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { BackgroundTaskInfoService } from '../backgroundTaskInfoService/background-task-info.service';
@@ -60,6 +66,19 @@ export class ConformanceCheckingService {
     new Subject<any>();
 
   private usedProcessTreeForTreeConformance: ProcessTree;
+
+  private _isConformanceWeighted: BehaviorSubject<Boolean> =
+    new BehaviorSubject<Boolean>(false);
+
+  set isConformanceWeighted(isWeighted: Boolean) {
+    if (this.isConformanceWeighted !== isWeighted) {
+      this._isConformanceWeighted.next(isWeighted);
+    }
+  }
+
+  get isConformanceWeighted() {
+    return this._isConformanceWeighted.value;
+  }
 
   private activeTreeConformance: Variant;
   private availableTreeConformances: Set<Variant> = new Set<Variant>();
@@ -232,8 +251,7 @@ export class ConformanceCheckingService {
         variantsCombined
       )
       .subscribe((res: treeConformanceResult) => {
-        this.mergedTreeConformance =
-          res.merged_conformance_tree.weighted_by_counts;
+        this.mergedTreeConformance = res.merged_conformance_tree;
 
         variantsCombined.forEach((variant, index) => {
           const pt = res.variants_tree_conformance[index];
@@ -243,7 +261,10 @@ export class ConformanceCheckingService {
           const confButton = document.getElementById(
             `conformanceButton${variant?.bid}`
           );
-          this.updateTooltip(confButton, pt.conformance?.value);
+          this.updateTooltip(
+            confButton,
+            pt.conformance?.weighted_equally.value
+          );
         });
 
         this.calculationInProgress.clear();
@@ -254,7 +275,7 @@ export class ConformanceCheckingService {
 
         this.updateTooltip(
           document.getElementById(`conformanceButtonMerged`),
-          this.mergedTreeConformance?.conformance?.value
+          this.mergedTreeConformance?.conformance?.weighted_equally.value
         );
       });
   }

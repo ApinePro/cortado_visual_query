@@ -47,14 +47,37 @@ def process_tree_to_dict_rec(
             child_conformance = [child['conformance']
                                  for child in res['children'] if child['conformance'] is not None]
             if len(child_conformance) > 0:
-                # mean of childrens conformance
-                weight_sum = sum(
-                    list(map(lambda conf: conf['weight'], child_conformance)))
+                equal_weight_sum = sum(
+                    list(map(lambda conf: conf['weighted_equally']['weight'], child_conformance)))
+                equal_weight_value = []
+
+                count_weight_sum = sum(
+                    list(map(lambda conf: 0 if conf['weighted_by_counts'] is None else conf['weighted_by_counts']['weight'], child_conformance)))
+                count_weight_value = []
+
+                for child in child_conformance:
+                    equal_weight_value.append(
+                        child['weighted_equally']['value'] * child['weighted_equally']['weight'])
+                    if child['weighted_by_counts'] is not None:
+                        count_weight_value.append(
+                            child['weighted_by_counts']['value'] * child['weighted_by_counts']['weight'])
+
+                equal_weight_value = None if equal_weight_sum == 0 else sum(
+                    equal_weight_value) / equal_weight_sum
+                count_weight_value = None if count_weight_sum == 0 else sum(
+                    count_weight_value) / count_weight_sum
+
                 res['conformance'] = {
-                    'value': sum(list(map(lambda conf: conf['value'] * conf['weight'], child_conformance))) / weight_sum,
-                    'weight': weight_sum
+                    "weighted_equally": {
+                        'value': equal_weight_value,
+                        'weight': equal_weight_sum
+                    },
+                    "weighted_by_counts": {
+                        'value': count_weight_value,
+                        'weight': count_weight_sum
+                    } if count_weight_sum > 0 else None
                 }
-        elif str(pt) in conformance and conformance[str(pt)]['value'] is not None:
+        elif str(pt) in conformance:
             res['conformance'] = conformance[str(pt)]
     return res
 

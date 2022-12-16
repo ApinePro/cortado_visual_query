@@ -63,8 +63,14 @@ async def calculate_tree_conformance(d: InputCalculateConformance):
                 ):
                     conf_stats[model_move.full]['value'] += 1
 
-            for conf_stat in conf_stats.values():
-                conf_stat['value'] = conf_stat['value'] / conf_stat['weight']
+            for key, conf_stat in conf_stats.items():
+                conf_stats[key] = {
+                    "weighted_equally": {
+                        'value': conf_stat['value'] / conf_stat['weight'],
+                        'weight': conf_stat['weight']
+                    },
+                    "weighted_by_counts": None
+                }
 
             variant_tree_conformances.append(conf_stats)
 
@@ -74,37 +80,39 @@ async def calculate_tree_conformance(d: InputCalculateConformance):
             pt, conformance=variant_conf_stats))
 
     return {
-        "merged_conformance_tree": {
-            "weighted_equally": process_tree_to_dict(pt, conformance=merge_conf_stats(all_conf_stats)),
-            "weighted_by_counts": process_tree_to_dict(pt, conformance=merge_conf_stats(all_conf_stats, list(map(lambda x: x['count'], d.variants)))),
-        },
+        "merged_conformance_tree":
+            process_tree_to_dict(pt, conformance=merge_conf_stats(
+                all_conf_stats, list(map(lambda x: x['count'], d.variants)))),
         "variants_tree_conformance": variants_tree_conformance,
     }
 
 
 def merge_conf_stats(conf_stats: List[dict], counts=None):
-    if len(conf_stats) == 1:
-        if counts is not None:
-            for value in conf_stats[0].values():
-                value['weight'] *= counts[0]
-            return conf_stats[0]
-        else:
-            return conf_stats[0]
     merged_stats = {}
-    if len(conf_stats) > 1:
+    if len(conf_stats) >= 1:
         keys = set(
             [key for conf_stat in conf_stats for key in conf_stat.keys()])
         for key in keys:
             values = []
-            weights = []
+            equal_weights = []
+            count_weights = []
             for index, stats in enumerate(conf_stats):
-                if key in stats and stats[key]['value'] is not None:
-                    values.append(stats[key]['value'])
-                    weights.append(
-                        stats[key]['weight'] * (counts[index] if counts is not None else 1))
+                if key in stats:
+                    values.append(stats[key]['weighted_equally']['value'])
+                    equal_weights.append(
+                        stats[key]['weighted_equally']['weight'])
+                    if counts is not None:
+                        count_weights.append(
+                            stats[key]['weighted_equally']['weight'] * counts[index])
             merged_stats[key] = {
-                'value': sum([value * weight for value, weight in zip(values, weights)])/sum(weights),
-                'weight': sum(weights)
+                "weighted_equally": {
+                    'value': sum([value * weight for value, weight in zip(values, equal_weights)]) / sum(equal_weights),
+                    'weight': sum(equal_weights)
+                },
+                "weighted_by_counts": {
+                    'value': sum([value * weight for value, weight in zip(values, count_weights)]) / sum(count_weights),
+                    'weight': sum(count_weights)
+                } if counts is not None else None
             }
         return merged_stats
     return None

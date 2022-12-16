@@ -480,14 +480,9 @@ export class BackendService {
       .pipe(
         map((res: treeConformanceResult) => {
           const treeConfRes = {
-            merged_conformance_tree: {
-              weighted_equally: ProcessTree.fromObj(
-                res.merged_conformance_tree.weighted_equally
-              ),
-              weighted_by_counts: ProcessTree.fromObj(
-                res.merged_conformance_tree.weighted_by_counts
-              ),
-            },
+            merged_conformance_tree: ProcessTree.fromObj(
+              res.merged_conformance_tree
+            ),
             variants_tree_conformance: res.variants_tree_conformance.map((pt) =>
               ProcessTree.fromObj(pt)
             ),

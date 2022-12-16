@@ -105,6 +105,11 @@ export class TreePerformance {
 }
 
 export interface TreeConformance {
+  weighted_equally: WeightedConformanceValue;
+  weighted_by_counts: WeightedConformanceValue;
+}
+
+export interface WeightedConformanceValue {
   value: number;
   weight: number;
 }
