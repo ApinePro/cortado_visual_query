@@ -8,9 +8,8 @@ describe('TiebreakerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TiebreakerComponent ]
-    })
-    .compileComponents();
+      declarations: [TiebreakerComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {
