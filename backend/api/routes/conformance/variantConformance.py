@@ -12,7 +12,6 @@ from backend_utilities.timeout.helper_functions import (
     execute_with_timeout,
 )
 from backend_utilities.process_tree_conversion import dict_to_process_tree
-from cortado_core.utils.cvariants import generate_variants
 from endpoints.alignments import InfixType
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect

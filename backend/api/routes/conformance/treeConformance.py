@@ -4,7 +4,7 @@ from collections import defaultdict
 from fastapi import APIRouter
 from pydantic import BaseModel
 from cortado_core.utils.process_tree import convert_tree
-from cortado_core.utils.cvariants import generate_variants
+from cortado_core.utils.sequentializations import generate_variants
 from pm4py.objects.process_tree.obj import ProcessTree
 
 from cache import cache
