@@ -430,6 +430,9 @@ export class BackendService {
         sourcePattern: sourcePattern,
         targetPattern: targetPattern,
       })
-      .subscribe((res) => this.processEventLog(res));
+      .pipe(mapVariants())
+      .subscribe((res) => {
+        this.processEventLog(res);
+      });
   }
 }

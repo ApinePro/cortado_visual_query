@@ -8,7 +8,7 @@ from pydantic import BaseModel
 import cache.cache
 from api.routes.variants.variants import VariantInformation
 from endpoints.alignments import InfixType
-from endpoints.load_event_log import create_variant_object
+from endpoints.load_event_log import create_variant_object, compute_log_stats
 
 router = APIRouter(tags=['Tiebreaker'], prefix="/tiebreaker")
 
@@ -34,6 +34,7 @@ def apply_tiebreaker(payload: TiebreakerPatterns):
     new_variants = apply_tiebreaker_on_variants(new_variants, source_pattern, target_pattern)
     res_variants = []
 
+    # TODO niklas: unify duplicate code fragments with importing code
     cache_variants = dict()
 
     for bid, (v, ts) in enumerate(sorted(list(new_variants.items()), key=lambda e: len(e[1]), reverse=True)):
@@ -47,4 +48,19 @@ def apply_tiebreaker(payload: TiebreakerPatterns):
 
     cache.cache.variants = cache_variants
 
-    return sorted(res_variants, key=lambda variant: variant["count"], reverse=True)
+    res_variants = sorted(res_variants, key=lambda variant: variant["count"], reverse=True)
+
+    start_activities, end_activities, nActivities = compute_log_stats(cache.cache.variants)
+
+    cache.cache.parameters["activites"] = set(nActivities.keys())
+
+    res = {
+        "startActivities": start_activities,
+        "endActivities": end_activities,
+        "activities": nActivities,
+        "variants": res_variants,
+        "performanceInfoAvailable": cache.cache.parameters["lifecycle_available"],
+        "timeGranularity": cache.cache.parameters["cur_time_granularity"],
+    }
+
+    return res
