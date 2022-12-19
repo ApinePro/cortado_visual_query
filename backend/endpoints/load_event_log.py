@@ -96,7 +96,7 @@ def get_c_variants(event_log: EventLog, use_mp: bool = False, time_granularity: 
 
         res_variants.append(variant)
         cache_variants[bid] = (
-        v, ts, sub_vars, info)
+            v, ts, sub_vars, info)
 
     return sorted(res_variants, key=lambda variant: variant["count"],
                   reverse=True), cache_variants

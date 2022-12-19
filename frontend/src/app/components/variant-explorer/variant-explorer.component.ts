@@ -1062,6 +1062,10 @@ export class VariantExplorerComponent
         }
       });
   }
+
+  showTiebreakerDialog() {
+    this.variantService.showTiebreakerDialog.next();
+  }
 }
 
 export namespace VariantExplorerComponent {
