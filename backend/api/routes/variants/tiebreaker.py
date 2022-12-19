@@ -31,6 +31,9 @@ def apply_tiebreaker(payload: TiebreakerPatterns):
     source_pattern = parse_tiebreaker_pattern(payload.sourcePattern)
     target_pattern = parse_tiebreaker_pattern(payload.targetPattern)
 
+    print('SOURCE PATTERN:', str(source_pattern))
+    print('TARGET PATTERN:', str(target_pattern))
+
     new_variants = apply_tiebreaker_on_variants(new_variants, source_pattern, target_pattern)
     res_variants = []
 
