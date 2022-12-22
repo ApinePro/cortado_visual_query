@@ -1,6 +1,7 @@
 import multiprocessing
 from typing import Any, List
 
+from cortado_core.process_tree_utils.reduction import apply_reduction_rules
 from cortado_core.utils.sequentializations import generate_sequentializations
 from cortado_core.utils.split_graph import Group
 
@@ -43,6 +44,7 @@ def discover_process_model_from_variants(variants):
             t.append(event)
         log.append(t)
     pt: ProcessTree = discover_process_tree_inductive(log)
+    apply_reduction_rules(pt)
     res = process_tree_to_dict(pt)
     return res
 
