@@ -26,10 +26,8 @@
               >Conformance checking timeout
               <i
                 class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text"
-                data-bs-toggle="tooltip"
-                data-bs-placement="top"
-                data-bs-html="true"
-                title="The calculation of conformance statistics stops after the configured timeout (in seconds). The timeout is applied per variant."
+                ngbTooltip="The calculation of conformance statistics stops after the configured timeout (in seconds). The timeout is applied per variant."
+                container="body"
               >
               </i>
             </label>
@@ -56,10 +54,8 @@
               Minimum number of traces for multiprocessing in variant detection.
               <i
                 class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text"
-                data-bs-toggle="tooltip"
-                data-bs-placement="top"
-                data-bs-html="true"
-                title="For variant detection multiprocessing is enabled if the number of traces in the log is greater or equal to this number."
+                ngbTooltip="For variant detection multiprocessing is enabled if the number of traces in the log is greater or equal to this number."
+                container="body"
               >
               </i>
             </label>
@@ -84,10 +80,8 @@
               Enable Randomized Sequentializations
               <i
                 class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text"
-                data-bs-toggle="tooltip"
-                data-bs-placement="top"
-                data-bs-html="true"
-                title="Before applying standard process mining algorithms in the backend, concurrent variants are sequentialized. For variants with much concurrent behavior, this step can result in many sequentializations. If this configuration is enabled, the backend uses a subset of sequentializations."
+                ngbTooltip="Before applying standard process mining algorithms in the backend, concurrent variants are sequentialized. For variants with much concurrent behavior, this step can result in many sequentializations. If this configuration is enabled, the backend uses a subset of sequentializations."
+                container="body"
               >
               </i>
             </label>
@@ -108,13 +102,17 @@
               for="timeout"
               class="col-7 col-form-label text-light dialog-label"
             >
+              <ng-template #numSequentializationsTooltip>
+                Before applying standard process mining algorithms in the
+                backend, concurrent variants are sequentialized. This parameter
+                changes the number of sequentializations. Only applied if
+                <b>Enable Randomized Sequentializations</b> is enabled.
+              </ng-template>
               Number of sequentializations
               <i
                 class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text"
-                data-bs-toggle="tooltip"
-                data-bs-placement="top"
-                data-bs-html="true"
-                title="Before applying standard process mining algorithms in the backend, concurrent variants are sequentialized. This parameter changes the number of sequentializations. Only applied if <b>Enable Randomized Sequentializations</b> is enabled."
+                [ngbTooltip]="numSequentializationsTooltip"
+                container="body"
               >
               </i>
             </label>

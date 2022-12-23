@@ -34,7 +34,6 @@ import { ExpertModeComponent } from './components/process-tree-editor/expert-mod
 import { SettingsComponent } from './components/settings/settings.component';
 import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 import { TreeStringRendererComponent } from './components/tree-string-renderer/tree-string-renderer.component';
-import { TooltipDirective } from './directives/tooltip/tooltip.directive';
 import { VariantEditorComponent } from './components/variant-editor/variant-editor.component';
 import { VariantComponent } from './components/variant-explorer/variant/variant.component';
 import { VariantConformanceDialogComponent } from './components/variant-explorer/conformance-info/variant-conformance-dialog/variant-conformance-dialog.component';
@@ -107,7 +106,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     SettingsComponent,
     DropZoneComponent,
     DropZoneDirective,
-    TooltipDirective,
     VariantConformanceDialogComponent,
     TreeStringRendererComponent,
     VariantEditorComponent,

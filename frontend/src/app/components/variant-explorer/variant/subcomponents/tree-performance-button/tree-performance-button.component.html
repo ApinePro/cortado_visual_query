@@ -16,10 +16,8 @@
     class="btn variant-performance-button"
     (click)="showSelectedPerformance()"
     [style.background]="computePerformanceButtonColor(variant)"
-    data-bs-toggle="tooltip"
-    data-bs-trigger="hover"
-    title="calculate model performance of this variant"
-    data-bs-html="true"
+    ngbTooltip="calculate model performance of this variant"
+    container="body"
     [id]="'performanceButton' + variant.bid"
     style="display: flex; flex-direction: column"
   >
@@ -51,8 +49,8 @@
     *ngIf="isPerformanceAvailable(variant) && !variant.userDefined"
     class="btn"
     (click)="removeCurrentPerformance()"
-    data-bs-toggle="tooltip"
-    title="remove performance values of this variant"
+    ngbTooltip="remove performance values of this variant"
+    container="body"
   >
     <i class="bi bi-x-lg" style="color: white"></i>
   </button>

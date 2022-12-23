@@ -5,10 +5,8 @@
     isSelected ? 'bi-check2-circle text-light' : 'bi-circle text-muted'
   "
   (click)="onButtonSelected()"
-  data-bs-toggle="tooltip"
-  data-bs-placement="top"
-  data-bs-html="false"
-  title="{{ tooltipText }}"
+  [ngbTooltip]="tooltipText"
+  container="body"
 >
 </i>
 <i
