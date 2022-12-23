@@ -17,14 +17,15 @@
         </div>
       </div>
       <span class="vl ms-auto"></span>
+      <ng-template #tooltip1>
+        Sort subvariants by frequency
+        <br />Click to change sort order <br />Current sort order: ascending
+      </ng-template>
       <div
         *ngIf="sortAscending"
         class="btn-group align-baseline"
-        data-bs-toggle="tooltip"
-        data-bs-html="true"
-        title="Sort subvariants by frequency
-        <br/>Click to change sort order
-        <br/>Current sort order: ascending"
+        [ngbTooltip]="tooltip1"
+        container="body"
       >
         <button
           class="button"
@@ -42,14 +43,15 @@
           ></i>
         </button>
       </div>
+      <ng-template #tooltip2>
+        Sort subvariants by frequency
+        <br />Click to change sort order <br />Current sort order: descending
+      </ng-template>
       <div
         *ngIf="!sortAscending"
         class="btn-group align-baseline"
-        data-bs-toggle="tooltip"
-        data-bs-html="true"
-        title="Sort subvariants by frequency
-        <br/>Click to change sort order
-        <br/>Current sort order: descending"
+        [ngbTooltip]="tooltip2"
+        container="body"
       >
         <button
           class="button"
@@ -70,10 +72,8 @@
       <span class="vl"></span>
       <button
         class="button"
-        data-bs-toggle="tooltip"
-        data-bs-placement="top"
-        data-bs-trigger="hover"
-        title="export the view as an .svg"
+        ngbTooltip="export the view as an .svg"
+        container="body"
         (click)="exportSubvariantSVG()"
       >
         <i class="bi bi-save"></i>
@@ -160,18 +160,18 @@
                 >
               </td>
               <td style="text-align: start">
+                <ng-template #tooltip3>
+                  sub-variant describes ~{{ subVariant.percentage }}% of all
+                  traces of the main-variant<br />
+                  <span class="text-secondary"
+                    >sub-variant occurs {{ subVariant.count | number }} time(s)
+                    in total</span
+                  >
+                </ng-template>
                 <small
                   class="cursor-help"
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="right"
-                  data-bs-container="body"
-                  data-bs-html="true"
-                  title="sub-variant describes ~{{
-                    subVariant.percentage
-                  }}% of all traces of the main-variant<br>
-        <span class='text-secondary'>sub-variant occurs {{
-                    subVariant.count | number
-                  }} time(s) in total</span>"
+                  [ngbTooltip]="tooltip3"
+                  container="body"
                 >
                   {{ subVariant.percentage }}%<br />
                   ({{ subVariant.count | number }})

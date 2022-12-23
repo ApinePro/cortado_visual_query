@@ -33,7 +33,6 @@ import {
 } from '../../objects/ProcessTree/ProcessTree';
 
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
-import { ActivateTooltipsService } from '../../services/activateTooltipsService/activate-tooltips.service';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 
 import { LogService } from 'src/app/services/logService/log.service';
@@ -64,7 +63,6 @@ export class ProcessTreeEditorComponent
   selectedPerformanceIndicator: string;
   selectedStatistic: string;
   constructor(
-    private activateTooltipsService: ActivateTooltipsService,
     private colorMapService: ColorMapService,
     private imageExportService: ImageExportService,
     private backendService: BackendService,
@@ -238,7 +236,6 @@ export class ProcessTreeEditorComponent
     this.processTreeDrawer.redraw(tree);
 
     this.selectRootNodeFromID(this.selectedRootNodeId);
-    this.activateTooltipsService.initializeChildren(this.svgElem);
   }
 
   ngAfterViewInit(): void {
@@ -760,9 +757,7 @@ export class ProcessTreeEditorComponent
     return NodeInsertionStrategy.CHANGE;
   }
 
-  hideAllTooltips() {
-    this.activateTooltipsService.hideAll();
-  }
+  hideAllTooltips() {}
 }
 
 // TODO should be solved differently

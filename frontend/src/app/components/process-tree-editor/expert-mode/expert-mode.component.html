@@ -19,23 +19,44 @@
     <form class="form" [formGroup]="syntaxTreeInput" (ngSubmit)="onSubmit()">
       <div class="form-container">
         <div [hidden]="!edit">
+          <ng-template #treeStringTooltip>
+            A valid process tree string uses a parent operator followed by its
+            child leafs and or subtrees listed in left to right order surronded
+            by normal parenthesis<br />
+            <br />
+            <table class="tooltip-table">
+              <tr>
+                <th>Operator</th>
+                <th>String Encoding</th>
+              </tr>
+              <tr>
+                <td>&#10005;</td>
+                <td>X</td>
+              </tr>
+              <tr>
+                <td>&#10132;</td>
+                <td>-></td>
+              </tr>
+              <tr>
+                <td>&#8634;</td>
+                <td>*</td>
+              </tr>
+              <tr>
+                <td>&#8743;</td>
+                <td>+</td>
+              </tr>
+              <tr>
+                <td>&#964;</td>
+                <td>*tau*</td>
+              </tr>
+            </table>
+          </ng-template>
           <span class="secondary-text fw-bold mb-1 tree-string-heading"
             >Editing Tree String
             <i
               class="bi bi-question-circle-fill font-large ms-1 secondary-text fs-6 cursor-help"
-              data-bs-toggle="tooltip"
-              data-bs-placement="top"
-              data-bs-html="true"
-              title="A valid process tree string uses a parent operator followed by its child leafs and or subtrees listed in left to right order surronded by normal parenthesis<br> <br>
-              <table class='tooltip-table'>
-              <tr> <th> Operator </th> <th> String Encoding</th></tr>
-              <tr> <td> &#10005; </td> <td> X </td>
-              <tr> <td> &#10132; </td> <td> -> </td>
-              <tr> <td> &#8634; </td> <td> * </td>
-              <tr> <td> &#8743; </td> <td> + </td>
-              <tr> <td> &#964; </td> <td> *tau* </td>
-              </table>
-             "
+              [ngbTooltip]="treeStringTooltip"
+              container="body"
             >
             </i>
           </span>

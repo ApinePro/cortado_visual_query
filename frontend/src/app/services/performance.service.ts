@@ -5,7 +5,6 @@ import {
 } from '../objects/ProcessTree/ProcessTree';
 import { BackendService } from './backendService/backend.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { ActivateTooltipsService } from './activateTooltipsService/activate-tooltips.service';
 import { HumanizeDurationPipe } from '../pipes/humanize-duration.pipe';
 import { ProcessTreeService } from './processTreeService/process-tree.service';
 import { VariantService } from './variantService/variant.service';
@@ -52,7 +51,6 @@ export class PerformanceService {
   constructor(
     private variantService: VariantService,
     private backendService: BackendService,
-    private tooltipService: ActivateTooltipsService,
     private processTreeService: ProcessTreeService,
     private modelViewModeService: ModelViewModeService
   ) {
@@ -210,8 +208,6 @@ export class PerformanceService {
     tooltipText = `${tooltipText}<hr class="performance-tooltip-hr">click to visualize performance of this variant on model`;
 
     button.setAttribute('title', tooltipText);
-    this.tooltipService.destroyTooltip(button);
-    this.tooltipService.initializeTooltip(button);
   }
 
   public setVariantsPerformance(

@@ -13,7 +13,6 @@ import { Input } from '@angular/core';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
 import { PolygonGeneratorService } from 'src/app/services/polygon-generator.service';
-import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import {
   getLowestSelectionActionableElement,
@@ -53,7 +52,6 @@ export class VariantDrawerDirective
     elRef: ElementRef,
     private polygonService: PolygonGeneratorService,
     private sharedDataService: SharedDataService,
-    private tooltipService: ActivateTooltipsService,
     private variantViewModeService: VariantViewModeService
   ) {
     this.svgHtmlElement = elRef;
@@ -196,8 +194,6 @@ export class VariantDrawerDirective
       )
         this.draw(this.variant.alignment, svg, true);
       else this.draw(this.variant.variant, svg, true);
-
-      this.tooltipService.initializeChildren(this.svgHtmlElement);
 
       if (
         this.variant.variant instanceof SequenceGroup &&
