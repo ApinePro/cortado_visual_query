@@ -24,7 +24,6 @@ import { BackendService } from '../backendService/backend.service';
 import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
 import { ModelViewModeService } from '../viewModeServices/model-view-mode.service';
 import { ViewMode } from 'src/app/objects/ViewMode';
-import { ActivateTooltipsService } from '../activateTooltipsService/activate-tooltips.service';
 
 @Injectable({
   providedIn: 'root',
@@ -35,8 +34,7 @@ export class ConformanceCheckingService {
     private variantService: VariantService,
     private processTreeService: ProcessTreeService,
     private backendService: BackendService,
-    private modelViewModeService: ModelViewModeService,
-    private tooltipService: ActivateTooltipsService
+    private modelViewModeService: ModelViewModeService
   ) {
     this.processTreeService.currentDisplayedProcessTree$.subscribe((pt) => {
       if (!processTreesEqual(pt, this.usedProcessTreeForTreeConformance)) {
@@ -323,8 +321,6 @@ export class ConformanceCheckingService {
       2
     )}%<hr class="tooltip-hr">click to visualize conformance of this variant on model`;
     button.setAttribute('title', tooltipText);
-    this.tooltipService.destroyTooltip(button);
-    this.tooltipService.initializeTooltip(button);
   }
 }
 
