@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from cortado_core.utils.process_tree import convert_tree
 from cortado_core.utils.sequentializations import generate_variants
+from cortado_core.utils.split_graph import Group
 from pm4py.objects.process_tree.obj import ProcessTree
 
 from cache import cache
@@ -35,7 +36,8 @@ async def calculate_tree_conformance(d: InputCalculateConformance):
 
     for c_variant in d.variants:
         # calc alignment
-        variants = generate_variants(c_variant['variant'])
+        c_variant_group = Group.deserialize(c_variant['variant'])
+        variants = generate_variants(c_variant_group)
         variant_tree_conformances = []
         for variant in variants:
             alignment = calculate_alignment(
