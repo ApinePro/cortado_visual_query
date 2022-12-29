@@ -12,7 +12,7 @@ from cortado_core.utils.process_tree import CortadoProcessTree, convert_tree
 from fastapi import APIRouter
 from pm4py.algo.conformance.alignments.petri_net import algorithm as net_alignment
 from pm4py.objects.log.obj import EventLog
-from pm4py.objects.process_tree.utils import generic as tree_util
+from cortado_core.process_tree_utils.miscellaneous import is_tau_leaf
 from pydantic import BaseModel
 
 router = APIRouter(tags=["treePerformance"], prefix="/treePerformance")
@@ -39,7 +39,7 @@ pcache = {}
 
 
 def tau_0_values(tree_nodes, perf_stats):
-    for t in [t for t in tree_nodes if tree_util.is_tau_leaf(t)]:
+    for t in [t for t in tree_nodes if is_tau_leaf(t)]:
         perf_stats[str(t)] = {
             "service_time": stats([0]),
             "cycle_time": stats([0]),
