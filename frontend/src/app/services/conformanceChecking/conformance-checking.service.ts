@@ -259,10 +259,6 @@ export class ConformanceCheckingService {
           const confButton = document.getElementById(
             `conformanceButton${variant?.bid}`
           );
-          this.updateTooltip(
-            confButton,
-            pt.conformance?.weighted_equally.value
-          );
         });
 
         this.calculationInProgress.clear();
@@ -270,11 +266,6 @@ export class ConformanceCheckingService {
         if (variants.length == 1) this.setShownTreeConformance(variants[0]);
         else if (variantsCombined.length > 0) this.showMergedTreeConformance();
         else this.unselectTreeConformance();
-
-        this.updateTooltip(
-          document.getElementById(`conformanceButtonMerged`),
-          this.mergedTreeConformance?.conformance?.weighted_equally.value
-        );
       });
   }
 
@@ -312,15 +303,6 @@ export class ConformanceCheckingService {
   public toggleMergedTreeConformance() {
     if (this.isMergedTreeConformanceActive()) this.unselectTreeConformance();
     else this.showMergedTreeConformance();
-  }
-
-  private updateTooltip(button: HTMLElement, conformance: number) {
-    if (button === null) return;
-    let tooltipText: string;
-    tooltipText = `Conformance ${(conformance * 100).toFixed(
-      2
-    )}%<hr class="tooltip-hr">click to visualize conformance of this variant on model`;
-    button.setAttribute('title', tooltipText);
   }
 }
 

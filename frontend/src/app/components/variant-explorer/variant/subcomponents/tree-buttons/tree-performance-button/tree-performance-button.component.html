@@ -15,18 +15,37 @@
     class="btn variant-tree-projection-button"
     (click)="showSelectedPerformance()"
     [style.background]="computePerformanceButtonColor(variant)"
-    ngbTooltip="calculate model performance of this variant"
+    [ngbTooltip]="tooltip"
     container="body"
     [id]="'performanceButton' + variant.bid"
     style="display: flex; flex-direction: column"
   >
+    <ng-template #tooltip>
+      <div *ngIf="isPerformanceAvailable; else tooltipPerfNotAvailable">
+        {{ tooltipText }}
+        <hr class="tooltip-hr" />
+        click to visualize performance of this variant on model
+        <div *ngIf="!isPerformanceFitting">
+          <hr class="tooltip-hr" />
+          <i class="bi bi-exclamation-triangle-fill text-warning">
+            Unfitting traces: possibly unreliable model performance values!
+          </i>
+          <br />
+          Fitness: {{ variantFitness }}
+        </div>
+      </div>
+
+      <ng-template #tooltipPerfNotAvailable
+        >calculate model performance of this variant</ng-template
+      >
+    </ng-template>
     <i
       *ngIf="isPerformanceAvailable && !variant.userDefined"
       class="bi bi-graph-up align-middle font-large variant-performance-icon"
       [style.color]="textColorForBackgroundColor(variant)"
     >
       <i
-        *ngIf="isPerformanceFitting && !variant.userDefined"
+        *ngIf="!isPerformanceFitting && !variant.userDefined"
         class="bi bi-exclamation-triangle-fill"
       ></i>
     </i>

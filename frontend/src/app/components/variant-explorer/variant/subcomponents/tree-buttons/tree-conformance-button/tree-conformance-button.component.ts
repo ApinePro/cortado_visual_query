@@ -19,7 +19,7 @@ export class TreeConformanceButtonComponent {
   @Output()
   public removeConformance = new EventEmitter<Variant>();
 
-  constructor(private conformanceCheckingService: ConformanceCheckingService) {}
+  constructor(public conformanceCheckingService: ConformanceCheckingService) {}
 
   removeCurrentConformance() {
     this.removeConformance.emit(this.variant);
@@ -29,6 +29,18 @@ export class TreeConformanceButtonComponent {
   }
 
   computeConformanceButtonColor() {
+    return this.conformanceCheckingService.conformanceColorMap.getColor(
+      this.conformanceValue
+    );
+  }
+
+  computeConformanceButtonTextColor() {
+    const buttonColor = this.computeConformanceButtonColor();
+    if (!buttonColor) return 'white';
+    return textColorForBackgroundColor(buttonColor);
+  }
+
+  get conformanceValue() {
     let tree: ProcessTree;
     if (this.variant)
       tree = this.conformanceCheckingService.variantsConformance.get(
@@ -38,17 +50,9 @@ export class TreeConformanceButtonComponent {
 
     if (!tree) return null;
 
-    return this.conformanceCheckingService.conformanceColorMap.getColor(
-      this.conformanceCheckingService.isConformanceWeighted
-        ? tree.conformance.weighted_by_counts.value
-        : tree.conformance.weighted_equally.value
-    );
-  }
-
-  computeConformanceButtonTextColor() {
-    const buttonColor = this.computeConformanceButtonColor();
-    if (!buttonColor) return 'white';
-    return textColorForBackgroundColor(buttonColor);
+    return this.conformanceCheckingService.isConformanceWeighted
+      ? tree.conformance.weighted_by_counts.value
+      : tree.conformance.weighted_equally.value;
   }
 
   get isConformanceActive() {

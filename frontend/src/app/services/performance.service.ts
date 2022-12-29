@@ -141,36 +141,12 @@ export class PerformanceService {
 
           variants.forEach((v) => this.calculationInProgress.delete(v));
 
-          const meanPerformance =
-            this.mergedPerformance?.performance?.service_time?.mean;
-          const meanButton = document.getElementById('performanceButtonMean');
-          if (meanButton) {
-            this.updateTooltip(meanButton, meanPerformance);
-          }
-
           if (variants.length === 0) {
             this.clear();
             return;
           } else {
             this.modelViewModeService.viewMode = ViewMode.PERFORMANCE;
           }
-
-          variants.forEach((v) => {
-            // TODO: use currently selected performanceIndicator and statistic
-            const performanceButton = document.getElementById(
-              `performanceButton${v.bid}`
-            );
-            const vPerformance =
-              this.variantsPerformance.get(v)?.performance?.service_time?.mean;
-            if (vPerformance && performanceButton) {
-              this.updateTooltip(
-                performanceButton,
-                vPerformance,
-                { performanceIndicator: 'Service Time', statistic: 'mean' },
-                this.fitness.get(v)
-              );
-            }
-          });
 
           if (variants.length == 1) this.setShownTreePerformance(variants[0]);
           else if (variantsCombined.length > 0)
@@ -186,28 +162,6 @@ export class PerformanceService {
   public unselectPerformance() {
     this.modelViewModeService.viewMode = ViewMode.STANDARD;
     this.activeTreePerformance = undefined;
-  }
-
-  public updateTooltip(
-    button: HTMLElement,
-    perf: number,
-    selectedColorScale?,
-    fitness?: number
-  ): void {
-    let tooltipText = HumanizeDurationPipe.apply(perf * 1000, { round: true });
-    if (selectedColorScale) {
-      tooltipText = `${selectedColorScale.performanceIndicator} (${selectedColorScale.statistic}): ${tooltipText}`;
-    }
-
-    if (fitness !== undefined && fitness < 1) {
-      tooltipText = `${tooltipText}<hr class="tooltip-hr"><i class="bi bi-exclamation-triangle-fill text-warning"> Unfitting traces: possibly unreliable model performance values!</i><br>Fitness: ${fitness.toFixed(
-        2
-      )}`;
-    }
-
-    tooltipText = `${tooltipText}<hr class="tooltip-hr">click to visualize performance of this variant on model`;
-
-    button.setAttribute('title', tooltipText);
   }
 
   public setVariantsPerformance(
@@ -321,6 +275,7 @@ export class PerformanceService {
   }
 
   public isTreePerformanceFitting(v: Variant) {
-    return this.fitness.get(v) < 1;
+    const fitness = this.fitness.get(v);
+    return fitness == undefined || fitness == 1;
   }
 }

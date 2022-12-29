@@ -14,13 +14,23 @@
     type="button"
     class="btn variant-tree-projection-button"
     (click)="showSelectedConformance()"
-    data-bs-toggle="tooltip"
-    title="calculate model conformance of this variant"
+    [ngbTooltip]="tooltip"
+    container="body"
     id="conformanceButton{{ variant ? variant.bid : 'Merged' }}"
-    data-bs-html="true"
     style="display: flex; flex-direction: column"
     [style.background]="computeConformanceButtonColor()"
   >
+    <ng-template #tooltip>
+      <div *ngIf="isConformanceAvailable; else tooltipConfNotAvailable">
+        Conformance: {{ (conformanceValue * 100).toFixed(2) }}%
+        <hr class="tooltip-hr" />
+        click to visualize conformance of this variant on model
+      </div>
+
+      <ng-template #tooltipConfNotAvailable
+        >calculate model conformance of this variant</ng-template
+      >
+    </ng-template>
     <i
       class="bi"
       [ngClass]="{
