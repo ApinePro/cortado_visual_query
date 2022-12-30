@@ -1,6 +1,13 @@
 # Changelog of Cortado
 ---
 
+## [1.8.0] - 2022-12-30
+
+### Added
+
+* Frequent infix pattern mining from variants [Frontend + Backend]
+
+
 ## [1.7.0] - 2022-11-08
 
 ### Added
