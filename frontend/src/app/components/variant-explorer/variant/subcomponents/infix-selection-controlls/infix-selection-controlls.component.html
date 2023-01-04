@@ -4,8 +4,8 @@
       [disabled]="!variant.variant.isAnyInfixSelected"
       class="button"
       (click)="addCurrentSelectedInfix()"
-      title="Add the currently selected infix to the variant explorer"
-      data-bs-toggle="tooltip"
+      ngbTooltip="Add the currently selected infix to the variant explorer"
+      container="body"
     >
       <i
         class="bi bi-scissors align-middle font-large"
@@ -20,8 +20,8 @@
       [disabled]="!variant.variant.isAnyInfixSelected"
       class="button"
       (click)="resetSelectionStatus()"
-      title="Reset trace infix selection of this variant"
-      data-bs-toggle="tooltip"
+      ngbTooltip="Reset trace infix selection of this variant"
+      container="body"
     >
       <i
         class="bi bi-x-lg align-middle font-large"
@@ -35,8 +35,8 @@
     <button
       class="button"
       (click)="selectAll()"
-      title="Select the whole variant"
-      data-bs-toggle="tooltip"
+      ngbTooltip="Select the whole variant"
+      container="body"
     >
       <i
         class="bi bi-plus-square-dotted align-middle font-large text-light"

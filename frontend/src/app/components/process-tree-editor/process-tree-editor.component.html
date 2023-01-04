@@ -11,8 +11,8 @@
   <div class="bg-dark btn-tool-bar">
     <div
       class="btn-group align-baseline dropDownParent dropdown"
-      data-bs-toggle="tooltip"
-      title="add node"
+      ngbTooltip="add node"
+      container="body"
     >
       <button
         class="button text-success dropdown-toggle"
@@ -149,8 +149,8 @@
 
     <div
       class="btn-group align-baseline dropdown dropDownParent"
-      data-bs-toggle="tooltip"
-      title="change selected node"
+      ngbTooltip="change selected node"
+      container="body"
       (show.bs.dropdown)="
         lastNodeInsertionStrategy = nodeInsertionStrategy;
         nodeInsertionStrategy = NodeInsertionStrategy.CHANGE
@@ -188,9 +188,8 @@
       class="button text-warning"
       (click)="deleteSubtree()"
       [disabled]="buttonDeleteSubtreeDisabled()"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      title="remove selected node(s)"
+      ngbTooltip="remove selected node(s)"
+      container="body"
     >
       <i class="bi bi-trash btn-icon"></i>
     </button>
@@ -199,9 +198,8 @@
       class="button"
       (click)="shiftSubtreeToLeft()"
       [disabled]="buttonManipulatingMultipleNodesDisabled()"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      title="shift selected node(s) to left"
+      ngbTooltip="shift selected node(s) to left"
+      container="body"
     >
       <i class="bi bi-chevron-left btn-icon"></i>
     </button>
@@ -210,9 +208,8 @@
       class="button"
       (click)="shiftSubtreeToRight()"
       [disabled]="buttonManipulatingMultipleNodesDisabled()"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      title="shift selected node(s) to right"
+      ngbTooltip="shift selected node(s) to right"
+      container="body"
     >
       <i class="bi bi-chevron-right btn-icon"></i>
     </button>
@@ -221,9 +218,8 @@
       class="button"
       (click)="applyReductionRules()"
       [disabled]="!currentlyDisplayedTreeInEditor"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      title="Applies reduction rules to remove redundant and unnecessary nodes"
+      ngbTooltip="Applies reduction rules to remove redundant and unnecessary nodes"
+      container="body"
     >
       <i class="bi bi-diagram-2"></i>
     </button>
@@ -234,9 +230,8 @@
       class="button btn-fixed-width"
       (click)="undo()"
       [disabled]="!(treeCacheLength - 1 > 0 && treeCacheIndex !== 0)"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      title="undo"
+      ngbTooltip="undo"
+      container="body"
     >
       <i class="bi bi-arrow-counterclockwise btn-icon"></i>
       <span
@@ -251,9 +246,8 @@
       class="button btn-fixed-width"
       (click)="redo()"
       [disabled]="!(treeCacheIndex < treeCacheLength - 1)"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      title="redo"
+      ngbTooltip="redo"
+      container="body"
     >
       <i class="bi bi-arrow-clockwise btn-icon"></i>
       <span class="text-secondary" *ngIf="treeCacheIndex < treeCacheLength - 1">
@@ -269,9 +263,8 @@
       [class.button-active]="
         nodeSelectionStrategy === NodeSeletionStrategy.NODE
       "
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      title="select node"
+      ngbTooltip="select node"
+      container="body"
     >
       <i class="bi bi-fullscreen btn-icon text-danger"></i>
       <div class="button-text px-1" @collapseText *ngIf="!collapse">
@@ -285,9 +278,8 @@
       [class.button-active]="
         nodeSelectionStrategy === NodeSeletionStrategy.TREE
       "
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      title="select subtree"
+      ngbTooltip="select subtree"
+      container="body"
     >
       <i class="bi bi-fullscreen btn-icon text-danger"></i>
       <div class="button-text px-1" @collapseText *ngIf="!collapse">
@@ -298,9 +290,8 @@
     <button
       class="button"
       (click)="clearSelection()"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      title="clear selection"
+      ngbTooltip="clear selection"
+      container="body"
     >
       <i class="bi bi-x-lg btn-icon text-danger"></i>
       <div class="button-text px-1" @collapseText *ngIf="!collapse">
@@ -310,14 +301,16 @@
 
     <span class="vl"></span>
 
+    <ng-template #unfreezeTooltip>
+      (un)freeze <em>entire</em> subtree to prevent them from being changed when
+      adding variants
+    </ng-template>
     <button
       class="button"
       (click)="freezeSubtree()"
       [disabled]="buttonFreezeSubtreeDisabled()"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      data-bs-html="true"
-      title="(un)freeze <em>entire</em> subtree to prevent them from being changed when adding variants"
+      [ngbTooltip]="unfreezeTooltip"
+      container="body"
     >
       <i
         class="bi bi-snow btn-icon"
@@ -332,9 +325,8 @@
 
     <button
       class="button ms-auto"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      title="Toggle BPMN editor in Splitview"
+      ngbTooltip="Toggle BPMN editor in Splitview"
+      container="body"
       (click)="toggleBPMNEditor()"
     >
       <i class="bi bi-window-split"></i>
@@ -343,18 +335,16 @@
     <button
       id="btn-reset-zoom"
       class="button"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      title="reset view"
+      ngbTooltip="reset view"
+      container="body"
     >
       <i class="bi bi-arrows-fullscreen btn-icon text-light"></i>
     </button>
 
     <button
       class="button"
-      data-bs-toggle="tooltip"
-      data-bs-placement="top"
-      title="export the tree as an .svg"
+      ngbTooltip="export the tree as an .svg"
+      container="body"
       (click)="exportCurrentTree(d3svg)"
     >
       <i class="bi bi-save"></i>

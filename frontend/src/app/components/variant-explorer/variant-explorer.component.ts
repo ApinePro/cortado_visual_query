@@ -86,7 +86,6 @@ import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 import { EditorOptions } from './variant-query/variant-query.component';
-import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
 import { ContextMenuItem } from './variant-explorer-context-menu/variant-explorer-context-menu.component';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
@@ -123,7 +122,6 @@ export class VariantExplorerComponent
     private conformanceCheckingService: ConformanceCheckingService,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     public variantViewModeService: VariantViewModeService,
-    private tooltipService: ActivateTooltipsService,
     private toastService: ToastService
   ) {
     super(elRef.nativeElement, renderer);
@@ -830,6 +828,7 @@ export class VariantExplorerComponent
 
       v.calculationInProgress = false;
       v.isConformanceOutdated = false;
+      v.isTimeouted = false;
     });
 
     // redraw if in conformance view
@@ -1010,9 +1009,7 @@ export class VariantExplorerComponent
       });
   }
 
-  onScroll(): void {
-    this.tooltipService.hideAll();
-  }
+  onScroll(): void {}
 
   executeRemovalActionOnFilteredVariants(removeFiltered: boolean): void {
     let bids = [];

@@ -1,11 +1,18 @@
 # Changelog of Cortado
 ---
 
-## [1.7.0] - 2022-11-xx
+## [1.8.0] - 2022-12-30
 
 ### Added
 
-* Variant query [Frontend + Backend]
+* Frequent infix pattern mining from variants [Frontend + Backend]
+
+
+## [1.7.0] - 2022-11-08
+
+### Added
+
+* Variant querying [Frontend + Backend]
 
 ### Fixed
 

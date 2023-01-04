@@ -10,7 +10,6 @@ import {
 import * as d3 from 'd3';
 import { Selection } from 'd3';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
-import { ActivateTooltipsService } from '../../../../../services/activateTooltipsService/activate-tooltips.service';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 
 import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
@@ -66,7 +65,6 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
   constructor(
     private sharedDataService: SharedDataService,
     private colorMapService: ColorMapService,
-    private tooltipService: ActivateTooltipsService,
     private variantPerformanceService: VariantPerformanceService,
     private variantViewModeService: VariantViewModeService
   ) {
@@ -248,8 +246,6 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
         xEnd - xStart - 2 * VARIANT_Constants.POINT_RADIUS
       );
     });
-
-    this.tooltipService.initializeChildren(this.svgElement);
   }
 
   private computeActivityColor(subvariantData: SubvariantVisualization) {

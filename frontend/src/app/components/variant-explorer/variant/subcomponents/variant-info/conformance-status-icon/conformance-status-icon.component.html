@@ -5,8 +5,8 @@
   <i
     class="bi bi-hourglass-bottom font-large text-warning"
     *ngIf="variant.isTimeouted"
-    data-bs-toggle="tooltip"
-    title="(re)calculate conformance statistics"
+    ngbTooltip="(re)calculate conformance statistics"
+    container="body"
   ></i>
 
   <!-- check-square icon-->
@@ -17,8 +17,8 @@
   <i
     class="bi bi-check-square font-large text-warning"
     *ngIf="variant.deviations === 0 && variant.isConformanceOutdated"
-    data-bs-toggle="tooltip"
-    title="(re)calculate conformance statistics"
+    ngbTooltip="(re)calculate conformance statistics"
+    container="body"
   >
   </i>
   <!-- x-square icon-->
@@ -30,8 +30,8 @@
   <i
     class="bi bi-x-square font-large text-warning"
     *ngIf="variant.deviations > 0 && variant.isConformanceOutdated"
-    data-bs-toggle="tooltip"
-    title="(re)calculate conformance statistics"
+    ngbTooltip="(re)calculate conformance statistics"
+    container="body"
   >
   </i>
 
@@ -39,8 +39,8 @@
   <i
     class="bi bi-question-square text-secondary align-middle font-large"
     *ngIf="variant.deviations === undefined && !variant.isTimeouted"
-    data-bs-toggle="tooltip"
-    title="(re)calculate conformance statistics"
+    ngbTooltip="(re)calculate conformance statistics"
+    container="body"
   >
   </i>
 </ng-container>

@@ -19,7 +19,6 @@ import {
   ProcessTreeOperator,
 } from 'src/app/objects/ProcessTree/ProcessTree';
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
-import { ActivateTooltipsService } from 'src/app/services/activateTooltipsService/activate-tooltips.service';
 import { ImageExportService } from 'src/app/services/imageExportService/image-export-service';
 import { PerformanceService } from 'src/app/services/performance.service';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
@@ -75,7 +74,6 @@ export class BpmnEditorComponent
     private performanceColorScaleService: ModelPerformanceColorScaleService,
     private performanceService: PerformanceService,
     private processTreeService: ProcessTreeService,
-    private activateTooltipsService: ActivateTooltipsService,
     private imageExportService: ImageExportService,
     private modelViewModeService: ModelViewModeService
   ) {
@@ -232,8 +230,6 @@ export class BpmnEditorComponent
 
   redraw(tree: ProcessTree) {
     this.bpmnDrawer.redraw(tree);
-
-    this.activateTooltipsService.initializeChildren(this.svgElem);
     this.selectBPMNNode(this.selectedRootID);
   }
 
