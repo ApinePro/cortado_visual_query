@@ -828,6 +828,7 @@ export class VariantExplorerComponent
 
       v.calculationInProgress = false;
       v.isConformanceOutdated = false;
+      v.isTimeouted = false;
     });
 
     // redraw if in conformance view

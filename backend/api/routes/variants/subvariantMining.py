@@ -11,7 +11,7 @@ from cortado_core.subprocess_discovery.subtree_mining.treebank import (
 from cortado_core.subprocess_discovery.subtree_mining.right_most_path_extension.min_sub_mining import (
     min_sub_mining,
 )
-from cortado_core.subprocess_discovery.subtree_mining.freq_counting import (
+from cortado_core.subprocess_discovery.subtree_mining.obj import (
     FrequencyCountingStrategy,
 )
 from cortado_core.subprocess_discovery.subtree_mining.maximal_connected_components.maximal_connected_check import (
