@@ -18,5 +18,5 @@ export class VARIANT_Constants {
   public static INTERVAL_LENGTH = 60;
   public static SELECTION_STROKE_WIDTH = 2;
   public static SKIP_WIDTH = 25;
-  public static SKIP_MARGIN = 5;
+  public static SKIP_MARGIN = 10;
 }

@@ -68,7 +68,7 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
 
     variants = {v: ts for _, (v, ts, _, info) in cache.variants.items() if not info.is_user_defined}
 
-    if config.algo == 1:
+    if config.algo == 3:
         return get_eventually_follows_patterns(variants, config.min_sup, freq_strat_mapping[config.strat])
 
     treeBank = create_treebank_from_cv_variants(variants, config.artifical_start)
