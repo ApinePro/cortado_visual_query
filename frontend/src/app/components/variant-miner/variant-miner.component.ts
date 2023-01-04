@@ -43,7 +43,7 @@ import { VariantService } from 'src/app/services/variantService/variant.service'
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
-import { InfixType } from 'src/app/objects/Variants/infix_selection';
+import { InfixType, setParent } from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
 import {
   VariantElement,
@@ -564,6 +564,7 @@ export class VariantMinerComponent
           res.forEach((p, i) => {
             if (p.valid) {
               const variant: VariantElement = deserialize(p.obj);
+              setParent(variant);
               const [isPrefix, isSuffix] = this.checkInfix(p.obj);
               let infixtype: InfixType;
 

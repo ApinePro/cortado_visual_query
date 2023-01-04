@@ -4,6 +4,7 @@ import {
   LeafNode,
   ParallelGroup,
   SequenceGroup,
+  SkipGroup,
   VariantElement,
   WaitingTimeNode,
 } from './variant_element';
@@ -127,7 +128,11 @@ const updateSelectableAttributesForGroup = (group: any) => {
 };
 
 export const setParent = (root: VariantElement) => {
-  if (root instanceof ParallelGroup || root instanceof SequenceGroup) {
+  if (
+    root instanceof ParallelGroup ||
+    root instanceof SequenceGroup ||
+    root instanceof SkipGroup
+  ) {
     for (let child of root.elements) {
       child['parent'] = root;
       setParent(child);

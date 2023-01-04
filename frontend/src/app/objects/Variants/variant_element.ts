@@ -782,6 +782,9 @@ export class SkipGroup extends VariantElement {
       2 * this.getMarginX() +
       this.getHeadLength() -
       this.elements[0].getHeadLength();
+    this.width +=
+      (this.elements.length - 1) *
+      (VARIANT_Constants.SKIP_WIDTH + 2 * VARIANT_Constants.SKIP_MARGIN);
     return this.width;
   }
 
