@@ -14,15 +14,16 @@ import { takeUntil } from 'rxjs/operators';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
+import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
 import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 import { ColorMapValue } from '../performance/color-map/color-map.component';
 
 @Component({
-  selector: 'app-variant-conformance',
-  templateUrl: './variant-conformance.component.html',
-  styleUrls: ['./variant-conformance.component.css'],
+  selector: 'app-conformance-tab',
+  templateUrl: './conformance-tab.component.html',
+  styleUrls: ['./conformance-tab.component.css'],
 })
-export class VariantConformanceComponent
+export class ConformanceTabComponent
   extends LayoutChangeDirective
   implements AfterViewInit, OnDestroy
 {
@@ -31,13 +32,16 @@ export class VariantConformanceComponent
   private _destroy$ = new Subject();
   public conformanceColorMapValues: ColorMapValue[];
 
+  public VM = ViewMode;
+
   constructor(
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
     elRef: ElementRef,
     renderer: Renderer2,
     private conformanceCheckingService: ConformanceCheckingService,
-    private variantViewModeService: VariantViewModeService
+    private variantViewModeService: VariantViewModeService,
+    public modelViewModeService: ModelViewModeService
   ) {
     super(elRef.nativeElement, renderer);
 
@@ -104,6 +108,6 @@ export class VariantConformanceComponent
   }
 }
 
-export namespace VariantConformanceComponent {
+export namespace ConformanceTabComponent {
   export const componentName = 'VariantConformanceComponent';
 }

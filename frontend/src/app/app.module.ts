@@ -71,7 +71,7 @@ import { VariantDeleteButtonComponent } from './components/variant-explorer/vari
 import { ELECTRON_SERVICE } from './tokens';
 import { ElectronService } from './services/electronService/electron.service';
 import { UnavailableInfoComponent } from './components/unavailable-info/unavailable-info.component';
-import { VariantConformanceComponent } from './components/variant-conformance/variant-conformance.component';
+import { ConformanceTabComponent } from './components/conformance-tab/conformance-tab.component';
 import { ConformanceStatusIconComponent } from './components/variant-explorer/variant/subcomponents/variant-info/conformance-status-icon/conformance-status-icon.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TiebreakerComponent } from './components/variant-explorer/tiebreaker/tiebreaker.component';
@@ -138,7 +138,7 @@ import { TreeConformanceButtonComponent } from './components/variant-explorer/va
     ResizeColumnDirective,
     VariantDeleteButtonComponent,
     UnavailableInfoComponent,
-    VariantConformanceComponent,
+    ConformanceTabComponent,
     ConformanceStatusIconComponent,
     TiebreakerComponent,
     TreeConformanceButtonComponent,

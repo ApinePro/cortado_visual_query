@@ -1,0 +1,89 @@
+<ul class="nav nav-tabs bg-dark" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link active button"
+      id="model-selection-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#model-selection"
+      role="tab"
+      aria-controls="model-selection"
+      aria-selected="true"
+    >
+      Model Selection
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link button"
+      id="color-map-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#color-map"
+      role="tab"
+      aria-controls="color-map"
+      aria-selected="true"
+      #colorMapTab
+    >
+      Color Map
+    </button>
+  </li>
+</ul>
+
+<div class="tab-content">
+  <div
+    class="tab-pane fade show active"
+    id="model-selection"
+    role="tabpanel"
+    aria-labelledby="model-selection-tab"
+  >
+    <div
+      *ngIf="
+        modelViewModeService.viewMode === VM.CONFORMANCE;
+        else unavailableInfoNodeSelection
+      "
+      style="overflow: auto; display: flex; flex-direction: column"
+    >
+    </div>
+    <ng-template #unavailableInfoNodeSelection>
+      <app-unavailable-info>
+        No conformance values available.
+        <br />
+        Discover a tree model and compute the conformance for a variant in the
+        variant explorer by switching to the <strong>Conformance Mode</strong>
+        and clicking on the
+        <i class="bi bi-map" style="color: white"></i> symbol.
+        <br />
+        Then you can select a tree node for detailed conformance values.
+      </app-unavailable-info>
+    </ng-template>
+  </div>
+  <div
+    class="tab-pane fade color-map-tab"
+    id="color-map"
+    role="tabpanel"
+    aria-labelledby="color-map-tab"
+  >
+    <div class="card text-white mb-3 w-100" style="max-width: 400px">
+      <div class="card-body">
+        <h5 class="card-title">Conformance</h5>
+
+        <div class="mb-3">
+          <select
+            class="form-select form-select-sm"
+            aria-label="variant conformance aggregation"
+            name="weightMethod"
+            (change)="conformanceWeightMethodChange($event)"
+          >
+            <option value="weighted_equally">Weighted Equally</option>
+            <option value="weighted_by_counts">Weighted By Frequency</option>
+          </select>
+        </div>
+        <app-color-map
+          [colorMapValues]="conformanceColorMapValues"
+          [timeBasedLabel]="false"
+          [excludeUpperLabel]="true"
+          suffix="%"
+        ></app-color-map>
+      </div>
+    </div>
+  </div>
+</div>
