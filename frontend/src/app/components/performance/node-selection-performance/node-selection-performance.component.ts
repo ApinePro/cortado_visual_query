@@ -12,6 +12,7 @@ import { Variant } from 'src/app/objects/Variants/variant';
 import { PerformanceStats } from 'src/app/objects/Variants/variant_element';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 
 @Component({
   selector: 'app-node-selection-performance',
@@ -35,6 +36,7 @@ export class NodeSelectionPerformanceComponent implements OnInit, OnDestroy {
   private _destroy$ = new Subject();
 
   constructor(
+    private processTreeService: ProcessTreeService,
     public performanceService: PerformanceService,
     public performanceColorScaleService: ModelPerformanceColorScaleService,
     public sharedDataService: SharedDataService,
@@ -46,7 +48,7 @@ export class NodeSelectionPerformanceComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.performanceService.treeSelection
+    this.processTreeService.selectedTree$
       .pipe(takeUntil(this._destroy$))
       .subscribe((tree) => {
         if (

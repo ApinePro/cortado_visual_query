@@ -187,10 +187,10 @@ export class BpmnEditorComponent
 
     if (d.id === this.selectedRootID) {
       this.processTreeService.selectedRootNodeID = null;
-      this.performanceService.treeSelection.next(undefined);
+      this.processTreeService.selectedTree = undefined;
     } else {
       this.processTreeService.selectedRootNodeID = d.id;
-      this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
+      this.processTreeService.selectedTree = ProcessTree.fromObj(d);
     }
   };
 

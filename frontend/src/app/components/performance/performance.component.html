@@ -37,7 +37,7 @@
     <div
       *ngIf="
         modelViewModeService.viewMode === VM.PERFORMANCE &&
-          performanceService.treeSelection &&
+          processTreeService.selectedTree &&
           performanceValues.length > 0;
         else unavailableInfoNodeSelection
       "
@@ -71,7 +71,7 @@
     <app-tree-performance-color-map
       *ngIf="
         modelViewModeService.viewMode === VM.PERFORMANCE &&
-          performanceService.treeSelection &&
+          processTreeService.selectedTree &&
           performanceValues.length > 0;
         else unavailableInfoColorMap
       "

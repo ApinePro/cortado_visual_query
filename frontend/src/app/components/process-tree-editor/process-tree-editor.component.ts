@@ -585,7 +585,7 @@ export class ProcessTreeEditorComponent
 
   selectNodeCallBack = (self, event, d) => {
     this.pushIDtoService(self, d),
-      this.performanceService.treeSelection.next(ProcessTree.fromObj(d.data));
+      (this.processTreeService.selectedTree = ProcessTree.fromObj(d.data));
   };
 
   private pushIDtoService = (svg, d) => {
@@ -663,7 +663,7 @@ export class ProcessTreeEditorComponent
 
   clearDisplayedSelection(): void {
     this.selectedRootNode = null;
-    this.performanceService.treeSelection.next(undefined);
+    this.processTreeService.selectedTree = undefined;
 
     this.mainSvgGroup.selectAll('rect').each((d) => {
       d.data.selected = false;

@@ -39,8 +39,6 @@ export class PerformanceService {
 
   // colorScale for each tree node;
   private activeTreePerformance: number;
-  treeSelection: BehaviorSubject<ProcessTree> =
-    new BehaviorSubject<ProcessTree>(undefined);
   newValues: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   calculationInProgress = new Set<Variant>();
   latestRequest: Subscription;
@@ -61,10 +59,10 @@ export class PerformanceService {
     });
     processTreeService.currentDisplayedProcessTree$.subscribe((pt) => {
       if (pt) {
-        this.treeSelection.next(pt);
+        this.processTreeService.selectedTree = pt;
       } else {
         this.clear();
-        this.treeSelection.next(undefined);
+        this.processTreeService.selectedTree = undefined;
         this.currentPt = undefined;
         return;
       }
@@ -230,7 +228,7 @@ export class PerformanceService {
     this.allValuesMean.clear();
     this.activeTreePerformance = undefined;
     this.calculationInProgress.clear();
-    this.treeSelection.next(undefined);
+    this.processTreeService.selectedTree = undefined;
 
     this.modelViewModeService.viewMode = ViewMode.STANDARD;
   }

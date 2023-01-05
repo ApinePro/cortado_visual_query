@@ -58,7 +58,7 @@ export class TreePerformanceColorMapComponent implements OnInit, OnDestroy {
           this.updateColorMapValues();
         }
       });
-    this.performanceService.treeSelection
+    this.processTreeService.selectedTree$
       .pipe(takeUntil(this._destroy$))
       .subscribe((t) => {
         if (
