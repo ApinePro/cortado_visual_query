@@ -60,7 +60,8 @@ async def calculate_tree_conformance(d: InputCalculateConformance):
                 if(
                     log_move == model_move or
                     (
-                        log_move == '>>' and model_move == 'tau'
+                        # when model move only is tau
+                        log_move == '>>' and model_move == None
                     )
                 ):
                     conf_stats[model_move.full]['value'] += 1
