@@ -65,17 +65,17 @@ export class ConformanceCheckingService {
 
   private usedProcessTreeForTreeConformance: ProcessTree;
 
-  private _isConformanceWeighted: BehaviorSubject<Boolean> =
+  public isConformanceWeighted$: BehaviorSubject<Boolean> =
     new BehaviorSubject<Boolean>(false);
 
   set isConformanceWeighted(isWeighted: Boolean) {
     if (this.isConformanceWeighted !== isWeighted) {
-      this._isConformanceWeighted.next(isWeighted);
+      this.isConformanceWeighted$.next(isWeighted);
     }
   }
 
   get isConformanceWeighted() {
-    return this._isConformanceWeighted.value;
+    return this.isConformanceWeighted$.value;
   }
 
   private activeTreeConformance: Variant;

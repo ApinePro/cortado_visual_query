@@ -95,6 +95,13 @@ export class VariantConformanceComponent
   public performanceStats: any;
   public colorScale;
   public title;
+
+  public conformanceWeightMethodChange(event): void {
+    const value = event.target.value;
+    if (value == 'weighted_equally')
+      this.conformanceCheckingService.isConformanceWeighted = false;
+    else this.conformanceCheckingService.isConformanceWeighted = true;
+  }
 }
 
 export namespace VariantConformanceComponent {

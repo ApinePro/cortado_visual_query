@@ -24,16 +24,25 @@
   >
     <div class="card text-white mb-3 w-100" style="max-width: 400px">
       <div class="card-body">
-        <h5 class="card-title">Conformance Color Map</h5>
+        <h5 class="card-title">Conformance</h5>
 
         <div class="mb-3">
-          <app-color-map
-            [colorMapValues]="conformanceColorMapValues"
-            [timeBasedLabel]="false"
-            [excludeUpperLabel]="true"
-            suffix="%"
-          ></app-color-map>
+          <select
+            class="form-select form-select-sm"
+            aria-label="variant conformance aggregation"
+            name="weightMethod"
+            (change)="conformanceWeightMethodChange($event)"
+          >
+            <option value="weighted_equally">Weighted Equally</option>
+            <option value="weighted_by_counts">Weighted By Frequency</option>
+          </select>
         </div>
+        <app-color-map
+          [colorMapValues]="conformanceColorMapValues"
+          [timeBasedLabel]="false"
+          [excludeUpperLabel]="true"
+          suffix="%"
+        ></app-color-map>
       </div>
     </div>
   </div>

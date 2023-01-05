@@ -124,6 +124,14 @@ export class BpmnEditorComponent
         }
       });
 
+    this.conformanceCheckingService.isConformanceWeighted$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((_) => {
+        if (this.currentTree) {
+          this.redraw(this.currentTree);
+        }
+      });
+
     this.mainGroup = d3.select('#bpmn-zoom-group');
 
     this.createArrowHeadMarker();
@@ -260,7 +268,8 @@ export class BpmnEditorComponent
       case ViewMode.CONFORMANCE:
         if (pt.conformance === null) return '#404041';
         return this.conformanceCheckingService.conformanceColorMap.getColor(
-          this.conformanceCheckingService.isConformanceWeighted
+          this.conformanceCheckingService.isConformanceWeighted &&
+            pt.conformance.weighted_by_counts != undefined
             ? pt.conformance.weighted_by_counts.value
             : pt.conformance.weighted_equally.value
         );

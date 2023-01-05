@@ -177,6 +177,14 @@ export class ProcessTreeEditorComponent
         }
       });
 
+    this.conformanceCheckingService.isConformanceWeighted$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((_) => {
+        if (this.currentlyDisplayedTreeInEditor) {
+          this.redraw(this.currentlyDisplayedTreeInEditor);
+        }
+      });
+
     this.colorMapService.colorMap$
       .pipe(takeUntil(this._destroy$))
       .subscribe((colorMap) => {
@@ -422,7 +430,8 @@ export class ProcessTreeEditorComponent
       case ViewMode.CONFORMANCE:
         if (d.data.conformance === null) return '#404041';
         return this.conformanceCheckingService.conformanceColorMap.getColor(
-          this.conformanceCheckingService.isConformanceWeighted
+          this.conformanceCheckingService.isConformanceWeighted &&
+            d.data.conformance.weighted_by_counts != undefined
             ? d.data.conformance.weighted_by_counts.value
             : d.data.conformance.weighted_equally.value
         );
