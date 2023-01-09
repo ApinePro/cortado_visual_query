@@ -3,10 +3,9 @@ uvicorn
 cycler~=0.11.0
 networkx==3.0rc1
 python-multipart
-git+https://gitlab.fit.fraunhofer.de/pm4py/pm4py-core.git@c169a7ff05cb6c0b7dcde681e372c4ad41d1c363#egg=pm4py
+pm4py==2.4.1
 appdirs
 websockets
-git+https://gitlab.fit.fraunhofer.de/cortado/cortado-core.git@master#egg=cortado_core
+git+https://gitlab.fit.fraunhofer.de/cortado/cortado-core.git@60-python-version-upgrade-pm4py-upgrade-removal-of-pm4pycvxopt#egg=cortado_core
 cvxopt
-pm4pycvxopt
 pyinstaller
