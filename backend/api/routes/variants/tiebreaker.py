@@ -10,7 +10,7 @@ from pydantic import BaseModel
 import cache.cache
 from api.routes.variants.variants import VariantInformation
 from endpoints.alignments import InfixType
-from endpoints.load_event_log import create_variant_object, compute_log_stats
+from endpoints.load_event_log import create_variant_object, compute_log_stats, variants_to_variant_objects
 
 router = APIRouter(tags=['Tiebreaker'], prefix="/tiebreaker")
 
@@ -22,14 +22,6 @@ class TiebreakerPatterns(BaseModel):
 
 @router.post("/apply")
 def apply_tiebreaker(payload: TiebreakerPatterns):
-    variants = cache.cache.variants
-    new_variants = defaultdict(list)
-    n_traces = 0
-
-    for _, (variant, traces, _, _) in variants.items():
-        new_variants[variant] += traces
-        n_traces += len(traces)
-
     if not validate_string_pattern(payload.sourcePattern):
         raise HTTPException(status_code=400, detail='Source pattern is invalid')
 
@@ -41,27 +33,41 @@ def apply_tiebreaker(payload: TiebreakerPatterns):
 
     validate_patterns(source_pattern, target_pattern)
 
+    variants = cache.cache.variants
+    new_variants = {
+        InfixType.NOT_AN_INFIX: defaultdict(list),
+        InfixType.PROPER_INFIX: defaultdict(list),
+        InfixType.PREFIX: defaultdict(list),
+        InfixType.POSTFIX: defaultdict(list),
+    }
+    n_traces = 0
+
+    for _, (variant, traces, _, info) in variants.items():
+        new_variants[info.infix_type][variant] += traces
+        n_traces += len(traces)
+
     print('SOURCE PATTERN:', str(source_pattern))
     print('TARGET PATTERN:', str(target_pattern))
 
-    new_variants = apply_tiebreaker_on_variants(new_variants, source_pattern, target_pattern)
+    cache_variants = dict()
+    cache_max_bid = 0
     res_variants = []
 
-    # TODO niklas: unify duplicate code fragments with importing code
-    cache_variants = dict()
+    for infix_type, var in new_variants.items():
+        new_variants = apply_tiebreaker_on_variants(var, source_pattern, target_pattern)
 
-    for bid, (v, ts) in enumerate(sorted(list(new_variants.items()), key=lambda e: len(e[1]), reverse=True)):
-        info = VariantInformation(infix_type=InfixType.NOT_AN_INFIX, is_user_defined=False)
-        variant, sub_vars = create_variant_object(cache.cache.parameters["cur_time_granularity"], n_traces, bid, v, ts,
-                                                  info)
+        res_vars, new_cache_variants = variants_to_variant_objects(new_variants,
+                                                                   cache.cache.parameters["cur_time_granularity"],
+                                                                   n_traces,
+                                                                   lambda ts: generate_variant_info(infix_type, ts))
+        res_variants += res_vars
 
-        res_variants.append(variant)
-        cache_variants[bid] = (
-            v, ts, sub_vars, info)
+        for bid, variant in new_cache_variants.items():
+            cache_variants[bid + cache_max_bid] = variant
+
+        cache_max_bid = max(cache_variants.keys())
 
     cache.cache.variants = cache_variants
-
-    res_variants = sorted(res_variants, key=lambda variant: variant["count"], reverse=True)
 
     start_activities, end_activities, nActivities = compute_log_stats(cache.cache.variants)
 
@@ -77,6 +83,12 @@ def apply_tiebreaker(payload: TiebreakerPatterns):
     }
 
     return res
+
+
+def generate_variant_info(infix_type, traces):
+    user_defined = len(traces) == 0
+
+    return VariantInformation(infix_type=infix_type, is_user_defined=user_defined)
 
 
 def validate_string_pattern(pattern: str) -> bool:

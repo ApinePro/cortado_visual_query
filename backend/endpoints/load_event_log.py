@@ -86,17 +86,22 @@ def get_c_variants(event_log: EventLog, use_mp: bool = False, time_granularity: 
     variants = get_concurrency_variants(event_log, use_mp, time_granularity, PoolFactory.instance().get_pool())
 
     total_traces = len(event_log)
+    info_gen = lambda _: VariantInformation(infix_type=InfixType.NOT_AN_INFIX, is_user_defined=False)
+
+    return variants_to_variant_objects(variants, time_granularity, total_traces, info_gen)
+
+
+def variants_to_variant_objects(variants, time_granularity, total_traces, info_generator):
     res_variants = []
 
     cache_variants = dict()
 
     for bid, (v, ts) in enumerate(sorted(list(variants.items()), key=lambda e: len(e[1]), reverse=True)):
-        info = VariantInformation(infix_type=InfixType.NOT_AN_INFIX, is_user_defined=False)
-        variant, sub_vars = create_variant_object(time_granularity, total_traces, bid, v, ts, info)
+        variant, sub_vars = create_variant_object(time_granularity, total_traces, bid, v, ts, info_generator(ts))
 
         res_variants.append(variant)
         cache_variants[bid] = (
-            v, ts, sub_vars, info)
+            v, ts, sub_vars, info_generator(ts))
 
     return sorted(res_variants, key=lambda variant: variant["count"],
                   reverse=True), cache_variants
