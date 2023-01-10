@@ -6,6 +6,6 @@ python-multipart
 pm4py==2.4.1
 appdirs
 websockets
-git+https://gitlab.fit.fraunhofer.de/cortado/cortado-core.git@60-python-version-upgrade-pm4py-upgrade-removal-of-pm4pycvxopt#egg=cortado_core
+git+https://gitlab.fit.fraunhofer.de/cortado/cortado-core.git@master#egg=cortado_core
 cvxopt
 pyinstaller
