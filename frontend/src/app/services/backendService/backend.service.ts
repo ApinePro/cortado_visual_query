@@ -423,4 +423,16 @@ export class BackendService {
       body
     );
   }
+
+  public applyTiebreaker(sourcePattern, targetPattern) {
+    this.httpClient
+      .post(ROUTES.BASE_URL + ROUTES.TIEBREAKER + 'apply', {
+        sourcePattern: sourcePattern,
+        targetPattern: targetPattern,
+      })
+      .pipe(mapVariants())
+      .subscribe((res) => {
+        this.processEventLog(res);
+      });
+  }
 }

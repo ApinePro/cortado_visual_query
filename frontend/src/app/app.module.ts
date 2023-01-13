@@ -74,6 +74,7 @@ import { UnavailableInfoComponent } from './components/unavailable-info/unavaila
 import { VariantConformanceComponent } from './components/variant-conformance/variant-conformance.component';
 import { ConformanceStatusIconComponent } from './components/variant-explorer/variant/subcomponents/variant-info/conformance-status-icon/conformance-status-icon.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { TiebreakerComponent } from './components/variant-explorer/tiebreaker/tiebreaker.component';
 
 @NgModule({
   declarations: [
@@ -138,6 +139,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     UnavailableInfoComponent,
     VariantConformanceComponent,
     ConformanceStatusIconComponent,
+    TiebreakerComponent,
   ],
   imports: [
     BrowserModule,

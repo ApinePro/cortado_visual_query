@@ -4,7 +4,7 @@ import { ProcessTreeService } from 'src/app/services/processTreeService/process-
 import { LogService } from 'src/app/services/logService/log.service';
 import * as objectHash from 'object-hash';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { mapVariants } from 'src/app/utils/util';
@@ -50,6 +50,7 @@ export class VariantService {
     });
   }
 
+  public showTiebreakerDialog: Subject<any> = new Subject<any>();
   private _variants = new BehaviorSubject<Variant[]>([]);
   private _collapsedVariants = new BehaviorSubject<LoopCollapsedVariant[]>(
     null
