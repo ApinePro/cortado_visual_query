@@ -1,6 +1,5 @@
 from multiprocessing import cpu_count, freeze_support
 
-import pm4pycvxopt
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError

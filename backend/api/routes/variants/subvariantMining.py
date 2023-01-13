@@ -1,7 +1,6 @@
 from cortado_core.utils.split_graph import LeafGroup, LoopGroup, ParallelGroup, SequenceGroup
 
 import cache.cache as cache
-import pm4pycvxopt
 from fastapi import APIRouter
 from pydantic import BaseModel
 

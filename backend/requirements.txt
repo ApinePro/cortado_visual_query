@@ -8,5 +8,4 @@ appdirs
 websockets
 git+https://gitlab.fit.fraunhofer.de/cortado/cortado-core.git@master#egg=cortado_core
 cvxopt
-pm4pycvxopt
 pyinstaller
