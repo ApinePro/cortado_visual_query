@@ -1,6 +1,5 @@
 import asyncio
 from collections import defaultdict
-import pm4pycvxopt
 from cortado_core.utils.sequentializations import generate_sequentializations
 from cortado_core.utils.split_graph import Group
 from starlette.websockets import WebSocketState
