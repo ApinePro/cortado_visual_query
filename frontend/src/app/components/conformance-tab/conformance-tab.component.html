@@ -42,6 +42,75 @@
       "
       style="overflow: auto; display: flex; flex-direction: column"
     >
+      <app-tree-string-renderer
+        [styled_tree_string]="processTreeService.selectedTree?.toString()"
+      ></app-tree-string-renderer>
+      <table
+        class="table table-sm table-striped table-dark table-hover table-bordered mb-0"
+        style="font-size: small; margin-top: 5px"
+      >
+        <tbody>
+          <tr>
+            <td>
+              Conformance weighted equally
+
+              <i
+                class="bi bi-info-circle"
+                ngbTooltip="The conformance is the mean value of all sub-trees. Leaf nodes have the conformance value based on the fraction of alignments where the model and log move was aligned."
+                container="body"
+              ></i>
+            </td>
+            <td style="width: 20%">
+              {{
+                (
+                  processTreeService.selectedTree.conformance?.weighted_equally
+                    .value * 100
+                ).toFixed(2)
+              }}%
+            </td>
+          </tr>
+          <ng-container
+            *ngIf="
+              processTreeService.selectedTree.conformance?.weighted_by_counts
+            "
+          >
+            <tr>
+              <td>
+                Conformance weighted by frequencies
+                <i
+                  class="bi bi-info-circle"
+                  ngbTooltip="The conformance is the mean value of all sub-trees, where each sub-tree is weighted by the activity frequency within that tree. Leaf nodes have the conformance value based on the fraction of alignments where the model and log move was aligned."
+                  container="body"
+                ></i>
+              </td>
+              <td>
+                {{
+                  (
+                    processTreeService.selectedTree.conformance
+                      ?.weighted_by_counts.value * 100
+                  ).toFixed(2)
+                }}%
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Activity Frequency
+                <i
+                  class="bi bi-info-circle"
+                  ngbTooltip="The activity frequency is the number of times a model move occured within the alignments. Concurrency within the traces is treated by evaluating all sequential traces that can be created with the given concurrency. The values of sub-trees are the sum of its childs."
+                  container="body"
+                ></i>
+              </td>
+              <td>
+                {{
+                  processTreeService.selectedTree.conformance
+                    ?.weighted_by_counts.weight
+                }}
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
     </div>
     <ng-template #unavailableInfoNodeSelection>
       <app-unavailable-info>

@@ -14,6 +14,7 @@ import { takeUntil } from 'rxjs/operators';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
 import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 import { ColorMapValue } from '../performance/color-map/color-map.component';
@@ -41,7 +42,8 @@ export class ConformanceTabComponent
     renderer: Renderer2,
     private conformanceCheckingService: ConformanceCheckingService,
     private variantViewModeService: VariantViewModeService,
-    public modelViewModeService: ModelViewModeService
+    public modelViewModeService: ModelViewModeService,
+    public processTreeService: ProcessTreeService
   ) {
     super(elRef.nativeElement, renderer);
 
