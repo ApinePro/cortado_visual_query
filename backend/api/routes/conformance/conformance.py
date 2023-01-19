@@ -2,6 +2,7 @@ import asyncio
 from collections import defaultdict
 from cortado_core.utils.sequentializations import generate_sequentializations
 from cortado_core.utils.split_graph import Group
+from cortado_core.utils.process_tree import LabelWithIndex
 from starlette.websockets import WebSocketState
 
 from backend_utilities.configuration.repository import ConfigurationRepositoryFactory
@@ -15,18 +16,6 @@ from endpoints.alignments import calculate_alignment as calculate_alignment_endp
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 router = APIRouter(tags=["conformance"], prefix="/conformance")
-
-
-class ActivityWithIndex:
-    def __init__(self, name, index):
-        self.name = name
-        self.index = index
-
-    def __eq__(self, other):
-        return other == self.name
-
-    def __hash__(self):
-        return hash(self.name + str(self.index))
 
 
 def calculate_alignment_intern_with_timeout(
@@ -58,7 +47,7 @@ def calculate_alignment_intern(pt: dict, c_variant: dict, infix_type: InfixType)
         else:
             leafs = []
             for activity in variant['leaf']:
-                leafs.append(ActivityWithIndex(activity, indices[activity]))
+                leafs.append(LabelWithIndex(activity, indices[activity]))
                 indices[activity] += 1
             return {'leaf': leafs}
 
