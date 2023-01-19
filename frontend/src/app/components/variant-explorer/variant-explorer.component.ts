@@ -828,6 +828,7 @@ export class VariantExplorerComponent
 
       v.calculationInProgress = false;
       v.isConformanceOutdated = false;
+      v.isTimeouted = false;
     });
 
     // redraw if in conformance view
@@ -1057,6 +1058,10 @@ export class VariantExplorerComponent
           this.displayed_variants = this.variants;
         }
       });
+  }
+
+  showTiebreakerDialog() {
+    this.variantService.showTiebreakerDialog.next();
   }
 }
 

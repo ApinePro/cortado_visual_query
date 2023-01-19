@@ -10,3 +10,9 @@ class PoolFactory:
 
     def get_pool(self):
         return self.pool
+
+    def restart_pool(self):
+        self.pool.terminate()
+        self.pool.join()
+
+        self.pool = multiprocessing.Pool()

@@ -1,8 +1,8 @@
 import asyncio
 from collections import defaultdict
-import pm4pycvxopt
 from cortado_core.utils.sequentializations import generate_sequentializations
 from cortado_core.utils.split_graph import Group
+from starlette.websockets import WebSocketState
 
 from backend_utilities.configuration.repository import ConfigurationRepositoryFactory
 from backend_utilities.multiprocessing.pool_factory import PoolFactory
@@ -73,7 +73,7 @@ def calculate_alignment_intern(pt: dict, c_variant: dict, infix_type: InfixType)
     deviations = 0
     for variant in all_variants:
         alignment = calculate_alignment_endpoint(variant, pt, infix_type)
-        total_cost = alignment["cost"]
+        total_cost += alignment["cost"]
         deviations += alignment["deviation"]
         for log_move, model_move in alignment['alignment']:
             if log_move == '>>':
@@ -122,7 +122,11 @@ def get_alignment_callback(idx: str, alignType, websocket: WebSocket):
         for key, value in result.items():
             data[key] = value
 
-        asyncio.run(websocket.send_json(data))
+        try:
+            if websocket.application_state == WebSocketState.CONNECTED:
+                asyncio.run(websocket.send_json(data))
+        except:
+            print('Error while sending conformance result')
 
     return callback
 
@@ -140,6 +144,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
             if "isCancellationRequested" in data:
                 await websocket.close(1000)
+                PoolFactory.instance().restart_pool()
                 return
 
             timeout = configuration.timeout_cvariant_alignment_computation

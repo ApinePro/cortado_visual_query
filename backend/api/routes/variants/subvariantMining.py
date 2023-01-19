@@ -5,7 +5,6 @@ from cortado_core.subprocess_discovery.concurrency_trees.cTrees import Concurren
 from cortado_core.utils.split_graph import LeafGroup, LoopGroup, ParallelGroup, SequenceGroup, SkipGroup
 
 import cache.cache as cache
-import pm4pycvxopt
 from fastapi import APIRouter
 from pydantic import BaseModel
 

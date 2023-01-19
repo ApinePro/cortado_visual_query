@@ -11,13 +11,25 @@ workflow:
     - when: always
 
 variables:
-  PYINSTALLER_VERSION: "4.3"
-  PYTHON_VERSION: "3.8.10"
+  PYINSTALLER_VERSION: "5.7"
+  PYTHON_VERSION: "3.10"
   ARTIFACT_NAME_SUFFIX: $CI_COMMIT_SHA-$CI_COMMIT_TIMESTAMP
   LINUX_BACKEND_ARTIFACT_NAME: Cortado_Linux_backend_$ARTIFACT_NAME_SUFFIX
   WINDOWS_BACKEND_ARTIFACT_NAME: Cortado_Windows_backend_$ARTIFACT_NAME_SUFFIX
   LINUX_BUILD_DIR: Cortado_Linux_build_$ARTIFACT_NAME_SUFFIX
   WINDOWS_BUILD_DIR: Cortado_Windows_build_$ARTIFACT_NAME_SUFFIX
+
+.load_project_credentials_template: &load_gitlab_credentials  # Template to load credentials for cortado-core and pm4py project
+  before_script:
+    - pip install pytest
+    - git config --global credential.https://gitlab.fit.fraunhofer.de/cortado/cortado-core.git.username ${cortado_core_git_username}
+    - git config --global credential.https://gitlab.fit.fraunhofer.de/pm4py/pm4py-core.git.username ${pm4py_core_git_username}
+    
+    - git config --global credential.helper store
+    - git config --global credential.interactive never
+    - echo https://${cortado_core_git_username}:${cortado_core_git_password}@gitlab.fit.fraunhofer.de >> /root/.git-credentials
+    - echo https://${pm4py_core_git_username}:${pm4py_core_git_password}@gitlab.fit.fraunhofer.de >> /root/.git-credentials
+    - pip install -r backend/requirements.txt
 
 eslint-check:
   stage: lint
@@ -51,18 +63,9 @@ test-angular-app-build:
 # build-backend-windows is coming soon 
 
 unit_tests:
+  <<: *load_gitlab_credentials
   stage: test
   image: python:$PYTHON_VERSION
-  before_script:
-    - pip install pytest
-    - git config --global credential.https://gitlab.fit.fraunhofer.de/cortado/cortado-core.git.username ${cortado_core_git_username}
-    - git config --global credential.https://gitlab.fit.fraunhofer.de/pm4py/pm4py-core.git.username ${pm4py_core_git_username}
-    
-    - git config --global credential.helper store
-    - git config --global credential.interactive never
-    - echo https://${cortado_core_git_username}:${cortado_core_git_password}@gitlab.fit.fraunhofer.de >> /root/.git-credentials
-    - echo https://${pm4py_core_git_username}:${pm4py_core_git_password}@gitlab.fit.fraunhofer.de >> /root/.git-credentials
-    - pip install -r backend/requirements.txt
   script:
     - pytest --junitxml=report.xml
   artifacts:
@@ -72,17 +75,9 @@ unit_tests:
     expire_in: 2 weeks
 
 backend-system-test:
+  <<: *load_gitlab_credentials
   stage: test
   image: python:$PYTHON_VERSION
-  before_script:
-    - git config --global credential.https://gitlab.fit.fraunhofer.de/cortado/cortado-core.git.username ${cortado_core_git_username}
-    - git config --global credential.https://gitlab.fit.fraunhofer.de/pm4py/pm4py-core.git.username ${pm4py_core_git_username}
-
-    - git config --global credential.helper store
-    - git config --global credential.interactive never
-    - echo https://${cortado_core_git_username}:${cortado_core_git_password}@gitlab.fit.fraunhofer.de >> /root/.git-credentials
-    - echo https://${pm4py_core_git_username}:${pm4py_core_git_password}@gitlab.fit.fraunhofer.de >> /root/.git-credentials
-    - pip install -r backend/requirements.txt
   script:
     - cd backend
     - timeout --preserve-status 60 python main.py # Start main.py and stop after 60 seconds

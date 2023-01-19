@@ -1,5 +1,4 @@
 import cache.cache as cache
-import pm4pycvxopt
 from cortado_core.performance.subvariant_performance import (
     calculate_subvariant_performance,
 )
