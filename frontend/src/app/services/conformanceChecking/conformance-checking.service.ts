@@ -12,7 +12,7 @@ import { Variant } from 'src/app/objects/Variants/variant';
 import { ColorMap } from 'src/app/objects/ColorMap';
 import * as d3 from 'd3';
 import { COLORS_RED_GREEN } from 'src/app/objects/Colors';
-export const WS_ENDPOINT = 'ws://127.0.0.1:41211/conformance/conformancews';
+import { ROUTES } from 'src/app/constants/backend_route_constants';
 
 @Injectable({
   providedIn: 'root',
@@ -32,7 +32,9 @@ export class ConformanceCheckingService {
 
   public connect(): boolean {
     if (!this.socket || this.socket.closed) {
-      this.socket = webSocket(WS_ENDPOINT);
+      this.socket = webSocket(
+        ROUTES.WS_HTTP_BASE_URL + ROUTES.VARIANT_CONFORMANCE + 'conformancews'
+      );
       const results = this.socket.pipe(
         catchError((error) => {
           this.runningRequests.forEach((r: number) =>

@@ -30,7 +30,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
     const calledEndpoint = request.url
-      .slice(ROUTES.BASE_URL.length)
+      .slice(ROUTES.HTTP_BASE_URL.length)
       .replace(/([a-z0-9])([A-Z])/g, '$1 $2');
 
     let id;

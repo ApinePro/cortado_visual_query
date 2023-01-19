@@ -15,7 +15,7 @@ from endpoints.alignments import InfixType
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-router = APIRouter(tags=["conformance"], prefix="/conformance")
+router = APIRouter(tags=["variantConformance"], prefix="/variantConformance")
 
 
 def calculate_alignment_intern_with_timeout(
