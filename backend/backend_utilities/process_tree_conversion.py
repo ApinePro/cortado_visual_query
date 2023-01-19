@@ -1,6 +1,5 @@
 from typing import List, Tuple
 
-from cortado_core.utils.process_tree import LabelWithIndex
 from cortado_core.process_tree_utils.miscellaneous import (
     subtree_is_part_of_tree_based_on_obj_id,
 )
