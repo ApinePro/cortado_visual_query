@@ -1,26 +1,17 @@
 .idea
 /.idea/
 
-interactive-process-mining-angular-app/debug.log
-interactive-process-mining-angular-app/dist/
-interactive-process-mining-angular-app/node_modules/
-
-interactive-process-mining-angular-app/cortado-win32-x64/
-interactive-process-mining-angular-app/cortado-linux-x64/
-
-
-backend/build
-backend/dist
+src/backend/build
+src/backend/dist
 backend/tmp/*.p
-backend/interactive_process_mining_core
 __pycache__/
 .venv
 build
 dist
 .vscode
 
-backend/cortado_core
-backend/pm4py
+src/backend/cortado_core
+src/backend/pm4py
 *.sol
 *.mps
 app-dist
