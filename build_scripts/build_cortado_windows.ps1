@@ -16,9 +16,9 @@ Get-Location
 
 Write-Output "COPY FILES"
 cd ./../backend/
-Remove-Item -Recurse -Force ./../frontend/app-dist/cortado-backend/
-New-Item -ItemType Directory -Path ./../frontend/app-dist/cortado-backend/
-Copy-Item -Path ./dist/cortado-backend/* -Destination ./../frontend/app-dist/cortado-backend/ -Recurse
+Remove-Item -Recurse ./../frontend/app-dist/win-unpacked/cortado-backend/
+New-Item -ItemType Directory -Path ./../frontend/app-dist/win-unpacked/cortado-backend/
+Copy-Item -Path ./dist/cortado-backend/* -Destination ./../frontend/app-dist/win-unpacked/cortado-backend/ -Recurse
 
 Write-Output "OPEN WINDOWS EXPLORER"
 Invoke-Item ./../frontend/app-dist/
