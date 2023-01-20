@@ -9,7 +9,7 @@ Follow [@cortado_tool](https://twitter.com/cortado_tool) on **Twitter** for impo
 
 ![Screenshot of Cortado](https://cortado.fit.fraunhofer.de/assets/cortado-screenshot.png "Screenshot of Cortado")
 
-* * *
+
 
 
 ## Repository Structure 
@@ -63,7 +63,7 @@ In `build_scripts/` there are scripts for each major OS to build Cortado.
 Note that the operating systems must match the script, otherwise the build will fail. 
 Thus, if you are building Cortado for Windows, you must run the corresponding script on a Windows machine.
 
-* * *
+
 
 
 ## Citing Cortado
@@ -80,7 +80,7 @@ Download citation
 DOI
 [10.1007/978-3-030-76983-3_23](https://doi.org/10.1007/978-3-030-76983-3_23)
 
-* * *
+
 
 ## Contact
 
