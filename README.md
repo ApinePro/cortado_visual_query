@@ -1,9 +1,11 @@
 # Cortado
 
-Cortado is a process mining tool dedicated for interactive/incremental process discovery.
+**Cortado is a process mining tool dedicated for interactive/incremental process discovery.**
 The [website of Cortado](https://cortado.fit.fraunhofer.de) contains various information on Cortado, such as a functionality overview, screenshots, and a list of publications on algorithms implemented in Cortado. 
 
 **Standalone builds** for **Windows 10/11**, **Linux**, and **macOS** (Apple Silicon only) are available for download at the [website of Cortado](https://cortado.fit.fraunhofer.de).
+
+Follow [@cortado_tool](https://twitter.com/cortado_tool) on **Twitter** for important announcements.
 
 ![Screenshot of Cortado](https://cortado.fit.fraunhofer.de/assets/cortado-screenshot.png "Screenshot of Cortado")
 
@@ -15,9 +17,9 @@ The [website of Cortado](https://cortado.fit.fraunhofer.de) contains various inf
 * `src/` contains the source code of Cortado
   * `src/backend` contains Cortado's Python-based backend 
   * `src/frontend` contains Cortado's frontend that is based on web technologies , i.e., an [Angular](https://angular.io/) web application embedded in an executable with [Electron](https://www.electronjs.org/)
-
 * `build_scripts/` contains scripts to build the standalone executables for the three major operating systems: Windows, Linux, and macOS. (Please make sure to correctly follow the Setup instructions before executing the build scripts.)
 * `LICENSE.txt`
+* `README.md`
 * `CHANGELOG.md` contains a history of Cortado releases 
 
 
