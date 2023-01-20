@@ -95,8 +95,8 @@ build-backend-linux:
     - pip install pyinstaller==$PYINSTALLER_VERSION
   script:
     - python -O -m PyInstaller --noconfirm --clean cortado-backend.spec
-    - cd ..
-    - cp -R backend/dist/cortado-backend .
+    - cd ../..
+    - cp -R src/backend/dist/cortado-backend .
     - cd cortado-backend
     - chmod +x cortado-backend
   artifacts:
@@ -143,7 +143,7 @@ build-electron-app-linux:
     - cd ..
     - mkdir $LINUX_BUILD_DIR
     - cp -R frontend/app-dist/linux-unpacked/* $LINUX_BUILD_DIR
-    - cp -R cortado-backend $LINUX_BUILD_DIR
+    - cp -R ../cortado-backend $LINUX_BUILD_DIR
     - chmod +x $LINUX_BUILD_DIR/cortado
     - tar c $LINUX_BUILD_DIR | xz > $LINUX_BUILD_DIR.tar.xz
   dependencies:
