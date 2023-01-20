@@ -29,7 +29,7 @@ variables:
     - git config --global credential.interactive never
     - echo https://${cortado_core_git_username}:${cortado_core_git_password}@gitlab.fit.fraunhofer.de >> /root/.git-credentials
     - echo https://${pm4py_core_git_username}:${pm4py_core_git_password}@gitlab.fit.fraunhofer.de >> /root/.git-credentials
-    - pip install -r backend/requirements.txt
+    - pip install -r src/backend/requirements.txt
 
 eslint-check:
   stage: lint
@@ -37,7 +37,7 @@ eslint-check:
   rules:
     - when: on_success
   before_script:
-    - cd frontend
+    - cd src/frontend
     - npm ci
   script:
     - ./node_modules/.bin/eslint src/
@@ -49,7 +49,7 @@ test-angular-app-build:
     - when: on_success
   before_script:
     - npm install -g @angular/cli
-    - cd frontend
+    - cd src/frontend
     - npm ci
   script:
     - node node_modules/@angular/cli/bin/ng build --configuration production
@@ -79,7 +79,7 @@ backend-system-test:
   stage: test
   image: python:$PYTHON_VERSION
   script:
-    - cd backend
+    - cd src/backend
     - timeout --preserve-status 60 python main.py # Start main.py and stop after 60 seconds
 
 build-backend-linux:
@@ -89,7 +89,7 @@ build-backend-linux:
     - when: on_success
   before_script:
     - echo "machine gitlab.fit.fraunhofer.de login gitlab-ci-token password $CI_JOB_TOKEN" > ~/.netrc 
-    - cd backend
+    - cd src/backend
     - pip install -r requirements.txt
     # - pip install graphviz==0.17
     - pip install pyinstaller==$PYINSTALLER_VERSION
@@ -111,7 +111,7 @@ build-electron-app-windows:
   rules:
     - when: on_success
   before_script:
-    - cd frontend
+    - cd src/frontend
     - npm install -g npm@latest
     - npm ci
   script:
@@ -134,7 +134,7 @@ build-electron-app-linux:
     - when: on_success
   before_script:
     - export LINUX_BUILD_DIR=${LINUX_BUILD_DIR//:}
-    - cd frontend
+    - cd src/frontend
     - npm install -g npm@latest
     - npm ci
   script:
