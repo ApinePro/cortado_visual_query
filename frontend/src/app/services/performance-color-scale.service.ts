@@ -75,7 +75,6 @@ export class ModelPerformanceColorScaleService {
       this.selectedColorScale.performanceIndicator,
       this.selectedColorScale.statistic
     );
-    this.updateVariantsTooltips();
   }
 
   public getColorScale() {
@@ -174,52 +173,6 @@ export class ModelPerformanceColorScaleService {
       allValues.push(...values);
     });
     return allValues;
-  }
-
-  public updateVariantsTooltips() {
-    let meanP = this.performanceService.mergedPerformance?.performance;
-    let meanPerformance =
-      meanP?.[this.selectedColorScale.performanceIndicator]?.[
-        this.selectedColorScale.statistic
-      ] !== undefined
-        ? meanP[this.selectedColorScale.performanceIndicator][
-            this.selectedColorScale.statistic
-          ]
-        : 0;
-
-    const meanButton = document.getElementById('performanceButtonMean');
-    if (meanButton) {
-      this.performanceService.updateTooltip(
-        meanButton,
-        meanPerformance,
-        this.selectedColorScale
-      );
-    }
-
-    this.performanceService.availablePerformances.forEach((v) => {
-      const performanceButton = document.getElementById(
-        `performanceButton${v.bid}`
-      );
-
-      let vP = this.performanceService.variantsPerformance.get(v).performance;
-      let vPerformance =
-        vP?.[this.selectedColorScale.performanceIndicator]?.[
-          this.selectedColorScale.statistic
-        ] !== undefined
-          ? vP[this.selectedColorScale.performanceIndicator][
-              this.selectedColorScale.statistic
-            ]
-          : 0;
-
-      if (vPerformance !== undefined && performanceButton) {
-        this.performanceService.updateTooltip(
-          performanceButton,
-          vPerformance,
-          this.selectedColorScale,
-          this.performanceService.fitness.get(v)
-        );
-      }
-    });
   }
 }
 

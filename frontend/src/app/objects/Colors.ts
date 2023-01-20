@@ -37,11 +37,9 @@ export const COLORS_TEAL = [
 
 export const COLORS_RED_GREEN = [
   '#f01523',
-  '#f3381e',
-  '#f55a19',
-  '#f87d14',
+  '#f3431c',
+  '#f77116',
   '#fa9f0f',
-  '#fdc20a',
-  '#ffe405',
+  '#fdcd08',
   '#198754',
 ];

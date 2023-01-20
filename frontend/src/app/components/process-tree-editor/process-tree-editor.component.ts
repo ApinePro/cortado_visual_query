@@ -49,6 +49,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
 import { ViewMode } from 'src/app/objects/ViewMode';
+import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
 
 @Component({
   selector: 'app-process-tree-editor',
@@ -72,6 +73,7 @@ export class ProcessTreeEditorComponent
     private performanceColorScaleService: ModelPerformanceColorScaleService,
     private processTreeService: ProcessTreeService,
     private modelViewModeService: ModelViewModeService,
+    private conformanceCheckingService: ConformanceCheckingService,
     private renderer: Renderer2,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
@@ -170,6 +172,14 @@ export class ProcessTreeEditorComponent
     this.modelViewModeService.viewMode$
       .pipe(takeUntil(this._destroy$))
       .subscribe((viewMode) => {
+        if (this.currentlyDisplayedTreeInEditor) {
+          this.redraw(this.currentlyDisplayedTreeInEditor);
+        }
+      });
+
+    this.conformanceCheckingService.isConformanceWeighted$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((_) => {
         if (this.currentlyDisplayedTreeInEditor) {
           this.redraw(this.currentlyDisplayedTreeInEditor);
         }
@@ -415,49 +425,61 @@ export class ProcessTreeEditorComponent
     return d3.hierarchy(nodeData);
   }
 
-  computeNodeColor = (root, d: d3.HierarchyNode<ProcessTree>) => {
-    if (
-      this.modelViewModeService.viewMode === ViewMode.PERFORMANCE &&
-      d.data.label !== ProcessTreeOperator.tau
-    ) {
-      if (
-        this.performanceColorMap.has(d.data.id) &&
-        d.data.performance?.[this.selectedPerformanceIndicator]?.[
-          this.selectedStatistic
-        ] !== undefined
-      ) {
-        return this.performanceColorMap
-          .get(d.data.id)
-          .getColor(
-            d.data.performance[this.selectedPerformanceIndicator][
+  computeNodeColor = (d: d3.HierarchyNode<ProcessTree>) => {
+    switch (this.modelViewModeService.viewMode) {
+      case ViewMode.CONFORMANCE:
+        if (d.data.conformance === null) return '#404041';
+        return this.conformanceCheckingService.conformanceColorMap.getColor(
+          this.conformanceCheckingService.isConformanceWeighted &&
+            d.data.conformance.weighted_by_counts != undefined
+            ? d.data.conformance.weighted_by_counts.value
+            : d.data.conformance.weighted_equally.value
+        );
+      case ViewMode.PERFORMANCE:
+        if (d.data.label !== ProcessTreeOperator.tau) {
+          if (
+            this.performanceColorMap.has(d.data.id) &&
+            d.data.performance?.[this.selectedPerformanceIndicator]?.[
               this.selectedStatistic
-            ]
-          );
-      } else {
-        return '#404040';
-      }
-    } else {
-      if (d.data.operator !== null) return PT_Constant.OPERATOR_COLOR;
-      if (d.data.label !== null && d.data.label === ProcessTreeOperator.tau)
-        return PT_Constant.INVISIBLE_ACTIVTIY_COLOR;
-      const isVisibleActivity =
-        d.data.label !== null && d.data.label !== ProcessTreeOperator.tau;
-      return isVisibleActivity ? this.activityColorMap.get(d.data.label) : null;
+            ] !== undefined
+          ) {
+            return this.performanceColorMap
+              .get(d.data.id)
+              .getColor(
+                d.data.performance[this.selectedPerformanceIndicator][
+                  this.selectedStatistic
+                ]
+              );
+          } else {
+            return '#404040';
+          }
+        }
+      default:
+        if (d.data.operator !== null) return PT_Constant.OPERATOR_COLOR;
+        if (d.data.label !== null && d.data.label === ProcessTreeOperator.tau)
+          return PT_Constant.INVISIBLE_ACTIVTIY_COLOR;
+        const isVisibleActivity =
+          d.data.label !== null && d.data.label !== ProcessTreeOperator.tau;
+        return isVisibleActivity
+          ? this.activityColorMap.get(d.data.label)
+          : null;
     }
   };
 
   tooltipContent = (d: d3.HierarchyNode<ProcessTree>) => {
+    const tableHead =
+      `<div style="display: flex; justify-content: space-between" class="bg-dark">
+        <h6 style="flex: 1; margin-top: 8px;">` +
+      (d.data.label || d.data.operator) +
+      `</h6>
+      </div>`;
     if (
       this.modelViewModeService.viewMode === ViewMode.PERFORMANCE &&
       d.data.hasPerformance() &&
       d.data.label !== ProcessTreeOperator.tau
     ) {
       return (
-        `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
-        <h6 style="flex: 1" class="performance-tooltip-header">` +
-        (d.data.label || d.data.operator) +
-        `</h6>
-      </div>` +
+        tableHead +
         getPerformanceTable(
           d.data.performance,
           this.selectedPerformanceIndicator,
@@ -465,6 +487,37 @@ export class ProcessTreeEditorComponent
         )
       );
     }
+    if (
+      this.modelViewModeService.viewMode === ViewMode.CONFORMANCE &&
+      d.data.conformance !== null
+    )
+      return (
+        tableHead +
+        `<table class="table table-dark table-striped table-bordered">
+          <tr>
+            <td>Weighted</td>
+            <td>Conformance</td>
+            <td>Weight</td>
+          </tr>` +
+        `<tr>
+            <td>Equally</td>
+            <td>${(d.data.conformance.weighted_equally.value * 100).toFixed(
+              2
+            )}%</td>
+            <td>${d.data.conformance.weighted_equally.weight}</td>
+        </tr>` +
+        (d.data.conformance.weighted_by_counts !== null
+          ? `<tr>
+            <td>By Log Frequency</td>
+            <td>${(d.data.conformance.weighted_by_counts?.value * 100).toFixed(
+              2
+            )}%</td>
+            <td>${d.data.conformance.weighted_by_counts?.weight}</td>
+        </tr>`
+          : '') +
+        '</table>'
+      );
+
     return d.data.label || d.data.operator;
   };
 
@@ -484,27 +537,13 @@ export class ProcessTreeEditorComponent
     if (d.data.frozen || d.data.label === ProcessTreeOperator.tau) {
       return 'white';
     }
-
-    let nodeColor = this.activityColorMap.get(d.data.label);
-
-    if (
-      this.modelViewModeService.viewMode === ViewMode.PERFORMANCE &&
-      this.performanceColorMap.has(d.data.id) &&
-      d.data.performance[this.selectedPerformanceIndicator]
-    ) {
-      nodeColor = this.performanceColorMap
-        .get(d.data.id)
-        .getColor(
-          d.data.performance[this.selectedPerformanceIndicator][
-            this.selectedStatistic
-          ]
-        );
-    }
+    const nodeColor = this.computeNodeColor(d);
 
     const isVisibleActivity =
       (d.data.label !== null && d.data.label !== ProcessTreeOperator.tau) ||
       (this.modelViewModeService.viewMode === ViewMode.PERFORMANCE &&
-        nodeColor !== undefined);
+        nodeColor !== undefined) ||
+      this.modelViewModeService.viewMode === ViewMode.CONFORMANCE;
     return isVisibleActivity ? textColorForBackgroundColor(nodeColor) : 'white';
   };
 
@@ -546,7 +585,7 @@ export class ProcessTreeEditorComponent
 
   selectNodeCallBack = (self, event, d) => {
     this.pushIDtoService(self, d),
-      this.performanceService.treeSelection.next(ProcessTree.fromObj(d.data));
+      (this.processTreeService.selectedTree = ProcessTree.fromObj(d.data));
   };
 
   private pushIDtoService = (svg, d) => {
@@ -624,7 +663,7 @@ export class ProcessTreeEditorComponent
 
   clearDisplayedSelection(): void {
     this.selectedRootNode = null;
-    this.performanceService.treeSelection.next(undefined);
+    this.processTreeService.selectedTree = undefined;
 
     this.mainSvgGroup.selectAll('rect').each((d) => {
       d.data.selected = false;

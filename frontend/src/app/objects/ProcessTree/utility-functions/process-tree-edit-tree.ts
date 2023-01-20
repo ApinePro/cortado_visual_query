@@ -30,7 +30,7 @@ export function createNewRandomNode(
   operator: ProcessTreeOperator,
   id: number = Math.floor(1000000000 + Math.random() * 900000000)
 ): ProcessTree {
-  return new ProcessTree(label, operator, [], id, false, null, null);
+  return new ProcessTree(label, operator, [], id, false, null, null, null);
 }
 
 export function insertNode(

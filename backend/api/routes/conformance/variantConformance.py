@@ -1,5 +1,5 @@
 import asyncio
-from collections import defaultdict
+from collections import Counter
 from cortado_core.utils.sequentializations import generate_sequentializations
 from cortado_core.utils.split_graph import Group
 from cortado_core.utils.process_tree import LabelWithIndex
@@ -11,11 +11,12 @@ from backend_utilities.timeout.helper_functions import (
     TimeoutException,
     execute_with_timeout,
 )
+from backend_utilities.process_tree_conversion import dict_to_process_tree
 from endpoints.alignments import InfixType
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-router = APIRouter(tags=["conformance"], prefix="/conformance")
+router = APIRouter(tags=["variantConformance"], prefix="/variantConformance")
 
 
 def calculate_alignment_intern_with_timeout(
@@ -31,7 +32,9 @@ def calculate_alignment_intern_with_timeout(
 
 
 def calculate_alignment_intern(pt: dict, c_variant: dict, infix_type: InfixType):
-    def index_leafs(variant, indices=defaultdict(lambda: 1)):
+    def index_leafs(variant, indices=None):
+        if indices is None:
+            indices = Counter()
         if 'follows' in variant:
             res = {'follows': []}
             for v in variant['follows']:
@@ -57,11 +60,12 @@ def calculate_alignment_intern(pt: dict, c_variant: dict, infix_type: InfixType)
     n_sequentializations = -1 if not config.is_n_sequentialization_reduction_enabled else config.number_of_sequentializations_per_variant
     all_variants = generate_sequentializations(Group.deserialize(c_variant_indexed),
                                                n_sequentializations=n_sequentializations)
-    index_alignments_mapping = defaultdict(lambda: 0)
+    index_alignments_mapping = Counter()
     total_cost = 0
     deviations = 0
     for variant in all_variants:
-        alignment = calculate_alignment_endpoint(variant, pt, infix_type)
+        alignment = calculate_alignment_endpoint(
+            variant, dict_to_process_tree(pt)[0], infix_type)
         total_cost += alignment["cost"]
         deviations += alignment["deviation"]
         for log_move, model_move in alignment['alignment']:
@@ -147,7 +151,8 @@ async def websocket_endpoint(websocket: WebSocket):
                     InfixType(data["infixType"]),
                     timeout,
                 ),
-                callback=get_alignment_callback(data["id"], data['alignType'], websocket),
+                callback=get_alignment_callback(
+                    data["id"], data['alignType'], websocket),
             )
     except WebSocketDisconnect:
         print("websocket disconnected")

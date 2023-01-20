@@ -105,6 +105,21 @@ export class ProcessTreeService {
     return this._currentTreeString.getValue();
   }
 
+  private _selectedTree: BehaviorSubject<ProcessTree> =
+    new BehaviorSubject<ProcessTree>(undefined);
+
+  get selectedTree$(): Observable<any> {
+    return this._selectedTree.asObservable();
+  }
+
+  get selectedTree(): any {
+    return this._selectedTree.getValue();
+  }
+
+  set selectedTree(pt: ProcessTree) {
+    this._selectedTree.next(pt);
+  }
+
   private _selectionMode = new BehaviorSubject<NodeSeletionStrategy>(
     NodeSeletionStrategy.TREE
   );

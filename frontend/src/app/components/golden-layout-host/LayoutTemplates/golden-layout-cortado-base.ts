@@ -12,7 +12,7 @@ import { VariantExplorerComponent } from '../../variant-explorer/variant-explore
 import { ActivityOverviewComponent } from '../../activity-overview/activity-overview.component';
 import { ModelPerformanceComponent } from '../../performance/performance.component';
 import { VariantPerformanceComponent } from '../../variant-performance/variant-performance.component';
-import { VariantConformanceComponent } from '../../variant-conformance/variant-conformance.component';
+import { ConformanceTabComponent } from '../../conformance-tab/conformance-tab.component';
 
 export const baseLayout: LayoutConfig = {
   dimensions: {
@@ -133,9 +133,9 @@ export const baseLayout: LayoutConfig = {
                 width: 38.197,
                 isClosable: false,
                 reorderEnabled: true,
-                title: 'Variant Conformance',
-                id: VariantConformanceComponent.componentName,
-                componentType: VariantConformanceComponent.componentName,
+                title: 'Conformance',
+                id: ConformanceTabComponent.componentName,
+                componentType: ConformanceTabComponent.componentName,
                 componentState: { cssParentClass: 'info-box-stack' },
               } as ComponentItemConfig,
             ],

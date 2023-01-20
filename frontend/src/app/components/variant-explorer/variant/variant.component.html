@@ -1,42 +1,35 @@
 <td #row style="text-align: center">{{ index + 1 }}.</td>
 
 <ng-container *ngIf="isVisible; else loadingPlaceholder">
-  <ng-container
-    *ngIf="
-      !variant.userDefined || variantViewModeService.viewMode !== VM.PERFORMANCE
-    "
-  >
-    <td>
-      <div [ngTemplateOutlet]="variantInfo"></div>
-    </td>
-    <td>
-      <ng-container [ngTemplateOutlet]="subvariantButton"> </ng-container>
-    </td>
-    <td *ngIf="processTreeAvailable" style="text-align: center">
-      <div [ngTemplateOutlet]="performanceButton"></div>
-    </td>
-    <td class="variant-cell">
+  <td>
+    <div [ngTemplateOutlet]="variantInfo"></div>
+  </td>
+
+  <td>
+    <ng-container [ngTemplateOutlet]="subvariantButton"> </ng-container>
+  </td>
+
+  <td *ngIf="processTreeAvailable" style="text-align: center">
+    <div [ngTemplateOutlet]="treeButton"></div>
+  </td>
+
+  <td class="variant-cell">
+    <ng-container
+      *ngIf="
+        !(
+          variant.userDefined &&
+          variantViewModeService.viewMode === VM.PERFORMANCE
+        );
+        else noPerformance
+      "
+    >
       <ng-container [ngTemplateOutlet]="variantDrawer"> </ng-container>
-    </td>
-  </ng-container>
+    </ng-container>
 
-  <ng-container
-    *ngIf="
-      variant.userDefined && variantViewModeService.viewMode === VM.PERFORMANCE
-    "
-  >
-    <td></td>
-
-    <td>
-      <ng-container [ngTemplateOutlet]="subvariantButton"> </ng-container>
-    </td>
-
-    <td *ngIf="processTreeAvailable"></td>
-
-    <td>
+    <ng-template #noPerformance>
       <tspan class="ms-2"> Performance not available </tspan>
-    </td>
-  </ng-container>
+    </ng-template>
+  </td>
 
   <td
     *ngIf="

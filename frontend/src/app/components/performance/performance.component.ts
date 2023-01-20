@@ -50,7 +50,7 @@ export class ModelPerformanceComponent
 
   constructor(
     public performanceService: PerformanceService,
-    private processTreeService: ProcessTreeService,
+    public processTreeService: ProcessTreeService,
     public performanceColorScaleService: ModelPerformanceColorScaleService,
     public modelViewModeService: ModelViewModeService,
     private changeDetectionRef: ChangeDetectorRef,
@@ -80,12 +80,12 @@ export class ModelPerformanceComponent
         }
       });
 
-    this.performanceService.treeSelection
+    this.processTreeService.selectedTree$
       .pipe(takeUntil(this._destroy$))
       .subscribe((tree) => {
         if (
           tree === undefined ||
-          this.performanceService.availablePerformances.size === 0
+          !this.performanceService.anyTreePerformanceAvailable()
         ) {
           this.selectionPerformances = [];
           this.treeSelection = undefined;

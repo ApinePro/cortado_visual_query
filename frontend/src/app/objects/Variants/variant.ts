@@ -3,6 +3,12 @@ import { InfixType } from './infix_selection';
 import { VariantElement } from './variant_element';
 import { IVariant } from './variant_interface';
 
+export interface FragmentStatistics {
+  totalOccurrences: number;
+  traceOccurrences: number;
+  variantOccurrences: number;
+}
+
 export class Variant implements IVariant {
   id: string;
   bid: number; //Positive Numbers indicate Log Variants, Negative Number User Variants
@@ -23,7 +29,7 @@ export class Variant implements IVariant {
   usedTreeForConformanceChecking: ProcessTree;
   nSubVariants: number;
   infixType: InfixType;
-  fragmentStatistics: any;
+  fragmentStatistics: FragmentStatistics;
   collapsedVariantId: string;
 
   constructor(

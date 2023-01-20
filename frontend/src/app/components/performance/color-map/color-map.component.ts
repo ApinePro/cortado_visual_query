@@ -13,6 +13,8 @@ export class ColorMapComponent {
   timeBasedLabel: Boolean = true;
   @Input()
   suffix: string = '';
+  @Input()
+  excludeUpperLabel: Boolean = false;
 
   constructor() {}
 }

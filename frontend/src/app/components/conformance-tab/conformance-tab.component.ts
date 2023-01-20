@@ -14,20 +14,26 @@ import { takeUntil } from 'rxjs/operators';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
+import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
 import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
+import { ColorMapValue } from '../performance/color-map/color-map.component';
 
 @Component({
-  selector: 'app-variant-conformance',
-  templateUrl: './variant-conformance.component.html',
-  styleUrls: ['./variant-conformance.component.css'],
+  selector: 'app-conformance-tab',
+  templateUrl: './conformance-tab.component.html',
+  styleUrls: ['./conformance-tab.component.css'],
 })
-export class VariantConformanceComponent
+export class ConformanceTabComponent
   extends LayoutChangeDirective
   implements AfterViewInit, OnDestroy
 {
   @ViewChild('colorMapTab') colorMapTab: ElementRef;
 
   private _destroy$ = new Subject();
+  public conformanceColorMapValues: ColorMapValue[];
+
+  public VM = ViewMode;
 
   constructor(
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
@@ -35,9 +41,34 @@ export class VariantConformanceComponent
     elRef: ElementRef,
     renderer: Renderer2,
     private conformanceCheckingService: ConformanceCheckingService,
-    private variantViewModeService: VariantViewModeService
+    private variantViewModeService: VariantViewModeService,
+    public modelViewModeService: ModelViewModeService,
+    public processTreeService: ProcessTreeService
   ) {
     super(elRef.nativeElement, renderer);
+
+    const colorMap = this.conformanceCheckingService.conformanceColorMap;
+    const min = colorMap.domain()[0];
+    const max = colorMap.domain()[colorMap.domain().length - 1];
+    const increment = (max - min) / (colorMap.range().length - 2);
+
+    this.conformanceColorMapValues = colorMap
+      .range()
+      .slice(1)
+      .map((v, i) => {
+        const t = min + i * increment;
+
+        return {
+          lowerBound: Math.round(t * 100),
+          color: v,
+        };
+      })
+      .concat([
+        {
+          lowerBound: max * 100,
+          color: null,
+        },
+      ]);
   }
 
   ngAfterViewInit(): void {
@@ -71,32 +102,14 @@ export class VariantConformanceComponent
   public colorScale;
   public title;
 
-  public get conformanceColorMapValues() {
-    const min = this.conformanceCheckingService.conformanceColorMap.domain()[0];
-    const max = this.conformanceCheckingService.conformanceColorMap.domain()[1];
-    const increment =
-      (max - min) /
-      this.conformanceCheckingService.conformanceColorMap.range().length;
-
-    return this.conformanceCheckingService.conformanceColorMap
-      .range()
-      .map((v, i) => {
-        const t = min + i * increment;
-
-        return {
-          lowerBound: t * 100,
-          color: v,
-        };
-      })
-      .concat([
-        {
-          lowerBound: max * 100,
-          color: null,
-        },
-      ]);
+  public conformanceWeightMethodChange(event): void {
+    const value = event.target.value;
+    if (value == 'weighted_equally')
+      this.conformanceCheckingService.isConformanceWeighted = false;
+    else this.conformanceCheckingService.isConformanceWeighted = true;
   }
 }
 
-export namespace VariantConformanceComponent {
+export namespace ConformanceTabComponent {
   export const componentName = 'VariantConformanceComponent';
 }

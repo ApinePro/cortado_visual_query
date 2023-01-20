@@ -30,6 +30,7 @@ import { NodeSeletionStrategy } from 'src/app/objects/ProcessTree/utility-functi
 import { takeUntil } from 'rxjs/operators';
 import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
 import { ViewMode } from 'src/app/objects/ViewMode';
+import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
 
 @Component({
   selector: 'app-bpmn-editor',
@@ -75,7 +76,8 @@ export class BpmnEditorComponent
     private performanceService: PerformanceService,
     private processTreeService: ProcessTreeService,
     private imageExportService: ImageExportService,
-    private modelViewModeService: ModelViewModeService
+    private modelViewModeService: ModelViewModeService,
+    private conformanceCheckingService: ConformanceCheckingService
   ) {
     super(elRef.nativeElement, renderer);
     const state = this.container.initialState;
@@ -117,6 +119,14 @@ export class BpmnEditorComponent
     this.modelViewModeService.viewMode$
       .pipe(takeUntil(this._destroy$))
       .subscribe((viewMode) => {
+        if (this.currentTree) {
+          this.redraw(this.currentTree);
+        }
+      });
+
+    this.conformanceCheckingService.isConformanceWeighted$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((_) => {
         if (this.currentTree) {
           this.redraw(this.currentTree);
         }
@@ -177,10 +187,10 @@ export class BpmnEditorComponent
 
     if (d.id === this.selectedRootID) {
       this.processTreeService.selectedRootNodeID = null;
-      this.performanceService.treeSelection.next(undefined);
+      this.processTreeService.selectedTree = undefined;
     } else {
       this.processTreeService.selectedRootNodeID = d.id;
-      this.performanceService.treeSelection.next(ProcessTree.fromObj(d));
+      this.processTreeService.selectedTree = ProcessTree.fromObj(d);
     }
   };
 
@@ -251,10 +261,18 @@ export class BpmnEditorComponent
     return d.label || d.operator;
   };
 
-  computeNodeColor = (root, pt: ProcessTree) => {
+  computeNodeColor = (pt: ProcessTree) => {
     let color;
 
     switch (this.modelViewModeService.viewMode) {
+      case ViewMode.CONFORMANCE:
+        if (pt.conformance === null) return '#404041';
+        return this.conformanceCheckingService.conformanceColorMap.getColor(
+          this.conformanceCheckingService.isConformanceWeighted &&
+            pt.conformance.weighted_by_counts != undefined
+            ? pt.conformance.weighted_by_counts.value
+            : pt.conformance.weighted_equally.value
+        );
       case ViewMode.PERFORMANCE:
         if (
           this.performanceColorMap.has(pt.id) &&
@@ -285,10 +303,10 @@ export class BpmnEditorComponent
     return color;
   };
 
-  computeTextColor = (root, pt: ProcessTree) => {
+  computeTextColor = (pt: ProcessTree) => {
     return pt.label === ProcessTreeOperator.tau || pt.frozen
       ? 'White'
-      : textColorForBackgroundColor(this.computeNodeColor(root, pt));
+      : textColorForBackgroundColor(this.computeNodeColor(pt));
   };
 
   ngOnDestroy() {

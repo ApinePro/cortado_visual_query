@@ -501,46 +501,73 @@
                 <div class="variant-filter-container">Sub-Variants</div>
               </th>
               <th *ngIf="currentlyDisplayedProcessTree" class="centered">
-                <div
-                  *ngIf="
-                    currentlyDisplayedProcessTree && anyPerformanceAvailable()
-                  "
-                  style="
-                    display: flex;
-                    flex-direction: row;
-                    padding: 5px;
-                    margin: 5px 10px 5px 10px;
-                    border-radius: 5px;
-                    border: 1px dashed lightgrey;
-                  "
-                  [ngClass]="{
-                    'selected-variant-performance': isMeanPerformanceActive()
-                  }"
-                >
-                  <button
-                    type="button"
-                    class="btn variant-performance-button"
-                    (click)="showMeanPerformance()"
-                    [style.background]="variantPerformanceColor()"
-                    [ngbTooltip]="meanPerformance()"
-                    container="body"
-                    id="performanceButtonMean"
-                  >
-                    <i
-                      class="bi bi-graph-up align-middle font-large variant-performance-icon"
-                      [style.color]="textColorForBackgroundColor()"
-                    ></i>
-                  </button>
-                  <button
-                    style="padding: 0"
-                    class="btn"
-                    (click)="performanceService.removeAll()"
-                    ngbTooltip="remove performance values of all variants"
-                    container="body"
-                  >
-                    <i class="bi bi-x-lg" style="color: white"></i>
-                  </button>
-                </div>
+                <ng-container [ngSwitch]="variantViewModeService.viewMode">
+                  <ng-container *ngSwitchCase="VM.CONFORMANCE">
+                    <app-tree-conformance-button
+                      [ngStyle]="{
+                        display:
+                          conformanceCheckingService.anyTreeConformanceAvailable()
+                            ? 'inline'
+                            : 'none'
+                      }"
+                      (removeConformance)="
+                        conformanceCheckingService.deleteAllTreeConformances()
+                      "
+                      (showConformance)="
+                        conformanceCheckingService.toggleMergedTreeConformance()
+                      "
+                    ></app-tree-conformance-button>
+                  </ng-container>
+                  <ng-container *ngSwitchDefault>
+                    <div
+                      *ngIf="
+                        currentlyDisplayedProcessTree &&
+                        performanceService.anyTreePerformanceAvailable()
+                      "
+                      style="
+                        display: flex;
+                        flex-direction: row;
+                        padding: 5px;
+                        margin: 5px 10px 5px 10px;
+                        border-radius: 5px;
+                        border: 1px dashed lightgrey;
+                      "
+                      [ngClass]="{
+                        'selected-variant-performance':
+                          performanceService.isMergedTreePerformanceActive()
+                      }"
+                    >
+                      <button
+                        [style.background]="variantPerformanceColor()"
+                        (click)="showMeanPerformance()"
+                        class="btn variant-tree-projection-button"
+                        type="button"
+                        class="btn variant-tree-projection-button"
+                        (click)="
+                          performanceService.toggleMergedTreePerformance()
+                        "
+                        [style.background]="variantPerformanceColor()"
+                        [ngbTooltip]="meanPerformance()"
+                        container="body"
+                        id="performanceButtonMean"
+                      >
+                        <i
+                          class="bi bi-graph-up align-middle font-large variant-performance-icon"
+                          [style.color]="textColorForBackgroundColor()"
+                        ></i>
+                      </button>
+                      <button
+                        style="padding: 0; margin-left: 5px"
+                        class="btn"
+                        (click)="performanceService.removeAll()"
+                        ngbTooltip="remove performance values of all variants"
+                        container="body"
+                      >
+                        <i class="bi bi-x-lg" style="color: white"></i>
+                      </button>
+                    </div>
+                  </ng-container>
+                </ng-container>
               </th>
 
               <th class="text-start variant-header">
@@ -609,18 +636,35 @@
               class="hover-variant-row"
             >
               <ng-template #treeButton>
-                <app-tree-performance-button
-                  [variant]="variant"
-                  [isPerformanceAvailable]="isPerformanceAvailable"
-                  [isPerformanceActive]="isPerformanceActive"
-                  [isPerformanceFitting]="isPerformanceFitting"
-                  [isPerformanceCalcInProgress]="isPerformanceCalcInProgress"
-                  (removePerformance)="handlePerformanceRemove($event)"
-                  (showPerformance)="handleSelectTreePerformance($event)"
-                  [computePerformanceButtonColor]="
-                    computePerformanceButtonColor
-                  "
-                ></app-tree-performance-button>
+                <ng-container [ngSwitch]="variantViewModeService.viewMode">
+                  <ng-container *ngSwitchCase="VM.CONFORMANCE">
+                    <app-tree-conformance-button
+                      [variant]="variant"
+                      (removeConformance)="handleConformanceRemove($event)"
+                      (showConformance)="handleSelectTreeConformance($event)"
+                    ></app-tree-conformance-button>
+                  </ng-container>
+                  <ng-container *ngSwitchDefault>
+                    <app-tree-performance-button
+                      [variant]="variant"
+                      [isPerformanceAvailable]="
+                        performanceService.isTreePerformanceAvailable
+                      "
+                      [isPerformanceActive]="
+                        performanceService.isTreePerformanceActive
+                      "
+                      [isPerformanceFitting]="isPerformanceFitting"
+                      [isPerformanceCalcInProgress]="
+                        isPerformanceCalcInProgress
+                      "
+                      (removePerformance)="handlePerformanceRemove($event)"
+                      (showPerformance)="handleSelectTreePerformance($event)"
+                      [computePerformanceButtonColor]="
+                        computePerformanceButtonColor
+                      "
+                    ></app-tree-performance-button>
+                  </ng-container>
+                </ng-container>
               </ng-template>
 
               <ng-template #variantInfo>

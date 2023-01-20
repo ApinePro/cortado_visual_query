@@ -59,7 +59,7 @@ import { SyntaxHighlightedTextareaDirective } from './directives/syntax-highligh
 import { VariantDrawerDirective } from './directives/variant-drawer/variant-drawer.directive';
 import { ProcessTreeDrawerDirective } from './directives/process-tree-drawer/process-tree-drawer.directive';
 import { BpmnDrawerDirective } from './directives/bpmn-drawer/bpmn-drawer.directive';
-import { TreePerformanceButtonComponent } from './components/variant-explorer/variant/subcomponents/tree-performance-button/tree-performance-button.component';
+import { TreePerformanceButtonComponent } from './components/variant-explorer/variant/subcomponents/tree-buttons/tree-performance-button/tree-performance-button.component';
 import { InfixSelectionControllsComponent } from './components/variant-explorer/variant/subcomponents/infix-selection-controlls/infix-selection-controlls.component';
 import { ZoomFieldComponent } from './components/zoom-field/zoom-field.component';
 import { VariantExplorerSidebarComponent } from './components/variant-explorer/variant-explorer-sidebar/variant-explorer-sidebar.component';
@@ -71,10 +71,11 @@ import { VariantDeleteButtonComponent } from './components/variant-explorer/vari
 import { ELECTRON_SERVICE } from './tokens';
 import { ElectronService } from './services/electronService/electron.service';
 import { UnavailableInfoComponent } from './components/unavailable-info/unavailable-info.component';
-import { VariantConformanceComponent } from './components/variant-conformance/variant-conformance.component';
+import { ConformanceTabComponent } from './components/conformance-tab/conformance-tab.component';
 import { ConformanceStatusIconComponent } from './components/variant-explorer/variant/subcomponents/variant-info/conformance-status-icon/conformance-status-icon.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TiebreakerComponent } from './components/variant-explorer/tiebreaker/tiebreaker.component';
+import { TreeConformanceButtonComponent } from './components/variant-explorer/variant/subcomponents/tree-buttons/tree-conformance-button/tree-conformance-button.component';
 
 @NgModule({
   declarations: [
@@ -137,9 +138,10 @@ import { TiebreakerComponent } from './components/variant-explorer/tiebreaker/ti
     ResizeColumnDirective,
     VariantDeleteButtonComponent,
     UnavailableInfoComponent,
-    VariantConformanceComponent,
+    ConformanceTabComponent,
     ConformanceStatusIconComponent,
     TiebreakerComponent,
+    TreeConformanceButtonComponent,
   ],
   imports: [
     BrowserModule,

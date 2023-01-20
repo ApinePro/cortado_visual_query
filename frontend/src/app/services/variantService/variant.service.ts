@@ -230,7 +230,7 @@ export class VariantService {
     };
 
     return this.httpClient.post<any>(
-      ROUTES.BASE_URL + ROUTES.VARIANT + 'countFragmentOccurrences',
+      ROUTES.HTTP_BASE_URL + ROUTES.VARIANT + 'countFragmentOccurrences',
       payload
     );
   }
@@ -330,7 +330,7 @@ export class VariantService {
     newActivityName
   ) {
     return this.httpClient.post(
-      ROUTES.BASE_URL + ROUTES.MODIFY_LOG + 'changeActivityName',
+      ROUTES.HTTP_BASE_URL + ROUTES.MODIFY_LOG + 'changeActivityName',
       {
         mergeList: mergeList,
         renameList: renameList,
@@ -348,7 +348,7 @@ export class VariantService {
     delete_variant_list
   ) {
     return this.httpClient.post(
-      ROUTES.BASE_URL + ROUTES.MODIFY_LOG + 'deleteActivity',
+      ROUTES.HTTP_BASE_URL + ROUTES.MODIFY_LOG + 'deleteActivity',
       {
         activityName: activityName,
         fallthrough: fallthrough,
@@ -361,7 +361,7 @@ export class VariantService {
 
   private propagateVariantDeletions(bids: number[]) {
     return this.httpClient.post(
-      ROUTES.BASE_URL + ROUTES.MODIFY_LOG + 'deleteVariants',
+      ROUTES.HTTP_BASE_URL + ROUTES.MODIFY_LOG + 'deleteVariants',
       {
         bids: bids,
       }
@@ -370,7 +370,7 @@ export class VariantService {
 
   revertChangeInBackend() {
     this.httpClient
-      .post(ROUTES.BASE_URL + ROUTES.MODIFY_LOG + 'revertLastChange', {})
+      .post(ROUTES.HTTP_BASE_URL + ROUTES.MODIFY_LOG + 'revertLastChange', {})
       .pipe(mapVariants())
       .subscribe((res) => {
         this.logService.activitiesInEventLog = res['activities'];
@@ -399,10 +399,13 @@ export class VariantService {
 
   public addUserDefinedVariant(variant: VariantElement, bid: number) {
     this.httpClient
-      .post(ROUTES.BASE_URL + ROUTES.MODIFY_LOG + 'addUserDefinedVariant', {
-        variant: variant.serialize(),
-        bid: bid,
-      })
+      .post(
+        ROUTES.HTTP_BASE_URL + ROUTES.MODIFY_LOG + 'addUserDefinedVariant',
+        {
+          variant: variant.serialize(),
+          bid: bid,
+        }
+      )
       .subscribe(
         (res) => console.log(res),
         (err) => console.log('error ' + err)
@@ -425,7 +428,7 @@ export class VariantService {
 
   private loadLoopCollapsedVariants() {
     this.httpClient
-      .get(ROUTES.BASE_URL + ROUTES.IMPORT + 'collapsedVariants')
+      .get(ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'collapsedVariants')
       .subscribe((res) => {
         let collapsedVariants = [];
 
@@ -458,7 +461,7 @@ export class VariantService {
 
   private addInfixToBackend(variant: Variant) {
     this.httpClient
-      .post(ROUTES.BASE_URL + ROUTES.MODIFY_LOG + 'addUserDefinedInfix', {
+      .post(ROUTES.HTTP_BASE_URL + ROUTES.MODIFY_LOG + 'addUserDefinedInfix', {
         variant: variant.variant.serialize(),
         bid: variant.bid,
         infixType: variant.infixType,

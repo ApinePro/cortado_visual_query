@@ -24,7 +24,7 @@ export class PerformanceService {
     ProcessTree
   >();
 
-  availablePerformances: Set<Variant> = new Set<Variant>();
+  public availablePerformances: Set<Variant> = new Set<Variant>();
 
   // key is id of node, value is map with performance stats for each variant
   allValues: Map<number, Map<Variant, TreePerformance>> = new Map<
@@ -38,9 +38,7 @@ export class PerformanceService {
   >();
 
   // colorScale for each tree node;
-  activeVariant: Variant = undefined;
-  treeSelection: BehaviorSubject<ProcessTree> =
-    new BehaviorSubject<ProcessTree>(undefined);
+  private activeTreePerformance: number;
   newValues: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   calculationInProgress = new Set<Variant>();
   latestRequest: Subscription;
@@ -61,10 +59,10 @@ export class PerformanceService {
     });
     processTreeService.currentDisplayedProcessTree$.subscribe((pt) => {
       if (pt) {
-        this.treeSelection.next(pt);
+        this.processTreeService.selectedTree = pt;
       } else {
         this.clear();
-        this.treeSelection.next(undefined);
+        this.processTreeService.selectedTree = undefined;
         this.currentPt = undefined;
         return;
       }
@@ -98,26 +96,21 @@ export class PerformanceService {
 
     // Add previously computed variants again to get updated merged values
     // performance values should be cached in backend
-    const available = new Set(this.variantsPerformance.keys());
-    available.forEach((idx) => {
-      if (!variants.includes(idx)) {
-        variants.push(idx);
-      }
-    });
+    const variantsCombined: Variant[] = Array.from(
+      new Set([
+        ...variants,
+        ...this.variantsPerformance.keys(),
+        ...this.calculationInProgress,
+      ])
+    );
 
-    this.calculationInProgress.forEach((v) => {
-      if (!variants.includes(v)) {
-        variants.push(v);
-      }
-    });
-
-    const variantBIDs: number[] = variants.map((v) => v.bid);
-    variants
+    variantsCombined
       .filter((v) => !this.availablePerformances.has(v))
       .forEach((v) => this.calculationInProgress.add(v));
+
     this.latestRequest = this.backendService
       .getTreePerformance(
-        variantBIDs,
+        variantsCombined.map((v) => v.bid),
         removeVariants?.map((v) => v.bid)
       )
       .subscribe(
@@ -146,13 +139,6 @@ export class PerformanceService {
 
           variants.forEach((v) => this.calculationInProgress.delete(v));
 
-          const meanPerformance =
-            this.mergedPerformance?.performance?.service_time?.mean;
-          const meanButton = document.getElementById('performanceButtonMean');
-          if (meanButton) {
-            this.updateTooltip(meanButton, meanPerformance);
-          }
-
           if (variants.length === 0) {
             this.clear();
             return;
@@ -160,22 +146,10 @@ export class PerformanceService {
             this.modelViewModeService.viewMode = ViewMode.PERFORMANCE;
           }
 
-          variants.forEach((v) => {
-            // TODO: use currently selected performanceIndicator and statistic
-            const performanceButton = document.getElementById(
-              `performanceButton${v.bid}`
-            );
-            const vPerformance =
-              this.variantsPerformance.get(v)?.performance?.service_time?.mean;
-            if (vPerformance && performanceButton) {
-              this.updateTooltip(
-                performanceButton,
-                vPerformance,
-                { performanceIndicator: 'Service Time', statistic: 'mean' },
-                this.fitness.get(v)
-              );
-            }
-          });
+          if (variants.length == 1) this.setShownTreePerformance(variants[0]);
+          else if (variantsCombined.length > 0)
+            this.showMergedTreePerformance();
+          else this.unselectPerformance();
         },
         (error) => {
           variants.forEach((v) => this.calculationInProgress.clear());
@@ -185,29 +159,7 @@ export class PerformanceService {
 
   public unselectPerformance() {
     this.modelViewModeService.viewMode = ViewMode.STANDARD;
-    this.activeVariant = null;
-  }
-
-  public updateTooltip(
-    button: HTMLElement,
-    perf: number,
-    selectedColorScale?,
-    fitness?: number
-  ): void {
-    let tooltipText = HumanizeDurationPipe.apply(perf * 1000, { round: true });
-    if (selectedColorScale) {
-      tooltipText = `${selectedColorScale.performanceIndicator} (${selectedColorScale.statistic}): ${tooltipText}`;
-    }
-
-    if (fitness !== undefined && fitness < 1) {
-      tooltipText = `${tooltipText}<hr class="performance-tooltip-hr"><i class="bi bi-exclamation-triangle-fill text-warning"> Unfitting traces: possibly unreliable model performance values!</i><br>Fitness: ${fitness.toFixed(
-        2
-      )}`;
-    }
-
-    tooltipText = `${tooltipText}<hr class="performance-tooltip-hr">click to visualize performance of this variant on model`;
-
-    button.setAttribute('title', tooltipText);
+    this.activeTreePerformance = undefined;
   }
 
   public setVariantsPerformance(
@@ -241,8 +193,8 @@ export class PerformanceService {
     return performances;
   }
 
-  public setShownVariantPerformance(variant: Variant): void {
-    this.activeVariant = variant;
+  public setShownTreePerformance(variant: Variant): void {
+    this.activeTreePerformance = variant.bid;
     if (this.variantsPerformance.has(variant)) {
       this.processTreeService.currentDisplayedProcessTree =
         this.variantsPerformance.get(variant);
@@ -252,15 +204,20 @@ export class PerformanceService {
     }
   }
 
-  showMeanPerformance() {
-    if (this.activeVariant === undefined) {
+  public showMergedTreePerformance() {
+    if (this.activeTreePerformance === -1) {
       this.unselectPerformance();
     } else {
-      this.activeVariant = undefined;
+      this.activeTreePerformance = -1;
       this.modelViewModeService.viewMode = ViewMode.PERFORMANCE;
       this.processTreeService.currentDisplayedProcessTree =
         this.mergedPerformance;
     }
+  }
+
+  public toggleMergedTreePerformance() {
+    if (this.isMergedTreePerformanceActive()) this.unselectPerformance();
+    else this.showMergedTreePerformance();
   }
 
   private clear(): void {
@@ -269,16 +226,16 @@ export class PerformanceService {
     this.availablePerformances.clear();
     this.allValues.clear();
     this.allValuesMean.clear();
-    this.activeVariant = undefined;
+    this.activeTreePerformance = undefined;
     this.calculationInProgress.clear();
-    this.treeSelection.next(undefined);
+    this.processTreeService.selectedTree = undefined;
 
     this.modelViewModeService.viewMode = ViewMode.STANDARD;
   }
 
   private deletePerformance(variant: Variant) {
-    if (this.activeVariant == variant) {
-      this.activeVariant = null;
+    if (this.activeTreePerformance == variant.bid) {
+      this.activeTreePerformance = -1;
     }
     this.availablePerformances.delete(variant);
     this.variantsPerformance.delete(variant);
@@ -288,5 +245,35 @@ export class PerformanceService {
   private setMeanPerformanceMap(tree: ProcessTree): void {
     this.allValuesMean.set(tree.id, tree.performance);
     tree.children.forEach((node) => this.setMeanPerformanceMap(node));
+  }
+
+  public isTreePerformanceActive(v: Variant) {
+    return (
+      this.activeTreePerformance === v.bid &&
+      this.modelViewModeService.viewMode === ViewMode.PERFORMANCE
+    );
+  }
+  public isMergedTreePerformanceActive() {
+    return (
+      this.activeTreePerformance === -1 &&
+      this.modelViewModeService.viewMode === ViewMode.PERFORMANCE
+    );
+  }
+
+  public isTreePerformanceAvailable(v: Variant) {
+    return this.availablePerformances.has(v);
+  }
+
+  public anyTreePerformanceAvailable() {
+    return this.availablePerformances.size > 0;
+  }
+
+  public isTreePerformanceCalcInProgress(v: Variant) {
+    return this.calculationInProgress.has(v);
+  }
+
+  public isTreePerformanceFitting(v: Variant) {
+    const fitness = this.fitness.get(v);
+    return fitness == undefined || fitness == 1;
   }
 }

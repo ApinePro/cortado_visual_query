@@ -8,6 +8,8 @@ import {
 import { flextree } from 'd3-flextree';
 
 import * as d3 from 'd3';
+import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
+import { ViewMode } from 'src/app/objects/ViewMode';
 
 @Directive({
   selector: '[appProcessTreeDrawer]',
@@ -23,7 +25,8 @@ export class ProcessTreeDrawerDirective {
 
   constructor(
     elRef: ElementRef,
-    private processTreeService: ProcessTreeService
+    private processTreeService: ProcessTreeService,
+    private modelViewModeService: ModelViewModeService
   ) {
     this.mainSvgGroup = d3.select(elRef.nativeElement);
   }
@@ -66,8 +69,11 @@ export class ProcessTreeDrawerDirective {
       .attr('data-bs-title', (d) => this.tooltipText(d))
       .attr('data-bs-template', (d) => {
         if (
-          d.data.hasPerformance() &&
-          d.data.label !== ProcessTreeOperator.tau
+          (this.modelViewModeService.viewMode === ViewMode.PERFORMANCE &&
+            d.data.hasPerformance() &&
+            d.data.label !== ProcessTreeOperator.tau) ||
+          (this.modelViewModeService.viewMode === ViewMode.CONFORMANCE &&
+            d.data.conformance !== null)
         ) {
           return `<div class="tooltip performance-tooltip" role="tooltip">
                 <div class="tooltip-arrow"></div>
@@ -91,7 +97,7 @@ export class ProcessTreeDrawerDirective {
       .attr('stroke', PT_Constant.STROKE_COLOR)
       .attr('stroke-width', PT_Constant.STROKE_WIDTH)
       .merge(node.select('.node'))
-      .style('fill', (d) => this.computeNodeColor(this.root, d))
+      .style('fill', (d) => this.computeNodeColor(d))
       .classed('node-operator', function (d: any) {
         return d.data.operator !== null;
       })

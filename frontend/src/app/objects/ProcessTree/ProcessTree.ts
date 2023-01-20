@@ -8,6 +8,7 @@ export class ProcessTree {
     public id: number,
     public frozen: boolean,
     public performance: TreePerformance,
+    public conformance: TreeConformance,
     public parent: ProcessTree
   ) {}
 
@@ -37,6 +38,7 @@ export class ProcessTree {
       treeObj['id'],
       treeObj['frozen'],
       treeObj['performance'],
+      treeObj['conformance'],
       null
     );
     if (treeObj['children']) {
@@ -61,6 +63,7 @@ export class ProcessTree {
       this.id,
       this.frozen,
       this.performance,
+      this.conformance,
       parent
     );
   }
@@ -99,6 +102,16 @@ export class TreePerformance {
     this.cycle_time = new PerformanceStats(dict.cycle_time);
     this.idle_time = new PerformanceStats(dict.idle_time);
   }
+}
+
+export interface TreeConformance {
+  weighted_equally: WeightedConformanceValue;
+  weighted_by_counts: WeightedConformanceValue;
+}
+
+export interface WeightedConformanceValue {
+  value: number;
+  weight: number;
 }
 
 // TODO
