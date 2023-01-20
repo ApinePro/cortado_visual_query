@@ -95,8 +95,8 @@ build-backend-linux:
     - pip install pyinstaller==$PYINSTALLER_VERSION
   script:
     - python -O -m PyInstaller --noconfirm --clean cortado-backend.spec
-    - cd ..
-    - cp -R backend/dist/cortado-backend .
+    - cd ../..
+    - cp -R src/backend/dist/cortado-backend .
     - cd cortado-backend
     - chmod +x cortado-backend
   artifacts:
