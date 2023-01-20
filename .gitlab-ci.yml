@@ -143,9 +143,6 @@ build-electron-app-linux:
     - cd ..
     - mkdir $LINUX_BUILD_DIR
     - cp -R frontend/app-dist/linux-unpacked/* $LINUX_BUILD_DIR
-    - pwd
-    - ls
-    - ls ./..
     - cp -R ../cortado-backend $LINUX_BUILD_DIR
     - chmod +x $LINUX_BUILD_DIR/cortado
     - tar c $LINUX_BUILD_DIR | xz > $LINUX_BUILD_DIR.tar.xz
