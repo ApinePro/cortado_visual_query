@@ -1,6 +1,7 @@
 .idea
 /.idea/
 
+cortado-backend
 src/backend/build
 src/backend/dist
 backend/tmp/*.p
