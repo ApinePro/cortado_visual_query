@@ -43,10 +43,15 @@ Follow [@cortado_tool](https://twitter.com/cortado_tool) on **Twitter** for impo
 ### Start Backend
 * Navigate to `src/backend/`
 * Execute `python main.py`
-### Start Frontend
-* Navigate to `src/frontend/`
-* Execute `npm start` to run Cortado's frontend
-* Open your browser on http://localhost:4444/
+### Start Frontend 
+* In a Web-Browser
+  * Navigate to `src/frontend/`
+  * Execute `npm start` to build & run Cortado's frontend
+  * Open your browser on http://localhost:4444/
+* In a dedicated Window of the Current OS
+  * Navigate to `src/frontend/`
+  * Execute `npm start` to build & run Cortado's frontend
+  * Execute `electron-live-reload` that starts a window with Cortado
 
 
 ## Build Cortado&mdash;Standalone Application
