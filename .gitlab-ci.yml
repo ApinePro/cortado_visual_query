@@ -44,7 +44,7 @@ eslint-check:
   
 test-angular-app-build:
   stage: test
-  image: node:16.10.0
+  image: node:16.13
   rules:
     - when: on_success
   before_script:
