@@ -11,3 +11,4 @@ cd ./../frontend
 npm install
 npm run electron-builder-app-production-macos
 rm -r -f ./cortado-backend
+open ./app-dist
