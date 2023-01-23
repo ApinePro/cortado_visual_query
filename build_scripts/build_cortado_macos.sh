@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd ./src/backend
+cd ./../src/backend
 pip3 install -r requirements.txt
 pip3 uninstall -y cvxopt
 pip3 uninstall -y pm4pycvxopt
