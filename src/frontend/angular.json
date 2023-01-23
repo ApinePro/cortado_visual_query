@@ -25,7 +25,11 @@
             "assets": [
               "src/assets",
               "src/assets/defs.svg",
-              { "glob": "**/*", "input": "node_modules/monaco-editor", "output": "assets/monaco-editor/" }
+              {
+                "glob": "**/*",
+                "input": "node_modules/monaco-editor",
+                "output": "assets/monaco-editor/"
+              }
             ],
             "styles": [
               "./node_modules/golden-layout/dist/css/goldenlayout-base.css",
@@ -43,10 +47,10 @@
             "optimization": false,
             "namedChunks": true,
             "customWebpackConfig": {
-                "path": "./custom-webpack.config.js",
-                "mergeRules": {
-                    "externals": "replace"
-                }
+              "path": "./custom-webpack.config.js",
+              "mergeRules": {
+                "externals": "replace"
+              }
             }
           },
           "configurations": {
@@ -125,7 +129,7 @@
             ],
             "scripts": [],
             "customWebpackConfig": {
-                "path": "./custom-webpack.config.js"
+              "path": "./custom-webpack.config.js"
             }
           }
         },
@@ -153,5 +157,13 @@
       }
     }
   },
-  "defaultProject": "interactive-process-mining-angular-app"
+  "defaultProject": "interactive-process-mining-angular-app",
+  "schematics": {
+    "@angular-eslint/schematics:application": {
+      "setParserOptionsProject": true
+    },
+    "@angular-eslint/schematics:library": {
+      "setParserOptionsProject": true
+    }
+  }
 }
