@@ -124,7 +124,7 @@ build-electron-app-windows:
   artifacts:
     name: $WINDOWS_BUILD_DIR
     paths:
-      - $WINDOWS_BUILD_DIR
+      - src/$WINDOWS_BUILD_DIR
     expire_in: 1 week
 
 build-electron-app-linux:
@@ -151,5 +151,5 @@ build-electron-app-linux:
   artifacts:
     name: $LINUX_BUILD_DIR.tar.xz
     paths:
-      - "*.tar.xz"
+      - "src/*.tar.xz"
     expire_in: 1 week
