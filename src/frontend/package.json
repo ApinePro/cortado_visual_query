@@ -11,13 +11,15 @@
     },
     "win": {
       "target": "portable",
-      "icon": "icon/cortado_icon_colorful_transparent.ico"
+      "icon": "icon/cortado_icon_colorful_transparent.ico",
+      "nodeVersion": "current"
     },
     "linux": {
       "target": "dir",
       "icon": "icon/512x512.png",
       "executableName": "cortado",
-      "category": "Science"
+      "category": "Science",
+      "nodeVersion": "current"
     },
     "mac": {
       "target": "dmg",
