@@ -139,6 +139,8 @@ build-electron-app-linux:
     - cd src/frontend
     - npm install -g npm@latest
     - npm ci
+    - npm install -g n
+    - n latest
   script:
     - npm run build-prod
     - npm run build-electron-only-linux
