@@ -10,6 +10,7 @@ __pycache__/
 build
 dist
 .vscode
+.angular/
 
 src/backend/cortado_core
 src/backend/pm4py
