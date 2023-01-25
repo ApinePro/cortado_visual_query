@@ -43,10 +43,15 @@ Follow [@cortado_tool](https://twitter.com/cortado_tool) on **Twitter** for impo
 ### Start Backend
 * Navigate to `src/backend/`
 * Execute `python main.py`
-### Start Frontend
-* Navigate to `src/frontend/`
-* Execute `npm start` to run Cortado's frontend
-* Open your browser on http://localhost:4444/
+### Start Frontend 
+* In a Web-Browser
+  * Navigate to `src/frontend/`
+  * Execute `npm start` to build & run Cortado's frontend
+  * Open your browser on http://localhost:4444/
+* In a dedicated Window of the Current OS
+  * Navigate to `src/frontend/`
+  * Execute `npm start` to build & run Cortado's frontend
+  * Execute `electron-live-reload` that starts a window with Cortado
 
 
 ## Build Cortado&mdash;Standalone Application
@@ -60,15 +65,15 @@ In `build_scripts/` there are scripts for each major OS to build Cortado.
 * MacOS `build_scripts/build_cortado_macos.sh`
 * Linux `build_scripts/build_cortado_linux.sh`
 
-Note that the operating systems must match the script, otherwise the build will fail. 
+Note that the operating system must match the script, otherwise the build will fail. 
 Thus, if you are building Cortado for Windows, you must run the corresponding script on a Windows machine.
 
-
+After the successful execution of the build script, the build is located in `src/frontend/`
 
 
 ## Citing Cortado
 
-If you are using or referencing Cortado in scientific papers, please cite Cortado as follows.
+If you are using or referencing Cortado in scientific work, please cite Cortado as follows.
 
 > Schuster, D., van Zelst, S.J., van der Aalst, W.M.P. (2021). Cortado—An Interactive Tool for Data-Driven Process Discovery and Modeling. In: Application and Theory of Petri Nets and Concurrency. PETRI NETS 2021. Lecture Notes in Computer Science, vol 12734. Springer, Cham. https://doi.org/10.1007/978-3-030-76983-3_23
 
