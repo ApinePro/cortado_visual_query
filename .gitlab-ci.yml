@@ -117,9 +117,9 @@ build-electron-app-windows:
   script:
     - npm run build-prod
     - npm run build-electron-only-windows
-    - cd ..
+    - cd ../..
     - mkdir $WINDOWS_BUILD_DIR
-    - cp -R frontend/app-dist/win-unpacked/* $WINDOWS_BUILD_DIR
+    - cp -R src/frontend/app-dist/win-unpacked/* $WINDOWS_BUILD_DIR
     # - cp -R cortado-backend $WINDOWS_BUILD_DIR
   artifacts:
     name: $WINDOWS_BUILD_DIR
@@ -140,10 +140,10 @@ build-electron-app-linux:
   script:
     - npm run build-prod
     - npm run build-electron-only-linux
-    - cd ..
+    - cd ../..
     - mkdir $LINUX_BUILD_DIR
-    - cp -R frontend/app-dist/linux-unpacked/* $LINUX_BUILD_DIR
-    - cp -R ../cortado-backend $LINUX_BUILD_DIR
+    - cp -R src/frontend/app-dist/linux-unpacked/* $LINUX_BUILD_DIR
+    - cp -R cortado-backend $LINUX_BUILD_DIR
     - chmod +x $LINUX_BUILD_DIR/cortado
     - tar c $LINUX_BUILD_DIR | xz > $LINUX_BUILD_DIR.tar.xz
   dependencies:
