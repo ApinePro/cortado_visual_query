@@ -1,35 +1,42 @@
 <div
-  class="cursor-pointer"
-  (click)="toggleTreeConformance()"
-  [ngbTooltip]="tooltip"
-  container="body"
-  style="display: flex; flex-direction: column"
+  *ngIf="isConformanceCalcInProgress; else conformanceToggle"
+  class="d-flex flex-column align-items-center"
 >
-  <ng-template #tooltip>
-    <div *ngIf="isConformanceAvailable; else tooltipConfNotAvailable">
-      Conformance: {{ (conformanceValue * 100).toFixed(2) }}%
-      <hr class="tooltip-hr" />
-      click to visualize conformance of this variant on model
-    </div>
-
-    <ng-template #tooltipConfNotAvailable
-      >calculate model conformance of this variant</ng-template
-    >
-  </ng-template>
-  <i
-    class="bi fs-4"
-    [ngClass]="{
-      'bi-toggle2-on': isConformanceActive,
-      'bi-toggle2-off': !isConformanceActive
-    }"
-    [style.color]="computeConformanceButtonColor()"
-  >
-  </i>
-
   <div
-    *ngIf="isConformanceCalcInProgress"
     class="spinner-border spinner-border-sm text-primary"
     role="status"
-    style="margin-top: 5px"
   ></div>
+  <div class="cursor-pointer" (click)="cancelRequest()">
+    <i class="bi bi-x-lg"></i>
+  </div>
 </div>
+<ng-template #conformanceToggle>
+  <div
+    class="cursor-pointer"
+    (click)="toggleTreeConformance()"
+    [ngbTooltip]="tooltip"
+    container="body"
+    style="display: flex; flex-direction: column"
+  >
+    <ng-template #tooltip>
+      <div *ngIf="isConformanceAvailable; else tooltipConfNotAvailable">
+        Conformance: {{ (conformanceValue * 100).toFixed(2) }}%
+        <hr class="tooltip-hr" />
+        click to visualize conformance of this variant on model
+      </div>
+
+      <ng-template #tooltipConfNotAvailable
+        >calculate model conformance of this variant</ng-template
+      >
+    </ng-template>
+    <i
+      class="bi fs-4"
+      [ngClass]="{
+        'bi-toggle2-on': isConformanceActive,
+        'bi-toggle2-off': !isConformanceActive
+      }"
+      [style.color]="computeConformanceButtonColor()"
+    >
+    </i>
+  </div>
+</ng-template>

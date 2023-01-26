@@ -21,6 +21,10 @@ export class TreeConformanceButtonComponent {
     else this.conformanceCheckingService.addToTreeConformance(this.variant);
   }
 
+  cancelRequest() {
+    this.conformanceCheckingService.removeFromTreeConformance(this.variant);
+  }
+
   computeConformanceButtonColor() {
     if (this.conformanceValue)
       return this.conformanceCheckingService.conformanceColorMap.getColor(
@@ -61,7 +65,6 @@ export class TreeConformanceButtonComponent {
   }
 
   get isConformanceCalcInProgress() {
-    if (this.variant === undefined) return false;
     return this.conformanceCheckingService.isTreeConformanceCalcInProgress(
       this.variant
     );

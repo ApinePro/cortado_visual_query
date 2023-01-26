@@ -237,8 +237,14 @@ export class ConformanceCheckingService {
   }
 
   public hideTreeConformance() {
+    this.stopRunningRequest();
     this.modelViewModeService.viewMode = ViewMode.STANDARD;
     this.activeTreeConformances.clear();
+  }
+
+  private stopRunningRequest() {
+    this.latestRequest.unsubscribe();
+    this.calculationInProgress.clear();
   }
 
   public toggleTreeConformance() {
