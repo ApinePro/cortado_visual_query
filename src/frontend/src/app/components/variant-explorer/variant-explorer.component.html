@@ -500,25 +500,30 @@
               <th class="centered">
                 <div class="variant-filter-container">Sub-Variants</div>
               </th>
-              <th *ngIf="currentlyDisplayedProcessTree" class="centered">
+              <th
+                *ngIf="
+                  currentlyDisplayedProcessTree &&
+                  variantViewModeService.viewMode !== VM.STANDARD
+                "
+                class="centered"
+              >
+                Model Projection
                 <ng-container [ngSwitch]="variantViewModeService.viewMode">
                   <ng-container *ngSwitchCase="VM.CONFORMANCE">
-                    <app-tree-conformance-button
+                    <i
+                      class="bi bi-x-circle-fill cursor-pointer fs-6"
                       [ngStyle]="{
                         display:
-                          conformanceCheckingService.anyTreeConformanceAvailable()
+                          conformanceCheckingService.anyTreeConformanceActive()
                             ? 'inline'
                             : 'none'
                       }"
-                      (removeConformance)="
-                        conformanceCheckingService.deleteAllTreeConformances()
-                      "
-                      (showConformance)="
-                        conformanceCheckingService.toggleMergedTreeConformance()
-                      "
-                    ></app-tree-conformance-button>
+                      ngbTooltip="hide all model projections"
+                      container="body"
+                      (click)="handleTreeConformanceClear()"
+                    ></i>
                   </ng-container>
-                  <ng-container *ngSwitchDefault>
+                  <ng-container *ngSwitchCase="VM.PERFORMANCE">
                     <div
                       *ngIf="
                         currentlyDisplayedProcessTree &&
@@ -640,11 +645,9 @@
                   <ng-container *ngSwitchCase="VM.CONFORMANCE">
                     <app-tree-conformance-button
                       [variant]="variant"
-                      (removeConformance)="handleConformanceRemove($event)"
-                      (showConformance)="handleSelectTreeConformance($event)"
                     ></app-tree-conformance-button>
                   </ng-container>
-                  <ng-container *ngSwitchDefault>
+                  <ng-container *ngSwitchCase="VM.PERFORMANCE">
                     <app-tree-performance-button
                       [variant]="variant"
                       [isPerformanceAvailable]="

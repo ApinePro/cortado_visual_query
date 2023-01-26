@@ -13,25 +13,20 @@ export class TreeConformanceButtonComponent {
   @Input()
   variant: Variant;
 
-  @Output()
-  public showConformance = new EventEmitter<Variant>();
-
-  @Output()
-  public removeConformance = new EventEmitter<Variant>();
-
   constructor(public conformanceCheckingService: ConformanceCheckingService) {}
 
-  removeCurrentConformance() {
-    this.removeConformance.emit(this.variant);
-  }
-  showSelectedConformance() {
-    this.showConformance.emit(this.variant);
+  toggleTreeConformance() {
+    if (this.conformanceCheckingService.isTreeConformanceActive(this.variant))
+      this.conformanceCheckingService.removeFromTreeConformance(this.variant);
+    else this.conformanceCheckingService.addToTreeConformance(this.variant);
   }
 
   computeConformanceButtonColor() {
-    return this.conformanceCheckingService.conformanceColorMap.getColor(
-      this.conformanceValue
-    );
+    if (this.conformanceValue)
+      return this.conformanceCheckingService.conformanceColorMap.getColor(
+        this.conformanceValue
+      );
+    else return 'white';
   }
 
   computeConformanceButtonTextColor() {
@@ -41,12 +36,9 @@ export class TreeConformanceButtonComponent {
   }
 
   get conformanceValue() {
-    let tree: ProcessTree;
-    if (this.variant)
-      tree = this.conformanceCheckingService.variantsConformance.get(
-        this.variant
-      );
-    else tree = this.conformanceCheckingService.mergedTreeConformance;
+    const tree = this.conformanceCheckingService.variantsTreeConformance.get(
+      this.variant
+    );
 
     if (!tree) return null;
 
@@ -57,16 +49,12 @@ export class TreeConformanceButtonComponent {
   }
 
   get isConformanceActive() {
-    if (this.variant === undefined)
-      return this.conformanceCheckingService.isMergedTreeConformanceActive();
     return this.conformanceCheckingService.isTreeConformanceActive(
       this.variant
     );
   }
 
   get isConformanceAvailable() {
-    if (this.variant === undefined)
-      return this.conformanceCheckingService.isMergedTreeConformanceAvailable();
     return this.conformanceCheckingService.isTreeConformanceAvailable(
       this.variant
     );
@@ -80,7 +68,6 @@ export class TreeConformanceButtonComponent {
   }
 
   get deleteButtonTooltip() {
-    if (this.variant) return 'remove conformance values of this variant';
-    else return 'remove conformance values of all variants';
+    return 'remove conformance values of this variant';
   }
 }

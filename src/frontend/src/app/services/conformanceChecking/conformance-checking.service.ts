@@ -38,9 +38,10 @@ export class ConformanceCheckingService {
   ) {
     this.processTreeService.currentDisplayedProcessTree$.subscribe((pt) => {
       if (!processTreesEqual(pt, this.usedProcessTreeForTreeConformance)) {
-        this.activeTreeConformance = undefined;
-        this.availableTreeConformances.clear();
-        this.variantsConformance.clear();
+        this.activeTreeConformances.clear();
+        this.mergedTreeConformance = undefined;
+        this.variantsTreeConformance.clear();
+        this.hideTreeConformance();
       }
     });
   }
@@ -78,10 +79,9 @@ export class ConformanceCheckingService {
     return this.isConformanceWeighted$.value;
   }
 
-  private activeTreeConformance: Variant;
-  private availableTreeConformances: Set<Variant> = new Set<Variant>();
-  public mergedTreeConformance: ProcessTree;
-  public variantsConformance: Map<Variant, ProcessTree> = new Map<
+  private activeTreeConformances: Set<Variant> = new Set<Variant>();
+  private mergedTreeConformance: ProcessTree;
+  public variantsTreeConformance: Map<Variant, ProcessTree> = new Map<
     Variant,
     ProcessTree
   >();
@@ -186,24 +186,13 @@ export class ConformanceCheckingService {
 
   public isTreeConformanceActive(v: Variant) {
     return (
-      this.activeTreeConformance === v &&
-      this.modelViewModeService.viewMode === ViewMode.CONFORMANCE
-    );
-  }
-
-  public isMergedTreeConformanceActive() {
-    return (
-      this.activeTreeConformance === null &&
+      this.activeTreeConformances.has(v) &&
       this.modelViewModeService.viewMode === ViewMode.CONFORMANCE
     );
   }
 
   public isTreeConformanceAvailable(v: Variant) {
-    return this.availableTreeConformances.has(v);
-  }
-
-  public isMergedTreeConformanceAvailable() {
-    return this.mergedTreeConformance !== undefined;
+    return this.variantsTreeConformance.has(v);
   }
 
   public isTreeConformanceCalcInProgress(v: Variant) {
@@ -211,98 +200,80 @@ export class ConformanceCheckingService {
   }
 
   public anyTreeConformanceAvailable() {
-    return this.availableTreeConformances.size > 0;
+    return this.variantsTreeConformance.size > 0;
   }
 
-  public updateTreeConformance(
-    variants: Variant[],
-    removeVariants?: Variant[]
-  ) {
+  public anyTreeConformanceActive() {
+    return this.activeTreeConformances.size > 0;
+  }
+
+  private updateTreeConformance(variants: Variant[]) {
     this.latestRequest?.unsubscribe();
-
-    if (removeVariants !== undefined) {
-      removeVariants.forEach((v) => this.deleteTreeConformance(v));
-      this.calculationInProgress.clear();
-    }
-
-    // Add previously computed variants again to get updated merged values
-    // conformance values should be cached in backend
-    const variantsCombined: Variant[] = Array.from(
-      new Set([
-        ...variants,
-        ...this.variantsConformance.keys(),
-        ...this.calculationInProgress,
-      ])
-    );
-
-    variantsCombined.forEach((v) => {
-      if (!this.availableTreeConformances.has(v))
-        this.calculationInProgress.add(v);
-    });
 
     this.usedProcessTreeForTreeConformance =
       this.processTreeService.currentDisplayedProcessTree.copy(false);
 
     this.latestRequest = this.backendService
-      .getTreeConformance(
-        this.usedProcessTreeForTreeConformance,
-        variantsCombined
-      )
+      .getTreeConformance(this.usedProcessTreeForTreeConformance, variants)
       .subscribe((res: treeConformanceResult) => {
         this.mergedTreeConformance = res.merged_conformance_tree;
 
-        variantsCombined.forEach((variant, index) => {
+        variants.forEach((variant, index) => {
           const pt = res.variants_tree_conformance[index];
-          this.availableTreeConformances.add(variant);
-          this.variantsConformance.set(variant, pt);
+          this.activeTreeConformances.add(variant);
+          this.variantsTreeConformance.set(variant, pt);
 
-          const confButton = document.getElementById(
-            `conformanceButton${variant?.bid}`
-          );
+          this.calculationInProgress.delete(variant);
         });
 
-        this.calculationInProgress.clear();
-
-        if (variants.length == 1) this.setShownTreeConformance(variants[0]);
-        else if (variantsCombined.length > 0) this.showMergedTreeConformance();
-        else this.unselectTreeConformance();
+        this.showTreeConformance();
       });
   }
 
-  public deleteTreeConformance(v: Variant): void {
-    if (this.activeTreeConformance == v) {
-      this.unselectTreeConformance();
-    }
-    this.availableTreeConformances.delete(v);
-    this.variantsConformance.delete(v);
-  }
-
-  public setShownTreeConformance(v: Variant) {
-    this.activeTreeConformance = v;
-    this.processTreeService.currentDisplayedProcessTree =
-      this.variantsConformance.get(v);
-    this.modelViewModeService.viewMode = ViewMode.CONFORMANCE;
-  }
-
-  public unselectTreeConformance() {
-    this.modelViewModeService.viewMode = ViewMode.STANDARD;
-    this.activeTreeConformance = undefined;
-  }
-
-  public showMergedTreeConformance() {
-    this.activeTreeConformance = null;
+  public showTreeConformance() {
     this.processTreeService.currentDisplayedProcessTree =
       this.mergedTreeConformance;
     this.modelViewModeService.viewMode = ViewMode.CONFORMANCE;
   }
 
-  public deleteAllTreeConformances() {
-    this.updateTreeConformance([], Array.from(this.availableTreeConformances));
+  public hideTreeConformance() {
+    this.modelViewModeService.viewMode = ViewMode.STANDARD;
+    this.activeTreeConformances.clear();
   }
 
-  public toggleMergedTreeConformance() {
-    if (this.isMergedTreeConformanceActive()) this.unselectTreeConformance();
-    else this.showMergedTreeConformance();
+  public toggleTreeConformance() {
+    if (this.anyTreeConformanceActive()) this.hideTreeConformance();
+    else this.showTreeConformance();
+  }
+
+  public addToTreeConformance(variant: Variant) {
+    if (
+      !this.activeTreeConformances.has(variant) &&
+      !this.calculationInProgress.has(variant)
+    ) {
+      this.calculationInProgress.add(variant);
+      const variantsCombined: Variant[] = Array.from(
+        new Set([...this.activeTreeConformances, ...this.calculationInProgress])
+      );
+      this.updateTreeConformance(Array.from(variantsCombined));
+    }
+  }
+
+  public removeFromTreeConformance(variant: Variant) {
+    const wasActive = this.activeTreeConformances.delete(variant);
+    const wasInProgress = this.calculationInProgress.delete(variant);
+    if (wasActive || wasInProgress) {
+      if (this.activeTreeConformances.size == 0) this.hideTreeConformance();
+      else {
+        const variantsCombined: Variant[] = Array.from(
+          new Set([
+            ...this.activeTreeConformances,
+            ...this.calculationInProgress,
+          ])
+        );
+        this.updateTreeConformance(Array.from(variantsCombined));
+      }
+    }
   }
 }
 
