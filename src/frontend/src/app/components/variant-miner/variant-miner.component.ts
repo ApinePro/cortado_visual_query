@@ -22,7 +22,7 @@ import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import * as d3 from 'd3';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { Options } from '@angular-slider/ngx-slider';
 import { animate, style, transition, trigger } from '@angular/animations';
 import {
@@ -310,7 +310,7 @@ export class VariantMinerComponent
     new Array<SubvariantPattern>();
 
   dropZoneConfig: any;
-  variantMinerConfigInput: FormGroup;
+  variantMinerConfigInput: UntypedFormGroup;
 
   ngOnInit(): void {
     this.dropZoneConfig = new DropzoneConfig(
@@ -322,23 +322,23 @@ export class VariantMinerComponent
 
     this.subscribeForConformanceCheckingResults();
 
-    const rel_sup = new FormControl(1000, {
+    const rel_sup = new UntypedFormControl(1000, {
       updateOn: 'change',
     });
 
-    const min_sup = new FormControl(1000, {
+    const min_sup = new UntypedFormControl(1000, {
       updateOn: 'change',
     });
 
-    const frequent_mining_strat = new FormControl(
+    const frequent_mining_strat = new UntypedFormControl(
       this.FrequentMiningStrategy.TraceTransaction,
       {
         updateOn: 'change',
       }
     );
 
-    this.variantMinerConfigInput = new FormGroup({
-      size: new FormControl(20, {
+    this.variantMinerConfigInput = new UntypedFormGroup({
+      size: new UntypedFormControl(20, {
         updateOn: 'change',
       }),
 
@@ -346,25 +346,25 @@ export class VariantMinerComponent
       rel_sup,
       frequent_mining_strat,
 
-      artifical_start: new FormControl(false, {
+      artifical_start: new UntypedFormControl(false, {
         updateOn: 'change',
       }),
 
-      fold_loop: new FormControl(false, {
+      fold_loop: new UntypedFormControl(false, {
         updateOn: 'change',
       }),
-      loop: new FormControl(2, {
+      loop: new UntypedFormControl(2, {
         updateOn: 'change',
       }),
 
-      frequent_mining_algo: new FormControl(
+      frequent_mining_algo: new UntypedFormControl(
         this.FrequentMiningAlgorithm.ValidTreeMiner,
         {
           updateOn: 'change',
         }
       ),
 
-      cm_tree_strategy: new FormControl(
+      cm_tree_strategy: new UntypedFormControl(
         this.FrequentMiningCMStrategy.ClosedMaximal,
         {
           updateOn: 'change',

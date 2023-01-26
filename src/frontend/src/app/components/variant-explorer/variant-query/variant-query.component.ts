@@ -17,7 +17,7 @@ import {
   EventEmitter,
   Output,
 } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -35,8 +35,8 @@ declare var monaco: typeof Monaco;
 export class VariantQueryComponent
   implements OnInit, AfterViewInit, OnDestroy, OnChanges
 {
-  variantQueryInput: FormGroup;
-  variantQuery: FormControl;
+  variantQueryInput: UntypedFormGroup;
+  variantQuery: UntypedFormControl;
 
   @ViewChild('queryEditor') queryEditor: ElementRef<HTMLTextAreaElement>;
   @ViewChild(EditorZoneComponent) editorZone: EditorZoneComponent;
@@ -94,11 +94,11 @@ export class VariantQueryComponent
   }
 
   ngOnInit() {
-    (this.variantQuery = new FormControl('', {
+    (this.variantQuery = new UntypedFormControl('', {
       validators: [],
       updateOn: 'change',
     })),
-      (this.variantQueryInput = new FormGroup({
+      (this.variantQueryInput = new UntypedFormGroup({
         variantQuery: this.variantQuery,
       }));
 

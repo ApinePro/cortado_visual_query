@@ -26,6 +26,7 @@ import { GoldenLayoutComponentService } from './services/goldenLayoutService/gol
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
 import { SubvariantExplorerComponent } from './components/variant-explorer/subvariant-explorer/subvariant-explorer.component';
 import { VariantColorMapComponent } from './components/variant-performance/variant-color-map/variant-color-map.component';
+// tslint:disable-next-line:max-line-length
 import { NodeSelectionPerformanceComponent } from './components/performance/node-selection-performance/node-selection-performance.component';
 import { PerformanceTableComponent } from './components/performance/performance-table/performance-table.component';
 import { ColorMapComponent } from './components/performance/color-map/color-map.component';
@@ -169,14 +170,7 @@ import { TreeConformanceButtonComponent } from './components/variant-explorer/va
       multi: true,
     },
     { provide: ELECTRON_SERVICE, useClass: ElectronService },
-
     GoldenLayoutComponentService,
-  ],
-  entryComponents: [
-    VariantExplorerComponent,
-    ActivityOverviewComponent,
-    ProcessTreeEditorComponent,
-    VariantInfoComponent,
   ],
   bootstrap: [AppComponent],
 })
