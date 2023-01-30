@@ -249,7 +249,7 @@
               <i class="bi bi-check2" *ngIf="activityField.isEnd"></i>
             </td>
             <td class="text-center user-select-none">
-              {{ activityField.occurences }}
+              {{ activityField.occurences | number }}
             </td>
           </tr>
         </ng-container>
