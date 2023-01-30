@@ -133,12 +133,9 @@
               />
               of
               {{
-              (variantMinerConfigInput.value.frequent_mining_strat ===
+                (variantMinerConfigInput.value.frequent_mining_strat ===
                   FrequentMiningStrategy.TraceTransaction ||
-                variantMinerConfigInput.value.frequent_mining_strat ===
-                  FrequentMiningStrategy.TraceOccurence
-                  ? totalTraces
-                  : totalVariants) | number
+                variantMinerConfigInput.value.frequent_mining_strat === FrequentMiningStrategy.TraceOccurence ? totalTraces : totalVariants) | number
               }}
             </div>
           </div>
@@ -193,16 +190,16 @@
           </span>
           <span class="result-span">
             Closed Patterns:
-            {{ nClosed | number}}</span
+            {{ nClosed | number }}</span
           >
           <span class="result-span">
             Maximal Patterns:
-            {{ nMaximal | number}}
+            {{ nMaximal | number }}
           </span>
           <span></span>
           <span class="result-span">
             Maximal Support:
-            {{ maxSup | number}}</span
+            {{ maxSup | number }}</span
           >
         </div>
       </div>
