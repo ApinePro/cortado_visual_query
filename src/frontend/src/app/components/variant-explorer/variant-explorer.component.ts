@@ -554,7 +554,7 @@ export class VariantExplorerComponent
   }
 
   discoverInitialModel(): void {
-    const variants = this.getSelectedVariants().map((v) => v.variant);
+    const variants = this.getSelectedVariants();
 
     this.backendService
       .discoverProcessModelFromConcurrencyVariants(variants)
@@ -756,11 +756,9 @@ export class VariantExplorerComponent
   addSelectedVariantsToModelForOutdatedConformance(
     selectedVariants: Variant[]
   ): void {
-    const selectedVariantElements = selectedVariants.map((v) => v.variant);
-
     this.backendService
       .addConcurrencyVariantsToProcessModelForUnknownConformance(
-        selectedVariantElements
+        selectedVariants
       )
       .pipe(takeUntil(this._destroy$))
       .subscribe((tree) => {
@@ -773,10 +771,10 @@ export class VariantExplorerComponent
   ): void {
     const fittingVariants = selectedVariants
       .filter((v) => v.deviations == 0)
-      .map((v) => v.variant);
+      .map((v) => v);
     const variantsToAdd = selectedVariants
       .filter((v) => v.deviations > 0)
-      .map((v) => v.variant);
+      .map((v) => v);
 
     this.backendService
       .addConcurrencyVariantsToProcessModel(variantsToAdd, fittingVariants)
@@ -795,6 +793,7 @@ export class VariantExplorerComponent
         v.deviations = undefined;
         v.calculationInProgress = false;
         v.usedTreeForConformanceChecking = undefined;
+        v.isConformanceOutdated = true;
       });
     }
 
