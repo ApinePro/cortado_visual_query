@@ -135,7 +135,11 @@
               {{
                 (variantMinerConfigInput.value.frequent_mining_strat ===
                   FrequentMiningStrategy.TraceTransaction ||
-                variantMinerConfigInput.value.frequent_mining_strat === FrequentMiningStrategy.TraceOccurence ? totalTraces : totalVariants) | number
+                variantMinerConfigInput.value.frequent_mining_strat ===
+                  FrequentMiningStrategy.TraceOccurence
+                  ? totalTraces
+                  : totalVariants
+                ) | number
               }}
             </div>
           </div>
@@ -186,7 +190,7 @@
         <div *ngIf="variantPatterns.length > 0" class="mining-result-overview">
           <span class="result-span">
             Total Patterns:
-            {{ nValid | number}}
+            {{ nValid | number }}
           </span>
           <span class="result-span">
             Closed Patterns:
