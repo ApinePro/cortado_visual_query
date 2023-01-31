@@ -148,7 +148,15 @@ export class VariantMinerComponent
   contextMenu_variant: VariantElement;
   contextMenu_directive: VariantDrawerDirective;
 
-  kFilter: IntervalFilter = new IntervalFilter('k', 2, 2, 1, 3, 15, this.deciamlPipe);
+  kFilter: IntervalFilter = new IntervalFilter(
+    'k',
+    2,
+    2,
+    1,
+    3,
+    15,
+    this.deciamlPipe
+  );
   supFilter: IntervalFilter = new IntervalFilter(
     'support',
     100,
@@ -158,7 +166,15 @@ export class VariantMinerComponent
     1000,
     this.deciamlPipe
   );
-  idFilter: IntervalFilter = new IntervalFilter('id', 1, 2, 1, 0, 15, this.deciamlPipe);
+  idFilter: IntervalFilter = new IntervalFilter(
+    'id',
+    1,
+    2,
+    1,
+    0,
+    15,
+    this.deciamlPipe
+  );
   cpConfFilter: IntervalFilter = new IntervalFilter(
     'child_parent_confidence',
     0.1,
