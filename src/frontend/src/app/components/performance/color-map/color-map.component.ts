@@ -15,6 +15,24 @@ export class ColorMapComponent {
   suffix: string = '';
   @Input()
   excludeUpperLabel: Boolean = false;
+  @Input()
+  firstColorStriped: Boolean = false;
+
+  getCssStripes(
+    backgroundColor = 'white',
+    stripeColor = '#EEEEEE',
+    stripeSpacing = 3,
+    stripeThickness = 2
+  ) {
+    return `repeating-linear-gradient(
+      -45deg,
+      ${backgroundColor} 0px,
+      ${backgroundColor} ${stripeSpacing}px,
+      ${stripeColor} ${stripeSpacing + 1}px,
+      ${stripeColor} ${stripeSpacing + stripeThickness + 1}px,
+      ${backgroundColor} ${stripeSpacing + stripeThickness + 2}px
+      )`;
+  }
 
   constructor() {}
 }
@@ -34,18 +52,14 @@ export function buildColorValues(
     let max = Math.max(...values);
 
     if (min != max) {
-      // set min value to one for distinguishing the special value zero, which is always added to the thresholds later
-      if (min < 0.5) {
-        min += 1;
-      }
-
-      thresholds = [0, min, ...thresholds, max];
+      thresholds = [min, ...thresholds, max];
+      if (min !== 0) thresholds.unshift(0); // Add artifical zero
     } else thresholds = [min];
   }
   let colors = colorScale.range();
   colors = [...colors, null];
   return thresholds.map((t, i) => {
-    let color = t < 0.5 ? ZERO_VALUE_COLOR : colors[i - 1];
+    let color = t == 0 ? ZERO_VALUE_COLOR : colors[i - 1];
 
     return {
       lowerBound: t,

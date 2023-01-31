@@ -109,8 +109,31 @@ export class VariantDrawerDirective
   private _destroy$ = new Subject();
 
   ngAfterViewInit(): void {
-    this.svgSelection = d3
-      .select(this.svgHtmlElement.nativeElement)
+    this.svgSelection = d3.select(this.svgHtmlElement.nativeElement);
+
+    //Pattern injection
+    const defs = this.svgSelection.append('defs');
+    const pattern = defs
+      .append('pattern')
+      .attr('id', 'striped')
+      .attr('width', '6')
+      .attr('height', '8')
+      .attr('patternUnits', 'userSpaceOnUse')
+      .attr('patternTransform', 'rotate(45)');
+    pattern
+      .append('rect')
+      .attr('width', '4')
+      .attr('height', '8')
+      .attr('transform', 'translate(2,0)')
+      .attr('fill', '#FFFFFF');
+    pattern
+      .append('rect')
+      .attr('width', '2')
+      .attr('height', '8')
+      .attr('transform', 'translate(0,0)')
+      .attr('fill', '#EEEEEE');
+
+    this.svgSelection = this.svgSelection
       .append('g')
       .style('padding-top', '5px');
 
@@ -584,13 +607,6 @@ export class VariantDrawerDirective
     const polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
     const color = this.computeActivityColor(this, element, this.variant);
-
-    const rgb_code = [
-      color.substring(1, 3),
-      color.substring(3, 5),
-      color.substring(5, 7),
-    ];
-    const inversed = rgb_code.map((d) => 255 - parseInt(d, 16));
 
     let laElement = getLowestSelectionActionableElement(element);
 

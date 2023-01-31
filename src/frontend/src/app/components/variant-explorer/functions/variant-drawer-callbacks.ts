@@ -115,6 +115,9 @@ export function activityColor(
         if (element.serviceTime?.mean !== undefined) {
           let stat = this.variantPerformanceService.serviceTimeStatistic;
           color = this.serviceTimeColorMap.getColor(element.serviceTime[stat]);
+          if (element.serviceTime[stat] === 0) {
+            color = 'url(#striped)';
+          }
           if (color == undefined) {
             color = '#d3d3d3'; // lightgrey
           }
@@ -137,6 +140,9 @@ export function activityColor(
   ) {
     let stat = this.variantPerformanceService.waitingTimeStatistic;
     color = this.waitingTimeColorMap.getColor(element.waitingTime[stat]);
+    if (element.waitingTime[stat] === 0) {
+      color = 'url(#striped)';
+    }
   }
 
   if (!color) {

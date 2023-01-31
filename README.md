@@ -43,6 +43,7 @@ Follow [@cortado_tool](https://twitter.com/cortado_tool) on **Twitter** for impo
 ### Start Backend
 * Navigate to `src/backend/`
 * Execute `python main.py`
+* For dynamic reloading of source code files, set environment variable `CORTADO_DEBUG` to `1`
 ### Start Frontend 
 * In a Web-Browser
   * Navigate to `src/frontend/`

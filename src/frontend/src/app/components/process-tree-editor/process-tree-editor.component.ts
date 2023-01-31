@@ -443,13 +443,20 @@ export class ProcessTreeEditorComponent
               this.selectedStatistic
             ] !== undefined
           ) {
-            return this.performanceColorMap
-              .get(d.data.id)
-              .getColor(
-                d.data.performance[this.selectedPerformanceIndicator][
-                  this.selectedStatistic
-                ]
-              );
+            if (
+              d.data.performance[this.selectedPerformanceIndicator][
+                this.selectedStatistic
+              ] === 0
+            )
+              return 'url(#striped)';
+            else
+              return this.performanceColorMap
+                .get(d.data.id)
+                .getColor(
+                  d.data.performance[this.selectedPerformanceIndicator][
+                    this.selectedStatistic
+                  ]
+                );
           } else {
             return '#404040';
           }

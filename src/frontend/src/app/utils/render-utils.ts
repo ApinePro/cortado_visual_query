@@ -8,6 +8,7 @@ export function textColorForBackgroundColor(
   ) {
     return 'white';
   }
+  if (!backgroundColorInHex.startsWith('#')) return 'black';
   return isDarkColor(backgroundColorInHex) ? 'white' : 'black';
 
   function isDarkColor(color: string): boolean {
