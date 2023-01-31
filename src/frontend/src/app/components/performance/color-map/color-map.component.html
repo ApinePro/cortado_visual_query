@@ -1,10 +1,14 @@
 <div class="color-map" *ngIf="colorMapValues">
-  <ng-container *ngFor="let e of colorMapValues">
+  <ng-container *ngFor="let e of colorMapValues; index as i">
     <span
       class="list-group-item"
       style="height: 40px"
       *ngIf="e.color !== null"
-      [style.background]="e.color"
+      [ngStyle]="{
+        'margin-bottom': i === 0 && firstColorStriped ? '30px' : '0',
+        background:
+          i === 0 && firstColorStriped ? getCssStripes(e.color) : e.color
+      }"
     >
       <div class="colorMapLabel">
         {{
