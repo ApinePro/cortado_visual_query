@@ -56,6 +56,7 @@ import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
 import { ContextMenuItem } from '../variant-explorer/variant-explorer-context-menu/variant-explorer-context-menu.component';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-variant-miner',
@@ -92,7 +93,8 @@ export class VariantMinerComponent
     private polygonDrawingService: PolygonDrawingService,
     private imageExportService: ImageExportService,
     elRef: ElementRef,
-    renderer: Renderer2
+    renderer: Renderer2,
+    private deciamlPipe: DecimalPipe
   ) {
     super(elRef.nativeElement, renderer);
 
@@ -146,23 +148,25 @@ export class VariantMinerComponent
   contextMenu_variant: VariantElement;
   contextMenu_directive: VariantDrawerDirective;
 
-  kFilter: IntervalFilter = new IntervalFilter('k', 2, 2, 1, 3, 15);
+  kFilter: IntervalFilter = new IntervalFilter('k', 2, 2, 1, 3, 15, this.deciamlPipe);
   supFilter: IntervalFilter = new IntervalFilter(
     'support',
     100,
     200,
     1,
     0,
-    1000
+    1000,
+    this.deciamlPipe
   );
-  idFilter: IntervalFilter = new IntervalFilter('id', 1, 2, 1, 0, 15);
+  idFilter: IntervalFilter = new IntervalFilter('id', 1, 2, 1, 0, 15, this.deciamlPipe);
   cpConfFilter: IntervalFilter = new IntervalFilter(
     'child_parent_confidence',
     0.1,
     0.2,
     0.01,
     0,
-    1
+    1,
+    this.deciamlPipe
   );
   supConfFilter: IntervalFilter = new IntervalFilter(
     'subpattern_confidence',
@@ -170,7 +174,8 @@ export class VariantMinerComponent
     0.2,
     0.01,
     0,
-    1
+    1,
+    this.deciamlPipe
   );
 
   openContextCallback = contextMenuCallback.bind(this);
@@ -936,6 +941,9 @@ export class IntervalFilter {
       tickStep: this.tickStep,
       tickValueStep: this.tickValueStep,
       step: this.step,
+      translate: (value: number): string => {
+        return this.deciamlPipe.transform(value, '1.0');
+      },
     };
     3;
 
@@ -961,7 +969,8 @@ export class IntervalFilter {
     tickValueStep: number,
     step: number,
     defaultLow: number,
-    defaultHigh: number
+    defaultHigh: number,
+    private deciamlPipe: DecimalPipe
   ) {
     this.attr = attr;
     this.tickStep = tickStep;
