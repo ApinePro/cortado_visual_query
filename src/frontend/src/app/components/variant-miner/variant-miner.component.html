@@ -87,31 +87,31 @@
             </select>
           </div>
 
-          <div class="form-element">
+          <div class="form-select-element">
             <label for="size" class="input-label">Maximum Size: </label>
             <input
               id="size"
-              type="text"
+              type="number"
               formControlName="size"
-              class="input-field"
+              class="input-field-number"
               step="1"
               min="0"
             />
           </div>
 
-          <div class="form-element">
+          <div class="form-select-element">
             <label for="min_sup" class="input-label">Support: </label>
-
-            <input
-              type="number"
-              formControlName="rel_sup"
-              class="input-field"
-              type="number"
-              [(ngModel)]="relSup"
-              step=".01"
-              min="0"
-            />
-            %
+            <div>
+              <input
+                type="number"
+                formControlName="rel_sup"
+                class="input-field-number"
+                type="number"
+                [(ngModel)]="relSup"
+                step=".01"
+                min="0"
+              />%
+            </div>
           </div>
           <div class="rel-sup-input">
             <div class="sup-selector">
@@ -126,10 +126,17 @@
               <input
                 id="min_sup"
                 formControlName="min_sup"
-                class="input-field"
+                class="input-field-number"
                 type="number"
                 step="1"
                 min="0"
+                max="{{(variantMinerConfigInput.value.frequent_mining_strat ===
+                  FrequentMiningStrategy.TraceTransaction ||
+                variantMinerConfigInput.value.frequent_mining_strat ===
+                  FrequentMiningStrategy.TraceOccurence)
+                  ? totalTraces
+                  : totalVariants}}"
+                (change)="validateMinSupport($event)"
               />
               of
               {{
@@ -145,29 +152,29 @@
           </div>
 
           <div class="form-element">
-            <label for="artifical_start" class="input-label"
-              >Mine prefixes and suffixes:
-            </label>
             <input
               id="artifical_start"
               type="checkbox"
               formControlName="artifical_start"
               class="input-field"
             />
+            <label for="artifical_start" class="input-label"
+              >Mine prefixes and suffixes
+            </label>
           </div>
 
-          <div class="form-element">
-            <label for="fold_loop" class="input-label">Fold Loops: </label>
+          <div class="form-element last-element">
             <input
               id="fold_loop"
               type="checkbox"
               formControlName="fold_loop"
               class="input-field"
             />
+            <label for="fold_loop" class="input-label">Fold Loops</label>
           </div>
 
           <div
-            class="form-element"
+            class="form-select-element last-element"
             *ngIf="this.variantMinerConfigInput.value.fold_loop"
           >
             <label for="loop" class="input-label">Loop Threshold: </label>
@@ -177,11 +184,11 @@
               min="1"
               step="1"
               formControlName="loop"
-              class="input-field"
+              class="input-field-number"
             />
           </div>
 
-          <div class="form-element">
+          <div class="form-element last-element">
             <button type="submit" class="button variant-miner-submit-button">
               Mine
             </button>
@@ -189,20 +196,20 @@
         </form>
         <div *ngIf="variantPatterns.length > 0" class="mining-result-overview">
           <span class="result-span">
-            Total Patterns:
+            <span class="result-overview-label">Total Patterns:</span>
             {{ nValid | number }}
           </span>
           <span class="result-span">
-            Closed Patterns:
+            <span class="result-overview-label">Closed Patterns:</span>
             {{ nClosed | number }}</span
           >
           <span class="result-span">
-            Maximal Patterns:
+            <span class="result-overview-label">Maximal Patterns:</span>
             {{ nMaximal | number }}
           </span>
           <span></span>
           <span class="result-span">
-            Maximal Support:
+            <span class="result-overview-label">Maximal Support:</span>
             {{ maxSup | number }}</span
           >
         </div>

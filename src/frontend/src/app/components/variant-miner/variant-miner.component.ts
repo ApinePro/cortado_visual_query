@@ -196,6 +196,8 @@ export class VariantMinerComponent
 
   openContextCallback = contextMenuCallback.bind(this);
 
+  public format = "### \'%\'";
+
   exportSVG = function () {
     let svgs: SVGGraphicsElement[] = [];
     let state: boolean[] = [];
@@ -444,6 +446,27 @@ export class VariantMinerComponent
         .reduce((a: number, b: number) => a + b);
       this.totalVariants = variants.length;
     });
+  }
+
+  validateMinSupport(event) {
+    debugger;
+    // event.target.value
+    const max =
+      this.variantMinerConfigInput.value.frequent_mining_strat ===
+        this.FrequentMiningStrategy.TraceTransaction ||
+      this.variantMinerConfigInput.value.frequent_mining_strat ===
+        this.FrequentMiningStrategy.TraceOccurence
+        ? this.totalTraces
+        : this.totalVariants;
+
+    if (event.target.value < 0) {
+      this.variantMinerConfigInput.get('min_sup').patchValue(0);
+    } else if (event.target.value > max) {
+      this.variantMinerConfigInput.get('min_sup').patchValue(max);
+    }
+
+    const minSupValue = this.variantMinerConfigInput.value.min_sup;
+    this.relSup = parseFloat(((minSupValue / max) * 100).toFixed(2));
   }
 
   onSubmit() {
