@@ -130,12 +130,14 @@
                 type="number"
                 step="1"
                 min="0"
-                max="{{(variantMinerConfigInput.value.frequent_mining_strat ===
-                  FrequentMiningStrategy.TraceTransaction ||
-                variantMinerConfigInput.value.frequent_mining_strat ===
-                  FrequentMiningStrategy.TraceOccurence)
-                  ? totalTraces
-                  : totalVariants}}"
+                max="{{
+                  variantMinerConfigInput.value.frequent_mining_strat ===
+                    FrequentMiningStrategy.TraceTransaction ||
+                  variantMinerConfigInput.value.frequent_mining_strat ===
+                    FrequentMiningStrategy.TraceOccurence
+                    ? totalTraces
+                    : totalVariants
+                }}"
                 (change)="validateMinSupport($event)"
               />
               of
