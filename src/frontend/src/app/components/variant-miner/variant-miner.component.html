@@ -219,56 +219,18 @@
     </div>
 
     <div class="pattern-table-container">
-      <div class="control-button-container">
+      <div class="bg-dark btn-tool-bar">
         <button
-          class="btn control-button"
-          type="button"
-          (click)="showControls = !showControls"
-        >
-          <i class="bi bi-minecart btn-icon"></i>
-        </button>
-      </div>
-
-      <div class="export-button-container">
-        <button
-          class="btn export-button"
-          type="button"
-          (click)="exportVariantMiner()"
-        >
-          <i class="bi bi bi-save btn-icon"></i>
-        </button>
-      </div>
-
-      <div class="filter-button-container dropdown">
-        <button
-          class="btn filter-button"
-          type="button"
+          class="button ms-auto"
           id="dropdownMenuButton1"
           data-bs-toggle="dropdown"
           data-bs-reference="parent"
           data-bs-auto-close="false"
           aria-expanded="false"
+          container="body"
           (click)="filterDropDownOpen = !filterDropDownOpen"
         >
-          <i class="bi bi-funnel-fill"></i>
-          <!---
-            <div
-              class="badge-position"
-              [ngClass]="{
-                invisible: !kFilter.touched()
-              }"
-            >
-              <button
-                class="btn badge-button"
-                (click)="kFilter.reset_filter(); handleFilterChange($event)"
-              >
-                <span
-                  class="badge rounded-pill bg-danger badge-close cursor-pointer"
-                  ><i class="bi bi-x-lg close-icon"></i>
-                </span>
-              </button>
-            </div>
-            -->
+          <i class="bi bi-funnel"></i>
         </button>
         <div
           class="dropdown-menu filter-drop-down"
@@ -397,199 +359,224 @@
             </app-activity-button-area>
           </div>
         </div>
+
+        <button
+          class="button"
+          ngbTooltip="export the process variant"
+          container="body"
+          (click)="exportVariantMiner()"
+        >
+          <i class="bi bi-save"></i>
+        </button>
       </div>
 
-      <table class="pattern-table">
-        <thead class="user-select-none sticky-header-row">
-          <tr>
-            <th resizeable class="text-center" rowspan="1" [margin]="-4">
-              <div class="header-text-container">
+      <div class="control-button-container">
+        <button
+          class="btn control-button"
+          type="button"
+          (click)="showControls = !showControls"
+        >
+          <i *ngIf="showControls" class="bi bi-chevron-left btn-icon"></i>
+          <i *ngIf="!showControls" class="bi bi-chevron-right btn-icon"></i>
+        </button>
+      </div>
+
+      <div class="pattern-table-container-secondary">
+        <table class="pattern-table">
+          <thead class="user-select-none sticky-header-row">
+            <tr>
+              <th resizeable class="text-center" rowspan="1" [margin]="-4">
+                <div class="header-text-container">
+                  <div
+                    class="header-text"
+                    (click)="sort(VariantSortKey.size)"
+                    [ngClass]="{
+                      'selected-header-text':
+                        currentSortKey === VariantSortKey.size
+                    }"
+                  >
+                    Size
+                  </div>
+                </div>
+              </th>
+              <th
+                resizeable
+                class="text-center border-start border-lightgrey"
+                rowspan="1"
+                [margin]="-4"
+              >
+                <div class="header-text-container">
+                  <div
+                    class="header-text"
+                    (click)="sort(VariantSortKey.conformance)"
+                    [ngClass]="{
+                      'selected-header-text':
+                        currentSortKey === VariantSortKey.conformance
+                    }"
+                  >
+                    Fitting
+                  </div>
+                  <button
+                    (click)="computeAlignments()"
+                    [disabled]="!processTree"
+                    class="conformance-button"
+                  >
+                    <i class="bi bi-layers-fill btn-icon"></i>
+                  </button>
+                </div>
+              </th>
+              <th
+                resizeable
+                class="text-center border-start border-lightgrey"
+                rowspan="1"
+                [margin]="-4"
+              >
+                <div class="header-text-container">
+                  <div
+                    class="header-text"
+                    (click)="sort(VariantSortKey.support)"
+                    [ngClass]="{
+                      'selected-header-text':
+                        currentSortKey === VariantSortKey.support
+                    }"
+                  >
+                    Support
+                  </div>
+                </div>
+              </th>
+              <th
+                resizeable
+                class="border-lightgrey border-start border-end text-center"
+                colspan="2"
+                [margin]="-4"
+              >
+                <div class="header-text-container">
+                  <div
+                    class="header-text"
+                    (click)="sort(VariantSortKey.closed)"
+                  >
+                    Type
+                  </div>
+                  <i
+                    [ngClass]="{
+                      'bi-sort-numeric-down': ascending,
+                      'bi-sort-numeric-down-alt': !ascending,
+                      invisible: !(
+                        currentSortKey === VariantSortKey.closed ||
+                        currentSortKey === VariantSortKey.maximal
+                      )
+                    }"
+                  ></i>
+                </div>
+              </th>
+              <th
+                resizeable
+                class="text-start border-lightgrey border-start"
+                rowspan="1"
+                [margin]="-4"
+              >
                 <div
-                  class="header-text"
-                  (click)="sort(VariantSortKey.size)"
-                  [ngClass]="{
-                    'selected-header-text':
-                      currentSortKey === VariantSortKey.size
-                  }"
+                  class="header-text-container variant-header"
+                  [style.min-width.px]="maxWidth + 90"
                 >
-                  Size
+                  <div class="header-text">Variant</div>
+                  <i
+                    class="bi"
+                    [ngClass]="{
+                      'bi-sort-up': ascending,
+                      'bi-sort-down': !ascending,
+                      invisible: true
+                    }"
+                  ></i>
                 </div>
-              </div>
-            </th>
-            <th
-              resizeable
-              class="text-center border-start border-lightgrey"
-              rowspan="1"
-              [margin]="-4"
-            >
-              <div class="header-text-container">
-                <div
-                  class="header-text"
-                  (click)="sort(VariantSortKey.conformance)"
-                  [ngClass]="{
-                    'selected-header-text':
-                      currentSortKey === VariantSortKey.conformance
-                  }"
-                >
-                  Fitting
-                </div>
-                <button
-                  (click)="computeAlignments()"
-                  [disabled]="!processTree"
-                  class="conformance-button"
-                >
-                  <i class="bi bi-layers-fill btn-icon"></i>
-                </button>
-              </div>
-            </th>
-            <th
-              resizeable
-              class="text-center border-start border-lightgrey"
-              rowspan="1"
-              [margin]="-4"
-            >
-              <div class="header-text-container">
-                <div
-                  class="header-text"
-                  (click)="sort(VariantSortKey.support)"
-                  [ngClass]="{
-                    'selected-header-text':
-                      currentSortKey === VariantSortKey.support
-                  }"
-                >
-                  Support
-                </div>
-              </div>
-            </th>
-            <th
-              resizeable
-              class="border-lightgrey border-start border-end text-center"
-              colspan="2"
-              [margin]="-4"
-            >
-              <div class="header-text-container">
-                <div class="header-text" (click)="sort(VariantSortKey.closed)">
-                  Type
-                </div>
+              </th>
+            </tr>
+            <tr class="sticky-header-row" style="top: 33px">
+              <th class="text-center">
                 <i
                   [ngClass]="{
                     'bi-sort-numeric-down': ascending,
                     'bi-sort-numeric-down-alt': !ascending,
-                    invisible: !(
-                      currentSortKey === VariantSortKey.closed ||
-                      currentSortKey === VariantSortKey.maximal
-                    )
+                    invisible: !(currentSortKey === VariantSortKey.size)
                   }"
                 ></i>
-              </div>
-            </th>
-            <th
-              resizeable
-              class="text-start border-lightgrey border-start"
-              rowspan="1"
-              [margin]="-4"
-            >
-              <div
-                class="header-text-container variant-header"
-                [style.min-width.px]="maxWidth + 90"
-              >
-                <div class="header-text">Variant</div>
+              </th>
+              <th class="text-center border-start border-lightgrey">
                 <i
-                  class="bi"
                   [ngClass]="{
-                    'bi-sort-up': ascending,
-                    'bi-sort-down': !ascending,
-                    invisible: true
+                    'bi-sort-numeric-down': ascending,
+                    'bi-sort-numeric-down-alt': !ascending,
+                    invisible: !(currentSortKey === VariantSortKey.conformance)
                   }"
                 ></i>
-              </div>
-            </th>
-          </tr>
-          <tr class="sticky-header-row" style="top: 33px">
-            <th class="text-center">
-              <i
-                [ngClass]="{
-                  'bi-sort-numeric-down': ascending,
-                  'bi-sort-numeric-down-alt': !ascending,
-                  invisible: !(currentSortKey === VariantSortKey.size)
-                }"
-              ></i>
-            </th>
-            <th class="text-center border-start border-lightgrey">
-              <i
-                [ngClass]="{
-                  'bi-sort-numeric-down': ascending,
-                  'bi-sort-numeric-down-alt': !ascending,
-                  invisible: !(currentSortKey === VariantSortKey.conformance)
-                }"
-              ></i>
-            </th>
-            <th class="text-center border-start border-lightgrey">
-              <i
-                [ngClass]="{
-                  'bi-sort-numeric-down': ascending,
-                  'bi-sort-numeric-down-alt': !ascending,
-                  invisible: !(currentSortKey === VariantSortKey.support)
-                }"
-              ></i>
-            </th>
-            <th
-              class="confidence-names text-center border-start border-lightgrey"
-            >
-              <div
-                (click)="sort(VariantSortKey.closed)"
-                class="header-text"
-                [ngClass]="{
-                  'selected-header-text':
-                    currentSortKey === VariantSortKey.closed
-                }"
+              </th>
+              <th class="text-center border-start border-lightgrey">
+                <i
+                  [ngClass]="{
+                    'bi-sort-numeric-down': ascending,
+                    'bi-sort-numeric-down-alt': !ascending,
+                    invisible: !(currentSortKey === VariantSortKey.support)
+                  }"
+                ></i>
+              </th>
+              <th
+                class="confidence-names text-center border-start border-lightgrey"
               >
-                Closed
-              </div>
-            </th>
-            <th
-              class="confidence-names text-center border-start border-lightgrey"
-            >
-              <div
-                (click)="sort(VariantSortKey.maximal)"
-                class="header-text"
-                [ngClass]="{
-                  'selected-header-text':
-                    currentSortKey === VariantSortKey.maximal
-                }"
+                <div
+                  (click)="sort(VariantSortKey.closed)"
+                  class="header-text"
+                  [ngClass]="{
+                    'selected-header-text':
+                      currentSortKey === VariantSortKey.closed
+                  }"
+                >
+                  Closed
+                </div>
+              </th>
+              <th
+                class="confidence-names text-center border-start border-lightgrey"
               >
-                Maximal
-              </div>
-            </th>
-            <th
-              class="confidence-names text-center border-lightgrey border-start"
+                <div
+                  (click)="sort(VariantSortKey.maximal)"
+                  class="header-text"
+                  [ngClass]="{
+                    'selected-header-text':
+                      currentSortKey === VariantSortKey.maximal
+                  }"
+                >
+                  Maximal
+                </div>
+              </th>
+              <th
+                class="confidence-names text-center border-lightgrey border-start"
+              >
+                <div class="header-text"></div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              app-variant-miner-pattern
+              *ngFor="let pattern of displayedVariantsPatterns; let i = index"
+              [pattern]="pattern"
+              [index]="i"
+              [rootElement]="variantMinerDiv"
             >
-              <div class="header-text"></div>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            app-variant-miner-pattern
-            *ngFor="let pattern of displayedVariantsPatterns; let i = index"
-            [pattern]="pattern"
-            [index]="i"
-            [rootElement]="variantMinerDiv"
-          >
-            <svg
-              appVariantDrawer
-              #fragment
-              [variant]="pattern"
-              [onClickCbFc]="onClickCbFc"
-              [computeActivityColor]="computeActivityColor"
-              [onRightMouseClickCbFc]="openContextCallback"
-              [infixType]="pattern.infixType"
-              [keepStandardView]="true"
-              class="zoom-group-variant"
-            ></svg>
-          </tr>
-        </tbody>
-      </table>
+              <svg
+                appVariantDrawer
+                #fragment
+                [variant]="pattern"
+                [onClickCbFc]="onClickCbFc"
+                [computeActivityColor]="computeActivityColor"
+                [onRightMouseClickCbFc]="openContextCallback"
+                [infixType]="pattern.infixType"
+                [keepStandardView]="true"
+                class="zoom-group-variant"
+              ></svg>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>

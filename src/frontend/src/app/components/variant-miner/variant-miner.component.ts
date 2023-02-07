@@ -196,8 +196,6 @@ export class VariantMinerComponent
 
   openContextCallback = contextMenuCallback.bind(this);
 
-  public format = "### \'%\'";
-
   exportSVG = function () {
     let svgs: SVGGraphicsElement[] = [];
     let state: boolean[] = [];
@@ -449,7 +447,6 @@ export class VariantMinerComponent
   }
 
   validateMinSupport(event) {
-    debugger;
     // event.target.value
     const max =
       this.variantMinerConfigInput.value.frequent_mining_strat ===

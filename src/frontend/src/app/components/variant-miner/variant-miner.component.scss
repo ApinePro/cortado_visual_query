@@ -90,9 +90,13 @@
 
 .pattern-table-container{
   color : var(--text-secondary);
-  width : 100%;
-  height : 100%;
+  width: 100%;
+  height: 100%;
+}
+.pattern-table-container-secondary{
   overflow: auto;
+  height: calc(100% - 28px);
+  width: 100%;
 }
 .form-check-input:focus {
   border-color: none;
@@ -200,6 +204,7 @@
   border-radius: 0px 5px 0px 0px;
 }
 
+
 .filter-drop-down-content{
   display: flex;
   flex-direction: column;
@@ -276,6 +281,10 @@
   align-content: center;
 }
 
+.dropdown-menu {
+  border-radius: 0;
+  background-color: lightgray;
+}
 
 .filter-drop-down{
   color: white;
@@ -284,6 +293,8 @@
   background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
   overflow-y: scroll;
   overflow-x: auto;
+  width: 62.5vh;
+  margin-left: 97vh !important;
 }
 
 .filter-toggle-drop-down{
