@@ -18,7 +18,7 @@
           class="mine-config-form"
         >
           <div class="form-select-element">
-            <label for="frequent_mining_strat" class="input-label"
+            <label for="frequent_mining_strat" class="input-label"c
               >Support Counting Strategy:
             </label>
             <select
@@ -271,7 +271,7 @@
                     "
                   />
                   <label
-                    class="btn btn-outline-primary"
+                    class="btn btn-outline-dark"
                     for="{{ 'AlignCheck' + i }}"
                   >
                     {{ choice.desc }}</label
@@ -312,10 +312,7 @@
                     "
                     [checked]="choice.desc === 'Valid'"
                   />
-                  <label
-                    class="btn btn-outline-primary"
-                    for="{{ 'Radio' + i }}"
-                  >
+                  <label class="btn btn-outline-dark" for="{{ 'Radio' + i }}">
                     {{ choice.desc }}</label
                   >
                 </ng-template>
@@ -343,7 +340,7 @@
                     "
                   />
                   <label
-                    class="btn btn-outline-primary"
+                    class="btn btn-outline-dark"
                     for="{{ 'InfixCheck' + i }}"
                   >
                     {{ choice.desc }}</label

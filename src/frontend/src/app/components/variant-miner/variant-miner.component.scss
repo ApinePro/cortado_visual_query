@@ -389,10 +389,22 @@
   justify-content: space-between;
 }
 
-
 .variant-miner-container{
   width : 100%;
   height : 100%;
   display : flex;
   border-bottom: black 0.5px solid;
+}
+
+
+.btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
+  color: whitesmoke;
+  background-color: rgb(119, 117, 117);
+  border-color: rgb(119, 117, 117);
+}
+
+.btn-check + .btn, :not(.btn-check) + .btn, .btn:first-child, .btn.active, .btn.show {
+  color: #999999;
+  background-color: var(--box-background-color);
+  border-color: #999999;
 }
