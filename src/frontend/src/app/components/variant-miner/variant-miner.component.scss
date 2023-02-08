@@ -403,8 +403,12 @@
   border-color: rgb(119, 117, 117);
 }
 
-.btn-check + .btn, :not(.btn-check) + .btn, .btn:first-child, .btn.active, .btn.show {
+.btn-check + .btn, :not(.btn-check) + .btn, .btn:first-child, .btn, .btn.show {
   color: #999999;
   background-color: var(--box-background-color);
   border-color: #999999;
+}
+
+.btn-check:hover + .btn, :not(.btn-check) + .btn, .btn:first-child, .btn, .btn.show {
+  color: whitesmoke;
 }
