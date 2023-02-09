@@ -258,28 +258,36 @@
 }
 
 .filter-option-container{
-  padding: 7px 5px;
   z-index: 12;
   display: flex;
   flex-direction: row;
   align-items: baseline;
   flex-wrap: nowrap;
   align-content: flex-end;
-  justify-content: space-around;
+  justify-content: space-evenly;
 }
 .slider-container{
   width : 25vw;
-  padding: 0px 10px 21px 10px;
   z-index: 12;
+}
+
+::ng-deep {
+  .ngx-slider .ngx-slider-ticks-values-under .ngx-slider-tick-value {
+    bottom: -24px !important;
+  }
 }
 
 .radio-content{
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
+  justify-content: space-evenly;
   padding: 10px;
   align-items: center;
   align-content: center;
+}
+
+.closed-and-maximal-radio-input{
+  margin-top: 20px;
 }
 
 .dropdown-menu {
@@ -288,14 +296,15 @@
 }
 
 .filter-drop-down{
-  color: white;
+  color: whitesmoke;
+  font-size: small;
   border-radius: 0.25rem;
   padding: 5px 10px 30px 10px;
   background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
   overflow-y: scroll;
   overflow-x: auto;
-  width: 62.5vh;
-  margin-left: 97vh !important;
+  width: 33.5vw;
+  margin-right: 40px !important;
 }
 
 .filter-toggle-drop-down{
@@ -402,12 +411,14 @@
   color: whitesmoke;
   background-color: rgb(119, 117, 117);
   border-color: rgb(119, 117, 117);
+  font-size: small;
 }
 
 .btn-check + .btn, :not(.btn-check) + .btn, .btn:first-child, .btn, .btn.show {
   color: #999999;
   background-color: var(--box-background-color);
   border-color: #999999;
+  font-size: small;
 }
 
 .btn-check:hover + .btn, :not(.btn-check) + .btn, .btn:first-child, .btn, .btn.show {
