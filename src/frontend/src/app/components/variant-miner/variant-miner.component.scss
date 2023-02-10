@@ -73,6 +73,7 @@
 
   .sup-selector .ngx-slider .ngx-slider-bubble {
     bottom: 14px;
+    font-size: small;
   }
 
   .sup-selector .ngx-slider .ngx-slider-tick {
@@ -149,6 +150,11 @@
   color: whitesmoke;
   padding: 0.125rem 0.25rem 0.125rem 0.35rem;
   height: 26px;
+  font-size: small;
+}
+
+.abs-sup-input {
+  font-size: small;
 }
 
 .last-element{
@@ -200,7 +206,7 @@
   color: whitesmoke;
   background-color: black;
   font-size: 6px;
-  padding: 2px 4px 2px 3px;
+  padding: 0px 0px 0px 0px;
   box-shadow: none;
   border-radius: 0px 5px 0px 0px;
 }
