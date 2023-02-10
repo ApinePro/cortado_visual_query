@@ -4,7 +4,7 @@ const MONACO_DIR = path.join(__dirname, "", "node_modules/monaco-editor");
 
 /**
  * Using this custom webpack config to load the css files
- * in monaco editor lobrary. More information here:
+ * in monaco editor library. More information here:
  * https://github.com/microsoft/monaco-editor/issues/886
  */
 

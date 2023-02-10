@@ -1,3 +1,4 @@
+import os
 from multiprocessing import cpu_count, freeze_support
 
 import uvicorn
@@ -10,6 +11,8 @@ from api.routes.api import router as api_router
 from core.events import create_start_app_handler, create_stop_app_handler
 from error_handlers import http_exception_handler, validation_exception_handler
 from middleware.http_middleware import http_middleware
+
+CORTADO_DEBUG = os.getenv('CORTADO_DEBUG', '0') == '1'
 
 
 def get_application():
@@ -44,16 +47,20 @@ def add_middleware(app: FastAPI):
         allow_headers=["*"],
     )
 
+
 def add_exception_handlers(app: FastAPI):
     app.add_exception_handler(HTTPException, http_exception_handler)
     # app.add_exception_handler(Exception, exception_handler)
     app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
+
 app = get_application()
+
 
 @app.get("/info")
 async def get_info():
     return {}
+
 
 # Using FastAPI instance
 @app.get("/url-list")
@@ -61,11 +68,10 @@ def get_all_urls():
     url_list = [{"path": route.path, "name": route.name} for route in app.routes]
     return url_list
 
+
 if __name__ == "__main__":
     # print(DEFAULT_LP_SOLVER_VARIANT)
     freeze_support()
-    uvicorn.run(
-        "main:app", host="0.0.0.0", port=41211, workers=1, reload=True
-    )
+    uvicorn.run("main:app", host="0.0.0.0", port=41211, workers=1, reload=CORTADO_DEBUG)
     # dev mode
     # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

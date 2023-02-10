@@ -77,6 +77,7 @@ import { ConformanceStatusIconComponent } from './components/variant-explorer/va
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TiebreakerComponent } from './components/variant-explorer/tiebreaker/tiebreaker.component';
 import { TreeConformanceButtonComponent } from './components/variant-explorer/variant/subcomponents/tree-buttons/tree-conformance-button/tree-conformance-button.component';
+import { DecimalPipe } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -171,6 +172,7 @@ import { TreeConformanceButtonComponent } from './components/variant-explorer/va
     },
     { provide: ELECTRON_SERVICE, useClass: ElectronService },
     GoldenLayoutComponentService,
+    DecimalPipe,
   ],
   bootstrap: [AppComponent],
 })

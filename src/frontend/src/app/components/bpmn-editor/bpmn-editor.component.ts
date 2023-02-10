@@ -280,13 +280,20 @@ export class BpmnEditorComponent
             this.selectedStatistic
           ] !== undefined
         ) {
-          color = this.performanceColorMap
-            .get(pt.id)
-            .getColor(
-              pt.performance[this.selectedPerformanceIndicator][
-                this.selectedStatistic
-              ]
-            );
+          if (
+            pt.performance[this.selectedPerformanceIndicator][
+              this.selectedStatistic
+            ] === 0
+          )
+            return 'url(#striped)';
+          else
+            return this.performanceColorMap
+              .get(pt.id)
+              .getColor(
+                pt.performance[this.selectedPerformanceIndicator][
+                  this.selectedStatistic
+                ]
+              );
         } else {
           color = '#404040';
         }
