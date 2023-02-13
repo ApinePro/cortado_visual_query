@@ -147,6 +147,7 @@ export class VariantMinerComponent
   contextMenu_element: VariantElement;
   contextMenu_variant: VariantElement;
   contextMenu_directive: VariantDrawerDirective;
+  collapse: boolean = false;
 
   kFilter: IntervalFilter = new IntervalFilter(
     'k',
@@ -824,6 +825,7 @@ export class VariantMinerComponent
     height: number
   ): void {
     this.currentHeight = height;
+    this.collapse = width < 875;
   }
 
   handleVisibilityChange(visibility: boolean): void {

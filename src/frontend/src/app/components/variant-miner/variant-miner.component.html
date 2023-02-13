@@ -220,6 +220,37 @@
 
     <div class="pattern-table-container">
       <div class="bg-dark btn-tool-bar">
+        <ng-template #toolTip2>
+          calculate conformance checking statistics
+          <br /><i class="bi bi-question-square text-secondary"> unknown</i>
+          <br /><i class="bi bi-hourglass-split text-secondary">
+            being calculated</i
+          >
+          <br /><i class="bi bi-check-square text-success"> variant fits model</i>
+          <br /><i class="bi bi-x-square text-danger">
+            variant does not fit model</i
+          >
+          <br /><i class="bi bi-check-square text-warning"></i>
+          <i class="bi bi-x-square text-warning">
+            outdated results (model has changed)</i
+          >
+          <br /><i class="bi bi-hourglass-bottom text-warning"> timeout</i>
+        </ng-template>
+        <button
+          [ngbTooltip]="toolTip2"
+          container="body"
+          class="button"
+          (click)="computeAlignments()"
+          [disabled]="!processTree"
+        >
+          <i class="bi bi-layers-fill btn-icon"></i>
+          <div @collapseText class="button-text px-1" *ngIf="!collapse">
+            conformance check
+          </div>
+        </button>
+
+        <span class="vl"></span>
+
         <button
           class="button ms-auto"
           id="dropdownMenuButton1"
@@ -414,13 +445,6 @@
                   >
                     Fitting
                   </div>
-                  <button
-                    (click)="computeAlignments()"
-                    [disabled]="!processTree"
-                    class="conformance-button"
-                  >
-                    <i class="bi bi-layers-fill btn-icon"></i>
-                  </button>
                 </div>
               </th>
               <th
