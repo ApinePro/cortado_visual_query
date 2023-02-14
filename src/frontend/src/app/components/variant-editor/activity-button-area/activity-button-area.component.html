@@ -1,7 +1,6 @@
 <div class="activity-button-area bg-dark">
   <div class="activity-button-container" *ngFor="let activity of activityNames">
     <!-- <app-variant-drag-source [colorMap]="colorMap" [activity]="activity"> </app-variant-drag-source> -->
-
     <svg
       #ActivityButton
       appVariantDrawer
@@ -12,5 +11,22 @@
       (click)="onActivityButtonClick(ActivityButton, activity)"
       class="activity-button"
     ></svg>
+
+    <span
+      *ngIf="
+        activityNamesFilter &&
+        activityNamesFilter.get(activity) === actvitiyFilterState.In
+      "
+      class="activity-label"
+      >IN</span
+    >
+    <span
+      *ngIf="
+        activityNamesFilter &&
+        activityNamesFilter.get(activity) === actvitiyFilterState.Out
+      "
+      class="activity-label activity-label-out"
+      >OUT</span
+    >
   </div>
 </div>

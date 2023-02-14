@@ -1029,7 +1029,7 @@ export class Choice {
   }
 }
 
-enum ActvitiyFilterState {
+export enum ActvitiyFilterState {
   In = 1,
   Out = 2,
   Default = 3,

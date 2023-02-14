@@ -226,7 +226,9 @@
           <br /><i class="bi bi-hourglass-split text-secondary">
             being calculated</i
           >
-          <br /><i class="bi bi-check-square text-success"> variant fits model</i>
+          <br /><i class="bi bi-check-square text-success">
+            variant fits model</i
+          >
           <br /><i class="bi bi-x-square text-danger">
             variant does not fit model</i
           >
@@ -253,6 +255,7 @@
 
         <button
           class="button ms-auto"
+          ngbTooltip="apply filters to variants"
           id="dropdownMenuButton1"
           data-bs-toggle="dropdown"
           data-bs-reference="parent"
@@ -383,6 +386,7 @@
             <app-activity-button-area
               *ngIf="filterDropDownOpen && minerVisibile"
               [activityNames]="activityNames"
+              [activityNamesFilter]="activityNamesFilter"
               (activityButtonClick)="handleActivityButtonClick($event)"
             >
             </app-activity-button-area>

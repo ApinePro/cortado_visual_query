@@ -21,3 +21,17 @@
   cursor : pointer;
 }
 
+.activity-label{
+  font-size: smaller;
+  padding: 0px 2px 0px 2px;
+  margin: 0px 4px 0px 2px;
+  background: rgb(119, 117, 117);
+  border-radius: 10px;
+  vertical-align: middle;
+  color: whitesmoke;
+  position: relative;
+}
+
+.activity-label-out{
+  text-decoration: line-through
+}
