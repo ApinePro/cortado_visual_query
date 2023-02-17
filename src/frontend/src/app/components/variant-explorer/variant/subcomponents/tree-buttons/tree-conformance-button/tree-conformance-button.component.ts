@@ -26,7 +26,7 @@ export class TreeConformanceButtonComponent {
   }
 
   computeConformanceButtonColor() {
-    if (this.conformanceValue)
+    if (this.conformanceValue && this.isConformanceActive)
       return this.conformanceCheckingService.conformanceColorMap.getColor(
         this.conformanceValue
       );

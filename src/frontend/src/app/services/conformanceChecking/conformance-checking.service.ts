@@ -204,7 +204,10 @@ export class ConformanceCheckingService {
   }
 
   public anyTreeConformanceActive() {
-    return this.activeTreeConformances.size > 0;
+    return (
+      this.activeTreeConformances.size > 0 &&
+      this.modelViewModeService.viewMode === ViewMode.CONFORMANCE
+    );
   }
 
   private updateTreeConformance(variants: Variant[]) {
@@ -262,6 +265,8 @@ export class ConformanceCheckingService {
         new Set([...this.activeTreeConformances, ...this.calculationInProgress])
       );
       this.updateTreeConformance(Array.from(variantsCombined));
+    } else {
+      this.showTreeConformance();
     }
   }
 
