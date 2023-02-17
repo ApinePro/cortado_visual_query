@@ -191,16 +191,8 @@ export class ConformanceCheckingService {
     );
   }
 
-  public isTreeConformanceAvailable(v: Variant) {
-    return this.variantsTreeConformance.has(v);
-  }
-
   public isTreeConformanceCalcInProgress(v: Variant) {
     return this.calculationInProgress.has(v);
-  }
-
-  public anyTreeConformanceAvailable() {
-    return this.variantsTreeConformance.size > 0;
   }
 
   public anyTreeConformanceActive() {
