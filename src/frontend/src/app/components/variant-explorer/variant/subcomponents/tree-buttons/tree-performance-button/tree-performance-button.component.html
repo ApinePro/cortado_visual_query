@@ -1,27 +1,25 @@
 <div
-  style="
-    display: flex;
-    flex-direction: row;
-    padding: 5px;
-    margin: 5px 10px 5px 10px;
-  "
-  [ngClass]="{
-    'selected-variant-performance': isPerformanceActive,
-    'light-dashed-border': isPerformanceAvailable && !isPerformanceActive
-  }"
+  *ngIf="isPerformanceCalcInProgress; else performanceToggle"
+  class="d-flex flex-column align-items-center"
 >
-  <button
-    type="button"
-    class="btn variant-tree-projection-button"
-    (click)="showSelectedPerformance()"
-    [style.background]="computePerformanceButtonColor(variant)"
+  <div
+    class="spinner-border spinner-border-sm text-primary"
+    role="status"
+  ></div>
+  <div class="cursor-pointer" (click)="cancelRequest()">
+    <i class="bi bi-x-lg"></i>
+  </div>
+</div>
+<ng-template #performanceToggle>
+  <div
+    class="cursor-pointer"
+    (click)="toggleTreePerformance()"
     [ngbTooltip]="tooltip"
     container="body"
-    [id]="'performanceButton' + variant.bid"
     style="display: flex; flex-direction: column"
   >
     <ng-template #tooltip>
-      <div *ngIf="isPerformanceAvailable; else tooltipPerfNotAvailable">
+      <div *ngIf="isPerformanceActive; else tooltipPerfNotAvailable">
         {{ tooltipText }}
         <hr class="tooltip-hr" />
         click to visualize performance of this variant on model
@@ -40,36 +38,17 @@
       >
     </ng-template>
     <i
-      *ngIf="isPerformanceAvailable && !variant.userDefined"
-      class="bi bi-graph-up align-middle font-large variant-performance-icon"
-      [style.color]="textColorForBackgroundColor(variant)"
-    >
-      <i
-        *ngIf="!isPerformanceFitting && !variant.userDefined"
-        class="bi bi-exclamation-triangle-fill"
-      ></i>
-    </i>
+      class="bi fs-4"
+      [ngClass]="{
+        'bi-toggle2-on': isPerformanceActive,
+        'bi-toggle2-off': !isPerformanceActive
+      }"
+      [style.color]="computePerformanceButtonColor()"
+    ></i>
     <i
-      class="bi bi-stopwatch"
-      *ngIf="!isPerformanceAvailable && !variant.userDefined"
-      style="color: white"
-    >
-    </i>
-    <div
-      *ngIf="isPerformanceCalcInProgress && !variant.userDefined"
-      class="spinner-border spinner-border-sm text-primary"
-      role="status"
-      style="margin-top: 5px"
-    ></div>
-  </button>
-  <button
-    style="padding: 0; margin-left: 5px"
-    *ngIf="isPerformanceAvailable && !variant.userDefined"
-    class="btn"
-    (click)="removeCurrentPerformance()"
-    ngbTooltip="remove performance values of this variant"
-    container="body"
-  >
-    <i class="bi bi-x-lg" style="color: white"></i>
-  </button>
-</div>
+      *ngIf="!isPerformanceFitting && isPerformanceActive"
+      class="bi bi-exclamation-triangle-fill"
+      style="margin-top: -10px"
+    ></i>
+  </div>
+</ng-template>

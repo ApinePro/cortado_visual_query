@@ -51,10 +51,7 @@ export class TreePerformanceColorMapComponent implements OnInit, OnDestroy {
     this.performanceColorScaleService.currentColorScale
       .pipe(takeUntil(this._destroy$))
       .subscribe((colorScale) => {
-        if (
-          colorScale &&
-          this.performanceService.anyTreePerformanceAvailable()
-        ) {
+        if (colorScale && this.performanceService.anyTreePerformanceActive()) {
           this.updateColorMapValues();
         }
       });

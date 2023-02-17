@@ -30,7 +30,7 @@ export class TreeConformanceButtonComponent {
       return this.conformanceCheckingService.conformanceColorMap.getColor(
         this.conformanceValue
       );
-    else return 'white';
+    else return '#d3d3d3';
   }
 
   computeConformanceButtonTextColor() {
@@ -54,12 +54,6 @@ export class TreeConformanceButtonComponent {
 
   get isConformanceActive() {
     return this.conformanceCheckingService.isTreeConformanceActive(
-      this.variant
-    );
-  }
-
-  get isConformanceAvailable() {
-    return this.conformanceCheckingService.isTreeConformanceAvailable(
       this.variant
     );
   }

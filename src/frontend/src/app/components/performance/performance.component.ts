@@ -85,7 +85,7 @@ export class ModelPerformanceComponent
       .subscribe((tree) => {
         if (
           tree === undefined ||
-          !this.performanceService.anyTreePerformanceAvailable()
+          !this.performanceService.anyTreePerformanceActive()
         ) {
           this.selectionPerformances = [];
           this.treeSelection = undefined;

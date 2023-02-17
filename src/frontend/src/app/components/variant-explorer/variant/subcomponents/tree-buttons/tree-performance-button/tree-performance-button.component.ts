@@ -19,21 +19,8 @@ export class TreePerformanceButtonComponent {
   @Input()
   variant: Variant;
 
-  @Output()
-  public showPerformance = new EventEmitter<Variant>();
-
-  @Output()
-  public removePerformance = new EventEmitter<Variant>();
-
-  @Input()
-  computePerformanceButtonColor: (variant: Variant) => string;
-
   get isPerformanceActive() {
     return this.performanceService.isTreePerformanceActive(this.variant);
-  }
-
-  get isPerformanceAvailable() {
-    return this.performanceService.isTreePerformanceAvailable(this.variant);
   }
 
   get isPerformanceCalcInProgress() {
@@ -46,20 +33,20 @@ export class TreePerformanceButtonComponent {
     return this.performanceService.isTreePerformanceFitting(this.variant);
   }
 
-  removeCurrentPerformance() {
-    this.removePerformance.emit(this.variant);
-  }
-  showSelectedPerformance() {
-    this.showPerformance.emit(this.variant);
+  toggleTreePerformance() {
+    if (this.performanceService.isTreePerformanceActive(this.variant))
+      this.performanceService.removeFromTreePerformance(this.variant);
+    else this.performanceService.addToTreePerformance(this.variant);
   }
 
-  textColorForBackgroundColor(variant: Variant): string {
-    if (this.computePerformanceButtonColor(variant) === null) {
-      return 'white';
-    }
-    return textColorForBackgroundColor(
-      this.computePerformanceButtonColor(variant)
-    );
+  cancelRequest() {
+    this.performanceService.removeFromTreePerformance(this.variant);
+  }
+
+  textColorForBackgroundColor(): string {
+    const buttonColor = this.computePerformanceButtonColor();
+    if (!buttonColor) return 'white';
+    return textColorForBackgroundColor(buttonColor);
   }
 
   get variantFitness(): string {
@@ -69,7 +56,7 @@ export class TreePerformanceButtonComponent {
   get tooltipText(): string {
     const selectedColorScale =
       this.modelPerformanceColorScaleService.selectedColorScale;
-    let performance = this.performanceService.variantsPerformance.get(
+    let performance = this.performanceService.variantsTreePerformance.get(
       this.variant
     ).performance[selectedColorScale.performanceIndicator]?.[
       selectedColorScale.statistic
@@ -81,5 +68,35 @@ export class TreePerformanceButtonComponent {
       round: true,
     });
     return `${selectedColorScale.performanceIndicator} (${selectedColorScale.statistic}): ${humanizedPerf}`;
+  }
+
+  computePerformanceButtonColor() {
+    if (this.isPerformanceActive) {
+      let tree;
+      tree = this.performanceService.variantsTreePerformance.get(this.variant);
+
+      if (!tree) {
+        return null;
+      }
+
+      let selectedScale =
+        this.modelPerformanceColorScaleService.selectedColorScale;
+      const colorScale = this.modelPerformanceColorScaleService
+        .getVariantComparisonColorScale()
+        .get(tree.id);
+      if (
+        colorScale &&
+        tree.performance?.[selectedScale.performanceIndicator]?.[
+          selectedScale.statistic
+        ] !== undefined
+      ) {
+        return colorScale.getColor(
+          tree.performance[selectedScale.performanceIndicator][
+            selectedScale.statistic
+          ]
+        );
+      }
+    }
+    return '#d3d3d3';
   }
 }

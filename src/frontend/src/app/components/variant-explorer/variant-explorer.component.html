@@ -524,7 +524,18 @@
                     ></i>
                   </ng-container>
                   <ng-container *ngSwitchCase="VM.PERFORMANCE">
-                    <div
+                    <i
+                      class="bi bi-x-circle-fill cursor-pointer fs-6"
+                      [ngStyle]="{
+                        display: performanceService.anyTreePerformanceActive()
+                          ? 'inline'
+                          : 'none'
+                      }"
+                      ngbTooltip="hide all model projections"
+                      container="body"
+                      (click)="handleTreePerformanceClear()"
+                    ></i>
+                    <!-- <div
                       *ngIf="
                         currentlyDisplayedProcessTree &&
                         performanceService.anyTreePerformanceAvailable()
@@ -570,7 +581,7 @@
                       >
                         <i class="bi bi-x-lg" style="color: white"></i>
                       </button>
-                    </div>
+                    </div> -->
                   </ng-container>
                 </ng-container>
               </th>
@@ -650,21 +661,6 @@
                   <ng-container *ngSwitchCase="VM.PERFORMANCE">
                     <app-tree-performance-button
                       [variant]="variant"
-                      [isPerformanceAvailable]="
-                        performanceService.isTreePerformanceAvailable
-                      "
-                      [isPerformanceActive]="
-                        performanceService.isTreePerformanceActive
-                      "
-                      [isPerformanceFitting]="isPerformanceFitting"
-                      [isPerformanceCalcInProgress]="
-                        isPerformanceCalcInProgress
-                      "
-                      (removePerformance)="handlePerformanceRemove($event)"
-                      (showPerformance)="handleSelectTreePerformance($event)"
-                      [computePerformanceButtonColor]="
-                        computePerformanceButtonColor
-                      "
                     ></app-tree-performance-button>
                   </ng-container>
                 </ng-container>
