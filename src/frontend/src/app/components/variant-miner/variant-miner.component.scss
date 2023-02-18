@@ -278,11 +278,14 @@
   align-items: baseline;
   flex-wrap: nowrap;
   align-content: flex-end;
-  justify-content: space-evenly;
+  justify-content: left;
+  padding: 0px 10px 0px 10px;
 }
 .slider-container{
   width : 25vw;
   z-index: 12;
+  margin-left: auto;
+  margin-right: 0;
 }
 
 ::ng-deep {
@@ -294,10 +297,14 @@
 .radio-content{
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
-  padding: 10px;
+  padding: 5px 10px 5px 10px;
   align-items: center;
   align-content: center;
+}
+
+.radio-container{
+  margin-left: auto;
+  margin-right: 0;
 }
 
 .activities-filter {
@@ -321,7 +328,7 @@
   background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
   overflow-y: scroll;
   overflow-x: auto;
-  width: 37.5vw;
+  width: 35.5vw;
   margin-right: 40px !important;
 }
 

@@ -286,7 +286,7 @@
             </div>
             <div class="radio-content">
               <span>Model Alignment:</span>
-              <div class="btn-group btn-group-sm" role="group">
+              <div class="btn-group btn-group-sm radio-container" role="group">
                 <ng-template
                   ngFor
                   let-choice
@@ -316,7 +316,7 @@
             </div>
 
             <div class="filter-option-container">
-              <span>Support</span>
+              <span>Support:</span>
               <div class="slider-container sup-selector">
                 <ngx-slider
                   [(value)]="supFilter.low"
@@ -328,7 +328,7 @@
             </div>
             <div class="radio-content">
               <span> Closed and Maximal: </span>
-              <div class="btn-group btn-group-sm" role="group">
+              <div class="btn-group btn-group-sm radio-container" role="group">
                 <ng-template
                   ngFor
                   let-choice
@@ -354,8 +354,8 @@
               </div>
             </div>
             <div class="radio-content">
-              <span> Infix Types: </span>
-              <div class="btn-group btn-group-sm" role="group">
+              <span> Infix Types:</span>
+              <div class="btn-group btn-group-sm radio-container" role="group">
                 <ng-template
                   ngFor
                   let-choice
