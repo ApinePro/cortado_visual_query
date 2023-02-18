@@ -17,6 +17,15 @@
   border-bottom: var(--thin-border-color) 1px solid;
 }
 
+.activity-button-area-1{
+  width: 100%;
+  color: var(--text-secondary);
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-top: var(--thin-border-color) 1px solid;
+  border-bottom: var(--thin-border-color) 1px solid;
+}
+
 .activity-button{
   cursor : pointer;
 }
@@ -31,3 +40,6 @@
   color: whitesmoke;
   position: relative;
 }
+
+
+

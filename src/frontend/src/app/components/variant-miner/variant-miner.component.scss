@@ -87,6 +87,9 @@
     border-top-right-radius: 1px;
 }
 
+  .ngx-slider .ngx-slider-ticks-values-under .ngx-slider-tick-value {
+    display: none !important;
+  }
 }
 
 .pattern-table-container{
@@ -297,6 +300,10 @@
   align-content: center;
 }
 
+.activities-filter {
+  width: 100%;
+}
+
 .closed-and-maximal-radio-input{
   margin-top: 20px;
 }
@@ -314,7 +321,7 @@
   background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
   overflow-y: scroll;
   overflow-x: auto;
-  width: 33.5vw;
+  width: 37.5vw;
   margin-right: 40px !important;
 }
 

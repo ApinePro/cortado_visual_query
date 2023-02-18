@@ -1,0 +1,103 @@
+<div class="activity-button-area-1 bg-dark">
+
+  <div class="container">
+
+    <div class="row justify-content-around text-center align-items-center">
+      <div class="col-3">
+        Activity
+      </div>
+      <div class="col">
+        Filter
+      </div>
+      <div class="col" style="text-align: left !important">
+        In/Out
+      </div>
+      <div class="col-3">
+        Activity
+      </div>
+      <div class="col">
+        Filter
+      </div>
+      <div class="col" style="text-align: left !important">
+         In/Out
+      </div>
+    </div>
+
+    <div *ngFor="let index of activityNames; let i = index; let even = even">
+      <div class="row justify-content-around text-center align-items-center" *ngIf="even">
+        <div class="col-3">
+          <svg
+            #ActivityButton
+            appVariantDrawer
+            [variant]="{ variant: activityDummyVariants.get(activityNames[i]) }"
+            [computeActivityColor]="computeActivityColor"
+            [onMouseOverCbFc]="onMouseOverCbFc"
+            (click)="onActivityButtonClick(ActivityButton, activityNames[i])"
+            class="activity-button"
+          ></svg>
+        </div>
+        <div class="col">
+          <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+        </div>
+        <div class="col text-center">
+          <div class="form-check form-switch text-center" style="min-height: unset;margin-left: 5px;">
+            <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+          </div>
+        </div>
+        <div class="col-3" *ngIf="i + 1 < activityNames.length">
+          <svg
+            #ActivityButton
+            appVariantDrawer
+            [variant]="{ variant: activityDummyVariants.get(activityNames[i + 1]) }"
+            [computeActivityColor]="computeActivityColor"
+            [onMouseOverCbFc]="onMouseOverCbFc"
+            (click)="onActivityButtonClick(ActivityButton, activityNames[i + 1])"
+            class="activity-button"
+          ></svg>
+        </div>
+        <div class="col" *ngIf="i + 1 < activityNames.length">
+          <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+        </div>
+        <div class="col text-center" *ngIf="i + 1 < activityNames.length">
+          <div class="form-check form-switch text-center" style="min-height: unset;margin-left: 5px;">
+            <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+          </div>
+        </div>
+        <div class="col-6" *ngIf="i + 1 === activityNames.length">
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <div class="activity-button-container" *ngFor="let activity of activityNames">
+<!--    <svg
+      #ActivityButton
+      appVariantDrawer
+      [variant]="{ variant: activityDummyVariants.get(activity) }"
+      [computeActivityColor]="computeActivityColor"
+      [onMouseOverCbFc]="onMouseOverCbFc"
+      [highlightOnMouseover]="true"
+      (click)="onActivityButtonClick(ActivityButton, activity)"
+      class="activity-button"
+    ></svg>-->
+
+    <!--<span
+      *ngIf="
+        activityNamesFilter &&
+        activityNamesFilter.get(activity) === actvitiyFilterState.In
+      "
+      class="activity-label"
+      >IN</span
+    >
+    <span
+      *ngIf="
+        activityNamesFilter &&
+        activityNamesFilter.get(activity) === actvitiyFilterState.Out
+      "
+      class="activity-label activity-label-out"
+      >OUT</span
+    >-->
+  </div>
+</div>

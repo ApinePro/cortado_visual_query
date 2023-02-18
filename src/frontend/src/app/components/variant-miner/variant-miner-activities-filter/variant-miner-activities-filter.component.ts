@@ -1,42 +1,44 @@
 import {
   Component,
-  ChangeDetectionStrategy,
+  EventEmitter,
   Input,
   OnChanges,
-  SimpleChanges,
-  Output,
-  EventEmitter,
-  OnInit,
-  ViewChildren,
-  QueryList,
   OnDestroy,
+  OnInit,
+  Output,
+  QueryList,
+  SimpleChanges,
+  ViewChildren,
 } from '@angular/core';
-import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
-import * as d3 from 'd3';
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
-import { Variant } from 'src/app/objects/Variants/variant';
+import { ColorMapService } from '../../../services/colorMapService/color-map.service';
+import { ActvitiyFilterState } from '../variant-miner.component';
 import {
   LeafNode,
   VariantElement,
-} from 'src/app/objects/Variants/variant_element';
+} from '../../../objects/Variants/variant_element';
+import { VariantDrawerDirective } from '../../../directives/variant-drawer/variant-drawer.directive';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ActvitiyFilterState } from '../../variant-miner/variant-miner.component';
+import { Variant } from '../../../objects/Variants/variant';
+import * as d3 from 'd3';
 
 @Component({
-  selector: 'app-activity-button-area',
-  templateUrl: './activity-button-area.component.html',
-  styleUrls: ['./activity-button-area.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'app-variant-miner-activities-filter',
+  templateUrl: './variant-miner-activities-filter.component.html',
+  styleUrls: ['./variant-miner-activities-filter.component.css'],
 })
-export class ActivityButtonAreaComponent
+export class VariantMinerActivitiesFIlterComponent
   implements OnChanges, OnInit, OnDestroy
 {
   constructor(private colorMapService: ColorMapService) {}
 
   @Input()
   activityNames: Array<string> = [];
-
+  @Input()
+  activityNamesFilter: Map<string, ActvitiyFilterState> = new Map<
+    string,
+    ActvitiyFilterState
+  >();
   activityDummyVariants: Map<string, LeafNode> = new Map<string, LeafNode>();
 
   @Output()
@@ -141,5 +143,9 @@ export class ActivityButtonAreaComponent
       leaf.setExpanded(true);
       this.activityDummyVariants.set(activity, leaf);
     }
+  }
+
+  public get actvitiyFilterState(): typeof ActvitiyFilterState {
+    return ActvitiyFilterState;
   }
 }

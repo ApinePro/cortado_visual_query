@@ -383,13 +383,14 @@
                 </ng-template>
               </div>
             </div>
-            <app-activity-button-area
+            <app-variant-miner-activities-filter
               *ngIf="filterDropDownOpen && minerVisibile"
               [activityNames]="activityNames"
               [activityNamesFilter]="activityNamesFilter"
               (activityButtonClick)="handleActivityButtonClick($event)"
+              class="activities-filter"
             >
-            </app-activity-button-area>
+            </app-variant-miner-activities-filter>
           </div>
         </div>
 

@@ -11,22 +11,5 @@
       (click)="onActivityButtonClick(ActivityButton, activity)"
       class="activity-button"
     ></svg>
-
-    <span
-      *ngIf="
-        activityNamesFilter &&
-        activityNamesFilter.get(activity) === actvitiyFilterState.In
-      "
-      class="activity-label"
-      >IN</span
-    >
-    <span
-      *ngIf="
-        activityNamesFilter &&
-        activityNamesFilter.get(activity) === actvitiyFilterState.Out
-      "
-      class="activity-label activity-label-out"
-      >OUT</span
-    >
   </div>
 </div>
