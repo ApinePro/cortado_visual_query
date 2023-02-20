@@ -30,10 +30,6 @@
   border-bottom: var(--thin-border-color) 1px solid;
 }
 
-.activity-button{
-  cursor : pointer;
-}
-
 .activity-label{
   font-size: smaller;
   padding: 0px 2px 0px 2px;
@@ -47,9 +43,14 @@
 
 .filter-checkbox{
   margin-left: 8px;
+  cursor : pointer;
 }
 
 .filter-toggle {
   min-height: unset;
   margin-left: 5px;
+}
+
+.form-check-input {
+  cursor : pointer;
 }

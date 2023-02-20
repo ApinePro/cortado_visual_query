@@ -16,11 +16,9 @@
       >
         <div class="col-3">
           <svg
-            #ActivityButton
             appVariantDrawer
             [variant]="{ variant: activityDummyVariants.get(activityNames[i]) }"
             [computeActivityColor]="computeActivityColor"
-            class="activity-button"
           ></svg>
         </div>
         <div class="col">
@@ -52,13 +50,11 @@
 
         <div class="col-3" *ngIf="i + 1 < activityNames.length">
           <svg
-            #ActivityButton
             appVariantDrawer
             [variant]="{
               variant: activityDummyVariants.get(activityNames[i + 1])
             }"
             [computeActivityColor]="computeActivityColor"
-            class="activity-button"
           ></svg>
         </div>
         <div class="col" *ngIf="i + 1 < activityNames.length">
@@ -74,7 +70,7 @@
         <div class="col text-center" *ngIf="i + 1 < activityNames.length">
           <div class="form-check form-switch text-center filter-toggle">
             <input
-              class="form-check-input"
+              class="form-check-input filter-toggle-input"
               type="checkbox"
               (change)="activityFilterChange($event, activityNames[i + 1])"
               [(ngModel)]="
