@@ -263,6 +263,7 @@
           aria-expanded="false"
           container="body"
           (click)="filterDropDownOpen = !filterDropDownOpen"
+          #dropdownButton
         >
           <i class="bi bi-funnel"></i>
         </button>
@@ -518,7 +519,7 @@
                 </div>
               </th>
             </tr>
-            <tr class="sticky-header-row" style="top: 33px">
+            <tr class="sticky-header-row">
               <th class="text-center">
                 <i
                   [ngClass]="{

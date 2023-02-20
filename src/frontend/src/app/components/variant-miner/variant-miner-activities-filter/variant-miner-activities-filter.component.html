@@ -3,7 +3,7 @@
   <div class="container">
 
     <div class="row justify-content-around text-center align-items-center">
-      <div class="col-3">
+      <div class="col-3 header-first-col">
         Activity
       </div>
       <div class="col">
@@ -32,18 +32,36 @@
             [variant]="{ variant: activityDummyVariants.get(activityNames[i]) }"
             [computeActivityColor]="computeActivityColor"
             [onMouseOverCbFc]="onMouseOverCbFc"
-            (click)="onActivityButtonClick(ActivityButton, activityNames[i])"
             class="activity-button"
           ></svg>
         </div>
         <div class="col">
-          <input class="form-check-input filter-checkbox" type="checkbox" value="" id="flexCheckDefault">
+          <input
+            class="form-check-input filter-checkbox"
+            type="checkbox"
+            (change)="activityFilterChange($event, activityNames[i])"
+            [(ngModel)]="
+              activityFilterStates?.get(activityNames[i])['checkbox']
+            "
+          />
         </div>
         <div class="col text-center">
-          <div class="form-check form-switch text-center" style="min-height: unset;margin-left: 5px;">
-            <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+          <div class="form-check form-switch text-center filter-toggle">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              (change)="activityFilterChange($event, activityNames[i])"
+              [(ngModel)]="
+                activityFilterStates?.get(activityNames[i])['toggle']
+              "
+              [disabled]="
+                activityFilterStates?.get(activityNames[i])['checkbox'] ===
+                false
+              "
+            />
           </div>
         </div>
+
         <div class="col-3" *ngIf="i + 1 < activityNames.length">
           <svg
             #ActivityButton
@@ -51,16 +69,33 @@
             [variant]="{ variant: activityDummyVariants.get(activityNames[i + 1]) }"
             [computeActivityColor]="computeActivityColor"
             [onMouseOverCbFc]="onMouseOverCbFc"
-            (click)="onActivityButtonClick(ActivityButton, activityNames[i + 1])"
             class="activity-button"
           ></svg>
         </div>
         <div class="col" *ngIf="i + 1 < activityNames.length">
-          <input class="form-check-input filter-checkbox" type="checkbox" value="" id="flexCheckDefault">
+          <input
+            class="form-check-input filter-checkbox"
+            type="checkbox"
+            (change)="activityFilterChange($event, activityNames[i + 1])"
+            [(ngModel)]="
+              activityFilterStates?.get(activityNames[i + 1])['checkbox']
+            "
+          />
         </div>
         <div class="col text-center" *ngIf="i + 1 < activityNames.length">
-          <div class="form-check form-switch text-center" style="min-height: unset;margin-left: 5px;">
-            <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+          <div class="form-check form-switch text-center filter-toggle">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              (change)="activityFilterChange($event, activityNames[i + 1])"
+              [(ngModel)]="
+                activityFilterStates?.get(activityNames[i + 1])['toggle']
+              "
+              [disabled]="
+                activityFilterStates.get(activityNames[i + 1])['checkbox'] ===
+                false
+              "
+            />
           </div>
         </div>
         <div class="col-6" *ngIf="i + 1 === activityNames.length">
@@ -70,34 +105,4 @@
 
   </div>
 
-
-  <div class="activity-button-container" *ngFor="let activity of activityNames">
-<!--    <svg
-      #ActivityButton
-      appVariantDrawer
-      [variant]="{ variant: activityDummyVariants.get(activity) }"
-      [computeActivityColor]="computeActivityColor"
-      [onMouseOverCbFc]="onMouseOverCbFc"
-      [highlightOnMouseover]="true"
-      (click)="onActivityButtonClick(ActivityButton, activity)"
-      class="activity-button"
-    ></svg>-->
-
-    <!--<span
-      *ngIf="
-        activityNamesFilter &&
-        activityNamesFilter.get(activity) === actvitiyFilterState.In
-      "
-      class="activity-label"
-      >IN</span
-    >
-    <span
-      *ngIf="
-        activityNamesFilter &&
-        activityNamesFilter.get(activity) === actvitiyFilterState.Out
-      "
-      class="activity-label activity-label-out"
-      >OUT</span
-    >-->
-  </div>
 </div>

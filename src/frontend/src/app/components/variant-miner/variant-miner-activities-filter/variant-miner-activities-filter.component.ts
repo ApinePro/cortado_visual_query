@@ -40,6 +40,7 @@ export class VariantMinerActivitiesFIlterComponent
     ActvitiyFilterState
   >();
   activityDummyVariants: Map<string, LeafNode> = new Map<string, LeafNode>();
+  activityFilterStates: Map<string, { checkbox: boolean; toggle: boolean }>;
 
   @Output()
   activityButtonClick = new EventEmitter();
@@ -53,11 +54,39 @@ export class VariantMinerActivitiesFIlterComponent
 
   ngOnInit() {
     this.activityDummyVariants = new Map<string, LeafNode>();
+    this.activityFilterStates = new Map<
+      string,
+      { checkbox: boolean; toggle: boolean }
+    >();
 
     for (let activity of this.activityNames) {
       const leaf = new LeafNode([activity]);
       leaf.setExpanded(true);
       this.activityDummyVariants.set(activity, leaf);
+
+      const activityFilter = this.activityNamesFilter.get(activity);
+      switch (activityFilter) {
+        case ActvitiyFilterState.Default:
+          this.activityFilterStates.set(activity, {
+            checkbox: false,
+            toggle: false,
+          });
+          break;
+
+        case ActvitiyFilterState.In:
+          this.activityFilterStates.set(activity, {
+            checkbox: true,
+            toggle: false,
+          });
+          break;
+
+        case ActvitiyFilterState.Out:
+          this.activityFilterStates.set(activity, {
+            checkbox: true,
+            toggle: true,
+          });
+          break;
+      }
     }
 
     this.colorMapService.colorMap$
@@ -74,10 +103,6 @@ export class VariantMinerActivitiesFIlterComponent
 
   ngOnDestroy(): void {
     this._destroy$.next();
-  }
-
-  onActivityButtonClick(elem: SVGElement, activity: any) {
-    this.activityButtonClick.emit({ svg: elem, activityName: activity });
   }
 
   computeActivityColor = (
@@ -147,5 +172,28 @@ export class VariantMinerActivitiesFIlterComponent
 
   public get actvitiyFilterState(): typeof ActvitiyFilterState {
     return ActvitiyFilterState;
+  }
+
+  // tslint:disable-next-line:typedef
+  activityFilterChange(event, activity) {
+    const checkbox = this.activityFilterStates.get(activity).checkbox;
+    const toggle = this.activityFilterStates.get(activity).toggle;
+    let filter = ActvitiyFilterState.Default;
+
+    if (checkbox === false) {
+      filter = ActvitiyFilterState.Default;
+      this.activityFilterStates.set(activity, {
+        checkbox: false,
+        toggle: false,
+      });
+      event.preventDefault();
+    } else if (checkbox === true && toggle === false) {
+      filter = ActvitiyFilterState.In;
+    } else if (checkbox === true && toggle === true) {
+      filter = ActvitiyFilterState.Out;
+    }
+
+    this.activityNamesFilter.set(activity, filter);
+    this.activityButtonClick.emit({ activityName: activity, filter });
   }
 }
