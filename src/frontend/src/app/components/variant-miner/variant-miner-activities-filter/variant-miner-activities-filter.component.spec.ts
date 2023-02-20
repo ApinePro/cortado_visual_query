@@ -8,9 +8,8 @@ describe('VariantMinerActivitiesFIlterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ VariantMinerActivitiesFIlterComponent ]
-    })
-    .compileComponents();
+      declarations: [VariantMinerActivitiesFIlterComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(VariantMinerActivitiesFIlterComponent);
     component = fixture.componentInstance;

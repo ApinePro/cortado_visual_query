@@ -3,28 +3,19 @@
   <div class="container">
 
     <div class="row justify-content-around text-center align-items-center">
-      <div class="col-3 header-first-col">
-        Activity
-      </div>
-      <div class="col">
-        Filter
-      </div>
-      <div class="col" style="text-align: left !important">
-        In/Out
-      </div>
-      <div class="col-3">
-        Activity
-      </div>
-      <div class="col">
-        Filter
-      </div>
-      <div class="col" style="text-align: left !important">
-         In/Out
-      </div>
+      <div class="col-3 header-first-col">Activity</div>
+      <div class="col">Filter</div>
+      <div class="col" style="text-align: left !important">In/Out</div>
+      <div class="col-3">Activity</div>
+      <div class="col">Filter</div>
+      <div class="col" style="text-align: left !important">In/Out</div>
     </div>
 
     <div *ngFor="let index of activityNames; let i = index; let even = even">
-      <div class="row justify-content-center text-center align-items-center" *ngIf="even">
+      <div
+        class="row justify-content-center text-center align-items-center"
+        *ngIf="even"
+      >
         <div class="col-3">
           <svg
             #ActivityButton
@@ -66,7 +57,9 @@
           <svg
             #ActivityButton
             appVariantDrawer
-            [variant]="{ variant: activityDummyVariants.get(activityNames[i + 1]) }"
+            [variant]="{
+              variant: activityDummyVariants.get(activityNames[i + 1])
+            }"
             [computeActivityColor]="computeActivityColor"
             [onMouseOverCbFc]="onMouseOverCbFc"
             class="activity-button"
@@ -98,8 +91,7 @@
             />
           </div>
         </div>
-        <div class="col-6" *ngIf="i + 1 === activityNames.length">
-        </div>
+        <div class="col-6" *ngIf="i + 1 === activityNames.length"></div>
       </div>
     </div>
 
