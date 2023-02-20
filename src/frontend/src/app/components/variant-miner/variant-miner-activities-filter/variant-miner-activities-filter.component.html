@@ -1,6 +1,5 @@
 <div class="activity-button-area-1 bg-dark">
   <div class="container">
-
     <div class="row justify-content-around text-center align-items-center">
       <div class="col-3 header-first-col">Activity</div>
       <div class="col">Filter</div>
@@ -21,7 +20,6 @@
             appVariantDrawer
             [variant]="{ variant: activityDummyVariants.get(activityNames[i]) }"
             [computeActivityColor]="computeActivityColor"
-            [onMouseOverCbFc]="onMouseOverCbFc"
             class="activity-button"
           ></svg>
         </div>
@@ -60,7 +58,6 @@
               variant: activityDummyVariants.get(activityNames[i + 1])
             }"
             [computeActivityColor]="computeActivityColor"
-            [onMouseOverCbFc]="onMouseOverCbFc"
             class="activity-button"
           ></svg>
         </div>
