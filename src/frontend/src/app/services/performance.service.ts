@@ -77,6 +77,15 @@ export class PerformanceService {
         this.currentPt = pt;
       }
     });
+
+    this.modelViewModeService.viewMode$.subscribe((viewMode) => {
+      if (
+        viewMode === ViewMode.PERFORMANCE &&
+        this.anyTreePerformanceActive()
+      ) {
+        this.showTreePerformance();
+      }
+    });
   }
 
   private updateTreePerformance(variants: Variant[]): void {
@@ -155,9 +164,14 @@ export class PerformanceService {
   }
 
   public showTreePerformance() {
-    this.processTreeService.currentDisplayedProcessTree =
-      this.mergedTreePerformance;
-    this.modelViewModeService.viewMode = ViewMode.PERFORMANCE;
+    if (
+      this.processTreeService.currentDisplayedProcessTree !==
+      this.mergedTreePerformance
+    )
+      this.processTreeService.currentDisplayedProcessTree =
+        this.mergedTreePerformance;
+    if (this.modelViewModeService.viewMode !== ViewMode.PERFORMANCE)
+      this.modelViewModeService.viewMode = ViewMode.PERFORMANCE;
   }
 
   public toggleTreePerformance() {
@@ -221,17 +235,11 @@ export class PerformanceService {
   }
 
   public isTreePerformanceActive(v: Variant) {
-    return (
-      this.activeTreePerformances.has(v) &&
-      this.modelViewModeService.viewMode === ViewMode.PERFORMANCE
-    );
+    return this.activeTreePerformances.has(v);
   }
 
   public anyTreePerformanceActive() {
-    return (
-      this.activeTreePerformances.size > 0 &&
-      this.modelViewModeService.viewMode === ViewMode.PERFORMANCE
-    );
+    return this.activeTreePerformances.size > 0;
   }
 
   public isTreePerformanceCalcInProgress(v: Variant) {

@@ -44,6 +44,11 @@ export class ConformanceCheckingService {
         this.hideTreeConformance();
       }
     });
+
+    this.modelViewModeService.viewMode$.subscribe((viewMode) => {
+      if (viewMode === ViewMode.CONFORMANCE && this.anyTreeConformanceActive)
+        this.showTreeConformance();
+    });
   }
 
   public readonly conformanceColorMap = new ColorMap(
@@ -185,10 +190,7 @@ export class ConformanceCheckingService {
   }
 
   public isTreeConformanceActive(v: Variant) {
-    return (
-      this.activeTreeConformances.has(v) &&
-      this.modelViewModeService.viewMode === ViewMode.CONFORMANCE
-    );
+    return this.activeTreeConformances.has(v);
   }
 
   public isTreeConformanceCalcInProgress(v: Variant) {
@@ -196,10 +198,7 @@ export class ConformanceCheckingService {
   }
 
   public anyTreeConformanceActive() {
-    return (
-      this.activeTreeConformances.size > 0 &&
-      this.modelViewModeService.viewMode === ViewMode.CONFORMANCE
-    );
+    return this.activeTreeConformances.size > 0;
   }
 
   private updateTreeConformance(variants: Variant[]) {
@@ -226,9 +225,14 @@ export class ConformanceCheckingService {
   }
 
   public showTreeConformance() {
-    this.processTreeService.currentDisplayedProcessTree =
-      this.mergedTreeConformance;
-    this.modelViewModeService.viewMode = ViewMode.CONFORMANCE;
+    if (
+      this.processTreeService.currentDisplayedProcessTree !==
+      this.mergedTreeConformance
+    )
+      this.processTreeService.currentDisplayedProcessTree =
+        this.mergedTreeConformance;
+    if (this.modelViewModeService.viewMode !== ViewMode.CONFORMANCE)
+      this.modelViewModeService.viewMode = ViewMode.CONFORMANCE;
   }
 
   public hideTreeConformance() {
@@ -238,7 +242,7 @@ export class ConformanceCheckingService {
   }
 
   private stopRunningRequest() {
-    this.latestRequest.unsubscribe();
+    this.latestRequest?.unsubscribe();
     this.calculationInProgress.clear();
   }
 
