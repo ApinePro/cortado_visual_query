@@ -113,6 +113,8 @@ export class VariantMinerComponent
   @ViewChild('variantMiner', { static: false })
   variantMinerDiv: ElementRef<HTMLDivElement>;
 
+  @ViewChild('dropdownButton') dropdownButton: ElementRef;
+
   FrequentMiningStrategy = FrequentMiningStrategy;
   FrequentMiningAlgorithm = FrequentMiningAlgorithm;
   FrequentMiningCMStrategy = FrequentMiningCMStrategy;
@@ -147,6 +149,7 @@ export class VariantMinerComponent
   contextMenu_element: VariantElement;
   contextMenu_variant: VariantElement;
   contextMenu_directive: VariantDrawerDirective;
+  collapse: boolean = false;
 
   kFilter: IntervalFilter = new IntervalFilter(
     'k',
@@ -446,6 +449,26 @@ export class VariantMinerComponent
     });
   }
 
+  validateMinSupport(event) {
+    // event.target.value
+    const max =
+      this.variantMinerConfigInput.value.frequent_mining_strat ===
+        this.FrequentMiningStrategy.TraceTransaction ||
+      this.variantMinerConfigInput.value.frequent_mining_strat ===
+        this.FrequentMiningStrategy.TraceOccurence
+        ? this.totalTraces
+        : this.totalVariants;
+
+    if (event.target.value < 0) {
+      this.variantMinerConfigInput.get('min_sup').patchValue(0);
+    } else if (event.target.value > max) {
+      this.variantMinerConfigInput.get('min_sup').patchValue(max);
+    }
+
+    const minSupValue = this.variantMinerConfigInput.value.min_sup;
+    this.relSup = parseFloat(((minSupValue / max) * 100).toFixed(2));
+  }
+
   onSubmit() {
     console.log('SUBMIT', this.variantMinerConfigInput.value);
 
@@ -467,6 +490,7 @@ export class VariantMinerComponent
     this.backendService.frequentSubtreeMining(this.currentConfig);
 
     this.minsup = form_values.min_sup;
+    this.resetActivitiesFilter();
   }
 
   handleFilterChange(event) {
@@ -549,6 +573,7 @@ export class VariantMinerComponent
       .subscribe((log) => {
         this.variantPatterns = [];
         this.displayedVariantsPatterns = [];
+        this.resetActivitiesFilter();
       });
 
     this.processTreeService.currentDisplayedProcessTree$
@@ -745,36 +770,16 @@ export class VariantMinerComponent
   }
 
   handleActivityButtonClick(e) {
-    const state = this.activityNamesFilter.get(e.activityName);
-    let nextState;
-
-    switch (state) {
-      case ActvitiyFilterState.Default: {
-        nextState = ActvitiyFilterState.In;
-        d3.select(e.svg).classed('activity-button-in', true);
-        break;
-      }
-
-      case ActvitiyFilterState.Out: {
-        nextState = ActvitiyFilterState.Default;
-        d3.select(e.svg).classed('activity-button-out', false);
-        break;
-      }
-
-      case ActvitiyFilterState.In: {
-        nextState = ActvitiyFilterState.Out;
-        d3.select(e.svg).classed('activity-button-in', false);
-        d3.select(e.svg).classed('activity-button-out', true);
-        break;
-      }
-      default:
-        nextState = ActvitiyFilterState.Default;
-        break;
-    }
-
-    this.activityNamesFilter.set(e.activityName, nextState);
-
     this.handleFilterChange(null);
+  }
+
+  resetActivitiesFilter() {
+    if (this.filterDropDownOpen) {
+      this.dropdownButton.nativeElement.click();
+    }
+    this.activityNames.forEach((activity) => {
+      this.activityNamesFilter.set(activity, ActvitiyFilterState.Default);
+    });
   }
 
   computeActivityColor = (
@@ -804,6 +809,7 @@ export class VariantMinerComponent
     height: number
   ): void {
     this.currentHeight = height;
+    this.collapse = width < 875;
   }
 
   handleVisibilityChange(visibility: boolean): void {
@@ -1007,7 +1013,7 @@ export class Choice {
   }
 }
 
-enum ActvitiyFilterState {
+export enum ActvitiyFilterState {
   In = 1,
   Out = 2,
   Default = 3,
