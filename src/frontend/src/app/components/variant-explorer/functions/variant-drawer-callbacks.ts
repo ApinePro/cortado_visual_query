@@ -130,7 +130,9 @@ export function activityColor(
         if (variant.alignment && !variant.isConformanceOutdated) {
           const p = element.asLeafNode().conformance[0];
           color =
-            this.conformanceCheckingService.conformanceColorMap.getColor(p);
+            this.conformanceCheckingService.variantConformanceColorMap.getColor(
+              p
+            );
         } else color = '#d3d3d3';
         break;
     }

@@ -168,7 +168,7 @@ export class VariantComponent implements AfterViewInit {
 
   get conformanceButtonColor() {
     if (this.treeConformanceValue >= 0 && this.isTreeConformanceActive)
-      return this.conformanceCheckingService.conformanceColorMap.getColor(
+      return this.conformanceCheckingService.modelConformanceColorMap.getColor(
         this.treeConformanceValue
       );
     else return '#d3d3d3';

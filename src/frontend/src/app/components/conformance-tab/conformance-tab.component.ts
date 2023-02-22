@@ -31,7 +31,8 @@ export class ConformanceTabComponent
   @ViewChild('colorMapTab') colorMapTab: ElementRef;
 
   private _destroy$ = new Subject();
-  public conformanceColorMapValues: ColorMapValue[];
+  public modelConformanceColorMapValues: ColorMapValue[];
+  public variantConformanceColorMapValues: ColorMapValue[];
 
   public VM = ViewMode;
 
@@ -47,12 +48,20 @@ export class ConformanceTabComponent
   ) {
     super(elRef.nativeElement, renderer);
 
-    const colorMap = this.conformanceCheckingService.conformanceColorMap;
+    this.modelConformanceColorMapValues = this.calculateColorMapValues(
+      this.conformanceCheckingService.modelConformanceColorMap
+    );
+    this.variantConformanceColorMapValues = this.calculateColorMapValues(
+      this.conformanceCheckingService.variantConformanceColorMap
+    );
+  }
+
+  private calculateColorMapValues(colorMap) {
     const min = colorMap.domain()[0];
     const max = colorMap.domain()[colorMap.domain().length - 1];
     const increment = (max - min) / (colorMap.range().length - 2);
 
-    this.conformanceColorMapValues = colorMap
+    return colorMap
       .range()
       .slice(1)
       .map((v, i) => {

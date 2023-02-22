@@ -23,7 +23,7 @@
       aria-selected="true"
       #colorMapTab
     >
-      Color Map
+      Color Maps
     </button>
   </li>
 </ul>
@@ -131,27 +131,40 @@
     role="tabpanel"
     aria-labelledby="color-map-tab"
   >
-    <div class="card text-white mb-3 w-100" style="max-width: 400px">
-      <div class="card-body">
-        <h5 class="card-title">Conformance</h5>
+    <div class="card-deck">
+      <div class="card text-white mb-3 w-50">
+        <div class="card-body">
+          <h5 class="card-title">Model Conformance</h5>
 
-        <div class="mb-3">
-          <select
-            class="form-select form-select-sm"
-            aria-label="variant conformance aggregation"
-            name="weightMethod"
-            (change)="conformanceWeightMethodChange($event)"
-          >
-            <option value="weighted_equally">Weighted Equally</option>
-            <option value="weighted_by_counts">Weighted By Frequency</option>
-          </select>
+          <div class="mb-3">
+            <select
+              class="form-select form-select-sm"
+              aria-label="variant conformance aggregation"
+              name="weightMethod"
+              (change)="conformanceWeightMethodChange($event)"
+            >
+              <option value="weighted_equally">Weighted Equally</option>
+              <option value="weighted_by_counts">Weighted By Frequency</option>
+            </select>
+          </div>
+          <app-color-map
+            [colorMapValues]="modelConformanceColorMapValues"
+            [timeBasedLabel]="false"
+            [excludeUpperLabel]="true"
+            suffix="%"
+          ></app-color-map>
         </div>
-        <app-color-map
-          [colorMapValues]="conformanceColorMapValues"
-          [timeBasedLabel]="false"
-          [excludeUpperLabel]="true"
-          suffix="%"
-        ></app-color-map>
+      </div>
+      <div class="card text-white mb-3 w-50">
+        <div class="card-body">
+          <h5 class="card-title">Variant Conformance</h5>
+          <app-color-map
+            [colorMapValues]="variantConformanceColorMapValues"
+            [timeBasedLabel]="false"
+            [excludeUpperLabel]="true"
+            suffix="%"
+          ></app-color-map>
+        </div>
       </div>
     </div>
   </div>

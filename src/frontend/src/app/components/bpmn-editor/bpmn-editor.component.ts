@@ -267,7 +267,7 @@ export class BpmnEditorComponent
     switch (this.modelViewModeService.viewMode) {
       case ViewMode.CONFORMANCE:
         if (pt.conformance === null) return '#404041';
-        return this.conformanceCheckingService.conformanceColorMap.getColor(
+        return this.conformanceCheckingService.modelConformanceColorMap.getColor(
           this.conformanceCheckingService.isConformanceWeighted &&
             pt.conformance?.weighted_by_counts != undefined
             ? pt.conformance?.weighted_by_counts.value

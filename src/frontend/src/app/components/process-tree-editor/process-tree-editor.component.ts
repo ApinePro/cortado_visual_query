@@ -430,7 +430,7 @@ export class ProcessTreeEditorComponent
     switch (this.modelViewModeService.viewMode) {
       case ViewMode.CONFORMANCE:
         if (d.data.conformance === null) return '#404041';
-        return this.conformanceCheckingService.conformanceColorMap.getColor(
+        return this.conformanceCheckingService.modelConformanceColorMap.getColor(
           this.conformanceCheckingService.isConformanceWeighted &&
             d.data.conformance?.weighted_by_counts != undefined
             ? d.data.conformance?.weighted_by_counts.value
