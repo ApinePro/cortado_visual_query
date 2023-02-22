@@ -19,15 +19,15 @@
     style="display: flex; flex-direction: column"
   >
     <ng-template #tooltip>
-      <div *ngIf="isConformanceAvailable; else tooltipConfNotAvailable">
+      <div *ngIf="isConformanceActive; else tooltipConfNotAvailable">
         Conformance: {{ (conformanceValue * 100).toFixed(2) }}%
         <hr class="tooltip-hr" />
-        click to visualize conformance of this variant on model
+        click to remove variant to conformance projection on model
       </div>
 
-      <ng-template #tooltipConfNotAvailable
-        >calculate model conformance of this variant</ng-template
-      >
+      <ng-template #tooltipConfNotAvailable>
+        click to add variant to conformance projection on model
+      </ng-template>
     </ng-template>
     <i
       class="bi fs-4"

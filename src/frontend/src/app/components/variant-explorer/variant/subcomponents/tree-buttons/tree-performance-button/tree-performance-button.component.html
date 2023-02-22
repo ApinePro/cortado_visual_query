@@ -22,7 +22,7 @@
       <div *ngIf="isPerformanceActive; else tooltipPerfNotAvailable">
         {{ tooltipText }}
         <hr class="tooltip-hr" />
-        click to visualize performance of this variant on model
+        click to remove variant to performance projection on model
         <div *ngIf="!isPerformanceFitting">
           <hr class="tooltip-hr" />
           <i class="bi bi-exclamation-triangle-fill text-warning">
@@ -33,9 +33,9 @@
         </div>
       </div>
 
-      <ng-template #tooltipPerfNotAvailable
-        >calculate model performance of this variant</ng-template
-      >
+      <ng-template #tooltipPerfNotAvailable>
+        click to add variant to performance projection on model
+      </ng-template>
     </ng-template>
     <i
       class="bi fs-4"
