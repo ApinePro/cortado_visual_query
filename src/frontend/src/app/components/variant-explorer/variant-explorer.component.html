@@ -535,53 +535,22 @@
                       container="body"
                       (click)="handleTreePerformanceClear()"
                     ></i>
-                    <!-- <div
-                      *ngIf="
-                        currentlyDisplayedProcessTree &&
-                        performanceService.anyTreePerformanceAvailable()
-                      "
-                      style="
-                        display: flex;
-                        flex-direction: row;
-                        padding: 5px;
-                        margin: 5px 10px 5px 10px;
-                        border-radius: 5px;
-                        border: 1px dashed lightgrey;
-                      "
-                      [ngClass]="{
-                        'selected-variant-performance':
-                          performanceService.isMergedTreePerformanceActive()
-                      }"
-                    >
-                      <button
-                        [style.background]="variantPerformanceColor()"
-                        (click)="showMeanPerformance()"
-                        class="btn variant-tree-projection-button"
-                        type="button"
-                        class="btn variant-tree-projection-button"
-                        (click)="
-                          performanceService.toggleMergedTreePerformance()
-                        "
-                        [style.background]="variantPerformanceColor()"
-                        [ngbTooltip]="meanPerformance()"
-                        container="body"
-                        id="performanceButtonMean"
-                      >
-                        <i
-                          class="bi bi-graph-up align-middle font-large variant-performance-icon"
-                          [style.color]="textColorForBackgroundColor()"
-                        ></i>
-                      </button>
-                      <button
-                        style="padding: 0; margin-left: 5px"
-                        class="btn"
-                        (click)="performanceService.removeAll()"
-                        ngbTooltip="remove performance values of all variants"
-                        container="body"
-                      >
-                        <i class="bi bi-x-lg" style="color: white"></i>
-                      </button>
-                    </div> -->
+                  </ng-container>
+                </ng-container>
+              </th>
+              <th
+                *ngIf="
+                  currentlyDisplayedProcessTree &&
+                  variantViewModeService.viewMode !== VM.STANDARD
+                "
+                class="centered"
+              >
+                <ng-container [ngSwitch]="variantViewModeService.viewMode">
+                  <ng-container *ngSwitchCase="VM.CONFORMANCE">
+                    Tree-Conformance
+                  </ng-container>
+                  <ng-container *ngSwitchCase="VM.PERFORMANCE">
+                    {{ performanceColumnHeader() }}
                   </ng-container>
                 </ng-container>
               </th>

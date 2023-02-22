@@ -40,10 +40,9 @@
     <i
       class="bi fs-4"
       [ngClass]="{
-        'bi-toggle2-on': isPerformanceActive,
-        'bi-toggle2-off': !isPerformanceActive
+        'bi-toggle2-on text-light': isPerformanceActive,
+        'bi-toggle2-off text-muted': !isPerformanceActive
       }"
-      [style.color]="computePerformanceButtonColor()"
     ></i>
     <i
       *ngIf="!isPerformanceFitting && isPerformanceActive"

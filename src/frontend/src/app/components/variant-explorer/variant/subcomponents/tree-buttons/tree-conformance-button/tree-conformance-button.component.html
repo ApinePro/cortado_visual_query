@@ -32,10 +32,9 @@
     <i
       class="bi fs-4"
       [ngClass]="{
-        'bi-toggle2-on': isConformanceActive,
-        'bi-toggle2-off': !isConformanceActive
+        'bi-toggle2-on text-light': isConformanceActive,
+        'bi-toggle2-off text-muted': !isConformanceActive
       }"
-      [style.color]="computeConformanceButtonColor()"
     >
     </i>
   </div>

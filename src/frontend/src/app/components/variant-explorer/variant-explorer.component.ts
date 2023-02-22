@@ -119,7 +119,7 @@ export class VariantExplorerComponent
     public performanceService: PerformanceService,
     private performanceColorService: ModelPerformanceColorScaleService,
     public variantPerformanceService: VariantPerformanceService,
-    private conformanceCheckingService: ConformanceCheckingService,
+    public conformanceCheckingService: ConformanceCheckingService,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     public variantViewModeService: VariantViewModeService,
     private toastService: ToastService
@@ -1021,6 +1021,11 @@ export class VariantExplorerComponent
 
   handleTreeConformanceClear() {
     this.conformanceCheckingService.hideTreeConformance();
+  }
+
+  performanceColumnHeader() {
+    const selectedColorScale = this.performanceColorService.selectedColorScale;
+    return `${selectedColorScale.performanceIndicator}\n(${selectedColorScale.statistic})`;
   }
 }
 

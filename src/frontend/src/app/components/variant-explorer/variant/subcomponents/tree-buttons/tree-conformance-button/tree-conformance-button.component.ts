@@ -2,7 +2,6 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import { Variant } from 'src/app/objects/Variants/variant';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
-import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 
 @Component({
   selector: 'app-tree-conformance-button',
@@ -23,20 +22,6 @@ export class TreeConformanceButtonComponent {
 
   cancelRequest() {
     this.conformanceCheckingService.removeFromTreeConformance(this.variant);
-  }
-
-  computeConformanceButtonColor() {
-    if (this.conformanceValue && this.isConformanceActive)
-      return this.conformanceCheckingService.conformanceColorMap.getColor(
-        this.conformanceValue
-      );
-    else return '#d3d3d3';
-  }
-
-  computeConformanceButtonTextColor() {
-    const buttonColor = this.computeConformanceButtonColor();
-    if (!buttonColor) return 'white';
-    return textColorForBackgroundColor(buttonColor);
   }
 
   get conformanceValue() {

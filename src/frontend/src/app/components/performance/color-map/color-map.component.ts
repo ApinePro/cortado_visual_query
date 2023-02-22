@@ -24,14 +24,12 @@ export class ColorMapComponent {
     stripeSpacing = 3,
     stripeThickness = 2
   ) {
-    return `repeating-linear-gradient(
-      -45deg,
-      ${backgroundColor} 0px,
-      ${backgroundColor} ${stripeSpacing}px,
-      ${stripeColor} ${stripeSpacing + 1}px,
-      ${stripeColor} ${stripeSpacing + stripeThickness + 1}px,
-      ${backgroundColor} ${stripeSpacing + stripeThickness + 2}px
-      )`;
+    return getCssStripes(
+      backgroundColor,
+      stripeColor,
+      stripeSpacing,
+      stripeThickness
+    );
   }
 
   constructor() {}
@@ -66,4 +64,20 @@ export function buildColorValues(
       color: color,
     };
   });
+}
+
+export function getCssStripes(
+  backgroundColor = 'white',
+  stripeColor = '#EEEEEE',
+  stripeSpacing = 3,
+  stripeThickness = 2
+) {
+  return `repeating-linear-gradient(
+      -45deg,
+      ${backgroundColor} 0px,
+      ${backgroundColor} ${stripeSpacing}px,
+      ${stripeColor} ${stripeSpacing + 1}px,
+      ${stripeColor} ${stripeSpacing + stripeThickness + 1}px,
+      ${backgroundColor} ${stripeSpacing + stripeThickness + 2}px
+      )`;
 }

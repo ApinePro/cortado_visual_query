@@ -3,7 +3,6 @@ import { Variant } from 'src/app/objects/Variants/variant';
 import { HumanizeDurationPipe } from 'src/app/pipes/humanize-duration.pipe';
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
 import { PerformanceService } from 'src/app/services/performance.service';
-import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 
 @Component({
   selector: 'app-tree-performance-button',
@@ -43,12 +42,6 @@ export class TreePerformanceButtonComponent {
     this.performanceService.removeFromTreePerformance(this.variant);
   }
 
-  textColorForBackgroundColor(): string {
-    const buttonColor = this.computePerformanceButtonColor();
-    if (!buttonColor) return 'white';
-    return textColorForBackgroundColor(buttonColor);
-  }
-
   get variantFitness(): string {
     return this.performanceService.fitness.get(this.variant)?.toFixed(2);
   }
@@ -68,35 +61,5 @@ export class TreePerformanceButtonComponent {
       round: true,
     });
     return `${selectedColorScale.performanceIndicator} (${selectedColorScale.statistic}): ${humanizedPerf}`;
-  }
-
-  computePerformanceButtonColor() {
-    if (this.isPerformanceActive) {
-      let tree;
-      tree = this.performanceService.variantsTreePerformance.get(this.variant);
-
-      if (!tree) {
-        return null;
-      }
-
-      let selectedScale =
-        this.modelPerformanceColorScaleService.selectedColorScale;
-      const colorScale = this.modelPerformanceColorScaleService
-        .getVariantComparisonColorScale()
-        .get(tree.id);
-      if (
-        colorScale &&
-        tree.performance?.[selectedScale.performanceIndicator]?.[
-          selectedScale.statistic
-        ] !== undefined
-      ) {
-        return colorScale.getColor(
-          tree.performance[selectedScale.performanceIndicator][
-            selectedScale.statistic
-          ]
-        );
-      }
-    }
-    return '#d3d3d3';
   }
 }
