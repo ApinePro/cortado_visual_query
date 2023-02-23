@@ -51,9 +51,9 @@
                 activityFilterStates?.get(interleavedActivityNames[i])['toggle']
               "
               [disabled]="
-                activityFilterStates?.get(interleavedActivityNames[i])[
-                  'checkbox'] ===
-                ] === false
+                !activityFilterStates?.get(interleavedActivityNames[i])[
+                  'checkbox'
+                ]
               "
             />
           </div>
@@ -101,8 +101,9 @@
                 ]
               "
               [disabled]="
-                activityFilterStates.get(interleavedActivityNames[i + 1])[
-                'checkbox'] === false
+                !activityFilterStates.get(interleavedActivityNames[i + 1])[
+                  'checkbox'
+                ]
               "
             />
           </div>
