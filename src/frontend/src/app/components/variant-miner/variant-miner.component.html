@@ -7,7 +7,6 @@
 <div
   class="variant-miner-mainblock h-100 d-flex flex-column"
   [class.blurOutOfFocus]="variantMinerOutOfFocus"
-  [style]
 >
   <div class="variant-miner-container" #variantMiner>
     <div *ngIf="showControls" @collapse>
@@ -103,7 +102,6 @@
             <label for="min_sup" class="input-label">Support: </label>
             <div>
               <input
-                type="number"
                 formControlName="rel_sup"
                 class="input-field-number"
                 type="number"
@@ -587,7 +585,6 @@
               app-variant-miner-pattern
               *ngFor="let pattern of displayedVariantsPatterns; let i = index"
               [pattern]="pattern"
-              [index]="i"
               [rootElement]="variantMinerDiv"
             >
               <svg
