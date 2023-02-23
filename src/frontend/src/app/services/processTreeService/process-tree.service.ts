@@ -386,7 +386,8 @@ export class ProcessTreeService {
 
       insertNode(selectedNode, newNode, strat, operator, label);
 
-      this.currentDisplayedProcessTree = this.currentDisplayedProcessTree;
+      if (!newNode.parent && selectedNode.parent == newNode)
+        this.currentDisplayedProcessTree = newNode;
       this.selectedRootNodeID = selectedNode.id;
     } else {
       // empty tree - just add a single node

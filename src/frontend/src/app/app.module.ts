@@ -78,6 +78,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TiebreakerComponent } from './components/variant-explorer/tiebreaker/tiebreaker.component';
 import { TreeConformanceButtonComponent } from './components/variant-explorer/variant/subcomponents/tree-buttons/tree-conformance-button/tree-conformance-button.component';
 import { DecimalPipe } from '@angular/common';
+import { VariantMinerActivitiesFIlterComponent } from './components/variant-miner/variant-miner-activities-filter/variant-miner-activities-filter.component';
 
 @NgModule({
   declarations: [
@@ -144,6 +145,7 @@ import { DecimalPipe } from '@angular/common';
     ConformanceStatusIconComponent,
     TiebreakerComponent,
     TreeConformanceButtonComponent,
+    VariantMinerActivitiesFIlterComponent,
   ],
   imports: [
     BrowserModule,

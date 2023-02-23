@@ -290,6 +290,7 @@ export class ProcessTreeEditorComponent
       this.insertPositionBelowDisabled = Boolean(
         this.selectedRootNode.data.operator
       ).valueOf();
+      this.checkNodeInsertionStrategy();
     }
   }
 
