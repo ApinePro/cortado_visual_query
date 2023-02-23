@@ -34,6 +34,7 @@ export class VariantMinerActivitiesFIlterComponent
 
   @Input()
   activityNames: Array<string> = [];
+  interleavedActivityNames: Array<string> = [];
   @Input()
   activityNamesFilter: Map<string, ActvitiyFilterState> = new Map<
     string,
@@ -59,6 +60,15 @@ export class VariantMinerActivitiesFIlterComponent
       { checkbox: boolean; toggle: boolean }
     >();
 
+    this.interleavedActivityNames = this.activityNames.slice();
+
+    this.interleavedActivityNames = this.interleaveArrays(
+      this.interleavedActivityNames
+        .splice(0, Math.ceil(this.interleavedActivityNames.length / 2))
+        .sort(),
+      this.interleavedActivityNames.sort()
+    );
+
     for (let activity of this.activityNames) {
       const leaf = new LeafNode([activity]);
       leaf.setExpanded(true);
@@ -76,14 +86,14 @@ export class VariantMinerActivitiesFIlterComponent
         case ActvitiyFilterState.In:
           this.activityFilterStates.set(activity, {
             checkbox: true,
-            toggle: false,
+            toggle: true,
           });
           break;
 
         case ActvitiyFilterState.Out:
           this.activityFilterStates.set(activity, {
             checkbox: true,
-            toggle: true,
+            toggle: false,
           });
           break;
       }
@@ -99,6 +109,19 @@ export class VariantMinerActivitiesFIlterComponent
           }
         }
       });
+  }
+
+  interleaveArrays(
+    array1: Array<string>,
+    array2: Array<string>
+  ): Array<string> {
+    const result = array1.reduce((arr, v, i) => {
+      return arr.concat(v, array2[i]);
+    }, []);
+    if (array1.length > array2.length) {
+      result.pop();
+    }
+    return result;
   }
 
   ngOnDestroy(): void {
@@ -118,44 +141,6 @@ export class VariantMinerActivitiesFIlterComponent
     }
 
     return color;
-  };
-
-  onMouseOverCbFc = (
-    drawerDirective: VariantDrawerDirective,
-    element: VariantElement,
-    variant: VariantElement,
-    selection
-  ) => {
-    selection
-      .on('mouseover', function (event, d) {
-        const rgb_code = d3
-          .select(this)
-          .select('polygon')
-          .attr('style')
-          .match(/[\d.]+/g);
-        const lightend = rgb_code.map((d) =>
-          parseInt(d) + 50 > 255 ? 255 : parseInt(d) + 50
-        );
-
-        d3.select(this)
-          .select('polygon')
-          .style('fill', `rgb(${lightend[0]},${lightend[1]},${lightend[2]})`)
-          .style('stroke-width', 2);
-      })
-      .on('mouseout', function (event, d) {
-        const rgb_code = d3
-          .select(this)
-          .select('polygon')
-          .attr('style')
-          .match(/[\d.]+/g);
-        const darkend = rgb_code.map((d) =>
-          parseInt(d) - 50 < 0 ? 0 : parseInt(d) - 50
-        );
-
-        d3.select(this)
-          .select('polygon')
-          .style('fill', `rgb(${darkend[0]},${darkend[1]},${darkend[2]})`);
-      });
   };
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -188,9 +173,9 @@ export class VariantMinerActivitiesFIlterComponent
       });
       event.preventDefault();
     } else if (checkbox === true && toggle === false) {
-      filter = ActvitiyFilterState.In;
-    } else if (checkbox === true && toggle === true) {
       filter = ActvitiyFilterState.Out;
+    } else if (checkbox === true && toggle === true) {
+      filter = ActvitiyFilterState.In;
     }
 
     this.activityNamesFilter.set(activity, filter);
