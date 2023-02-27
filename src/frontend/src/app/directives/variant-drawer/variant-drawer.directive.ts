@@ -101,6 +101,9 @@ export class VariantDrawerDirective
   @Input()
   keepStandardView: boolean = false;
 
+  @Input()
+  addCursorPointer: boolean = true;
+
   @Output()
   selection = new EventEmitter<Selection<any, any, any, any>>();
 
@@ -405,7 +408,10 @@ export class VariantDrawerDirective
       .append('tspan')
       .attr('x', width / 2)
       .attr('y', y + VARIANT_Constants.FONT_SIZE - VARIANT_Constants.MARGIN_Y)
-      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable)
+      .classed(
+        'cursor-pointer',
+        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+      )
       .text(label);
 
     const maxWidth =
@@ -588,7 +594,10 @@ export class VariantDrawerDirective
       .append('polygon')
       .attr('points', polygonPoints)
       .style('fill', color)
-      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable);
+      .classed(
+        'cursor-pointer',
+        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+      );
 
     if (group) {
       poly.style('fill-opacity', 0.5).style('stroke-width', 2);
@@ -658,7 +667,10 @@ export class VariantDrawerDirective
         .append('tspan')
         .attr('x', width / 2)
         .attr('y', y + dy)
-        .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable)
+        .classed(
+          'cursor-pointer',
+          (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+        )
         .text(a);
 
       dy += VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y;
@@ -814,12 +826,14 @@ export class VariantDrawerDirective
     d3.selectAll('.variant-polygon').classed(
       'cursor-pointer',
       !this.keepStandardView &&
-        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE &&
+        this.addCursorPointer
     );
     d3.selectAll('.activity-text').classed(
       'cursor-pointer',
       !this.keepStandardView &&
-        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE &&
+        this.addCursorPointer
     );
   }
 
