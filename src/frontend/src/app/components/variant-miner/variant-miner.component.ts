@@ -22,7 +22,7 @@ import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import * as d3 from 'd3';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { Options } from '@angular-slider/ngx-slider';
 import { animate, style, transition, trigger } from '@angular/animations';
 import {
@@ -56,6 +56,7 @@ import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
 import { ContextMenuItem } from '../variant-explorer/variant-explorer-context-menu/variant-explorer-context-menu.component';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-variant-miner',
@@ -92,7 +93,8 @@ export class VariantMinerComponent
     private polygonDrawingService: PolygonDrawingService,
     private imageExportService: ImageExportService,
     elRef: ElementRef,
-    renderer: Renderer2
+    renderer: Renderer2,
+    private deciamlPipe: DecimalPipe
   ) {
     super(elRef.nativeElement, renderer);
 
@@ -110,6 +112,8 @@ export class VariantMinerComponent
 
   @ViewChild('variantMiner', { static: false })
   variantMinerDiv: ElementRef<HTMLDivElement>;
+
+  @ViewChild('dropdownButton') dropdownButton: ElementRef;
 
   FrequentMiningStrategy = FrequentMiningStrategy;
   FrequentMiningAlgorithm = FrequentMiningAlgorithm;
@@ -145,24 +149,43 @@ export class VariantMinerComponent
   contextMenu_element: VariantElement;
   contextMenu_variant: VariantElement;
   contextMenu_directive: VariantDrawerDirective;
+  collapse: boolean = false;
 
-  kFilter: IntervalFilter = new IntervalFilter('k', 2, 2, 1, 3, 15);
+  kFilter: IntervalFilter = new IntervalFilter(
+    'k',
+    2,
+    2,
+    1,
+    3,
+    15,
+    this.deciamlPipe
+  );
   supFilter: IntervalFilter = new IntervalFilter(
     'support',
     100,
     200,
     1,
     0,
-    1000
+    1000,
+    this.deciamlPipe
   );
-  idFilter: IntervalFilter = new IntervalFilter('id', 1, 2, 1, 0, 15);
+  idFilter: IntervalFilter = new IntervalFilter(
+    'id',
+    1,
+    2,
+    1,
+    0,
+    15,
+    this.deciamlPipe
+  );
   cpConfFilter: IntervalFilter = new IntervalFilter(
     'child_parent_confidence',
     0.1,
     0.2,
     0.01,
     0,
-    1
+    1,
+    this.deciamlPipe
   );
   supConfFilter: IntervalFilter = new IntervalFilter(
     'subpattern_confidence',
@@ -170,7 +193,8 @@ export class VariantMinerComponent
     0.2,
     0.01,
     0,
-    1
+    1,
+    this.deciamlPipe
   );
 
   openContextCallback = contextMenuCallback.bind(this);
@@ -310,7 +334,7 @@ export class VariantMinerComponent
     new Array<SubvariantPattern>();
 
   dropZoneConfig: any;
-  variantMinerConfigInput: FormGroup;
+  variantMinerConfigInput: UntypedFormGroup;
 
   ngOnInit(): void {
     this.dropZoneConfig = new DropzoneConfig(
@@ -322,23 +346,23 @@ export class VariantMinerComponent
 
     this.subscribeForConformanceCheckingResults();
 
-    const rel_sup = new FormControl(1000, {
+    const rel_sup = new UntypedFormControl(1000, {
       updateOn: 'change',
     });
 
-    const min_sup = new FormControl(1000, {
+    const min_sup = new UntypedFormControl(1000, {
       updateOn: 'change',
     });
 
-    const frequent_mining_strat = new FormControl(
+    const frequent_mining_strat = new UntypedFormControl(
       this.FrequentMiningStrategy.TraceTransaction,
       {
         updateOn: 'change',
       }
     );
 
-    this.variantMinerConfigInput = new FormGroup({
-      size: new FormControl(20, {
+    this.variantMinerConfigInput = new UntypedFormGroup({
+      size: new UntypedFormControl(20, {
         updateOn: 'change',
       }),
 
@@ -346,25 +370,25 @@ export class VariantMinerComponent
       rel_sup,
       frequent_mining_strat,
 
-      artifical_start: new FormControl(false, {
+      artifical_start: new UntypedFormControl(false, {
         updateOn: 'change',
       }),
 
-      fold_loop: new FormControl(false, {
+      fold_loop: new UntypedFormControl(false, {
         updateOn: 'change',
       }),
-      loop: new FormControl(2, {
+      loop: new UntypedFormControl(2, {
         updateOn: 'change',
       }),
 
-      frequent_mining_algo: new FormControl(
+      frequent_mining_algo: new UntypedFormControl(
         this.FrequentMiningAlgorithm.ValidTreeMiner,
         {
           updateOn: 'change',
         }
       ),
 
-      cm_tree_strategy: new FormControl(
+      cm_tree_strategy: new UntypedFormControl(
         this.FrequentMiningCMStrategy.ClosedMaximal,
         {
           updateOn: 'change',
@@ -425,6 +449,26 @@ export class VariantMinerComponent
     });
   }
 
+  validateMinSupport(event) {
+    // event.target.value
+    const max =
+      this.variantMinerConfigInput.value.frequent_mining_strat ===
+        this.FrequentMiningStrategy.TraceTransaction ||
+      this.variantMinerConfigInput.value.frequent_mining_strat ===
+        this.FrequentMiningStrategy.TraceOccurence
+        ? this.totalTraces
+        : this.totalVariants;
+
+    if (event.target.value < 0) {
+      this.variantMinerConfigInput.get('min_sup').patchValue(0);
+    } else if (event.target.value > max) {
+      this.variantMinerConfigInput.get('min_sup').patchValue(max);
+    }
+
+    const minSupValue = this.variantMinerConfigInput.value.min_sup;
+    this.relSup = parseFloat(((minSupValue / max) * 100).toFixed(2));
+  }
+
   onSubmit() {
     console.log('SUBMIT', this.variantMinerConfigInput.value);
 
@@ -446,6 +490,7 @@ export class VariantMinerComponent
     this.backendService.frequentSubtreeMining(this.currentConfig);
 
     this.minsup = form_values.min_sup;
+    this.resetActivitiesFilter();
   }
 
   handleFilterChange(event) {
@@ -528,6 +573,7 @@ export class VariantMinerComponent
       .subscribe((log) => {
         this.variantPatterns = [];
         this.displayedVariantsPatterns = [];
+        this.resetActivitiesFilter();
       });
 
     this.processTreeService.currentDisplayedProcessTree$
@@ -725,36 +771,16 @@ export class VariantMinerComponent
   }
 
   handleActivityButtonClick(e) {
-    const state = this.activityNamesFilter.get(e.activityName);
-    let nextState;
-
-    switch (state) {
-      case ActvitiyFilterState.Default: {
-        nextState = ActvitiyFilterState.In;
-        d3.select(e.svg).classed('activity-button-in', true);
-        break;
-      }
-
-      case ActvitiyFilterState.Out: {
-        nextState = ActvitiyFilterState.Default;
-        d3.select(e.svg).classed('activity-button-out', false);
-        break;
-      }
-
-      case ActvitiyFilterState.In: {
-        nextState = ActvitiyFilterState.Out;
-        d3.select(e.svg).classed('activity-button-in', false);
-        d3.select(e.svg).classed('activity-button-out', true);
-        break;
-      }
-      default:
-        nextState = ActvitiyFilterState.Default;
-        break;
-    }
-
-    this.activityNamesFilter.set(e.activityName, nextState);
-
     this.handleFilterChange(null);
+  }
+
+  resetActivitiesFilter() {
+    if (this.filterDropDownOpen) {
+      this.dropdownButton.nativeElement.click();
+    }
+    this.activityNames.forEach((activity) => {
+      this.activityNamesFilter.set(activity, ActvitiyFilterState.Default);
+    });
   }
 
   computeActivityColor = (
@@ -784,6 +810,7 @@ export class VariantMinerComponent
     height: number
   ): void {
     this.currentHeight = height;
+    this.collapse = width < 875;
   }
 
   handleVisibilityChange(visibility: boolean): void {
@@ -937,6 +964,9 @@ export class IntervalFilter {
       tickStep: this.tickStep,
       tickValueStep: this.tickValueStep,
       step: this.step,
+      translate: (value: number): string => {
+        return this.deciamlPipe.transform(value, '1.0');
+      },
     };
     3;
 
@@ -962,7 +992,8 @@ export class IntervalFilter {
     tickValueStep: number,
     step: number,
     defaultLow: number,
-    defaultHigh: number
+    defaultHigh: number,
+    private deciamlPipe: DecimalPipe
   ) {
     this.attr = attr;
     this.tickStep = tickStep;
@@ -983,7 +1014,7 @@ export class Choice {
   }
 }
 
-enum ActvitiyFilterState {
+export enum ActvitiyFilterState {
   In = 1,
   Out = 2,
   Default = 3,

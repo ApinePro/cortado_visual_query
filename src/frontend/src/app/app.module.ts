@@ -26,6 +26,7 @@ import { GoldenLayoutComponentService } from './services/goldenLayoutService/gol
 import { GoldenLayoutHostComponent } from './components/golden-layout-host/golden-layout-host.component';
 import { SubvariantExplorerComponent } from './components/variant-explorer/subvariant-explorer/subvariant-explorer.component';
 import { VariantColorMapComponent } from './components/variant-performance/variant-color-map/variant-color-map.component';
+// tslint:disable-next-line:max-line-length
 import { NodeSelectionPerformanceComponent } from './components/performance/node-selection-performance/node-selection-performance.component';
 import { PerformanceTableComponent } from './components/performance/performance-table/performance-table.component';
 import { ColorMapComponent } from './components/performance/color-map/color-map.component';
@@ -76,6 +77,8 @@ import { ConformanceStatusIconComponent } from './components/variant-explorer/va
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TiebreakerComponent } from './components/variant-explorer/tiebreaker/tiebreaker.component';
 import { TreeConformanceButtonComponent } from './components/variant-explorer/variant/subcomponents/tree-buttons/tree-conformance-button/tree-conformance-button.component';
+import { DecimalPipe } from '@angular/common';
+import { VariantMinerActivitiesFIlterComponent } from './components/variant-miner/variant-miner-activities-filter/variant-miner-activities-filter.component';
 
 @NgModule({
   declarations: [
@@ -142,6 +145,7 @@ import { TreeConformanceButtonComponent } from './components/variant-explorer/va
     ConformanceStatusIconComponent,
     TiebreakerComponent,
     TreeConformanceButtonComponent,
+    VariantMinerActivitiesFIlterComponent,
   ],
   imports: [
     BrowserModule,
@@ -169,14 +173,8 @@ import { TreeConformanceButtonComponent } from './components/variant-explorer/va
       multi: true,
     },
     { provide: ELECTRON_SERVICE, useClass: ElectronService },
-
     GoldenLayoutComponentService,
-  ],
-  entryComponents: [
-    VariantExplorerComponent,
-    ActivityOverviewComponent,
-    ProcessTreeEditorComponent,
-    VariantInfoComponent,
+    DecimalPipe,
   ],
   bootstrap: [AppComponent],
 })

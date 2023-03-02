@@ -1,5 +1,9 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+} from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
@@ -19,7 +23,7 @@ declare var $: any;
 export class SettingsComponent implements OnInit, OnDestroy {
   @Input()
   showSettings: Observable<void>;
-  configForm: FormGroup;
+  configForm: UntypedFormGroup;
 
   configuration: Configuration = new Configuration();
 
@@ -29,7 +33,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private backendService: BackendService,
     private settingsService: SettingsService,
     private logService: LogService,
-    private fb: FormBuilder
+    private fb: UntypedFormBuilder
   ) {}
 
   ngOnInit(): void {

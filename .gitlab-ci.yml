@@ -44,7 +44,7 @@ eslint-check:
   
 test-angular-app-build:
   stage: test
-  image: node:16.10.0
+  image: node:16.17.0
   rules:
     - when: on_success
   before_script:
@@ -95,8 +95,8 @@ build-backend-linux:
     - pip install pyinstaller==$PYINSTALLER_VERSION
   script:
     - python -O -m PyInstaller --noconfirm --clean cortado-backend.spec
-    - cd ..
-    - cp -R backend/dist/cortado-backend .
+    - cd ../..
+    - cp -R src/backend/dist/cortado-backend .
     - cd cortado-backend
     - chmod +x cortado-backend
   artifacts:
@@ -114,12 +114,14 @@ build-electron-app-windows:
     - cd src/frontend
     - npm install -g npm@latest
     - npm ci
+    - npm install -g n
+    - n latest
   script:
     - npm run build-prod
     - npm run build-electron-only-windows
-    - cd ..
+    - cd ../..
     - mkdir $WINDOWS_BUILD_DIR
-    - cp -R frontend/app-dist/win-unpacked/* $WINDOWS_BUILD_DIR
+    - cp -R src/frontend/app-dist/win-unpacked/* $WINDOWS_BUILD_DIR
     # - cp -R cortado-backend $WINDOWS_BUILD_DIR
   artifacts:
     name: $WINDOWS_BUILD_DIR
@@ -137,12 +139,14 @@ build-electron-app-linux:
     - cd src/frontend
     - npm install -g npm@latest
     - npm ci
+    - npm install -g n
+    - n latest
   script:
     - npm run build-prod
     - npm run build-electron-only-linux
-    - cd ..
+    - cd ../..
     - mkdir $LINUX_BUILD_DIR
-    - cp -R frontend/app-dist/linux-unpacked/* $LINUX_BUILD_DIR
+    - cp -R src/frontend/app-dist/linux-unpacked/* $LINUX_BUILD_DIR
     - cp -R cortado-backend $LINUX_BUILD_DIR
     - chmod +x $LINUX_BUILD_DIR/cortado
     - tar c $LINUX_BUILD_DIR | xz > $LINUX_BUILD_DIR.tar.xz

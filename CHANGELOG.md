@@ -1,6 +1,12 @@
 # Changelog of Cortado
 ---
 
+## [1.9.0] - 2023-01-20
+
+### Added
+
+* Conformance checking visualizations/projections onto variants and process models
+
 ## [1.8.0] - 2022-12-30
 
 ### Added

@@ -21,6 +21,7 @@ import {
 } from 'src/app/objects/Variants/variant_element';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ActvitiyFilterState } from '../../variant-miner/variant-miner.component';
 
 @Component({
   selector: 'app-activity-button-area',
@@ -35,7 +36,8 @@ export class ActivityButtonAreaComponent
 
   @Input()
   activityNames: Array<string> = [];
-  activityDummyVariants: Map<String, LeafNode> = new Map<string, LeafNode>();
+
+  activityDummyVariants: Map<string, LeafNode> = new Map<string, LeafNode>();
 
   @Output()
   activityButtonClick = new EventEmitter();

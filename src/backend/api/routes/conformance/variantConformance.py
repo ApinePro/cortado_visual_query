@@ -72,7 +72,7 @@ def calculate_alignment_intern(pt: dict, c_variant: dict, infix_type: InfixType)
             if log_move == '>>':
                 continue
             index_alignments_mapping[log_move] += (
-                    log_move.name == str(model_move))
+                    str(log_move) == str(model_move))
 
     if len(all_variants) > 1:
         index_alignments_mapping.update(
@@ -100,7 +100,7 @@ def project_alignments_on_cvariant(mapping, variant):
             res['parallel'].append(childs)
         return res
     else:
-        return {'leaf': [(act.name, mapping[act]) for act in variant['leaf']]}
+        return {'leaf': [(str(act), mapping[act]) for act in variant['leaf']]}
 
 
 def get_alignment_callback(idx: str, alignType, websocket: WebSocket):

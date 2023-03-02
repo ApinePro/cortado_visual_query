@@ -10,10 +10,10 @@ import {
 } from '@angular/core';
 import {
   AbstractControl,
-  FormControl,
+  UntypedFormControl,
   ValidationErrors,
   ValidatorFn,
-  FormGroup,
+  UntypedFormGroup,
 } from '@angular/forms';
 import {
   fadeInOutComponent,
@@ -54,8 +54,8 @@ export class ExpertModeComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.syntaxTreeInput = new FormGroup({
-      syntax_tree: new FormControl('', {
+    this.syntaxTreeInput = new UntypedFormGroup({
+      syntax_tree: new UntypedFormControl('', {
         validators: [
           this.balancedParenthesisValidator(),
           this.unknownActivityNameValidator(),
@@ -172,7 +172,7 @@ export class ExpertModeComponent implements OnInit, OnDestroy {
     return treeString;
   }
 
-  get syntax_tree(): FormControl {
+  get syntax_tree(): UntypedFormControl {
     return this.syntaxTreeInput.get('syntax_tree')!;
   }
 

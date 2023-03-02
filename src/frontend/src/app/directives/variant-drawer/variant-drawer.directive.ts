@@ -103,6 +103,9 @@ export class VariantDrawerDirective
   @Input()
   keepStandardView: boolean = false;
 
+  @Input()
+  addCursorPointer: boolean = true;
+
   @Output()
   selection = new EventEmitter<Selection<any, any, any, any>>();
 
@@ -111,8 +114,31 @@ export class VariantDrawerDirective
   private _destroy$ = new Subject();
 
   ngAfterViewInit(): void {
-    this.svgSelection = d3
-      .select(this.svgHtmlElement.nativeElement)
+    this.svgSelection = d3.select(this.svgHtmlElement.nativeElement);
+
+    //Pattern injection
+    const defs = this.svgSelection.append('defs');
+    const pattern = defs
+      .append('pattern')
+      .attr('id', 'striped')
+      .attr('width', '6')
+      .attr('height', '8')
+      .attr('patternUnits', 'userSpaceOnUse')
+      .attr('patternTransform', 'rotate(45)');
+    pattern
+      .append('rect')
+      .attr('width', '4')
+      .attr('height', '8')
+      .attr('transform', 'translate(2,0)')
+      .attr('fill', '#FFFFFF');
+    pattern
+      .append('rect')
+      .attr('width', '2')
+      .attr('height', '8')
+      .attr('transform', 'translate(0,0)')
+      .attr('fill', '#EEEEEE');
+
+    this.svgSelection = this.svgSelection
       .append('g')
       .style('padding-top', '5px');
 
@@ -386,7 +412,10 @@ export class VariantDrawerDirective
       .append('tspan')
       .attr('x', width / 2)
       .attr('y', y + VARIANT_Constants.FONT_SIZE - VARIANT_Constants.MARGIN_Y)
-      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable)
+      .classed(
+        'cursor-pointer',
+        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+      )
       .text(label);
 
     const maxWidth =
@@ -572,7 +601,10 @@ export class VariantDrawerDirective
       .append('polygon')
       .attr('points', polygonPoints)
       .style('fill', color)
-      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable);
+      .classed(
+        'cursor-pointer',
+        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+      );
 
     if (group) {
       poly.style('fill-opacity', 0.5).style('stroke-width', 2);
@@ -591,13 +623,6 @@ export class VariantDrawerDirective
     const polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
     const color = this.computeActivityColor(this, element, this.variant);
-
-    const rgb_code = [
-      color.substring(1, 3),
-      color.substring(3, 5),
-      color.substring(5, 7),
-    ];
-    const inversed = rgb_code.map((d) => 255 - parseInt(d, 16));
 
     let laElement = getLowestSelectionActionableElement(element);
 
@@ -649,7 +674,10 @@ export class VariantDrawerDirective
         .append('tspan')
         .attr('x', width / 2)
         .attr('y', y + dy)
-        .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable)
+        .classed(
+          'cursor-pointer',
+          (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+        )
         .text(a);
 
       dy += VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y;
@@ -847,12 +875,14 @@ export class VariantDrawerDirective
     d3.selectAll('.variant-polygon').classed(
       'cursor-pointer',
       !this.keepStandardView &&
-        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE &&
+        this.addCursorPointer
     );
     d3.selectAll('.activity-text').classed(
       'cursor-pointer',
       !this.keepStandardView &&
-        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE &&
+        this.addCursorPointer
     );
   }
 

@@ -1,6 +1,7 @@
 .idea
 /.idea/
 
+cortado-backend
 src/backend/build
 src/backend/dist
 backend/tmp/*.p
@@ -9,6 +10,7 @@ __pycache__/
 build
 dist
 .vscode
+.angular/
 
 src/backend/cortado_core
 src/backend/pm4py
