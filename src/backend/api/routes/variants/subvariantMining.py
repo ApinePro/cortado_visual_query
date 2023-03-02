@@ -161,7 +161,7 @@ def get_eventually_follows_patterns(variants, min_support, frequency_counting_st
                 "cross_support_confidence": None,
                 "valid": True,
                 "maximal": pattern in maximal,
-                "closed": pattern in closed
+                "closed": pattern in closed,
             }
         )
 

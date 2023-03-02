@@ -120,6 +120,8 @@ export class VariantMinerComponent
   FrequentMiningCMStrategy = FrequentMiningCMStrategy;
   VariantSortKey = VariantSortKey;
   currentSortKey: VariantSortKey;
+  lastExecutedMiningAlgorithm: FrequentMiningAlgorithm =
+    FrequentMiningAlgorithm.ValidTreeMiner;
 
   currentHeight: number;
   private _destroy$ = new Subject();
@@ -491,6 +493,7 @@ export class VariantMinerComponent
 
     this.minsup = form_values.min_sup;
     this.resetActivitiesFilter();
+    this.lastExecutedMiningAlgorithm = form_values.frequent_mining_algo;
   }
 
   handleFilterChange(event) {

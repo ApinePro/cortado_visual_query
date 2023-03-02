@@ -22,6 +22,9 @@ export class VariantMinerPatternComponent implements AfterViewInit {
   infixtype = InfixType;
 
   @Input()
+  showConformance: boolean;
+
+  @Input()
   id: number;
 
   @ViewChild('row')
