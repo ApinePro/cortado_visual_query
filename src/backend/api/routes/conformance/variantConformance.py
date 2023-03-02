@@ -75,8 +75,7 @@ def calculate_alignment_intern(pt: dict, c_variant: dict, infix_type: InfixType)
                     str(log_move) == str(model_move))
 
     if len(all_variants) > 1:
-        index_alignments_mapping.update(
-            {k: v / len(all_variants) for k, v in index_alignments_mapping.items()})
+        index_alignments_mapping = {k: v / len(all_variants) for k, v in index_alignments_mapping.items()}
 
     return {
         "cost": total_cost / len(all_variants),
