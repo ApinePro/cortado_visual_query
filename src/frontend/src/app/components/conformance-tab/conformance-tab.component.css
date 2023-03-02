@@ -29,3 +29,7 @@
   display: flex;
   flex-direction: row;
 }
+
+.card-description {
+  padding-bottom: 20px;
+}

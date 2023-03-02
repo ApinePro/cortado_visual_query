@@ -134,7 +134,15 @@
     <div class="card-deck">
       <div class="card text-white mb-3 w-50">
         <div class="card-body">
-          <h5 class="card-title">Model Conformance</h5>
+          <div>
+            <h5 class="card-title">Model Conformance</h5>
+            <div class="card-description">
+              The Model Conformance describes how many nodes contained in a
+              sub-tree are properly aligned for a set of variants. The method of
+              aggregation for multiple selected variants can be selected from
+              equal weights and weighted by the their log frequency.
+            </div>
+          </div>
 
           <div class="mb-3">
             <select
@@ -159,7 +167,14 @@
       </div>
       <div class="card text-white mb-3 w-50">
         <div class="card-body">
-          <h5 class="card-title">Variant Conformance</h5>
+          <div>
+            <h5 class="card-title">Variant Conformance</h5>
+            <div class="card-description">
+              The Variant Conformance describes how often an activity is
+              properly aligned with the process model. Concurrent activties are
+              sequentialized to get aggregate values.
+            </div>
+          </div>
           <app-color-map
             [colorMapValues]="variantConformanceColorMapValues"
             [timeBasedLabel]="false"
