@@ -269,9 +269,9 @@ export class BpmnEditorComponent
         if (pt.conformance === null) return '#404041';
         return this.conformanceCheckingService.conformanceColorMap.getColor(
           this.conformanceCheckingService.isConformanceWeighted &&
-            pt.conformance.weighted_by_counts != undefined
-            ? pt.conformance.weighted_by_counts.value
-            : pt.conformance.weighted_equally.value
+            pt.conformance?.weighted_by_counts != undefined
+            ? pt.conformance?.weighted_by_counts.value
+            : pt.conformance?.weighted_equally.value
         );
       case ViewMode.PERFORMANCE:
         if (

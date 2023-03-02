@@ -51,9 +51,9 @@ export class TreeConformanceButtonComponent {
     if (!tree) return null;
 
     return this.conformanceCheckingService.isConformanceWeighted &&
-      tree.conformance.weighted_by_counts != undefined
-      ? tree.conformance.weighted_by_counts.value
-      : tree.conformance.weighted_equally.value;
+      tree.conformance?.weighted_by_counts != undefined
+      ? tree.conformance?.weighted_by_counts.value
+      : tree.conformance?.weighted_equally.value;
   }
 
   get isConformanceActive() {
