@@ -127,7 +127,9 @@ export class ModelPerformanceColorScaleService {
       .domain(thresholds)
       .range(COLORS_TEAL);
 
-    const leafNodes = getAllNodes(this.performanceService.mergedPerformance);
+    const leafNodes = getAllNodes(
+      this.performanceService.mergedTreePerformance
+    );
     leafNodes.forEach((n) => colorScales.set(n.id, new ColorMap(colorScale)));
 
     return colorScales;
