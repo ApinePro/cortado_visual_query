@@ -491,4 +491,13 @@ export class BackendService {
         })
       );
   }
+
+  public discoverLpms(patterns) {
+    return this.httpClient.post(
+      ROUTES.HTTP_BASE_URL + ROUTES.LPMMINER + 'lpmMining',
+      {
+        patterns: patterns,
+      }
+    );
+  }
 }

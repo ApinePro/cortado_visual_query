@@ -9,6 +9,7 @@ import { environment } from '../../../environments/environment';
 import { BackendService } from '../../services/backendService/backend.service';
 import { ComponentItemConfig, LayoutManager, Side } from 'golden-layout';
 import { VariantService } from 'src/app/services/variantService/variant.service';
+import { LpmExplorerComponent } from '../lpm-explorer/lpm-explorer.component';
 
 @Component({
   selector: 'app-header-bar',

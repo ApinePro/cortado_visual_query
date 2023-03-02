@@ -16,7 +16,7 @@ from api.routes.performance import (
     variantPerformance,
 )
 from api.routes.process_tree import discoverTree, modifyTree, treeString
-from api.routes.variants import variants, queryVariant, subvariantMining, tiebreaker
+from api.routes.variants import variants, queryVariant, subvariantMining, tiebreaker, lpmMiner
 
 router = APIRouter()
 router.include_router(log.router)
@@ -37,3 +37,4 @@ router.include_router(variants.router)
 router.include_router(queryVariant.router)
 router.include_router(subvariantMining.router)
 router.include_router(tiebreaker.router)
+router.include_router(lpmMiner.router)

@@ -17,7 +17,13 @@ import {
   ViewChild,
   ViewChildren,
 } from '@angular/core';
-import { ComponentContainer, LogicalZIndex } from 'golden-layout';
+import {
+  ComponentContainer,
+  ComponentItemConfig,
+  LayoutManager,
+  LogicalZIndex,
+  Side,
+} from 'golden-layout';
 
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import * as d3 from 'd3';
@@ -57,6 +63,8 @@ import { Subject } from 'rxjs';
 import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
 import { ContextMenuItem } from '../variant-explorer/variant-explorer-context-menu/variant-explorer-context-menu.component';
 import { DecimalPipe } from '@angular/common';
+import { LpmExplorerComponent } from '../lpm-explorer/lpm-explorer.component';
+import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
 
 @Component({
   selector: 'app-variant-miner',
@@ -92,6 +100,7 @@ export class VariantMinerComponent
     private variantFilterService: VariantFilterService,
     private polygonDrawingService: PolygonDrawingService,
     private imageExportService: ImageExportService,
+    private goldenLayoutComponentService: GoldenLayoutComponentService,
     elRef: ElementRef,
     renderer: Renderer2,
     private deciamlPipe: DecimalPipe
@@ -837,6 +846,45 @@ export class VariantMinerComponent
     );
 
     this.conformanceCheckedTree = this.processTree;
+  }
+
+  discoverLpms() {
+    this.backendService
+      .discoverLpms(
+        this.displayedVariantsPatterns.map((p) => p.variant.serialize())
+      )
+      .subscribe((res) => this.openLocalProcessModelExplorer());
+  }
+
+  openLocalProcessModelExplorer() {
+    const componentID = LpmExplorerComponent.componentName;
+    const parentComponentID = VariantMinerComponent.componentName;
+
+    const LocationSelectors: LayoutManager.LocationSelector[] = [
+      {
+        typeId: LayoutManager.LocationSelector.TypeId.FocusedStack,
+        index: undefined,
+      },
+    ];
+
+    const itemConfig: ComponentItemConfig = {
+      id: componentID,
+      type: 'component',
+      title: 'LPM Explorer',
+      isClosable: true,
+      reorderEnabled: true,
+      header: {
+        show: Side.left,
+      },
+      componentType: componentID,
+    };
+
+    this.goldenLayoutComponentService.openWindow(
+      componentID,
+      parentComponentID,
+      LocationSelectors,
+      itemConfig
+    );
   }
 
   onCheckRadioChange(desc, func) {

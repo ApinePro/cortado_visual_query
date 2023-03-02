@@ -79,6 +79,7 @@ import { TiebreakerComponent } from './components/variant-explorer/tiebreaker/ti
 import { TreeConformanceButtonComponent } from './components/variant-explorer/variant/subcomponents/tree-buttons/tree-conformance-button/tree-conformance-button.component';
 import { DecimalPipe } from '@angular/common';
 import { VariantMinerActivitiesFIlterComponent } from './components/variant-miner/variant-miner-activities-filter/variant-miner-activities-filter.component';
+import { LpmExplorerComponent } from './components/lpm-explorer/lpm-explorer.component';
 
 @NgModule({
   declarations: [
@@ -146,6 +147,7 @@ import { VariantMinerActivitiesFIlterComponent } from './components/variant-mine
     TiebreakerComponent,
     TreeConformanceButtonComponent,
     VariantMinerActivitiesFIlterComponent,
+    LpmExplorerComponent,
   ],
   imports: [
     BrowserModule,

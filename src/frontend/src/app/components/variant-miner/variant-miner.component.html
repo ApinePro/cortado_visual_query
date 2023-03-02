@@ -270,6 +270,15 @@
 
         <span class="vl"></span>
 
+        <button container="body" class="button" (click)="discoverLpms()">
+          <i class="bi bi-diagram-2-fill btn-icon"></i>
+          <div @collapseText class="button-text px-1" *ngIf="!collapse">
+            discover local process models
+          </div>
+        </button>
+
+        <span class="vl"></span>
+
         <button
           class="button ms-auto"
           ngbTooltip="apply filters to variants"
