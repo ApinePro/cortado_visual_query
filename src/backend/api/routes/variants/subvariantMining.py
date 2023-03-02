@@ -1,4 +1,6 @@
 from cortado_core.eventually_follows_pattern_mining.algorithm import generate_eventually_follows_patterns_from_groups
+from cortado_core.eventually_follows_pattern_mining.blanket_mining.algorithm import postprocess_closed_patterns, \
+    postprocess_maximal_patterns
 from cortado_core.eventually_follows_pattern_mining.obj import EventuallyFollowsPattern, SubPattern
 from cortado_core.eventually_follows_pattern_mining.util.pattern import flatten_patterns
 from cortado_core.subprocess_discovery.concurrency_trees.cTrees import ConcurrencyTree
@@ -68,7 +70,7 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
     variants = {v: ts for _, (v, ts, _, info) in cache.variants.items() if not info.is_user_defined}
 
     if config.algo == 3:
-        return get_eventually_follows_patterns(variants, config.min_sup, freq_strat_mapping[config.strat])
+        return get_eventually_follows_patterns(variants, config.min_sup, freq_strat_mapping[config.strat], config.size)
 
     treeBank = create_treebank_from_cv_variants(variants, config.artifical_start)
 
@@ -139,9 +141,12 @@ def replace_loops_by_loop_group(group):
     raise Exception('Group type is unknown')
 
 
-def get_eventually_follows_patterns(variants, min_support, frequency_counting_strategy):
-    patterns = generate_eventually_follows_patterns_from_groups(variants, min_support, frequency_counting_strategy)
-    flat_patterns = flatten_patterns(patterns)
+def get_eventually_follows_patterns(variants, min_support, frequency_counting_strategy, max_size):
+    patterns = generate_eventually_follows_patterns_from_groups(variants, min_support, frequency_counting_strategy,
+                                                                max_size=max_size)
+    flat_patterns = set(flatten_patterns(patterns))
+    closed = postprocess_closed_patterns(flat_patterns)
+    maximal = postprocess_maximal_patterns(flat_patterns)
 
     result = []
     for pattern in flat_patterns:
@@ -155,8 +160,8 @@ def get_eventually_follows_patterns(variants, min_support, frequency_counting_st
                 "subpattern_confidence": None,
                 "cross_support_confidence": None,
                 "valid": True,
-                "maximal": False,
-                "closed": False
+                "maximal": pattern in maximal,
+                "closed": pattern in closed
             }
         )
 
