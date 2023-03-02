@@ -3,8 +3,9 @@ from pm4py.objects.log.obj import EventLog, Trace
 from cortado_core.utils.split_graph import ConcurrencyGroup
 
 # raw event log
-from api.routes.variants.variants import VariantInformation
+from api.routes.variants.models import VariantInformation
 
+# raw event log
 event_log : EventLog = None
 # performance statistics
 pcache : Mapping = {}

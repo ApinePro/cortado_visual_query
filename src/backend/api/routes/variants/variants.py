@@ -1,19 +1,22 @@
-import dataclasses
 import functools
 import operator
 from typing import List, Mapping, Tuple
 
+import numpy as np
+from cortado_core.clustering.clusterer import Clusterer
+from cortado_core.clustering.variant_clusterer_adapter import \
+    calculate_clusters
+from cortado_core.models.infix_type import InfixType
+from cortado_core.utils.split_graph import ConcurrencyGroup, Group
 from fastapi import APIRouter
+from pm4py.objects.log.obj import Trace
 
 import cache.cache as cache
-import numpy as np
-from cortado_core.models.infix_type import InfixType
-from cortado_core.utils.split_graph import (ConcurrencyGroup, Group,
-                                            SequenceGroup)
-from pm4py.objects.log.obj import Trace
-from pydantic import BaseModel
-
-from fastapi import APIRouter
+from api.routes.variants.models import (ClusteringParameters, VariantFragment,
+                                        VariantInformation)
+from api.routes.variants.utils import (get_clusterer, get_fragment_counts,
+                                       get_trace_counts, map_clusters)
+from cache import cache_util
 
 # i think its better to have one prefix for everything which
 # is related to variants instead of defining a prefix for
@@ -23,47 +26,13 @@ from fastapi import APIRouter
 router = APIRouter(tags=['Variants'], prefix="/variant")
 
 
-class VariantFragment(BaseModel):
-    fragment: dict
-    infixType: str
-
-@dataclasses.dataclass
-class VariantInformation:
-    infix_type: InfixType
-    is_user_defined: bool
-
-
-def count_fragment_occurrences(variant, fragment: Group, infixType: InfixType, idx):
-    # extract group from variant
-    group: Group = variant[1][0]
-
-    # We always need a sequence group as the root of the tree
-    # because we use this assumption to check the prefix/postfix
-    if not isinstance(group, SequenceGroup):
-        group = SequenceGroup(lst=[group])
-
-    return group.countInfixOccurrences(fragment, infixType=infixType, isRootNode=True)
-
-
-def get_trace_counts(variants: Mapping[int, Tuple[ConcurrencyGroup, Trace, List, VariantInformation]]):
-    return list(map(lambda variant: len(variant[1][1]), variants.items()))
-
-
-def get_fragment_counts(variants: Mapping[int, Tuple[ConcurrencyGroup,
-                                                     Trace, List, VariantInformation]], fragment: Group,
-                        infixType: InfixType):
-    return list(map(lambda variant: count_fragment_occurrences(
-        variant, fragment, infixType, variant[0]), variants.items()))
-
-
 @router.post("/countFragmentOccurrences")
 def get_fragment_statistics(payload: VariantFragment):
     fragment: Group = Group.deserialize(payload.fragment)
 
     variants: Mapping[int, Tuple[ConcurrencyGroup,
-                                 Trace, List, VariantInformation]] = cache.variants
+    Trace, List, VariantInformation]] = cache.variants
     variants = {k: v for k, v in variants.items() if not v[3].is_user_defined}
-
 
     infixType = InfixType[payload.infixType]
 
@@ -90,3 +59,13 @@ def get_fragment_statistics(payload: VariantFragment):
         'variantOccurrencesFraction': round(variant_occurrences / len(variants), 4),
         'traceOccurrencesFraction': round(trace_occurrences / np.sum(trace_counts), 4)
     }
+
+
+@router.post("/cluster")
+def get_clusters(params: ClusteringParameters):
+    variants: List[Group] = cache_util.get_variant_list()
+    clusterer: Clusterer = get_clusterer(params)
+    clusters: List[List[Group]] = calculate_clusters(
+        variants=variants, clusterer=clusterer)
+    result = map_clusters(clusters)
+    return result

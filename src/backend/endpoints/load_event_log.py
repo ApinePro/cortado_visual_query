@@ -1,5 +1,6 @@
 from collections import Counter
 from typing import Mapping, Tuple
+from api.routes.variants.models import VariantInformation
 
 import cache.cache as cache
 from cortado_core.utils.cvariants import get_concurrency_variants, get_detailed_variants
@@ -9,7 +10,6 @@ from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.objects.log.util.interval_lifecycle import to_interval
 from pm4py.util.xes_constants import DEFAULT_START_TIMESTAMP_KEY, DEFAULT_TRANSITION_KEY
 
-from api.routes.variants.variants import VariantInformation
 from backend_utilities.multiprocessing.pool_factory import PoolFactory
 from endpoints.alignments import InfixType
 
