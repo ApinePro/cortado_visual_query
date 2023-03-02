@@ -12,11 +12,17 @@ export class ColorMapComponent {
   @Input()
   timeBasedLabel: Boolean = true;
   @Input()
+  prefixes: string[] = [];
+  @Input()
   suffix: string = '';
   @Input()
   excludeUpperLabel: Boolean = false;
   @Input()
   firstColorStriped: Boolean = false;
+  @Input()
+  firstColorDetached: Boolean = false;
+  @Input()
+  lastColorDetached: Boolean = false;
 
   getCssStripes(
     backgroundColor = 'white',
