@@ -150,8 +150,10 @@
           <app-color-map
             [colorMapValues]="modelConformanceColorMapValues"
             [timeBasedLabel]="false"
-            [excludeUpperLabel]="true"
+            [prefixes]="modelConformancePrefixes"
             suffix="%"
+            [firstColorDetached]="true"
+            [lastColorDetached]="true"
           ></app-color-map>
         </div>
       </div>
@@ -161,8 +163,10 @@
           <app-color-map
             [colorMapValues]="variantConformanceColorMapValues"
             [timeBasedLabel]="false"
-            [excludeUpperLabel]="true"
+            [prefixes]="variantConformancePrefixes"
             suffix="%"
+            [firstColorDetached]="true"
+            [lastColorDetached]="true"
           ></app-color-map>
         </div>
       </div>

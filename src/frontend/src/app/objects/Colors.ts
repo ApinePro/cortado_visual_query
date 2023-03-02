@@ -36,7 +36,7 @@ export const COLORS_TEAL = [
 ];
 
 export const COLORS_PURPLE = [
-  // '#ffebff',
+  '#ffebff',
   '#f5c4f7',
   '#e1a0f1',
   '#c97cec',
@@ -47,7 +47,7 @@ export const COLORS_PURPLE = [
 ];
 
 export const COLORS_BLUE = [
-  // '#e9edff',
+  '#e9edff',
   '#c2ccff',
   '#9aacff',
   '#738aff',
