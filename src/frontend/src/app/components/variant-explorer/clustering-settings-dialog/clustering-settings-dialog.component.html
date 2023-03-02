@@ -1,0 +1,74 @@
+<div class="modal-header">
+  <h4 class="modal-title" id="modal-title">Clustering settings</h4>
+  <button
+    type="button"
+    class="btn-close btn-close-white"
+    aria-describedby="modal-title"
+    (click)="modal.dismiss('Cross click')"
+  ></button>
+</div>
+<div class="modal-body">
+  <div class="d-flex flex-column" style="gap: 20px">
+    <div ngbDropdown class="w-50">
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        id="dropdownBasic2"
+        ngbDropdownToggle
+      >
+        {{ getDisplayName(selectedClusteringAlgorithm) }}
+      </button>
+      <div ngbDropdownMenu aria-labelledby="dropdownBasic2">
+        <button
+          (click)="setSelectedClusteringAlgorithm(algo)"
+          *ngFor="let algo of options"
+          ngbDropdownItem
+        >
+          {{ getDisplayName(algo) }}
+        </button>
+      </div>
+    </div>
+
+    <div class="col-5">
+      <input
+        *ngIf="
+          selectedClusteringAlgorithm ===
+          'AGGLOMERATIVE_EDIT_DISTANCE_CLUSTERING'
+        "
+        [(ngModel)]="maxDistance"
+        type="number"
+        class="form-control styled-input-field"
+        aria-describedby="nSeqHelp"
+        placeholder="max distance"
+      />
+
+      <input
+        *ngIf="selectedClusteringAlgorithm === 'LABEL_VECTOR_CLUSTERING'"
+        [(ngModel)]="nClusters"
+        type="number"
+        class="form-control styled-input-field"
+        aria-describedby="nSeqHelp"
+        placeholder="n clusters"
+      />
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button
+    type="button"
+    class="btn btn-outline-danger"
+    (click)="modal.dismiss('reset')"
+  >
+    Reset clustering
+  </button>
+  <button
+    type="button"
+    class="btn btn-outline-secondary"
+    (click)="modal.dismiss('cancel click')"
+  >
+    Cancel
+  </button>
+  <button type="button" class="btn btn-outline-secondary" (click)="onApply()">
+    Apply clustering
+  </button>
+</div>

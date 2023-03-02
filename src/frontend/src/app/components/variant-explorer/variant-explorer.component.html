@@ -374,6 +374,11 @@
     </div>
 
     <span class="vl"></span>
+    <button class="button" (click)="openClusteringSettingsDialog()">
+      <i class="bi bi-pie-chart-fill"></i>
+    </button>
+
+    <span class="vl"></span>
 
     <button
       class="button"
@@ -606,7 +611,7 @@
               </th>
             </tr>
           </thead>
-          <ng-container
+          <!--<ng-container
             *ngFor="let variant of displayed_variants; let i = index"
           >
             <tr
@@ -693,6 +698,124 @@
                 ></app-variant-delete-button>
               </ng-template>
             </tr>
+          </ng-container> -->
+
+          <!-- start cluster view-->
+
+          <ng-container
+            *ngFor="
+              let cluster of displayed_variants
+                | groupBy : 'clusterId'
+                | keyvalue;
+              let i = index
+            "
+          >
+            <div
+              *ngIf="cluster.key !== 'undefined'"
+              style="gap: 4px"
+              class="p-2 m-2 badge bg-secondary d-flex flex-row justify-content-center align-items-center"
+            >
+              <span class="text-nowrap"> Cluster {{ i + 1 }} </span>
+              <app-search
+                (sortEvent)="handleClusterSort($event, cluster.key)"
+              ></app-search>
+            </div>
+            <ng-container
+              *ngFor="
+                let variant of cluster.value
+                  | variantSort
+                    : clusterSortSettings[cluster.key]?.isAscendingOrder
+                    : clusterSortSettings[cluster.key]?.feature;
+                let j = index
+              "
+            >
+              <tr
+                app-variant
+                [index]="i * cluster.value.length + j"
+                [variant]="variant"
+                [processTreeAvailable]="
+                  processTreeService.currentDisplayedProcessTree
+                "
+                [traceInfixSelectionMode]="traceInfixSelectionMode"
+                [rootElement]="variantExplorerDiv"
+                class="hover-variant-row"
+              >
+                <ng-template #treeButton>
+                  <app-tree-performance-button
+                    [variant]="variant"
+                    [isPerformanceAvailable]="isPerformanceAvailable"
+                    [isPerformanceActive]="isPerformanceActive"
+                    [isPerformanceFitting]="isPerformanceFitting"
+                    [isPerformanceCalcInProgress]="isPerformanceCalcInProgress"
+                    (removePerformance)="handlePerformanceRemove($event)"
+                    (showPerformance)="handleSelectTreePerformance($event)"
+                    [computePerformanceButtonColor]="
+                      computePerformanceButtonColor
+                    "
+                  ></app-tree-performance-button>
+                </ng-template>
+
+                <ng-template #variantInfo>
+                  <app-variant-info
+                    [variant]="variant"
+                    (selectionChanged)="
+                      selectionChangedForVariant(variant, $event)
+                    "
+                    (updateConformance)="
+                      updateConformanceForSingleVariantClicked($event)
+                    "
+                  >
+                  </app-variant-info>
+                </ng-template>
+
+                <ng-template #subvariantButton>
+                  <div
+                    *ngIf="variant.nSubVariants > 0"
+                    class="subvariants"
+                    (click)="createSubVariantView(i + 1, j + 1, variant.id)"
+                  >
+                    {{ variant.nSubVariants }}
+                  </div>
+                </ng-template>
+
+                <ng-template #variantDrawer>
+                  <div
+                    class="variant"
+                    [ngStyle]="{
+                      'border-color': variant.isSelected
+                        ? 'unset'
+                        : 'transparent'
+                    }"
+                    style="white-space: nowrap"
+                  >
+                    <svg
+                      appVariantDrawer
+                      #drawer="variantDrawer"
+                      [variant]="variant"
+                      [onClickCbFc]="variantClickCallBack"
+                      [onRightMouseClickCbFc]="openContextCallback"
+                      [traceInfixSelectionMode]="traceInfixSelectionMode"
+                      [computeActivityColor]="computeActivityColor"
+                      [infixType]="variant.infixType"
+                      class="zoom-group-variant"
+                      style="display: inline-block"
+                    ></svg>
+                  </div>
+                  <ng-template #infixSelection>
+                    <app-infix-selection-controlls
+                      [variant]="variant"
+                      (selectTraceInfix)="handleSelectInfix($event)"
+                      [variantDrawer]="drawer"
+                    ></app-infix-selection-controlls>
+                  </ng-template>
+                </ng-template>
+                <ng-template #removeVariantButton>
+                  <app-variant-delete-button
+                    [variant]="variant.variant"
+                  ></app-variant-delete-button>
+                </ng-template>
+              </tr>
+            </ng-container>
           </ng-container>
         </table>
       </div>

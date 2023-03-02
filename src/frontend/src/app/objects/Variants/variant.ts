@@ -31,6 +31,7 @@ export class Variant implements IVariant {
   infixType: InfixType;
   fragmentStatistics: FragmentStatistics;
   collapsedVariantId: string;
+  clusterId?: string = 'default'; // id of the cluster to which the variant belongs
 
   constructor(
     count: number,
