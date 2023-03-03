@@ -1,10 +1,10 @@
-<td #row>
+<td *ngIf="showLpm" [attr.rowspan]="nPatterns">
   <div class="text-center text-size">
-    {{ lpm.lpm }}
+    {{ lpm }}
   </div>
 </td>
 
-<td class="border-start border-lightgrey ps-2 d-flex" *ngIf="isVisible">
+<td #row class="border-start border-lightgrey ps-2 d-flex" *ngIf="isVisible">
   <ng-content></ng-content>
 </td>
 
@@ -12,8 +12,8 @@
   <div
     class="variant-spacer"
     [ngStyle]="{
-      height: lpm.patterns[0].getHeight() + 'px',
-      width: lpm.patterns[0].getWidth() + 'px'
+      height: pattern.variant.getHeight() + 'px',
+      width: pattern.variant.getWidth() + 'px'
     }"
   >
     Loading...

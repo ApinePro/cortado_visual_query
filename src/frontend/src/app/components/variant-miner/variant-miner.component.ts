@@ -861,7 +861,22 @@ export class VariantMinerComponent
           (r) =>
             new LocalProcessModelWithPatterns(
               ProcessTree.fromObj(r['lpm']),
-              r['patterns'].map((p) => deserialize(p))
+              r['patterns'].map((p) => {
+                return new SubvariantPattern(
+                  -1,
+                  -1,
+                  deserialize(p),
+                  -1,
+                  -1,
+                  -1,
+                  -1,
+                  false,
+                  false,
+                  false,
+                  InfixType.PROPER_INFIX,
+                  null
+                );
+              })
             )
         );
         this.openLocalProcessModelExplorer();
