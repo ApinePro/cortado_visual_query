@@ -1037,7 +1037,7 @@ export class VariantExplorerComponent
       });
   }
 
-    openClusteringSettingsDialog() {
+  openClusteringSettingsDialog() {
     this.modalService
       .open(ClusteringSettingsDialogComponent, {
         ariaLabelledBy: 'modal-basic-title',
