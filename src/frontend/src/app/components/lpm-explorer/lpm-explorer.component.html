@@ -16,7 +16,7 @@
         <table class="lpm-table">
           <thead class="user-select-none sticky-header-row">
             <tr>
-              <th resizeable class="text-center" rowspan="1" [margin]="-4">
+              <th resizeable class="text-center" [margin]="-4">
                 <div class="header-text-container">
                   <div class="header-text">Local Process Model</div>
                 </div>
@@ -24,7 +24,6 @@
               <th
                 resizeable
                 class="text-center border-start border-lightgrey"
-                rowspan="1"
                 [margin]="-4"
               >
                 <div class="header-text-container">
@@ -43,6 +42,7 @@
                 [nPatterns]="lpm.patterns.length"
                 [rootElement]="variantMinerDiv"
                 [showLpm]="j === 0"
+                [ngClass]="{ 'lpm-tr-divider': j === lpm.patterns.length - 1 }"
               >
                 <svg
                   appVariantDrawer
