@@ -432,9 +432,9 @@ export class ProcessTreeEditorComponent
         if (d.data.conformance === null) return '#404041';
         return this.conformanceCheckingService.conformanceColorMap.getColor(
           this.conformanceCheckingService.isConformanceWeighted &&
-            d.data.conformance.weighted_by_counts != undefined
-            ? d.data.conformance.weighted_by_counts.value
-            : d.data.conformance.weighted_equally.value
+            d.data.conformance?.weighted_by_counts != undefined
+            ? d.data.conformance?.weighted_by_counts.value
+            : d.data.conformance?.weighted_equally.value
         );
       case ViewMode.PERFORMANCE:
         if (d.data.label !== ProcessTreeOperator.tau) {
@@ -509,18 +509,18 @@ export class ProcessTreeEditorComponent
           </tr>` +
         `<tr>
             <td>Equally</td>
-            <td>${(d.data.conformance.weighted_equally.value * 100).toFixed(
+            <td>${(d.data.conformance?.weighted_equally.value * 100).toFixed(
               2
             )}%</td>
-            <td>${d.data.conformance.weighted_equally.weight}</td>
+            <td>${d.data.conformance?.weighted_equally.weight}</td>
         </tr>` +
-        (d.data.conformance.weighted_by_counts !== null
+        (d.data.conformance?.weighted_by_counts !== null
           ? `<tr>
             <td>By Log Frequency</td>
-            <td>${(d.data.conformance.weighted_by_counts?.value * 100).toFixed(
+            <td>${(d.data.conformance?.weighted_by_counts?.value * 100).toFixed(
               2
             )}%</td>
-            <td>${d.data.conformance.weighted_by_counts?.weight}</td>
+            <td>${d.data.conformance?.weighted_by_counts?.weight}</td>
         </tr>`
           : '') +
         '</table>'

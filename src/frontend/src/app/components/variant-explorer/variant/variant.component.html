@@ -9,8 +9,41 @@
     <ng-container [ngTemplateOutlet]="subvariantButton"> </ng-container>
   </td>
 
-  <td *ngIf="processTreeAvailable" style="text-align: center">
+  <td
+    *ngIf="
+      processTreeAvailable && variantViewModeService.viewMode !== VM.STANDARD
+    "
+    style="text-align: center"
+  >
     <div [ngTemplateOutlet]="treeButton"></div>
+  </td>
+  <td
+    *ngIf="
+      processTreeAvailable && variantViewModeService.viewMode !== VM.STANDARD
+    "
+  >
+    <small
+      *ngIf="
+        variantViewModeService.viewMode === VM.CONFORMANCE &&
+        isTreeConformanceActive
+      "
+      class="tree-statistic-chip"
+      [style.background]="conformanceButtonColor"
+      [style.color]="conformanceTextColor"
+    >
+      {{ (treeConformanceValue * 100).toFixed(2) }}%
+    </small>
+    <small
+      class="tree-statistic-chip"
+      [style.background]="performanceButtonColor"
+      [style.color]="performanceTextColor"
+      *ngIf="
+        variantViewModeService.viewMode === VM.PERFORMANCE &&
+        isTreePerformanceActive
+      "
+    >
+      {{ treePerformanceValue | humanizeDuration : false : true : 3 : true }}
+    </small>
   </td>
 
   <td class="variant-cell">

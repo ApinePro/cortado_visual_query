@@ -53,7 +53,7 @@ export class NodeSelectionPerformanceComponent implements OnInit, OnDestroy {
       .subscribe((tree) => {
         if (
           tree === undefined ||
-          !this.performanceService.anyTreePerformanceAvailable()
+          !this.performanceService.anyTreePerformanceActive()
         ) {
           this.treeSelection = undefined;
           this.meanValues = undefined;

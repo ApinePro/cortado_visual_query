@@ -119,7 +119,7 @@ export class VariantExplorerComponent
     public performanceService: PerformanceService,
     private performanceColorService: ModelPerformanceColorScaleService,
     public variantPerformanceService: VariantPerformanceService,
-    private conformanceCheckingService: ConformanceCheckingService,
+    public conformanceCheckingService: ConformanceCheckingService,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     public variantViewModeService: VariantViewModeService,
     private toastService: ToastService
@@ -516,7 +516,7 @@ export class VariantExplorerComponent
 
   computePerformanceButtonColor = (variant: Variant) => {
     let tree;
-    tree = this.performanceService.variantsPerformance.get(variant);
+    tree = this.performanceService.variantsTreePerformance.get(variant);
 
     if (!tree) {
       return null;
@@ -607,25 +607,8 @@ export class VariantExplorerComponent
     this.addSelectedVariantsToModelForGivenConformance(selectedVariants);
   }
 
-  handleSelectTreePerformance(variant: Variant) {
-    if (this.performanceService.isTreePerformanceAvailable(variant)) {
-      if (this.performanceService.isTreePerformanceActive(variant)) {
-        this.performanceService.unselectPerformance();
-      } else {
-        this.performanceService.setShownTreePerformance(variant);
-      }
-    } else {
-      if (this.performanceService.calculationInProgress.has(variant)) {
-        return;
-      }
-      if (this.currentlyDisplayedProcessTree) {
-        this.performanceService.updatePerformance([variant]);
-      }
-    }
-  }
-
-  handlePerformanceRemove(variant: Variant) {
-    this.performanceService.updatePerformance([], [variant]);
+  handleTreePerformanceClear() {
+    this.performanceService.hideTreePerformance();
   }
 
   createSubVariantView(index) {
@@ -889,7 +872,7 @@ export class VariantExplorerComponent
   }
 
   meanPerformance(): string {
-    let p = this.performanceService.mergedPerformance?.performance;
+    let p = this.performanceService.mergedTreePerformance?.performance;
     let selectedScale = this.performanceColorService.selectedColorScale;
     let pValue =
       p[selectedScale.performanceIndicator]?.[selectedScale.statistic];
@@ -897,7 +880,7 @@ export class VariantExplorerComponent
   }
 
   variantPerformanceColor(): string {
-    let tree = this.performanceService.mergedPerformance;
+    let tree = this.performanceService.mergedTreePerformance;
     if (!tree) {
       return null;
     }
@@ -963,7 +946,7 @@ export class VariantExplorerComponent
 
   onGranularityChange(granularity): void {
     if (this.processTreeService.currentDisplayedProcessTree)
-      this.performanceService.unselectPerformance();
+      this.performanceService.hideTreePerformance();
 
     this.selectedGranularity = granularity;
     this.backendService
@@ -1036,25 +1019,13 @@ export class VariantExplorerComponent
     this.variantService.showTiebreakerDialog.next();
   }
 
-  handleSelectTreeConformance(v: Variant) {
-    if (this.conformanceCheckingService.isTreeConformanceAvailable(v)) {
-      if (this.conformanceCheckingService.isTreeConformanceActive(v)) {
-        this.conformanceCheckingService.unselectTreeConformance();
-      } else {
-        this.conformanceCheckingService.setShownTreeConformance(v);
-      }
-    } else {
-      if (this.conformanceCheckingService.calculationInProgress.has(v)) {
-        return;
-      }
-      if (this.currentlyDisplayedProcessTree) {
-        this.conformanceCheckingService.updateTreeConformance([v]);
-      }
-    }
+  handleTreeConformanceClear() {
+    this.conformanceCheckingService.hideTreeConformance();
   }
 
-  handleConformanceRemove(v: Variant) {
-    this.conformanceCheckingService.updateTreeConformance([], [v]);
+  performanceColumnHeader() {
+    const selectedColorScale = this.performanceColorService.selectedColorScale;
+    return `${selectedColorScale.performanceIndicator}\n(${selectedColorScale.statistic})`;
   }
 }
 

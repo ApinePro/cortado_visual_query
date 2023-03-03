@@ -3,7 +3,6 @@ import { Variant } from 'src/app/objects/Variants/variant';
 import { HumanizeDurationPipe } from 'src/app/pipes/humanize-duration.pipe';
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
 import { PerformanceService } from 'src/app/services/performance.service';
-import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 
 @Component({
   selector: 'app-tree-performance-button',
@@ -19,21 +18,8 @@ export class TreePerformanceButtonComponent {
   @Input()
   variant: Variant;
 
-  @Output()
-  public showPerformance = new EventEmitter<Variant>();
-
-  @Output()
-  public removePerformance = new EventEmitter<Variant>();
-
-  @Input()
-  computePerformanceButtonColor: (variant: Variant) => string;
-
   get isPerformanceActive() {
     return this.performanceService.isTreePerformanceActive(this.variant);
-  }
-
-  get isPerformanceAvailable() {
-    return this.performanceService.isTreePerformanceAvailable(this.variant);
   }
 
   get isPerformanceCalcInProgress() {
@@ -46,20 +32,14 @@ export class TreePerformanceButtonComponent {
     return this.performanceService.isTreePerformanceFitting(this.variant);
   }
 
-  removeCurrentPerformance() {
-    this.removePerformance.emit(this.variant);
-  }
-  showSelectedPerformance() {
-    this.showPerformance.emit(this.variant);
+  toggleTreePerformance() {
+    if (this.performanceService.isTreePerformanceActive(this.variant))
+      this.performanceService.removeFromTreePerformance(this.variant);
+    else this.performanceService.addToTreePerformance(this.variant);
   }
 
-  textColorForBackgroundColor(variant: Variant): string {
-    if (this.computePerformanceButtonColor(variant) === null) {
-      return 'white';
-    }
-    return textColorForBackgroundColor(
-      this.computePerformanceButtonColor(variant)
-    );
+  cancelRequest() {
+    this.performanceService.removeFromTreePerformance(this.variant);
   }
 
   get variantFitness(): string {
@@ -69,7 +49,7 @@ export class TreePerformanceButtonComponent {
   get tooltipText(): string {
     const selectedColorScale =
       this.modelPerformanceColorScaleService.selectedColorScale;
-    let performance = this.performanceService.variantsPerformance.get(
+    let performance = this.performanceService.variantsTreePerformance.get(
       this.variant
     ).performance[selectedColorScale.performanceIndicator]?.[
       selectedColorScale.statistic
