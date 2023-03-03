@@ -65,6 +65,8 @@ import { ContextMenuItem } from '../variant-explorer/variant-explorer-context-me
 import { DecimalPipe } from '@angular/common';
 import { LpmExplorerComponent } from '../lpm-explorer/lpm-explorer.component';
 import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
+import { LpmService } from 'src/app/services/lpmService/lpm.service';
+import { LocalProcessModelWithPatterns } from 'src/app/objects/LocalProcessModelWithPatterns';
 
 @Component({
   selector: 'app-variant-miner',
@@ -101,6 +103,7 @@ export class VariantMinerComponent
     private polygonDrawingService: PolygonDrawingService,
     private imageExportService: ImageExportService,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
+    private lpmService: LpmService,
     elRef: ElementRef,
     renderer: Renderer2,
     private deciamlPipe: DecimalPipe
@@ -853,7 +856,16 @@ export class VariantMinerComponent
       .discoverLpms(
         this.displayedVariantsPatterns.map((p) => p.variant.serialize())
       )
-      .subscribe((res) => this.openLocalProcessModelExplorer());
+      .subscribe((res: Object[]) => {
+        this.lpmService.localProcessModels = res.map(
+          (r) =>
+            new LocalProcessModelWithPatterns(
+              ProcessTree.fromObj(r['lpm']),
+              r['patterns'].map((p) => deserialize(p))
+            )
+        );
+        this.openLocalProcessModelExplorer();
+      });
   }
 
   openLocalProcessModelExplorer() {

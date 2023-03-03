@@ -1,0 +1,11 @@
+.lpm-explorer {
+    background-color: var(--box-background-color);
+    max-height: 100%;
+    position: relative;
+    border-left: 1px solid var(--thin-border-color);
+  }
+
+  :host {
+    position: absolute;
+    overflow: hidden;
+  }
