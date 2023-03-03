@@ -80,6 +80,7 @@ import { TreeConformanceButtonComponent } from './components/variant-explorer/va
 import { DecimalPipe } from '@angular/common';
 import { VariantMinerActivitiesFIlterComponent } from './components/variant-miner/variant-miner-activities-filter/variant-miner-activities-filter.component';
 import { LpmExplorerComponent } from './components/lpm-explorer/lpm-explorer.component';
+import { LpmExplorerRowComponent } from './components/lpm-explorer/lpm-explorer-row/lpm-explorer-row.component';
 
 @NgModule({
   declarations: [
@@ -148,6 +149,7 @@ import { LpmExplorerComponent } from './components/lpm-explorer/lpm-explorer.com
     TreeConformanceButtonComponent,
     VariantMinerActivitiesFIlterComponent,
     LpmExplorerComponent,
+    LpmExplorerRowComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,12 +1,60 @@
-<div style="background-color: green">
-  this is a test this is a test this is a test this is a test this is a test
-  this is a test this is a test this is a test this is a test this is a test
-  this is a test this is a test this is a test this is a test this is a test
-  this is a test this is a test this is a test this is a test this is a test
-  this is a test this is a test this is a test this is a test this is a test
-  this is a test this is a test this is a test this is a test this is a test
-  this is a test this is a test this is a test this is a test this is a test
-  this is a test this is a test this is a test this is a test this is a test
-  this is a test this is a test this is a test this is a test this is a test
-  this is a test this is a test this is a test
+<div class="lpm-explorer h-100 d-flex flex-column">
+  <div class="lpm-explorer-container" #lpmExplorer>
+    <div class="lpm-table-container">
+      <div class="bg-dark btn-tool-bar">
+        <button
+          class="button"
+          ngbTooltip="export local process models"
+          container="body"
+          (click)="exportLocalProcessModels()"
+        >
+          <i class="bi bi-save"></i>
+        </button>
+      </div>
+
+      <div class="lpm-table-container-secondary">
+        <table class="lpm-table">
+          <thead class="user-select-none sticky-header-row">
+            <tr>
+              <th resizeable class="text-center" rowspan="1" [margin]="-4">
+                <div class="header-text-container">
+                  <div class="header-text">Local Process Model</div>
+                </div>
+              </th>
+              <th
+                resizeable
+                class="text-center border-start border-lightgrey"
+                rowspan="1"
+                [margin]="-4"
+              >
+                <div class="header-text-container">
+                  <div class="header-text">Patterns</div>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              app-lpm-explorer-row
+              *ngFor="let lpm of lpms; let i = index"
+              [lpm]="lpm"
+              [rootElement]="variantMinerDiv"
+            >
+              <svg
+                appVariantDrawer
+                #fragment
+                [variant]="lpm.patterns[0]"
+                [computeActivityColor]="computeActivityColor"
+                [onRightMouseClickCbFc]="openContextCallback"
+                [infixType]="InfixType.PROPER_INFIX"
+                [keepStandardView]="true"
+                [addCursorPointer]="false"
+                class="zoom-group-variant"
+              ></svg>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>

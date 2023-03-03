@@ -1,0 +1,21 @@
+<td #row>
+  <div class="text-center text-size">
+    {{ lpm.lpm }}
+  </div>
+</td>
+
+<td class="border-start border-lightgrey ps-2 d-flex" *ngIf="isVisible">
+  <ng-content></ng-content>
+</td>
+
+<td *ngIf="!isVisible" class="border-start border-lightgrey ps-2">
+  <div
+    class="variant-spacer"
+    [ngStyle]="{
+      height: lpm.patterns[0].getHeight() + 'px',
+      width: lpm.patterns[0].getWidth() + 'px'
+    }"
+  >
+    Loading...
+  </div>
+</td>
