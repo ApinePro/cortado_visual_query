@@ -63,6 +63,10 @@ export class ConformanceCheckingService {
       )
       .range(['#d3d3d3', ...COLORS_PURPLE])
   );
+  public readonly modelConformanceStripeColors = [
+    COLORS_PURPLE[0],
+    COLORS_PURPLE[1],
+  ];
 
   public readonly variantConformanceColorMap = new ColorMap(
     d3
@@ -72,6 +76,10 @@ export class ConformanceCheckingService {
       )
       .range(['#d3d3d3', ...COLORS_BLUE])
   );
+  public readonly variantConformanceStripeColors = [
+    COLORS_BLUE[0],
+    COLORS_BLUE[1],
+  ];
 
   private socket: WebSocketSubject<any>;
   private runningRequests: number[] = [];

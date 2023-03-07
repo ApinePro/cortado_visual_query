@@ -44,7 +44,7 @@ export class ConformanceTabComponent
     private container: ComponentContainer,
     elRef: ElementRef,
     renderer: Renderer2,
-    private conformanceCheckingService: ConformanceCheckingService,
+    public conformanceCheckingService: ConformanceCheckingService,
     private variantViewModeService: VariantViewModeService,
     public modelViewModeService: ModelViewModeService,
     public processTreeService: ProcessTreeService
