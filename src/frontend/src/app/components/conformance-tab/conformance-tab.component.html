@@ -37,7 +37,8 @@
   >
     <div
       *ngIf="
-        modelViewModeService.viewMode === VM.CONFORMANCE;
+        modelViewModeService.viewMode === VM.CONFORMANCE &&
+          processTreeService.selectedTree?.conformance !== null;
         else unavailableInfoNodeSelection
       "
       style="overflow: auto; display: flex; flex-direction: column"
@@ -114,14 +115,33 @@
     </div>
     <ng-template #unavailableInfoNodeSelection>
       <app-unavailable-info>
-        No conformance values available.
-        <br />
-        Discover a tree model and compute the conformance for a variant in the
-        variant explorer by switching to the <strong>Conformance Mode</strong>
-        and clicking on the
-        <i class="bi bi-toggle2-off" style="color: white"></i> symbol.
-        <br />
-        Then you can select a tree node for detailed conformance values.
+        <div *ngIf="!processTreeService.currentDisplayedProcessTree">
+          No tree discovered.
+          <br />
+          You first need to discover a tree model.
+        </div>
+        <div
+          *ngIf="
+            processTreeService.currentDisplayedProcessTree &&
+            modelViewModeService.viewMode !== VM.CONFORMANCE
+          "
+        >
+          Project the conformance of a variant onto the process tree by
+          switching to the Variant Explorers <strong>Conformance Mode</strong>
+          and clicking on the
+          <i class="bi bi-toggle2-off" style="color: white"></i> symbol.
+          <br />
+          Then you can select a tree node to see its conformance values.
+        </div>
+        <div
+          *ngIf="
+            modelViewModeService.viewMode === VM.CONFORMANCE &&
+            processTreeService.selectedTree?.conformance !== undefined
+          "
+        >
+          The variant and selected process tree have no alignment because non of
+          the variants activities do show up in this tree.
+        </div>
       </app-unavailable-info>
     </ng-template>
   </div>
