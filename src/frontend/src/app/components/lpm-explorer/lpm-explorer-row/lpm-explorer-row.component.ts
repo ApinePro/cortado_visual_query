@@ -65,6 +65,7 @@ export class LpmExplorerRowComponent implements AfterViewInit {
   activityColorMap: Map<string, string>;
   private _destroy$ = new Subject();
   lpmColumnSize = 0;
+  treeSvgHeight = '0px';
 
   ngAfterViewInit(): void {
     const self = this;
@@ -86,6 +87,12 @@ export class LpmExplorerRowComponent implements AfterViewInit {
       });
 
     this.processTreeDrawer.redraw(this.lpm.lpm);
+
+    let height = this.getHeightOfLpm(this.lpm.lpm);
+    let treeSvgHeightN =
+      height * (PT_Constant.BASE_HEIGHT_WIDTH + 2 * 3) +
+      (height - 1) * PT_Constant.NODE_SPACING;
+    this.treeSvgHeight = treeSvgHeightN + 'px';
 
     // this.lazyLoadingService.addSubPattern(
     //   this.rowElement.nativeElement.parentNode,
@@ -139,10 +146,22 @@ export class LpmExplorerRowComponent implements AfterViewInit {
   };
 
   selectNodeCallBack = (self, event, d) => {
-    console.log(event);
+    console.log(this.treeSvgHeight);
   };
 
   tooltipContent = (d: d3.HierarchyNode<ProcessTree>) => {
     return '';
   };
+
+  getHeightOfLpm(processTree: ProcessTree) {
+    if (processTree.children.length == 0) {
+      return 1;
+    }
+    let childHeights = [];
+    for (let child of processTree.children) {
+      childHeights.push(this.getHeightOfLpm(child));
+    }
+
+    return 1 + Math.max(...childHeights);
+  }
 }

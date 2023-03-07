@@ -1,5 +1,11 @@
 <td #lpmContainer>
-  <svg #d3svg id="d3-svg" width="100%" height="100%" class="pt-2 pb-2">
+  <svg
+    #d3svg
+    id="d3-svg"
+    width="100%"
+    [attr.height]="treeSvgHeight"
+    class="pt-2 pb-2 d-flex"
+  >
     <g
       #d3svgDirective
       appProcessTreeDrawer

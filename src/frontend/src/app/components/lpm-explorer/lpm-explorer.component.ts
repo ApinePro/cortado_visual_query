@@ -34,7 +34,6 @@ export class LpmExplorerComponent
   implements OnInit, OnDestroy
 {
   lpms: LocalProcessModelWithPatterns[] = [];
-  colorMap = null;
 
   @ViewChild(ProcessTreeDrawerDirective)
   processTreeDrawer: ProcessTreeDrawerDirective;
@@ -57,14 +56,7 @@ export class LpmExplorerComponent
   ngOnInit(): void {
     this.lpmService.localProcessModels$.subscribe((models) => {
       this.lpms = models;
-      console.log(this.lpms);
     });
-
-    this.colorMapService.colorMap$
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((cMap) => {
-        this.colorMap = cMap;
-      });
   }
 
   handleResponsiveChange(
@@ -84,8 +76,6 @@ export class LpmExplorerComponent
   }
 
   ngOnDestroy(): void {
-    // TODO check niklas
-    // this.lazyLoadingServiceService.destoryVariantMinerObserver();
     this._destroy$.next();
   }
 }
