@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   Input,
+  OnDestroy,
   ViewChild,
 } from '@angular/core';
 import * as d3 from 'd3';
@@ -33,18 +34,14 @@ import { contextMenuCallback } from '../../variant-explorer/functions/variant-dr
   templateUrl: './lpm-explorer-row.component.html',
   styleUrls: ['./lpm-explorer-row.component.scss'],
 })
-export class LpmExplorerRowComponent implements AfterViewInit {
+export class LpmExplorerRowComponent implements AfterViewInit, OnDestroy {
   @Input()
   lpm: LocalProcessModelWithPatterns;
 
   @ViewChild('row')
-  rowElement: ElementRef;
+  lpmRowElement: ElementRef;
 
-  @ViewChild('lpmContainer')
-  lpmSvg: ElementRef;
-
-  @Input()
-  rootElement: ElementRef;
+  _rootElement: ElementRef;
 
   @ViewChild(VariantDrawerDirective)
   variantDrawer: VariantDrawerDirective;
@@ -68,9 +65,6 @@ export class LpmExplorerRowComponent implements AfterViewInit {
   treeSvgHeight = '0px';
 
   ngAfterViewInit(): void {
-    const self = this;
-    // TODO remove
-    this.isVisible = true;
     this.processTreeInSvg = d3.select('d3-svg-directive');
 
     let obs = new ResizeObserver((entries) => {
@@ -78,7 +72,7 @@ export class LpmExplorerRowComponent implements AfterViewInit {
         this.lpmColumnSize = entry.contentRect.width;
       }
     });
-    obs.observe(this.lpmSvg.nativeElement);
+    obs.observe(this.lpmRowElement.nativeElement);
 
     this.colorMapService.colorMap$
       .pipe(takeUntil(this._destroy$))
@@ -86,21 +80,21 @@ export class LpmExplorerRowComponent implements AfterViewInit {
         this.activityColorMap = colorMap;
       });
 
-    this.processTreeDrawer.redraw(this.lpm.lpm);
-
     let height = this.getHeightOfLpm(this.lpm.lpm);
     let treeSvgHeightN =
       height * (PT_Constant.BASE_HEIGHT_WIDTH + 2 * 3) +
       (height - 1) * PT_Constant.NODE_SPACING;
     this.treeSvgHeight = treeSvgHeightN + 'px';
-
-    // this.lazyLoadingService.addSubPattern(
-    //   this.rowElement.nativeElement.parentNode,
-    //   this.rootElement,
-    //   (isIntersecting) => {
-    //     self.isVisible = isIntersecting;
-    //   }
-    // );
+    const self = this;
+    this.lazyLoadingService.addLpm(
+      this.lpmRowElement.nativeElement,
+      (isIntersecting) => {
+        self.isVisible = isIntersecting;
+        if (self.isVisible) {
+          this.processTreeDrawer.redraw(this.lpm.lpm);
+        }
+      }
+    );
   }
 
   computeTextColor = (d: d3.HierarchyNode<ProcessTree>) => {
@@ -163,5 +157,9 @@ export class LpmExplorerRowComponent implements AfterViewInit {
     }
 
     return 1 + Math.max(...childHeights);
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 }

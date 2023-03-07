@@ -1,6 +1,7 @@
-<td #lpmContainer>
+<td #row>
   <svg
     #d3svg
+    *ngIf="isVisible"
     id="d3-svg"
     width="100%"
     [attr.height]="treeSvgHeight"
@@ -20,9 +21,16 @@
       [style.transform]="'translateX(' + lpmColumnSize / 2 + 'px) scale(0.8)'"
     ></g>
   </svg>
+  <div
+    *ngIf="!isVisible"
+    class="variant-spacer"
+    [ngStyle]="{ height: treeSvgHeight }"
+  >
+    Loading...
+  </div>
 </td>
 
-<td #row class="border-start border-lightgrey ps-2" *ngIf="isVisible">
+<td class="border-start border-lightgrey ps-2" *ngIf="isVisible">
   <div class="p-2" *ngFor="let pattern of lpm.patterns; let j = index">
     <svg
       appVariantDrawer

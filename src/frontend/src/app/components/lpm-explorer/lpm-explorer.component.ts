@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   Inject,
@@ -9,20 +10,12 @@ import {
 } from '@angular/core';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
-import { ProcessTreeDrawerDirective } from 'src/app/directives/process-tree-drawer/process-tree-drawer.directive';
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
 import { LocalProcessModelWithPatterns } from 'src/app/objects/LocalProcessModelWithPatterns';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
-import { Variant } from 'src/app/objects/Variants/variant';
-import {
-  VariantElement,
-  LeafNode,
-} from 'src/app/objects/Variants/variant_element';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
+import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
 import { LpmService } from 'src/app/services/lpmService/lpm.service';
-import { contextMenuCallback } from '../variant-explorer/functions/variant-drawer-callbacks';
 
 @Component({
   selector: 'app-lpm-explorer',
@@ -31,12 +24,12 @@ import { contextMenuCallback } from '../variant-explorer/functions/variant-drawe
 })
 export class LpmExplorerComponent
   extends LayoutChangeDirective
-  implements OnInit, OnDestroy
+  implements OnInit, OnDestroy, AfterViewInit
 {
   lpms: LocalProcessModelWithPatterns[] = [];
 
-  @ViewChild(ProcessTreeDrawerDirective)
-  processTreeDrawer: ProcessTreeDrawerDirective;
+  @ViewChild('lpmExplorer')
+  lpmExplorerDiv: ElementRef<HTMLDivElement>;
 
   InfixType = InfixType;
 
@@ -48,9 +41,13 @@ export class LpmExplorerComponent
     elRef: ElementRef,
     renderer: Renderer2,
     public lpmService: LpmService,
-    public colorMapService: ColorMapService
+    public colorMapService: ColorMapService,
+    public lazyLoadingService: LazyLoadingServiceService
   ) {
     super(elRef.nativeElement, renderer);
+  }
+  ngAfterViewInit(): void {
+    this.lazyLoadingService.initializeLpmExplorer(this.lpmExplorerDiv);
   }
 
   ngOnInit(): void {
@@ -77,6 +74,7 @@ export class LpmExplorerComponent
 
   ngOnDestroy(): void {
     this._destroy$.next();
+    this.lazyLoadingService.destoryLpmExplorerObserver();
   }
 }
 

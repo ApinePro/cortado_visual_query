@@ -1,5 +1,5 @@
-<div class="lpm-explorer h-100 d-flex flex-column">
-  <div class="lpm-explorer-container" #lpmExplorer>
+<div class="lpm-explorer h-100 d-flex flex-column" #lpmExplorer>
+  <div class="lpm-explorer-container">
     <div class="lpm-table-container">
       <div class="bg-dark btn-tool-bar">
         <button
@@ -37,7 +37,6 @@
               *ngFor="let lpm of lpms; let i = index"
               app-lpm-explorer-row
               [lpm]="lpm"
-              [rootElement]="variantMinerDiv"
               class="lpm-tr-divider"
             ></tr>
           </tbody>
