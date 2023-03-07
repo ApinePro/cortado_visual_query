@@ -41,8 +41,6 @@ export class LpmExplorerComponent
 
   InfixType = InfixType;
 
-  openContextCallback = contextMenuCallback.bind(this);
-
   private _destroy$ = new Subject();
 
   constructor(
@@ -84,26 +82,6 @@ export class LpmExplorerComponent
   exportLocalProcessModels() {
     console.log('implement lpm export here');
   }
-
-  computeActivityColor = (
-    self: VariantDrawerDirective,
-    element: VariantElement,
-    variant: Variant
-  ) => {
-    let color;
-
-    if (element instanceof LeafNode) {
-      color = this.colorMap.get(element.asLeafNode().activity[0]);
-
-      if (element.activity.length > 1) {
-        color = '#d3d3d3'; // lightgray
-      }
-    } else {
-      color = '#d3d3d3';
-    }
-
-    return color;
-  };
 
   ngOnDestroy(): void {
     // TODO check niklas

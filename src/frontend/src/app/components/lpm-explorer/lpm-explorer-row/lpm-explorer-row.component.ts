@@ -11,14 +11,21 @@ import { takeUntil } from 'rxjs/operators';
 import { PT_Constant } from 'src/app/constants/process_tree_drawer_constants';
 import { ProcessTreeDrawerDirective } from 'src/app/directives/process-tree-drawer/process-tree-drawer.directive';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import { LocalProcessModelWithPatterns } from 'src/app/objects/LocalProcessModelWithPatterns';
 import {
   ProcessTree,
   ProcessTreeOperator,
 } from 'src/app/objects/ProcessTree/ProcessTree';
-import { VariantElement } from 'src/app/objects/Variants/variant_element';
+import { InfixType } from 'src/app/objects/Variants/infix_selection';
+import { Variant } from 'src/app/objects/Variants/variant';
+import {
+  VariantElement,
+  LeafNode,
+} from 'src/app/objects/Variants/variant_element';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
+import { contextMenuCallback } from '../../variant-explorer/functions/variant-drawer-callbacks';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -28,22 +35,16 @@ import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 })
 export class LpmExplorerRowComponent implements AfterViewInit {
   @Input()
-  lpm;
-
-  @Input()
-  nPatterns: number;
-
-  @Input()
-  pattern: VariantElement;
+  lpm: LocalProcessModelWithPatterns;
 
   @ViewChild('row')
   rowElement: ElementRef;
 
-  @Input()
-  rootElement: ElementRef;
+  @ViewChild('lpmContainer')
+  lpmSvg: ElementRef;
 
   @Input()
-  showLpm: boolean;
+  rootElement: ElementRef;
 
   @ViewChild(VariantDrawerDirective)
   variantDrawer: VariantDrawerDirective;
@@ -52,6 +53,8 @@ export class LpmExplorerRowComponent implements AfterViewInit {
   processTreeDrawer: ProcessTreeDrawerDirective;
 
   processTreeInSvg;
+  openContextCallback = contextMenuCallback.bind(this);
+  InfixType = InfixType;
 
   constructor(
     private lazyLoadingService: LazyLoadingServiceService,
@@ -61,6 +64,7 @@ export class LpmExplorerRowComponent implements AfterViewInit {
   isVisible: boolean = false;
   activityColorMap: Map<string, string>;
   private _destroy$ = new Subject();
+  lpmColumnSize = 0;
 
   ngAfterViewInit(): void {
     const self = this;
@@ -68,15 +72,20 @@ export class LpmExplorerRowComponent implements AfterViewInit {
     this.isVisible = true;
     this.processTreeInSvg = d3.select('d3-svg-directive');
 
+    let obs = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        this.lpmColumnSize = entry.contentRect.width;
+      }
+    });
+    obs.observe(this.lpmSvg.nativeElement);
+
     this.colorMapService.colorMap$
       .pipe(takeUntil(this._destroy$))
       .subscribe((colorMap) => {
         this.activityColorMap = colorMap;
       });
 
-    if (this.showLpm) {
-      this.processTreeDrawer.redraw(this.lpm);
-    }
+    this.processTreeDrawer.redraw(this.lpm.lpm);
 
     // this.lazyLoadingService.addSubPattern(
     //   this.rowElement.nativeElement.parentNode,
@@ -107,6 +116,30 @@ export class LpmExplorerRowComponent implements AfterViewInit {
       d.data.label !== null && d.data.label !== ProcessTreeOperator.tau;
 
     return isVisibleActivity ? this.activityColorMap.get(d.data.label) : null;
+  };
+
+  computeActivityColor = (
+    self: VariantDrawerDirective,
+    element: VariantElement,
+    variant: Variant
+  ) => {
+    let color;
+
+    if (element instanceof LeafNode) {
+      color = this.activityColorMap.get(element.asLeafNode().activity[0]);
+
+      if (element.activity.length > 1) {
+        color = '#d3d3d3'; // lightgray
+      }
+    } else {
+      color = '#d3d3d3';
+    }
+
+    return color;
+  };
+
+  selectNodeCallBack = (self, event, d) => {
+    console.log(event);
   };
 
   tooltipContent = (d: d3.HierarchyNode<ProcessTree>) => {

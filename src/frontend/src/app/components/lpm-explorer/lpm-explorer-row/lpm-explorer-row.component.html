@@ -1,5 +1,5 @@
-<td *ngIf="showLpm" [attr.rowspan]="nPatterns" #lpmContainer>
-  <svg #d3svg id="d3-svg" width="100%" height="100%">
+<td #lpmContainer>
+  <svg #d3svg id="d3-svg" width="100%" height="100%" class="pt-2 pb-2">
     <g
       #d3svgDirective
       appProcessTreeDrawer
@@ -11,17 +11,30 @@
       width="100%"
       height="100%"
       class="text-center"
-      style="transform: translate(200px, 0px)"
+      [style.transform]="'translateX(' + lpmColumnSize / 2 + 'px) scale(0.8)'"
     ></g>
   </svg>
 </td>
 
-<td #row class="border-start border-lightgrey ps-2 d-flex" *ngIf="isVisible">
-  <ng-content></ng-content>
+<td #row class="border-start border-lightgrey ps-2" *ngIf="isVisible">
+  <div class="p-2" *ngFor="let pattern of lpm.patterns; let j = index">
+    <svg
+      appVariantDrawer
+      #fragment
+      [variant]="pattern"
+      [computeActivityColor]="computeActivityColor"
+      [onRightMouseClickCbFc]="openContextCallback"
+      [infixType]="InfixType.PROPER_INFIX"
+      [keepStandardView]="true"
+      [addCursorPointer]="false"
+      class="zoom-group-variant"
+    ></svg>
+  </div>
 </td>
 
 <td *ngIf="!isVisible" class="border-start border-lightgrey ps-2">
   <div
+    *ngFor="let pattern of lpm.patterns; let j = index"
     class="variant-spacer"
     [ngStyle]="{
       height: pattern.variant.getHeight() + 'px',

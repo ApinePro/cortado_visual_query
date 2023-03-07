@@ -33,30 +33,13 @@
             </tr>
           </thead>
           <tbody>
-            <ng-container *ngFor="let lpm of lpms; let i = index">
-              <tr
-                *ngFor="let pattern of lpm.patterns; let j = index"
-                app-lpm-explorer-row
-                [lpm]="lpm.lpm"
-                [pattern]="pattern"
-                [nPatterns]="lpm.patterns.length"
-                [rootElement]="variantMinerDiv"
-                [showLpm]="j === 0"
-                [ngClass]="{ 'lpm-tr-divider': j === lpm.patterns.length - 1 }"
-              >
-                <svg
-                  appVariantDrawer
-                  #fragment
-                  [variant]="pattern"
-                  [computeActivityColor]="computeActivityColor"
-                  [onRightMouseClickCbFc]="openContextCallback"
-                  [infixType]="InfixType.PROPER_INFIX"
-                  [keepStandardView]="true"
-                  [addCursorPointer]="false"
-                  class="zoom-group-variant"
-                ></svg>
-              </tr>
-            </ng-container>
+            <tr
+              *ngFor="let lpm of lpms; let i = index"
+              app-lpm-explorer-row
+              [lpm]="lpm"
+              [rootElement]="variantMinerDiv"
+              class="lpm-tr-divider"
+            ></tr>
           </tbody>
         </table>
       </div>
