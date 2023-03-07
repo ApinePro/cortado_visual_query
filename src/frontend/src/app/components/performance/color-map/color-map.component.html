@@ -1,16 +1,61 @@
 <div class="color-map" *ngIf="colorMapValues">
-  <ng-container *ngFor="let e of colorMapValues; index as i">
+  <ng-container
+    *ngFor="
+      let e of colorMapValues;
+      index as i;
+      last as isLast;
+      first as isFirst
+    "
+  >
     <span
       class="list-group-item"
       style="height: 40px"
       *ngIf="e.color !== null"
       [ngStyle]="{
-        'margin-bottom': i === 0 && firstColorStriped ? '30px' : '0',
+        'margin-bottom': isFirst && firstColorDetached ? '30px' : '0',
+        'margin-top':
+          i === colorMapValues.length - 2 && lastColorDetached ? '30px' : '0',
         background:
-          i === 0 && firstColorStriped ? getCssStripes(e.color) : e.color
+          isFirst && firstColorStriped ? getCssStripes(e.color) : e.color
       }"
     >
+      <!--    lower bound   -->
+      <div
+        class="colorMapLabel"
+        *ngIf="
+          !(i === colorMapValues.length - 2 && lastColorDetached);
+          else lastDetachedLowerBound
+        "
+      >
+        {{ prefixes[i] }}
+        {{
+          timeBasedLabel
+            ? (e.lowerBound | humanizeDuration : false : true : 3 : true)
+            : e.lowerBound
+        }}{{ suffix }}
+      </div>
+
+      <ng-template #lastDetachedLowerBound>
+        <div class="colorMapLabel">
+          {{ prefixes[i + 1] }}
+          {{
+            timeBasedLabel
+              ? (colorMapValues[i + 1].lowerBound
+                | humanizeDuration : false : true : 3 : true)
+              : colorMapValues[i + 1].lowerBound
+          }}{{ suffix }}
+        </div>
+      </ng-template>
+    </span>
+
+    <!--    upper bound   -->
+    <span
+      class="list-group-item"
+      *ngIf="isLast && !excludeUpperLabel && !lastColorDetached"
+      style="background: unset"
+    >
       <div class="colorMapLabel">
+        {{ prefixes[i] }}
         {{
           timeBasedLabel
             ? (e.lowerBound | humanizeDuration : false : true : 3 : true)
@@ -19,17 +64,19 @@
       </div>
     </span>
 
-    <!--    upper bound   -->
+    <!--    upper bound if lastColorDetached   -->
     <span
       class="list-group-item"
-      *ngIf="e.color === null && !excludeUpperLabel"
+      *ngIf="i === colorMapValues.length - 3 && lastColorDetached"
       style="background: unset"
     >
       <div class="colorMapLabel">
+        {{ prefixes[i + 1] }}
         {{
           timeBasedLabel
-            ? (e.lowerBound | humanizeDuration : false : true : 3 : true)
-            : e.lowerBound
+            ? (colorMapValues[i + 1].lowerBound
+              | humanizeDuration : false : true : 3 : true)
+            : colorMapValues[i + 1].lowerBound
         }}{{ suffix }}
       </div>
     </span>

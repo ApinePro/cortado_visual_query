@@ -34,6 +34,7 @@ import { VariantViewModeService } from 'src/app/services/viewModeServices/varian
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { IVariant } from 'src/app/objects/Variants/variant_interface';
+import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
 
 @Directive({
   selector: '[appVariantDrawer]',
@@ -52,7 +53,8 @@ export class VariantDrawerDirective
     elRef: ElementRef,
     private polygonService: PolygonGeneratorService,
     private sharedDataService: SharedDataService,
-    private variantViewModeService: VariantViewModeService
+    private variantViewModeService: VariantViewModeService,
+    private conformanceCheckingService: ConformanceCheckingService
   ) {
     this.svgHtmlElement = elRef;
   }
@@ -116,25 +118,77 @@ export class VariantDrawerDirective
 
     //Pattern injection
     const defs = this.svgSelection.append('defs');
-    const pattern = defs
+    const whiteStripePattern = defs
       .append('pattern')
-      .attr('id', 'striped')
+      .attr('id', 'whiteStriped')
       .attr('width', '6')
       .attr('height', '8')
       .attr('patternUnits', 'userSpaceOnUse')
       .attr('patternTransform', 'rotate(45)');
-    pattern
+    whiteStripePattern
       .append('rect')
       .attr('width', '4')
       .attr('height', '8')
       .attr('transform', 'translate(2,0)')
       .attr('fill', '#FFFFFF');
-    pattern
+    whiteStripePattern
       .append('rect')
       .attr('width', '2')
       .attr('height', '8')
       .attr('transform', 'translate(0,0)')
       .attr('fill', '#EEEEEE');
+
+    const modelConformanceStripePattern = defs
+      .append('pattern')
+      .attr('id', 'modelConformanceStriped')
+      .attr('width', '6')
+      .attr('height', '8')
+      .attr('patternUnits', 'userSpaceOnUse')
+      .attr('patternTransform', 'rotate(45)');
+    modelConformanceStripePattern
+      .append('rect')
+      .attr('width', '4')
+      .attr('height', '8')
+      .attr('transform', 'translate(2,0)')
+      .attr(
+        'fill',
+        this.conformanceCheckingService.modelConformanceStripeColors[0]
+      );
+    modelConformanceStripePattern
+      .append('rect')
+      .attr('width', '2')
+      .attr('height', '8')
+      .attr('transform', 'translate(0,0)')
+      .attr(
+        'fill',
+        this.conformanceCheckingService.modelConformanceStripeColors[1]
+      );
+
+    const variantConformanceStripePattern = defs
+      .append('pattern')
+      .attr('id', 'variantConformanceStriped')
+      .attr('width', '6')
+      .attr('height', '8')
+      .attr('patternUnits', 'userSpaceOnUse')
+      .attr('patternTransform', 'rotate(45)');
+    variantConformanceStripePattern
+      .append('rect')
+      .attr('width', '4')
+      .attr('height', '8')
+      .attr('transform', 'translate(2,0)')
+      .attr(
+        'fill',
+        this.conformanceCheckingService.variantConformanceStripeColors[0]
+      );
+    variantConformanceStripePattern
+      .append('rect')
+      .attr('width', '2')
+      .attr('height', '8')
+      .attr('transform', 'translate(0,0)')
+      .attr(
+        'fill',
+        this.conformanceCheckingService.variantConformanceStripeColors[1]
+      );
 
     this.svgSelection = this.svgSelection
       .append('g')

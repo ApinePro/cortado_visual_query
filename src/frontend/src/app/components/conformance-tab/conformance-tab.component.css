@@ -18,3 +18,18 @@
   background-color: transparent;
   border: 0px;
 }
+
+.card-body{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card-deck {
+  display: flex;
+  flex-direction: row;
+}
+
+.card-description {
+  padding-bottom: 20px;
+}

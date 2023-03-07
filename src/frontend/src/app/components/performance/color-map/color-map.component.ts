@@ -12,15 +12,25 @@ export class ColorMapComponent {
   @Input()
   timeBasedLabel: Boolean = true;
   @Input()
+  prefixes: string[] = [];
+  @Input()
   suffix: string = '';
   @Input()
   excludeUpperLabel: Boolean = false;
   @Input()
   firstColorStriped: Boolean = false;
+  @Input()
+  stripeColor: string = '#EEEEEE';
+  @Input()
+  stripeBackgroundColor: string = 'white';
+  @Input()
+  firstColorDetached: Boolean = false;
+  @Input()
+  lastColorDetached: Boolean = false;
 
   getCssStripes(
-    backgroundColor = 'white',
-    stripeColor = '#EEEEEE',
+    backgroundColor = this.stripeBackgroundColor,
+    stripeColor = this.stripeColor,
     stripeSpacing = 3,
     stripeThickness = 2
   ) {
