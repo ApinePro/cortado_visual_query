@@ -125,9 +125,12 @@ export class BackendService {
   }
 
   discoverProcessModelFromConcurrencyVariants(
-    variants: VariantElement[]
+    variants: Variant[]
   ): Observable<any> {
-    const variantsSerialized = variants.map((v) => v.serialize(1));
+    const variantsSerialized = variants.map((v) => [
+      v.variant.serialize(1),
+      v.infixType,
+    ]);
     return this.httpClient
       .post(
         ROUTES.HTTP_BASE_URL +
@@ -294,13 +297,19 @@ export class BackendService {
   }
 
   addConcurrencyVariantsToProcessModel(
-    variantsToAdd: VariantElement[],
-    variantsInModelLanguage: VariantElement[]
+    variantsToAdd: Variant[],
+    variantsInModelLanguage: Variant[]
   ): Observable<any> {
     const body = {
       pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
-      variants_to_add: variantsToAdd.map((v) => v.serialize(1)),
-      fitting_variants: variantsInModelLanguage.map((v) => v.serialize(1)),
+      variants_to_add: variantsToAdd.map((v) => [
+        v.variant.serialize(1),
+        v.infixType,
+      ]),
+      fitting_variants: variantsInModelLanguage.map((v) => [
+        v.variant.serialize(1),
+        v.infixType,
+      ]),
     };
     return this.httpClient
       .post(
@@ -319,11 +328,14 @@ export class BackendService {
   }
 
   addConcurrencyVariantsToProcessModelForUnknownConformance(
-    selectedVariants: VariantElement[]
+    selectedVariants: Variant[]
   ): Observable<any> {
     const body = {
       pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
-      selected_variants: selectedVariants.map((v) => v.serialize(1)),
+      selected_variants: selectedVariants.map((v) => [
+        v.variant.serialize(1),
+        v.infixType,
+      ]),
     };
     return this.httpClient
       .post(
