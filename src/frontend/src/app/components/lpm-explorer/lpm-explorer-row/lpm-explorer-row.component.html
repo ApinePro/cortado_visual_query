@@ -1,7 +1,6 @@
-<td #row>
+<td #row class="d-flex justify-content-center">
   <svg
     #d3svg
-    *ngIf="isVisible"
     id="d3-svg"
     width="100%"
     [attr.height]="treeSvgHeight"
@@ -21,13 +20,6 @@
       [style.transform]="'translateX(' + lpmColumnSize / 2 + 'px) scale(0.8)'"
     ></g>
   </svg>
-  <div
-    *ngIf="!isVisible"
-    class="variant-spacer"
-    [ngStyle]="{ height: treeSvgHeight }"
-  >
-    Loading...
-  </div>
 </td>
 
 <td class="border-start border-lightgrey ps-2" *ngIf="isVisible">

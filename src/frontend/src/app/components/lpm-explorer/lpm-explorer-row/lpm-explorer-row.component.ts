@@ -4,6 +4,7 @@ import {
   ElementRef,
   Input,
   OnDestroy,
+  OnInit,
   ViewChild,
 } from '@angular/core';
 import * as d3 from 'd3';
@@ -34,7 +35,9 @@ import { contextMenuCallback } from '../../variant-explorer/functions/variant-dr
   templateUrl: './lpm-explorer-row.component.html',
   styleUrls: ['./lpm-explorer-row.component.scss'],
 })
-export class LpmExplorerRowComponent implements AfterViewInit, OnDestroy {
+export class LpmExplorerRowComponent
+  implements AfterViewInit, OnDestroy, OnInit
+{
   @Input()
   lpm: LocalProcessModelWithPatterns;
 
@@ -52,17 +55,23 @@ export class LpmExplorerRowComponent implements AfterViewInit, OnDestroy {
   processTreeInSvg;
   openContextCallback = contextMenuCallback.bind(this);
   InfixType = InfixType;
-
-  constructor(
-    private lazyLoadingService: LazyLoadingServiceService,
-    private colorMapService: ColorMapService
-  ) {}
-
   isVisible: boolean = false;
   activityColorMap: Map<string, string>;
   private _destroy$ = new Subject();
   lpmColumnSize = 0;
   treeSvgHeight = '0px';
+
+  constructor(
+    private lazyLoadingService: LazyLoadingServiceService,
+    private colorMapService: ColorMapService
+  ) {}
+  ngOnInit(): void {
+    let height = this.getHeightOfLpm(this.lpm.lpm);
+    let treeSvgHeightN =
+      height * (PT_Constant.BASE_HEIGHT_WIDTH + 2 * 3) +
+      (height - 1) * PT_Constant.NODE_SPACING;
+    this.treeSvgHeight = treeSvgHeightN + 'px';
+  }
 
   ngAfterViewInit(): void {
     this.processTreeInSvg = d3.select('d3-svg-directive');
@@ -80,11 +89,6 @@ export class LpmExplorerRowComponent implements AfterViewInit, OnDestroy {
         this.activityColorMap = colorMap;
       });
 
-    let height = this.getHeightOfLpm(this.lpm.lpm);
-    let treeSvgHeightN =
-      height * (PT_Constant.BASE_HEIGHT_WIDTH + 2 * 3) +
-      (height - 1) * PT_Constant.NODE_SPACING;
-    this.treeSvgHeight = treeSvgHeightN + 'px';
     const self = this;
     this.lazyLoadingService.addLpm(
       this.lpmRowElement.nativeElement,
