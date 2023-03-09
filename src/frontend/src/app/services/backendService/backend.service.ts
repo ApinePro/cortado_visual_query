@@ -500,4 +500,13 @@ export class BackendService {
       }
     );
   }
+
+  public getLpmMetrics(lpm: ProcessTree) {
+    return this.httpClient.post(
+      ROUTES.HTTP_BASE_URL + ROUTES.LPMMINER + 'lpmStatistics',
+      {
+        lpm: lpm.copy(false),
+      }
+    );
+  }
 }

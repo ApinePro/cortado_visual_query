@@ -13,6 +13,7 @@ import { ActivityOverviewComponent } from '../../activity-overview/activity-over
 import { ModelPerformanceComponent } from '../../performance/performance.component';
 import { VariantPerformanceComponent } from '../../variant-performance/variant-performance.component';
 import { ConformanceTabComponent } from '../../conformance-tab/conformance-tab.component';
+import { LpmMetricsTabComponent } from '../../lpm-explorer/lpm-metrics-tab/lpm-metrics-tab.component';
 
 export const baseLayout: LayoutConfig = {
   dimensions: {
@@ -136,6 +137,19 @@ export const baseLayout: LayoutConfig = {
                 title: 'Conformance',
                 id: ConformanceTabComponent.componentName,
                 componentType: ConformanceTabComponent.componentName,
+                componentState: { cssParentClass: 'info-box-stack' },
+              } as ComponentItemConfig,
+              {
+                type: 'component',
+                header: {
+                  show: false,
+                },
+                width: 38.197,
+                isClosable: false,
+                reorderEnabled: true,
+                title: 'LPM Metrics',
+                id: LpmMetricsTabComponent.componentName,
+                componentType: LpmMetricsTabComponent.componentName,
                 componentState: { cssParentClass: 'info-box-stack' },
               } as ComponentItemConfig,
             ],

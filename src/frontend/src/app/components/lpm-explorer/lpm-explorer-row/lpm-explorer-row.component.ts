@@ -24,8 +24,10 @@ import {
   VariantElement,
   LeafNode,
 } from 'src/app/objects/Variants/variant_element';
+import { BackendService } from 'src/app/services/backendService/backend.service';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { contextMenuCallback } from '../../variant-explorer/functions/variant-drawer-callbacks';
 
@@ -63,7 +65,9 @@ export class LpmExplorerRowComponent
 
   constructor(
     private lazyLoadingService: LazyLoadingServiceService,
-    private colorMapService: ColorMapService
+    private colorMapService: ColorMapService,
+    private processTreeService: ProcessTreeService,
+    private backendService: BackendService
   ) {}
   ngOnInit(): void {
     let height = this.getHeightOfLpm(this.lpm.lpm);
@@ -99,6 +103,18 @@ export class LpmExplorerRowComponent
         }
       }
     );
+  }
+
+  showInProcessTreeEditor() {
+    this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+      this.lpm.lpm
+    );
+  }
+
+  showMetrics() {
+    this.backendService
+      .getLpmMetrics(this.lpm.lpm)
+      .subscribe((r) => console.log(r));
   }
 
   computeTextColor = (d: d3.HierarchyNode<ProcessTree>) => {

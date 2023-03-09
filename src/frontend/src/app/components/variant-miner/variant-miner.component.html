@@ -260,7 +260,11 @@
           container="body"
           class="button"
           (click)="computeAlignments()"
-          [disabled]="!processTree"
+          [disabled]="
+            !processTree ||
+            lastExecutedMiningAlgorithm ===
+              FrequentMiningAlgorithm.EfPatternMiner
+          "
         >
           <i class="bi bi-layers-fill btn-icon"></i>
           <div @collapseText class="button-text px-1" *ngIf="!collapse">
@@ -270,7 +274,15 @@
 
         <span class="vl"></span>
 
-        <button container="body" class="button" (click)="discoverLpms()">
+        <button
+          container="body"
+          class="button"
+          (click)="discoverLpms()"
+          [disabled]="
+            lastExecutedMiningAlgorithm !==
+            FrequentMiningAlgorithm.EfPatternMiner
+          "
+        >
           <i class="bi bi-diagram-2-fill btn-icon"></i>
           <div @collapseText class="button-text px-1" *ngIf="!collapse">
             discover local process models

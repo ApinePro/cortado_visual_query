@@ -81,6 +81,7 @@ import { DecimalPipe } from '@angular/common';
 import { VariantMinerActivitiesFIlterComponent } from './components/variant-miner/variant-miner-activities-filter/variant-miner-activities-filter.component';
 import { LpmExplorerComponent } from './components/lpm-explorer/lpm-explorer.component';
 import { LpmExplorerRowComponent } from './components/lpm-explorer/lpm-explorer-row/lpm-explorer-row.component';
+import { LpmMetricsTabComponent } from './components/lpm-explorer/lpm-metrics-tab/lpm-metrics-tab.component';
 
 @NgModule({
   declarations: [
@@ -150,6 +151,7 @@ import { LpmExplorerRowComponent } from './components/lpm-explorer/lpm-explorer-
     VariantMinerActivitiesFIlterComponent,
     LpmExplorerComponent,
     LpmExplorerRowComponent,
+    LpmMetricsTabComponent,
   ],
   imports: [
     BrowserModule,

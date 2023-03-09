@@ -1,4 +1,26 @@
-<td #row class="d-flex justify-content-center">
+<td>
+  <div class="row">
+    <div class="col text-center">
+      <button
+        class="button text-center"
+        ngbTooltip="calculate statistics"
+        container="body"
+        (click)="showMetrics()"
+      >
+        <i class="bi bi-graph-up"></i>
+      </button>
+      <button
+        class="button text-center"
+        ngbTooltip="show in process tree editor"
+        container="body"
+        (click)="showInProcessTreeEditor()"
+      >
+        <i class="bi bi-diagram-2-fill"></i>
+      </button>
+    </div>
+  </div>
+</td>
+<td #row class="border-start border-lightgrey">
   <svg
     #d3svg
     id="d3-svg"

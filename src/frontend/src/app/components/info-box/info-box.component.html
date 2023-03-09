@@ -42,6 +42,20 @@
         Variant Performance
       </button>
     </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link button"
+        id="lpm-metrics-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#lpm-metrics"
+        type="button"
+        role="tab"
+        aria-controls="lpm-metrics"
+        aria-selected="false"
+      >
+        LPM Metrics
+      </button>
+    </li>
   </ul>
   <div class="tab-content" id="myTabContent">
     <div
@@ -72,6 +86,17 @@
         class="mh-100"
         style="width: 100%"
       ></app-variant-performance>
+    </div>
+    <div
+      class="tab-pane fade"
+      id="lpm-metrics"
+      role="tabpanel"
+      aria-labelledby="lpm-metrics-tab"
+    >
+      <app-lpm-metrics-tab
+        class="mh-100"
+        style="width: 100%"
+      ></app-lpm-metrics-tab>
     </div>
   </div>
 </div>
