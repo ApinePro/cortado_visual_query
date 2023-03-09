@@ -13,8 +13,11 @@ import {
   JsonValue,
   LayoutManager,
   RowOrColumn,
+  Stack,
 } from 'golden-layout';
+import { ActivityOverviewComponent } from 'src/app/components/activity-overview/activity-overview.component';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
+import { LpmMetricsTabComponent } from 'src/app/components/lpm-explorer/lpm-metrics-tab/lpm-metrics-tab.component';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 
 @Injectable({
@@ -167,6 +170,24 @@ export class GoldenLayoutComponentService {
 
       (pt_editor_row as RowOrColumn).addItem(itemConfig, 1);
     }
+  }
+
+  activateLpmMetricsView() {
+    if (!this.goldenLayout.rootItem) {
+      return;
+    }
+
+    const stackItem = findContentItemByUniqueID(
+      ActivityOverviewComponent.componentName + '_Container_Stack',
+      this.goldenLayout.rootItem
+    ) as Stack;
+
+    stackItem.setActiveComponentItem(
+      this.goldenLayout.findFirstComponentItemById(
+        LpmMetricsTabComponent.componentName
+      ),
+      true
+    );
   }
 }
 

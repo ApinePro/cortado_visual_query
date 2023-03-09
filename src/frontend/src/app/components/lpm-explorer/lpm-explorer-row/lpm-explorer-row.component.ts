@@ -14,6 +14,7 @@ import { PT_Constant } from 'src/app/constants/process_tree_drawer_constants';
 import { ProcessTreeDrawerDirective } from 'src/app/directives/process-tree-drawer/process-tree-drawer.directive';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
 import { LocalProcessModelWithPatterns } from 'src/app/objects/LocalProcessModelWithPatterns';
+import { LpmMetrics } from 'src/app/objects/LpmMetrics';
 import {
   ProcessTree,
   ProcessTreeOperator,
@@ -27,6 +28,7 @@ import {
 import { BackendService } from 'src/app/services/backendService/backend.service';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
+import { LpmService } from 'src/app/services/lpmService/lpm.service';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { contextMenuCallback } from '../../variant-explorer/functions/variant-drawer-callbacks';
@@ -67,7 +69,8 @@ export class LpmExplorerRowComponent
     private lazyLoadingService: LazyLoadingServiceService,
     private colorMapService: ColorMapService,
     private processTreeService: ProcessTreeService,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private lpmService: LpmService
   ) {}
   ngOnInit(): void {
     let height = this.getHeightOfLpm(this.lpm.lpm);
@@ -114,7 +117,9 @@ export class LpmExplorerRowComponent
   showMetrics() {
     this.backendService
       .getLpmMetrics(this.lpm.lpm)
-      .subscribe((r) => console.log(r));
+      .subscribe(
+        (metrics: LpmMetrics) => (this.lpmService.lpmMetrics = metrics)
+      );
   }
 
   computeTextColor = (d: d3.HierarchyNode<ProcessTree>) => {
