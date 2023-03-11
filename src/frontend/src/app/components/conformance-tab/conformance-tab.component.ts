@@ -12,6 +12,7 @@ import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { ColorMap } from 'src/app/objects/ColorMap';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
@@ -31,7 +32,10 @@ export class ConformanceTabComponent
   @ViewChild('colorMapTab') colorMapTab: ElementRef;
 
   private _destroy$ = new Subject();
-  public conformanceColorMapValues: ColorMapValue[];
+  public modelConformanceColorMapValues: ColorMapValue[];
+  public modelConformancePrefixes: string[];
+  public variantConformanceColorMapValues: ColorMapValue[];
+  public variantConformancePrefixes: string[];
 
   public VM = ViewMode;
 
@@ -40,21 +44,51 @@ export class ConformanceTabComponent
     private container: ComponentContainer,
     elRef: ElementRef,
     renderer: Renderer2,
-    private conformanceCheckingService: ConformanceCheckingService,
+    public conformanceCheckingService: ConformanceCheckingService,
     private variantViewModeService: VariantViewModeService,
     public modelViewModeService: ModelViewModeService,
     public processTreeService: ProcessTreeService
   ) {
     super(elRef.nativeElement, renderer);
 
-    const colorMap = this.conformanceCheckingService.conformanceColorMap;
+    this.modelConformanceColorMapValues = this.calculateColorMapValues(
+      this.conformanceCheckingService.modelConformanceColorMap
+    );
+    this.variantConformanceColorMapValues = this.calculateColorMapValues(
+      this.conformanceCheckingService.variantConformanceColorMap
+    );
+
+    this.variantConformancePrefixes = new Array(
+      this.variantConformanceColorMapValues.length
+    );
+    this.variantConformancePrefixes[1] = '>';
+    this.variantConformancePrefixes[
+      this.variantConformancePrefixes.length - 2
+    ] = '<';
+    this.modelConformancePrefixes = new Array(
+      this.modelConformanceColorMapValues.length
+    );
+    this.modelConformancePrefixes[1] = '>';
+    this.modelConformancePrefixes[this.modelConformancePrefixes.length - 2] =
+      '<';
+  }
+
+  private calculateColorMapValues(colorMap: ColorMap) {
     const min = colorMap.domain()[0];
     const max = colorMap.domain()[colorMap.domain().length - 1];
-    const increment = (max - min) / (colorMap.range().length - 2);
+    const increment = (max - min) / (colorMap.range().length - 3);
 
-    this.conformanceColorMapValues = colorMap
+    const minColor = {
+      lowerBound: min * 100,
+      color: colorMap.range()[1],
+    };
+    const maxColor = {
+      lowerBound: max * 100,
+      color: null,
+    };
+    const otherColors = colorMap
       .range()
-      .slice(1)
+      .slice(2)
       .map((v, i) => {
         const t = min + i * increment;
 
@@ -62,13 +96,8 @@ export class ConformanceTabComponent
           lowerBound: Math.round(t * 100),
           color: v,
         };
-      })
-      .concat([
-        {
-          lowerBound: max * 100,
-          color: null,
-        },
-      ]);
+      });
+    return [minColor].concat(otherColors, [maxColor]);
   }
 
   ngAfterViewInit(): void {

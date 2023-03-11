@@ -35,6 +35,28 @@ export const COLORS_TEAL = [
   '#024042',
 ];
 
+export const COLORS_PURPLE = [
+  '#ffebff',
+  '#f5c4f7',
+  '#e1a0f1',
+  '#c97cec',
+  '#b251ef',
+  '#942edc',
+  // '#6f1cb7',
+  '#4a0297',
+];
+
+export const COLORS_BLUE = [
+  '#e9edff',
+  '#c2ccff',
+  '#9aacff',
+  '#738aff',
+  '#4c68fa',
+  '#2743ec',
+  // '#1123c7',
+  '#020297',
+];
+
 export const COLORS_RED_GREEN = [
   '#f01523',
   '#f3431c',

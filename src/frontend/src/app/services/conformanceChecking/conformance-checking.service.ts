@@ -17,7 +17,11 @@ import { InfixType } from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
 import { ColorMap } from 'src/app/objects/ColorMap';
 import * as d3 from 'd3';
-import { COLORS_RED_GREEN } from 'src/app/objects/Colors';
+import {
+  COLORS_BLUE,
+  COLORS_PURPLE,
+  COLORS_RED_GREEN,
+} from 'src/app/objects/Colors';
 import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { ProcessTreeService } from '../processTreeService/process-tree.service';
 import { BackendService } from '../backendService/backend.service';
@@ -51,16 +55,31 @@ export class ConformanceCheckingService {
     });
   }
 
-  public readonly conformanceColorMap = new ColorMap(
+  public readonly modelConformanceColorMap = new ColorMap(
     d3
       .scaleThreshold<any, any>()
       .domain(
-        COLORS_RED_GREEN.map(
-          (value, index) => index / (COLORS_RED_GREEN.length - 1)
-        )
+        COLORS_PURPLE.map((value, index) => index / (COLORS_PURPLE.length - 1))
       )
-      .range(['#d3d3d3', ...COLORS_RED_GREEN])
+      .range(['#d3d3d3', ...COLORS_PURPLE])
   );
+  public readonly modelConformanceStripeColors = [
+    COLORS_PURPLE[0],
+    COLORS_PURPLE[1],
+  ];
+
+  public readonly variantConformanceColorMap = new ColorMap(
+    d3
+      .scaleThreshold<any, any>()
+      .domain(
+        COLORS_BLUE.map((value, index) => index / (COLORS_BLUE.length - 1))
+      )
+      .range(['#d3d3d3', ...COLORS_BLUE])
+  );
+  public readonly variantConformanceStripeColors = [
+    COLORS_BLUE[0],
+    COLORS_BLUE[1],
+  ];
 
   private socket: WebSocketSubject<any>;
   private runningRequests: number[] = [];
