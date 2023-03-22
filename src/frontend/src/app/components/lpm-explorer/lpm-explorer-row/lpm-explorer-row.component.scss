@@ -1,15 +1,20 @@
-.border-lightgrey{
-    border-color: rgb(106, 106, 106, 0.6) !important;
-  }
-  
-  
+.border-lightgrey {
+  border-color: rgb(106, 106, 106, 0.6) !important;
+}
+
+
 .variant-spacer {
   display: flex;
   flex-direction: row;
   align-items: center;
 }
 
-.text-size{
+.text-size {
   font-size: 0.9rem;
 }
-  
+
+.overflow-cell {
+  overflow: visible;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

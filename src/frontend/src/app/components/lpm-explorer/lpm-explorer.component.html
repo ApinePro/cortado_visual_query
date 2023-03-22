@@ -1,22 +1,11 @@
 <div class="lpm-explorer h-100 d-flex flex-column" #lpmExplorer>
   <div class="lpm-explorer-container">
     <div class="lpm-table-container" style="width: 100%">
-      <div class="bg-dark btn-tool-bar">
-        <button
-          class="button"
-          ngbTooltip="export local process models"
-          container="body"
-          (click)="exportLocalProcessModels()"
-        >
-          <i class="bi bi-save"></i>
-        </button>
-      </div>
-
       <div class="lpm-table-container-secondary">
-        <table class="lpm-table" widht="100%">
+        <table class="lpm-table">
           <thead class="user-select-none sticky-header-row">
             <tr>
-              <th resizeable class="text-center" [margin]="-4">
+              <th class="text-center" style="width: 100px">
                 <div class="header-text-container">
                   <div class="header-text">Actions</div>
                 </div>

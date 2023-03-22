@@ -862,10 +862,13 @@ export class VariantMinerComponent
             new LocalProcessModelWithPatterns(
               ProcessTree.fromObj(r['lpm']),
               r['patterns'].map((p) => {
+                let variant = deserialize(p);
+                variant.setExpanded(true);
+                setParent(variant);
                 return new SubvariantPattern(
                   -1,
                   -1,
-                  deserialize(p),
+                  variant,
                   -1,
                   -1,
                   -1,

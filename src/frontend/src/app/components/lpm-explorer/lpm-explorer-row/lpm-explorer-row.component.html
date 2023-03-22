@@ -1,4 +1,4 @@
-<td>
+<td style="width: 100px">
   <div class="row">
     <div class="col text-center">
       <button
@@ -44,7 +44,7 @@
   </svg>
 </td>
 
-<td class="border-start border-lightgrey ps-2" *ngIf="isVisible">
+<td class="border-start border-lightgrey ps-2 overflow-cell" *ngIf="isVisible">
   <div class="p-2" *ngFor="let pattern of lpm.patterns; let j = index">
     <svg
       appVariantDrawer
@@ -60,7 +60,7 @@
   </div>
 </td>
 
-<td *ngIf="!isVisible" class="border-start border-lightgrey ps-2">
+<td *ngIf="!isVisible" class="border-start border-lightgrey ps-2 overflow-cell">
   <div
     *ngFor="let pattern of lpm.patterns; let j = index"
     class="variant-spacer"

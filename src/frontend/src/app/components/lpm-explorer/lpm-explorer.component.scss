@@ -24,13 +24,14 @@
 
 .lpm-table-container-secondary {
   overflow: auto;
-  height: calc(100% - 28px);
+  height: 100%;
   width: 100%;
 }
 
 .lpm-table {
   color: var(--text-secondary);
   width: 100%;
+  table-layout: fixed;
 }
 
 .button-text {
