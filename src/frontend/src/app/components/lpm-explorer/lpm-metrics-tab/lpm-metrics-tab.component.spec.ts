@@ -8,9 +8,8 @@ describe('LpmMetricsTabComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ LpmMetricsTabComponent ]
-    })
-    .compileComponents();
+      declarations: [LpmMetricsTabComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(LpmMetricsTabComponent);
     component = fixture.componentInstance;

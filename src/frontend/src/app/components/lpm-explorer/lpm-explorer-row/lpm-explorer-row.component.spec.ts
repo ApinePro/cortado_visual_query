@@ -8,9 +8,8 @@ describe('LpmExplorerRowComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ LpmExplorerRowComponent ]
-    })
-    .compileComponents();
+      declarations: [LpmExplorerRowComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(LpmExplorerRowComponent);
     component = fixture.componentInstance;
