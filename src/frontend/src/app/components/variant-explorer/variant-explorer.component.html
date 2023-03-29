@@ -374,7 +374,11 @@
     </div>
 
     <span class="vl"></span>
-    <button class="button" (click)="openClusteringSettingsDialog()">
+    <button
+      class="button"
+      ngbTooltip="Variant clustering settings"
+      (click)="openClusteringSettingsDialog()"
+    >
       <i class="bi bi-pie-chart-fill"></i>
     </button>
 
@@ -715,7 +719,17 @@
               style="gap: 4px"
               class="p-2 m-2 badge bg-secondary d-flex flex-row justify-content-center align-items-center"
             >
-              <span class="text-nowrap"> Cluster {{ i + 1 }} </span>
+              <span class="text-nowrap">Cluster {{ i + 1 }}</span>
+              <span
+                *ngIf="cluster.value.length > 1"
+                class="text-nowrap num-variants-in-cluster"
+                >({{ cluster.value.length }} variants)</span
+              >
+              <span
+                *ngIf="cluster.value.length === 1"
+                class="text-nowrap num-variants-in-cluster"
+                >({{ cluster.value.length }} variant)</span
+              >
               <app-search
                 (sortEvent)="handleClusterSort($event, cluster.key)"
               ></app-search>

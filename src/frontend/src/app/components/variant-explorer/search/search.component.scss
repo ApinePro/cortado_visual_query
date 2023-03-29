@@ -16,3 +16,13 @@
   background-color: var(--bs-blue);
   color: var(--bs-white);
 }
+
+.dropdown-label{
+  font-weight: initial;
+  margin: 8px 0px 2px 0px;
+}
+
+.dropdown-item{
+  padding-top: 8px;
+  padding-bottom: 8px;
+}

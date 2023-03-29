@@ -1,5 +1,7 @@
-<div class="modal-header">
-  <h4 class="modal-title" id="modal-title">Clustering settings</h4>
+<div class="modal-header h-line-modal-bottom">
+  <h5 class="modal-title text-light" id="clusteringSettingsLabel">
+    Variant Clustering Settings
+  </h5>
   <button
     type="button"
     class="btn-close btn-close-white"
@@ -8,47 +10,56 @@
   ></button>
 </div>
 <div class="modal-body">
-  <div class="d-flex flex-column" style="gap: 20px">
-    <div ngbDropdown class="w-50">
-      <button
-        type="button"
-        class="btn btn-outline-secondary"
-        id="dropdownBasic2"
-        ngbDropdownToggle
+  <div class="d-flex flex-column">
+    <div class="form-select-element">
+      <label class="input-label">Clustering Method: </label>
+      <select
+        [ngModel]="selectedClusteringAlgorithm"
+        class="form-select input-selector cursor-pointer"
       >
-        {{ getDisplayName(selectedClusteringAlgorithm) }}
-      </button>
-      <div ngbDropdownMenu aria-labelledby="dropdownBasic2">
-        <button
-          (click)="setSelectedClusteringAlgorithm(algo)"
+        <option
           *ngFor="let algo of options"
-          ngbDropdownItem
+          [ngValue]="algo"
+          (click)="setSelectedClusteringAlgorithm(algo)"
+          selected
         >
           {{ getDisplayName(algo) }}
-        </button>
-      </div>
+        </option>
+      </select>
     </div>
-
-    <div class="col-5">
+    <div
+      class="form-select-element"
+      *ngIf="
+        selectedClusteringAlgorithm === 'AGGLOMERATIVE_EDIT_DISTANCE_CLUSTERING'
+      "
+    >
+      <label for="maxDistance" class="input-label"
+        >max. variant edit distance within a cluster:
+      </label>
       <input
-        *ngIf="
-          selectedClusteringAlgorithm ===
-          'AGGLOMERATIVE_EDIT_DISTANCE_CLUSTERING'
-        "
-        [(ngModel)]="maxDistance"
+        id="maxDistance"
         type="number"
-        class="form-control styled-input-field"
+        class="input-field-number"
+        [(ngModel)]="maxDistance"
         aria-describedby="nSeqHelp"
         placeholder="max distance"
+        min="0"
       />
-
+    </div>
+    <div
+      class="form-select-element"
+      *ngIf="selectedClusteringAlgorithm === 'LABEL_VECTOR_CLUSTERING'"
+    >
+      <label for="nClusters" class="input-label">number of clusters: </label>
       <input
-        *ngIf="selectedClusteringAlgorithm === 'LABEL_VECTOR_CLUSTERING'"
-        [(ngModel)]="nClusters"
+        id="nClusters"
         type="number"
-        class="form-control styled-input-field"
+        class="input-field-number"
+        [(ngModel)]="nClusters"
         aria-describedby="nSeqHelp"
         placeholder="n clusters"
+        min="1"
+        [max]="numberOfVariants"
       />
     </div>
   </div>
@@ -56,19 +67,19 @@
 <div class="modal-footer">
   <button
     type="button"
-    class="btn btn-outline-danger"
+    class="button reset-button"
     (click)="modal.dismiss('reset')"
   >
     Reset clustering
   </button>
   <button
     type="button"
-    class="btn btn-outline-secondary"
+    class="button submit-button"
     (click)="modal.dismiss('cancel click')"
   >
     Cancel
   </button>
-  <button type="button" class="btn btn-outline-secondary" (click)="onApply()">
+  <button type="button" class="button submit-button" (click)="onApply()">
     Apply clustering
   </button>
 </div>

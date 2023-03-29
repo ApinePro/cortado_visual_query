@@ -93,8 +93,12 @@ import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import { IVariant } from 'src/app/objects/Variants/variant_interface';
 import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ClusteringSettingsDialogComponent } from './clustering-settings-dialog/clustering-settings-dialog.component';
+import {
+  ClusteringConfig,
+  ClusteringSettingsDialogComponent
+} from './clustering-settings-dialog/clustering-settings-dialog.component';
 import _ from 'lodash';
+import {ClusteringAlgorithm} from "../../objects/ClusteringAlgorithm";
 
 @Component({
   selector: 'app-variant-explorer',
@@ -227,6 +231,8 @@ export class VariantExplorerComponent
   // if no clustering algo is applied we only have the key
   // 'unefined' which is the default cluster key
   clusterSortSettings: {} = {};
+
+  clusteringConfig: ClusteringConfig = null;
 
   private _destroy$ = new Subject();
 
@@ -1037,23 +1043,31 @@ export class VariantExplorerComponent
   }
 
   openClusteringSettingsDialog() {
-    this.modalService
+    const clusteringModel = this.modalService
       .open(ClusteringSettingsDialogComponent, {
         ariaLabelledBy: 'modal-basic-title',
-      })
-      .result.then(
-        (clusteringConfig) => this.onClusteringConfigApplied(clusteringConfig), // on apply
-        (value) => this.handleReset(value)
-      );
+      }
+    );
+
+    clusteringModel.result.then(
+      (clusteringConfig) => this.onClusteringConfigApplied(clusteringConfig), // on apply
+      (value) => this.handleReset(value)
+    );
+
+    clusteringModel.componentInstance.numberOfVariants = this.variants.length;
+    clusteringModel.componentInstance.clusteringConfig = this.clusteringConfig;
   }
 
   private handleReset(value: any) {
-    if (value == 'reset') {
+    if (value === 'reset') {
       this.variantService.resetClusterAssignments();
+      this.clusteringConfig = null;
     }
   }
 
   private async onClusteringConfigApplied(clusteringConfig: any) {
+    // set clusteringConfig in this component for reusing the config
+    this.clusteringConfig = clusteringConfig;
     // fetch clusterMap, i.e. mapping of all bids to the respective cluster
     const clusterMap = await this.variantService
       .computeClusterMappings(
