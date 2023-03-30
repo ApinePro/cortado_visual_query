@@ -233,6 +233,14 @@ export class VariantExplorerComponent
 
   clusteringConfig: ClusteringConfig = null;
 
+  public hideRuleContent: boolean[] = [];
+  public buttonName: any = 'Expand';
+
+  toggle(index) {
+    // toggle based on index
+    this.hideRuleContent[index] = !this.hideRuleContent[index];
+  }
+
   private _destroy$ = new Subject();
 
   ngOnInit(): void {
