@@ -95,10 +95,9 @@ import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_va
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import {
   ClusteringConfig,
-  ClusteringSettingsDialogComponent
+  ClusteringSettingsDialogComponent,
 } from './clustering-settings-dialog/clustering-settings-dialog.component';
 import _ from 'lodash';
-import {ClusteringAlgorithm} from "../../objects/ClusteringAlgorithm";
 
 @Component({
   selector: 'app-variant-explorer',
@@ -1043,8 +1042,9 @@ export class VariantExplorerComponent
   }
 
   openClusteringSettingsDialog() {
-    const clusteringModel = this.modalService
-      .open(ClusteringSettingsDialogComponent, {
+    const clusteringModel = this.modalService.open(
+      ClusteringSettingsDialogComponent,
+      {
         ariaLabelledBy: 'modal-basic-title',
       }
     );

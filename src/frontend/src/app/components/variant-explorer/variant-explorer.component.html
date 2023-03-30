@@ -376,10 +376,11 @@
     <span class="vl"></span>
     <button
       class="button"
+      [ngClass]="{ 'button-blue': clusteringConfig !== null }"
       ngbTooltip="Variant clustering settings"
       (click)="openClusteringSettingsDialog()"
     >
-      <i class="bi bi-pie-chart-fill"></i>
+      <i class="bi bi-grid-1x2"></i>
     </button>
 
     <span class="vl"></span>
