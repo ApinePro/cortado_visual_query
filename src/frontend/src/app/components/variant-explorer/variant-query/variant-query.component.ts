@@ -20,12 +20,13 @@ import {
 import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { EditorZoneComponent } from '../../editor-zone/editor-zone.component';
 
 import * as Monaco from 'monaco-editor';
 import { generateVQLTheme } from '../../editor-zone/editor-languages/vql-language-theme';
 import { VariantService } from 'src/app/services/variantService/variant.service';
+import { VariantQueryService } from 'src/app/services/variantQueryService/variant-query.service';
 declare var monaco: typeof Monaco;
 @Component({
   selector: 'app-variant-query',
@@ -74,6 +75,7 @@ export class VariantQueryComponent
 
   constructor(
     private renderer: Renderer2,
+    private variantQueryService: VariantQueryService,
     private colorMapService: ColorMapService,
     private logService: LogService,
     private backendService: BackendService,
@@ -101,6 +103,19 @@ export class VariantQueryComponent
       (this.variantQueryInput = new UntypedFormGroup({
         variantQuery: this.variantQuery,
       }));
+
+    this.variantQuery.valueChanges
+      .pipe(takeUntil(this._destroy$), distinctUntilChanged())
+      .subscribe((query) => {
+        this.variantQueryService.variantQuery = query;
+      });
+
+    this.variantQueryService.variantQuery$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((query) => {
+        if (this.variantQuery.value !== query)
+          this.variantQuery.setValue(query);
+      });
 
     this.variantService.nameChanges.subscribe((v) => {
       if (v !== null) {
