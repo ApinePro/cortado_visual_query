@@ -17,6 +17,7 @@ import {
   VariantFilterService,
   VariantFilter,
 } from '../variantFilterService/variant-filter.service';
+import { VariantQueryService } from '../variantQueryService/variant-query.service';
 @Injectable({
   providedIn: 'root',
 })
@@ -26,6 +27,7 @@ export class ProjectService {
     private processTreeService: ProcessTreeService,
     private variantService: VariantService,
     private variantFilterService: VariantFilterService,
+    private variantQueryService: VariantQueryService,
     @Inject(ELECTRON_SERVICE) private electronService: ElectronServiceInterface
   ) {}
 
@@ -37,14 +39,11 @@ export class ProjectService {
         JSON.parse(fileReader.result.toString())
       );
 
-      console.log(project);
-
       this.processTreeService.currentDisplayedProcessTree = project.processTree;
       this.processTreeService.selectedRootNodeID = project.selectedRootNodeID;
       this.variantService.variants = project.variants;
       this.variantFilterService.variantFilters = project.variantFilters;
-
-      console.log(this.variantFilterService.variantFilters);
+      this.variantQueryService.variantQuery = project.variantQuery;
     };
     fileReader.readAsText(file);
   }
@@ -54,10 +53,9 @@ export class ProjectService {
       this.processTreeService.currentDisplayedProcessTree,
       this.processTreeService.selectedRootNodeID,
       this.variantService.variants,
-      this.variantFilterService.variantFilters
+      this.variantFilterService.variantFilters,
+      this.variantQueryService.variantQuery
     );
-
-    console.log('Project to be serialized:', project);
 
     const now = new Date();
     const datepipe: DatePipe = new DatePipe('en-US');
@@ -91,15 +89,18 @@ class Project {
     { toClassOnly: true }
   )
   public variantFilters: Map<string, VariantFilter>;
+  public variantQuery: string;
   constructor(
     processTree: ProcessTree,
     selectedRootNodeID: number,
     variants: Variant[],
-    variantFilters: Map<string, VariantFilter>
+    variantFilters: Map<string, VariantFilter>,
+    variantQuery: string
   ) {
     this.processTree = processTree;
     this.selectedRootNodeID = selectedRootNodeID;
     this.variants = variants;
     this.variantFilters = variantFilters;
+    this.variantQuery = variantQuery;
   }
 }
