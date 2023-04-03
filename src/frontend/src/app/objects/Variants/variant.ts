@@ -1,6 +1,7 @@
+import { Transform, TransformationType, Type } from 'class-transformer';
 import { ProcessTree } from '../ProcessTree/ProcessTree';
 import { InfixType } from './infix_selection';
-import { VariantElement } from './variant_element';
+import { VariantElement, deserialize } from './variant_element';
 import { IVariant } from './variant_interface';
 
 export interface FragmentStatistics {
@@ -15,6 +16,14 @@ export class Variant implements IVariant {
   count: number;
   length: number;
   number_of_activities: number;
+  @Type(() => VariantElement)
+  @Transform(({ value, key, obj, type }) => {
+    if (type === TransformationType.PLAIN_TO_CLASS && value)
+      return deserialize(value);
+    if (type === TransformationType.CLASS_TO_PLAIN && value)
+      return (<VariantElement>value).serialize();
+    return value;
+  })
   variant: VariantElement;
   isSelected: boolean;
   isDisplayed: boolean;
@@ -22,10 +31,19 @@ export class Variant implements IVariant {
   percentage: number;
   calculationInProgress: boolean | undefined;
   userDefined: boolean;
+  @Type(() => VariantElement)
+  @Transform(({ value, key, obj, type }) => {
+    if (type === TransformationType.PLAIN_TO_CLASS && value)
+      return deserialize(value);
+    if (type === TransformationType.CLASS_TO_PLAIN && value)
+      return (<VariantElement>value).serialize();
+    return value;
+  })
   alignment: VariantElement | undefined;
   deviations: number | undefined;
   isTimeouted: boolean;
   isConformanceOutdated: boolean;
+  @Type(() => ProcessTree)
   usedTreeForConformanceChecking: ProcessTree;
   nSubVariants: number;
   infixType: InfixType;

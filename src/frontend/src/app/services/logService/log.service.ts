@@ -92,6 +92,10 @@ export class LogService {
     return this._loadedEventLog.asObservable();
   }
 
+  get loadedEventLog(): string {
+    return this._loadedEventLog.value;
+  }
+
   set loadedEventLog(name: string) {
     this.eventLogChanged();
 

@@ -1,16 +1,46 @@
 import { PerformanceStats } from '../Variants/variant_element';
+import { Transform, Type } from 'class-transformer';
+import { TransformationType } from 'class-transformer';
 
 export class ProcessTree {
+  public label: string;
+  public operator: ProcessTreeOperator;
+  @Type(() => ProcessTree)
+  @Transform(({ value, key, obj, type }) => {
+    if (type === TransformationType.PLAIN_TO_CLASS)
+      value.forEach((child: ProcessTree) => {
+        child.parent = obj;
+      });
+    return value;
+  })
+  public children: ProcessTree[];
+  public id: number;
+  public frozen: boolean;
+  @Type(() => TreePerformance)
+  public performance: TreePerformance;
+  public conformance: TreeConformance;
+  @Type(() => ProcessTree)
+  public parent: ProcessTree;
+
   constructor(
-    public label: string,
-    public operator: ProcessTreeOperator,
-    public children: ProcessTree[],
-    public id: number,
-    public frozen: boolean,
-    public performance: TreePerformance,
-    public conformance: TreeConformance,
-    public parent: ProcessTree
-  ) {}
+    label: string,
+    operator: ProcessTreeOperator,
+    children: ProcessTree[],
+    id: number,
+    frozen: boolean,
+    performance: TreePerformance,
+    conformance: TreeConformance,
+    parent: ProcessTree
+  ) {
+    this.label = label;
+    this.operator = operator;
+    this.children = children;
+    this.id = id;
+    this.frozen = frozen;
+    this.performance = performance;
+    this.conformance = conformance;
+    this.parent = parent;
+  }
 
   public equals(other: ProcessTree) {
     if (!other) {
@@ -103,9 +133,13 @@ export class ProcessTree {
 }
 
 export class TreePerformance {
+  @Type(() => PerformanceStats)
   service_time: PerformanceStats;
+  @Type(() => PerformanceStats)
   waiting_time: PerformanceStats;
+  @Type(() => PerformanceStats)
   cycle_time: PerformanceStats;
+  @Type(() => PerformanceStats)
   idle_time: PerformanceStats;
 
   constructor(dict: any = {}) {
