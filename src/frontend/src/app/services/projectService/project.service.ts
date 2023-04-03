@@ -62,7 +62,9 @@ export class ProjectService {
     const formattedDate = datepipe.transform(now, 'YYYY_MM_dd_HH_mm');
 
     this.electronService.showSaveDialog(
-      `cortado_project_${this.logService.loadedEventLog}_${formattedDate}`,
+      `cortado_${
+        this.logService.loadedEventLog.split('.')[0]
+      }_${formattedDate}`,
       'json',
       new Blob([
         JSON.stringify(instanceToPlain(project, { enableCircularCheck: true })),
