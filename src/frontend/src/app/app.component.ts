@@ -14,6 +14,7 @@ import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 import * as d3 from 'd3';
 import { EditorService } from './services/editorService/editor.service';
+import 'reflect-metadata';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
