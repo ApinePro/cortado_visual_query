@@ -177,6 +177,31 @@
           </ul>
         </div>
       </li>
+      <li><hr class="dropdown-divider" /></li>
+      <li>
+        <button class="button align-bottom" (click)="loadProject()">
+          <div>
+            <i class="bi bi-upload btn-icon"></i>
+            <span
+              ><b>Load</b> project (<samp class="text-primary fw-bold"
+                >.json</samp
+              >)</span
+            >
+          </div>
+        </button>
+      </li>
+      <li>
+        <button class="button align-bottom" (click)="saveProject()">
+          <div>
+            <i class="bi bi-download btn-icon"></i>
+            <span
+              ><b>Save</b> project (<samp class="text-primary fw-bold"
+                >.json</samp
+              >)</span
+            >
+          </div>
+        </button>
+      </li>
     </ul>
   </div>
   <div class="dropdown">
@@ -248,6 +273,14 @@
     class="d-none"
     (change)="handleSelectedProcessTreeFile($event)"
     accept=".ptml"
+  />
+
+  <input
+    #fileUploadProject
+    type="file"
+    class="d-none"
+    (change)="handleSelectedProjectFile($event)"
+    accept=".json"
   />
 </div>
 

@@ -9,6 +9,7 @@ import { environment } from '../../../environments/environment';
 import { BackendService } from '../../services/backendService/backend.service';
 import { ComponentItemConfig, LayoutManager, Side } from 'golden-layout';
 import { VariantService } from 'src/app/services/variantService/variant.service';
+import { ProjectService } from 'src/app/services/projectService/project.service';
 
 @Component({
   selector: 'app-header-bar',
@@ -18,6 +19,7 @@ import { VariantService } from 'src/app/services/variantService/variant.service'
 export class HeaderBarComponent {
   @ViewChild('fileUploadEventLog') fileUploadEventLog: ElementRef;
   @ViewChild('fileUploadProcessTree') fileUploadProcessTree: ElementRef;
+  @ViewChild('fileUploadProject') fileUploadProject: ElementRef;
 
   public exportVariant = ExportVariant;
   showSettingsEvent: Subject<void> = new Subject<void>();
@@ -25,6 +27,7 @@ export class HeaderBarComponent {
   constructor(
     private variantService: VariantService,
     private backendService: BackendService,
+    private projectService: ProjectService,
     private _elRef: ElementRef<HTMLElement>,
     private goldenLayoutComponentService: GoldenLayoutComponentService
   ) {}
@@ -40,10 +43,10 @@ export class HeaderBarComponent {
   handleSelectedEventLogFile(e): void {
     const fileList: FileList = e.target.files;
     if (fileList.length > 0) {
-      if (!environment.electron) {
-        this.backendService.uploadEventLog(fileList[0]);
-      } else {
+      if (environment.electron) {
         this.backendService.loadEventLogFromFilePath(fileList[0]['path']);
+      } else {
+        this.backendService.uploadEventLog(fileList[0]);
       }
     }
     // reset form
@@ -264,6 +267,23 @@ export class HeaderBarComponent {
         );
         break;
     }
+  }
+
+  public loadProject() {
+    this.fileUploadProject.nativeElement.click();
+  }
+
+  public saveProject() {
+    this.projectService.saveProject();
+  }
+
+  handleSelectedProjectFile(e): void {
+    const fileList: FileList = e.target.files;
+    if (fileList.length > 0) {
+      this.projectService.loadProject(fileList[0]);
+    }
+    // reset form
+    this.fileUploadProject.nativeElement.value = '';
   }
 }
 
