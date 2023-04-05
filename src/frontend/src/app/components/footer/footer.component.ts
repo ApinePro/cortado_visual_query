@@ -6,11 +6,11 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { BackgroundTaskInfoService } from '../../services/backgroundTaskInfoService/background-task-info.service';
-import packageInfo from '../../../../package.json';
 import { DOCUMENT } from '@angular/common';
 import { BackendInfoService } from 'src/app/services/backendInfoService/backend-info.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 declare var electron: any;
 
 @Component({
@@ -28,7 +28,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   currentTask = undefined;
   numberTasks = 0;
-  version = packageInfo.version;
+  version = environment.VERSION;
   public isRunning: boolean = false;
 
   private _destroy$ = new Subject();

@@ -18,6 +18,7 @@ import {
   VariantFilter,
 } from '../variantFilterService/variant-filter.service';
 import { VariantQueryService } from '../variantQueryService/variant-query.service';
+import { environment } from 'src/environments/environment';
 @Injectable({
   providedIn: 'root',
 })
@@ -76,6 +77,7 @@ export class ProjectService {
 }
 
 class Project {
+  public cortadoVersion: string;
   @Type(() => ProcessTree)
   public processTree: ProcessTree;
   public selectedRootNodeID: number;
@@ -97,12 +99,14 @@ class Project {
     selectedRootNodeID: number,
     variants: Variant[],
     variantFilters: Map<string, VariantFilter>,
-    variantQuery: string
+    variantQuery: string,
+    cortadoVersion: string = environment.VERSION
   ) {
     this.processTree = processTree;
     this.selectedRootNodeID = selectedRootNodeID;
     this.variants = variants;
     this.variantFilters = variantFilters;
     this.variantQuery = variantQuery;
+    this.cortadoVersion = cortadoVersion;
   }
 }
