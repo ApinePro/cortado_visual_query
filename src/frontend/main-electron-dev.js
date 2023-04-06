@@ -34,6 +34,14 @@ function createWindow() {
     win = null
   })
 
+  win.on("close", async (e) => {
+    e.preventDefault();
+
+    // ask projectService for unsaved Changes
+    // response on "unsaved-changes"
+    win.webContents.send('check-unsaved-changes')
+  });
+
   // prevent external links from being opened in an electron window
   win.webContents.on('new-window', function (e, url) {
     e.preventDefault();
@@ -64,11 +72,50 @@ app.on('activate', function () {
   if (win === null) {
     createWindow()
   }
-}
-)
+});
 
-ipcMain.on('showSaveDialog', ((_, fileName, fileExtension, base64File, buttonLabel, title) => {
-  showSaveDialog(downloadFolder, dialog, fs, win, fileName, fileExtension, base64File, buttonLabel, title)
-}));
+ipcMain.handle(
+  "showSaveDialog",
+  (
+    _,
+    fileName,
+    fileExtension,
+    base64File,
+    buttonLabel,
+    title
+  ) =>
+    showSaveDialog(
+      downloadFolder,
+      dialog,
+      fs,
+      win,
+      fileName,
+      fileExtension,
+      base64File,
+      buttonLabel,
+      title
+    )
+);
 
+ipcMain.on("unsaved-changes", async (_event, res) => {
+  if(!res) win.destroy();
+  else {
+    const { response } = await dialog.showMessageBox(win, {
+      type: "warning",
+      title: "Save Project?",
+      message: "Save Cortado project before closing?",
+      detail: "All progress will be lost if you don't save it.",
+      buttons: ["Don't Save", "Cancel", "Save"],
+      defaultId: 2,
+    });
 
+    if (response === 0) win.destroy();
+    else if (response === 2){
+      win.webContents.send('save-project')
+    }
+  }
+})
+
+ipcMain.on("quit", ()=>{
+  win.destroy();
+})

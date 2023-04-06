@@ -29,8 +29,17 @@ function fixPath(filePath, fileExtension) {
   return filePath;
 }
 
-function showSaveDialog(downloadFolder, dialog, fs, win, fileName, fileExtension, base64File, buttonLabel, title,) {
-  
+async function showSaveDialog(
+  downloadFolder,
+  dialog,
+  fs,
+  win,
+  fileName,
+  fileExtension,
+  base64File,
+  buttonLabel,
+  title
+) {
   let downloadPath = downloadFolder + `/${fileName}.${fileExtension}`;
 
   // define save dialog options
@@ -43,17 +52,17 @@ function showSaveDialog(downloadFolder, dialog, fs, win, fileName, fileExtension
 
   var imageBuffer = decodeBase64Image(base64File);
 
-  dialog.showSaveDialog(win, options).then((event) => {
-    // fix file path if the path has no extension or a wrong extension
-    let filePath = event.filePath;
-    if (!event.canceled) {
-      fs.writeFileSync(
-        fixPath(filePath, fileExtension),
-        imageBuffer.data,
-        'base64'
-      );
-    }
-  });
+  const { canceled, filePath } = await dialog.showSaveDialog(win, options);
+  // fix file path if the path has no extension or a wrong extension
+  if (!canceled) {
+    fs.writeFileSync(
+      fixPath(filePath, fileExtension),
+      imageBuffer.data,
+      'base64'
+    );
+  }
+
+  return canceled ? undefined : filePath
 }
 
 module.exports = { decodeBase64Image, fixPath, showSaveDialog };

@@ -13,10 +13,11 @@ export class ElectronService implements ElectronServiceInterface {
     blob: Blob,
     buttonLabel: string,
     title: string
-  ) {
+  ): Promise<string> {
     let base64File = await blobToBase64(blob);
 
-    this.electronApi.showSaveDialog(
+    // returns filePath of savedFile or undefined if aborted
+    return this.electronApi.showSaveDialog(
       fileName,
       fileExtension,
       base64File,
@@ -33,5 +34,5 @@ export interface ElectronServiceInterface {
     blob: Blob,
     buttonLabel: string,
     title: string
-  );
+  ): Promise<string>;
 }

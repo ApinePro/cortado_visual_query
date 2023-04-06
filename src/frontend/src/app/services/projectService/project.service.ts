@@ -19,6 +19,8 @@ import {
 } from '../variantFilterService/variant-filter.service';
 import { VariantQueryService } from '../variantQueryService/variant-query.service';
 import { environment } from 'src/environments/environment';
+import { isEqualWith } from 'lodash';
+import { take } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root',
 })
@@ -30,15 +32,64 @@ export class ProjectService {
     private variantFilterService: VariantFilterService,
     private variantQueryService: VariantQueryService,
     @Inject(ELECTRON_SERVICE) private electronService: ElectronServiceInterface
-  ) {}
+  ) {
+    this.variantService.variants$.pipe(take(2)).subscribe((variants) => {
+      this.latestSavedProject = instanceToPlain(
+        new Project(
+          this.processTreeService.currentDisplayedProcessTree,
+          this.processTreeService.selectedRootNodeID,
+          variants,
+          this.variantFilterService.variantFilters,
+          this.variantQueryService.variantQuery
+        ),
+        { enableCircularCheck: true }
+      );
+    });
+
+    (<any>window).electronAPI.onCheckUnsavedChanges(async (event, value) => {
+      event.sender.send('unsaved-changes', this.unsavedChanges);
+    });
+
+    (<any>window).electronAPI.onSaveProject(async (event, value) => {
+      this.saveProject().then((filePath) => {
+        if (filePath) event.sender.send('quit');
+      });
+    });
+  }
+
+  private latestSavedProject: Record<string, any>;
+
+  get unsavedChanges(): boolean {
+    return !isEqualWith(
+      this.latestSavedProject,
+      JSON.parse(
+        JSON.stringify(
+          instanceToPlain(this.currentProject, { enableCircularCheck: true })
+        )
+      ),
+      (a, b, key) => {
+        // ignore parent property
+        if (key === 'parent') return true;
+        return undefined;
+      }
+    );
+  }
+
+  get currentProject(): Project {
+    return new Project(
+      this.processTreeService.currentDisplayedProcessTree,
+      this.processTreeService.selectedRootNodeID,
+      this.variantService.variants,
+      this.variantFilterService.variantFilters,
+      this.variantQueryService.variantQuery
+    );
+  }
 
   public loadProject(file: File) {
     const fileReader = new FileReader();
     fileReader.onload = (e) => {
-      const project = plainToInstance(
-        Project,
-        JSON.parse(fileReader.result.toString())
-      );
+      this.latestSavedProject = JSON.parse(fileReader.result.toString());
+      const project = plainToInstance(Project, this.latestSavedProject);
 
       this.processTreeService.currentDisplayedProcessTree = project.processTree;
       this.processTreeService.selectedRootNodeID = project.selectedRootNodeID;
@@ -49,30 +100,27 @@ export class ProjectService {
     fileReader.readAsText(file);
   }
 
-  public saveProject() {
-    const project = new Project(
-      this.processTreeService.currentDisplayedProcessTree,
-      this.processTreeService.selectedRootNodeID,
-      this.variantService.variants,
-      this.variantFilterService.variantFilters,
-      this.variantQueryService.variantQuery
-    );
-
+  public async saveProject() {
     const now = new Date();
     const datepipe: DatePipe = new DatePipe('en-US');
     const formattedDate = datepipe.transform(now, 'YYYY_MM_dd_HH_mm');
 
-    this.electronService.showSaveDialog(
+    const project = JSON.stringify(
+      instanceToPlain(this.currentProject, {
+        enableCircularCheck: true,
+      })
+    );
+    const filePath = await this.electronService.showSaveDialog(
       `cortado_${
         this.logService.loadedEventLog.split('.')[0]
       }_${formattedDate}`,
       'json',
-      new Blob([
-        JSON.stringify(instanceToPlain(project, { enableCircularCheck: true })),
-      ]),
+      new Blob([project]),
       'Save project',
       'Save Cortado Project'
     );
+    if (filePath) this.latestSavedProject = JSON.parse(project);
+    return filePath;
   }
 }
 
