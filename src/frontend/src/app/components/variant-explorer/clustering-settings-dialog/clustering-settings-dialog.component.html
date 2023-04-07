@@ -34,7 +34,7 @@
       "
     >
       <label for="maxDistance" class="input-label"
-        >max. variant edit distance within a cluster:
+        >Max. Variant Edit Distance Within a Cluster:
       </label>
       <input
         id="maxDistance"
@@ -50,7 +50,7 @@
       class="form-select-element"
       *ngIf="selectedClusteringAlgorithm === 'LABEL_VECTOR_CLUSTERING'"
     >
-      <label for="nClusters" class="input-label">number of clusters: </label>
+      <label for="nClusters" class="input-label">Number of Clusters: </label>
       <input
         id="nClusters"
         type="number"
@@ -67,19 +67,26 @@
 <div class="modal-footer">
   <button
     type="button"
-    class="button reset-button"
+    class="button"
+    data-bs-dismiss="modal"
     (click)="modal.dismiss('reset')"
   >
-    Reset clustering
+    <i class="bi bi-arrow-clockwise btn-icon text-danger"></i>
+    Reset
   </button>
+
   <button
     type="button"
-    class="button submit-button"
+    class="button"
+    data-bs-dismiss="modal"
     (click)="modal.dismiss('cancel click')"
   >
-    Cancel
+    <i class="bi bi-x-lg btn-icon text-danger"></i>
+    Close
   </button>
-  <button type="button" class="button submit-button" (click)="onApply()">
-    Apply clustering
+
+  <button type="button" class="button" (click)="onApply()">
+    <i class="bi bi-save btn-icon text-success"></i>
+    Apply
   </button>
 </div>

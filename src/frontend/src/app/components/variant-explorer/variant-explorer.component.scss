@@ -269,8 +269,17 @@ thead {
   box-shadow: inset 0 -2px 1px var(--thin-border-color);
 }
 
-.num-variants-in-cluster{
+.cluster-badge-text-primary{
+  line-height: 22px;
+}
+
+.cluster-badge-text-secondary{
   color: #c6c6c6;
+  margin: 0px 0px 4px 4px;
+}
+
+.cluster-app-search{
+  margin-top: 2px;
 }
 
 .button-blue {
