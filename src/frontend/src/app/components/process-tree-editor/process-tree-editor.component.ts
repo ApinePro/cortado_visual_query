@@ -213,7 +213,7 @@ export class ProcessTreeEditorComponent
     this.processTreeService.currentDisplayedProcessTree$
       .pipe(takeUntil(this._destroy$))
       .subscribe((res) => {
-        // If the tree was loaded via the process tree import or Drag&Drop that does not contain the current activites
+        // If the tree was loaded via the process tree import or Drag&Drop that does not contain the current activities
         this.currentlyDisplayedTreeInEditor = res;
 
         if (res) {

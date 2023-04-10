@@ -53,6 +53,10 @@ export class ProcessTreeDrawerDirective {
       this.root = null;
     }
 
+    // add activities in the tree to nodeWidthCache in processTreeService
+    this.processTreeService.updateNodeWidthCache(
+      tree.extractActivityLabelsFromTree()
+    );
     this.update(this.root);
   }
 
@@ -242,7 +246,6 @@ export class ProcessTreeDrawerDirective {
 
     if (root) {
       // add node groups that contain a rectangle and text
-
       this.calculateTreeLayout(root);
 
       const node = this.mainSvgGroup
