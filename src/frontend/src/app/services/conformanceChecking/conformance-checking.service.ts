@@ -124,13 +124,20 @@ export class ConformanceCheckingService {
           );
           this.runningRequests = [];
           this.socket = null;
-          if (error instanceof CloseEvent) {
+
+          throw error;
+        }),
+        tap((_) => {
+          this.infoService.removeRequest(this.runningRequests.pop());
+        }),
+        map((result) => {
+          if ('error' in result) {
             Swal.fire({
               title: 'Error occurred',
               html:
                 '<b>Error message: </b><br>' +
                 '<code>' +
-                'websocket connection for conformance checking was closed' +
+                'Calculating conformance statistics failed' +
                 '</code>',
               icon: 'error',
               showCloseButton: false,
@@ -138,13 +145,8 @@ export class ConformanceCheckingService {
               showCancelButton: true,
               cancelButtonText: 'close',
             });
+            return result;
           }
-          throw error;
-        }),
-        tap((_) => {
-          this.infoService.removeRequest(this.runningRequests.pop());
-        }),
-        map((result) => {
           return new ConformanceCheckingResult(
             result['id'],
             result['type'],
@@ -158,7 +160,7 @@ export class ConformanceCheckingService {
       );
       [this.varResults, this.patternResults] = partition(
         results,
-        (ccr: ConformanceCheckingResult) => ccr.type === 1
+        (ccr: ConformanceCheckingResult) => ccr.type === 1 || 'error' in ccr
       );
 
       return true;
