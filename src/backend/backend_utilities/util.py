@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 
 def get_trace(e):
     return "".join(
-        traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)
+        traceback.format_exception(e, value=e, tb=e.__traceback__)
     )
 
 
