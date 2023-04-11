@@ -10,7 +10,7 @@ from backend_utilities.configuration.repository import (
 )
 from backend_utilities.process_tree_conversion import process_tree_to_dict
 from endpoints.load_event_log import calculate_event_log_properties
-from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pm4py.objects.log.importer.xes.importer import apply as xes_import
 from pm4py.objects.process_tree.importer.importer import apply as import_pt_from_ptml
 from pydantic import BaseModel
@@ -47,7 +47,11 @@ async def load_event_log_from_file_path(
         d: FilePathInput, config_repo: ConfigurationRepository = Depends(get_config_repo)
 ):
     cache.pcache = {}
-    event_log = xes_import(d.file_path)
+    try:
+        event_log = xes_import(d.file_path)
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=f"Event log not found ({d.file_path})")
+
 
     use_mp = (
             len(event_log) > config_repo.get_configuration().min_traces_variant_detection_mp
