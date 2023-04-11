@@ -100,9 +100,9 @@ export class VariantComponent implements AfterViewInit {
     if (!tree) return null;
 
     return this.conformanceCheckingService.isConformanceWeighted &&
-      tree.conformance.weighted_by_counts != undefined
-      ? tree.conformance.weighted_by_counts.value
-      : tree.conformance.weighted_equally.value;
+      tree.conformance?.weighted_by_counts != undefined
+      ? tree.conformance?.weighted_by_counts.value
+      : tree.conformance?.weighted_equally.value;
   }
 
   get isTreePerformanceActive() {
@@ -168,7 +168,7 @@ export class VariantComponent implements AfterViewInit {
 
   get conformanceButtonColor() {
     if (this.treeConformanceValue >= 0 && this.isTreeConformanceActive)
-      return this.conformanceCheckingService.conformanceColorMap.getColor(
+      return this.conformanceCheckingService.modelConformanceColorMap.getColor(
         this.treeConformanceValue
       );
     else return '#d3d3d3';

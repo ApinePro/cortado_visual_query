@@ -430,11 +430,14 @@ export class ProcessTreeEditorComponent
     switch (this.modelViewModeService.viewMode) {
       case ViewMode.CONFORMANCE:
         if (d.data.conformance === null) return '#404041';
-        return this.conformanceCheckingService.conformanceColorMap.getColor(
+        const conformanceValue =
           this.conformanceCheckingService.isConformanceWeighted &&
-            d.data.conformance?.weighted_by_counts != undefined
+          d.data.conformance?.weighted_by_counts != undefined
             ? d.data.conformance?.weighted_by_counts.value
-            : d.data.conformance?.weighted_equally.value
+            : d.data.conformance?.weighted_equally.value;
+        if (conformanceValue === 0) return 'url(#modelConformanceStriped)';
+        return this.conformanceCheckingService.modelConformanceColorMap.getColor(
+          conformanceValue
         );
       case ViewMode.PERFORMANCE:
         if (d.data.label !== ProcessTreeOperator.tau) {
@@ -449,7 +452,7 @@ export class ProcessTreeEditorComponent
                 this.selectedStatistic
               ] === 0
             )
-              return 'url(#striped)';
+              return 'url(#whiteStriped)';
             else
               return this.performanceColorMap
                 .get(d.data.id)
