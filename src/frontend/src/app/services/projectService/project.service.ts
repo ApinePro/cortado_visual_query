@@ -5,6 +5,7 @@ import { ELECTRON_SERVICE } from 'src/app/tokens';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import {
   Transform,
+  TransformationType,
   Type,
   instanceToPlain,
   plainToInstance,
@@ -131,15 +132,15 @@ class Project {
   public selectedRootNodeID: number;
   @Type(() => Variant)
   public variants: Variant[];
-  @Transform(
-    ({ value, key, obj, type }) => {
+  @Transform(({ value, key, obj, type }) => {
+    if (type === TransformationType.PLAIN_TO_CLASS) {
       let map = new Map<string, VariantFilter>();
       for (let entry of Object.entries(value))
         map.set(entry[0], plainToInstance(VariantFilter, entry[1]));
       return map;
-    },
-    { toClassOnly: true }
-  )
+    }
+    return value;
+  })
   public variantFilters: Map<string, VariantFilter>;
   public variantQuery: string;
   constructor(
