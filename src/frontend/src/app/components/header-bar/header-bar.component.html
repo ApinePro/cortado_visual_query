@@ -282,26 +282,49 @@
     (change)="handleSelectedProjectFile($event)"
     accept=".json"
   />
-<input #fileUploadEventLogRetry type="file" class="d-none" (change)="handleSelectedEventLogFileRetry($event)"
-  accept=".xes" />
+  <input
+    #fileUploadEventLogRetry
+    type="file"
+    class="d-none"
+    (change)="handleSelectedEventLogFileRetry($event)"
+    accept=".xes"
+  />
 </div>
 
 <app-settings [showSettings]="showSettingsEvent.asObservable()"></app-settings>
 
 <ng-template let-modal #eventLogSelectionRetryModal>
   <div class="modal-header h-line-modal-bottom">
-    <h4 class="modal-title text-light" id="modal-basic-title">Select new event log path</h4>
-    <button type="button" class="btn-close btn-close-white" aria-label="Close"
-      (click)="modal.dismiss('Cross click')"></button>
+    <h4 class="modal-title text-light" id="modal-basic-title">
+      Select new event log path
+    </h4>
+    <button
+      type="button"
+      class="btn-close btn-close-white"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    ></button>
   </div>
   <div class="modal-body text-light">
-    The path of the event log <code>{{ oldEventLogPath.split("/").pop() }}</code> has changed. You need to select a new
-    path to this
-    event log.
+    The path of the event log
+    <code>{{ oldEventLogPath.split("/").pop() }}</code> has changed. You need to
+    select a new path to this event log.
   </div>
   <div class="modal-footer h-line-modal-top">
-    <button type="button" class="btn btn-outline-secondary" (click)="modal.close()">Cancel</button>
-    <button type="button" class="btn btn-success" ngbAutofocus (click)="importEventLog(); modal.close()">Select new
-      path</button>
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      (click)="modal.close()"
+    >
+      Cancel
+    </button>
+    <button
+      type="button"
+      class="btn btn-success"
+      ngbAutofocus
+      (click)="importEventLog(); modal.close()"
+    >
+      Select new path
+    </button>
   </div>
 </ng-template>

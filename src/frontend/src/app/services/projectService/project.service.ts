@@ -113,7 +113,7 @@ export class ProjectService {
     fileReader.readAsText(file);
   }
 
-  private restoreProjectAfterLog(project: Project){
+  private restoreProjectAfterLog(project: Project) {
     this.processTreeService.currentDisplayedProcessTree = project.processTree;
     this.processTreeService.selectedRootNodeID = project.selectedRootNodeID;
     this.variantService.variants = project.variants;
