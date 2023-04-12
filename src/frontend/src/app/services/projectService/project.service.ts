@@ -22,6 +22,7 @@ import { VariantQueryService } from '../variantQueryService/variant-query.servic
 import { environment } from 'src/environments/environment';
 import { isEqualWith } from 'lodash';
 import { take } from 'rxjs/operators';
+import { BackendService } from '../backendService/backend.service';
 @Injectable({
   providedIn: 'root',
 })
@@ -32,11 +33,13 @@ export class ProjectService {
     private variantService: VariantService,
     private variantFilterService: VariantFilterService,
     private variantQueryService: VariantQueryService,
+    private backendService: BackendService,
     @Inject(ELECTRON_SERVICE) private electronService: ElectronServiceInterface
   ) {
     this.variantService.variants$.pipe(take(2)).subscribe((variants) => {
       this.latestSavedProject = instanceToPlain(
         new Project(
+          'preload',
           this.processTreeService.currentDisplayedProcessTree,
           this.processTreeService.selectedRootNodeID,
           variants,
@@ -78,6 +81,7 @@ export class ProjectService {
 
   get currentProject(): Project {
     return new Project(
+      this.logService.loadedEventLog,
       this.processTreeService.currentDisplayedProcessTree,
       this.processTreeService.selectedRootNodeID,
       this.variantService.variants,
@@ -92,11 +96,17 @@ export class ProjectService {
       this.latestSavedProject = JSON.parse(fileReader.result.toString());
       const project = plainToInstance(Project, this.latestSavedProject);
 
-      this.processTreeService.currentDisplayedProcessTree = project.processTree;
-      this.processTreeService.selectedRootNodeID = project.selectedRootNodeID;
-      this.variantService.variants = project.variants;
-      this.variantFilterService.variantFilters = project.variantFilters;
-      this.variantQueryService.variantQuery = project.variantQuery;
+      this.backendService
+        .loadEventLogFromFilePath(project.eventlogPath)
+        .subscribe(() => {
+          this.processTreeService.currentDisplayedProcessTree =
+            project.processTree;
+          this.processTreeService.selectedRootNodeID =
+            project.selectedRootNodeID;
+          this.variantService.variants = project.variants;
+          this.variantFilterService.variantFilters = project.variantFilters;
+          this.variantQueryService.variantQuery = project.variantQuery;
+        });
     };
     fileReader.readAsText(file);
   }
@@ -127,6 +137,7 @@ export class ProjectService {
 
 class Project {
   public cortadoVersion: string;
+  public eventlogPath: string;
   @Type(() => ProcessTree)
   public processTree: ProcessTree;
   public selectedRootNodeID: number;
@@ -144,6 +155,7 @@ class Project {
   public variantFilters: Map<string, VariantFilter>;
   public variantQuery: string;
   constructor(
+    eventlogPath: string,
     processTree: ProcessTree,
     selectedRootNodeID: number,
     variants: Variant[],
@@ -151,6 +163,7 @@ class Project {
     variantQuery: string,
     cortadoVersion: string = environment.VERSION
   ) {
+    this.eventlogPath = eventlogPath;
     this.processTree = processTree;
     this.selectedRootNodeID = selectedRootNodeID;
     this.variants = variants;
