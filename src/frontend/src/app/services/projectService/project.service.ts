@@ -47,15 +47,15 @@ export class ProjectService {
       );
     });
 
-    (<any>window).electronAPI.onCheckUnsavedChanges(async (event, value) => {
-      event.sender.send('unsaved-changes', this.unsavedChanges);
-    });
+    this.electronService.checkUnsavedChanges$.subscribe((sender) =>
+      sender.send('unsaved-changes', this.unsavedChanges)
+    );
 
-    (<any>window).electronAPI.onSaveProject(async (event, value) => {
+    this.electronService.saveProject$.subscribe((sender) =>
       this.saveProject().then((filePath) => {
-        if (filePath) event.sender.send('quit');
-      });
-    });
+        if (filePath) sender.send('quit');
+      })
+    );
   }
 
   private latestSavedProject: Record<string, any>;
