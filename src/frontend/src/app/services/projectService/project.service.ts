@@ -96,19 +96,29 @@ export class ProjectService {
       this.latestSavedProject = JSON.parse(fileReader.result.toString());
       const project = plainToInstance(Project, this.latestSavedProject);
 
-      this.backendService
-        .loadEventLogFromFilePath(project.eventlogPath)
-        .subscribe(() => {
-          this.processTreeService.currentDisplayedProcessTree =
-            project.processTree;
-          this.processTreeService.selectedRootNodeID =
-            project.selectedRootNodeID;
-          this.variantService.variants = project.variants;
-          this.variantFilterService.variantFilters = project.variantFilters;
-          this.variantQueryService.variantQuery = project.variantQuery;
+      if (project.eventlogPath == 'preload') {
+        this.backendService.resetLogCache().subscribe(() => {
+          this.backendService.getLogPropsAndUpdateState().subscribe(() => {
+            this.restoreProjectAfterLog(project);
+          });
         });
+      } else {
+        this.backendService
+          .loadEventLogFromFilePath(project.eventlogPath)
+          .subscribe(() => {
+            this.restoreProjectAfterLog(project);
+          });
+      }
     };
     fileReader.readAsText(file);
+  }
+
+  private restoreProjectAfterLog(project: Project){
+    this.processTreeService.currentDisplayedProcessTree = project.processTree;
+    this.processTreeService.selectedRootNodeID = project.selectedRootNodeID;
+    this.variantService.variants = project.variants;
+    this.variantFilterService.variantFilters = project.variantFilters;
+    this.variantQueryService.variantQuery = project.variantQuery;
   }
 
   public async saveProject() {
