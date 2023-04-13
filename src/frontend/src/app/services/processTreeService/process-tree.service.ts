@@ -226,6 +226,13 @@ export class ProcessTreeService {
     this._currentDisplayedProcessTree.next(tree);
   }
 
+  updateNodeWidthCache(newActivities) {
+    this.nodeWidthCache = computeLeafNodeWidth(
+      newActivities,
+      this.nodeWidthCache
+    );
+  }
+
   public set_currentDisplayedProcessTree_with_Cache(tree: any) {
     if (tree && !(tree instanceof ProcessTree)) {
       tree = ProcessTree.fromObj(tree);
