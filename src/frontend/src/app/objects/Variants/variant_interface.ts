@@ -24,5 +24,5 @@ export interface IVariant {
   infixType: InfixType;
   fragmentStatistics: any;
   collapsedVariantId: string;
-  clusterId?: string;
+  clusterId: number;
 }

@@ -280,7 +280,7 @@ export class VariantService {
   resetClusterAssignments() {
     this.variants.forEach((variant) => {
       // undefined is the default cluster id when no algorithm was applied
-      variant.clusterId = undefined;
+      variant.clusterId = null;
     });
 
     this.variants = this.variants;

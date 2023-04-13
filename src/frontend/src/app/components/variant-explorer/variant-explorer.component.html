@@ -627,12 +627,12 @@
             "
           >
             <div
-              *ngIf="cluster.key !== 'undefined'"
+              *ngIf="cluster.value[0].clusterId !== null && cluster.value[0].clusterId !== undefined"
               style="gap: 4px"
               class="m-2 badge bg-secondary justify-content-center align-items-center"
             >
               <div
-                *ngIf="cluster.key !== 'undefined'"
+                *ngIf="cluster.value[0].clusterId !== null && cluster.value[0].clusterId !== undefined"
                 style="gap: 4px"
                 class="d-flex flex-row"
               >
@@ -661,7 +661,7 @@
               </div>
 
               <div
-                *ngIf="cluster.key !== 'undefined'"
+                *ngIf="cluster.value[0].clusterId !== null && cluster.value[0].clusterId !== undefined"
                 style="gap: 4px"
                 class="d-flex flex-row"
               >

@@ -12,6 +12,7 @@ export class LoopCollapsedVariant implements IVariant {
   usedTreeForConformanceChecking: ProcessTree;
   fragmentStatistics: any;
   collapsedVariantId: string;
+  clusterId: number;
 
   constructor(
     id: string,

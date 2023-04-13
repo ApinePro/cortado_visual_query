@@ -1093,7 +1093,7 @@ export class VariantExplorerComponent
     );
   }
 
-  handleClusterSort(sortEvent, clusterId: string) {
+  handleClusterSort(sortEvent, clusterId) {
     this.clusterSortSettings[clusterId] = sortEvent;
     this.updateAllSubvariantWindows();
     // detect changes manually to avoid expression changed after checked
