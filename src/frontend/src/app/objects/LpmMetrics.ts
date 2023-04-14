@@ -1,4 +1,5 @@
 export class LpmMetrics {
+  support: number;
   supportTrans: number;
   supportOcc: number;
   confidence: number;

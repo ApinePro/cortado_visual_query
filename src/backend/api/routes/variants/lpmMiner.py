@@ -52,10 +52,11 @@ def mineLocalProcessModels(config: LpmStatisticsInput):
     for _, traces, _, _ in cache.cache.variants.values():
         log += traces
     log = EventLog(log)
-    support_trans, support_occ, confidence, precision, coverage, simplicity, n_transitions, skip_precision, mean_range, min_range, max_range = calculate_metrics(
+    support_tax, support_trans, support_occ, confidence, precision, coverage, simplicity, n_transitions, skip_precision, mean_range, min_range, max_range = calculate_metrics(
         tree, log, is_place_net_algorithm=False)
 
     res = {
+        'support': support_tax,
         'supportTrans': support_trans,
         'supportOcc': support_occ,
         'confidence': confidence,

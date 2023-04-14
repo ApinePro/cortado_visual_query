@@ -67,7 +67,7 @@ import { LpmExplorerComponent } from '../lpm-explorer/lpm-explorer.component';
 import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
 import { LpmService } from 'src/app/services/lpmService/lpm.service';
 import { LocalProcessModelWithPatterns } from 'src/app/objects/LocalProcessModelWithPatterns';
-
+import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-variant-miner',
   templateUrl: './variant-miner.component.html',
@@ -349,6 +349,8 @@ export class VariantMinerComponent
 
   dropZoneConfig: any;
   variantMinerConfigInput: UntypedFormGroup;
+
+  addLpmFeatures = environment.showLpms;
 
   ngOnInit(): void {
     this.dropZoneConfig = new DropzoneConfig(
