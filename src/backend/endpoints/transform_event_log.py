@@ -51,7 +51,8 @@ def reset_last_transaction():
             "percentage": round(len(ts) / total_traces * 100, 2),
             "nSubVariants": len(sv),
             "userDefined": info.is_user_defined,
-            "infixType": info.infix_type.value
+            "infixType": info.infix_type.value,
+            "clusterId": None
         }
 
         # If the variant is only a single activity leaf, wrap it up as a sequence

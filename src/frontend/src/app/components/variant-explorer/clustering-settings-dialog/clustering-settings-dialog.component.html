@@ -1,0 +1,92 @@
+<div class="modal-header h-line-modal-bottom">
+  <h5 class="modal-title text-light" id="clusteringSettingsLabel">
+    Variant Clustering Settings
+  </h5>
+  <button
+    type="button"
+    class="btn-close btn-close-white"
+    aria-describedby="modal-title"
+    (click)="modal.dismiss('Cross click')"
+  ></button>
+</div>
+<div class="modal-body">
+  <div class="d-flex flex-column">
+    <div class="form-select-element">
+      <label class="input-label">Clustering Method: </label>
+      <select
+        [ngModel]="selectedClusteringAlgorithm"
+        class="form-select input-selector cursor-pointer"
+      >
+        <option
+          *ngFor="let algo of options"
+          [ngValue]="algo"
+          (click)="setSelectedClusteringAlgorithm(algo)"
+          selected
+        >
+          {{ getDisplayName(algo) }}
+        </option>
+      </select>
+    </div>
+    <div
+      class="form-select-element"
+      *ngIf="
+        selectedClusteringAlgorithm === 'AGGLOMERATIVE_EDIT_DISTANCE_CLUSTERING'
+      "
+    >
+      <label for="maxDistance" class="input-label"
+        >Max. Variant Edit Distance Within a Cluster:
+      </label>
+      <input
+        id="maxDistance"
+        type="number"
+        class="input-field-number"
+        [(ngModel)]="maxDistance"
+        aria-describedby="nSeqHelp"
+        placeholder="max distance"
+        min="0"
+      />
+    </div>
+    <div
+      class="form-select-element"
+      *ngIf="selectedClusteringAlgorithm === 'LABEL_VECTOR_CLUSTERING'"
+    >
+      <label for="nClusters" class="input-label">Number of Clusters: </label>
+      <input
+        id="nClusters"
+        type="number"
+        class="input-field-number"
+        [(ngModel)]="nClusters"
+        aria-describedby="nSeqHelp"
+        placeholder="n clusters"
+        min="1"
+        [max]="numberOfVariants"
+      />
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button
+    type="button"
+    class="button"
+    data-bs-dismiss="modal"
+    (click)="modal.dismiss('reset')"
+  >
+    <i class="bi bi-arrow-clockwise btn-icon text-danger"></i>
+    Reset
+  </button>
+
+  <button
+    type="button"
+    class="button"
+    data-bs-dismiss="modal"
+    (click)="modal.dismiss('cancel click')"
+  >
+    <i class="bi bi-x-lg btn-icon text-danger"></i>
+    Close
+  </button>
+
+  <button type="button" class="button" (click)="onApply()">
+    <i class="bi bi-save btn-icon text-success"></i>
+    Apply
+  </button>
+</div>

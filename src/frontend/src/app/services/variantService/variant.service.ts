@@ -5,9 +5,9 @@ import { LogService } from 'src/app/services/logService/log.service';
 import * as objectHash from 'object-hash';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { map, mergeMap, tap, toArray } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
-import { mapVariants } from 'src/app/utils/util';
+import { mapVariants, mapVariantsList } from 'src/app/utils/util';
 import { v4 as uuidv4 } from 'uuid';
 import {
   getInfixTypeForSelectedInfix,
@@ -30,6 +30,7 @@ import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { ToastService } from '../toast/toast.service';
 import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
 import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
+import { ClusteringAlgorithm } from 'src/app/objects/ClusteringAlgorithm';
 
 @Injectable({
   providedIn: 'root',
@@ -233,6 +234,56 @@ export class VariantService {
       ROUTES.HTTP_BASE_URL + ROUTES.VARIANT + 'countFragmentOccurrences',
       payload
     );
+  }
+  computeClusters(
+    clusteringAlgorithm: ClusteringAlgorithm,
+    params
+  ): Observable<any[][]> {
+    const payload = {
+      algorithm: clusteringAlgorithm,
+      params: params,
+    };
+
+    return this.httpClient
+      .post<any>(ROUTES.HTTP_BASE_URL + ROUTES.VARIANT + 'cluster', payload)
+      .pipe(mergeMap((clusters) => clusters)) // flat map
+      .pipe(mapVariantsList()) // deserialize
+      .pipe(toArray()); // collect to array
+  }
+
+  /**
+   * Computes a mapping that maps the bid of each variant to
+   * a cluster.
+   * @param clusteringAlgorithm
+   * @param params
+   * @returns mapping of each bid to a clusterId
+   */
+  computeClusterMappings(
+    clusteringAlgorithm: ClusteringAlgorithm,
+    params
+  ): Observable<any> {
+    return this.computeClusters(clusteringAlgorithm, params).pipe(
+      map(this.createBidToClusterIdMapping())
+    );
+  }
+
+  private createBidToClusterIdMapping() {
+    return (clusters: Variant[][]) => {
+      let result = {};
+      clusters.forEach((cluster, clusterId) => {
+        cluster.forEach((variant) => (result[variant.bid] = clusterId));
+      });
+      return result;
+    };
+  }
+
+  resetClusterAssignments() {
+    this.variants.forEach((variant) => {
+      // undefined is the default cluster id when no algorithm was applied
+      variant.clusterId = null;
+    });
+
+    this.variants = this.variants;
   }
 
   public deleteActivity(activityName: string) {
