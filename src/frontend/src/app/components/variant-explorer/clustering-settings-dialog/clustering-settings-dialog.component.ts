@@ -6,7 +6,6 @@ import {
 } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ClusteringAlgorithm } from 'src/app/objects/ClusteringAlgorithm';
-import { ClusteringConfig } from 'src/app/objects/ClusteringConfig';
 import { VariantService } from 'src/app/services/variantService/variant.service';
 
 @Component({

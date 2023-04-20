@@ -2,11 +2,11 @@ import { SharedDataService } from 'src/app/services/sharedDataService/shared-dat
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map, take, tap } from 'rxjs/operators';
+import { map, mergeMap, take, tap, toArray } from 'rxjs/operators';
 import { Configuration } from 'src/app/components/settings/model';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
-import { mapVariants } from 'src/app/utils/util';
+import { mapVariants, mapVariantsList } from 'src/app/utils/util';
 import { LogService } from '../logService/log.service';
 import { VariantService } from '../variantService/variant.service';
 import { ProcessTreeService } from './../processTreeService/process-tree.service';
@@ -19,6 +19,7 @@ import { ELECTRON_SERVICE } from 'src/app/tokens';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
 import { treeConformanceResult } from '../conformanceChecking/model';
 import { Variant } from 'src/app/objects/Variants/variant';
+import { ClusteringConfig } from 'src/app/objects/ClusteringConfig';
 
 @Injectable({
   providedIn: 'root',
@@ -502,5 +503,97 @@ export class BackendService {
           return treeConfRes;
         })
       );
+  }
+  addUserDefinedVariant(variant: VariantElement, bid: number) {
+    return this.httpClient.post(
+      ROUTES.HTTP_BASE_URL + ROUTES.MODIFY_LOG + 'addUserDefinedVariant',
+      {
+        variant: variant.serialize(),
+        bid: bid,
+      }
+    );
+  }
+  addUserDefinedInfix(variant: Variant) {
+    return this.httpClient.post(
+      ROUTES.HTTP_BASE_URL + ROUTES.MODIFY_LOG + 'addUserDefinedInfix',
+      {
+        variant: variant.variant.serialize(),
+        bid: variant.bid,
+        infixType: variant.infixType,
+      }
+    );
+  }
+
+  changeActivityName(mergeList, renameList, activityName, newActivityName) {
+    return this.httpClient.post(
+      ROUTES.HTTP_BASE_URL + ROUTES.MODIFY_LOG + 'changeActivityName',
+      {
+        mergeList: mergeList,
+        renameList: renameList,
+        activityName: activityName,
+        newActivityName: newActivityName,
+      }
+    );
+  }
+
+  deleteActivity(
+    activityName,
+    fallthrough,
+    delete_member_list,
+    merge_list,
+    delete_variant_list
+  ) {
+    return this.httpClient.post(
+      ROUTES.HTTP_BASE_URL + ROUTES.MODIFY_LOG + 'deleteActivity',
+      {
+        activityName: activityName,
+        fallthrough: fallthrough,
+        delete_member_list: delete_member_list,
+        merge_list: merge_list,
+        delete_variant_list: delete_variant_list,
+      }
+    );
+  }
+
+  deleteVariants(bids: number[]) {
+    return this.httpClient.post(
+      ROUTES.HTTP_BASE_URL + ROUTES.MODIFY_LOG + 'deleteVariants',
+      {
+        bids: bids,
+      }
+    );
+  }
+
+  revertLastLogModification() {
+    return this.httpClient
+      .post(ROUTES.HTTP_BASE_URL + ROUTES.MODIFY_LOG + 'revertLastChange', {})
+      .pipe(mapVariants());
+  }
+
+  countFragmentOccurrences(variant: Variant) {
+    return this.httpClient.post<any>(
+      ROUTES.HTTP_BASE_URL + ROUTES.VARIANT + 'countFragmentOccurrences',
+      {
+        infixType: InfixType[variant.infixType],
+        fragment: variant.variant.serialize(),
+      }
+    );
+  }
+
+  getCollapsedVariants() {
+    return this.httpClient.get(
+      ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'collapsedVariants'
+    );
+  }
+
+  computeClusters(clusteringConfig: ClusteringConfig): Observable<any[][]> {
+    return this.httpClient
+      .post<any>(
+        ROUTES.HTTP_BASE_URL + ROUTES.VARIANT + 'cluster',
+        clusteringConfig
+      )
+      .pipe(mergeMap((clusters) => clusters)) // flat map
+      .pipe(mapVariantsList()) // deserialize
+      .pipe(toArray()); // collect to array
   }
 }
