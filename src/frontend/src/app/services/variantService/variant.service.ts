@@ -48,6 +48,10 @@ export class VariantService {
   ) {
     this.logService.loadedEventLog$.subscribe(() => {
       this.variantFilterService.clearAllFilters();
+      if (this.logService.variants) {
+        this.variants = this.logService.variants;
+        this.cachedChange = false;
+      }
     });
   }
 

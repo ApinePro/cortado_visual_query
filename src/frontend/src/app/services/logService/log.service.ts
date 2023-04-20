@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { Variant } from 'src/app/objects/Variants/variant';
+import { addVariantInformation } from '../variantService/variant-transformation';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +11,8 @@ import { Variant } from 'src/app/objects/Variants/variant';
 export class LogService {
   [x: string]: any;
   constructor(private colorMapService: ColorMapService) {}
+
+  variants: Variant[];
 
   public performanceInfoAvailable = false;
   private _timeGranularity: BehaviorSubject<TimeUnit> = new BehaviorSubject(
@@ -212,6 +215,21 @@ export class LogService {
       totalNumberTraces,
       totalNumberVariants
     );
+  }
+
+  public processEventLog(res, filePath = null) {
+    console.warn('Processing Event Log', res);
+
+    this.activitiesInEventLog = res['activities'];
+    this.startActivitiesInEventLog = new Set(res['startActivities']);
+    this.endActivitiesInEventLog = new Set(res['endActivities']);
+
+    this.variants = addVariantInformation(res['variants']);
+    this.computeLogStats(this.variants);
+    this.loadedEventLog = filePath;
+    this.performanceInfoAvailable = true;
+    this.timeGranularity = res['timeGranularity'];
+    this.logGranularity = res['timeGranularity'];
   }
 }
 

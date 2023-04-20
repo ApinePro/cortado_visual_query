@@ -12,7 +12,6 @@ import { VariantService } from '../variantService/variant.service';
 import { ProcessTreeService } from './../processTreeService/process-tree.service';
 import { VariantElement } from 'src/app/objects/Variants/variant_element';
 import { ROUTES } from 'src/app/constants/backend_route_constants';
-import { addVariantInformation } from '../variantService/variant-transformation';
 import { MiningConfig } from 'src/app/objects/Variants/variant-miner-types';
 import { ElectronServiceInterface } from '../electronService/electron.service';
 import { ELECTRON_SERVICE } from 'src/app/tokens';
@@ -28,7 +27,6 @@ export class BackendService {
   constructor(
     private httpClient: HttpClient,
     private logService: LogService,
-    private variantService: VariantService,
     private processTreeService: ProcessTreeService,
     private sharedDataService: SharedDataService,
     @Inject(ELECTRON_SERVICE) private electronService: ElectronServiceInterface
@@ -60,7 +58,7 @@ export class BackendService {
       })
       .pipe(mapVariants())
       .subscribe((res) => {
-        this.processEventLog(res, filePath);
+        this.logService.processEventLog(res, filePath);
       });
   }
 
@@ -72,27 +70,8 @@ export class BackendService {
       .post(ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'uploadfile', formData)
       .pipe(mapVariants())
       .subscribe((res) => {
-        this.processEventLog(res, file.name);
+        this.logService.processEventLog(res, file.name);
       });
-  }
-
-  // Refractor too Log Service
-  private processEventLog(res, filePath = null) {
-    console.warn('Processing Event Log', res);
-
-    this.logService.activitiesInEventLog = res['activities'];
-    this.logService.startActivitiesInEventLog = new Set(res['startActivities']);
-    this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
-
-    const variants = addVariantInformation(res['variants']);
-    this.variantService.variants = variants;
-    this.variantService.cachedChange = false;
-
-    this.logService.computeLogStats(variants);
-    this.logService.loadedEventLog = filePath;
-    this.logService.performanceInfoAvailable = true;
-    this.logService.timeGranularity = res['timeGranularity'];
-    this.logService.logGranularity = res['timeGranularity'];
   }
 
   loadProcessTreeFromFilePath(filePath: string): void {
@@ -407,7 +386,7 @@ export class BackendService {
   ): Observable<any> {
     return this.getProperties(timeGranularity).pipe(
       tap((properties) => {
-        this.processEventLog(properties, logName);
+        this.logService.processEventLog(properties, logName);
       })
     );
   }
@@ -460,7 +439,7 @@ export class BackendService {
       })
       .pipe(mapVariants())
       .subscribe((res) => {
-        this.processEventLog(res);
+        this.logService.processEventLog(res);
       });
   }
 
