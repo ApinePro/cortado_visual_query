@@ -166,6 +166,10 @@ export class LogService {
     this._timeGranularity.next(value);
   }
 
+  public get timeGranularity() {
+    return this._timeGranularity.getValue();
+  }
+
   private _startActivitiesInEventLog = new BehaviorSubject<Set<string>>(
     new Set()
   );

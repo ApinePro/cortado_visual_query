@@ -24,6 +24,7 @@ import { isEqualWith } from 'lodash';
 import { take } from 'rxjs/operators';
 import { BackendService } from '../backendService/backend.service';
 import { ClusteringConfig } from 'src/app/objects/ClusteringConfig';
+import { TimeUnit } from 'src/app/objects/TimeUnit';
 @Injectable({
   providedIn: 'root',
 })
@@ -76,6 +77,7 @@ export class ProjectService {
   get currentProject(): Project {
     return new Project(
       this.logService.loadedEventLog,
+      this.logService.timeGranularity,
       this.processTreeService.currentDisplayedProcessTree,
       this.processTreeService.previousTreeObjects,
       this.processTreeService.treeCacheIndex,
@@ -96,7 +98,7 @@ export class ProjectService {
       if (project.eventlogPath == 'preload') {
         this.backendService.resetLogCache().subscribe(() => {
           this.backendService
-            .getLogPropsAndUpdateState(undefined, 'preload')
+            .getLogPropsAndUpdateState(project.timeGranularity, 'preload')
             .subscribe(() => {
               this.restoreProjectAfterLog(project);
             });
@@ -105,7 +107,14 @@ export class ProjectService {
         this.backendService
           .loadEventLogFromFilePath(project.eventlogPath)
           .subscribe(() => {
-            this.restoreProjectAfterLog(project);
+            this.backendService
+              .getLogPropsAndUpdateState(
+                project.timeGranularity,
+                project.eventlogPath
+              )
+              .subscribe(() => {
+                this.restoreProjectAfterLog(project);
+              });
           });
       }
     };
@@ -151,6 +160,7 @@ export class ProjectService {
 class Project {
   public cortadoVersion: string;
   public eventlogPath: string;
+  public timeGranularity: TimeUnit;
   @Type(() => ProcessTree)
   public processTree: ProcessTree;
   @Type(() => ProcessTree)
@@ -173,6 +183,7 @@ class Project {
   public clusteringConfiguration: ClusteringConfig;
   constructor(
     eventlogPath: string,
+    timeGranularity: TimeUnit,
     processTree: ProcessTree,
     processTreeHistory: ProcessTree[],
     treeCacheIndex: number,
@@ -184,6 +195,7 @@ class Project {
     cortadoVersion: string = environment.VERSION
   ) {
     this.eventlogPath = eventlogPath;
+    this.timeGranularity = timeGranularity;
     this.processTree = processTree;
     this.processTreeHistory = processTreeHistory;
     this.treeCacheIndex = treeCacheIndex;
