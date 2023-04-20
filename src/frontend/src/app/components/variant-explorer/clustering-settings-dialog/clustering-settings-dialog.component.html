@@ -14,15 +14,10 @@
     <div class="form-select-element">
       <label class="input-label">Clustering Method: </label>
       <select
-        [ngModel]="selectedClusteringAlgorithm"
+        [(ngModel)]="selectedClusteringAlgorithm"
         class="form-select input-selector cursor-pointer"
       >
-        <option
-          *ngFor="let algo of options"
-          [ngValue]="algo"
-          (click)="setSelectedClusteringAlgorithm(algo)"
-          selected
-        >
+        <option *ngFor="let algo of options" [ngValue]="algo" selected>
           {{ getDisplayName(algo) }}
         </option>
       </select>
@@ -69,7 +64,7 @@
     type="button"
     class="button"
     data-bs-dismiss="modal"
-    (click)="modal.dismiss('reset')"
+    (click)="onReset()"
   >
     <i class="bi bi-arrow-clockwise btn-icon text-danger"></i>
     Reset

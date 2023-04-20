@@ -93,10 +93,7 @@ import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import { IVariant } from 'src/app/objects/Variants/variant_interface';
 import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import {
-  ClusteringConfig,
-  ClusteringSettingsDialogComponent,
-} from './clustering-settings-dialog/clustering-settings-dialog.component';
+import { ClusteringSettingsDialogComponent } from './clustering-settings-dialog/clustering-settings-dialog.component';
 import _ from 'lodash';
 
 @Component({
@@ -230,8 +227,6 @@ export class VariantExplorerComponent
   // if no clustering algo is applied we only have the key
   // 'unefined' which is the default cluster key
   clusterSortSettings: {} = {};
-
-  clusteringConfig: ClusteringConfig = null;
 
   public hideRuleContent: boolean[] = [];
   public buttonName: any = 'Expand';
@@ -1057,40 +1052,7 @@ export class VariantExplorerComponent
       }
     );
 
-    clusteringModel.result.then(
-      (clusteringConfig) => this.onClusteringConfigApplied(clusteringConfig), // on apply
-      (value) => this.handleReset(value)
-    );
-
     clusteringModel.componentInstance.numberOfVariants = this.variants.length;
-    clusteringModel.componentInstance.clusteringConfig = this.clusteringConfig;
-  }
-
-  private handleReset(value: any) {
-    if (value === 'reset') {
-      this.variantService.resetClusterAssignments();
-      this.clusteringConfig = null;
-    }
-  }
-
-  private async onClusteringConfigApplied(clusteringConfig: any) {
-    // set clusteringConfig in this component for reusing the config
-    this.clusteringConfig = clusteringConfig;
-    // fetch clusterMap, i.e. mapping of all bids to the respective cluster
-    const clusterMap = await this.variantService
-      .computeClusterMappings(
-        clusteringConfig.clusteringAlgorithm,
-        clusteringConfig.params
-      )
-      .toPromise();
-
-    // assign clusterIds to variants
-    this.variantService.variants.forEach(this.assignClusterId(clusterMap));
-
-    // assign clusterIds to displayed variants and reassign in order to trigger ngFor to update
-    this.displayed_variants = this.displayed_variants.map(
-      this.assignClusterId(clusterMap)
-    );
   }
 
   handleClusterSort(sortEvent, clusterId) {
@@ -1098,13 +1060,6 @@ export class VariantExplorerComponent
     this.updateAllSubvariantWindows();
     // detect changes manually to avoid expression changed after checked
     this.changeDetectorRef.detectChanges();
-  }
-
-  private assignClusterId(clusterMap: any) {
-    return (variant: IVariant) => {
-      variant.clusterId = clusterMap[variant.bid];
-      return variant;
-    };
   }
 
   showTiebreakerDialog() {

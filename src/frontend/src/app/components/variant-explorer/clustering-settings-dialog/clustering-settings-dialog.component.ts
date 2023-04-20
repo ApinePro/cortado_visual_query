@@ -6,11 +6,8 @@ import {
 } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ClusteringAlgorithm } from 'src/app/objects/ClusteringAlgorithm';
-
-export class ClusteringConfig {
-  clusteringAlgorithm: ClusteringAlgorithm;
-  params: any;
-}
+import { ClusteringConfig } from 'src/app/objects/ClusteringConfig';
+import { VariantService } from 'src/app/services/variantService/variant.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,41 +19,36 @@ export class ClusteringSettingsDialogComponent implements OnInit {
   @Input()
   numberOfVariants: number;
 
-  @Input()
-  clusteringConfig: ClusteringConfig;
-  selectedClusteringAlgorithm: ClusteringAlgorithm;
+  selectedClusteringAlgorithm: ClusteringAlgorithm =
+    ClusteringAlgorithm.AGGLOMERATIVE_EDIT_DISTANCE_CLUSTERING;
 
   options: ClusteringAlgorithm[] = Object.values(ClusteringAlgorithm);
 
   maxDistance: number = 1;
   nClusters: number = 1;
 
-  constructor(public modal: NgbActiveModal) {}
+  constructor(
+    public modal: NgbActiveModal,
+    private variantService: VariantService
+  ) {}
 
   ngOnInit(): void {
-    this.selectedClusteringAlgorithm =
-      ClusteringAlgorithm.AGGLOMERATIVE_EDIT_DISTANCE_CLUSTERING;
-
-    if (this.clusteringConfig) {
-      this.selectedClusteringAlgorithm =
-        this.clusteringConfig.clusteringAlgorithm;
+    const clusteringConfig = this.variantService.clusteringConfig;
+    if (clusteringConfig) {
+      this.selectedClusteringAlgorithm = clusteringConfig.algorithm;
 
       if (
         this.selectedClusteringAlgorithm ===
         ClusteringAlgorithm.AGGLOMERATIVE_EDIT_DISTANCE_CLUSTERING
       ) {
-        this.maxDistance = this.clusteringConfig.params.maxDistance;
+        this.maxDistance = clusteringConfig.params.maxDistance;
       } else if (
         this.selectedClusteringAlgorithm ===
         ClusteringAlgorithm.LABEL_VECTOR_CLUSTERING
       ) {
-        this.nClusters = this.clusteringConfig.params.nClusters;
+        this.nClusters = clusteringConfig.params.nClusters;
       }
     }
-  }
-
-  setSelectedClusteringAlgorithm(value) {
-    this.selectedClusteringAlgorithm = value;
   }
 
   getDisplayName(algo: ClusteringAlgorithm) {
@@ -83,9 +75,16 @@ export class ClusteringSettingsDialogComponent implements OnInit {
       params['nClusters'] = this.nClusters;
     }
 
-    this.modal.close({
-      clusteringAlgorithm: this.selectedClusteringAlgorithm,
+    this.variantService.clusteringConfig = {
+      algorithm: this.selectedClusteringAlgorithm,
       params: params,
-    });
+    };
+
+    this.modal.close();
+  }
+
+  onReset() {
+    this.variantService.clusteringConfig = null;
+    this.modal.dismiss('reset');
   }
 }

@@ -30,7 +30,7 @@ import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { ToastService } from '../toast/toast.service';
 import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
 import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
-import { ClusteringAlgorithm } from 'src/app/objects/ClusteringAlgorithm';
+import { ClusteringConfig } from 'src/app/objects/ClusteringConfig';
 
 @Injectable({
   providedIn: 'root',
@@ -76,6 +76,25 @@ export class VariantService {
 
   get variants(): Variant[] {
     return this._variants.getValue();
+  }
+
+  private _clusteringConfig = new BehaviorSubject<ClusteringConfig>(null);
+
+  set clusteringConfig(clusteringConfig: ClusteringConfig) {
+    if (clusteringConfig) {
+      this.computeClusterMappings(clusteringConfig);
+    } else {
+      this.resetClusterAssignments();
+    }
+    this._clusteringConfig.next(clusteringConfig);
+  }
+
+  get clusteringConfig(): ClusteringConfig {
+    return this._clusteringConfig.getValue();
+  }
+
+  get clusteringConfig$(): Observable<ClusteringConfig> {
+    return this._clusteringConfig.asObservable();
   }
 
   public lastChangeRenaming = null;
@@ -235,17 +254,12 @@ export class VariantService {
       payload
     );
   }
-  computeClusters(
-    clusteringAlgorithm: ClusteringAlgorithm,
-    params
-  ): Observable<any[][]> {
-    const payload = {
-      algorithm: clusteringAlgorithm,
-      params: params,
-    };
-
+  computeClusters(clusteringConfig: ClusteringConfig): Observable<any[][]> {
     return this.httpClient
-      .post<any>(ROUTES.HTTP_BASE_URL + ROUTES.VARIANT + 'cluster', payload)
+      .post<any>(
+        ROUTES.HTTP_BASE_URL + ROUTES.VARIANT + 'cluster',
+        clusteringConfig
+      )
       .pipe(mergeMap((clusters) => clusters)) // flat map
       .pipe(mapVariantsList()) // deserialize
       .pipe(toArray()); // collect to array
@@ -254,17 +268,22 @@ export class VariantService {
   /**
    * Computes a mapping that maps the bid of each variant to
    * a cluster.
-   * @param clusteringAlgorithm
-   * @param params
+   * @param clusteringConfig
    * @returns mapping of each bid to a clusterId
    */
-  computeClusterMappings(
-    clusteringAlgorithm: ClusteringAlgorithm,
-    params
-  ): Observable<any> {
-    return this.computeClusters(clusteringAlgorithm, params).pipe(
-      map(this.createBidToClusterIdMapping())
-    );
+  private computeClusterMappings(clusteringConfig: ClusteringConfig) {
+    this.computeClusters(clusteringConfig)
+      .pipe(map(this.createBidToClusterIdMapping()))
+      .subscribe((clusterMap) => {
+        this.assignClusters(clusterMap);
+      });
+  }
+
+  private assignClusters(clusterMap: any) {
+    this.variants = this.variants.map((variant: Variant) => {
+      variant.clusterId = clusterMap[variant.bid];
+      return variant;
+    });
   }
 
   private createBidToClusterIdMapping() {
@@ -277,7 +296,7 @@ export class VariantService {
     };
   }
 
-  resetClusterAssignments() {
+  private resetClusterAssignments() {
     this.variants.forEach((variant) => {
       // undefined is the default cluster id when no algorithm was applied
       variant.clusterId = null;
