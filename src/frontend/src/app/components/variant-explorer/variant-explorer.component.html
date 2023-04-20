@@ -376,7 +376,7 @@
     <span class="vl"></span>
     <button
       class="button"
-      [ngClass]="{ 'button-blue': clusteringConfig !== null }"
+      [ngClass]="{ 'button-blue': variantService.clusteringConfig }"
       ngbTooltip="Variant clustering settings"
       (click)="openClusteringSettingsDialog()"
     >

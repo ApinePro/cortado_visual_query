@@ -36,6 +36,7 @@ import { findPathToSelectedNode } from 'src/app/objects/Variants/utility_functio
 import { applyInverseStrokeToPoly } from 'src/app/utils/render-utils';
 import { Observable, of, Subject } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
+import { BackendService } from 'src/app/services/backendService/backend.service';
 
 @Component({
   selector: 'app-variant-editor',
@@ -96,6 +97,7 @@ export class VariantEditorComponent
     private logService: LogService,
     private variantService: VariantService,
     private colorMapService: ColorMapService,
+    private backendService: BackendService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
@@ -646,7 +648,7 @@ export class VariantEditorComponent
 
   private addStatistics(newVariant: Variant): Observable<any> {
     if (newVariant.infixType != InfixType.NOT_AN_INFIX) {
-      return this.variantService.countFragmentOccurrences(newVariant).pipe(
+      return this.backendService.countFragmentOccurrences(newVariant).pipe(
         tap((statistics) => {
           newVariant.fragmentStatistics = statistics;
         })
