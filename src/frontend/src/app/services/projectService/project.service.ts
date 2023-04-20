@@ -98,9 +98,11 @@ export class ProjectService {
 
       if (project.eventlogPath == 'preload') {
         this.backendService.resetLogCache().subscribe(() => {
-          this.backendService.getLogPropsAndUpdateState().subscribe(() => {
-            this.restoreProjectAfterLog(project);
-          });
+          this.backendService
+            .getLogPropsAndUpdateState(undefined, 'preload')
+            .subscribe(() => {
+              this.restoreProjectAfterLog(project);
+            });
         });
       } else {
         this.backendService
