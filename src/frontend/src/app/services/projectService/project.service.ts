@@ -23,6 +23,7 @@ import { environment } from 'src/environments/environment';
 import { isEqualWith } from 'lodash';
 import { take } from 'rxjs/operators';
 import { BackendService } from '../backendService/backend.service';
+import { ClusteringConfig } from 'src/app/objects/ClusteringConfig';
 @Injectable({
   providedIn: 'root',
 })
@@ -81,7 +82,8 @@ export class ProjectService {
       this.processTreeService.selectedRootNodeID,
       this.variantService.variants,
       this.variantFilterService.variantFilters,
-      this.variantQueryService.variantQuery
+      this.variantQueryService.variantQuery,
+      this.variantService.clusteringConfig
     );
   }
 
@@ -119,6 +121,7 @@ export class ProjectService {
     this.variantService.variants = project.variants;
     this.variantFilterService.variantFilters = project.variantFilters;
     this.variantQueryService.variantQuery = project.variantQuery;
+    this.variantService.clusteringConfig = project.clusteringConfiguration;
   }
 
   public async saveProject() {
@@ -167,6 +170,7 @@ class Project {
   })
   public variantFilters: Map<string, VariantFilter>;
   public variantQuery: string;
+  public clusteringConfiguration: ClusteringConfig;
   constructor(
     eventlogPath: string,
     processTree: ProcessTree,
@@ -176,6 +180,7 @@ class Project {
     variants: Variant[],
     variantFilters: Map<string, VariantFilter>,
     variantQuery: string,
+    clusteringConfiguration: ClusteringConfig,
     cortadoVersion: string = environment.VERSION
   ) {
     this.eventlogPath = eventlogPath;
@@ -186,6 +191,7 @@ class Project {
     this.variants = variants;
     this.variantFilters = variantFilters;
     this.variantQuery = variantQuery;
+    this.clusteringConfiguration = clusteringConfiguration;
     this.cortadoVersion = cortadoVersion;
   }
 }
