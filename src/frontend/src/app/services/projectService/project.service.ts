@@ -37,17 +37,10 @@ export class ProjectService {
     @Inject(ELECTRON_SERVICE) private electronService: ElectronServiceInterface
   ) {
     this.variantService.variants$.pipe(take(2)).subscribe((variants) => {
-      this.latestSavedProject = instanceToPlain(
-        new Project(
-          'preload',
-          this.processTreeService.currentDisplayedProcessTree,
-          this.processTreeService.selectedRootNodeID,
-          variants,
-          this.variantFilterService.variantFilters,
-          this.variantQueryService.variantQuery
-        ),
-        { enableCircularCheck: true }
-      );
+      const project = this.currentProject;
+      this.latestSavedProject = instanceToPlain(project, {
+        enableCircularCheck: true,
+      });
     });
 
     this.electronService.checkUnsavedChanges$.subscribe((sender) =>
@@ -83,6 +76,8 @@ export class ProjectService {
     return new Project(
       this.logService.loadedEventLog,
       this.processTreeService.currentDisplayedProcessTree,
+      this.processTreeService.previousTreeObjects,
+      this.processTreeService.treeCacheIndex,
       this.processTreeService.selectedRootNodeID,
       this.variantService.variants,
       this.variantFilterService.variantFilters,
@@ -116,6 +111,9 @@ export class ProjectService {
   }
 
   private restoreProjectAfterLog(project: Project) {
+    this.processTreeService.previousTreeObjects = project.processTreeHistory;
+    this.processTreeService.treeCacheLength = project.processTreeHistory.length;
+    this.processTreeService.treeCacheIndex = project.treeCacheIndex;
     this.processTreeService.currentDisplayedProcessTree = project.processTree;
     this.processTreeService.selectedRootNodeID = project.selectedRootNodeID;
     this.variantService.variants = project.variants;
@@ -152,6 +150,9 @@ class Project {
   public eventlogPath: string;
   @Type(() => ProcessTree)
   public processTree: ProcessTree;
+  @Type(() => ProcessTree)
+  public processTreeHistory: ProcessTree[];
+  public treeCacheIndex: number;
   public selectedRootNodeID: number;
   @Type(() => Variant)
   public variants: Variant[];
@@ -169,6 +170,8 @@ class Project {
   constructor(
     eventlogPath: string,
     processTree: ProcessTree,
+    processTreeHistory: ProcessTree[],
+    treeCacheIndex: number,
     selectedRootNodeID: number,
     variants: Variant[],
     variantFilters: Map<string, VariantFilter>,
@@ -177,6 +180,8 @@ class Project {
   ) {
     this.eventlogPath = eventlogPath;
     this.processTree = processTree;
+    this.processTreeHistory = processTreeHistory;
+    this.treeCacheIndex = treeCacheIndex;
     this.selectedRootNodeID = selectedRootNodeID;
     this.variants = variants;
     this.variantFilters = variantFilters;
