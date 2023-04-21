@@ -79,6 +79,9 @@ import { TiebreakerComponent } from './components/variant-explorer/tiebreaker/ti
 import { TreeConformanceButtonComponent } from './components/variant-explorer/variant/subcomponents/tree-buttons/tree-conformance-button/tree-conformance-button.component';
 import { DecimalPipe } from '@angular/common';
 import { VariantMinerActivitiesFIlterComponent } from './components/variant-miner/variant-miner-activities-filter/variant-miner-activities-filter.component';
+import { LpmExplorerComponent } from './components/lpm-explorer/lpm-explorer.component';
+import { LpmExplorerRowComponent } from './components/lpm-explorer/lpm-explorer-row/lpm-explorer-row.component';
+import { LpmMetricsTabComponent } from './components/lpm-explorer/lpm-metrics-tab/lpm-metrics-tab.component';
 import { ClusteringSettingsDialogComponent } from './components/variant-explorer/clustering-settings-dialog/clustering-settings-dialog.component';
 import { SearchComponent } from './components/variant-explorer/search/search.component';
 import { GroupByPipe } from './pipes/group-by.pipe';
@@ -150,6 +153,9 @@ import { VariantSortPipe } from './pipes/variant-sort.pipe';
     TiebreakerComponent,
     TreeConformanceButtonComponent,
     VariantMinerActivitiesFIlterComponent,
+    LpmExplorerComponent,
+    LpmExplorerRowComponent,
+    LpmMetricsTabComponent,
     ClusteringSettingsDialogComponent,
     SearchComponent,
     GroupByPipe,

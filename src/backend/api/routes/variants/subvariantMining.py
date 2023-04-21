@@ -1,4 +1,10 @@
-from cortado_core.utils.split_graph import LeafGroup, LoopGroup, ParallelGroup, SequenceGroup
+from cortado_core.eventually_follows_pattern_mining.algorithm import generate_eventually_follows_patterns_from_groups
+from cortado_core.eventually_follows_pattern_mining.blanket_mining.algorithm import postprocess_closed_patterns, \
+    postprocess_maximal_patterns
+from cortado_core.eventually_follows_pattern_mining.obj import EventuallyFollowsPattern, SubPattern
+from cortado_core.eventually_follows_pattern_mining.util.pattern import flatten_patterns
+from cortado_core.subprocess_discovery.concurrency_trees.cTrees import ConcurrencyTree
+from cortado_core.utils.split_graph import LeafGroup, LoopGroup, ParallelGroup, SequenceGroup, SkipGroup
 
 import cache.cache as cache
 from fastapi import APIRouter
@@ -62,6 +68,9 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
     print("Artif. Start", config.artifical_start)
 
     variants = {v: ts for _, (v, ts, _, info) in cache.variants.items() if not info.is_user_defined}
+
+    if config.algo == 3:
+        return get_eventually_follows_patterns(variants, config.min_sup, freq_strat_mapping[config.strat], config.size)
 
     treeBank = create_treebank_from_cv_variants(variants, config.artifical_start)
 
@@ -130,3 +139,40 @@ def replace_loops_by_loop_group(group):
         return SequenceGroup([replace_loops_by_loop_group(g) for g in group])
 
     raise Exception('Group type is unknown')
+
+
+def get_eventually_follows_patterns(variants, min_support, frequency_counting_strategy, max_size):
+    patterns = generate_eventually_follows_patterns_from_groups(variants, min_support, frequency_counting_strategy,
+                                                                max_size=max_size)
+    flat_patterns = set(flatten_patterns(patterns))
+    closed = postprocess_closed_patterns(flat_patterns)
+    maximal = postprocess_maximal_patterns(flat_patterns)
+
+    result = []
+    for pattern in flat_patterns:
+        result.append(
+            {
+                'bids': [],
+                "k": sum([len(sp) for sp in pattern.sub_patterns]),
+                "obj": serialize_pattern(pattern),
+                "sup": pattern.support,
+                "child_parent_confidence": None,
+                "subpattern_confidence": None,
+                "cross_support_confidence": None,
+                "valid": True,
+                "maximal": pattern in maximal,
+                "closed": pattern in closed,
+            }
+        )
+
+    return result
+
+
+def serialize_pattern(pattern: EventuallyFollowsPattern):
+    return SkipGroup([sub_pattern_to_ctree(sp).to_concurrency_group() for sp in pattern.sub_patterns]).serialize()
+
+
+def sub_pattern_to_ctree(pattern: SubPattern, parent=None):
+    t = ConcurrencyTree(parent=parent, op=pattern.operator, label=pattern.label)
+    t.children = [sub_pattern_to_ctree(child, t) for child in pattern.children]
+    return t

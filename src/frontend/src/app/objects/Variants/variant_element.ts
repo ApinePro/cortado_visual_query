@@ -71,6 +71,11 @@ export abstract class VariantElement {
     return <LoopGroup>self;
   }
 
+  public asSkipGroup(): SkipGroup {
+    let self: unknown = this;
+    return <SkipGroup>self;
+  }
+
   public setExpanded(expanded: boolean) {
     this.expanded = expanded;
   }
@@ -591,7 +596,6 @@ export class LoopGroup extends VariantElement {
     this.elements[0].renameActivity(activityName, newActivityName);
   }
 
-  // TODO niklas: check if correct
   public deleteActivity(activityName: string): [VariantElement[], boolean] {
     let res = this.elements[0].deleteActivity(activityName);
     if (res[0].length == 0) {
@@ -680,6 +684,125 @@ export class LoopGroup extends VariantElement {
         c.setInfixSelectableState(SelectableState.Unselectable, false);
       }
     });
+  }
+}
+
+export class SkipGroup extends VariantElement {
+  public getActivities(): Set<string> {
+    const res: Set<string> = new Set<string>();
+    this.elements.forEach((e) => e.getActivities().forEach((a) => res.add(a)));
+
+    return res;
+  }
+
+  public renameActivity(activityName: string, newActivityName: string) {
+    this.elements.forEach((e) => {
+      e.renameActivity(activityName, newActivityName);
+    });
+  }
+
+  public deleteActivity(activityName: string): [VariantElement[], boolean] {
+    // TODO check if correct
+    return [[], true];
+  }
+
+  public asString(): string {
+    return 'skip(' + this.elements.map((v) => v.asString()).join(', ') + ')';
+  }
+
+  constructor(public elements: VariantElement[], performance: any = undefined) {
+    super(performance);
+  }
+
+  public setExpanded(expanded: boolean) {
+    super.setExpanded(expanded);
+
+    for (let el of this.elements) {
+      el.setExpanded(expanded);
+    }
+  }
+
+  public setElements(elements: VariantElement[]) {
+    this.elements = elements;
+  }
+
+  public getElements() {
+    return this.elements;
+  }
+
+  public getHeight(): number {
+    if (this.height) {
+      return this.height;
+    }
+    return this.recalculateHeight();
+  }
+
+  public getWidth(includeWaiting = false): number {
+    if (this.width) {
+      return this.width;
+    }
+    return this.recalculateWidth(includeWaiting);
+  }
+
+  public getServiceTime(): Object {
+    throw new Error('Method not implemented.');
+  }
+
+  public getWaitingTime(): Object {
+    throw new Error('Method not implemented.');
+  }
+
+  public updateWidth(includeWaiting) {
+    for (let el of this.elements) {
+      el.updateWidth(includeWaiting);
+    }
+  }
+
+  public copy(): SkipGroup {
+    const res = new SkipGroup(this.elements.map((e) => e.copy()));
+    res.expanded = this.expanded;
+    return res;
+  }
+
+  public recalculateHeight(): number {
+    this.elements.forEach((el) => (el.height = undefined));
+    this.height =
+      Math.max(...this.elements.map((el: VariantElement) => el.getHeight())) +
+      this.getMarginY() * 2;
+    return this.height;
+  }
+
+  public recalculateWidth(includeWaiting = false): number {
+    this.elements.forEach((el) => (el.width = undefined));
+    this.width =
+      this.elements
+        .filter((el) => !(el instanceof WaitingTimeNode) || includeWaiting)
+        .map((el: VariantElement) => el.getWidth(includeWaiting))
+        .reduce((a: number, b: number) => a + b) +
+      2 * this.getMarginX() +
+      this.getHeadLength() -
+      this.elements[0].getHeadLength();
+    this.width +=
+      (this.elements.length - 1) *
+      (VARIANT_Constants.SKIP_WIDTH + 2 * VARIANT_Constants.SKIP_MARGIN);
+    return this.width;
+  }
+
+  public serialize(l = 1): any {
+    return {
+      skip: this.elements
+        .map((e) => e.serialize(l))
+        .flat()
+        .filter((e) => e !== null),
+    };
+  }
+
+  public updateSelectionAttributes(): void {
+    updateSelectionAttributesForGroup(this);
+  }
+
+  public updateConformance(confValue: number): void {
+    this.elements.forEach((el) => el.updateConformance(confValue));
   }
 }
 
@@ -1000,6 +1123,11 @@ export function deserialize(obj: any): VariantElement {
   } else if ('loop' in obj) {
     return new LoopGroup(
       obj['loop'].map((e: any) => deserialize(e)),
+      obj['performance']
+    );
+  } else if ('skip' in obj) {
+    return new SkipGroup(
+      obj['skip'].map((e: any) => deserialize(e)),
       obj['performance']
     );
   }

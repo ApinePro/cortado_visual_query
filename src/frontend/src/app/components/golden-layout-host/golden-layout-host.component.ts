@@ -36,6 +36,8 @@ import { VariantPerformanceComponent } from '../variant-performance/variant-perf
 import { ConformanceTabComponent } from '../conformance-tab/conformance-tab.component';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
+import { LpmExplorerComponent } from '../lpm-explorer/lpm-explorer.component';
+import { LpmMetricsTabComponent } from '../lpm-explorer/lpm-metrics-tab/lpm-metrics-tab.component';
 @Component({
   selector: 'app-golden-layout-host',
   templateUrl: './golden-layout-host.component.html',
@@ -135,6 +137,16 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     this.goldenLayoutComponentService.registerComponentType(
       VariantEditorComponent.componentName,
       VariantEditorComponent
+    );
+
+    this.goldenLayoutComponentService.registerComponentType(
+      LpmExplorerComponent.componentName,
+      LpmExplorerComponent
+    );
+
+    this.goldenLayoutComponentService.registerComponentType(
+      LpmMetricsTabComponent.componentName,
+      LpmMetricsTabComponent
     );
 
     this._goldenLayout = new GoldenLayout(

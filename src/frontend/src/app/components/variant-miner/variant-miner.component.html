@@ -59,6 +59,9 @@
               <option [ngValue]="FrequentMiningAlgorithm.ClosedMaximalMiner">
                 Blanket Tree Miner
               </option>
+              <option [ngValue]="FrequentMiningAlgorithm.EfPatternMiner">
+                EF Pattern Miner
+              </option>
             </select>
           </div>
 
@@ -151,7 +154,13 @@
             </div>
           </div>
 
-          <div class="form-element">
+          <div
+            class="form-element"
+            *ngIf="
+              this.variantMinerConfigInput.value.frequent_mining_algo !==
+              FrequentMiningAlgorithm.EfPatternMiner
+            "
+          >
             <input
               id="artifical_start"
               type="checkbox"
@@ -163,7 +172,13 @@
             </label>
           </div>
 
-          <div class="form-element last-element">
+          <div
+            class="form-element last-element"
+            *ngIf="
+              this.variantMinerConfigInput.value.frequent_mining_algo !==
+              FrequentMiningAlgorithm.EfPatternMiner
+            "
+          >
             <input
               id="fold_loop"
               type="checkbox"
@@ -175,7 +190,11 @@
 
           <div
             class="form-select-element last-element"
-            *ngIf="this.variantMinerConfigInput.value.fold_loop"
+            *ngIf="
+              this.variantMinerConfigInput.value.fold_loop &&
+              this.variantMinerConfigInput.value.frequent_mining_algo !==
+                FrequentMiningAlgorithm.EfPatternMiner
+            "
           >
             <label for="loop" class="input-label">Loop Threshold: </label>
             <input
@@ -241,11 +260,33 @@
           container="body"
           class="button"
           (click)="computeAlignments()"
-          [disabled]="!processTree"
+          [disabled]="
+            !processTree ||
+            lastExecutedMiningAlgorithm ===
+              FrequentMiningAlgorithm.EfPatternMiner
+          "
         >
           <i class="bi bi-layers-fill btn-icon"></i>
           <div @collapseText class="button-text px-1" *ngIf="!collapse">
             conformance check
+          </div>
+        </button>
+
+        <span class="vl"></span>
+
+        <button
+          *ngIf="addLpmFeatures"
+          container="body"
+          class="button"
+          (click)="discoverLpms()"
+          [disabled]="
+            lastExecutedMiningAlgorithm !==
+            FrequentMiningAlgorithm.EfPatternMiner
+          "
+        >
+          <i class="bi bi-diagram-2-fill btn-icon"></i>
+          <div @collapseText class="button-text px-1" *ngIf="!collapse">
+            discover local process models
           </div>
         </button>
 
@@ -283,7 +324,13 @@
                 ></ngx-slider>
               </div>
             </div>
-            <div class="radio-content">
+            <div
+              class="radio-content"
+              *ngIf="
+                lastExecutedMiningAlgorithm !==
+                FrequentMiningAlgorithm.EfPatternMiner
+              "
+            >
               <span>Model Alignment:</span>
               <div class="btn-group btn-group-sm radio-container" role="group">
                 <ng-template
@@ -437,6 +484,10 @@
                 class="text-center border-start border-lightgrey"
                 rowspan="1"
                 [margin]="-4"
+                *ngIf="
+                  lastExecutedMiningAlgorithm !==
+                  FrequentMiningAlgorithm.EfPatternMiner
+                "
               >
                 <div class="header-text-container">
                   <div
@@ -527,7 +578,13 @@
                   }"
                 ></i>
               </th>
-              <th class="text-center border-start border-lightgrey">
+              <th
+                class="text-center border-start border-lightgrey"
+                *ngIf="
+                  lastExecutedMiningAlgorithm !==
+                  FrequentMiningAlgorithm.EfPatternMiner
+                "
+              >
                 <i
                   [ngClass]="{
                     'bi-sort-numeric-down': ascending,
@@ -585,6 +642,10 @@
               app-variant-miner-pattern
               *ngFor="let pattern of displayedVariantsPatterns; let i = index"
               [pattern]="pattern"
+              [showConformance]="
+                lastExecutedMiningAlgorithm !==
+                FrequentMiningAlgorithm.EfPatternMiner
+              "
               [rootElement]="variantMinerDiv"
             >
               <svg

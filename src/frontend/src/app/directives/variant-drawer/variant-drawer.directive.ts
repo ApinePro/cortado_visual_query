@@ -27,6 +27,7 @@ import {
   WaitingTimeNode,
   InvisibleSequenceGroup,
   LoopGroup,
+  SkipGroup,
 } from 'src/app/objects/Variants/variant_element';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { ViewMode } from 'src/app/objects/ViewMode';
@@ -34,6 +35,7 @@ import { VariantViewModeService } from 'src/app/services/viewModeServices/varian
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { IVariant } from 'src/app/objects/Variants/variant_interface';
+import { threadId } from 'worker_threads';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
 
 @Directive({
@@ -387,6 +389,8 @@ export class VariantDrawerDirective
       this.drawWaitingNode(element.asLeafNode(), svgElement);
     } else if (element instanceof LoopGroup) {
       this.drawLoopGroup(element.asLoopGroup(), svgElement);
+    } else if (element instanceof SkipGroup) {
+      this.drawSkipGroup(element.asSkipGroup(), svgElement);
     }
   }
 
@@ -517,7 +521,10 @@ export class VariantDrawerDirective
       this.addInfixSelectionAttributes(element, polygon, false);
     }
 
-    if (element instanceof InvisibleSequenceGroup) {
+    if (
+      element instanceof InvisibleSequenceGroup ||
+      element.parent instanceof SkipGroup
+    ) {
       polygon.style('fill', 'transparent');
     } else {
       if (this.onClickCbFc) {
@@ -819,6 +826,48 @@ export class VariantDrawerDirective
         e.stopPropagation();
       });
     }
+
+    if (this.onMouseOverCbFc) {
+      this.onMouseOverCbFc(this, element, this.variant, parent);
+    }
+  }
+
+  drawSkipGroup(
+    element: SequenceGroup,
+    parent: Selection<any, any, any, any>
+  ): void {
+    const height = element.getHeight();
+
+    let x =
+      element.getHeadLength() +
+      element.getMarginX() -
+      element.elements[0].getHeadLength();
+
+    element.elements.forEach((child, idx) => {
+      const width = child.getWidth(
+        !this.keepStandardView &&
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+      );
+      const childHeight = child.getHeight();
+      const y = height / 2 - childHeight / 2;
+      const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
+
+      this.draw(child, g, false);
+      x += width;
+
+      if (idx >= element.elements.length - 1) return;
+
+      const heightOffset =
+        (element.getHeight() - 2 * VARIANT_Constants.MARGIN_Y) / 2 - 7.65;
+      x += VARIANT_Constants.SKIP_MARGIN;
+      parent
+        .append('g')
+        .attr('transform', `translate(${x}, ${heightOffset})`)
+        .append('use')
+        .attr('href', '#infixDots')
+        .attr('transform', 'scale(1.7)');
+      x += VARIANT_Constants.SKIP_WIDTH + VARIANT_Constants.SKIP_MARGIN;
+    });
 
     if (this.onMouseOverCbFc) {
       this.onMouseOverCbFc(this, element, this.variant, parent);

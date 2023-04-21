@@ -17,7 +17,13 @@ import {
   ViewChild,
   ViewChildren,
 } from '@angular/core';
-import { ComponentContainer, LogicalZIndex } from 'golden-layout';
+import {
+  ComponentContainer,
+  ComponentItemConfig,
+  LayoutManager,
+  LogicalZIndex,
+  Side,
+} from 'golden-layout';
 
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import * as d3 from 'd3';
@@ -43,7 +49,7 @@ import { VariantService } from 'src/app/services/variantService/variant.service'
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
-import { InfixType } from 'src/app/objects/Variants/infix_selection';
+import { InfixType, setParent } from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
 import {
   VariantElement,
@@ -57,7 +63,11 @@ import { Subject } from 'rxjs';
 import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
 import { ContextMenuItem } from '../variant-explorer/variant-explorer-context-menu/variant-explorer-context-menu.component';
 import { DecimalPipe } from '@angular/common';
-
+import { LpmExplorerComponent } from '../lpm-explorer/lpm-explorer.component';
+import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
+import { LpmService } from 'src/app/services/lpmService/lpm.service';
+import { LocalProcessModelWithPatterns } from 'src/app/objects/LocalProcessModelWithPatterns';
+import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-variant-miner',
   templateUrl: './variant-miner.component.html',
@@ -92,6 +102,8 @@ export class VariantMinerComponent
     private variantFilterService: VariantFilterService,
     private polygonDrawingService: PolygonDrawingService,
     private imageExportService: ImageExportService,
+    private goldenLayoutComponentService: GoldenLayoutComponentService,
+    private lpmService: LpmService,
     elRef: ElementRef,
     renderer: Renderer2,
     private deciamlPipe: DecimalPipe
@@ -120,6 +132,8 @@ export class VariantMinerComponent
   FrequentMiningCMStrategy = FrequentMiningCMStrategy;
   VariantSortKey = VariantSortKey;
   currentSortKey: VariantSortKey;
+  lastExecutedMiningAlgorithm: FrequentMiningAlgorithm =
+    FrequentMiningAlgorithm.ValidTreeMiner;
 
   currentHeight: number;
   private _destroy$ = new Subject();
@@ -336,6 +350,8 @@ export class VariantMinerComponent
   dropZoneConfig: any;
   variantMinerConfigInput: UntypedFormGroup;
 
+  addLpmFeatures = environment.showLpms;
+
   ngOnInit(): void {
     this.dropZoneConfig = new DropzoneConfig(
       '.xes',
@@ -491,6 +507,7 @@ export class VariantMinerComponent
 
     this.minsup = form_values.min_sup;
     this.resetActivitiesFilter();
+    this.lastExecutedMiningAlgorithm = form_values.frequent_mining_algo;
   }
 
   handleFilterChange(event) {
@@ -610,6 +627,7 @@ export class VariantMinerComponent
           res.forEach((p, i) => {
             if (p.valid) {
               const variant: VariantElement = deserialize(p.obj);
+              setParent(variant);
               const [isPrefix, isSuffix] = this.checkInfix(p.obj);
               let infixtype: InfixType;
 
@@ -833,6 +851,72 @@ export class VariantMinerComponent
     );
 
     this.conformanceCheckedTree = this.processTree;
+  }
+
+  discoverLpms() {
+    this.backendService
+      .discoverLpms(
+        this.displayedVariantsPatterns.map((p) => p.variant.serialize())
+      )
+      .subscribe((res: Object[]) => {
+        this.lpmService.localProcessModels = res.map(
+          (r) =>
+            new LocalProcessModelWithPatterns(
+              ProcessTree.fromObj(r['lpm']),
+              r['patterns'].map((p) => {
+                let variant = deserialize(p);
+                variant.setExpanded(true);
+                setParent(variant);
+                return new SubvariantPattern(
+                  -1,
+                  -1,
+                  variant,
+                  -1,
+                  -1,
+                  -1,
+                  -1,
+                  false,
+                  false,
+                  false,
+                  InfixType.PROPER_INFIX,
+                  null
+                );
+              })
+            )
+        );
+        this.openLocalProcessModelExplorer();
+      });
+  }
+
+  openLocalProcessModelExplorer() {
+    const componentID = LpmExplorerComponent.componentName;
+    const parentComponentID = VariantMinerComponent.componentName;
+
+    const LocationSelectors: LayoutManager.LocationSelector[] = [
+      {
+        typeId: LayoutManager.LocationSelector.TypeId.FocusedStack,
+        index: undefined,
+      },
+    ];
+
+    const itemConfig: ComponentItemConfig = {
+      id: componentID,
+      type: 'component',
+      title: 'LPM Explorer',
+      isClosable: true,
+      reorderEnabled: true,
+      header: {
+        show: Side.left,
+      },
+      componentType: componentID,
+    };
+
+    this.goldenLayoutComponentService.openWindow(
+      componentID,
+      parentComponentID,
+      LocationSelectors,
+      itemConfig
+    );
   }
 
   onCheckRadioChange(desc, func) {

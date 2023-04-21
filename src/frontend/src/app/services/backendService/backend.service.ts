@@ -575,4 +575,22 @@ export class BackendService {
       .pipe(mapVariantsList()) // deserialize
       .pipe(toArray()); // collect to array
   }
+
+  public discoverLpms(patterns) {
+    return this.httpClient.post(
+      ROUTES.HTTP_BASE_URL + ROUTES.LPMMINER + 'lpmMining',
+      {
+        patterns: patterns,
+      }
+    );
+  }
+
+  public getLpmMetrics(lpm: ProcessTree) {
+    return this.httpClient.post(
+      ROUTES.HTTP_BASE_URL + ROUTES.LPMMINER + 'lpmStatistics',
+      {
+        lpm: lpm.copy(false),
+      }
+    );
+  }
 }

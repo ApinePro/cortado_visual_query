@@ -47,6 +47,7 @@ export enum FrequentMiningCMStrategy {
 export enum FrequentMiningAlgorithm {
   ValidTreeMiner = 1,
   ClosedMaximalMiner = 2,
+  EfPatternMiner = 3,
 }
 
 export enum VariantSortKey {

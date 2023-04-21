@@ -90,7 +90,10 @@ export function computeLeafNodeWidth(
 
   const dummy_select = dummy_container.append('text').attr('font-size', '12px');
 
-  for (let nodeActivityLabel of nodeActivityLabels) {
+  let labels = nodeActivityLabels;
+  labels.push('...');
+
+  for (let nodeActivityLabel of labels) {
     // Compute the width by rendering a dummy node
     dummy_select.text(function (d: any) {
       if (nodeActivityLabel.length <= 20) {
