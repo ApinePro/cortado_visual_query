@@ -12,6 +12,7 @@ export class LoopCollapsedVariant implements IVariant {
   usedTreeForConformanceChecking: ProcessTree;
   fragmentStatistics: any;
   collapsedVariantId: string;
+  clusterId: number;
 
   constructor(
     id: string,
@@ -69,12 +70,24 @@ export class LoopCollapsedVariant implements IVariant {
     return this.variants.some((v) => v.isTimeouted);
   }
 
+  set isTimeouted(value) {
+    this.variants.forEach((v) => (v.isTimeouted = value));
+  }
+
   get isConformanceOutdated() {
     return this.variants.some((v) => v.isConformanceOutdated);
   }
 
+  set isConformanceOutdated(value) {
+    this.variants.forEach((v) => (v.isConformanceOutdated = value));
+  }
+
   get isAddedFittingVariant() {
     return this.variants.every((v) => v.isAddedFittingVariant);
+  }
+
+  set isAddedFittingVariant(value) {
+    this.variants.forEach((v) => (v.isAddedFittingVariant = value));
   }
 
   get calculationInProgress() {
@@ -91,5 +104,9 @@ export class LoopCollapsedVariant implements IVariant {
     }
 
     return Math.max(...this.variants.map((v) => v.deviations));
+  }
+
+  set deviations(value) {
+    this.variants.forEach((v) => (v.deviations = value));
   }
 }

@@ -139,19 +139,24 @@ async def websocket_endpoint(websocket: WebSocket):
                 PoolFactory.instance().restart_pool()
                 return
 
-            timeout = configuration.timeout_cvariant_alignment_computation
-            if data["timeout"] != 0:
-                timeout = data["timeout"]
-            pool.apply_async(
-                calculate_alignment_intern_with_timeout,
-                (
-                    data["pt"],
-                    data["variant"],
-                    InfixType(data["infixType"]),
-                    timeout,
-                ),
-                callback=get_alignment_callback(
-                    data["id"], data['alignType'], websocket),
-            )
-    except WebSocketDisconnect:
+            try:
+                timeout = configuration.timeout_cvariant_alignment_computation
+                if data["timeout"] != 0:
+                    timeout = data["timeout"]
+                pool.apply_async(
+                    calculate_alignment_intern_with_timeout,
+                    (
+                        data["pt"],
+                        data["variant"],
+                        InfixType(data["infixType"]),
+                        timeout,
+                    ),
+                    callback=get_alignment_callback(
+                        data["id"], data['alignType'], websocket),
+                )
+            except Exception as e:
+                if websocket.application_state == WebSocketState.CONNECTED:
+                    await websocket.send_json({"error": str(e)})
+    except WebSocketDisconnect as d:
+        print(d)
         print("websocket disconnected")

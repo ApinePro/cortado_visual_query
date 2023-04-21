@@ -5,6 +5,7 @@ import {
 
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   HostListener,
@@ -91,6 +92,9 @@ import { ToastService } from 'src/app/services/toast/toast.service';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import { IVariant } from 'src/app/objects/Variants/variant_interface';
 import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ClusteringSettingsDialogComponent } from './clustering-settings-dialog/clustering-settings-dialog.component';
+import _ from 'lodash';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -122,7 +126,9 @@ export class VariantExplorerComponent
     public conformanceCheckingService: ConformanceCheckingService,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     public variantViewModeService: VariantViewModeService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private modalService: NgbModal,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -216,6 +222,19 @@ export class VariantExplorerComponent
   contextMenuOptions: Array<ContextMenuItem> = [
     new ContextMenuItem('Delete Variant', 'bi-trash', this.deleteVariant),
   ];
+
+  // stores the sort settings for each cluster
+  // if no clustering algo is applied we only have the key
+  // 'unefined' which is the default cluster key
+  clusterSortSettings: {} = {};
+
+  public hideRuleContent: boolean[] = [];
+  public buttonName: any = 'Expand';
+
+  toggle(index) {
+    // toggle based on index
+    this.hideRuleContent[index] = !this.hideRuleContent[index];
+  }
 
   private _destroy$ = new Subject();
 
@@ -421,6 +440,17 @@ export class VariantExplorerComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe(
         (res) => {
+          console.log(res);
+          if ('error' in res) {
+            this.variants.forEach((v) => {
+              v.calculationInProgress = false;
+            });
+
+            this.updateAlignmentStatistics();
+            this.redraw_components();
+            return;
+          }
+
           const variant = this.variants.find((v) => v.id == res.id);
           variant.calculationInProgress = false;
           variant.isTimeouted = res.isTimeout;
@@ -441,9 +471,6 @@ export class VariantExplorerComponent
         (_) => {
           this.variants.forEach((v) => {
             v.calculationInProgress = false;
-            v.alignment = undefined;
-            v.deviations = undefined;
-            v.usedTreeForConformanceChecking = undefined;
           });
 
           this.updateAlignmentStatistics();
@@ -611,7 +638,19 @@ export class VariantExplorerComponent
     this.performanceService.hideTreePerformance();
   }
 
-  createSubVariantView(index) {
+  /**
+   * Create subvariant tab
+   * @param clusterId id of the cluster
+   * @param idx position in the cluster
+   * @param variant_id id of the variant
+   */
+  createSubVariantView(clusterId, idx, variant_id) {
+    // find variant by id
+    let variant = _.find(
+      this.displayed_variants,
+      (variant) => variant_id === variant.id
+    );
+
     const currently_maximized = this.maximized;
 
     const LocationSelectors: LayoutManager.LocationSelector[] = [
@@ -623,9 +662,7 @@ export class VariantExplorerComponent
 
     this.cleanUpSubVariantMap();
 
-    const id =
-      SubvariantExplorerComponent.componentName +
-      this.displayed_variants[index - 1].id;
+    const id = SubvariantExplorerComponent.componentName + variant_id;
 
     let componentItem = this._subvariantcomponentItemsMap.get(id);
 
@@ -645,12 +682,12 @@ export class VariantExplorerComponent
       const itemConfig: ComponentItemConfig = {
         id: id,
         type: 'component',
-        title: 'Sub-Variants for ' + index,
+        title: 'Sub-Variants for ' + idx + ' (Cluster ' + clusterId + ')',
         isClosable: true,
         reorderEnabled: true,
         componentState: {
-          variant: this.displayed_variants[index - 1],
-          index: index,
+          variant: variant,
+          index: idx,
         },
         maximised: true,
         componentType: SubvariantExplorerComponent.componentName,
@@ -923,14 +960,15 @@ export class VariantExplorerComponent
   }
 
   sort(sortingFeature: string): void {
-    this.sortingFeature = sortingFeature;
-    this.displayed_variants = VariantSorter.sort(
-      this.displayed_variants,
-      this.sortingFeature,
-      this.isAscendingOrder
-    ) as Variant[];
+    // undefined is the key of the default cluster (when no clustering was applied)
+    this.clusterSortSettings['undefined'] = {
+      feature: sortingFeature,
+      isAscendingOrder: this.isAscendingOrder,
+    };
     this.variantExplorerDiv.nativeElement.scroll(0, 0);
     this.updateAllSubvariantWindows();
+    // to avoid expression changed after checked error
+    this.changeDetectorRef.detectChanges();
   }
 
   onSortOrderChanged(isAscending: boolean): void {
@@ -1012,6 +1050,24 @@ export class VariantExplorerComponent
           this.displayed_variants = this.variants;
         }
       });
+  }
+
+  openClusteringSettingsDialog() {
+    const clusteringModel = this.modalService.open(
+      ClusteringSettingsDialogComponent,
+      {
+        ariaLabelledBy: 'modal-basic-title',
+      }
+    );
+
+    clusteringModel.componentInstance.numberOfVariants = this.variants.length;
+  }
+
+  handleClusterSort(sortEvent, clusterId) {
+    this.clusterSortSettings[clusterId] = sortEvent;
+    this.updateAllSubvariantWindows();
+    // detect changes manually to avoid expression changed after checked
+    this.changeDetectorRef.detectChanges();
   }
 
   showTiebreakerDialog() {

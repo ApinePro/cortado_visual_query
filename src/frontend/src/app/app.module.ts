@@ -82,6 +82,10 @@ import { VariantMinerActivitiesFIlterComponent } from './components/variant-mine
 import { LpmExplorerComponent } from './components/lpm-explorer/lpm-explorer.component';
 import { LpmExplorerRowComponent } from './components/lpm-explorer/lpm-explorer-row/lpm-explorer-row.component';
 import { LpmMetricsTabComponent } from './components/lpm-explorer/lpm-metrics-tab/lpm-metrics-tab.component';
+import { ClusteringSettingsDialogComponent } from './components/variant-explorer/clustering-settings-dialog/clustering-settings-dialog.component';
+import { SearchComponent } from './components/variant-explorer/search/search.component';
+import { GroupByPipe } from './pipes/group-by.pipe';
+import { VariantSortPipe } from './pipes/variant-sort.pipe';
 
 @NgModule({
   declarations: [
@@ -152,6 +156,10 @@ import { LpmMetricsTabComponent } from './components/lpm-explorer/lpm-metrics-ta
     LpmExplorerComponent,
     LpmExplorerRowComponent,
     LpmMetricsTabComponent,
+    ClusteringSettingsDialogComponent,
+    SearchComponent,
+    GroupByPipe,
+    VariantSortPipe,
   ],
   imports: [
     BrowserModule,
