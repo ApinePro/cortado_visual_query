@@ -1,5 +1,4 @@
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
-import { Variant } from 'src/app/objects/Variants/variant';
 
 export class ConformanceCheckingResult {
   constructor(

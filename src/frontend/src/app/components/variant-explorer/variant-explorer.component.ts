@@ -440,6 +440,17 @@ export class VariantExplorerComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe(
         (res) => {
+          console.log(res);
+          if ('error' in res) {
+            this.variants.forEach((v) => {
+              v.calculationInProgress = false;
+            });
+
+            this.updateAlignmentStatistics();
+            this.redraw_components();
+            return;
+          }
+
           const variant = this.variants.find((v) => v.id == res.id);
           variant.calculationInProgress = false;
           variant.isTimeouted = res.isTimeout;
@@ -460,9 +471,6 @@ export class VariantExplorerComponent
         (_) => {
           this.variants.forEach((v) => {
             v.calculationInProgress = false;
-            v.alignment = undefined;
-            v.deviations = undefined;
-            v.usedTreeForConformanceChecking = undefined;
           });
 
           this.updateAlignmentStatistics();
