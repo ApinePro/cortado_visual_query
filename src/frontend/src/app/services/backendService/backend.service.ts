@@ -494,12 +494,12 @@ export class BackendService {
         })
       );
   }
-  addUserDefinedVariant(variant: VariantElement, bid: number) {
+  addUserDefinedVariant(variant: Variant) {
     return this.httpClient.post(
       ROUTES.HTTP_BASE_URL + ROUTES.MODIFY_LOG + 'addUserDefinedVariant',
       {
-        variant: variant.serialize(),
-        bid: bid,
+        variant: variant.variant.serialize(),
+        bid: variant.bid,
       }
     );
   }

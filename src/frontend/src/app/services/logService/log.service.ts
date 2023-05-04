@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { Variant } from 'src/app/objects/Variants/variant';
 import { addVariantInformation } from '../variantService/variant-transformation';
+import { LogModification } from 'src/app/objects/LogModification';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,8 @@ import { addVariantInformation } from '../variantService/variant-transformation'
 export class LogService {
   [x: string]: any;
   constructor(private colorMapService: ColorMapService) {}
+
+  logModifications: LogModification[] = [];
 
   variants: Variant[];
 
@@ -238,6 +241,7 @@ export class LogService {
     this.performanceInfoAvailable = true;
     this.timeGranularity = res['timeGranularity'];
     this.logGranularity = res['timeGranularity'];
+    this.logModifications = [];
   }
 }
 

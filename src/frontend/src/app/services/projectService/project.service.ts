@@ -21,10 +21,20 @@ import {
 import { VariantQueryService } from '../variantQueryService/variant-query.service';
 import { environment } from 'src/environments/environment';
 import { isEqualWith } from 'lodash';
-import { take } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { mergeMap, take, tap } from 'rxjs/operators';
 import { BackendService } from '../backendService/backend.service';
 import { ClusteringConfig } from 'src/app/objects/ClusteringConfig';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
+import {
+  ActivityDeletion,
+  ActivityRenaming,
+  LogModification,
+  LogModificationType,
+  UserDefinedInfixAddition,
+  UserDefinedVariantAddition,
+  VariantsDeletion,
+} from 'src/app/objects/LogModification';
 @Injectable({
   providedIn: 'root',
 })
@@ -78,6 +88,7 @@ export class ProjectService {
     return new Project(
       this.logService.loadedEventLog,
       this.logService.timeGranularity,
+      this.logService.logModifications,
       this.processTreeService.currentDisplayedProcessTree,
       this.processTreeService.previousTreeObjects,
       this.processTreeService.treeCacheIndex,
@@ -94,29 +105,29 @@ export class ProjectService {
     fileReader.onload = (e) => {
       this.latestSavedProject = JSON.parse(fileReader.result.toString());
       const project = plainToInstance(Project, this.latestSavedProject);
+      let loadingLog: Observable<any>;
 
       if (project.eventlogPath == 'preload') {
-        this.backendService.resetLogCache().subscribe(() => {
-          this.backendService
-            .getLogPropsAndUpdateState(project.timeGranularity, 'preload')
-            .subscribe(() => {
-              this.restoreProjectAfterLog(project);
-            });
-        });
+        loadingLog = this.backendService.resetLogCache();
       } else {
-        this.backendService
-          .loadEventLogFromFilePath(project.eventlogPath)
-          .subscribe(() => {
-            this.backendService
-              .getLogPropsAndUpdateState(
-                project.timeGranularity,
-                project.eventlogPath
-              )
-              .subscribe(() => {
-                this.restoreProjectAfterLog(project);
-              });
-          });
+        loadingLog = this.backendService.loadEventLogFromFilePath(
+          project.eventlogPath
+        );
       }
+
+      loadingLog
+        .pipe(
+          mergeMap(() => this.replayLogModifications(project.logModifications)),
+          mergeMap(() =>
+            this.backendService.getLogPropsAndUpdateState(
+              project.timeGranularity,
+              project.eventlogPath
+            )
+          )
+        )
+        .subscribe(() => {
+          this.restoreProjectAfterLog(project);
+        });
     };
     fileReader.readAsText(file);
   }
@@ -131,6 +142,46 @@ export class ProjectService {
     this.variantFilterService.variantFilters = project.variantFilters;
     this.variantQueryService.variantQuery = project.variantQuery;
     this.variantService.clusteringConfig = project.clusteringConfiguration;
+  }
+
+  private replayLogModifications(logModifications: LogModification[]) {
+    return logModifications.reduce(
+      (previous, current) =>
+        previous.pipe(
+          tap(() => console.log('Replaying Log Modification:', current.type)),
+          mergeMap(() => {
+            switch (current.type) {
+              case LogModificationType.ACTIVITY_DELETION:
+                return this.variantService.deleteActivity(
+                  (<ActivityDeletion>current).activityName
+                );
+              case LogModificationType.ACTIVITY_RENAMING:
+                return this.variantService.renameActivity(
+                  (<ActivityRenaming>current).activityName,
+                  (<ActivityRenaming>current).newActivityName
+                );
+              case LogModificationType.VARIANT_DELETION:
+                return this.variantService.deleteVariants(
+                  (<VariantsDeletion>current).variantsBids
+                );
+              case LogModificationType.USER_DEFINED_VARIANT_ADDITION:
+                return this.variantService.addUserDefinedVariant(
+                  (<UserDefinedVariantAddition>current).variant
+                );
+              case LogModificationType.USER_DEFINED_INFIX_ADDITION:
+                console.log((<UserDefinedInfixAddition>current).infix);
+                console.log((<UserDefinedInfixAddition>current).infix.variant);
+                return this.variantService.addInfixToBackend(
+                  (<UserDefinedInfixAddition>current).infix
+                );
+            }
+          })
+        ),
+      new Observable((subscriber) => {
+        subscriber.next();
+        subscriber.complete();
+      })
+    );
   }
 
   public async saveProject() {
@@ -161,6 +212,31 @@ class Project {
   public cortadoVersion: string;
   public eventlogPath: string;
   public timeGranularity: TimeUnit;
+  @Transform(({ value, key, obj, type }) => {
+    if (type === TransformationType.PLAIN_TO_CLASS) {
+      const transformed = [];
+      for (let logModification of value) {
+        if (
+          logModification.type ===
+          LogModificationType.USER_DEFINED_VARIANT_ADDITION
+        )
+          transformed.push(
+            plainToInstance(UserDefinedVariantAddition, logModification)
+          );
+        else if (
+          logModification.type ===
+          LogModificationType.USER_DEFINED_INFIX_ADDITION
+        )
+          transformed.push(
+            plainToInstance(UserDefinedInfixAddition, logModification)
+          );
+        else transformed.push(logModification);
+      }
+      return transformed;
+    }
+    return value;
+  })
+  public logModifications: LogModification[];
   @Type(() => ProcessTree)
   public processTree: ProcessTree;
   @Type(() => ProcessTree)
@@ -184,6 +260,7 @@ class Project {
   constructor(
     eventlogPath: string,
     timeGranularity: TimeUnit,
+    logModifications: LogModification[],
     processTree: ProcessTree,
     processTreeHistory: ProcessTree[],
     treeCacheIndex: number,
@@ -196,6 +273,7 @@ class Project {
   ) {
     this.eventlogPath = eventlogPath;
     this.timeGranularity = timeGranularity;
+    this.logModifications = logModifications;
     this.processTree = processTree;
     this.processTreeHistory = processTreeHistory;
     this.treeCacheIndex = treeCacheIndex;

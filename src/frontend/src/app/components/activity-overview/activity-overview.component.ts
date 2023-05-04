@@ -177,7 +177,7 @@ export class ActivityOverviewComponent
     }
   }
   deleteActivity(e: Event, activity: ActivityField) {
-    this.variantService.deleteActivity(activity.activityName);
+    this.variantService.deleteActivity(activity.activityName).subscribe();
     this.variantPerformanceService.resetVariantPerformance();
     this.resetActivityFields();
   }
@@ -212,7 +212,9 @@ export class ActivityOverviewComponent
     newActivityName: string
   ): void {
     if (oldActivityName !== newActivityName) {
-      this.variantService.renameActivity(oldActivityName, newActivityName);
+      this.variantService
+        .renameActivity(oldActivityName, newActivityName)
+        .subscribe();
       // Changing activity field table
       this.resetActivityFields();
     }
