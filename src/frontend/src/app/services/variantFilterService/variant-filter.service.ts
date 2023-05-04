@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Transform } from 'class-transformer';
 import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 
@@ -47,6 +48,9 @@ export class VariantFilterService {
 }
 
 export class VariantFilter {
+  @Transform(({ value, key, obj, type }) => new Set(value), {
+    toClassOnly: true,
+  })
   bids: Set<number>;
   name: string;
   tooltip: string;

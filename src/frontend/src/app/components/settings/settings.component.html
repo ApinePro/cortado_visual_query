@@ -7,7 +7,7 @@
   aria-hidden="true"
 >
   <div class="modal-dialog" role="document">
-    <div class="modal-content dialog">
+    <div class="modal-content">
       <div class="modal-header h-line-modal-bottom">
         <h5 class="modal-title text-light" id="settingsModalLabel">Settings</h5>
         <button
@@ -130,26 +130,26 @@
             </div>
           </div>
         </form>
-        <div class="modal-footer h-line-modal-top">
-          <button
-            id="close-modal"
-            type="button"
-            class="button"
-            data-bs-dismiss="modal"
-          >
-            <i class="bi bi-x-lg btn-icon text-danger"></i>
-            close without save
-          </button>
-          <button
-            [disabled]="configForm.invalid || configForm.pristine"
-            type="button"
-            class="button"
-            (click)="saveChanges()"
-          >
-            <i class="bi bi-save btn-icon text-success"></i>
-            save
-          </button>
-        </div>
+      </div>
+      <div class="modal-footer h-line-modal-top">
+        <button
+          id="close-modal"
+          type="button"
+          class="button"
+          data-bs-dismiss="modal"
+        >
+          <i class="bi bi-x-lg btn-icon text-danger"></i>
+          close without save
+        </button>
+        <button
+          [disabled]="configForm.invalid || configForm.pristine"
+          type="button"
+          class="button"
+          (click)="saveChanges()"
+        >
+          <i class="bi bi-save btn-icon text-success"></i>
+          save
+        </button>
       </div>
     </div>
   </div>

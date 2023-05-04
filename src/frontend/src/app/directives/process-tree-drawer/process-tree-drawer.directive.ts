@@ -49,14 +49,14 @@ export class ProcessTreeDrawerDirective {
         // @ts-ignore
         return d.children;
       });
+      // add activities in the tree to nodeWidthCache in processTreeService
+      this.processTreeService.updateNodeWidthCache(
+        tree.extractActivityLabelsFromTree()
+      );
     } else {
       this.root = null;
     }
 
-    // add activities in the tree to nodeWidthCache in processTreeService
-    this.processTreeService.updateNodeWidthCache(
-      tree.extractActivityLabelsFromTree()
-    );
     this.update(this.root);
   }
 

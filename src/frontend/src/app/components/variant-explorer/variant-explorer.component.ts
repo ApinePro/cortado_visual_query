@@ -1016,7 +1016,7 @@ export class VariantExplorerComponent
       infoText = 'Removed all not filtered variants. Filters are cleared.';
     }
 
-    this.variantService.deleteVariants(bids);
+    this.variantService.deleteVariants(bids).subscribe();
 
     for (let filter of this.filterMap.keys()) {
       this.removeFilter(filter);

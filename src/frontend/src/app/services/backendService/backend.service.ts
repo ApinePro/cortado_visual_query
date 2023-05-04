@@ -1,8 +1,8 @@
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map, mergeMap, take, tap, toArray } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { catchError, map, mergeMap, take, tap, toArray } from 'rxjs/operators';
 import { Configuration } from 'src/app/components/settings/model';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
@@ -24,6 +24,8 @@ import { ClusteringConfig } from 'src/app/objects/ClusteringConfig';
   providedIn: 'root',
 })
 export class BackendService {
+  public retryEventLogSelection = new Subject();
+
   constructor(
     private httpClient: HttpClient,
     private logService: LogService,
@@ -51,15 +53,24 @@ export class BackendService {
       });
   }
 
-  loadEventLogFromFilePath(filePath: string): void {
-    this.httpClient
+  loadEventLogFromFilePath(filePath: string): Observable<any> {
+    return this.httpClient
       .post(ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'loadEventLog', {
         file_path: filePath,
       })
-      .pipe(mapVariants())
-      .subscribe((res) => {
-        this.logService.processEventLog(res, filePath);
-      });
+      .pipe(
+        catchError((err) => {
+          this.retryEventLogSelection.next(filePath);
+          throw (
+            'Error during event log import. Prompting user for different path. Details: ' +
+            err
+          );
+        }),
+        mapVariants(),
+        tap((res) => {
+          this.logService.processEventLog(res, filePath);
+        })
+      );
   }
 
   uploadEventLog(file: File) {
@@ -70,7 +81,7 @@ export class BackendService {
       .post(ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'uploadfile', formData)
       .pipe(mapVariants())
       .subscribe((res) => {
-        this.logService.processEventLog(res, file.name);
+        this.logService.processEventLog(res, file['path']);
       });
   }
 
@@ -483,12 +494,12 @@ export class BackendService {
         })
       );
   }
-  addUserDefinedVariant(variant: VariantElement, bid: number) {
+  addUserDefinedVariant(variant: Variant) {
     return this.httpClient.post(
       ROUTES.HTTP_BASE_URL + ROUTES.MODIFY_LOG + 'addUserDefinedVariant',
       {
-        variant: variant.serialize(),
-        bid: bid,
+        variant: variant.variant.serialize(),
+        bid: variant.bid,
       }
     );
   }

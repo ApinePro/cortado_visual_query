@@ -31,6 +31,13 @@ import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
 import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
 import { ClusteringConfig } from 'src/app/objects/ClusteringConfig';
 import { BackendService } from '../backendService/backend.service';
+import {
+  UserDefinedInfixAddition,
+  UserDefinedVariantAddition,
+  ActivityDeletion,
+  VariantsDeletion,
+  ActivityRenaming,
+} from 'src/app/objects/LogModification';
 
 @Injectable({
   providedIn: 'root',
@@ -187,36 +194,30 @@ export class VariantService {
     this.nUserVariants += 1;
     newVariant.bid = -this.nUserVariants;
 
-    this.addInfixToBackend(newVariant);
-
-    this.backendService
-      .countFragmentOccurrences(newVariant)
+    this.addInfixToBackend(newVariant)
       .pipe(
-        tap((statistics) => {
-          newVariant.fragmentStatistics = statistics;
-          currentVariants.push(newVariant);
-          this.variants = currentVariants;
-        })
+        mergeMap(() => this.backendService.countFragmentOccurrences(newVariant))
       )
-      .pipe(
-        tap((_) => {
-          let sortedVariants = VariantSorter.sort(
-            this.variants,
-            sortingFeature,
-            isAscending
-          ) as Variant[];
+      .subscribe((statistics) => {
+        newVariant.fragmentStatistics = statistics;
+        currentVariants.push(newVariant);
+        this.variants = currentVariants;
 
-          this.toastService.showSuccessToast(
-            'Variant Explorer',
-            `The selected infix is added at position ${
-              sortedVariants.indexOf(newVariant) + 1
-            }.`,
-            'bi-list-ul'
-          );
-          variant.variant.resetSelectionStatus();
-        })
-      )
-      .subscribe();
+        let sortedVariants = VariantSorter.sort(
+          this.variants,
+          sortingFeature,
+          isAscending
+        ) as Variant[];
+
+        this.toastService.showSuccessToast(
+          'Variant Explorer',
+          `The selected infix is added at position ${
+            sortedVariants.indexOf(newVariant) + 1
+          }.`,
+          'bi-list-ul'
+        );
+        variant.variant.resetSelectionStatus();
+      });
   }
 
   public deleteVariant(variant: VariantElement): void {
@@ -224,25 +225,28 @@ export class VariantService {
       (v) => v.variant === variant
     )[0];
 
-    this.deleteVariants([matchingVariant.bid]);
+    this.deleteVariants([matchingVariant.bid]).subscribe();
   }
 
-  public deleteVariants(bids: number[]): void {
-    this.backendService.deleteVariants(bids).subscribe((res) => {
-      this.logService.activitiesInEventLog = res['activities'];
-      this.logService.startActivitiesInEventLog = new Set(
-        res['startActivities']
-      );
-      this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
+  public deleteVariants(bids: number[]): Observable<any> {
+    this.logService.logModifications.push(new VariantsDeletion(bids));
+    return this.backendService.deleteVariants(bids).pipe(
+      tap((res) => {
+        this.logService.activitiesInEventLog = res['activities'];
+        this.logService.startActivitiesInEventLog = new Set(
+          res['startActivities']
+        );
+        this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
 
-      let filtered_variants = this.variants.filter(
-        (v) => !bids.includes(v.bid)
-      );
+        let filtered_variants = this.variants.filter(
+          (v) => !bids.includes(v.bid)
+        );
 
-      this.logService.computeLogStats(filtered_variants);
-      this.variants = filtered_variants;
-      this.cachedChange = true;
-    });
+        this.logService.computeLogStats(filtered_variants);
+        this.variants = filtered_variants;
+        this.cachedChange = true;
+      })
+    );
     // Count deleted Activites, Recompute if an Activity is a Start or End Activity.
   }
 
@@ -288,12 +292,13 @@ export class VariantService {
   }
 
   public deleteActivity(activityName: string) {
+    this.logService.logModifications.push(new ActivityDeletion(activityName));
     const [variants, fallthrough, delete_member_list, merge_list, delete_list] =
       compute_delete_activity_variants(activityName, this.variants);
 
     this.logService.deleteActivityInEventLog(activityName);
 
-    this.backendService
+    return this.backendService
       .deleteActivity(
         activityName,
         fallthrough,
@@ -301,40 +306,48 @@ export class VariantService {
         merge_list,
         delete_list.map((v) => v.bid)
       )
-      .subscribe((res) => {
-        this.logService.startActivitiesInEventLog = new Set(
-          res['startActivities']
-        );
+      .pipe(
+        tap((res) => {
+          this.logService.startActivitiesInEventLog = new Set(
+            res['startActivities']
+          );
 
-        this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
+          this.logService.endActivitiesInEventLog = new Set(
+            res['endActivities']
+          );
 
-        variants.forEach((v) => {
-          for (let bid of Object.keys(res['update_variants'])) {
-            if (v.bid.toString() === bid) {
-              v.nSubVariants = res['update_variants'][v.bid]['nSubVariants'];
-              v.count = res['update_variants'][v.bid]['count'];
+          variants.forEach((v) => {
+            for (let bid of Object.keys(res['update_variants'])) {
+              if (v.bid.toString() === bid) {
+                v.nSubVariants = res['update_variants'][v.bid]['nSubVariants'];
+                v.count = res['update_variants'][v.bid]['count'];
+              }
             }
-          }
-        });
+          });
 
-        res['new_variants'].forEach((variant) => {
-          variant['id'] = objectHash(variant['variant']);
-          variant['variant'] = deserialize(variant.variant);
-        });
+          res['new_variants'].forEach((variant) => {
+            variant['id'] = objectHash(variant['variant']);
+            variant['variant'] = deserialize(variant.variant);
+          });
 
-        const new_variants = addVariantInformation(res['new_variants']);
+          const new_variants = addVariantInformation(res['new_variants']);
 
-        variants.push(...new_variants);
+          variants.push(...new_variants);
 
-        this.cachedChange = true;
-        this.logService.computeLogStats(variants);
+          this.cachedChange = true;
+          this.logService.computeLogStats(variants);
 
-        this.afterVariantChange();
-        this.variants = variants;
-      });
+          this.afterVariantChange();
+          this.variants = variants;
+        })
+      );
   }
 
   public renameActivity(activityName: string, newActivityName: string) {
+    this.logService.logModifications.push(
+      new ActivityRenaming(activityName, newActivityName)
+    );
+
     const [variants, rename_list, merge_list, updateMap] =
       compute_rename_activity_variants(
         activityName,
@@ -353,30 +366,32 @@ export class VariantService {
       newActivityName
     );
 
-    this.backendService
+    return this.backendService
       .changeActivityName(
         merge_list,
         rename_list,
         activityName,
         newActivityName
       )
-      .subscribe((res) => {
-        variants.forEach((v) => {
-          for (let bid of Object.keys(res)) {
-            if (v.bid.toString() === bid) {
-              v.nSubVariants = res[v.bid]['nSubVariants'];
+      .pipe(
+        tap((res) => {
+          variants.forEach((v) => {
+            for (let bid of Object.keys(res)) {
+              if (v.bid.toString() === bid) {
+                v.nSubVariants = res[v.bid]['nSubVariants'];
+              }
             }
-          }
-        });
+          });
 
-        this.afterVariantChange();
-        this.variants = variants;
-      });
+          this.afterVariantChange();
+          this.variants = variants;
 
-    this.logService.update_log_stats(null, null, null, updateMap.size);
-    this.cachedChange = true;
-    this.lastChangeRenaming = [activityName, newActivityName];
-    this.nameChanges.next([activityName, newActivityName]);
+          this.logService.update_log_stats(null, null, null, updateMap.size);
+          this.cachedChange = true;
+          this.lastChangeRenaming = [activityName, newActivityName];
+          this.nameChanges.next([activityName, newActivityName]);
+        })
+      );
   }
 
   revertChangeInBackend() {
@@ -405,10 +420,15 @@ export class VariantService {
     });
   }
 
-  public addUserDefinedVariant(variant: VariantElement, bid: number) {
-    this.backendService.addUserDefinedVariant(variant, bid).subscribe(
-      (res) => console.log(res),
-      (err) => console.log('error ' + err)
+  public addUserDefinedVariant(variant: Variant) {
+    this.logService.logModifications.push(
+      new UserDefinedVariantAddition(variant)
+    );
+    return this.backendService.addUserDefinedVariant(variant).pipe(
+      tap(
+        (res) => console.log(res),
+        (err) => console.log('error ' + err)
+      )
     );
   }
 
@@ -457,15 +477,20 @@ export class VariantService {
     });
   }
 
-  private addInfixToBackend(variant: Variant) {
-    this.backendService.addUserDefinedInfix(variant).subscribe(
-      (_) => console.log('successfully added infix to backend'),
-      (_) =>
-        this.toastService.showErrorToast(
-          'Variant Explorer',
-          `Adding the selected infix failed`,
-          'bi-exclamation-circle'
-        )
+  public addInfixToBackend(variant: Variant) {
+    this.logService.logModifications.push(
+      new UserDefinedInfixAddition(variant)
+    );
+    return this.backendService.addUserDefinedInfix(variant).pipe(
+      tap(
+        (_) => console.log('successfully added infix to backend'),
+        (_) =>
+          this.toastService.showErrorToast(
+            'Variant Explorer',
+            `Adding the selected infix failed`,
+            'bi-exclamation-circle'
+          )
+      )
     );
   }
 }

@@ -73,9 +73,28 @@ ipcMain.on('license-dialog', (event, arg) => {
   }
 })
 
-ipcMain.on('showSaveDialog', ((_, fileName, fileExtension, base64File, buttonLabel, title) => {
-  showSaveDialog(downloadFolder, dialog, fs, mainCortadoWin, fileName, fileExtension, base64File, buttonLabel, title)
-}));
+ipcMain.handle(
+  "showSaveDialog",
+  (
+    _,
+    fileName,
+    fileExtension,
+    base64File,
+    buttonLabel,
+    title
+  ) =>
+    showSaveDialog(
+      downloadFolder,
+      dialog,
+      fs,
+      mainCortadoWin,
+      fileName,
+      fileExtension,
+      base64File,
+      buttonLabel,
+      title
+    )
+);
 
 function createMainApplicationWindow() {
   mainCortadoWin = new BrowserWindow({
@@ -101,6 +120,14 @@ function createMainApplicationWindow() {
     app.quit();
   });
 
+  mainCortadoWin.on("close", async (e) => {
+    e.preventDefault();
+
+    // ask projectService for unsaved Changes
+    // response on "unsaved-changes"
+    mainCortadoWin.webContents.send('check-unsaved-changes')
+  });
+
   // prevent external links from being opened in an electron window
   mainCortadoWin.webContents.on('new-window', function (e, url) {
     e.preventDefault();
@@ -112,7 +139,7 @@ function killBackendProcess() {
   if (backendProcess){
     if (process.platform == 'win32'){
       kill(backendProcess.pid);
-    } 
+    }
     else {
       ChildProcess.execSync("killall -9 cortado-backend", {shell: '/bin/sh'});
     }
@@ -150,3 +177,26 @@ app.on('activate', function () {
     }
   }
 );
+
+ipcMain.on("unsaved-changes", async (_event, res) => {
+  if(!res) mainCortadoWin.destroy();
+  else {
+    const { response } = await dialog.showMessageBox(mainCortadoWin, {
+      type: "warning",
+      title: "Save Project?",
+      message: "Save Cortado project before closing?",
+      detail: "All progress will be lost if you don't save it.",
+      buttons: ["Don't Save", "Cancel", "Save"],
+      defaultId: 2,
+    });
+
+    if (response === 0) mainCortadoWin.destroy();
+    else if (response === 2){
+      mainCortadoWin.webContents.send('save-project')
+    }
+  }
+})
+
+ipcMain.on("quit", ()=>{
+  mainCortadoWin.destroy();
+})

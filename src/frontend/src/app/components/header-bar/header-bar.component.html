@@ -177,6 +177,31 @@
           </ul>
         </div>
       </li>
+      <li><hr class="dropdown-divider" /></li>
+      <li>
+        <button class="button align-bottom" (click)="loadProject()">
+          <div>
+            <i class="bi bi-upload btn-icon"></i>
+            <span
+              ><b>Load</b> project (<samp class="text-primary fw-bold"
+                >.json</samp
+              >)</span
+            >
+          </div>
+        </button>
+      </li>
+      <li>
+        <button class="button align-bottom" (click)="saveProject()">
+          <div>
+            <i class="bi bi-download btn-icon"></i>
+            <span
+              ><b>Save</b> project (<samp class="text-primary fw-bold"
+                >.json</samp
+              >)</span
+            >
+          </div>
+        </button>
+      </li>
     </ul>
   </div>
   <div class="dropdown">
@@ -249,6 +274,57 @@
     (change)="handleSelectedProcessTreeFile($event)"
     accept=".ptml"
   />
+
+  <input
+    #fileUploadProject
+    type="file"
+    class="d-none"
+    (change)="handleSelectedProjectFile($event)"
+    accept=".json"
+  />
+  <input
+    #fileUploadEventLogRetry
+    type="file"
+    class="d-none"
+    (change)="handleSelectedEventLogFileRetry($event)"
+    accept=".xes"
+  />
 </div>
 
 <app-settings [showSettings]="showSettingsEvent.asObservable()"></app-settings>
+
+<ng-template let-modal #eventLogSelectionRetryModal>
+  <div class="modal-header h-line-modal-bottom">
+    <h4 class="modal-title text-light" id="modal-basic-title">
+      Select new event log path
+    </h4>
+    <button
+      type="button"
+      class="btn-close btn-close-white"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    ></button>
+  </div>
+  <div class="modal-body text-light">
+    The path of the event log
+    <code>{{ oldEventLogPath.split("/").pop() }}</code> has changed. You need to
+    select a new path to this event log.
+  </div>
+  <div class="modal-footer h-line-modal-top">
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      (click)="modal.close()"
+    >
+      Cancel
+    </button>
+    <button
+      type="button"
+      class="btn btn-success"
+      ngbAutofocus
+      (click)="importEventLog(); modal.close()"
+    >
+      Select new path
+    </button>
+  </div>
+</ng-template>

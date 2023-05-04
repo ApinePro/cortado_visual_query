@@ -4,7 +4,7 @@
 cortado-backend
 src/backend/build
 src/backend/dist
-backend/tmp/*.p
+src/backend/tmp/*.p
 __pycache__/
 .venv
 build

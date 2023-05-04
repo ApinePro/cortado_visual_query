@@ -52,7 +52,7 @@ Follow [@cortado_tool](https://twitter.com/cortado_tool) on **Twitter** for impo
 * In a dedicated Window of the Current OS
   * Navigate to `src/frontend/`
   * Execute `npm start` to build & run Cortado's frontend
-  * Execute `electron-live-reload` that starts a window with Cortado
+  * Execute `npm run electron-live-reload` that starts a window with Cortado
 
 
 ## Build Cortado&mdash;Standalone Application

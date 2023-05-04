@@ -242,7 +242,7 @@ export class ProcessTreeService {
     this.cacheCurrentTree(tree);
   }
 
-  private previousTreeObjects: ProcessTree[] = [];
+  previousTreeObjects: ProcessTree[] = [];
 
   private _treeCacheLength = new BehaviorSubject<number>(0);
   private _treeCacheIndex = new BehaviorSubject<number>(0);

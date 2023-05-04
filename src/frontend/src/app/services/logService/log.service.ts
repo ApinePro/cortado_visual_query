@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { Variant } from 'src/app/objects/Variants/variant';
 import { addVariantInformation } from '../variantService/variant-transformation';
+import { LogModification } from 'src/app/objects/LogModification';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,8 @@ import { addVariantInformation } from '../variantService/variant-transformation'
 export class LogService {
   [x: string]: any;
   constructor(private colorMapService: ColorMapService) {}
+
+  logModifications: LogModification[] = [];
 
   variants: Variant[];
 
@@ -92,6 +95,10 @@ export class LogService {
     return this._loadedEventLog.asObservable();
   }
 
+  get loadedEventLog(): string {
+    return this._loadedEventLog.value;
+  }
+
   set loadedEventLog(name: string) {
     this.eventLogChanged();
 
@@ -162,6 +169,10 @@ export class LogService {
     this._timeGranularity.next(value);
   }
 
+  public get timeGranularity() {
+    return this._timeGranularity.getValue();
+  }
+
   private _startActivitiesInEventLog = new BehaviorSubject<Set<string>>(
     new Set()
   );
@@ -230,6 +241,7 @@ export class LogService {
     this.performanceInfoAvailable = true;
     this.timeGranularity = res['timeGranularity'];
     this.logGranularity = res['timeGranularity'];
+    this.logModifications = [];
   }
 }
 

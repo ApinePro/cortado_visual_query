@@ -63,7 +63,9 @@ export class HttpRequestInterceptor implements HttpInterceptor {
         error.url?.endsWith('calculateAlignmentsCVariant')) ||
       // info requests are made to show the backend state in the footer; therefore, we do not want to show the error dialog
       error.url?.endsWith('/info') ||
-      error.url?.endsWith('resetLogCache')
+      error.url?.endsWith('resetLogCache') ||
+      // ignore FileNotFoundError while loading EventLog because of handling in caller
+      (error.status == 404 && error.url?.endsWith('/loadEventLog'))
     );
   }
 
