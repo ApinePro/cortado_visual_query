@@ -960,7 +960,12 @@ export class VariantExplorerComponent
   }
 
   sort(sortingFeature: string): void {
-    // undefined is the key of the default cluster (when no clustering was applied)
+    this.sortingFeature = sortingFeature;
+    // undefined and null are the keys of the default cluster (when no clustering was applied)
+    this.clusterSortSettings['null'] = {
+      feature: sortingFeature,
+      isAscendingOrder: this.isAscendingOrder,
+    };
     this.clusterSortSettings['undefined'] = {
       feature: sortingFeature,
       isAscendingOrder: this.isAscendingOrder,
