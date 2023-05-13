@@ -663,6 +663,8 @@
                 <app-search
                   class="cluster-app-search"
                   (sortEvent)="handleClusterSort($event, cluster.key)"
+                  [isAscendingOrder]="clusterSortSettings[i]?.isAscendingOrder"
+                  [sortingFeature]="clusterSortSettings[i]?.feature"
                 ></app-search>
               </div>
 

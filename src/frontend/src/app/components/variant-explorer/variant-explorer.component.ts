@@ -974,6 +974,10 @@ export class VariantExplorerComponent
     this.updateAllSubvariantWindows();
     // to avoid expression changed after checked error
     this.changeDetectorRef.detectChanges();
+
+    if (this.variantService.clusteringConfig) {
+      this.sortAllClusters(sortingFeature);
+    }
   }
 
   onSortOrderChanged(isAscending: boolean): void {
@@ -1073,6 +1077,28 @@ export class VariantExplorerComponent
     this.updateAllSubvariantWindows();
     // detect changes manually to avoid expression changed after checked
     this.changeDetectorRef.detectChanges();
+  }
+
+  sortAllClusters(sortingFeature: string) {
+    const numOfClusters = Math.max(
+      ...this.displayed_variants.map((o) => o.clusterId)
+    );
+
+    for (let i = 0; i <= numOfClusters; i++) {
+      this.clusterSortSettings[i] = {
+        feature: sortingFeature,
+        isAscendingOrder: this.isAscendingOrder,
+      };
+    }
+
+    this.clusterSortSettings['null'] = {
+      feature: sortingFeature,
+      isAscendingOrder: this.isAscendingOrder,
+    };
+    this.clusterSortSettings['undefined'] = {
+      feature: sortingFeature,
+      isAscendingOrder: this.isAscendingOrder,
+    };
   }
 
   showTiebreakerDialog() {
