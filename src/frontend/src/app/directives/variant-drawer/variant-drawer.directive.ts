@@ -45,6 +45,8 @@ import { ConformanceCheckingService } from 'src/app/services/conformanceChecking
 export class VariantDrawerDirective
   implements AfterViewInit, OnChanges, OnDestroy
 {
+  private activityTooltipReference;
+
   setExpanded(expanded: boolean) {
     this.variant.variant.setExpanded(expanded);
     this.variant.alignment?.setExpanded(expanded);
@@ -690,13 +692,6 @@ export class VariantDrawerDirective
       this.addInfixSelectionAttributes(element, polygon, true);
     }
 
-    if (this.onClickCbFc) {
-      parent.on('click', (e: PointerEvent) => {
-        this.onClickCbFc(this, element, this.variant);
-        e.stopPropagation();
-      });
-    }
-
     const textcolor = textColorForBackgroundColor(
       color,
       this.traceInfixSelectionMode && !element.selected
@@ -757,6 +752,22 @@ export class VariantDrawerDirective
       activityText
         .attr('title', element.activity.join(';'))
         .attr('data-bs-toggle', 'tooltip');
+      // manually trigger tooltip through jquery
+      activityText.on('mouseenter', (e: PointerEvent, data) => {
+        // @ts-ignore
+        $(e.target).tooltip('show');
+        // @ts-ignore
+        this.activityTooltipReference = $(e.target);
+      });
+    }
+
+    if (this.onClickCbFc) {
+      parent.on('click', (e: PointerEvent) => {
+        this.onClickCbFc(this, element, this.variant);
+        // @ts-ignore
+        this.activityTooltipReference.tooltip('hide');
+        e.stopPropagation();
+      });
     }
 
     if (this.onMouseOverCbFc) {

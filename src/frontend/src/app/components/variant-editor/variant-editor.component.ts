@@ -166,6 +166,8 @@ export class VariantEditorComponent
 
   handleRedraw(selection: Selection<any, any, any, any>) {
     selection.selectAll('g').on('click', function (event, d) {
+      // @ts-ignore
+      $(e.target).tooltip('hide');
       event.stopPropagation();
       const select = d3.select(this as SVGElement);
       toogleSelect(select);

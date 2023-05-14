@@ -576,6 +576,12 @@ export class BpmnDrawerDirective {
           </div>`;
       })
       .attr('data-bs-html', true);
+
+    // manually trigger tooltip through jquery
+    node.on('mouseenter', (e: PointerEvent, data) => {
+      // @ts-ignore
+      $(e.target).tooltip('show');
+    });
   }
 
   drawSequenceBlock(

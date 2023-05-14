@@ -68,6 +68,7 @@ export class ProcessTreeDrawerDirective {
       .attr('id', function (d) {
         return d.data.id;
       })
+      .classed('cursor-pointer', true)
       .attr('data-bs-toggle', 'tooltip')
       .attr('data-bs-placement', 'top')
       .attr('data-bs-title', (d) => this.tooltipText(d))
@@ -91,6 +92,12 @@ export class ProcessTreeDrawerDirective {
             </div>`;
       })
       .attr('data-bs-html', true);
+
+    // manually trigger tooltip through jquery
+    this.nodeEnter.on('mouseenter', (e: PointerEvent, data) => {
+      // @ts-ignore
+      $(e.target).tooltip('show');
+    });
 
     // add nodes
     this.nodeEnter
