@@ -69,7 +69,6 @@ import { FilterOptionsComponent } from './components/variant-miner/filter-option
 import { ResizeableTableHeaderComponent } from './components/resizeable-table-header/resizeable-table-header.component';
 import { ResizeColumnDirective } from './directives/resize-column.directive';
 import { VariantDeleteButtonComponent } from './components/variant-explorer/variant/subcomponents/variant-delete-button/variant-delete-button.component';
-import { ELECTRON_SERVICE } from './tokens';
 import { ElectronService } from './services/electronService/electron.service';
 import { UnavailableInfoComponent } from './components/unavailable-info/unavailable-info.component';
 import { ConformanceTabComponent } from './components/conformance-tab/conformance-tab.component';
@@ -86,6 +85,7 @@ import { ClusteringSettingsDialogComponent } from './components/variant-explorer
 import { SearchComponent } from './components/variant-explorer/search/search.component';
 import { GroupByPipe } from './pipes/group-by.pipe';
 import { VariantSortPipe } from './pipes/variant-sort.pipe';
+import { electronServiceFactory } from './dependency-factories';
 
 @NgModule({
   declarations: [
@@ -186,7 +186,7 @@ import { VariantSortPipe } from './pipes/variant-sort.pipe';
       deps: [InitService],
       multi: true,
     },
-    { provide: ELECTRON_SERVICE, useClass: ElectronService },
+    { provide: ElectronService, useFactory: electronServiceFactory },
     GoldenLayoutComponentService,
     DecimalPipe,
   ],

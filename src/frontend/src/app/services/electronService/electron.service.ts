@@ -4,11 +4,11 @@ import { ProjectService } from '../projectService/project.service';
 import { Subject } from 'rxjs';
 
 @Injectable()
-export class ElectronService implements ElectronServiceInterface {
+export class ElectronService {
   private electronApi = (<any>window).electronAPI;
 
-  public checkUnsavedChanges$ = new Subject();
-  public saveProject$ = new Subject();
+  public checkUnsavedChanges$ = new Subject<any>();
+  public saveProject$ = new Subject<any>();
 
   constructor() {
     this.electronApi?.onCheckUnsavedChanges((event, value) =>
@@ -38,17 +38,4 @@ export class ElectronService implements ElectronServiceInterface {
       title
     );
   }
-}
-
-export interface ElectronServiceInterface {
-  checkUnsavedChanges$: Subject<any>;
-  saveProject$: Subject<any>;
-
-  showSaveDialog(
-    fileName: string,
-    fileExtension: string,
-    blob: Blob,
-    buttonLabel: string,
-    title: string
-  ): Promise<string>;
 }

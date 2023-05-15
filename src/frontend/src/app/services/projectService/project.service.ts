@@ -1,7 +1,6 @@
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, Optional } from '@angular/core';
 import { ProcessTreeService } from '../processTreeService/process-tree.service';
-import { ElectronServiceInterface } from '../electronService/electron.service';
-import { ELECTRON_SERVICE } from 'src/app/tokens';
+import { ElectronService } from '../electronService/electron.service';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import {
   Transform,
@@ -46,7 +45,8 @@ export class ProjectService {
     private variantFilterService: VariantFilterService,
     private variantQueryService: VariantQueryService,
     private backendService: BackendService,
-    @Inject(ELECTRON_SERVICE) private electronService: ElectronServiceInterface
+    @Optional()
+    private electronService: ElectronService
   ) {
     this.variantService.variants$.pipe(take(2)).subscribe((variants) => {
       const project = this.currentProject;
@@ -55,11 +55,11 @@ export class ProjectService {
       });
     });
 
-    this.electronService.checkUnsavedChanges$.subscribe((sender) =>
+    this.electronService?.checkUnsavedChanges$.subscribe((sender) =>
       sender.send('unsaved-changes', this.unsavedChanges)
     );
 
-    this.electronService.saveProject$.subscribe((sender) =>
+    this.electronService?.saveProject$.subscribe((sender) =>
       this.saveProject().then((filePath) => {
         if (filePath) sender.send('quit');
       })
