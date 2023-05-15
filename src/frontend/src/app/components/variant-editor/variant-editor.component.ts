@@ -165,7 +165,7 @@ export class VariantEditorComponent
   ): void {}
 
   handleRedraw(selection: Selection<any, any, any, any>) {
-    selection.selectAll('g').on('click', function(event, d) {
+    selection.selectAll('g').on('click', function (event, d) {
       event.stopPropagation();
       const select = d3.select(this as SVGElement);
       toogleSelect(select);
