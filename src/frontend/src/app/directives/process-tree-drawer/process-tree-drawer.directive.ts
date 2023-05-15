@@ -10,6 +10,7 @@ import { flextree } from 'd3-flextree';
 import * as d3 from 'd3';
 import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
 import { ViewMode } from 'src/app/objects/ViewMode';
+import { VariantService } from '../../services/variantService/variant.service';
 
 @Directive({
   selector: '[appProcessTreeDrawer]',
@@ -26,7 +27,8 @@ export class ProcessTreeDrawerDirective {
   constructor(
     elRef: ElementRef,
     private processTreeService: ProcessTreeService,
-    private modelViewModeService: ModelViewModeService
+    private modelViewModeService: ModelViewModeService,
+    private variantService: VariantService
   ) {
     this.mainSvgGroup = d3.select(elRef.nativeElement);
   }
@@ -96,7 +98,8 @@ export class ProcessTreeDrawerDirective {
     // manually trigger tooltip through jquery
     this.nodeEnter.on('mouseenter', (e: PointerEvent, data) => {
       // @ts-ignore
-      $(e.target).tooltip('show');
+      this.variantService.activityTooltipReference = $(e.target);
+      this.variantService.activityTooltipReference.tooltip('show');
     });
 
     // add nodes

@@ -595,6 +595,10 @@ export class ProcessTreeEditorComponent
   }
 
   selectNodeCallBack = (self, event, d) => {
+    // hide the tooltip
+    if (self.variantService.activityTooltipReference) {
+      self.variantService.activityTooltipReference.tooltip('hide');
+    }
     this.pushIDtoService(self, d),
       (this.processTreeService.selectedTree = ProcessTree.fromObj(d.data));
   };

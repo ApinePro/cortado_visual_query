@@ -182,6 +182,11 @@ export class BpmnEditorComponent
   }
 
   selectNodeCallBack = (self, event: PointerEvent, d) => {
+    // hide the tooltip
+    if (self.variantService.activityTooltipReference) {
+      self.variantService.activityTooltipReference.tooltip('hide');
+    }
+
     event.stopPropagation();
     event.preventDefault();
 

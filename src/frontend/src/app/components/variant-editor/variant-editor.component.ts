@@ -165,9 +165,7 @@ export class VariantEditorComponent
   ): void {}
 
   handleRedraw(selection: Selection<any, any, any, any>) {
-    selection.selectAll('g').on('click', function (event, d) {
-      // @ts-ignore
-      $(e.target).tooltip('hide');
+    selection.selectAll('g').on('click', function(event, d) {
       event.stopPropagation();
       const select = d3.select(this as SVGElement);
       toogleSelect(select);
@@ -247,6 +245,11 @@ export class VariantEditorComponent
     if (!this.multipleSelected && (this.selectedElement || this.emptyVariant)) {
       const leaf = new LeafNode([event.activityName]);
       this.newLeaf = leaf;
+
+      // hide tooltip
+      if (this.variantService.activityTooltipReference) {
+        this.variantService.activityTooltipReference.tooltip('hide');
+      }
 
       if (this.emptyVariant) {
         const variantGroup = new SequenceGroup([leaf]);

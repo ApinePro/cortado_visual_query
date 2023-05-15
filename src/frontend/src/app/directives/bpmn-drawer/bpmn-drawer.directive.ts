@@ -12,6 +12,7 @@ import {
 } from 'src/app/objects/BPMN/block-structured-bpmn';
 import { BPMN_Constant } from 'src/app/constants/bpmn_model_drawer_constants';
 import { ProcessTreeOperator } from 'src/app/objects/ProcessTree/ProcessTree';
+import { VariantService } from '../../services/variantService/variant.service';
 @Directive({
   selector: '[appBpmnDrawer]',
 })
@@ -36,7 +37,8 @@ export class BpmnDrawerDirective {
 
   constructor(
     elRef: ElementRef,
-    private processTreeService: ProcessTreeService
+    private processTreeService: ProcessTreeService,
+    private variantService: VariantService
   ) {
     this.mainGroup = d3.select(elRef.nativeElement);
   }
@@ -580,7 +582,8 @@ export class BpmnDrawerDirective {
     // manually trigger tooltip through jquery
     node.on('mouseenter', (e: PointerEvent, data) => {
       // @ts-ignore
-      $(e.target).tooltip('show');
+      this.variantService.activityTooltipReference = $(e.target);
+      this.variantService.activityTooltipReference.tooltip('show');
     });
   }
 
