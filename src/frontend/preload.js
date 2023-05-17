@@ -6,6 +6,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   requestRestart: () => ipcRenderer.send('restartBackend'),
   showSaveDialog: (fileName, fileExtension, base64File, buttonLabel, title) =>
     ipcRenderer.invoke('showSaveDialog', fileName, fileExtension, base64File, buttonLabel, title),
+  saveToUserFolder: (fileName, fileExtension, base64File) =>
+    ipcRenderer.send("saveToUserFolder", fileName, fileExtension, base64File),
+  readFromUserFolder: (fileName, fileExtension) =>
+    ipcRenderer.invoke("readFromUserFolder", fileName, fileExtension),
   onSaveProject: (callback) => ipcRenderer.on('save-project', callback),
   onCheckUnsavedChanges: (callback) => ipcRenderer.on('check-unsaved-changes', callback)
 

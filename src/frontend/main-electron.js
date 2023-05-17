@@ -1,6 +1,10 @@
 const {app, BrowserWindow, dialog, ipcMain} = require('electron')
 var fs = require('fs');
-const { showSaveDialog } = require("./util");
+const {
+  showSaveDialog,
+  saveToUserFolder,
+  readFromUserFolder,
+} = require("./util");
 const nativeImage = require('electron').nativeImage
 const url = require("url");
 const path = require("path");
@@ -196,6 +200,14 @@ ipcMain.on("unsaved-changes", async (_event, res) => {
     }
   }
 })
+
+ipcMain.on("saveToUserFolder", (_, fileName, fileExtension, data) =>
+  saveToUserFolder(app.getPath("userData"), fileName, fileExtension, data)
+);
+
+ipcMain.handle("readFromUserFolder", (_, fileName, fileExtension) =>
+  readFromUserFolder(app.getPath("userData"), fileName, fileExtension)
+);
 
 ipcMain.on("quit", ()=>{
   mainCortadoWin.destroy();

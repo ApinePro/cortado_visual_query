@@ -38,4 +38,19 @@ export class ElectronService {
       title
     );
   }
+
+  public saveToUserFolder(
+    fileName: string,
+    fileExtension: string,
+    data: string
+  ): Promise<undefined> {
+    return this.electronApi.saveToUserFolder(fileName, fileExtension, data);
+  }
+
+  public readFromUserFolder(
+    fileName: string,
+    fileExtension: string
+  ): Promise<string> {
+    return this.electronApi.readFromUserFolder(fileName, fileExtension);
+  }
 }
