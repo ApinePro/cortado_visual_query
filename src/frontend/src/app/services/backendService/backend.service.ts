@@ -78,7 +78,10 @@ export class BackendService {
     formData.append('file', file);
 
     this.httpClient
-      .post(ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'loadEventLogFromFile', formData)
+      .post(
+        ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'loadEventLogFromFile',
+        formData
+      )
       .pipe(mapVariants())
       .subscribe((res) => {
         this.logService.processEventLog(res, file['path']);
@@ -88,7 +91,9 @@ export class BackendService {
   loadProcessTreeFromFilePath(filePath: string): void {
     this.httpClient
       .post(
-        ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'loadProcessTreeFromPtmlFilePath',
+        ROUTES.HTTP_BASE_URL +
+          ROUTES.IMPORT +
+          'loadProcessTreeFromPtmlFilePath',
         {
           file_path: filePath,
         }
