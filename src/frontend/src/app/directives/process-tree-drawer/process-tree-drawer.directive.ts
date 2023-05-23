@@ -51,15 +51,12 @@ export class ProcessTreeDrawerDirective {
         // @ts-ignore
         return d.children;
       });
-      // add activities in the tree to nodeWidthCache in processTreeService
-      this.processTreeService.updateNodeWidthCache(
-        tree.extractActivityLabelsFromTree()
-      );
     } else {
       this.root = null;
     }
 
-    this.update(this.root);
+    // synchronization between update of node width cache and process tree rendering
+    setTimeout(() => this.update(this.root), 0);
   }
 
   drawNodes(node: d3.Selection<any, any, any, any>) {

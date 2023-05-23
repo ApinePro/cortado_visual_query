@@ -226,19 +226,19 @@ export class ProcessTreeService {
     this._currentDisplayedProcessTree.next(tree);
   }
 
-  updateNodeWidthCache(newActivities) {
-    this.nodeWidthCache = computeLeafNodeWidth(
-      newActivities,
-      this.nodeWidthCache
-    );
-  }
-
   public set_currentDisplayedProcessTree_with_Cache(tree: any) {
     if (tree && !(tree instanceof ProcessTree)) {
       tree = ProcessTree.fromObj(tree);
     }
     this._currentDisplayedProcessTree.next(tree);
     this.activitiesInCurrentTree = getSetOfActivitiesInProcessTree(tree);
+
+    // add activities in the tree to nodeWidthCache in processTreeService
+    this.nodeWidthCache = computeLeafNodeWidth(
+      Array.from(this.activitiesInCurrentTree),
+      this.nodeWidthCache
+    );
+
     this.cacheCurrentTree(tree);
   }
 
