@@ -96,7 +96,9 @@ export class DropZoneComponent extends DropZoneDirective implements OnInit {
                 break;
 
               case '.ptml':
-                this.backendService.loadProcessTreeFromFilePath(file['path']);
+                !environment.electron
+                  ? this.backendService.loadProcessTreeFromFile(file)
+                  : this.backendService.loadProcessTreeFromFilePath(file['path']);
                 break;
               default:
                 break;

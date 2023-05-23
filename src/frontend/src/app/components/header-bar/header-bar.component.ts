@@ -81,7 +81,11 @@ export class HeaderBarComponent implements OnDestroy {
   handleSelectedProcessTreeFile(e): void {
     const fileList: FileList = e.target.files;
     if (fileList.length > 0) {
-      this.backendService.loadProcessTreeFromFilePath(fileList[0]['path']);
+      if (environment.electron) {
+        this.backendService.loadProcessTreeFromFilePath(fileList[0]['path']);
+      } else {
+        this.backendService.loadProcessTreeFromFile(fileList[0]);
+      }
     }
     this.fileUploadProcessTree.nativeElement.value = '';
   }

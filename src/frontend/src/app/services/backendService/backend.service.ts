@@ -55,7 +55,7 @@ export class BackendService {
 
   loadEventLogFromFilePath(filePath: string): Observable<any> {
     return this.httpClient
-      .post(ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'loadEventLog', {
+      .post(ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'loadEventLogFromFilePath', {
         file_path: filePath,
       })
       .pipe(
@@ -78,7 +78,7 @@ export class BackendService {
     formData.append('file', file);
 
     this.httpClient
-      .post(ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'uploadfile', formData)
+      .post(ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'loadEventLogFromFile', formData)
       .pipe(mapVariants())
       .subscribe((res) => {
         this.logService.processEventLog(res, file['path']);
@@ -88,10 +88,26 @@ export class BackendService {
   loadProcessTreeFromFilePath(filePath: string): void {
     this.httpClient
       .post(
-        ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'loadProcessTreeFromPtmlFile',
+        ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'loadProcessTreeFromPtmlFilePath',
         {
           file_path: filePath,
         }
+      )
+      .subscribe((tree) => {
+        this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
+          tree
+        );
+      });
+  }
+
+  loadProcessTreeFromFile(file: File) {
+    let formData = new FormData();
+    formData.append('file', file);
+
+    this.httpClient
+      .post(
+        ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'loadProcessTreeFromPtmlFile',
+        formData
       )
       .subscribe((tree) => {
         this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
