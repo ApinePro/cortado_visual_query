@@ -110,18 +110,6 @@ export class ProcessTree {
     }
   }
 
-  extractActivityLabelsFromTree() {
-    if (this.operator) {
-      return `${this.children.map((n) => n.extractActivityLabelsFromTree())}`
-        .split(',')
-        .filter((elm) => elm);
-    } else {
-      if (this.label !== ProcessTreeOperator.tau) {
-        return this.label;
-      }
-    }
-  }
-
   public hasPerformance() {
     return (
       this.performance?.service_time ||
