@@ -213,6 +213,13 @@ export class VariantMinerComponent
 
   openContextCallback = contextMenuCallback.bind(this);
 
+  onClickCbFc() {
+    // hide tooltip
+    if (this.variantService.activityTooltipReference) {
+      this.variantService.activityTooltipReference.tooltip('hide');
+    }
+  }
+
   exportSVG = function () {
     let svgs: SVGGraphicsElement[] = [];
     let state: boolean[] = [];
