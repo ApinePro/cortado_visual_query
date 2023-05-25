@@ -278,8 +278,20 @@ thead {
   margin: 0px 0px 4px 4px;
 }
 
+.cluster-badge{
+  width: 110%;
+}
+
 .cluster-app-search{
-  margin-top: 2px;
+  margin: 2px 0px 0px auto;
+}
+
+.cluster-badge-text-variants{
+  margin-left: 11%;
+}
+
+.cluster-badge-text-traces{
+  margin-left: auto;
 }
 
 .button-blue {
