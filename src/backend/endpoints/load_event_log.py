@@ -110,6 +110,7 @@ def variants_to_variant_objects(variants, time_granularity, total_traces, info_g
 def create_variant_object(time_granularity, total_traces, bid, v, ts, info: VariantInformation):
     sub_variants = create_subvariants(ts, time_granularity)
 
+    # Default value of clusterId in a variant = -1
     variant = {
         "count": len(ts),
         "variant": v.serialize(),
@@ -120,7 +121,7 @@ def create_variant_object(time_granularity, total_traces, bid, v, ts, info: Vari
         "nSubVariants": len(sub_variants.keys()),
         "userDefined": info.is_user_defined,
         "infixType": info.infix_type.value,
-        "clusterId": None
+        "clusterId": -1
     }
 
     # If the variant is only a single activity leaf, wrap it up as a sequence

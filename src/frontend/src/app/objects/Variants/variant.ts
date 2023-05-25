@@ -49,7 +49,7 @@ export class Variant implements IVariant {
   infixType: InfixType;
   fragmentStatistics: FragmentStatistics;
   collapsedVariantId: string;
-  clusterId: number; // id of the cluster to which the variant belongs
+  clusterId: number; // id of the cluster to which the variant belongs to, default value (no clustering) = -1
 
   constructor(
     count: number,
@@ -64,7 +64,7 @@ export class Variant implements IVariant {
     isConformanceOutdated: boolean,
     nSubVariants: number,
     infixType: InfixType = InfixType.NOT_AN_INFIX,
-    clusterId?: number
+    clusterId: number = -1
   ) {
     this.count = count;
     this.variant = variant;
