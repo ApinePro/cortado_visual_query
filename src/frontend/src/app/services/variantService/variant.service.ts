@@ -45,6 +45,16 @@ import {
 export class VariantService {
   variantService: any;
   nameChanges: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+
+  // reference for activity element to manually hide tooltips on activities upon click
+  private _activityTooltipReference;
+  get activityTooltipReference() {
+    return this._activityTooltipReference;
+  }
+  set activityTooltipReference(value) {
+    this._activityTooltipReference = value;
+  }
+
   constructor(
     private logService: LogService,
     private processTreeService: ProcessTreeService,

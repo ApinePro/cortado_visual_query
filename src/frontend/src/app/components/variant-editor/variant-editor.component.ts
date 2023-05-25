@@ -246,6 +246,11 @@ export class VariantEditorComponent
       const leaf = new LeafNode([event.activityName]);
       this.newLeaf = leaf;
 
+      // hide tooltip
+      if (this.variantService.activityTooltipReference) {
+        this.variantService.activityTooltipReference.tooltip('hide');
+      }
+
       if (this.emptyVariant) {
         const variantGroup = new SequenceGroup([leaf]);
         variantGroup.setExpanded(true);

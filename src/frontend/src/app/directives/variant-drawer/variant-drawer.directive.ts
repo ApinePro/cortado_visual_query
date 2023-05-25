@@ -37,6 +37,7 @@ import { takeUntil } from 'rxjs/operators';
 import { IVariant } from 'src/app/objects/Variants/variant_interface';
 import { threadId } from 'worker_threads';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
+import { VariantService } from '../../services/variantService/variant.service';
 
 @Directive({
   selector: '[appVariantDrawer]',
@@ -56,7 +57,8 @@ export class VariantDrawerDirective
     private polygonService: PolygonGeneratorService,
     private sharedDataService: SharedDataService,
     private variantViewModeService: VariantViewModeService,
-    private conformanceCheckingService: ConformanceCheckingService
+    private conformanceCheckingService: ConformanceCheckingService,
+    private variantService: VariantService
   ) {
     this.svgHtmlElement = elRef;
   }
@@ -690,13 +692,6 @@ export class VariantDrawerDirective
       this.addInfixSelectionAttributes(element, polygon, true);
     }
 
-    if (this.onClickCbFc) {
-      parent.on('click', (e: PointerEvent) => {
-        this.onClickCbFc(this, element, this.variant);
-        e.stopPropagation();
-      });
-    }
-
     const textcolor = textColorForBackgroundColor(
       color,
       this.traceInfixSelectionMode && !element.selected
@@ -757,6 +752,23 @@ export class VariantDrawerDirective
       activityText
         .attr('title', element.activity.join(';'))
         .attr('data-bs-toggle', 'tooltip');
+      // manually trigger tooltip through jquery
+      activityText.on('mouseenter', (e: PointerEvent, data) => {
+        // @ts-ignore
+        this.variantService.activityTooltipReference = $(e.target);
+        this.variantService.activityTooltipReference.tooltip('show');
+      });
+    }
+
+    if (this.onClickCbFc) {
+      parent.on('click', (e: PointerEvent) => {
+        this.onClickCbFc(this, element, this.variant);
+        // hide the tooltip
+        if (this.variantService.activityTooltipReference) {
+          this.variantService.activityTooltipReference.tooltip('hide');
+        }
+        e.stopPropagation();
+      });
     }
 
     if (this.onMouseOverCbFc) {
