@@ -667,15 +667,14 @@
               >
                 <span
                   *ngIf="cluster.value.length > 1"
-                  class="text-nowrap cluster-badge-text-secondary cluster-badge-text-variants"
-                  >({{ cluster.value.length }} variants -</span
+                  class="text-nowrap cluster-badge-text-secondary"
+                  >({{ cluster.value.length }} variants |&nbsp;</span
                 >
                 <span
                   *ngIf="cluster.value.length === 1"
-                  class="text-nowrap cluster-badge-text-secondary cluster-badge-text-variants"
-                  >({{ cluster.value.length }} variant -</span
+                  class="text-nowrap cluster-badge-text-secondary"
+                  >({{ cluster.value.length }} variant |&nbsp;</span
                 >
-
                 <span class="text-nowrap cluster-badge-text-secondary"
                   >{{
                     calculateTotalTracesInCluster(cluster.value) | number
