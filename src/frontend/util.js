@@ -1,3 +1,5 @@
+const fsPromise = require("node:fs/promises");
+
 function decodeBase64Image(dataString) {
   var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
     response = {};
@@ -65,4 +67,24 @@ async function showSaveDialog(
   return canceled ? undefined : filePath
 }
 
-module.exports = { decodeBase64Image, fixPath, showSaveDialog };
+function saveToUserFolder(userFolderPath, fileName, fileExtension, data) {
+  return fsPromise.writeFile(
+    `${userFolderPath}/${fileName}.${fileExtension}`,
+    data
+  );
+}
+
+function readFromUserFolder(userFolderPath, fileName, fileExtension) {
+  return fsPromise.readFile(
+    `${userFolderPath}/${fileName}.${fileExtension}`,
+    "utf8"
+  );
+}
+
+module.exports = {
+  decodeBase64Image,
+  fixPath,
+  showSaveDialog,
+  saveToUserFolder,
+  readFromUserFolder,
+};

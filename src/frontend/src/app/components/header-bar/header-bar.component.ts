@@ -309,7 +309,7 @@ export class HeaderBarComponent implements OnDestroy {
   handleSelectedProjectFile(e): void {
     const fileList: FileList = e.target.files;
     if (fileList.length > 0) {
-      this.projectService.loadProject(fileList[0]);
+      this.projectService.loadProjectFromFile(fileList[0]);
     }
     // reset form
     this.fileUploadProject.nativeElement.value = '';
