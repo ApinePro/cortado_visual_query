@@ -302,7 +302,7 @@ export class ProcessTreeService {
     ) {
       this.treeCacheIndex--;
 
-      let treeToLoad = this.previousTreeObjects[this.treeCacheIndex];
+      let treeToLoad = this.previousTreeObjects[this.treeCacheIndex].copy();
 
       this.selectedRootNodeID = null;
       this.currentDisplayedProcessTree = treeToLoad;
@@ -312,7 +312,7 @@ export class ProcessTreeService {
   redo() {
     if (this.treeCacheIndex < this.previousTreeObjects.length - 1) {
       this.treeCacheIndex++;
-      let treeToLoad = this.previousTreeObjects[this.treeCacheIndex];
+      let treeToLoad = this.previousTreeObjects[this.treeCacheIndex].copy();
 
       this.selectedRootNodeID = null;
 
@@ -366,7 +366,7 @@ export class ProcessTreeService {
   }
 
   deleteSelected(tree_to_delete: ProcessTree) {
-    this.cacheCurrentTree(this.currentDisplayedProcessTree);
+    // this.cacheCurrentTree(this.currentDisplayedProcessTree);
     const newTree = this.currentDisplayedProcessTree;
 
     if (this.currentDisplayedProcessTree === tree_to_delete) {
