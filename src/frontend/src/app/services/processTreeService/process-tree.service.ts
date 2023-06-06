@@ -386,7 +386,7 @@ export class ProcessTreeService {
     operator: ProcessTreeOperator,
     label: string
   ) {
-    let newNode: ProcessTree = createNewRandomNode(label, operator);
+    const newNode: ProcessTree = createNewRandomNode(label, operator);
 
     if (this.currentDisplayedProcessTree) {
       insertNode(selectedNode, newNode, strat, operator, label);
@@ -395,8 +395,9 @@ export class ProcessTreeService {
         this.currentDisplayedProcessTree = newNode;
       }
       this.selectedRootNodeID = selectedNode.id;
-      this.cacheCurrentTree(this.currentDisplayedProcessTree);
-      this._currentDisplayedProcessTree.next(this.currentDisplayedProcessTree);
+      this.set_currentDisplayedProcessTree_with_Cache(
+        this.currentDisplayedProcessTree
+      );
     } else {
       // empty tree - just add a single node
       this.currentDisplayedProcessTree = newNode;
