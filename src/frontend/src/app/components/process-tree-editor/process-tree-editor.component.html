@@ -22,7 +22,6 @@
         aria-expanded="false"
         data-bs-auto-close="outside"
         id="addNodeDropdown"
-        (show.bs.dropdown)="checkNodeInsertionStrategy()"
         (mouseleave)="hideAllTooltips()"
       >
         <i class="bi bi-plus-square-fill btn-icon"></i>
@@ -65,7 +64,7 @@
 
           <div
             class="dropdown-item"
-            *ngIf="insertPositionBelowDisabled"
+            *ngIf="!insertPositionBelowDisabled"
             [ngClass]="
               nodeInsertionStrategy === NodeInsertionStrategy.BELOW
                 ? 'insertion-position-active'

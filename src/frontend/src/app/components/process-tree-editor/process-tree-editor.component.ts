@@ -110,7 +110,7 @@ export class ProcessTreeEditorComponent
   lastNodeInsertionStrategy: NodeInsertionStrategy;
 
   selectedRootNodeId: number;
-  selectedRootNode: d3.HierarchyNode<any>;
+  selectedRootNode: d3.HierarchyNode<ProcessTree>;
 
   // indicates if the entire subtree below the selectedRootNode is selected or only the single node
   selectedRootNodeOnly: boolean;
@@ -284,13 +284,7 @@ export class ProcessTreeEditorComponent
       this.selectSubtreeFromRoot(selectedRoot.node(), node);
       this.selectEdges();
 
-      this.insertPositionAboveDisabled = Boolean(
-        this.selectedRootNode.parent
-      ).valueOf();
-      this.insertPositionBelowDisabled = Boolean(
-        this.selectedRootNode.data.operator
-      ).valueOf();
-      this.checkNodeInsertionStrategy();
+      this.checkNodeInsertionStrategy(this.selectedRootNode.data);
     }
   }
 
@@ -784,7 +778,28 @@ export class ProcessTreeEditorComponent
     this.processEditorOutOfFocus = event;
   }
 
-  checkNodeInsertionStrategy() {
+  checkNodeInsertionStrategy(rootNode: ProcessTree) {
+    this.insertPositionLeftRightDisabled = false;
+
+    // Disable insertions above on non-root nodes
+    this.insertPositionAboveDisabled = rootNode.parent != null;
+    // Disable insertions below non-operator nodes, i.e. activities
+    this.insertPositionBelowDisabled = rootNode.operator == null;
+    // Disable insertions left/right of root node
+    if (rootNode.parent == null) this.insertPositionLeftRightDisabled = true;
+    // Disable insertions left/right of child from loop node that already has 2 childs
+    if (
+      rootNode.parent?.operator === ProcessTreeOperator.loop &&
+      rootNode.parent?.children.length === 2
+    )
+      this.insertPositionLeftRightDisabled = true;
+    // Disable insertions below redo node that has 2 childs
+    if (
+      rootNode.operator === ProcessTreeOperator.loop &&
+      rootNode.children.length === 2
+    )
+      this.insertPositionBelowDisabled = true;
+
     switch (this.nodeInsertionStrategy) {
       case NodeInsertionStrategy.ABOVE:
         if (this.insertPositionAboveDisabled)
