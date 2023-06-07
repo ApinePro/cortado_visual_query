@@ -376,7 +376,7 @@ export class VariantExplorerComponent
         )
       )
       .subscribe((tree) => {
-        this.currentlyDisplayedProcessTree = tree;
+        this.currentlyDisplayedProcessTree = tree?.copy();
 
         this.variants.forEach((variant) => {
           if (variant.usedTreeForConformanceChecking)
