@@ -1,8 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import * as d3 from 'd3';
 import { saveAs } from 'file-saver';
-import { ELECTRON_SERVICE } from 'src/app/tokens';
-import { ElectronServiceInterface } from '../electronService/electron.service';
+import { ElectronService } from '../electronService/electron.service';
 
 /***
 A service that recieves SVG elements from member components and provides conversion and saving functionality.
@@ -12,9 +11,7 @@ A service that recieves SVG elements from member components and provides convers
   providedIn: 'root',
 })
 export class ImageExportService {
-  constructor(
-    @Inject(ELECTRON_SERVICE) private electronService: ElectronServiceInterface
-  ) {}
+  constructor(private electronService: ElectronService) {}
 
   export(
     filename: string,
@@ -98,7 +95,7 @@ class SVG {
     return this.append(0, this.height, svgs);
   }
 
-  public store(filename: string, electronService: ElectronServiceInterface) {
+  public store(filename: string, electronService: ElectronService) {
     this.mainSVG.attr('height', this.height);
     this.mainSVG.attr('width', this.width);
 

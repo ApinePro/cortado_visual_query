@@ -13,8 +13,7 @@ import { ProcessTreeService } from './../processTreeService/process-tree.service
 import { VariantElement } from 'src/app/objects/Variants/variant_element';
 import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { MiningConfig } from 'src/app/objects/Variants/variant-miner-types';
-import { ElectronServiceInterface } from '../electronService/electron.service';
-import { ELECTRON_SERVICE } from 'src/app/tokens';
+import { ElectronService } from '../electronService/electron.service';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
 import { treeConformanceResult } from '../conformanceChecking/model';
 import { Variant } from 'src/app/objects/Variants/variant';
@@ -31,7 +30,7 @@ export class BackendService {
     private logService: LogService,
     private processTreeService: ProcessTreeService,
     private sharedDataService: SharedDataService,
-    @Inject(ELECTRON_SERVICE) private electronService: ElectronServiceInterface
+    private electronService: ElectronService
   ) {}
 
   exportEventLogFromLog(bids: number[]) {

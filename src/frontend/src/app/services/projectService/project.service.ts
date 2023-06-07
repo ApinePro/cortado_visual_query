@@ -1,7 +1,6 @@
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, Optional } from '@angular/core';
 import { ProcessTreeService } from '../processTreeService/process-tree.service';
-import { ElectronServiceInterface } from '../electronService/electron.service';
-import { ELECTRON_SERVICE } from 'src/app/tokens';
+import { ElectronService } from '../electronService/electron.service';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import {
   Transform,
@@ -35,6 +34,8 @@ import {
   UserDefinedVariantAddition,
   VariantsDeletion,
 } from 'src/app/objects/LogModification';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ContinueLastProjectDialogComponent } from 'src/app/components/dialogs/continue-last-project-dialog/continue-last-project-dialog.component';
 @Injectable({
   providedIn: 'root',
 })
@@ -46,24 +47,68 @@ export class ProjectService {
     private variantFilterService: VariantFilterService,
     private variantQueryService: VariantQueryService,
     private backendService: BackendService,
-    @Inject(ELECTRON_SERVICE) private electronService: ElectronServiceInterface
+    private modalService: NgbModal,
+    @Optional()
+    private electronService: ElectronService
   ) {
+    if (electronService) {
+      this.electronService
+        .readFromUserFolder('latest_project', 'json')
+        .then((lastProjectJson) => {
+          if (!lastProjectJson) {
+            this.getInitialProject();
+            return;
+          }
+
+          const lastProject = plainToInstance(
+            Project,
+            JSON.parse(lastProjectJson)
+          );
+
+          const modalRef = this.modalService.open(
+            ContinueLastProjectDialogComponent
+          );
+
+          modalRef.componentInstance.projectName = lastProject.eventlogPath
+            .split('/')
+            .pop();
+          modalRef.result.then(
+            () => {
+              // on confirmation
+              this.loadProject(lastProject);
+            },
+            () => {
+              // on dismiss
+              this.getInitialProject();
+            }
+          );
+        });
+
+      this.electronService.checkUnsavedChanges$.subscribe((sender) => {
+        // save already to default project on checking for changes
+        this.saveProject(false);
+
+        sender.send('unsaved-changes', this.unsavedChanges);
+      });
+
+      this.electronService.saveProject$.subscribe((sender) =>
+        this.saveProject().then((filePath) => {
+          if (filePath) sender.send('quit');
+        })
+      );
+    } else {
+      this.getInitialProject();
+    }
+  }
+
+  private getInitialProject() {
+    // wait for variants to be loaded
     this.variantService.variants$.pipe(take(2)).subscribe((variants) => {
       const project = this.currentProject;
       this.latestSavedProject = instanceToPlain(project, {
         enableCircularCheck: true,
       });
     });
-
-    this.electronService.checkUnsavedChanges$.subscribe((sender) =>
-      sender.send('unsaved-changes', this.unsavedChanges)
-    );
-
-    this.electronService.saveProject$.subscribe((sender) =>
-      this.saveProject().then((filePath) => {
-        if (filePath) sender.send('quit');
-      })
-    );
   }
 
   private latestSavedProject: Record<string, any>;
@@ -100,36 +145,44 @@ export class ProjectService {
     );
   }
 
-  public loadProject(file: File) {
+  public loadProjectFromFile(file: File) {
     const fileReader = new FileReader();
     fileReader.onload = (e) => {
-      this.latestSavedProject = JSON.parse(fileReader.result.toString());
-      const project = plainToInstance(Project, this.latestSavedProject);
-      let loadingLog: Observable<any>;
-
-      if (project.eventlogPath == 'preload') {
-        loadingLog = this.backendService.resetLogCache();
-      } else {
-        loadingLog = this.backendService.loadEventLogFromFilePath(
-          project.eventlogPath
-        );
-      }
-
-      loadingLog
-        .pipe(
-          mergeMap(() => this.replayLogModifications(project.logModifications)),
-          mergeMap(() =>
-            this.backendService.getLogPropsAndUpdateState(
-              project.timeGranularity,
-              project.eventlogPath
-            )
-          )
-        )
-        .subscribe(() => {
-          this.restoreProjectAfterLog(project);
-        });
+      const project = plainToInstance(
+        Project,
+        JSON.parse(fileReader.result.toString())
+      );
+      this.loadProject(project);
     };
     fileReader.readAsText(file);
+  }
+
+  public loadProject(project: Project) {
+    this.latestSavedProject = instanceToPlain(project);
+
+    let loadingLog: Observable<any>;
+
+    if (project.eventlogPath == 'preload') {
+      loadingLog = this.backendService.resetLogCache();
+    } else {
+      loadingLog = this.backendService.loadEventLogFromFilePath(
+        project.eventlogPath
+      );
+    }
+
+    loadingLog
+      .pipe(
+        mergeMap(() => this.replayLogModifications(project.logModifications)),
+        mergeMap(() =>
+          this.backendService.getLogPropsAndUpdateState(
+            project.timeGranularity,
+            project.eventlogPath
+          )
+        )
+      )
+      .subscribe(() => {
+        this.restoreProjectAfterLog(project);
+      });
   }
 
   private restoreProjectAfterLog(project: Project) {
@@ -184,27 +237,32 @@ export class ProjectService {
     );
   }
 
-  public async saveProject() {
-    const now = new Date();
-    const datepipe: DatePipe = new DatePipe('en-US');
-    const formattedDate = datepipe.transform(now, 'YYYY_MM_dd_HH_mm');
-
+  public async saveProject(askUserForPath: boolean = true) {
     const project = JSON.stringify(
       instanceToPlain(this.currentProject, {
         enableCircularCheck: true,
       })
     );
-    const filePath = await this.electronService.showSaveDialog(
-      `cortado_${
-        this.logService.loadedEventLog.split('.')[0]
-      }_${formattedDate}`,
-      'json',
-      new Blob([project]),
-      'Save project',
-      'Save Cortado Project'
-    );
-    if (filePath) this.latestSavedProject = JSON.parse(project);
-    return filePath;
+
+    if (askUserForPath) {
+      const now = new Date();
+      const datepipe: DatePipe = new DatePipe('en-US');
+      const formattedDate = datepipe.transform(now, 'YYYY_MM_dd_HH_mm');
+
+      const filePath = await this.electronService.showSaveDialog(
+        `cortado_${
+          this.logService.loadedEventLog.split('.')[0]
+        }_${formattedDate}`,
+        'json',
+        new Blob([project]),
+        'Save project',
+        'Save Cortado Project'
+      );
+      if (filePath) this.latestSavedProject = JSON.parse(project);
+      return filePath;
+    } else {
+      this.electronService.saveToUserFolder('latest_project', 'json', project);
+    }
   }
 }
 

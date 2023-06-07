@@ -3,7 +3,11 @@ var fs = require('fs');
 // const mainRemote = require("@electron/remote/main");
 const url = require("url");
 const path = require("path");
-const { showSaveDialog } = require("./util");
+const {
+  showSaveDialog,
+  saveToUserFolder,
+  readFromUserFolder,
+} = require("./util");
 const downloadFolder = app.getPath('downloads')
 
 let win;
@@ -115,6 +119,14 @@ ipcMain.on("unsaved-changes", async (_event, res) => {
     }
   }
 })
+
+ipcMain.on("saveToUserFolder", (_, fileName, fileExtension, data) =>
+  saveToUserFolder(app.getPath("userData"), fileName, fileExtension, data)
+);
+
+ipcMain.handle("readFromUserFolder", (_, fileName, fileExtension) =>
+  readFromUserFolder(app.getPath("userData"), fileName, fileExtension)
+);
 
 ipcMain.on("quit", ()=>{
   win.destroy();
