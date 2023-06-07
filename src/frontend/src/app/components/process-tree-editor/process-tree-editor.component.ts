@@ -599,6 +599,10 @@ export class ProcessTreeEditorComponent
     if (self.variantService.activityTooltipReference) {
       self.variantService.activityTooltipReference.tooltip('hide');
     }
+    // correct the selected node after undo
+    if (d && d.data && d.parent) {
+      d.data.parent = d.parent.data;
+    }
     this.pushIDtoService(self, d),
       (this.processTreeService.selectedTree = ProcessTree.fromObj(d.data));
   };
