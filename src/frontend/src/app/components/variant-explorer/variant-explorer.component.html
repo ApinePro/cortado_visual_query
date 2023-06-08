@@ -374,10 +374,13 @@
     </div>
 
     <span class="vl"></span>
+
     <button
       class="button"
       [ngClass]="{ 'button-blue': variantService.clusteringConfig }"
       ngbTooltip="Variant clustering settings"
+      triggers="hover"
+      container="body"
       (click)="openClusteringSettingsDialog()"
     >
       <i class="bi bi-grid-1x2"></i>

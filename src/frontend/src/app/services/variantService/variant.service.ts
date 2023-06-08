@@ -436,10 +436,17 @@ export class VariantService {
     );
     return this.backendService.addUserDefinedVariant(variant).pipe(
       tap(
-        (res) => console.log(res),
+        (res) => this.reapplyClustering(),
         (err) => console.log('error ' + err)
       )
     );
+  }
+
+  public reapplyClustering() {
+    if (this.clusteringConfig) {
+      // trigger new clustering
+      this.clusteringConfig = this.clusteringConfig;
+    }
   }
 
   public unCollapseLoopsInVariants() {

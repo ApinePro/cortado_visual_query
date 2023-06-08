@@ -5,14 +5,15 @@
   <button
     type="button"
     class="btn-close btn-close-white"
-    aria-describedby="modal-title"
     (click)="modal.dismiss('Cross click')"
+    aria-label="Close"
   ></button>
 </div>
+
 <div class="modal-body">
   <div class="d-flex flex-column">
     <div class="form-select-element">
-      <label class="input-label">Clustering Method: </label>
+      <label ngbAutofocus class="input-label">Clustering Method: </label>
       <select
         [(ngModel)]="selectedClusteringAlgorithm"
         class="form-select input-selector cursor-pointer"
@@ -59,7 +60,8 @@
     </div>
   </div>
 </div>
-<div class="modal-footer">
+
+<div class="modal-footer h-line-modal-top">
   <button
     type="button"
     class="button"
