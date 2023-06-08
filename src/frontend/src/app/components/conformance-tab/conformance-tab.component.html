@@ -154,16 +154,18 @@
     <div class="card-deck">
       <div class="card text-white mb-3 w-50">
         <div class="card-body">
-          <div>
-            <h5 class="card-title">Model Conformance</h5>
-            <div class="card-description">
-              The Model Conformance describes how many nodes contained in a
-              sub-tree are properly aligned for a set of variants. The method of
-              aggregation for multiple selected variants can be selected from
-              equal weights and weighted by the their log frequency.
-            </div>
-          </div>
-
+          <h5 class="card-title">
+            Model Conformance
+            <i
+              class="bi bi-question-circle-fill"
+              ngbTooltip="The Model Conformance describes how many nodes
+              contained in a sub-tree are properly aligned for a set of
+              variants. The method of aggregation for multiple selected variants
+              can be selected from equal weights and weighted by the their log
+              frequency."
+              container="body"
+            ></i>
+          </h5>
           <div class="mb-3">
             <select
               class="form-select form-select-sm"
@@ -194,14 +196,16 @@
       </div>
       <div class="card text-white mb-3 w-50">
         <div class="card-body">
-          <div>
-            <h5 class="card-title">Variant Conformance</h5>
-            <div class="card-description">
-              The Variant Conformance describes how often an activity is
-              properly aligned with the process model. Concurrent activties are
-              sequentialized to get aggregate values.
-            </div>
-          </div>
+          <h5 class="card-title">
+            Variant Conformance
+            <i
+              class="bi bi-question-circle-fill"
+              ngbTooltip="The Variant Conformance describes how often an 
+              activity is properly aligned with the process model. Concurrent
+              activties are sequentialized to get aggregate values."
+              container="body"
+            ></i>
+          </h5>
           <app-color-map
             [colorMapValues]="variantConformanceColorMapValues"
             [timeBasedLabel]="false"
