@@ -6,7 +6,6 @@ import * as objectHash from 'object-hash';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { map, mergeMap, tap, toArray } from 'rxjs/operators';
-import { mapVariants, mapVariantsList } from 'src/app/utils/util';
 import { v4 as uuidv4 } from 'uuid';
 import {
   getInfixTypeForSelectedInfix,
@@ -436,16 +435,18 @@ export class VariantService {
     );
     return this.backendService.addUserDefinedVariant(variant).pipe(
       tap(
-        (res) => this.reapplyClustering(),
+        (res) => this.processUserDefinedVariant(variant),
         (err) => console.log('error ' + err)
       )
     );
   }
 
-  public reapplyClustering() {
+  public processUserDefinedVariant(variant: Variant) {
     if (this.clusteringConfig) {
       // trigger new clustering
       this.clusteringConfig = this.clusteringConfig;
+    } else {
+      this.variants = this.variants;
     }
   }
 

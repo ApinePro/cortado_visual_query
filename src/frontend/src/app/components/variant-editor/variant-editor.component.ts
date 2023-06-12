@@ -604,8 +604,8 @@ export class VariantEditorComponent
   };
 
   addCurrentVariantToVariantList() {
-    let currentVariants = this.variantService.variants;
     const copyCurrent = cloneDeep(this.currentVariant);
+
     setParent(copyCurrent);
     copyCurrent.setExpanded(false);
 
@@ -631,14 +631,16 @@ export class VariantEditorComponent
     this.variantService.nUserVariants += 1;
     newVariant.bid = -this.variantService.nUserVariants;
 
-    const duplicate = currentVariants.map((v) => v.id === newVariant.id);
+    const duplicate = this.variantService.variants.map(
+      (v) => v.id === newVariant.id
+    );
 
     if (!duplicate.includes(true)) {
-      currentVariants.push(newVariant);
+      this.variantService.variants.push(newVariant);
+
       this.addStatistics(newVariant).subscribe(() => {
-        // set new variants list after adding statistics
-        this.variantService.variants = currentVariants;
       });
+
       this.variantService.addUserDefinedVariant(newVariant).subscribe();
     } else {
       this.redundancyWarning = true;
@@ -649,7 +651,7 @@ export class VariantEditorComponent
   }
 
   private addStatistics(newVariant: Variant): Observable<any> {
-    if (newVariant.infixType != InfixType.NOT_AN_INFIX) {
+    if (newVariant.infixType !== InfixType.NOT_AN_INFIX) {
       return this.backendService.countFragmentOccurrences(newVariant).pipe(
         tap((statistics) => {
           newVariant.fragmentStatistics = statistics;
