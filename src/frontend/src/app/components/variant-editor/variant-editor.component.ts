@@ -631,23 +631,19 @@ export class VariantEditorComponent
     this.variantService.nUserVariants += 1;
     newVariant.bid = -this.variantService.nUserVariants;
 
-    const duplicate = this.variantService.variants.map(
-      (v) => v.id === newVariant.id
-    );
+    const duplicate = this.variantService.variants.some((v: Variant) => {
+      return newVariant.equals(v) || v.id === newVariant.id;
+    });
 
-    if (!duplicate.includes(true)) {
+    if (!duplicate) {
       this.variantService.variants.push(newVariant);
-
-      this.addStatistics(newVariant).subscribe(() => {
-      });
-
+      this.addStatistics(newVariant).subscribe();
       this.variantService.addUserDefinedVariant(newVariant).subscribe();
+      this.applySortOnVariantEditor();
     } else {
       this.redundancyWarning = true;
       setTimeout(() => (this.redundancyWarning = false), 500);
     }
-
-    this.applySortOnVariantEditor();
   }
 
   private addStatistics(newVariant: Variant): Observable<any> {

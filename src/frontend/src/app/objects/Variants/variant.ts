@@ -80,4 +80,24 @@ export class Variant implements IVariant {
     this.infixType = infixType;
     this.clusterId = clusterId;
   }
+
+  public equals(variant: Variant): boolean {
+    let equals = false;
+    if (
+      this.variant.getElements().length !== variant.variant.getElements().length
+    ) {
+      equals = false;
+    } else {
+      equals = this.variant.getElements().every((value, index) => {
+        return value.equals(variant.variant.getElements()[index]);
+      });
+    }
+    if (equals) {
+      // check infix
+      if (variant.infixType !== this.infixType) {
+        equals = false;
+      }
+    }
+    return equals;
+  }
 }

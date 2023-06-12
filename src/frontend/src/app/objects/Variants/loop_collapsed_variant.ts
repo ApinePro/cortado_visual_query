@@ -24,6 +24,14 @@ export class LoopCollapsedVariant implements IVariant {
     this.variant = collapsedVariantElement;
   }
 
+  /*
+   * Empty implementation for now
+   * @param variant
+   */
+  public equals(variant: Variant): boolean {
+    return true;
+  }
+
   get infixType() {
     return this.variants[0].infixType;
   }
