@@ -638,8 +638,32 @@ export class VariantEditorComponent
     if (!duplicate) {
       this.variantService.variants.push(newVariant);
       this.addStatistics(newVariant).subscribe();
-      this.variantService.addUserDefinedVariant(newVariant).subscribe();
-      this.applySortOnVariantEditor();
+
+      if (newVariant.infixType === InfixType.NOT_AN_INFIX) {
+        this.variantService
+          .addUserDefinedVariant(newVariant)
+          .subscribe((response) => {
+            if (this.variantService.clusteringConfig) {
+              // trigger new clustering
+              this.variantService.clusteringConfig =
+                this.variantService.clusteringConfig;
+            } else {
+              this.variantService.variants = this.variantService.variants;
+            }
+          });
+      } else {
+        this.variantService
+          .addInfixToBackend(newVariant)
+          .subscribe((response) => {
+            if (this.variantService.clusteringConfig) {
+              // trigger new clustering
+              this.variantService.clusteringConfig =
+                this.variantService.clusteringConfig;
+            } else {
+              this.variantService.variants = this.variantService.variants;
+            }
+          });
+      }
     } else {
       this.redundancyWarning = true;
       setTimeout(() => (this.redundancyWarning = false), 500);
