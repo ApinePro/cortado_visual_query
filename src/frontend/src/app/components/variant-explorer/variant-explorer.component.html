@@ -710,20 +710,18 @@
                   class="hover-variant-row"
                 >
                   <ng-template #treeButton>
-                    <app-tree-performance-button
-                      [variant]="variant"
-                      [isPerformanceAvailable]="isPerformanceAvailable"
-                      [isPerformanceActive]="isPerformanceActive"
-                      [isPerformanceFitting]="isPerformanceFitting"
-                      [isPerformanceCalcInProgress]="
-                        isPerformanceCalcInProgress
-                      "
-                      (removePerformance)="handlePerformanceRemove($event)"
-                      (showPerformance)="handleSelectTreePerformance($event)"
-                      [computePerformanceButtonColor]="
-                        computePerformanceButtonColor
-                      "
-                    ></app-tree-performance-button>
+                    <ng-container [ngSwitch]="variantViewModeService.viewMode">
+                      <ng-container *ngSwitchCase="VM.CONFORMANCE">
+                        <app-tree-conformance-button
+                          [variant]="variant"
+                        ></app-tree-conformance-button>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="VM.PERFORMANCE">
+                        <app-tree-performance-button
+                          [variant]="variant"
+                        ></app-tree-performance-button>
+                      </ng-container>
+                    </ng-container>
                   </ng-template>
 
                   <ng-template #variantInfo>
