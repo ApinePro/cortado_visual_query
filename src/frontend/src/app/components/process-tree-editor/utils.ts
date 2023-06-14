@@ -67,7 +67,7 @@ export function getPerformanceTable(
   return undefined;
 }
 
-export function getBootstrapTooltipsAllowList(){
+export function getBootstrapTooltipsAllowList() {
   // @ts-ignore
   const myDefaultAllowList = $.fn.tooltip.Constructor.Default.allowList;
   myDefaultAllowList.div = ['class', 'style', 'role'];

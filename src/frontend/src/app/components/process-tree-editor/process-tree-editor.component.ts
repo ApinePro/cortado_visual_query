@@ -531,7 +531,7 @@ export class ProcessTreeEditorComponent
     }
 
     return returnTempValue;
-  }
+  };
 
   computeFillColor = (d: d3.HierarchyNode<ProcessTree>) => {
     if (d.data.operator !== null) return PT_Constant.OPERATOR_COLOR;
