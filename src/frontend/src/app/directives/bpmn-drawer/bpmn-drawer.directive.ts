@@ -13,6 +13,9 @@ import {
 import { BPMN_Constant } from 'src/app/constants/bpmn_model_drawer_constants';
 import { ProcessTreeOperator } from 'src/app/objects/ProcessTree/ProcessTree';
 import { VariantService } from '../../services/variantService/variant.service';
+import { getBootstrapTooltipsAllowList } from '../../components/process-tree-editor/utils';
+import { ViewMode } from '../../objects/ViewMode';
+import { ModelViewModeService } from '../../services/viewModeServices/model-view-mode.service';
 @Directive({
   selector: '[appBpmnDrawer]',
 })
@@ -38,7 +41,8 @@ export class BpmnDrawerDirective {
   constructor(
     elRef: ElementRef,
     private processTreeService: ProcessTreeService,
-    private variantService: VariantService
+    private variantService: VariantService,
+    private modelViewModeService: ModelViewModeService
   ) {
     this.mainGroup = d3.select(elRef.nativeElement);
   }
@@ -560,22 +564,32 @@ export class BpmnDrawerDirective {
   }
 
   addToolTip(node) {
+    const myDefaultAllowList = getBootstrapTooltipsAllowList();
+
     node
+      .classed('cursor-pointer', true)
       .attr('data-bs-toggle', 'tooltip')
       .attr('data-bs-placement', 'top')
+      .attr('whiteList', myDefaultAllowList)
       .attr('data-bs-title', (d) => this.tooltipText(d))
       .attr('data-bs-template', (d) => {
-        if (d.hasPerformance()) {
+        if (
+          (this.modelViewModeService.viewMode === ViewMode.PERFORMANCE &&
+            d.hasPerformance() &&
+            d.label !== ProcessTreeOperator.tau) ||
+          (this.modelViewModeService.viewMode === ViewMode.CONFORMANCE &&
+            d.conformance !== null)
+        ) {
           return `<div class="tooltip performance-tooltip" role="tooltip">
-              <div class="tooltip-arrow"></div>
-              <div class="tooltip-inner p-0" style="max-width: none;"></div>
-            </div>`;
+                <div class="tooltip-arrow"></div>
+                <div class="tooltip-inner p-0" style="max-width: none; border-radius: 15px;"></div>
+              </div>`;
         }
 
         return `<div class="tooltip" role="tooltip">
-            <div class="tooltip-arrow"></div>
-            <div class="tooltip-inner"></div>
-          </div>`;
+              <div class="tooltip-arrow"></div>
+              <div class="tooltip-inner"></div>
+            </div>`;
       })
       .attr('data-bs-html', true);
 
