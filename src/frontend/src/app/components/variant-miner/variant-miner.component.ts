@@ -166,7 +166,7 @@ export class VariantMinerComponent
   collapse: boolean = false;
 
   kFilter: IntervalFilter = new IntervalFilter(
-    'k',
+    'size',
     2,
     2,
     1,
