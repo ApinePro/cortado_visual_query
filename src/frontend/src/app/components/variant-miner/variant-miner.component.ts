@@ -287,43 +287,35 @@ export class VariantMinerComponent
   };
 
   closedMaximalChecks: Choice[] = [
-    new Choice('Maximal', (p: SubvariantPattern) => {
-      return p.maximal;
-    }),
-    new Choice('Closed', (p: SubvariantPattern) => {
-      return p.closed;
-    }),
-    new Choice('Valid', (p: SubvariantPattern) => {
-      return true;
-    }),
+    new Choice('Maximal', (p: SubvariantPattern) => p.maximal),
+    new Choice('Closed', (p: SubvariantPattern) => p.closed),
+    new Choice('Valid', (p: SubvariantPattern) => true),
   ];
   selClosedMaximal: string = 'Valid';
 
   infixChecks: Choice[] = [
-    new Choice('Proper Infix', (p: SubvariantPattern) => {
-      return p.infixType === InfixType.PROPER_INFIX;
-    }),
-    new Choice('Suffix', (p: SubvariantPattern) => {
-      return p.infixType === InfixType.POSTFIX;
-    }),
-    new Choice('Prefix', (p: SubvariantPattern) => {
-      return p.infixType === InfixType.PREFIX;
-    }),
-    new Choice('Variant', (p: SubvariantPattern) => {
-      return p.infixType === InfixType.NOT_AN_INFIX;
-    }),
+    new Choice(
+      'Proper Infix',
+      (p: SubvariantPattern) => p.infixType === InfixType.PROPER_INFIX
+    ),
+    new Choice(
+      'Suffix',
+      (p: SubvariantPattern) => p.infixType === InfixType.POSTFIX
+    ),
+    new Choice(
+      'Prefix',
+      (p: SubvariantPattern) => p.infixType === InfixType.PREFIX
+    ),
+    new Choice(
+      'Variant',
+      (p: SubvariantPattern) => p.infixType === InfixType.NOT_AN_INFIX
+    ),
   ];
 
   alignChecks: Choice[] = [
-    new Choice('Fitting', (p: SubvariantPattern) => {
-      return p.deviations === 0;
-    }),
-    new Choice('Not Fitting', (p: SubvariantPattern) => {
-      return p.deviations > 0;
-    }),
-    new Choice('Unknown', (p: SubvariantPattern) => {
-      return p.isConformanceOutdated;
-    }),
+    new Choice('Fitting', (p: SubvariantPattern) => p.deviations === 0),
+    new Choice('Not Fitting', (p: SubvariantPattern) => p.deviations > 0),
+    new Choice('Unknown', (p: SubvariantPattern) => p.isConformanceOutdated),
   ];
 
   infixFilterList = this.infixChecks.map((c) => c);
