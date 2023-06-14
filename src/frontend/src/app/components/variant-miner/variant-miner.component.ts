@@ -551,8 +551,6 @@ export class VariantMinerComponent
 
       return res;
     });
-
-    this.sort(this.currentSortKey);
   }
 
   applyActivityNameFilter: (
