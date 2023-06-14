@@ -25,4 +25,6 @@ export interface IVariant {
   fragmentStatistics: any;
   collapsedVariantId: string;
   clusterId: number;
+
+  equals(variant: IVariant): boolean;
 }

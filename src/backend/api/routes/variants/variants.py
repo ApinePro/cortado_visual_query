@@ -63,7 +63,7 @@ def get_fragment_statistics(payload: VariantFragment):
 
 @router.post("/cluster")
 def get_clusters(params: ClusteringParameters):
-    variants: List[Group] = cache_util.get_variant_list()
+    variants: List[Group] = cache_util.get_variant_list(True)
     clusterer: Clusterer = get_clusterer(params)
     clusters: List[List[Group]] = calculate_clusters(
         variants=variants, clusterer=clusterer)

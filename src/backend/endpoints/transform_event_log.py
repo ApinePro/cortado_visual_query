@@ -42,6 +42,7 @@ def reset_last_transaction():
 
     for bid, (v, ts, sv, info) in cache.variants.items():
 
+        # Default value of clusterId in a variant = -1
         variant = {
             "count": len(ts),
             "variant": v.serialize(),
@@ -52,7 +53,7 @@ def reset_last_transaction():
             "nSubVariants": len(sv),
             "userDefined": info.is_user_defined,
             "infixType": info.infix_type.value,
-            "clusterId": None
+            "clusterId": -1
         }
 
         # If the variant is only a single activity leaf, wrap it up as a sequence

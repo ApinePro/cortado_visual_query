@@ -6,7 +6,6 @@ import * as objectHash from 'object-hash';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { map, mergeMap, tap, toArray } from 'rxjs/operators';
-import { mapVariants, mapVariantsList } from 'src/app/utils/util';
 import { v4 as uuidv4 } from 'uuid';
 import {
   getInfixTypeForSelectedInfix,
@@ -295,7 +294,7 @@ export class VariantService {
   private resetClusterAssignments() {
     this.variants.forEach((variant) => {
       // undefined is the default cluster id when no algorithm was applied
-      variant.clusterId = null;
+      variant.clusterId = -1;
     });
 
     this.variants = this.variants;

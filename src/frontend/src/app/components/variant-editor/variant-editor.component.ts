@@ -604,8 +604,8 @@ export class VariantEditorComponent
   };
 
   addCurrentVariantToVariantList() {
-    let currentVariants = this.variantService.variants;
     const copyCurrent = cloneDeep(this.currentVariant);
+
     setParent(copyCurrent);
     copyCurrent.setExpanded(false);
 
@@ -631,25 +631,47 @@ export class VariantEditorComponent
     this.variantService.nUserVariants += 1;
     newVariant.bid = -this.variantService.nUserVariants;
 
-    const duplicate = currentVariants.map((v) => v.id === newVariant.id);
+    const duplicate = this.variantService.variants.some((v: Variant) => {
+      return newVariant.equals(v) || v.id === newVariant.id;
+    });
 
-    if (!duplicate.includes(true)) {
-      currentVariants.push(newVariant);
-      this.addStatistics(newVariant).subscribe(() => {
-        // set new variants list after adding statistics
-        this.variantService.variants = currentVariants;
-      });
-      this.variantService.addUserDefinedVariant(newVariant).subscribe();
+    if (!duplicate) {
+      this.variantService.variants.push(newVariant);
+      this.addStatistics(newVariant).subscribe();
+
+      if (newVariant.infixType === InfixType.NOT_AN_INFIX) {
+        this.variantService
+          .addUserDefinedVariant(newVariant)
+          .subscribe((response) => {
+            if (this.variantService.clusteringConfig) {
+              // trigger new clustering
+              this.variantService.clusteringConfig =
+                this.variantService.clusteringConfig;
+            } else {
+              this.variantService.variants = this.variantService.variants;
+            }
+          });
+      } else {
+        this.variantService
+          .addInfixToBackend(newVariant)
+          .subscribe((response) => {
+            if (this.variantService.clusteringConfig) {
+              // trigger new clustering
+              this.variantService.clusteringConfig =
+                this.variantService.clusteringConfig;
+            } else {
+              this.variantService.variants = this.variantService.variants;
+            }
+          });
+      }
     } else {
       this.redundancyWarning = true;
       setTimeout(() => (this.redundancyWarning = false), 500);
     }
-
-    this.applySortOnVariantEditor();
   }
 
   private addStatistics(newVariant: Variant): Observable<any> {
-    if (newVariant.infixType != InfixType.NOT_AN_INFIX) {
+    if (newVariant.infixType !== InfixType.NOT_AN_INFIX) {
       return this.backendService.countFragmentOccurrences(newVariant).pipe(
         tap((statistics) => {
           newVariant.fragmentStatistics = statistics;

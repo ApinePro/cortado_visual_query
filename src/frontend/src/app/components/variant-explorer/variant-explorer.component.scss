@@ -275,11 +275,15 @@ thead {
 
 .cluster-badge-text-secondary{
   color: #c6c6c6;
-  margin: 0px 0px 4px 4px;
+  margin-bottom: 4px;
+}
+
+.cluster-badge{
+  width: 100%;
 }
 
 .cluster-app-search{
-  margin-top: 2px;
+  margin: 2px 0px 0px auto;
 }
 
 .button-blue {
