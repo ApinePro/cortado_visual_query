@@ -316,13 +316,13 @@ export class VariantMinerComponent
 
   alignChecks: Choice[] = [
     new Choice('Fitting', (p: SubvariantPattern) => {
-      return p.deviations > 0;
+      return p.deviations === 0;
     }),
     new Choice('Not Fitting', (p: SubvariantPattern) => {
       return p.deviations > 0;
     }),
     new Choice('Unknown', (p: SubvariantPattern) => {
-      return p.deviations > 0;
+      return p.isConformanceOutdated;
     }),
   ];
 
@@ -542,8 +542,8 @@ export class VariantMinerComponent
       if (!this.supConfFilter.apply(vp)) return false;
       if (!this.closedMaxFilter(vp)) return false;
       if (!this.applyActivityNameFilter(vp, pos, neg)) return false;
-      // if (!this.alignmentFilterList.map((f) => f.filterFnc(vp)).some((v) => v))
-      //   return false;
+      if (!this.alignmentFilterList.map((f) => f.filterFnc(vp)).some((v) => v))
+        return false;
       if (!this.infixFilterList.map((f) => f.filterFnc(vp)).some((v) => v))
         return false;
 
