@@ -535,21 +535,19 @@ export class VariantMinerComponent
     });
 
     this.displayedVariantsPatterns = this.variantPatterns.filter((vp) => {
-      let res = true;
-      res = res && this.kFilter.apply(vp);
-      res = res && this.supFilter.apply(vp);
-      res = res && this.idFilter.apply(vp);
-      res = res && this.cpConfFilter.apply(vp);
-      res = res && this.supConfFilter.apply(vp);
-      res = res && this.closedMaxFilter(vp);
+      if (!this.kFilter.apply(vp)) return false;
+      if (!this.supFilter.apply(vp)) return false;
+      if (!this.idFilter.apply(vp)) return false;
+      if (!this.cpConfFilter.apply(vp)) return false;
+      if (!this.supConfFilter.apply(vp)) return false;
+      if (!this.closedMaxFilter(vp)) return false;
+      if (!this.applyActivityNameFilter(vp, pos, neg)) return false;
+      // if (!this.alignmentFilterList.map((f) => f.filterFnc(vp)).some((v) => v))
+      //   return false;
+      if (!this.infixFilterList.map((f) => f.filterFnc(vp)).some((v) => v))
+        return false;
 
-      res = res && this.applyActivityNameFilter(vp, pos, neg);
-
-      //res = res && this.alignmentFilterList.map(f => f.filterFnc(vp)).some(v => v)
-      res =
-        res && this.infixFilterList.map((f) => f.filterFnc(vp)).some((v) => v);
-
-      return res;
+      return true;
     });
   }
 
