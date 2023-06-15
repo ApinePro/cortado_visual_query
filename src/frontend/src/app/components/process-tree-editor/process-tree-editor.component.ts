@@ -817,6 +817,8 @@ export class ProcessTreeEditorComponent
           this.nodeInsertionStrategy =
             this.getFirstAvailableNodeInsertionStrategy();
         break;
+      case NodeInsertionStrategy.CHANGE:
+        break;
       default:
         this.nodeInsertionStrategy =
           this.getFirstAvailableNodeInsertionStrategy();
