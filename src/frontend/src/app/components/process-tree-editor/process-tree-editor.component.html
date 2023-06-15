@@ -36,12 +36,11 @@
           <div class="fst-italic fw-bold ps-2 text-center">Position</div>
           <div
             class="dropdown-item"
-            *ngIf="!insertPositionAboveDisabled"
-            [ngClass]="
-              nodeInsertionStrategy === NodeInsertionStrategy.ABOVE
-                ? 'insertion-position-active'
-                : ''
-            "
+            [ngClass]="{
+              disabled: insertPositionAboveDisabled,
+              'insertion-position-active':
+                nodeInsertionStrategy === NodeInsertionStrategy.ABOVE
+            }"
             (click)="nodeInsertionStrategy = NodeInsertionStrategy.ABOVE"
           >
             <i class="bi bi-box-arrow-up btn-icon"></i>
@@ -50,12 +49,11 @@
 
           <div
             class="dropdown-item"
-            *ngIf="!insertPositionLeftRightDisabled"
-            [ngClass]="
-              nodeInsertionStrategy === NodeInsertionStrategy.LEFT
-                ? 'insertion-position-active'
-                : ''
-            "
+            [ngClass]="{
+              disabled: insertPositionLeftRightDisabled,
+              'insertion-position-active':
+                nodeInsertionStrategy === NodeInsertionStrategy.LEFT
+            }"
             (click)="nodeInsertionStrategy = NodeInsertionStrategy.LEFT"
           >
             <i class="bi bi-box-arrow-left btn-icon"></i>
@@ -64,12 +62,11 @@
 
           <div
             class="dropdown-item"
-            *ngIf="!insertPositionBelowDisabled"
-            [ngClass]="
-              nodeInsertionStrategy === NodeInsertionStrategy.BELOW
-                ? 'insertion-position-active'
-                : ''
-            "
+            [ngClass]="{
+              disabled: insertPositionBelowDisabled,
+              'insertion-position-active':
+                nodeInsertionStrategy === NodeInsertionStrategy.BELOW
+            }"
             (click)="nodeInsertionStrategy = NodeInsertionStrategy.BELOW"
           >
             <i class="bi bi-box-arrow-down btn-icon"></i>
@@ -78,12 +75,11 @@
 
           <div
             class="dropdown-item"
-            *ngIf="!insertPositionLeftRightDisabled"
-            [ngClass]="
-              nodeInsertionStrategy === NodeInsertionStrategy.RIGHT
-                ? 'insertion-position-active'
-                : ''
-            "
+            [ngClass]="{
+              disabled: insertPositionLeftRightDisabled,
+              'insertion-position-active':
+                nodeInsertionStrategy === NodeInsertionStrategy.RIGHT
+            }"
             (click)="nodeInsertionStrategy = NodeInsertionStrategy.RIGHT"
           >
             <i class="bi bi-box-arrow-right btn-icon"></i>
