@@ -66,3 +66,16 @@ export function getPerformanceTable(
   }
   return undefined;
 }
+
+export function getBootstrapTooltipsAllowList() {
+  // @ts-ignore
+  const myDefaultAllowList = $.fn.tooltip.Constructor.Default.allowList;
+  myDefaultAllowList.div = ['class', 'style', 'role'];
+  myDefaultAllowList.h6 = ['style'];
+  myDefaultAllowList.table = ['class'];
+  myDefaultAllowList.tbody = [];
+  myDefaultAllowList.tr = [];
+  myDefaultAllowList.td = [];
+
+  return myDefaultAllowList;
+}

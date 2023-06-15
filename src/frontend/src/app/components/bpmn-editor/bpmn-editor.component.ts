@@ -249,21 +249,59 @@ export class BpmnEditorComponent
   }
 
   tooltipContent = (d: ProcessTree) => {
-    if (d.hasPerformance() && d.label !== ProcessTreeOperator.tau) {
-      return (
-        `<div style="display: flex; justify-content: space-between" class="performance-tooltip-header-style bg-dark">
-        <h6 style="flex: 1" class="performance-tooltip-header">` +
-        (d.label || d.operator) +
-        `</h6>
-      </div>` +
+    let returnTempValue = d.label || d.operator;
+
+    const tableHead =
+      `<div style="display: flex; justify-content: space-between; border-radius: 5px 5px 0px 0px;" class="bg-dark">
+        <h6 style="flex: 1; margin-top: 8px;">` +
+      (d.label || d.operator) +
+      `</h6>
+      </div>`;
+
+    if (
+      this.modelViewModeService.viewMode === ViewMode.PERFORMANCE &&
+      d.hasPerformance() &&
+      d.label !== ProcessTreeOperator.tau
+    ) {
+      returnTempValue =
+        tableHead +
         getPerformanceTable(
           d.performance,
           this.selectedPerformanceIndicator,
           this.selectedStatistic
-        )
-      );
+        );
+    } else if (
+      this.modelViewModeService.viewMode === ViewMode.CONFORMANCE &&
+      d.conformance !== null
+    ) {
+      returnTempValue =
+        tableHead +
+        `<table class="table table-dark table-striped table-bordered">
+          <tr>
+            <td>Weighted</td>
+            <td>Conformance</td>
+            <td>Weight</td>
+          </tr>` +
+        `<tr>
+            <td>Equally</td>
+            <td>${(d.conformance?.weighted_equally.value * 100).toFixed(
+              2
+            )}%</td>
+            <td>${d.conformance?.weighted_equally.weight}</td>
+        </tr>` +
+        (d.conformance?.weighted_by_counts !== null
+          ? `<tr>
+            <td>By Log Frequency</td>
+            <td>${(d.conformance?.weighted_by_counts?.value * 100).toFixed(
+              2
+            )}%</td>
+            <td>${d.conformance?.weighted_by_counts?.weight}</td>
+        </tr>`
+          : '') +
+        '</table>';
     }
-    return d.label || d.operator;
+
+    return returnTempValue;
   };
 
   computeNodeColor = (pt: ProcessTree) => {

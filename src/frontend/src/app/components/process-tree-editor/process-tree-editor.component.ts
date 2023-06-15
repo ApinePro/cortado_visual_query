@@ -478,31 +478,32 @@ export class ProcessTreeEditorComponent
   };
 
   tooltipContent = (d: d3.HierarchyNode<ProcessTree>) => {
+    let returnTempValue = d.data.label || d.data.operator;
+
     const tableHead =
-      `<div style="display: flex; justify-content: space-between" class="bg-dark">
+      `<div style="display: flex; justify-content: space-between; border-radius: 5px 5px 0px 0px;" class="bg-dark">
         <h6 style="flex: 1; margin-top: 8px;">` +
       (d.data.label || d.data.operator) +
       `</h6>
       </div>`;
+
     if (
       this.modelViewModeService.viewMode === ViewMode.PERFORMANCE &&
       d.data.hasPerformance() &&
       d.data.label !== ProcessTreeOperator.tau
     ) {
-      return (
+      returnTempValue =
         tableHead +
         getPerformanceTable(
           d.data.performance,
           this.selectedPerformanceIndicator,
           this.selectedStatistic
-        )
-      );
-    }
-    if (
+        );
+    } else if (
       this.modelViewModeService.viewMode === ViewMode.CONFORMANCE &&
       d.data.conformance !== null
-    )
-      return (
+    ) {
+      returnTempValue =
         tableHead +
         `<table class="table table-dark table-striped table-bordered">
           <tr>
@@ -526,10 +527,10 @@ export class ProcessTreeEditorComponent
             <td>${d.data.conformance?.weighted_by_counts?.weight}</td>
         </tr>`
           : '') +
-        '</table>'
-      );
+        '</table>';
+    }
 
-    return d.data.label || d.data.operator;
+    return returnTempValue;
   };
 
   computeFillColor = (d: d3.HierarchyNode<ProcessTree>) => {

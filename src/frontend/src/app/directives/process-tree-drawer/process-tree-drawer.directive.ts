@@ -11,6 +11,7 @@ import * as d3 from 'd3';
 import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantService } from '../../services/variantService/variant.service';
+import { getBootstrapTooltipsAllowList } from '../../components/process-tree-editor/utils';
 
 @Directive({
   selector: '[appProcessTreeDrawer]',
@@ -60,16 +61,19 @@ export class ProcessTreeDrawerDirective {
   }
 
   drawNodes(node: d3.Selection<any, any, any, any>) {
+    const myDefaultAllowList = getBootstrapTooltipsAllowList();
+
     // add node groups
     this.nodeEnter = node
       .enter()
       .append('g')
-      .attr('id', function (d) {
+      .attr('id', (d) => {
         return d.data.id;
       })
       .classed('cursor-pointer', true)
       .attr('data-bs-toggle', 'tooltip')
       .attr('data-bs-placement', 'top')
+      .attr('whiteList', myDefaultAllowList)
       .attr('data-bs-title', (d) => this.tooltipText(d))
       .attr('data-bs-template', (d) => {
         if (
@@ -81,7 +85,7 @@ export class ProcessTreeDrawerDirective {
         ) {
           return `<div class="tooltip performance-tooltip" role="tooltip">
                 <div class="tooltip-arrow"></div>
-                <div class="tooltip-inner p-0" style="max-width: none;"></div>
+                <div class="tooltip-inner p-0" style="max-width: none; border-radius: 15px;"></div>
               </div>`;
         }
 
