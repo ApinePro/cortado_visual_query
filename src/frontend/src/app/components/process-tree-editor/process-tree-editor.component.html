@@ -37,7 +37,7 @@
           <div
             class="dropdown-item"
             [ngClass]="{
-              disabled: insertPositionAboveDisabled,
+              disabled: disabledInsertPositions.above,
               'insertion-position-active':
                 nodeInsertionStrategy === NodeInsertionStrategy.ABOVE
             }"
@@ -50,7 +50,7 @@
           <div
             class="dropdown-item"
             [ngClass]="{
-              disabled: insertPositionLeftRightDisabled,
+              disabled: disabledInsertPositions.leftRight,
               'insertion-position-active':
                 nodeInsertionStrategy === NodeInsertionStrategy.LEFT
             }"
@@ -63,7 +63,7 @@
           <div
             class="dropdown-item"
             [ngClass]="{
-              disabled: insertPositionBelowDisabled,
+              disabled: disabledInsertPositions.below,
               'insertion-position-active':
                 nodeInsertionStrategy === NodeInsertionStrategy.BELOW
             }"
@@ -76,7 +76,7 @@
           <div
             class="dropdown-item"
             [ngClass]="{
-              disabled: insertPositionLeftRightDisabled,
+              disabled: disabledInsertPositions.leftRight,
               'insertion-position-active':
                 nodeInsertionStrategy === NodeInsertionStrategy.RIGHT
             }"

@@ -102,10 +102,10 @@ export class ProcessTreeEditorComponent
   nodeEnter;
 
   collapse: boolean = false;
-  NodeSeletionStrategy = NodeSeletionStrategy;
+  readonly NodeSeletionStrategy = NodeSeletionStrategy;
   nodeSelectionStrategy: NodeSeletionStrategy = NodeSeletionStrategy.TREE;
 
-  NodeInsertionStrategy = NodeInsertionStrategy;
+  readonly NodeInsertionStrategy = NodeInsertionStrategy;
   nodeInsertionStrategy: NodeInsertionStrategy = NodeInsertionStrategy.ABOVE;
   lastNodeInsertionStrategy: NodeInsertionStrategy;
 
@@ -115,9 +115,11 @@ export class ProcessTreeEditorComponent
   // indicates if the entire subtree below the selectedRootNode is selected or only the single node
   selectedRootNodeOnly: boolean;
 
-  insertPositionLeftRightDisabled = false;
-  insertPositionAboveDisabled = false;
-  insertPositionBelowDisabled = false;
+  readonly disabledInsertPositions = {
+    above: false,
+    leftRight: false,
+    below: false,
+  };
 
   root: d3.HierarchyNode<any>;
 
@@ -779,41 +781,41 @@ export class ProcessTreeEditorComponent
   }
 
   checkNodeInsertionStrategy(rootNode: ProcessTree) {
-    this.insertPositionLeftRightDisabled = false;
+    this.disabledInsertPositions.leftRight = false;
 
     // Disable insertions above on non-root nodes
-    this.insertPositionAboveDisabled = rootNode.parent != null;
+    this.disabledInsertPositions.above;
     // Disable insertions below non-operator nodes, i.e. activities
-    this.insertPositionBelowDisabled = rootNode.operator == null;
+    this.disabledInsertPositions.below = rootNode.operator == null;
     // Disable insertions left/right of root node
-    if (rootNode.parent == null) this.insertPositionLeftRightDisabled = true;
+    if (rootNode.parent == null) this.disabledInsertPositions.leftRight = true;
     // Disable insertions left/right of child from loop node that already has 2 childs
     if (
       rootNode.parent?.operator === ProcessTreeOperator.loop &&
       rootNode.parent?.children.length === 2
     )
-      this.insertPositionLeftRightDisabled = true;
+      this.disabledInsertPositions.leftRight = true;
     // Disable insertions below redo node that has 2 childs
     if (
       rootNode.operator === ProcessTreeOperator.loop &&
       rootNode.children.length === 2
     )
-      this.insertPositionBelowDisabled = true;
+      this.disabledInsertPositions.below = true;
 
     switch (this.nodeInsertionStrategy) {
       case NodeInsertionStrategy.ABOVE:
-        if (this.insertPositionAboveDisabled)
+        if (this.disabledInsertPositions.above)
           this.nodeInsertionStrategy =
             this.getFirstAvailableNodeInsertionStrategy();
         break;
       case NodeInsertionStrategy.BELOW:
-        if (this.insertPositionBelowDisabled)
+        if (this.disabledInsertPositions.below)
           this.nodeInsertionStrategy =
             this.getFirstAvailableNodeInsertionStrategy();
         break;
       case NodeInsertionStrategy.LEFT:
       case NodeInsertionStrategy.RIGHT:
-        if (this.insertPositionLeftRightDisabled)
+        if (this.disabledInsertPositions.leftRight)
           this.nodeInsertionStrategy =
             this.getFirstAvailableNodeInsertionStrategy();
         break;
@@ -826,10 +828,10 @@ export class ProcessTreeEditorComponent
   }
 
   getFirstAvailableNodeInsertionStrategy(): NodeInsertionStrategy {
-    if (!this.insertPositionAboveDisabled) return NodeInsertionStrategy.ABOVE;
-    if (!this.insertPositionLeftRightDisabled)
+    if (!this.disabledInsertPositions.above) return NodeInsertionStrategy.ABOVE;
+    if (!this.disabledInsertPositions.leftRight)
       return NodeInsertionStrategy.LEFT;
-    if (!this.insertPositionBelowDisabled) return NodeInsertionStrategy.BELOW;
+    if (!this.disabledInsertPositions.below) return NodeInsertionStrategy.BELOW;
     return NodeInsertionStrategy.CHANGE;
   }
 
