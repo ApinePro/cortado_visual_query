@@ -73,6 +73,7 @@ export function insertNode(
         selectedNode.label = null;
       } else if (label) {
         selectedNode.label = label;
+        selectedNode.children = [];
         selectedNode.operator = null;
       }
       break;
