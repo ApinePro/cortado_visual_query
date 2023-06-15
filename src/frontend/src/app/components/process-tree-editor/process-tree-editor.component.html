@@ -95,7 +95,7 @@
         <div class="fst-italic fw-bold ps-2 text-center">Node</div>
 
         <ng-template #operatorListDropdown>
-          <div class="fst-italic ps-2 text-primary">Operator</div>
+          <h7 class="dropdown-header text-primary">Operator</h7>
 
           <div class="dropdown-item" (click)="insertNewNode('\u2715', null)">
             <span class="fw-bold">&#x2715;</span>
@@ -118,7 +118,7 @@
         <ng-template [ngTemplateOutlet]="operatorListDropdown"></ng-template>
 
         <ng-template #activityListDropdown>
-          <div class="fst-italic ps-2 text-primary">Activity</div>
+          <h7 class="dropdown-header text-primary">Activity</h7>
 
           <div class="dropdown-item" (click)="insertNewNode(null, '\u03C4')">
             <span class="fw-bold">&#x03C4;</span>
