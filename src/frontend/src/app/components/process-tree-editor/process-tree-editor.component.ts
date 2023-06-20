@@ -121,6 +121,19 @@ export class ProcessTreeEditorComponent
     below: false,
   };
 
+  get disabledActivityInsertion() {
+    if (
+      this.nodeInsertionStrategy === NodeInsertionStrategy.ABOVE &&
+      this.selectedRootNode?.data
+    )
+      return true;
+    return false;
+  }
+
+  get disabledOperatorInsertion() {
+    return false;
+  }
+
   root: d3.HierarchyNode<any>;
 
   nodeWidthCache = new Map<string, number>();
