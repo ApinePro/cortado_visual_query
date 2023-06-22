@@ -532,3 +532,7 @@ tr:hover > .fixed-right {
 .lm_header .lm_tabdropdown_list .lm_tab .lm_title {
     width: 112px !important;
 }
+
+svg *:focus {
+  outline: none;
+}
