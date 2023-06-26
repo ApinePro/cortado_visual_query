@@ -40,11 +40,6 @@
   font-size: small;
 }
 
-.vl {
-  border-left: 1px solid var(--line-color);
-  height: var(--header-bar-height);
-}
-
 .dropright-header {
   display: inline-block;
   margin-right: 65px;
