@@ -41,10 +41,7 @@ import { ProcessTreeDrawerDirective } from 'src/app/directives/process-tree-draw
 import { getPerformanceTable } from './utils';
 import { collapsingText } from 'src/app/animations/text-animations';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
-import {
-  NodeSeletionStrategy,
-  NodeInsertionStrategy,
-} from 'src/app/objects/ProcessTree/utility-functions/process-tree-edit-tree';
+import { NodeInsertionStrategy } from 'src/app/objects/ProcessTree/utility-functions/process-tree-edit-tree';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
@@ -102,8 +99,6 @@ export class ProcessTreeEditorComponent
   nodeEnter;
 
   collapse: boolean = false;
-  readonly NodeSeletionStrategy = NodeSeletionStrategy;
-  nodeSelectionStrategy: NodeSeletionStrategy = NodeSeletionStrategy.TREE;
 
   readonly NodeInsertionStrategy = NodeInsertionStrategy;
   nodeInsertionStrategy: NodeInsertionStrategy = NodeInsertionStrategy.ABOVE;
@@ -111,9 +106,6 @@ export class ProcessTreeEditorComponent
 
   selectedRootNodeId: number;
   selectedRootNode: d3.HierarchyNode<ProcessTree>;
-
-  // indicates if the entire subtree below the selectedRootNode is selected or only the single node
-  selectedRootNodeOnly: boolean;
 
   readonly disabledInsertPositions = {
     above: false,
@@ -176,12 +168,6 @@ export class ProcessTreeEditorComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe((len) => {
         this.treeCacheLength = len;
-      });
-
-    this.processTreeService.selectionMode$
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((strategy) => {
-        this.nodeSelectionStrategy = strategy;
       });
 
     this.modelViewModeService.viewMode$
@@ -297,7 +283,6 @@ export class ProcessTreeEditorComponent
     if (id && node) {
       this.setSelectedRootNode(node);
       this.selectSubtreeFromRoot(selectedRoot.node(), node);
-      this.selectEdges();
 
       this.checkNodeInsertionStrategy(this.selectedRootNode.data);
     }
@@ -329,24 +314,10 @@ export class ProcessTreeEditorComponent
 
   insertNewNodeButtonDisabled(): boolean {
     return (
-      (!this.singleNodeSelected() || !this.selectedRootNode) &&
+      !this.selectedRootNode &&
       this.currentlyDisplayedTreeInEditor !== null &&
       this.currentlyDisplayedTreeInEditor !== undefined
     );
-  }
-
-  selectNodeButton(): void {
-    this.processTreeService.selectedRootNodeID = null;
-    this.processTreeService.selectionMode = NodeSeletionStrategy.NODE;
-  }
-
-  selectSubtreeButton(): void {
-    this.processTreeService.selectedRootNodeID = null;
-    this.processTreeService.selectionMode = NodeSeletionStrategy.TREE;
-  }
-
-  singleNodeSelected(): boolean {
-    return this.selectedRootNode && this.selectedRootNodeOnly;
   }
 
   leafNodeSelected(): boolean {
@@ -358,20 +329,7 @@ export class ProcessTreeEditorComponent
   }
 
   buttonManipulatingMultipleNodesDisabled(): boolean {
-    return (
-      !this.selectedRootNode ||
-      this.rootNodeSelected() ||
-      (this.nodeSelectionStrategy == NodeSeletionStrategy.NODE &&
-        !this.leafNodeSelected())
-    );
-  }
-
-  buttonDeleteSubtreeDisabled(): boolean {
-    return (
-      !this.selectedRootNode ||
-      (this.nodeSelectionStrategy == NodeSeletionStrategy.NODE &&
-        !this.leafNodeSelected())
-    );
+    return !this.selectedRootNode || this.rootNodeSelected();
   }
 
   buttonFreezeSubtreeDisabled(): boolean {
@@ -419,7 +377,6 @@ export class ProcessTreeEditorComponent
   }
 
   afterInsertNode(): void {
-    this.selectedRootNodeOnly = true;
     this.searchText = undefined;
   }
 
@@ -626,12 +583,9 @@ export class ProcessTreeEditorComponent
     }
   };
 
-  private setSelectedRootNode = function (d) {
+  private setSelectedRootNode(d) {
     this.selectedRootNode = d;
-    this.selectedRootNodeOnly =
-      this.nodeSelectionStrategy == NodeSeletionStrategy.NODE ||
-      this.leafNodeSelected();
-  };
+  }
 
   private selectSubtreeFromRoot = function (svgGroup, d) {
     // Unselect All Edges and Rect
@@ -645,12 +599,7 @@ export class ProcessTreeEditorComponent
     // Select the node, if it isn't selected yet
     d.data.selected = true;
 
-    // Chose depending on selection strategy, to paint all children
-    if (this.nodeSelectionStrategy == NodeSeletionStrategy.TREE) {
-      this.selectAllChildren(svgGroup, d);
-    } else {
-      d3.select(svgGroup).select('.node').classed('selected-node', true);
-    }
+    d3.select(svgGroup).select('.node').classed('selected-node', true);
   };
 
   private selectAllChildren = function (svgGroup, d) {
@@ -669,9 +618,6 @@ export class ProcessTreeEditorComponent
   };
 
   private selectEdges = function () {
-    if (this.nodeSelectionStrategy == NodeSeletionStrategy.NODE) {
-      return;
-    }
     this.mainSvgGroup
       .selectAll('line')
       .classed('frozen-edge', (e) => {

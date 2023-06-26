@@ -17,7 +17,6 @@ import {
   getSetOfActivitiesInProcessTree,
 } from 'src/app/objects/ProcessTree/utility-functions/process-tree-transform';
 import {
-  NodeSeletionStrategy,
   delete_subtree,
   NodeInsertionStrategy,
   createNewRandomNode,
@@ -118,22 +117,6 @@ export class ProcessTreeService {
 
   set selectedTree(pt: ProcessTree) {
     this._selectedTree.next(pt);
-  }
-
-  private _selectionMode = new BehaviorSubject<NodeSeletionStrategy>(
-    NodeSeletionStrategy.TREE
-  );
-
-  get selectionMode$(): Observable<any> {
-    return this._selectionMode.asObservable();
-  }
-
-  get selectionMode(): any {
-    return this._selectionMode.getValue();
-  }
-
-  set selectionMode(strategy: NodeSeletionStrategy) {
-    this._selectionMode.next(strategy);
   }
 
   private _currentDisplayedProcessTree = new BehaviorSubject<ProcessTree>(null);

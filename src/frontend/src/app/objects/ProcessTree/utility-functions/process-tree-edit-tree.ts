@@ -81,11 +81,6 @@ export function insertNode(
   }
 }
 
-export enum NodeSeletionStrategy {
-  NODE = 'Node',
-  TREE = 'Tree',
-}
-
 export enum NodeInsertionStrategy {
   LEFT = 'Left',
   RIGHT = 'Right',

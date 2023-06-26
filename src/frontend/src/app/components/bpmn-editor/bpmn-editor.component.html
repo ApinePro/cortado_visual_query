@@ -3,7 +3,7 @@
     <button
       class="button text-warning"
       (click)="deleteSelected()"
-      [disabled]="deleteInactive()"
+      [disabled]="!this.selectedRootID"
       ngbTooltip="remove selected node(s)"
       container="body"
     >
@@ -45,37 +45,15 @@
 
     <button
       class="button"
-      (click)="selectNode()"
-      [class.button-active]="
-        nodeSelectionStrategy === NodeSeletionStrategy.NODE
-      "
-      ngbTooltip="select node"
-      container="body"
-    >
-      <i class="bi bi-fullscreen btn-icon text-danger"></i>
-      <div class="button-text px-1">select node</div>
-    </button>
-
-    <button
-      class="button"
-      (click)="selectSubtree()"
-      [class.button-active]="
-        nodeSelectionStrategy === NodeSeletionStrategy.TREE
-      "
-      ngbTooltip="select subtree"
-      container="body"
-    >
-      <i class="bi bi-fullscreen btn-icon text-danger"></i>
-      <div class="button-text px-1">select subtree</div>
-    </button>
-
-    <button
-      class="button"
       (click)="clearSelection()"
+      [disabled]="!selectedRootID"
       ngbTooltip="clear selection"
       container="body"
     >
-      <i class="bi bi-x-circle btn-icon text-danger"></i>
+      <i
+        class="bi bi-x-circle btn-icon"
+        [ngClass]="selectedRootID ? 'text-danger' : ''"
+      ></i>
       <div class="button-text px-1">clear selection</div>
     </button>
 

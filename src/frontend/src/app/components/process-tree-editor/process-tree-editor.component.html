@@ -189,7 +189,7 @@
     <button
       class="button text-warning"
       (click)="deleteSubtree()"
-      [disabled]="buttonDeleteSubtreeDisabled()"
+      [disabled]="!selectedRootNode"
       ngbTooltip="remove selected node(s)"
       container="body"
     >
@@ -261,41 +261,15 @@
 
     <button
       class="button"
-      (click)="selectNodeButton()"
-      [class.button-active]="
-        nodeSelectionStrategy === NodeSeletionStrategy.NODE
-      "
-      ngbTooltip="select node"
-      container="body"
-    >
-      <i class="bi bi-fullscreen btn-icon text-danger"></i>
-      <div class="button-text px-1" @collapseText *ngIf="!collapse">
-        select node
-      </div>
-    </button>
-
-    <button
-      class="button"
-      (click)="selectSubtreeButton()"
-      [class.button-active]="
-        nodeSelectionStrategy === NodeSeletionStrategy.TREE
-      "
-      ngbTooltip="select subtree"
-      container="body"
-    >
-      <i class="bi bi-fullscreen btn-icon text-danger"></i>
-      <div class="button-text px-1" @collapseText *ngIf="!collapse">
-        select subtree
-      </div>
-    </button>
-
-    <button
-      class="button"
       (click)="clearSelection()"
+      [disabled]="!selectedRootNode"
       ngbTooltip="clear selection"
       container="body"
     >
-      <i class="bi bi-x-circle btn-icon text-danger"></i>
+      <i
+        class="bi bi-x-circle btn-icon"
+        [ngClass]="selectedRootNode ? 'text-danger' : ''"
+      ></i>
       <div class="button-text px-1" @collapseText *ngIf="!collapse">
         clear selection
       </div>
