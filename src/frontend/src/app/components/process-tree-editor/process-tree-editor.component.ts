@@ -119,10 +119,16 @@ export class ProcessTreeEditorComponent
       this.selectedRootNode?.data
     )
       return true;
+    // Disable insertion when no node is selected but pt is present
+    if (!this.selectedRootNode && this.currentlyDisplayedTreeInEditor)
+      return true;
     return false;
   }
 
   get disabledOperatorInsertion() {
+    // Disable insertion when no node is selected but pt is present
+    if (!this.selectedRootNode && this.currentlyDisplayedTreeInEditor)
+      return true;
     return false;
   }
 
