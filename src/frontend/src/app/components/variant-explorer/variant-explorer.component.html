@@ -694,13 +694,13 @@
                   | variantSort
                     : clusterSortSettings[cluster.key]?.isAscendingOrder
                     : clusterSortSettings[cluster.key]?.feature;
-                let j = index
+                let j = index;
               "
             >
               <ng-container *ngIf="!hideRuleContent[i]">
                 <tr
                   app-variant
-                  [index]="i * cluster.value.length + j"
+                  [index]="cumulativeLength(i, j) - 1"
                   [variant]="variant"
                   [processTreeAvailable]="
                     processTreeService.currentDisplayedProcessTree

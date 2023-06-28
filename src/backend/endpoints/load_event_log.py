@@ -97,11 +97,13 @@ def variants_to_variant_objects(variants, time_granularity, total_traces, info_g
     cache_variants = dict()
 
     for bid, (v, ts) in enumerate(sorted(list(variants.items()), key=lambda e: len(e[1]), reverse=True)):
-        variant, sub_vars = create_variant_object(time_granularity, total_traces, bid, v, ts, info_generator(ts))
+        info = info_generator(ts);
+        v.infix_type = info.infix_type;
+        variant, sub_vars = create_variant_object(time_granularity, total_traces, bid, v, ts, info)
 
         res_variants.append(variant)
         cache_variants[bid] = (
-            v, ts, sub_vars, info_generator(ts))
+            v, ts, sub_vars, info)
 
     return sorted(res_variants, key=lambda variant: variant["count"],
                   reverse=True), cache_variants
