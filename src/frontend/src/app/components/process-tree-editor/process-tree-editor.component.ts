@@ -749,7 +749,7 @@ export class ProcessTreeEditorComponent
     this.disabledInsertPositions.leftRight = false;
 
     // Disable insertions above on non-root nodes
-    this.disabledInsertPositions.above;
+    this.disabledInsertPositions.above = rootNode.parent != null;
     // Disable insertions below non-operator nodes, i.e. activities
     this.disabledInsertPositions.below = rootNode.operator == null;
     // Disable insertions left/right of root node

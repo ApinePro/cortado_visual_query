@@ -9,222 +9,86 @@
   [class.blurOutOfFocus]="processEditorOutOfFocus"
 >
   <div class="bg-dark btn-tool-bar">
-    <div
-      class="btn-group align-baseline dropDownParent dropdown"
-      ngbTooltip="Modify tree"
-      container="body"
-    >
+    <div class="btn-group round-corners" role="group">
       <button
-        class="button text-success dropdown-toggle"
-        [disabled]="insertNewNodeButtonDisabled()"
         type="button"
-        data-bs-toggle="dropdown"
-        aria-expanded="false"
-        data-bs-auto-close="outside"
-        id="addNodeDropdown"
-        (mouseleave)="hideAllTooltips()"
+        class="button"
+        [disabled]="disabledInsertPositions.above"
+        (click)="nodeInsertionStrategy = NodeInsertionStrategy.ABOVE"
+        [ngClass]="
+          nodeInsertionStrategy === NodeInsertionStrategy.ABOVE
+            ? 'strategy-selected'
+            : ''
+        "
+        ngbTooltip="insert new node above the selected one"
+        container="body"
       >
-        <i class="bi bi-plus-square-fill btn-icon"></i>
-        Modify Tree
+        <i class="bi bi-chevron-up"></i>
       </button>
-      <div
-        class="dropdown-menu dropdown-node-insert"
-        [style.max-height.px]="currentEditorHeight"
-        id="dropdownNewNode"
-        aria-labelledby="addNodeDropdown"
+
+      <button
+        type="button"
+        class="button"
+        [disabled]="disabledInsertPositions.below"
+        (click)="nodeInsertionStrategy = NodeInsertionStrategy.BELOW"
+        [ngClass]="
+          nodeInsertionStrategy === NodeInsertionStrategy.BELOW
+            ? 'strategy-selected'
+            : ''
+        "
+        ngbTooltip="insert new node below the selected one"
+        container="body"
       >
-        <div id="positionMethodSelection">
-          <div class="fst-italic fw-bold ps-2 text-center">Position</div>
-          <div
-            class="dropdown-item"
-            [ngClass]="{
-              disabled: disabledInsertPositions.above,
-              'insertion-position-active':
-                nodeInsertionStrategy === NodeInsertionStrategy.ABOVE
-            }"
-            (click)="nodeInsertionStrategy = NodeInsertionStrategy.ABOVE"
-          >
-            <i class="bi bi-box-arrow-up btn-icon"></i>
-            <span class="ms-3">insert above</span>
-          </div>
+        <i class="bi bi-chevron-down"></i>
+      </button>
 
-          <div
-            class="dropdown-item"
-            [ngClass]="{
-              disabled: disabledInsertPositions.leftRight,
-              'insertion-position-active':
-                nodeInsertionStrategy === NodeInsertionStrategy.LEFT
-            }"
-            (click)="nodeInsertionStrategy = NodeInsertionStrategy.LEFT"
-          >
-            <i class="bi bi-box-arrow-left btn-icon"></i>
-            <span class="ms-3">insert left</span>
-          </div>
+      <button
+        type="button"
+        class="button"
+        [disabled]="disabledInsertPositions.leftRight"
+        (click)="nodeInsertionStrategy = NodeInsertionStrategy.LEFT"
+        [ngClass]="
+          nodeInsertionStrategy === NodeInsertionStrategy.LEFT
+            ? 'strategy-selected'
+            : ''
+        "
+        ngbTooltip="insert new node left to the selected one"
+        container="body"
+      >
+        <i class="bi bi-chevron-left"></i>
+      </button>
 
-          <div
-            class="dropdown-item"
-            [ngClass]="{
-              disabled: disabledInsertPositions.below,
-              'insertion-position-active':
-                nodeInsertionStrategy === NodeInsertionStrategy.BELOW
-            }"
-            (click)="nodeInsertionStrategy = NodeInsertionStrategy.BELOW"
-          >
-            <i class="bi bi-box-arrow-down btn-icon"></i>
-            <span class="ms-3">insert below</span>
-          </div>
+      <button
+        type="button"
+        class="button"
+        [disabled]="disabledInsertPositions.leftRight"
+        (click)="nodeInsertionStrategy = NodeInsertionStrategy.RIGHT"
+        [ngClass]="
+          nodeInsertionStrategy === NodeInsertionStrategy.RIGHT
+            ? 'strategy-selected'
+            : ''
+        "
+        ngbTooltip="insert new node right to the selected one"
+        container="body"
+      >
+        <i class="bi bi-chevron-right"></i>
+      </button>
 
-          <div
-            class="dropdown-item"
-            [ngClass]="{
-              disabled: disabledInsertPositions.leftRight,
-              'insertion-position-active':
-                nodeInsertionStrategy === NodeInsertionStrategy.RIGHT
-            }"
-            (click)="nodeInsertionStrategy = NodeInsertionStrategy.RIGHT"
-          >
-            <i class="bi bi-box-arrow-right btn-icon"></i>
-            <span class="ms-3">insert right</span>
-          </div>
-
-          <div
-            class="dropdown-item"
-            [ngClass]="{
-              'insertion-position-active':
-                nodeInsertionStrategy === NodeInsertionStrategy.CHANGE
-            }"
-            (click)="nodeInsertionStrategy = NodeInsertionStrategy.CHANGE"
-          >
-            <i class="bi bi-pencil-square btn-icon"></i>
-            <span class="ms-3">change node</span>
-          </div>
-        </div>
-
-        <div class="dropdown-divider"></div>
-
-        <div class="fst-italic fw-bold ps-2 text-center">Node</div>
-
-        <ng-template #operatorListDropdown>
-          <h7 class="dropdown-header text-primary">Operator</h7>
-
-          <div
-            class="dropdown-item"
-            (click)="insertNewNode('\u2715', null)"
-            [ngClass]="{ disabled: disabledOperatorInsertion }"
-          >
-            <span class="fw-bold">&#x2715;</span>
-            <span class="ms-3">choice</span>
-          </div>
-          <div
-            class="dropdown-item"
-            (click)="insertNewNode('\u2794', null)"
-            [ngClass]="{ disabled: disabledOperatorInsertion }"
-          >
-            <span class="fw-bold">&#x2794;</span>
-            <span class="ms-3">sequence</span>
-          </div>
-          <div
-            class="dropdown-item"
-            (click)="insertNewNode('\u21BA', null)"
-            [ngClass]="{ disabled: disabledOperatorInsertion }"
-          >
-            <span class="fw-bold">&#x21BA;</span>
-            <span class="ms-3">loop</span>
-          </div>
-          <div
-            class="dropdown-item"
-            (click)="insertNewNode('\u2227', null)"
-            [ngClass]="{ disabled: disabledOperatorInsertion }"
-          >
-            <span class="fw-bold">&#x2227;</span>
-            <span class="ms-3">parallel</span>
-          </div>
-        </ng-template>
-
-        <ng-template [ngTemplateOutlet]="operatorListDropdown"></ng-template>
-
-        <ng-template #activityListDropdown>
-          <h7 class="dropdown-header text-primary">Activity</h7>
-
-          <div
-            class="dropdown-item"
-            (click)="insertNewNode(null, '\u03C4')"
-            [ngClass]="{ disabled: disabledActivityInsertion }"
-          >
-            <span class="fw-bold">&#x03C4;</span>
-            <span class="ms-3">invisible activity</span>
-          </div>
-
-          <div class="mx-3 my-1">
-            <input
-              [(ngModel)]="searchText"
-              class="form-control form-control-sm"
-              type="text"
-              placeholder="Type activity"
-              style.color="red"
-              [disabled]="disabledActivityInsertion"
-            />
-          </div>
-          <div
-            class="dropdown-item"
-            *ngFor="
-              let a of activitiesOccurringInLog.sort() | strFilter : searchText
-            "
-            (click)="insertNewNode(null, a)"
-            [ngClass]="{ disabled: disabledActivityInsertion }"
-          >
-            <i
-              class="bi bi-square-fill"
-              [style.color]="activityColorMap.get(a)"
-              [ngStyle]="{ opacity: disabledActivityInsertion ? 0.5 : 1 }"
-            ></i>
-            <span class="ms-3">{{ a }}</span>
-          </div>
-        </ng-template>
-
-        <ng-template [ngTemplateOutlet]="activityListDropdown"></ng-template>
-      </div>
+      <button
+        type="button"
+        class="button"
+        (click)="nodeInsertionStrategy = NodeInsertionStrategy.CHANGE"
+        [ngClass]="
+          nodeInsertionStrategy === NodeInsertionStrategy.CHANGE
+            ? 'strategy-selected'
+            : ''
+        "
+        ngbTooltip="replace the currently selected node"
+        container="body"
+      >
+        <i class="bi bi-arrow-repeat"></i>
+      </button>
     </div>
-
-    <button
-      class="button text-warning"
-      (click)="deleteSubtree()"
-      [disabled]="!selectedRootNode"
-      ngbTooltip="remove selected node(s)"
-      container="body"
-    >
-      <i class="bi bi-trash btn-icon"></i>
-    </button>
-
-    <button
-      class="button"
-      (click)="shiftSubtreeToLeft()"
-      [disabled]="buttonManipulatingMultipleNodesDisabled()"
-      ngbTooltip="shift selected node(s) to left"
-      container="body"
-    >
-      <i class="bi bi-chevron-left btn-icon"></i>
-    </button>
-
-    <button
-      class="button"
-      (click)="shiftSubtreeToRight()"
-      [disabled]="buttonManipulatingMultipleNodesDisabled()"
-      ngbTooltip="shift selected node(s) to right"
-      container="body"
-    >
-      <i class="bi bi-chevron-right btn-icon"></i>
-    </button>
-
-    <button
-      class="button"
-      (click)="applyReductionRules()"
-      [disabled]="!currentlyDisplayedTreeInEditor"
-      ngbTooltip="Applies reduction rules to remove redundant and unnecessary nodes"
-      container="body"
-    >
-      <i class="bi bi-diagram-2"></i>
-    </button>
 
     <div class="vr"></div>
 
@@ -255,6 +119,48 @@
       <span class="text-secondary" *ngIf="treeCacheIndex < treeCacheLength - 1">
         ({{ treeCacheLength - 1 - treeCacheIndex }})
       </span>
+    </button>
+
+    <div class="vr"></div>
+
+    <button
+      class="button text-warning"
+      (click)="deleteSubtree()"
+      [disabled]="!selectedRootNode"
+      ngbTooltip="remove selected node(s)"
+      container="body"
+    >
+      <i class="bi bi-trash btn-icon"></i>
+    </button>
+
+    <button
+      class="button"
+      (click)="shiftSubtreeToLeft()"
+      [disabled]="buttonManipulatingMultipleNodesDisabled()"
+      ngbTooltip="shift selected node(s) to left"
+      container="body"
+    >
+      <i class="bi bi-chevron-double-left btn-icon"></i>
+    </button>
+
+    <button
+      class="button"
+      (click)="shiftSubtreeToRight()"
+      [disabled]="buttonManipulatingMultipleNodesDisabled()"
+      ngbTooltip="shift selected node(s) to right"
+      container="body"
+    >
+      <i class="bi bi-chevron-double-right btn-icon"></i>
+    </button>
+
+    <button
+      class="button"
+      (click)="applyReductionRules()"
+      [disabled]="!currentlyDisplayedTreeInEditor"
+      ngbTooltip="Applies reduction rules to remove redundant and unnecessary nodes"
+      container="body"
+    >
+      <i class="bi bi-diagram-2"></i>
     </button>
 
     <div class="vr"></div>
@@ -326,6 +232,12 @@
       <i class="bi bi-save"></i>
     </button>
   </div>
+  <app-process-tree-toolbox
+    (operatorInsertion)="insertNewNode($event, null)"
+    [operatorInsertionDisabled]="disabledOperatorInsertion"
+    (activityInsertion)="insertNewNode(null, $event)"
+    [activityInsertionDisabled]="disabledActivityInsertion"
+  ></app-process-tree-toolbox>
 
   <div #d3container id="d3-container" class="m-1 flex-grow-1 crosshair grid">
     <div class="floating-infobox" *ngIf="processTreeSyntaxInfo">

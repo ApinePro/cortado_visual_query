@@ -86,6 +86,7 @@ import { SearchComponent } from './components/variant-explorer/search/search.com
 import { GroupByPipe } from './pipes/group-by.pipe';
 import { VariantSortPipe } from './pipes/variant-sort.pipe';
 import { electronServiceFactory } from './dependency-factories';
+import { ProcessTreeToolboxComponent } from './components/process-tree-editor/process-tree-toolbox/process-tree-toolbox.component';
 
 @NgModule({
   declarations: [
@@ -160,6 +161,7 @@ import { electronServiceFactory } from './dependency-factories';
     SearchComponent,
     GroupByPipe,
     VariantSortPipe,
+    ProcessTreeToolboxComponent,
   ],
   imports: [
     BrowserModule,
