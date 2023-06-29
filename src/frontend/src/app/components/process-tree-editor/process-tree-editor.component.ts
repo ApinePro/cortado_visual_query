@@ -334,6 +334,26 @@ export class ProcessTreeEditorComponent
     return this.selectedRootNode && this.selectedRootNode.depth === 0;
   }
 
+  get shiftSubtreeLeftDisabled(): boolean {
+    if (this.buttonManipulatingMultipleNodesDisabled()) return true;
+    const selectedNode = this.selectedRootNode.data;
+    // Disabled when selected subtree already at leftmost position
+    if (selectedNode.parent.children.indexOf(selectedNode) == 0) return true;
+    return false;
+  }
+
+  get shiftSubtreeRightDisabled(): boolean {
+    if (this.buttonManipulatingMultipleNodesDisabled()) return true;
+    const selectedNode = this.selectedRootNode.data;
+    // Disabled when selected subtree already at rightmost position
+    if (
+      selectedNode.parent.children.indexOf(selectedNode) ==
+      selectedNode.parent.children.length - 1
+    )
+      return true;
+    return false;
+  }
+
   buttonManipulatingMultipleNodesDisabled(): boolean {
     return !this.selectedRootNode || this.rootNodeSelected();
   }

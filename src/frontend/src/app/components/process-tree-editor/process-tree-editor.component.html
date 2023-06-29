@@ -136,7 +136,7 @@
     <button
       class="button"
       (click)="shiftSubtreeToLeft()"
-      [disabled]="buttonManipulatingMultipleNodesDisabled()"
+      [disabled]="shiftSubtreeLeftDisabled"
       ngbTooltip="shift selected node(s) to left"
       container="body"
     >
@@ -146,7 +146,7 @@
     <button
       class="button"
       (click)="shiftSubtreeToRight()"
-      [disabled]="buttonManipulatingMultipleNodesDisabled()"
+      [disabled]="shiftSubtreeRightDisabled"
       ngbTooltip="shift selected node(s) to right"
       container="body"
     >
