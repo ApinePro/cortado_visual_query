@@ -587,7 +587,7 @@ export class ProcessTreeEditorComponent
     );
   }
 
-  selectNodeCallBack = (self, event, d) => {
+  selectNodeCallBack = (self, event, d: d3.HierarchyNode<ProcessTree>) => {
     // hide the tooltip
     if (self.variantService.activityTooltipReference) {
       self.variantService.activityTooltipReference.tooltip('hide');
@@ -596,8 +596,8 @@ export class ProcessTreeEditorComponent
     if (d && d.data && d.parent) {
       d.data.parent = d.parent.data;
     }
-    this.pushIDtoService(self, d),
-      (this.processTreeService.selectedTree = ProcessTree.fromObj(d.data));
+    this.pushIDtoService(self, d);
+    this.processTreeService.selectedTree = ProcessTree.fromObj(d.data);
   };
 
   private pushIDtoService = (svg, d) => {
