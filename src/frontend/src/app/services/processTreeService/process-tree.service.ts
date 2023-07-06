@@ -308,6 +308,12 @@ export class ProcessTreeService {
     }
   }
 
+  deleteTreeHistory() {
+    this.previousTreeObjects = [];
+    this.treeCacheIndex = 0;
+    this.treeCacheLength = 0;
+  }
+
   freezeSubtree(node: ProcessTree) {
     if (!node.frozen) {
       markNodeAsFrozen(node);
