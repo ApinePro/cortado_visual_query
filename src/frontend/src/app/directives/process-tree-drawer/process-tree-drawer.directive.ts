@@ -246,9 +246,6 @@ export class ProcessTreeDrawerDirective {
       .attr('stroke', PT_Constant.STROKE_COLOR)
       .classed('frozen-edge', (d) => {
         return d.source.data.frozen;
-      })
-      .classed('selected-edge', (e) => {
-        return e.source.data.selected;
       });
   }
 

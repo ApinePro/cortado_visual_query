@@ -100,13 +100,9 @@ hr {
   width: 100%;
 }
 
-.vl {
-  border-left: 1px solid var(--line-color);
-  height: 27px;
-  /*padding-top: 3px;
-  padding-bottom: 3px;
-  margin-left: 3px;
-  margin-right: 3px;*/
+.vr {
+  background-color: var(--line-color);
+  opacity: 1;
 }
 
 .secondary-text {
