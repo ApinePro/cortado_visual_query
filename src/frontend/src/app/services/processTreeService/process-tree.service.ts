@@ -11,7 +11,10 @@ import {
   markNodeAsFrozen,
   markNodeAsNonFrozen,
 } from 'src/app/objects/ProcessTree/utility-functions/process-tree-freeze';
-import { checkForLoadedTreeIntegrity } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
+import {
+  checkForLoadedTreeIntegrity,
+  processTreesEqual,
+} from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
 import {
   renameProcessTreeLeafs,
   getSetOfActivitiesInProcessTree,
@@ -255,6 +258,8 @@ export class ProcessTreeService {
   }
 
   cacheCurrentTree(root: ProcessTree): void {
+    if (processTreesEqual(root, this.previousTreeObjects[this.treeCacheIndex]))
+      return;
     if (this.treeCacheIndex < this.previousTreeObjects.length - 1) {
       // before change, undo was pressed --> remove newer versions since older version of process tree was changed
       this.previousTreeObjects = this.previousTreeObjects.slice(
