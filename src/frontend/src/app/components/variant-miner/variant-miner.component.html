@@ -465,6 +465,7 @@
         <table class="pattern-table">
           <thead class="user-select-none sticky-header-row">
             <tr>
+              <th class="text-center header-text ml-4">Nr.</th>
               <th resizeable class="text-center" rowspan="1" [margin]="-4">
                 <div class="header-text-container">
                   <div
@@ -554,6 +555,9 @@
               </th>
             </tr>
             <tr class="sticky-header-row">
+              <th>
+                <!-- Placeholder for No. column -->
+              </th>
               <th class="text-center">
                 <i
                   [ngClass]="{
@@ -620,6 +624,7 @@
             <tr
               app-variant-miner-pattern
               *ngFor="let pattern of displayedVariantsPatterns; let i = index"
+              [id]="i + 1"
               [pattern]="pattern"
               [showConformance]="
                 lastExecutedMiningAlgorithm !==
