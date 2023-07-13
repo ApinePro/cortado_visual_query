@@ -8,9 +8,8 @@ describe('ProcessTreeToolboxComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ProcessTreeToolboxComponent ]
-    })
-    .compileComponents();
+      declarations: [ProcessTreeToolboxComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ProcessTreeToolboxComponent);
     component = fixture.componentInstance;
