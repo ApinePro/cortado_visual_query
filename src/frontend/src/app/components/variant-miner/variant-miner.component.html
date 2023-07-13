@@ -481,7 +481,7 @@
               </th>
               <th
                 resizeable
-                class="text-center border-start border-lightgrey"
+                class="text-center"
                 rowspan="1"
                 [margin]="-4"
                 *ngIf="
@@ -502,12 +502,7 @@
                   </div>
                 </div>
               </th>
-              <th
-                resizeable
-                class="text-center border-start border-lightgrey"
-                rowspan="1"
-                [margin]="-4"
-              >
+              <th resizeable class="text-center" rowspan="1" [margin]="-4">
                 <div class="header-text-container">
                   <div
                     class="header-text"
@@ -521,12 +516,7 @@
                   </div>
                 </div>
               </th>
-              <th
-                resizeable
-                class="border-lightgrey border-start border-end text-center"
-                colspan="2"
-                [margin]="-4"
-              >
+              <th resizeable class="text-center" colspan="2" [margin]="-4">
                 <div class="header-text-container">
                   <div
                     class="header-text"
@@ -546,12 +536,7 @@
                   ></i>
                 </div>
               </th>
-              <th
-                resizeable
-                class="text-start border-lightgrey border-start"
-                rowspan="1"
-                [margin]="-4"
-              >
+              <th resizeable class="text-start" rowspan="1" [margin]="-4">
                 <div
                   class="header-text-container variant-header"
                   [style.min-width.px]="maxWidth + 90"
@@ -579,7 +564,7 @@
                 ></i>
               </th>
               <th
-                class="text-center border-start border-lightgrey"
+                class="text-center"
                 *ngIf="
                   lastExecutedMiningAlgorithm !==
                   FrequentMiningAlgorithm.EfPatternMiner
@@ -593,7 +578,7 @@
                   }"
                 ></i>
               </th>
-              <th class="text-center border-start border-lightgrey">
+              <th class="text-center">
                 <i
                   [ngClass]="{
                     'bi-sort-numeric-down': ascending,
@@ -602,9 +587,7 @@
                   }"
                 ></i>
               </th>
-              <th
-                class="confidence-names text-center border-start border-lightgrey"
-              >
+              <th class="confidence-names text-center">
                 <div
                   (click)="sort(VariantSortKey.closed)"
                   class="header-text"
@@ -616,9 +599,7 @@
                   Closed
                 </div>
               </th>
-              <th
-                class="confidence-names text-center border-start border-lightgrey"
-              >
+              <th class="confidence-names text-center">
                 <div
                   (click)="sort(VariantSortKey.maximal)"
                   class="header-text"
@@ -630,9 +611,7 @@
                   Maximal
                 </div>
               </th>
-              <th
-                class="confidence-names text-center border-lightgrey border-start"
-              >
+              <th class="confidence-names text-center">
                 <div class="header-text"></div>
               </th>
             </tr>
