@@ -156,6 +156,12 @@ export class ProcessTreeEditorComponent
 
   private _destroy$ = new Subject();
 
+  get processTreeOriginX() {
+    return this.d3ContainerElem.nativeElement.offsetWidth / 2;
+  }
+
+  readonly processTreeOriginY = 30;
+
   ngOnInit(): void {
     this.dropZoneConfig = new DropzoneConfig(
       '.ptml',
@@ -380,10 +386,10 @@ export class ProcessTreeEditorComponent
     this.processTreeService.redo();
   }
 
-  horizontallyCenterTree(): void {
+  centerTree(): void {
     this.mainSvgGroup.attr(
       'transform',
-      'translate(' + this.d3ContainerElem.nativeElement.offsetWidth / 2 + ', 0)'
+      `translate(${this.processTreeOriginX}, ${this.processTreeOriginY})`
     );
   }
 
@@ -555,18 +561,12 @@ export class ProcessTreeEditorComponent
 
   // Refactor to Directive with Variant Editor / BPMN Viewer
   addZoomFunctionality(): void {
-    this.mainSvgGroup.attr(
-      'transform',
-      'translate(' + this.d3ContainerElem.nativeElement.offsetWidth / 2 + ',0)'
-    );
     const zooming = function (event) {
-      // .translate((this.d3ContainerElem.nativeElement.offsetWidth / 2), 0) is needed to center the tree
-      // otherwise center is at (0,0)
       this.mainSvgGroup.attr(
         'transform',
         event.transform.translate(
-          this.d3ContainerElem.nativeElement.offsetWidth / 2,
-          0
+          this.processTreeOriginX,
+          this.processTreeOriginY
         )
       );
     }.bind(this);
@@ -582,7 +582,7 @@ export class ProcessTreeEditorComponent
           .transition()
           .duration(250)
           .ease(d3.easeExpInOut)
-          .call(zoom.transform, d3.zoomIdentity.translate(0, 30));
+          .call(zoom.transform, d3.zoomIdentity.translate(0, 0));
       }.bind(this)
     );
   }
@@ -683,7 +683,7 @@ export class ProcessTreeEditorComponent
     // add svg group for zooming
     this.mainSvgGroup = this.svg.select('#zoomGroup');
 
-    this.horizontallyCenterTree();
+    this.centerTree();
     this.addZoomFunctionality();
   }
 
