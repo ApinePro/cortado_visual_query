@@ -535,13 +535,13 @@
                     Type
                   </div>
                   <i
+                    *ngIf="
+                      currentSortKey === VariantSortKey.closed ||
+                      currentSortKey === VariantSortKey.maximal
+                    "
                     [ngClass]="{
                       'bi-sort-numeric-down': ascending,
-                      'bi-sort-numeric-down-alt': !ascending,
-                      invisible: !(
-                        currentSortKey === VariantSortKey.closed ||
-                        currentSortKey === VariantSortKey.maximal
-                      )
+                      'bi-sort-numeric-down-alt': !ascending
                     }"
                   ></i>
                 </div>
