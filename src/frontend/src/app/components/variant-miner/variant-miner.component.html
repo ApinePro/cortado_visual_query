@@ -90,7 +90,17 @@
           </div>
 
           <div class="form-select-element">
-            <label for="size" class="input-label">Maximum Size: </label>
+            <label for="size" class="input-label">
+              Maximum Size:
+              <i
+                class="bi bi-question-circle-fill"
+                ngbTooltip="The size of a pattern is not the number of activities
+                but the number of nodes in its tree representation. Therefore the
+                size of a sequence without any parallelism is its number of
+                activities plus one."
+                container="body"
+              ></i>
+            </label>
             <input
               id="size"
               type="number"
