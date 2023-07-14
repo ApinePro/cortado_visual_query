@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import { blobToBase64 } from 'src/app/utils/util';
 import { ProjectService } from '../projectService/project.service';
 import { Subject } from 'rxjs';
+import { ElectronInterface } from './electron-interface';
 
 @Injectable()
-export class ElectronService {
+export class ElectronService implements ElectronInterface {
   private electronApi = (<any>window).electronAPI;
 
   public checkUnsavedChanges$ = new Subject<any>();
