@@ -229,17 +229,6 @@ export class ProcessTreeEditorComponent
           this.selectedRootNode = null;
         }
       });
-
-    this.logService.loadedEventLog$
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((log) => {
-        if (log !== '') {
-          this.currentlyDisplayedTreeInEditor = null;
-          this.processTreeDrawer.redraw(null);
-          this.selectedRootNode = null;
-          this.processTreeService.deleteTreeHistory();
-        }
-      });
   }
 
   ngOnDestroy(): void {
