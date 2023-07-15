@@ -11,13 +11,15 @@ import {
   markNodeAsFrozen,
   markNodeAsNonFrozen,
 } from 'src/app/objects/ProcessTree/utility-functions/process-tree-freeze';
-import { checkForLoadedTreeIntegrity } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
+import {
+  checkForLoadedTreeIntegrity,
+  processTreesEqual,
+} from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
 import {
   renameProcessTreeLeafs,
   getSetOfActivitiesInProcessTree,
 } from 'src/app/objects/ProcessTree/utility-functions/process-tree-transform';
 import {
-  NodeSeletionStrategy,
   delete_subtree,
   NodeInsertionStrategy,
   createNewRandomNode,
@@ -118,22 +120,6 @@ export class ProcessTreeService {
 
   set selectedTree(pt: ProcessTree) {
     this._selectedTree.next(pt);
-  }
-
-  private _selectionMode = new BehaviorSubject<NodeSeletionStrategy>(
-    NodeSeletionStrategy.TREE
-  );
-
-  get selectionMode$(): Observable<any> {
-    return this._selectionMode.asObservable();
-  }
-
-  get selectionMode(): any {
-    return this._selectionMode.getValue();
-  }
-
-  set selectionMode(strategy: NodeSeletionStrategy) {
-    this._selectionMode.next(strategy);
   }
 
   private _currentDisplayedProcessTree = new BehaviorSubject<ProcessTree>(null);
@@ -272,6 +258,8 @@ export class ProcessTreeService {
   }
 
   cacheCurrentTree(root: ProcessTree): void {
+    if (processTreesEqual(root, this.previousTreeObjects[this.treeCacheIndex]))
+      return;
     if (this.treeCacheIndex < this.previousTreeObjects.length - 1) {
       // before change, undo was pressed --> remove newer versions since older version of process tree was changed
       this.previousTreeObjects = this.previousTreeObjects.slice(

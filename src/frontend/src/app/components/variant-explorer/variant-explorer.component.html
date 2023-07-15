@@ -33,7 +33,7 @@
     >
     </i>
 
-    <span class="vl ms-1"></span>
+    <div class="vr ms-1"></div>
 
     <ng-template #toolTip2>
       calculate conformance checking statistics
@@ -68,7 +68,7 @@
       </div>
     </button>
 
-    <span class="vl"></span>
+    <div class="vr"></div>
 
     <button
       class="button"
@@ -96,7 +96,7 @@
       </div>
     </button>
 
-    <span class="vl"></span>
+    <div class="vr"></div>
 
     <ng-template #tooltip3>
       discover an initial model from the selected variants using the standard
@@ -124,10 +124,10 @@
       </div>
     </button>
 
-    <span class="vl"></span>
+    <div class="vr"></div>
 
     <!--
-    <span class="vl"></span>
+    <div class="vr"></div>
 
     <button
       class="button"
@@ -139,7 +139,7 @@
       <i class="bi bi-arrow-counterclockwise"></i>
     </button> -->
 
-    <span class="vl"></span>
+    <div class="vr"></div>
     <ng-template #tooltip4>
       sort variants by one of the following attributes:
       <br /><i class="bi bi-chevron-double-right">
@@ -258,7 +258,7 @@
     </div>
 
     <ng-container *ngIf="variantViewModeService.viewMode === VM.STANDARD">
-      <span class="vl"></span>
+      <div class="vr"></div>
       <button
         class="button"
         (click)="variantService.unCollapseLoopsInVariants()"
@@ -277,7 +277,7 @@
     </ng-container>
 
     <ng-container *ngIf="variantViewModeService.viewMode === VM.STANDARD">
-      <span class="vl"></span>
+      <div class="vr"></div>
       <button
         class="button"
         (click)="showTiebreakerDialog()"
@@ -291,7 +291,7 @@
     </ng-container>
 
     <ng-container *ngIf="variantViewModeService.viewMode !== VM.PERFORMANCE">
-      <span class="vl"></span>
+      <div class="vr"></div>
       <button
         class="button"
         (click)="unExpandAll()"
@@ -309,7 +309,7 @@
       </button>
     </ng-container>
 
-    <span class="vl"></span>
+    <div class="vr"></div>
 
     <div
       *ngIf="
@@ -339,7 +339,7 @@
       </button>
     </div>
 
-    <span class="vl"></span>
+    <div class="vr"></div>
 
     <div
       class="dropdown"
@@ -373,7 +373,7 @@
       </ul>
     </div>
 
-    <span class="vl"></span>
+    <div class="vr"></div>
 
     <button
       class="button"
@@ -386,7 +386,7 @@
       <i class="bi bi-grid-1x2"></i>
     </button>
 
-    <span class="vl"></span>
+    <div class="vr"></div>
 
     <button
       class="button"
@@ -497,7 +497,7 @@
           <thead>
             <tr class="user-select-none">
               <th class="centered">
-                <div class="variant-filter-container">Nr.</div>
+                <div class="variant-filter-container">No.</div>
               </th>
               <th>
                 <div class="variant-filter-container">

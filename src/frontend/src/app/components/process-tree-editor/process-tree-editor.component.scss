@@ -82,3 +82,10 @@
   max-height: 95%;
 }
 
+input:disabled::placeholder {
+  color: var(--bs-dropdown-link-disabled-color)
+}
+
+.strategy-selected{
+  background-color: #515a64;
+}

@@ -48,10 +48,9 @@ export class ProjectService {
     private variantQueryService: VariantQueryService,
     private backendService: BackendService,
     private modalService: NgbModal,
-    @Optional()
     private electronService: ElectronService
   ) {
-    if (electronService) {
+    try {
       this.electronService
         .readFromUserFolder('latest_project', 'json')
         .then((lastProjectJson) => {
@@ -96,7 +95,8 @@ export class ProjectService {
           if (filePath) sender.send('quit');
         })
       );
-    } else {
+    } catch (error) {
+      console.error('Cannot access user folder.', error);
       this.getInitialProject();
     }
   }

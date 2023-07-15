@@ -11,7 +11,7 @@ export class StrFilterPipe implements PipeTransform {
     if (!searchText) {
       return items;
     }
-    return [searchText].concat(
+    return (items.includes(searchText) ? [] : [searchText]).concat(
       items.filter((item) => {
         return item
           .toLocaleLowerCase()
