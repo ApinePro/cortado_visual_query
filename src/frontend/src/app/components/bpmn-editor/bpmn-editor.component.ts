@@ -26,7 +26,6 @@ import { BPMN_Constant } from 'src/app/constants/bpmn_model_drawer_constants';
 import { BpmnDrawerDirective } from 'src/app/directives/bpmn-drawer/bpmn-drawer.directive';
 import { getPerformanceTable } from '../process-tree-editor/utils';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
-import { NodeSeletionStrategy } from 'src/app/objects/ProcessTree/utility-functions/process-tree-edit-tree';
 import { takeUntil } from 'rxjs/operators';
 import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
 import { ViewMode } from 'src/app/objects/ViewMode';
@@ -59,8 +58,6 @@ export class BpmnEditorComponent
   selectedPerformanceIndicator: string;
   zoom: d3.ZoomBehavior<Element, unknown>;
 
-  NodeSeletionStrategy = NodeSeletionStrategy;
-  nodeSelectionStrategy: NodeSeletionStrategy = NodeSeletionStrategy.TREE;
   treeCacheLength: number = 0;
   treeCacheIndex: number = 0;
 
@@ -100,12 +97,6 @@ export class BpmnEditorComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe((len) => {
         this.treeCacheLength = len;
-      });
-
-    this.processTreeService.selectionMode$
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((strategy) => {
-        this.nodeSelectionStrategy = strategy;
       });
   }
 
@@ -406,16 +397,6 @@ export class BpmnEditorComponent
     }
   }
 
-  selectNode(): void {
-    this.processTreeService.selectedRootNodeID = null;
-    this.processTreeService.selectionMode = NodeSeletionStrategy.NODE;
-  }
-
-  selectSubtree(): void {
-    this.processTreeService.selectedRootNodeID = null;
-    this.processTreeService.selectionMode = NodeSeletionStrategy.TREE;
-  }
-
   undo(): void {
     this.processTreeService.undo();
   }
@@ -449,15 +430,6 @@ export class BpmnEditorComponent
 
   deleteSelected() {
     this.processTreeService.deleteSelected(this.selectedNode.datum());
-  }
-
-  deleteInactive() {
-    return (
-      this.selectedRootID == null ||
-      (this.nodeSelectionStrategy == this.NodeSeletionStrategy.NODE &&
-        this.selectedNode &&
-        this.selectedNode.datum().children.length > 0)
-    );
   }
 
   addZoomFunctionality(): void {

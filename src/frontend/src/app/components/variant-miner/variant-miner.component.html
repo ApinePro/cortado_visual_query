@@ -90,7 +90,17 @@
           </div>
 
           <div class="form-select-element">
-            <label for="size" class="input-label">Maximum Size: </label>
+            <label for="size" class="input-label">
+              Maximum Size:
+              <i
+                class="bi bi-question-circle-fill"
+                ngbTooltip="The size of a pattern is not the number of activities
+                but the number of nodes in its tree representation. Therefore the
+                size of a sequence without any parallelism is its number of
+                activities plus one."
+                container="body"
+              ></i>
+            </label>
             <input
               id="size"
               type="number"
@@ -272,7 +282,7 @@
           </div>
         </button>
 
-        <span class="vl"></span>
+        <div class="vr"></div>
 
         <button
           *ngIf="addLpmFeatures"
@@ -290,7 +300,7 @@
           </div>
         </button>
 
-        <span class="vl"></span>
+        <div class="vr"></div>
 
         <button
           class="button ms-auto"
@@ -465,6 +475,7 @@
         <table class="pattern-table">
           <thead class="user-select-none sticky-header-row">
             <tr>
+              <th class="text-center header-text ml-4">No.</th>
               <th resizeable class="text-center" rowspan="1" [margin]="-4">
                 <div class="header-text-container">
                   <div
@@ -481,7 +492,7 @@
               </th>
               <th
                 resizeable
-                class="text-center border-start border-lightgrey"
+                class="text-center"
                 rowspan="1"
                 [margin]="-4"
                 *ngIf="
@@ -502,12 +513,7 @@
                   </div>
                 </div>
               </th>
-              <th
-                resizeable
-                class="text-center border-start border-lightgrey"
-                rowspan="1"
-                [margin]="-4"
-              >
+              <th resizeable class="text-center" rowspan="1" [margin]="-4">
                 <div class="header-text-container">
                   <div
                     class="header-text"
@@ -521,12 +527,7 @@
                   </div>
                 </div>
               </th>
-              <th
-                resizeable
-                class="border-lightgrey border-start border-end text-center"
-                colspan="2"
-                [margin]="-4"
-              >
+              <th resizeable class="text-center" colspan="2" [margin]="-4">
                 <div class="header-text-container">
                   <div
                     class="header-text"
@@ -535,23 +536,18 @@
                     Type
                   </div>
                   <i
+                    *ngIf="
+                      currentSortKey === VariantSortKey.closed ||
+                      currentSortKey === VariantSortKey.maximal
+                    "
                     [ngClass]="{
                       'bi-sort-numeric-down': ascending,
-                      'bi-sort-numeric-down-alt': !ascending,
-                      invisible: !(
-                        currentSortKey === VariantSortKey.closed ||
-                        currentSortKey === VariantSortKey.maximal
-                      )
+                      'bi-sort-numeric-down-alt': !ascending
                     }"
                   ></i>
                 </div>
               </th>
-              <th
-                resizeable
-                class="text-start border-lightgrey border-start"
-                rowspan="1"
-                [margin]="-4"
-              >
+              <th resizeable class="text-start" rowspan="1" [margin]="-4">
                 <div
                   class="header-text-container variant-header"
                   [style.min-width.px]="maxWidth + 90"
@@ -569,6 +565,9 @@
               </th>
             </tr>
             <tr class="sticky-header-row">
+              <th>
+                <!-- Placeholder for No. column -->
+              </th>
               <th class="text-center">
                 <i
                   [ngClass]="{
@@ -579,7 +578,7 @@
                 ></i>
               </th>
               <th
-                class="text-center border-start border-lightgrey"
+                class="text-center"
                 *ngIf="
                   lastExecutedMiningAlgorithm !==
                   FrequentMiningAlgorithm.EfPatternMiner
@@ -593,7 +592,7 @@
                   }"
                 ></i>
               </th>
-              <th class="text-center border-start border-lightgrey">
+              <th class="text-center">
                 <i
                   [ngClass]="{
                     'bi-sort-numeric-down': ascending,
@@ -602,9 +601,7 @@
                   }"
                 ></i>
               </th>
-              <th
-                class="confidence-names text-center border-start border-lightgrey"
-              >
+              <th class="confidence-names text-center">
                 <div
                   (click)="sort(VariantSortKey.closed)"
                   class="header-text"
@@ -616,9 +613,7 @@
                   Closed
                 </div>
               </th>
-              <th
-                class="confidence-names text-center border-start border-lightgrey"
-              >
+              <th class="confidence-names text-center">
                 <div
                   (click)="sort(VariantSortKey.maximal)"
                   class="header-text"
@@ -630,9 +625,7 @@
                   Maximal
                 </div>
               </th>
-              <th
-                class="confidence-names text-center border-lightgrey border-start"
-              >
+              <th class="confidence-names text-center">
                 <div class="header-text"></div>
               </th>
             </tr>
@@ -641,6 +634,7 @@
             <tr
               app-variant-miner-pattern
               *ngFor="let pattern of displayedVariantsPatterns; let i = index"
+              [id]="i + 1"
               [pattern]="pattern"
               [showConformance]="
                 lastExecutedMiningAlgorithm !==
