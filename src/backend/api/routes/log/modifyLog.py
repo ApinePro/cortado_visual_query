@@ -66,7 +66,7 @@ class removeVariants(BaseModel):
 
 
 @router.post("/deleteVariants")
-async def removeVariants(d: removeVariants):
+async def delete_variants(d: removeVariants):
     cache_current_data()
 
     res = remove_variant(d.bids)
@@ -75,7 +75,7 @@ async def removeVariants(d: removeVariants):
 
 
 @router.post("/revertLastChange")
-async def removeVariants():
+async def revert_last_change():
     res = reset_last_transaction()
 
     return res
@@ -87,7 +87,7 @@ class userDefinedVariant(BaseModel):
 
 
 @router.post("/addUserDefinedVariant", status_code=201)
-async def remove_activity_name_in_log(request: userDefinedVariant, response: Response):
+async def add_user_defined_variant(request: userDefinedVariant, response: Response):
     v = Group.deserialize(request.variant)
 
     if request.bid in cache.cache.variants:
@@ -106,7 +106,7 @@ class userDefinedInfix(BaseModel):
 
 
 @router.post("/addUserDefinedInfix", status_code=201)
-async def remove_activity_name_in_log(request: userDefinedInfix, response: Response):
+async def add_user_defined_infix(request: userDefinedInfix, response: Response):
     infix_type = InfixType(request.infixType)
     v = Group.deserialize(request.variant)
     v.infix_type = InfixType(request.infixType)
