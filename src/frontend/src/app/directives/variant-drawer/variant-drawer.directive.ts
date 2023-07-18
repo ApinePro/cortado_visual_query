@@ -296,7 +296,6 @@ export class VariantDrawerDirective
 
     const PREFIX_OFFSET = 35;
     const POSTFIX_OFFSET = 25;
-    const PROPER_INFIX_OFFSET = 60;
 
     const svg = this.svgSelection;
     const variant_svg = svg
@@ -318,7 +317,7 @@ export class VariantDrawerDirective
         break;
 
       case InfixType.PROPER_INFIX:
-        width_offset = PROPER_INFIX_OFFSET;
+        width_offset = PREFIX_OFFSET + POSTFIX_OFFSET;
         break;
     }
 
@@ -460,7 +459,7 @@ export class VariantDrawerDirective
       )
       .attr(
         'transform',
-        'translate(' + (width / 2 - 8) + ',' + VARIANT_Constants.MARGIN_Y + ')'
+        `translate(${width / 2 - 8}, ${VARIANT_Constants.MARGIN_Y})`
       );
 
     let label = leafNode.activity[0];
@@ -494,7 +493,7 @@ export class VariantDrawerDirective
   drawSequenceGroup(
     element: SequenceGroup,
     parent: Selection<any, any, any, any>,
-    outerElement
+    outerElement: boolean
   ): void {
     const width = element.getWidth();
     const height = element.getHeight();
@@ -537,14 +536,18 @@ export class VariantDrawerDirective
       }
     }
 
-    let x =
-      outerElement &&
-      (this.keepStandardView ||
-        this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE)
-        ? 0
-        : element.getHeadLength() +
-          element.getMarginX() -
-          element.elements[0].getHeadLength();
+    let xOffset = 0;
+
+    if (
+      !outerElement ||
+      (!this.keepStandardView &&
+        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE)
+    ) {
+      xOffset +=
+        element.getHeadLength() +
+        element.getMarginX() -
+        element.elements[0].getHeadLength();
+    }
 
     for (const child of element.elements) {
       if (
@@ -555,16 +558,18 @@ export class VariantDrawerDirective
         continue;
       }
 
-      const width = child.getWidth(
+      const childWidth = child.getWidth(
         !this.keepStandardView &&
           this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
       );
       const childHeight = child.getHeight();
-      const y = height / 2 - childHeight / 2;
-      const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
+      const yOffset = height / 2 - childHeight / 2;
+      const g = parent
+        .append('g')
+        .attr('transform', `translate(${xOffset}, ${yOffset})`);
 
       this.draw(child, g, false);
-      x += width;
+      xOffset += childWidth;
     }
 
     if (this.onMouseOverCbFc) {
@@ -850,35 +855,37 @@ export class VariantDrawerDirective
   ): void {
     const height = element.getHeight();
 
-    let x =
+    let xOffset =
       element.getHeadLength() +
       element.getMarginX() -
       element.elements[0].getHeadLength();
 
     element.elements.forEach((child, idx) => {
-      const width = child.getWidth(
+      const childWidth = child.getWidth(
         !this.keepStandardView &&
           this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
       );
       const childHeight = child.getHeight();
-      const y = height / 2 - childHeight / 2;
-      const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
+      const yOffset = height / 2 - childHeight / 2;
+      const g = parent
+        .append('g')
+        .attr('transform', `translate(${xOffset}, ${yOffset})`);
 
       this.draw(child, g, false);
-      x += width;
+      xOffset += childWidth;
 
       if (idx >= element.elements.length - 1) return;
 
       const heightOffset =
         (element.getHeight() - 2 * VARIANT_Constants.MARGIN_Y) / 2 - 7.65;
-      x += VARIANT_Constants.SKIP_MARGIN;
+      xOffset += VARIANT_Constants.SKIP_MARGIN;
       parent
         .append('g')
-        .attr('transform', `translate(${x}, ${heightOffset})`)
+        .attr('transform', `translate(${xOffset}, ${heightOffset})`)
         .append('use')
         .attr('href', '#infixDots')
         .attr('transform', 'scale(1.7)');
-      x += VARIANT_Constants.SKIP_WIDTH + VARIANT_Constants.SKIP_MARGIN;
+      xOffset += VARIANT_Constants.SKIP_WIDTH + VARIANT_Constants.SKIP_MARGIN;
     });
 
     if (this.onMouseOverCbFc) {
