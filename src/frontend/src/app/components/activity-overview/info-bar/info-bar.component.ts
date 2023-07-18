@@ -7,9 +7,12 @@ import { Subject } from 'rxjs';
 @Component({
   selector: 'app-activity-overview-info-bar',
   template: ` <div class="info-bar ps-2 pe-2">
-    <span class="float-end"
+    <span class="float-end" *ngIf="totalActivities"
       >activities in model: {{ numActivitiesInModel }} out of
-      {{ totalActivities }}</span
+      {{ totalActivities }} ({{
+        (numActivitiesInModel * 100) / totalActivities
+      }}
+      %)</span
     >
   </div>`,
   styleUrls: ['./info-bar.component.scss'],
@@ -18,8 +21,8 @@ export class InfoBarComponent implements AfterViewInit, OnChanges {
   @Input()
   activityFields: ActivityField[];
 
-  numActivitiesInModel: Number;
-  totalActivities: Number;
+  numActivitiesInModel: number;
+  totalActivities: number;
 
   private _destroy$ = new Subject();
 
