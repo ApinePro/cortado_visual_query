@@ -22,27 +22,34 @@
             class="bg-dark th-dropdown-colors resizeable-header-element"
             [margin]="-7"
           >
-            <div
-              class="btn-group align-baseline dropDownParent dropdown ms-auto center"
-              ngbTooltip="edit activity colors"
-              placement="end"
-              container="body"
-            >
+            <div class="dropdown">
               <button
+                id="Colors"
                 class="button dropdown-toggle"
                 type="button"
                 data-bs-toggle="dropdown"
+                data-bs-auto-close="outside"
+                aria-expanded="false"
+                ngbTooltip="Edit colors"
               >
                 <i class="bi bi-palette"></i>
               </button>
-              <div class="dropdown-menu custom-dropdown">
-                <div class="fst-italic fw-bold ps-2 text-center">
-                  Edit activities
-                </div>
-                <div class="dropdown-item" (click)="resetActivityColors()">
-                  <span class="ms-4">Reset activity colors</span>
-                </div>
-              </div>
+              <ul
+                class="dropdown-menu tool-bar-drop tool-bar-dropdown bg-dark"
+                aria-labelledby="Colors"
+              >
+                <li>
+                  <button
+                    class="button align-bottom"
+                    (click)="resetActivityColors()"
+                  >
+                    <div>
+                      <i class="bi bi-arrow-counterclockwise btn-icon me-1"></i>
+                      <span><b>Reset</b> activity colors</span>
+                    </div>
+                  </button>
+                </li>
+              </ul>
             </div>
           </th>
           <th
@@ -54,7 +61,7 @@
           >
             <div class="d-flex justify-content-between">
               <div class="table-header-sort-group">
-                <em class="user-select-none">Activity name</em>
+                <div class="user-select-none">Activity</div>
                 <i
                   class="bi"
                   [ngClass]="{
@@ -86,7 +93,7 @@
             [margin]="-7"
           >
             <div class="table-header-sort-group">
-              <em class="user-select-none">in model</em>
+              <div class="user-select-none">in model</div>
               <i
                 class="bi"
                 [ngClass]="{
@@ -168,9 +175,10 @@
             [margin]="-7"
           >
             <div class="table-header-sort-group">
-              <div>
-                <i class="bi bi-hash"></i
-                ><em class="user-select-none">occurrence</em>
+              <div
+                ngbTooltip="Number of activity occurrences in the loaded event log"
+              >
+                <i class="bi bi-hash"></i>
               </div>
               <i
                 class="bi"
