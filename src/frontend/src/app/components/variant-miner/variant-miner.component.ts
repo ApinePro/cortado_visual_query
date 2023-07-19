@@ -68,6 +68,7 @@ import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutServi
 import { LpmService } from 'src/app/services/lpmService/lpm.service';
 import { LocalProcessModelWithPatterns } from 'src/app/objects/LocalProcessModelWithPatterns';
 import { environment } from '../../../environments/environment';
+import * as objectHash from 'object-hash';
 @Component({
   selector: 'app-variant-miner',
   templateUrl: './variant-miner.component.html',
@@ -1018,6 +1019,91 @@ export class VariantMinerComponent
     this.sharedDataService.frequentMiningResults = null;
     this.lazyLoadingServiceService.destoryVariantMinerObserver();
     this._destroy$.next();
+  }
+
+  getSelectedPatterns(): SubvariantPattern[] {
+    return this.displayedVariantsPatterns.filter((v) => v.isSelected);
+  }
+
+  isAnyPatternSelected(): boolean {
+    return this.displayedVariantsPatterns.some((v) => v.isSelected);
+  }
+
+  areAllPatternsSelected(): boolean {
+    return this.displayedVariantsPatterns.every((v) => v.isSelected);
+  }
+
+  setAllPatternsSelectionState(selectionState: boolean): void {
+    this.displayedVariantsPatterns.forEach(
+      (v) => (v.isSelected = selectionState)
+    );
+  }
+
+  addSelectedPatternsToLog(): void {
+    this.getSelectedPatterns().forEach((pattern) => {
+      const newVariant = new Variant(
+        pattern.support,
+        pattern.variant,
+        false,
+        true,
+        false,
+        0,
+        undefined,
+        true,
+        false,
+        true,
+        0,
+        pattern.infixType
+      );
+      newVariant.alignment = undefined;
+      newVariant.deviations = undefined;
+      newVariant.id = objectHash(newVariant);
+
+      const isDuplicate = this.variantService.variants.some((v: Variant) => {
+        return newVariant.equals(v) || v.id === newVariant.id;
+      });
+
+      if (!isDuplicate) {
+        this.variantService.nUserVariants += 1;
+        newVariant.bid = -this.variantService.nUserVariants;
+        this.variantService.variants.push(newVariant);
+
+        if (newVariant.infixType === InfixType.NOT_AN_INFIX) {
+          this.variantService
+            .addUserDefinedVariant(newVariant)
+            .subscribe((response) => {
+              if (this.variantService.clusteringConfig) {
+                // trigger new clustering
+                this.variantService.clusteringConfig =
+                  this.variantService.clusteringConfig;
+              } else {
+                this.variantService.variants = this.variantService.variants;
+              }
+            });
+        } else {
+          this.backendService
+            .countFragmentOccurrences(newVariant)
+            .subscribe((statistics) => {
+              newVariant.fragmentStatistics = statistics;
+              this.variantService
+                .addInfixToBackend(newVariant)
+                .subscribe((response) => {
+                  if (this.variantService.clusteringConfig) {
+                    // trigger new clustering
+                    this.variantService.clusteringConfig =
+                      this.variantService.clusteringConfig;
+                  } else {
+                    this.variantService.variants = this.variantService.variants;
+                  }
+                });
+            });
+        }
+      }
+    });
+  }
+
+  areAllPatternSkipGroups(): boolean {
+    return this.displayedVariantsPatterns.every((v) => v.isSkipGroupPattern);
   }
 }
 

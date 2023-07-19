@@ -1,4 +1,12 @@
 <td class="text-center text-size" #row>{{ id }}.</td>
+<td class="text-center text-size">
+  <app-variant-selection-button
+    *ngIf="!pattern.isSkipGroupPattern"
+    [isSelected]="pattern.isSelected"
+    (selectionChanged)="pattern.isSelected = !pattern.isSelected"
+  >
+  </app-variant-selection-button>
+</td>
 <td #row>
   <div class="text-center text-size">
     {{ pattern.size }}

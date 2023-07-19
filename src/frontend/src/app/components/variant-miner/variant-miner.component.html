@@ -283,6 +283,31 @@
         </button>
 
         <div class="vr"></div>
+        <ng-container
+          *ngIf="
+            !(areAllPatternSkipGroups() && displayedVariantsPatterns.length > 0)
+          "
+        >
+          <button
+            class="button"
+            [disabled]="!isAnyPatternSelected()"
+            (click)="addSelectedPatternsToLog()"
+            ngbTooltip="Add pattern(s) to log"
+            container="body"
+          >
+            <i
+              class="bi bi-database-add"
+              [ngClass]="{
+                'text-success': isAnyPatternSelected()
+              }"
+            ></i>
+
+            <div @collapseText class="button-text px-1" *ngIf="!collapse">
+              Add pattern(s) to log
+            </div>
+          </button>
+          <div class="vr"></div>
+        </ng-container>
 
         <button
           *ngIf="addLpmFeatures"
@@ -475,7 +500,24 @@
         <table class="pattern-table">
           <thead class="user-select-none sticky-header-row">
             <tr>
-              <th class="text-center header-text ml-4">No.</th>
+              <th class="text-center header-text">No.</th>
+              <th class="text-center header-text">
+                <app-variant-selection-button
+                  *ngIf="
+                    !(
+                      areAllPatternSkipGroups() &&
+                      displayedVariantsPatterns.length > 0
+                    )
+                  "
+                  [isSelected]="
+                    areAllPatternsSelected() &&
+                    displayedVariantsPatterns.length > 0
+                  "
+                  (selectionChanged)="setAllPatternsSelectionState($event)"
+                  tooltipText="(un)select all variants"
+                >
+                </app-variant-selection-button>
+              </th>
               <th resizeable class="text-center" rowspan="1" [margin]="-4">
                 <div class="header-text-container">
                   <div
@@ -567,6 +609,9 @@
             <tr class="sticky-header-row">
               <th>
                 <!-- Placeholder for No. column -->
+              </th>
+              <th>
+                <!-- Placeholder for column showing selection -->
               </th>
               <th class="text-center">
                 <i
