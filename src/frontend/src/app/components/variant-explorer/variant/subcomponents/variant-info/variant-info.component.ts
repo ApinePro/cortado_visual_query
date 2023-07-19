@@ -47,7 +47,7 @@ export class VariantInfoComponent implements OnInit, OnDestroy {
     this.processTreeService.currentDisplayedProcessTree$
       .pipe(takeUntil(this._destroy$))
       .subscribe((t) => {
-        this.processTreeIsPresent = t !== undefined && t !== null;
+        this.processTreeIsPresent = t?.isValid();
       });
 
     if (this.variant.infixType != InfixType.NOT_AN_INFIX) {

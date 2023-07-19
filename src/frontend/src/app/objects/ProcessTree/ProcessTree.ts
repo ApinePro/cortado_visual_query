@@ -118,6 +118,10 @@ export class ProcessTree {
       this.performance?.idle_time
     );
   }
+
+  public isValid() {
+    return checkSyntax(this).correctSyntax;
+  }
 }
 
 export class TreePerformance {

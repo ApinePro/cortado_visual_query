@@ -57,7 +57,7 @@
       class="button"
       (click)="updateAlignments()"
       [disabled]="
-        !currentlyDisplayedProcessTree ||
+        !currentlyDisplayedProcessTree?.isValid() ||
         isAlignmentCalculationInProgress() ||
         !correctTreeSyntax
       "
@@ -76,7 +76,7 @@
       container="body"
       [disabled]="
         isNoVariantSelected() ||
-        !currentlyDisplayedProcessTree ||
+        !currentlyDisplayedProcessTree?.isValid() ||
         isAlignmentCalculationInProgress()
       "
       (click)="addSelectedVariantsToModel()"
@@ -86,7 +86,7 @@
         [ngClass]="{
           'text-success': !(
             isNoVariantSelected() ||
-            !currentlyDisplayedProcessTree ||
+            !currentlyDisplayedProcessTree?.isValid() ||
             isAlignmentCalculationInProgress()
           )
         }"
@@ -515,7 +515,7 @@
               </th>
               <th
                 *ngIf="
-                  currentlyDisplayedProcessTree &&
+                  currentlyDisplayedProcessTree?.isValid() &&
                   variantViewModeService.viewMode !== VM.STANDARD
                 "
                 class="centered"
@@ -553,7 +553,7 @@
               </th>
               <th
                 *ngIf="
-                  currentlyDisplayedProcessTree &&
+                  currentlyDisplayedProcessTree?.isValid() &&
                   variantViewModeService.viewMode !== VM.STANDARD
                 "
                 class="centered"
@@ -703,7 +703,7 @@
                   [index]="i * cluster.value.length + j"
                   [variant]="variant"
                   [processTreeAvailable]="
-                    processTreeService.currentDisplayedProcessTree
+                    processTreeService.currentDisplayedProcessTree?.isValid()
                   "
                   [traceInfixSelectionMode]="traceInfixSelectionMode"
                   [rootElement]="variantExplorerDiv"
