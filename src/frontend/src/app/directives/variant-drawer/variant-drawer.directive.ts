@@ -539,9 +539,10 @@ export class VariantDrawerDirective
     let xOffset = 0;
 
     if (
-      !outerElement ||
-      (!this.keepStandardView &&
-        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE)
+      (!outerElement ||
+        (!this.keepStandardView &&
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE)) &&
+      !(element.parent instanceof SkipGroup)
     ) {
       xOffset +=
         element.getHeadLength() +
@@ -855,10 +856,7 @@ export class VariantDrawerDirective
   ): void {
     const height = element.getHeight();
 
-    let xOffset =
-      element.getHeadLength() +
-      element.getMarginX() -
-      element.elements[0].getHeadLength();
+    let xOffset = 0;
 
     element.elements.forEach((child, idx) => {
       const childWidth = child.getWidth(

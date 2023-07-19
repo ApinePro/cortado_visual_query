@@ -379,22 +379,25 @@ export class SequenceGroup extends VariantElement {
 
   public recalculateHeight(): number {
     this.elements.forEach((el) => (el.height = undefined));
-    this.height =
-      Math.max(...this.elements.map((el: VariantElement) => el.getHeight())) +
-      this.getMarginY() * 2;
+    this.height = Math.max(
+      ...this.elements.map((el: VariantElement) => el.getHeight())
+    );
+    if (!(this.parent instanceof SkipGroup))
+      this.height += this.getMarginY() * 2;
     return this.height;
   }
 
   public recalculateWidth(includeWaiting = false): number {
     this.elements.forEach((el) => (el.width = undefined));
-    this.width =
-      this.elements
-        .filter((el) => !(el instanceof WaitingTimeNode) || includeWaiting)
-        .map((el: VariantElement) => el.getWidth(includeWaiting))
-        .reduce((a: number, b: number) => a + b) +
-      2 * this.getMarginX() +
-      this.getHeadLength() -
-      this.elements[0].getHeadLength();
+    this.width = this.elements
+      .filter((el) => !(el instanceof WaitingTimeNode) || includeWaiting)
+      .map((el: VariantElement) => el.getWidth(includeWaiting))
+      .reduce((a: number, b: number) => a + b);
+    if (!(this.parent instanceof SkipGroup))
+      this.width +=
+        2 * this.getMarginX() +
+        this.getHeadLength() -
+        this.elements[0].getHeadLength();
     return this.width;
   }
 
@@ -813,7 +816,18 @@ export class SkipGroup extends VariantElement {
     this.width =
       this.elements
         .filter((el) => !(el instanceof WaitingTimeNode) || includeWaiting)
-        .map((el: VariantElement) => el.getWidth(includeWaiting))
+        .map((el: VariantElement) => {
+          if (el instanceof SequenceGroup) {
+            return el.elements
+              .filter(
+                (el) => !(el instanceof WaitingTimeNode) || includeWaiting
+              )
+              .map((el: VariantElement) => el.getWidth(includeWaiting))
+              .reduce((a: number, b: number) => a + b);
+          } else {
+            return el.getWidth(includeWaiting);
+          }
+        })
         .reduce((a: number, b: number) => a + b) +
       2 * this.getMarginX() +
       this.getHeadLength() -
