@@ -21,27 +21,15 @@
             class="bg-dark th-dropdown-colors resizeable-header-element"
             [margin]="-7"
           >
-            <div
-              class="btn-group align-baseline dropDownParent dropdown ms-auto center"
-              ngbTooltip="edit activity colors"
-              placement="end"
-              container="body"
-            >
+            <div>
               <button
-                class="button dropdown-toggle"
                 type="button"
-                data-bs-toggle="dropdown"
+                class="button"
+                ngbTooltip="Reset activity colors"
+                (click)="resetActivityColors()"
               >
-                <i class="bi bi-palette"></i>
+                <i class="bi bi-arrow-counterclockwise btn-icon me-1"></i>
               </button>
-              <div class="dropdown-menu custom-dropdown">
-                <div class="fst-italic fw-bold ps-2 text-center">
-                  Edit activities
-                </div>
-                <div class="dropdown-item" (click)="resetActivityColors()">
-                  <span class="ms-4">Reset activity colors</span>
-                </div>
-              </div>
             </div>
           </th>
           <th
@@ -52,8 +40,10 @@
             [margin]="-7"
           >
             <div class="d-flex justify-content-between">
-              <div class="table-header-sort-group">
-                <em class="user-select-none">Activity name</em>
+              <div
+                class="d-flex flex-row justify-content-center table-header-sort-group"
+              >
+                <div class="user-select-none mx-1">Activity</div>
                 <i
                   class="bi"
                   [ngClass]="{
@@ -84,8 +74,10 @@
             (click)="toggleSort('inModel')"
             [margin]="-7"
           >
-            <div class="table-header-sort-group">
-              <em class="user-select-none">in model</em>
+            <div
+              class="d-flex flex-row justify-content-center table-header-sort-group"
+            >
+              <div class="user-select-none mx-1">in model</div>
               <i
                 class="bi"
                 [ngClass]="{
@@ -103,12 +95,18 @@
             (click)="toggleSort('isStart')"
             [margin]="-7"
           >
-            <div class="table-header-sort-group">
+            <div
+              class="d-flex flex-row justify-content-center table-header-sort-group"
+            >
               <ng-template #startActivityTooltip>
                 <b class="text-primary">start-activity</b> (in the event log,
                 there exists a case that starts with the given activity)
               </ng-template>
-              <div [ngbTooltip]="startActivityTooltip" container="body">
+              <div
+                [ngbTooltip]="startActivityTooltip"
+                container="body"
+                class="mx-1"
+              >
                 <i class="bi bi-chevron-right text-white"></i>
                 <i
                   class="bi bi-chevron-double-right"
@@ -133,7 +131,7 @@
             (click)="toggleSort('isEnd')"
             [margin]="-7"
           >
-            <div class="table-header-sort-group">
+            <div class="d-flex flex-row justify-content-center sort-group">
               <ng-template #endActivityTooltip>
                 <b class="text-primary">end-activity</b> (in the event log,
                 there exists a case that ends with the given activity)
@@ -166,10 +164,13 @@
             (click)="toggleSort('occurences')"
             [margin]="-7"
           >
-            <div class="table-header-sort-group">
-              <div>
-                <i class="bi bi-hash"></i
-                ><em class="user-select-none">occurrence</em>
+            <div
+              class="d-flex flex-row justify-content-center table-header-sort-group"
+            >
+              <div
+                ngbTooltip="Number of activity occurrences in the loaded event log"
+              >
+                <i class="bi bi-hash"></i>
               </div>
               <i
                 class="bi"
