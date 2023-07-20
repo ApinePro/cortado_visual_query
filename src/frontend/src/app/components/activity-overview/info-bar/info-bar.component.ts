@@ -1,5 +1,11 @@
 import { ActivityField } from 'src/app/components/activity-overview/activity-overview.component';
-import { Component, Input, AfterViewInit, OnChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  AfterViewInit,
+  OnChanges,
+  OnDestroy,
+} from '@angular/core';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
@@ -15,9 +21,8 @@ import { Subject } from 'rxjs';
       %)</span
     >
   </div>`,
-  styleUrls: ['./info-bar.component.scss'],
 })
-export class InfoBarComponent implements AfterViewInit, OnChanges {
+export class InfoBarComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input()
   activityFields: ActivityField[];
 
@@ -41,5 +46,9 @@ export class InfoBarComponent implements AfterViewInit, OnChanges {
           activitiesInTree.has(act.activityName)
         ).length;
       });
+  }
+
+  ngOnDestroy(): void {
+    this._destroy$.next();
   }
 }
