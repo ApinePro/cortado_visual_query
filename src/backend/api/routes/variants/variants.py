@@ -27,7 +27,7 @@ router = APIRouter(tags=['Variants'], prefix="/variant")
 
 
 @router.post("/countFragmentOccurrences")
-def get_fragment_statistics(payload: VariantFragment):
+def count_fragment_occurrences(payload: VariantFragment):
     fragment: Group = Group.deserialize(payload.fragment)
 
     variants: Mapping[int, Tuple[ConcurrencyGroup,
@@ -62,7 +62,7 @@ def get_fragment_statistics(payload: VariantFragment):
 
 
 @router.post("/cluster")
-def get_clusters(params: ClusteringParameters):
+def cluster(params: ClusteringParameters):
     variants: List[Group] = cache_util.get_variant_list(True)
     clusterer: Clusterer = get_clusterer(params)
     clusters: List[List[Group]] = calculate_clusters(

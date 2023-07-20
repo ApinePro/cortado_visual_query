@@ -700,7 +700,7 @@
               <ng-container *ngIf="!hideRuleContent[i]">
                 <tr
                   app-variant
-                  [index]="i * cluster.value.length + j"
+                  [index]="j"
                   [variant]="variant"
                   [processTreeAvailable]="
                     processTreeService.currentDisplayedProcessTree
