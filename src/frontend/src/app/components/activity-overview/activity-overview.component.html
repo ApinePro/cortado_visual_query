@@ -24,11 +24,8 @@
           >
             <div>
               <button
-                id="Colors"
                 type="button"
                 class="button"
-                data-bs-auto-close="outside"
-                aria-expanded="false"
                 ngbTooltip="Reset activity colors"
                 (click)="resetActivityColors()"
               >
@@ -47,7 +44,7 @@
               <div
                 class="d-flex flex-row justify-content-center table-header-sort-group"
               >
-                <div class="user-select-none">Activity</div>
+                <div class="user-select-none mx-1">Activity</div>
                 <i
                   class="bi"
                   [ngClass]="{
@@ -81,7 +78,7 @@
             <div
               class="d-flex flex-row justify-content-center table-header-sort-group"
             >
-              <div class="user-select-none">in model</div>
+              <div class="user-select-none mx-1">in model</div>
               <i
                 class="bi"
                 [ngClass]="{
@@ -106,7 +103,11 @@
                 <b class="text-primary">start-activity</b> (in the event log,
                 there exists a case that starts with the given activity)
               </ng-template>
-              <div [ngbTooltip]="startActivityTooltip" container="body">
+              <div
+                [ngbTooltip]="startActivityTooltip"
+                container="body"
+                class="mx-1"
+              >
                 <i class="bi bi-chevron-right text-white"></i>
                 <i
                   class="bi bi-chevron-double-right"
