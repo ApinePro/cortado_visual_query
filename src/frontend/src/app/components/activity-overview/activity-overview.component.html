@@ -22,34 +22,18 @@
             class="bg-dark th-dropdown-colors resizeable-header-element"
             [margin]="-7"
           >
-            <div class="dropdown">
+            <div>
               <button
                 id="Colors"
-                class="button dropdown-toggle"
                 type="button"
-                data-bs-toggle="dropdown"
+                class="button"
                 data-bs-auto-close="outside"
                 aria-expanded="false"
-                ngbTooltip="Edit colors"
+                ngbTooltip="Reset activity colors"
+                (click)="resetActivityColors()"
               >
-                <i class="bi bi-palette"></i>
+                <i class="bi bi-arrow-counterclockwise btn-icon me-1"></i>
               </button>
-              <ul
-                class="dropdown-menu tool-bar-drop tool-bar-dropdown bg-dark"
-                aria-labelledby="Colors"
-              >
-                <li>
-                  <button
-                    class="button align-bottom"
-                    (click)="resetActivityColors()"
-                  >
-                    <div>
-                      <i class="bi bi-arrow-counterclockwise btn-icon me-1"></i>
-                      <span><b>Reset</b> activity colors</span>
-                    </div>
-                  </button>
-                </li>
-              </ul>
             </div>
           </th>
           <th
@@ -60,7 +44,9 @@
             [margin]="-7"
           >
             <div class="d-flex justify-content-between">
-              <div class="table-header-sort-group">
+              <div
+                class="d-flex flex-row justify-content-center table-header-sort-group"
+              >
                 <div class="user-select-none">Activity</div>
                 <i
                   class="bi"
@@ -92,7 +78,9 @@
             (click)="toggleSort('inModel')"
             [margin]="-7"
           >
-            <div class="table-header-sort-group">
+            <div
+              class="d-flex flex-row justify-content-center table-header-sort-group"
+            >
               <div class="user-select-none">in model</div>
               <i
                 class="bi"
@@ -111,7 +99,9 @@
             (click)="toggleSort('isStart')"
             [margin]="-7"
           >
-            <div class="table-header-sort-group">
+            <div
+              class="d-flex flex-row justify-content-center table-header-sort-group"
+            >
               <ng-template #startActivityTooltip>
                 <b class="text-primary">start-activity</b> (in the event log,
                 there exists a case that starts with the given activity)
@@ -141,7 +131,7 @@
             (click)="toggleSort('isEnd')"
             [margin]="-7"
           >
-            <div class="table-header-sort-group">
+            <div class="d-flex flex-row justify-content-center sort-group">
               <ng-template #endActivityTooltip>
                 <b class="text-primary">end-activity</b> (in the event log,
                 there exists a case that ends with the given activity)
@@ -174,7 +164,9 @@
             (click)="toggleSort('occurences')"
             [margin]="-7"
           >
-            <div class="table-header-sort-group">
+            <div
+              class="d-flex flex-row justify-content-center table-header-sort-group"
+            >
               <div
                 ngbTooltip="Number of activity occurrences in the loaded event log"
               >
