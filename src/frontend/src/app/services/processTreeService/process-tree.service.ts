@@ -268,11 +268,21 @@ export class ProcessTreeService {
       );
     }
 
+    const lastTreeObject =
+      this.previousTreeObjects[this.previousTreeObjects.length - 1];
+
     if (root) {
-      this.previousTreeObjects.push(root.copy(true));
+      if (lastTreeObject !== null) {
+        this.previousTreeObjects.push(root.copy(true));
+      } else {
+        this.previousTreeObjects[this.previousTreeObjects.length - 1] =
+          root.copy(true);
+        this.treeCacheIndex--;
+      }
     } else {
       this.previousTreeObjects.push(null);
     }
+
     if (this.treeCacheIndex) {
       this.treeCacheIndex += 1;
     } else {
@@ -290,7 +300,10 @@ export class ProcessTreeService {
     ) {
       this.treeCacheIndex--;
 
-      let treeToLoad = this.previousTreeObjects[this.treeCacheIndex].copy();
+      let treeToLoad = null;
+      if (this.previousTreeObjects[this.treeCacheIndex]) {
+        treeToLoad = this.previousTreeObjects[this.treeCacheIndex].copy();
+      }
 
       this.selectedRootNodeID = null;
       this.currentDisplayedProcessTree = treeToLoad;
@@ -300,12 +313,22 @@ export class ProcessTreeService {
   redo() {
     if (this.treeCacheIndex < this.previousTreeObjects.length - 1) {
       this.treeCacheIndex++;
-      let treeToLoad = this.previousTreeObjects[this.treeCacheIndex].copy();
+
+      let treeToLoad = null;
+      if (this.previousTreeObjects[this.treeCacheIndex]) {
+        treeToLoad = this.previousTreeObjects[this.treeCacheIndex].copy();
+      }
 
       this.selectedRootNodeID = null;
 
       this.currentDisplayedProcessTree = treeToLoad;
     }
+  }
+
+  deleteTreeHistory() {
+    this.previousTreeObjects = [];
+    this.treeCacheIndex = 0;
+    this.treeCacheLength = 0;
   }
 
   freezeSubtree(node: ProcessTree) {
