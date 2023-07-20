@@ -167,7 +167,7 @@ export class VariantMinerComponent
   collapse: boolean = false;
 
   kFilter: IntervalFilter = new IntervalFilter(
-    'k',
+    'size',
     2,
     2,
     1,
@@ -288,43 +288,35 @@ export class VariantMinerComponent
   };
 
   closedMaximalChecks: Choice[] = [
-    new Choice('Maximal', (p: SubvariantPattern) => {
-      return p.maximal;
-    }),
-    new Choice('Closed', (p: SubvariantPattern) => {
-      return p.closed;
-    }),
-    new Choice('Valid', (p: SubvariantPattern) => {
-      return true;
-    }),
+    new Choice('Maximal', (p: SubvariantPattern) => p.maximal),
+    new Choice('Closed', (p: SubvariantPattern) => p.closed),
+    new Choice('Valid', (p: SubvariantPattern) => true),
   ];
   selClosedMaximal: string = 'Valid';
 
   infixChecks: Choice[] = [
-    new Choice('Proper Infix', (p: SubvariantPattern) => {
-      return p.infixType === InfixType.PROPER_INFIX;
-    }),
-    new Choice('Suffix', (p: SubvariantPattern) => {
-      return p.infixType === InfixType.POSTFIX;
-    }),
-    new Choice('Prefix', (p: SubvariantPattern) => {
-      return p.infixType === InfixType.PREFIX;
-    }),
-    new Choice('Variant', (p: SubvariantPattern) => {
-      return p.infixType === InfixType.NOT_AN_INFIX;
-    }),
+    new Choice(
+      'Proper Infix',
+      (p: SubvariantPattern) => p.infixType === InfixType.PROPER_INFIX
+    ),
+    new Choice(
+      'Suffix',
+      (p: SubvariantPattern) => p.infixType === InfixType.POSTFIX
+    ),
+    new Choice(
+      'Prefix',
+      (p: SubvariantPattern) => p.infixType === InfixType.PREFIX
+    ),
+    new Choice(
+      'Variant',
+      (p: SubvariantPattern) => p.infixType === InfixType.NOT_AN_INFIX
+    ),
   ];
 
   alignChecks: Choice[] = [
-    new Choice('Fitting', (p: SubvariantPattern) => {
-      return p.deviations > 0;
-    }),
-    new Choice('Not Fitting', (p: SubvariantPattern) => {
-      return p.deviations > 0;
-    }),
-    new Choice('Unknown', (p: SubvariantPattern) => {
-      return p.deviations > 0;
-    }),
+    new Choice('Fitting', (p: SubvariantPattern) => p.deviations === 0),
+    new Choice('Not Fitting', (p: SubvariantPattern) => p.deviations > 0),
+    new Choice('Unknown', (p: SubvariantPattern) => p.isConformanceOutdated),
   ];
 
   infixFilterList = this.infixChecks.map((c) => c);
@@ -536,24 +528,20 @@ export class VariantMinerComponent
     });
 
     this.displayedVariantsPatterns = this.variantPatterns.filter((vp) => {
-      let res = true;
-      res = res && this.kFilter.apply(vp);
-      res = res && this.supFilter.apply(vp);
-      res = res && this.idFilter.apply(vp);
-      res = res && this.cpConfFilter.apply(vp);
-      res = res && this.supConfFilter.apply(vp);
-      res = res && this.closedMaxFilter(vp);
+      if (!this.kFilter.apply(vp)) return false;
+      if (!this.supFilter.apply(vp)) return false;
+      if (!this.idFilter.apply(vp)) return false;
+      if (!this.cpConfFilter.apply(vp)) return false;
+      if (!this.supConfFilter.apply(vp)) return false;
+      if (!this.closedMaxFilter(vp)) return false;
+      if (!this.applyActivityNameFilter(vp, pos, neg)) return false;
+      if (!this.alignmentFilterList.map((f) => f.filterFnc(vp)).some((v) => v))
+        return false;
+      if (!this.infixFilterList.map((f) => f.filterFnc(vp)).some((v) => v))
+        return false;
 
-      res = res && this.applyActivityNameFilter(vp, pos, neg);
-
-      //res = res && this.alignmentFilterList.map(f => f.filterFnc(vp)).some(v => v)
-      res =
-        res && this.infixFilterList.map((f) => f.filterFnc(vp)).some((v) => v);
-
-      return res;
+      return true;
     });
-
-    this.sort(this.currentSortKey);
   }
 
   applyActivityNameFilter: (
