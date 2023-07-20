@@ -10,7 +10,7 @@ from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.objects.log.util.interval_lifecycle import to_interval
 from pm4py.util.xes_constants import DEFAULT_START_TIMESTAMP_KEY, DEFAULT_TRANSITION_KEY
 from backend_utilities.multiprocessing.pool_factory import PoolFactory
-from src.backend.api.routes.variants.models import VariantInformation
+from api.routes.variants.models import VariantInformation
 
 
 def calculate_event_log_properties(
