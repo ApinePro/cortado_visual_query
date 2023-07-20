@@ -1,5 +1,8 @@
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
-import { VariantElement } from 'src/app/objects/Variants/variant_element';
+import {
+  SkipGroup,
+  VariantElement,
+} from 'src/app/objects/Variants/variant_element';
 import { ProcessTree } from '../ProcessTree/ProcessTree';
 
 export class MiningConfig {
@@ -74,6 +77,7 @@ export enum VariantFilterKey {
 export class SubvariantPattern {
   id: number;
   size: number;
+  isSelected: boolean = false;
   variant: VariantElement;
   support: number;
   child_parent_confidence: number;
@@ -122,5 +126,9 @@ export class SubvariantPattern {
     this.infixType = infixType;
     this.bids = bids;
     this.activities = this.variant.getActivities();
+  }
+
+  get isSkipGroupPattern() {
+    return this.variant instanceof SkipGroup;
   }
 }
