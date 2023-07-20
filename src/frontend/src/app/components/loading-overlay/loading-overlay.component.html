@@ -1,0 +1,7 @@
+<div
+  *ngIf="loadingOverlayService.loadingInProgress"
+  class="loader-overlay d-flex flex-column justify-content-center align-items-center"
+>
+  <img class="cortadoLogo" src="./assets/favicon.ico" />
+  {{ loadingOverlayService.loadingText }}
+</div>
