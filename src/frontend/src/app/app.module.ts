@@ -87,6 +87,7 @@ import { GroupByPipe } from './pipes/group-by.pipe';
 import { VariantSortPipe } from './pipes/variant-sort.pipe';
 import { electronServiceFactory } from './dependency-factories';
 import { ProcessTreeToolboxComponent } from './components/process-tree-editor/process-tree-toolbox/process-tree-toolbox.component';
+import { InfoBarComponent } from './components/activity-overview/info-bar/info-bar.component';
 
 @NgModule({
   declarations: [
@@ -162,6 +163,7 @@ import { ProcessTreeToolboxComponent } from './components/process-tree-editor/pr
     GroupByPipe,
     VariantSortPipe,
     ProcessTreeToolboxComponent,
+    InfoBarComponent,
   ],
   imports: [
     BrowserModule,

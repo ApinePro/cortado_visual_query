@@ -8,7 +8,6 @@
   class="d-flex flex-column mh-100 h-100 activityOverviewContainer"
   [class.blurOutOfFocus]="activityOverviewOutOfFocus"
 >
-  <div class="bg-dark"></div>
   <div class="table-container flex-grow-1 table-responsive">
     <table
       class="table table-sm table-font table-hover table-striped table-borderless table-dark mb-0"
@@ -255,5 +254,10 @@
         </ng-container>
       </tbody>
     </table>
+  </div>
+  <div class="bg-dark user-select-none">
+    <app-activity-overview-info-bar
+      [activityFields]="activityFields"
+    ></app-activity-overview-info-bar>
   </div>
 </div>
