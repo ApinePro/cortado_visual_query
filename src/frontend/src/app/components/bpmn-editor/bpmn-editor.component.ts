@@ -102,10 +102,6 @@ export class BpmnEditorComponent
 
   ngAfterViewInit(): void {
     this.nodeWidthCache = this.processTreeService.nodeWidthCache;
-    this.selectedStatistic =
-      this.performanceColorScaleService.selectedColorScale.statistic;
-    this.selectedPerformanceIndicator =
-      this.performanceColorScaleService.selectedColorScale.performanceIndicator;
 
     this.modelViewModeService.viewMode$
       .pipe(takeUntil(this._destroy$))
@@ -235,6 +231,11 @@ export class BpmnEditorComponent
   }
 
   redraw(tree: ProcessTree) {
+    this.selectedStatistic =
+      this.performanceColorScaleService.selectedColorScale.statistic;
+    this.selectedPerformanceIndicator =
+      this.performanceColorScaleService.selectedColorScale.performanceIndicator;
+
     this.bpmnDrawer.redraw(tree);
     this.selectBPMNNode(this.selectedRootID);
   }
