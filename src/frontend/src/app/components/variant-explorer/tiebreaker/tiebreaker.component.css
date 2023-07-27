@@ -11,8 +11,28 @@
     letter-spacing: 0.25px;
     background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
   }
-  
+
   .tiebreaker-editor:focus{
     outline: none;
     box-shadow: none;
   }
+
+:host {
+  position: absolute;
+  overflow: hidden;
+}
+
+.consistency-warning{
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  color: var(--bs-warning);
+  background-color: rgba(0, 0, 0, 1);
+  padding-right: 5px;
+  padding-top: 6px;
+  padding-bottom: 2.5px;
+  padding-left: 5px;
+  font-size: small;
+  border-top-right-radius: 4px;
+
+}
