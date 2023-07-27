@@ -13,6 +13,7 @@ import { ProjectService } from 'src/app/services/projectService/project.service'
 import { takeUntil } from 'rxjs/operators';
 import { Modal } from 'bootstrap';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { LoadingOverlayService } from 'src/app/services/loadingOverlayService/loading-overlay.service';
 
 @Component({
   selector: 'app-header-bar',
@@ -39,6 +40,7 @@ export class HeaderBarComponent implements OnDestroy {
     private backendService: BackendService,
     private projectService: ProjectService,
     private modalService: NgbModal,
+    private loadingOverlayService: LoadingOverlayService,
     private _elRef: ElementRef<HTMLElement>,
     private goldenLayoutComponentService: GoldenLayoutComponentService
   ) {
@@ -62,20 +64,21 @@ export class HeaderBarComponent implements OnDestroy {
     this.fileUploadEventLog.nativeElement.click();
   }
 
-  handleSelectedEventLogFile(e): void {
+  handleSelectedEventLogFile(e, isRetry = false): void {
     const fileList: FileList = e.target.files;
     if (fileList.length > 0) {
-      if (environment.electron) {
-        this.backendService.loadEventLogFromFilePath(fileList[0]['path']);
-        this.backendService
-          .loadEventLogFromFilePath(fileList[0]['path'])
-          .subscribe();
-      } else {
-        this.backendService.uploadEventLog(fileList[0]);
-      }
+      const backendCall = !environment.electron
+        ? this.backendService.uploadEventLog(fileList[0])
+        : this.backendService.loadEventLogFromFilePath(fileList[0]['path']);
+      this.loadingOverlayService.showLoader('Loading Event-Log ...');
+      backendCall.subscribe(() => {
+        this.loadingOverlayService.hideLoader();
+      });
     }
+
     // reset form
-    this.fileUploadEventLog.nativeElement.value = '';
+    if (isRetry) this.fileUploadEventLogRetry.nativeElement.value = '';
+    else this.fileUploadEventLog.nativeElement.value = '';
   }
 
   handleSelectedProcessTreeFile(e): void {
@@ -313,21 +316,6 @@ export class HeaderBarComponent implements OnDestroy {
     }
     // reset form
     this.fileUploadProject.nativeElement.value = '';
-  }
-
-  handleSelectedEventLogFileRetry(e): void {
-    const fileList: FileList = e.target.files;
-    if (fileList.length > 0) {
-      if (environment.electron) {
-        this.backendService
-          .loadEventLogFromFilePath(fileList[0]['path'])
-          .subscribe();
-      } else {
-        this.backendService.uploadEventLog(fileList[0]);
-      }
-    }
-    // reset form
-    this.fileUploadEventLogRetry.nativeElement.value = '';
   }
 }
 

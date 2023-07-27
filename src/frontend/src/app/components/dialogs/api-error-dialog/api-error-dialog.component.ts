@@ -6,6 +6,7 @@ import { takeUntil } from 'rxjs/operators';
 import { expandCollapsed } from 'src/app/animations/text-animations';
 import { ApiError } from 'src/app/objects/ApiError';
 import { ErrorService } from 'src/app/services/errorService/error.service';
+import { LoadingOverlayService } from 'src/app/services/loadingOverlayService/loading-overlay.service';
 
 @Component({
   selector: 'app-api-error-dialog',
@@ -23,6 +24,7 @@ export class ApiErrorDialogComponent implements OnInit, OnDestroy {
 
   constructor(
     private errorService: ErrorService,
+    private loadingOverlayService: LoadingOverlayService,
     public readonly swalTargets: SwalPortalTargets
   ) {}
 
@@ -51,6 +53,7 @@ export class ApiErrorDialogComponent implements OnInit, OnDestroy {
 
         if (errorRes.error && errorRes.error.detail) {
           this.message += '\n' + errorRes.error.detail;
+          this.loadingOverlayService.hideLoader();
         }
 
         if (errorRes.status === 0) {

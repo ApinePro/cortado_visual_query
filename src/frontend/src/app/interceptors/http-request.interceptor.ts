@@ -65,7 +65,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
       error.url?.endsWith('/info') ||
       error.url?.endsWith('resetLogCache') ||
       // ignore FileNotFoundError while loading EventLog because of handling in caller
-      (error.status == 404 && error.url?.endsWith('/loadEventLog'))
+      (error.status == 404 && error.url?.endsWith('/loadEventLogFromFilePath'))
     );
   }
 

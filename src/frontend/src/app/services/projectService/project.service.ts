@@ -36,6 +36,7 @@ import {
 } from 'src/app/objects/LogModification';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ContinueLastProjectDialogComponent } from 'src/app/components/dialogs/continue-last-project-dialog/continue-last-project-dialog.component';
+import { LoadingOverlayService } from '../loadingOverlayService/loading-overlay.service';
 @Injectable({
   providedIn: 'root',
 })
@@ -47,6 +48,7 @@ export class ProjectService {
     private variantFilterService: VariantFilterService,
     private variantQueryService: VariantQueryService,
     private backendService: BackendService,
+    private loadingOverlayService: LoadingOverlayService,
     private modalService: NgbModal,
     private electronService: ElectronService
   ) {
@@ -158,6 +160,7 @@ export class ProjectService {
   }
 
   public loadProject(project: Project) {
+    this.loadingOverlayService.showLoader('Loading Project ...');
     this.latestSavedProject = instanceToPlain(project);
 
     let loadingLog: Observable<any>;
@@ -182,6 +185,7 @@ export class ProjectService {
       )
       .subscribe(() => {
         this.restoreProjectAfterLog(project);
+        this.loadingOverlayService.hideLoader();
       });
   }
 
