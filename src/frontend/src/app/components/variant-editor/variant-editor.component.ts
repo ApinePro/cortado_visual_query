@@ -24,7 +24,7 @@ import { LogService } from 'src/app/services/logService/log.service';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
 import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
 import { InfixType, setParent } from 'src/app/objects/Variants/infix_selection';
-import { Variant } from 'src/app/objects/Variants/variant';
+import { FragmentStatistics, Variant } from 'src/app/objects/Variants/variant';
 import {
   VariantElement,
   LeafNode,
@@ -610,7 +610,7 @@ export class VariantEditorComponent
     copyCurrent.setExpanded(false);
 
     const newVariant = new Variant(
-      1,
+      0,
       copyCurrent,
       false,
       true,
@@ -673,7 +673,8 @@ export class VariantEditorComponent
   private addStatistics(newVariant: Variant): Observable<any> {
     if (newVariant.infixType !== InfixType.NOT_AN_INFIX) {
       return this.backendService.countFragmentOccurrences(newVariant).pipe(
-        tap((statistics) => {
+        tap((statistics: FragmentStatistics) => {
+          newVariant.count = statistics.traceOccurrences;
           newVariant.fragmentStatistics = statistics;
         })
       );
