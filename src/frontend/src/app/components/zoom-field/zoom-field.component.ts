@@ -50,7 +50,7 @@ export class ZoomFieldComponent implements AfterViewInit {
     const boundingRect = (
       this.editorWindow.nativeElement as HTMLElement
     ).getBoundingClientRect();
-    console.log('apine');
+    console.log('apine from zoomfield');
     d3.select(this.content.nativeElement)
       .selectChild()
       .attr(

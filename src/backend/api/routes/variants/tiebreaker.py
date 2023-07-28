@@ -1,5 +1,4 @@
 from typing import Any
-#from cortado_core.utils.split_graph import Group, SequenceGroup, ParallelGroup, LoopGroup, LeafGroup
 from cortado_core.utils.split_graph import Group, SequenceGroup, ParallelGroup, ChoiceGroup, FallthroughGroup, LoopGroup, LeafGroup
 from collections import defaultdict
 
@@ -12,7 +11,8 @@ from pydantic import BaseModel
 
 import cache.cache
 from api.routes.variants.variants import VariantInformation
-from endpoints.alignments import InfixType
+#from endpoints.alignments import InfixType
+from cortado_core.models.infix_type import InfixType
 from endpoints.load_event_log import create_variant_object, compute_log_stats, variants_to_variant_objects
 
 from cortado_core.subprocess_discovery.concurrency_trees.cTrees import ConcurrencyTree, cTreeOperator, cTreeFromcGroup
@@ -27,20 +27,10 @@ class TiebreakerPatterns(BaseModel):
 
 @router.post("/apply")
 def apply_tiebreaker(payload: TiebreakerPatterns):
-    '''
-    if not validate_string_pattern(payload.sourcePattern):
-        raise HTTPException(status_code=400, detail='Source pattern is invalid')
-
-    if not validate_string_pattern(payload.targetPattern):
-        raise HTTPException(status_code=400, detail='Target pattern is invalid')
-    '''
-
-
     source_pattern = parse_pattern_from_variant(Group.deserialize(payload.sourcePattern))
     target_pattern = parse_pattern_from_variant(Group.deserialize(payload.targetPattern))
 
     validate_patterns(source_pattern, target_pattern)
-    print("gets here")
 
     variants = cache.cache.variants
 
@@ -50,6 +40,7 @@ def apply_tiebreaker(payload: TiebreakerPatterns):
         InfixType.PREFIX: defaultdict(list),
         InfixType.POSTFIX: defaultdict(list),
     }
+
     n_traces = 0
     for _, (variant, traces, _, info) in variants.items():
         new_variants[info.infix_type][variant] += traces
@@ -61,7 +52,6 @@ def apply_tiebreaker(payload: TiebreakerPatterns):
     cache_variants = dict()
     cache_max_bid = 0
     res_variants = []
-    print("here is OK1")
 
     for infix_type, var in new_variants.items(): #var: dict, key(variant) value(trace)
 
@@ -78,7 +68,6 @@ def apply_tiebreaker(payload: TiebreakerPatterns):
 
         cache_max_bid = max(cache_variants.keys())
 
-    print("here is OK")
     cache.cache.variants = cache_variants
 
     start_activities, end_activities, nActivities = compute_log_stats(cache.cache.variants)
