@@ -107,7 +107,7 @@ export class VariantMinerComponent
     private lpmService: LpmService,
     elRef: ElementRef,
     renderer: Renderer2,
-    private deciamlPipe: DecimalPipe,
+    private deciamlPipe: DecimalPipe
   ) {
     super(elRef.nativeElement, renderer);
 
@@ -173,7 +173,7 @@ export class VariantMinerComponent
     1,
     3,
     15,
-    this.deciamlPipe,
+    this.deciamlPipe
   );
   supFilter: IntervalFilter = new IntervalFilter(
     'support',
@@ -182,7 +182,7 @@ export class VariantMinerComponent
     1,
     0,
     1000,
-    this.deciamlPipe,
+    this.deciamlPipe
   );
   idFilter: IntervalFilter = new IntervalFilter(
     'id',
@@ -191,7 +191,7 @@ export class VariantMinerComponent
     1,
     0,
     15,
-    this.deciamlPipe,
+    this.deciamlPipe
   );
   cpConfFilter: IntervalFilter = new IntervalFilter(
     'child_parent_confidence',
@@ -200,7 +200,7 @@ export class VariantMinerComponent
     0.01,
     0,
     1,
-    this.deciamlPipe,
+    this.deciamlPipe
   );
   supConfFilter: IntervalFilter = new IntervalFilter(
     'subpattern_confidence',
@@ -209,7 +209,7 @@ export class VariantMinerComponent
     0.01,
     0,
     1,
-    this.deciamlPipe,
+    this.deciamlPipe
   );
 
   openContextCallback = contextMenuCallback.bind(this);
@@ -243,7 +243,7 @@ export class VariantMinerComponent
         .select('#infixDotsForDrawer')
         .attr('width', 0)
         .attr('height', 0)
-        .node() as SVGGraphicsElement,
+        .node() as SVGGraphicsElement
     );
 
     // Send all Elements to the export service
@@ -255,7 +255,7 @@ export class VariantMinerComponent
 
   filterInfix = function () {
     const bids = this.displayedVariantsPatterns.filter(
-      (v) => v.variant === this.contextMenu_variant,
+      (v) => v.variant === this.contextMenu_variant
     )[0].bids;
 
     this.variantFilterService.addVariantFilter('infix filter', new Set(bids));
@@ -265,7 +265,7 @@ export class VariantMinerComponent
     new ContextMenuItem(
       'Use infix to filter concurrency variants',
       'bi-funnel-fill',
-      this.filterInfix,
+      this.filterInfix
     ),
     new ContextMenuItem('Export pattern as SVG', 'bi-save', this.exportSVG),
   ];
@@ -297,19 +297,19 @@ export class VariantMinerComponent
   infixChecks: Choice[] = [
     new Choice(
       'Proper Infix',
-      (p: SubvariantPattern) => p.infixType === InfixType.PROPER_INFIX,
+      (p: SubvariantPattern) => p.infixType === InfixType.PROPER_INFIX
     ),
     new Choice(
       'Suffix',
-      (p: SubvariantPattern) => p.infixType === InfixType.POSTFIX,
+      (p: SubvariantPattern) => p.infixType === InfixType.POSTFIX
     ),
     new Choice(
       'Prefix',
-      (p: SubvariantPattern) => p.infixType === InfixType.PREFIX,
+      (p: SubvariantPattern) => p.infixType === InfixType.PREFIX
     ),
     new Choice(
       'Variant',
-      (p: SubvariantPattern) => p.infixType === InfixType.NOT_AN_INFIX,
+      (p: SubvariantPattern) => p.infixType === InfixType.NOT_AN_INFIX
     ),
   ];
 
@@ -322,7 +322,7 @@ export class VariantMinerComponent
   infixFilterList = this.infixChecks.map((c) => c);
   alignmentFilterList = this.alignChecks.map((c) => c);
   closedMaxFilter: (p: SubvariantPattern) => boolean = (
-    p: SubvariantPattern,
+    p: SubvariantPattern
   ) => {
     return true;
   };
@@ -357,7 +357,7 @@ export class VariantMinerComponent
       '.xes',
       'false',
       'false',
-      '<large> Import <strong>Event Log</strong> .xes file</large>',
+      '<large> Import <strong>Event Log</strong> .xes file</large>'
     );
 
     this.subscribeForConformanceCheckingResults();
@@ -374,7 +374,7 @@ export class VariantMinerComponent
       this.FrequentMiningStrategy.TraceTransaction,
       {
         updateOn: 'change',
-      },
+      }
     );
 
     this.variantMinerConfigInput = new UntypedFormGroup({
@@ -401,14 +401,14 @@ export class VariantMinerComponent
         this.FrequentMiningAlgorithm.ValidTreeMiner,
         {
           updateOn: 'change',
-        },
+        }
       ),
 
       cm_tree_strategy: new UntypedFormControl(
         this.FrequentMiningCMStrategy.ClosedMaximal,
         {
           updateOn: 'change',
-        },
+        }
       ),
     });
 
@@ -501,7 +501,7 @@ export class VariantMinerComponent
       form_values.frequent_mining_strat,
       loop,
       form_values.frequent_mining_algo,
-      form_values.artifical_start,
+      form_values.artifical_start
     );
     this.backendService.frequentSubtreeMining(this.currentConfig);
 
@@ -547,11 +547,11 @@ export class VariantMinerComponent
   applyActivityNameFilter: (
     p: SubvariantPattern,
     pos: Array<string>,
-    neg: Array<string>,
+    neg: Array<string>
   ) => boolean = (
     p: SubvariantPattern,
     pos: Array<string>,
-    neg: Array<string>,
+    neg: Array<string>
   ) => {
     if (
       neg.some((a) => p.activities.has(a)) ||
@@ -596,7 +596,7 @@ export class VariantMinerComponent
 
         const treeHasChanged = !processTreesEqual(
           this.conformanceCheckedTree,
-          this.processTree,
+          this.processTree
         );
 
         if (treeHasChanged) {
@@ -652,7 +652,7 @@ export class VariantMinerComponent
                 p.valid,
                 p.closed,
                 infixtype,
-                p.bids,
+                p.bids
               );
 
               pattern.isConformanceOutdated = true;
@@ -670,7 +670,7 @@ export class VariantMinerComponent
           this.nMaximal = this.variantPatterns.filter((v) => v.maximal).length;
 
           this.maxWidth = Math.max(
-            ...this.variantPatterns.map((v) => v.variant.getWidth(false)),
+            ...this.variantPatterns.map((v) => v.variant.getWidth(false))
           );
 
           this.set_interval_filter_configs();
@@ -707,7 +707,7 @@ export class VariantMinerComponent
     this.displayedVariantsPatterns = VariantSorter.sort(
       this.displayedVariantsPatterns,
       key,
-      this.ascending,
+      this.ascending
     ) as SubvariantPattern[];
     this.currentSortKey = key;
   }
@@ -718,7 +718,7 @@ export class VariantMinerComponent
       this.minsup,
       this.maxSup,
       Math.round((this.maxSup - this.minsup) / 10),
-      Math.round((this.maxSup - this.minsup) / 20),
+      Math.round((this.maxSup - this.minsup) / 20)
     );
     this.idFilter.set_config(0, this.variantPatterns.length);
     this.cpConfFilter.set_config(0, 1);
@@ -771,7 +771,7 @@ export class VariantMinerComponent
         .select('#infixDotsForDrawer')
         .attr('width', 0)
         .attr('height', 0)
-        .node() as SVGGraphicsElement,
+        .node() as SVGGraphicsElement
     );
 
     // Send all Elements to the export service
@@ -799,7 +799,7 @@ export class VariantMinerComponent
   computeActivityColor = (
     self: VariantDrawerDirective,
     element: VariantElement,
-    variant: Variant,
+    variant: Variant
   ) => {
     let color;
 
@@ -820,7 +820,7 @@ export class VariantMinerComponent
     left: number,
     top: number,
     width: number,
-    height: number,
+    height: number
   ): void {
     this.currentHeight = height;
     this.collapse = width < 875;
@@ -833,7 +833,7 @@ export class VariantMinerComponent
 
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
-    defaultZIndex: string,
+    defaultZIndex: string
   ): void {}
 
   toggleBlur(event) {
@@ -843,7 +843,7 @@ export class VariantMinerComponent
   computeAlignments() {
     console.log('Requested Alignment!');
     this.displayedVariantsPatterns.forEach((pattern) =>
-      this.updateConformanceForVariant(pattern, this.conformanceTimeout),
+      this.updateConformanceForVariant(pattern, this.conformanceTimeout)
     );
 
     this.conformanceCheckedTree = this.processTree;
@@ -852,7 +852,7 @@ export class VariantMinerComponent
   discoverLpms() {
     this.backendService
       .discoverLpms(
-        this.displayedVariantsPatterns.map((p) => p.variant.serialize()),
+        this.displayedVariantsPatterns.map((p) => p.variant.serialize())
       )
       .subscribe((res: Object[]) => {
         this.lpmService.localProcessModels = res.map(
@@ -875,10 +875,10 @@ export class VariantMinerComponent
                   false,
                   false,
                   InfixType.PROPER_INFIX,
-                  null,
+                  null
                 );
-              }),
-            ),
+              })
+            )
         );
         this.openLocalProcessModelExplorer();
       });
@@ -911,7 +911,7 @@ export class VariantMinerComponent
       componentID,
       parentComponentID,
       LocationSelectors,
-      itemConfig,
+      itemConfig
     );
   }
 
@@ -959,7 +959,7 @@ export class VariantMinerComponent
 
   updateConformanceForVariant(
     pattern: SubvariantPattern,
-    timeout: number,
+    timeout: number
   ): void {
     this.processTreeService.currentDisplayedProcessTree !== null;
     //variant.calculationInProgress = true;
@@ -971,7 +971,7 @@ export class VariantMinerComponent
       this.processTreeService.currentDisplayedProcessTree,
       pattern.variant.serialize(this.currentConfig.loop),
       timeout,
-      AlignmentType.PatternAlignment,
+      AlignmentType.PatternAlignment
     );
 
     if (resubscribe) {
@@ -983,7 +983,7 @@ export class VariantMinerComponent
     this.conformanceCheckingService.patternResults.subscribe(
       (res) => {
         const pattern = this.variantPatterns.find(
-          (p) => p.id.toLocaleString() == res.id,
+          (p) => p.id.toLocaleString() == res.id
         );
         pattern.calculationInProgress = false;
         pattern.isTimeouted = res.isTimeout;
@@ -999,7 +999,7 @@ export class VariantMinerComponent
           p.alignment = undefined;
           p.deviations = undefined;
         });
-      },
+      }
     );
   }
 
@@ -1023,7 +1023,7 @@ export class VariantMinerComponent
 
   setAllPatternsSelectionState(selectionState: boolean): void {
     this.displayedVariantsPatterns.forEach(
-      (v) => (v.isSelected = selectionState),
+      (v) => (v.isSelected = selectionState)
     );
   }
 
@@ -1041,7 +1041,7 @@ export class VariantMinerComponent
         false,
         true,
         0,
-        pattern.infixType,
+        pattern.infixType
       );
       newVariant.alignment = undefined;
       newVariant.deviations = undefined;
@@ -1157,7 +1157,7 @@ export class IntervalFilter {
     step: number,
     defaultLow: number,
     defaultHigh: number,
-    private deciamlPipe: DecimalPipe,
+    private deciamlPipe: DecimalPipe
   ) {
     this.attr = attr;
     this.tickStep = tickStep;

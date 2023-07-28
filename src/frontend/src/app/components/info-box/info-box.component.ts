@@ -22,14 +22,14 @@ export class InfoBoxComponent extends LayoutChangeDirective {
     left: number,
     top: number,
     width: number,
-    height: number,
+    height: number
   ): void {}
 
   handleVisibilityChange(visibility: boolean): void {}
 
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
-    defaultZIndex: string,
+    defaultZIndex: string
   ): void {}
 }
 

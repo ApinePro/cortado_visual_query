@@ -67,7 +67,7 @@ export class VariantComponent implements AfterViewInit {
     public variantViewModeService: VariantViewModeService,
     private conformanceCheckingService: ConformanceCheckingService,
     private performanceService: PerformanceService,
-    private modelPerformanceColorScaleService: ModelPerformanceColorScaleService,
+    private modelPerformanceColorScaleService: ModelPerformanceColorScaleService
   ) {}
 
   ngAfterViewInit(): void {
@@ -78,7 +78,7 @@ export class VariantComponent implements AfterViewInit {
       this.rootElement,
       (isIntersecting) => {
         self.isVisible = isIntersecting;
-      },
+      }
     );
   }
 
@@ -88,13 +88,13 @@ export class VariantComponent implements AfterViewInit {
 
   get isTreeConformanceActive() {
     return this.conformanceCheckingService.isTreeConformanceActive(
-      this.variant,
+      this.variant
     );
   }
 
   get treeConformanceValue() {
     const tree = this.conformanceCheckingService.variantsTreeConformance.get(
-      this.variant,
+      this.variant
     );
 
     if (!tree) return null;
@@ -113,7 +113,7 @@ export class VariantComponent implements AfterViewInit {
     const selectedColorScale =
       this.modelPerformanceColorScaleService.selectedColorScale;
     let performance = this.performanceService.variantsTreePerformance.get(
-      this.variant,
+      this.variant
     ).performance[selectedColorScale.performanceIndicator]?.[
       selectedColorScale.statistic
     ];
@@ -159,7 +159,7 @@ export class VariantComponent implements AfterViewInit {
           return colorScale.getColor(
             tree.performance[selectedScale.performanceIndicator][
               selectedScale.statistic
-            ],
+            ]
           );
       }
     }
@@ -169,7 +169,7 @@ export class VariantComponent implements AfterViewInit {
   get conformanceButtonColor() {
     if (this.treeConformanceValue >= 0 && this.isTreeConformanceActive)
       return this.conformanceCheckingService.modelConformanceColorMap.getColor(
-        this.treeConformanceValue,
+        this.treeConformanceValue
       );
     else return '#d3d3d3';
   }

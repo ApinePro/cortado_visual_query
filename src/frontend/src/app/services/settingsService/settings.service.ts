@@ -12,7 +12,7 @@ export class SettingsService {
     new BehaviorSubject({} as Configuration);
 
   private _changedSetting: BehaviorSubject<Configuration> = new BehaviorSubject(
-    null,
+    null
   );
 
   constructor() {}
@@ -20,7 +20,7 @@ export class SettingsService {
   public get changedSetting(): Observable<any> {
     return this._changedSetting.asObservable().pipe(
       skip(2),
-      filter((val) => !_.isEmpty(val)),
+      filter((val) => !_.isEmpty(val))
     );
   }
 
@@ -30,7 +30,7 @@ export class SettingsService {
 
   public notify(setting: Configuration) {
     this._changedSetting.next(
-      this.getDifference(this._onSettingChange.value, setting),
+      this.getDifference(this._onSettingChange.value, setting)
     );
     this._onSettingChange.next(setting);
   }

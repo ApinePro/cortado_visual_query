@@ -48,7 +48,7 @@ export class ProjectService {
     private variantQueryService: VariantQueryService,
     private backendService: BackendService,
     private modalService: NgbModal,
-    private electronService: ElectronService,
+    private electronService: ElectronService
   ) {
     try {
       this.electronService
@@ -61,11 +61,11 @@ export class ProjectService {
 
           const lastProject = plainToInstance(
             Project,
-            JSON.parse(lastProjectJson),
+            JSON.parse(lastProjectJson)
           );
 
           const modalRef = this.modalService.open(
-            ContinueLastProjectDialogComponent,
+            ContinueLastProjectDialogComponent
           );
 
           modalRef.componentInstance.projectName = lastProject.eventlogPath
@@ -79,7 +79,7 @@ export class ProjectService {
             () => {
               // on dismiss
               this.getInitialProject();
-            },
+            }
           );
         });
 
@@ -93,7 +93,7 @@ export class ProjectService {
       this.electronService.saveProject$.subscribe((sender) =>
         this.saveProject().then((filePath) => {
           if (filePath) sender.send('quit');
-        }),
+        })
       );
     } catch (error) {
       console.error('Cannot access user folder.', error);
@@ -118,14 +118,14 @@ export class ProjectService {
       this.latestSavedProject,
       JSON.parse(
         JSON.stringify(
-          instanceToPlain(this.currentProject, { enableCircularCheck: true }),
-        ),
+          instanceToPlain(this.currentProject, { enableCircularCheck: true })
+        )
       ),
       (a, b, key) => {
         // ignore parent property
         if (key === 'parent') return true;
         return undefined;
-      },
+      }
     );
   }
 
@@ -141,7 +141,7 @@ export class ProjectService {
       this.variantService.variants,
       this.variantFilterService.variantFilters,
       this.variantQueryService.variantQuery,
-      this.variantService.clusteringConfig,
+      this.variantService.clusteringConfig
     );
   }
 
@@ -150,7 +150,7 @@ export class ProjectService {
     fileReader.onload = (e) => {
       const project = plainToInstance(
         Project,
-        JSON.parse(fileReader.result.toString()),
+        JSON.parse(fileReader.result.toString())
       );
       this.loadProject(project);
     };
@@ -166,7 +166,7 @@ export class ProjectService {
       loadingLog = this.backendService.resetLogCache();
     } else {
       loadingLog = this.backendService.loadEventLogFromFilePath(
-        project.eventlogPath,
+        project.eventlogPath
       );
     }
 
@@ -176,9 +176,9 @@ export class ProjectService {
         mergeMap(() =>
           this.backendService.getLogPropsAndUpdateState(
             project.timeGranularity,
-            project.eventlogPath,
-          ),
-        ),
+            project.eventlogPath
+          )
+        )
       )
       .subscribe(() => {
         this.restoreProjectAfterLog(project);
@@ -206,34 +206,34 @@ export class ProjectService {
             switch (current.type) {
               case LogModificationType.ACTIVITY_DELETION:
                 return this.variantService.deleteActivity(
-                  (<ActivityDeletion>current).activityName,
+                  (<ActivityDeletion>current).activityName
                 );
               case LogModificationType.ACTIVITY_RENAMING:
                 return this.variantService.renameActivity(
                   (<ActivityRenaming>current).activityName,
-                  (<ActivityRenaming>current).newActivityName,
+                  (<ActivityRenaming>current).newActivityName
                 );
               case LogModificationType.VARIANT_DELETION:
                 return this.variantService.deleteVariants(
-                  (<VariantsDeletion>current).variantsBids,
+                  (<VariantsDeletion>current).variantsBids
                 );
               case LogModificationType.USER_DEFINED_VARIANT_ADDITION:
                 return this.variantService.addUserDefinedVariant(
-                  (<UserDefinedVariantAddition>current).variant,
+                  (<UserDefinedVariantAddition>current).variant
                 );
               case LogModificationType.USER_DEFINED_INFIX_ADDITION:
                 console.log((<UserDefinedInfixAddition>current).infix);
                 console.log((<UserDefinedInfixAddition>current).infix.variant);
                 return this.variantService.addInfixToBackend(
-                  (<UserDefinedInfixAddition>current).infix,
+                  (<UserDefinedInfixAddition>current).infix
                 );
             }
-          }),
+          })
         ),
       new Observable((subscriber) => {
         subscriber.next();
         subscriber.complete();
-      }),
+      })
     );
   }
 
@@ -241,7 +241,7 @@ export class ProjectService {
     const project = JSON.stringify(
       instanceToPlain(this.currentProject, {
         enableCircularCheck: true,
-      }),
+      })
     );
 
     if (askUserForPath) {
@@ -256,7 +256,7 @@ export class ProjectService {
         'json',
         new Blob([project]),
         'Save project',
-        'Save Cortado Project',
+        'Save Cortado Project'
       );
       if (filePath) this.latestSavedProject = JSON.parse(project);
       return filePath;
@@ -279,14 +279,14 @@ class Project {
           LogModificationType.USER_DEFINED_VARIANT_ADDITION
         )
           transformed.push(
-            plainToInstance(UserDefinedVariantAddition, logModification),
+            plainToInstance(UserDefinedVariantAddition, logModification)
           );
         else if (
           logModification.type ===
           LogModificationType.USER_DEFINED_INFIX_ADDITION
         )
           transformed.push(
-            plainToInstance(UserDefinedInfixAddition, logModification),
+            plainToInstance(UserDefinedInfixAddition, logModification)
           );
         else transformed.push(logModification);
       }
@@ -327,7 +327,7 @@ class Project {
     variantFilters: Map<string, VariantFilter>,
     variantQuery: string,
     clusteringConfiguration: ClusteringConfig,
-    cortadoVersion: string = environment.VERSION,
+    cortadoVersion: string = environment.VERSION
   ) {
     this.eventlogPath = eventlogPath;
     this.timeGranularity = timeGranularity;

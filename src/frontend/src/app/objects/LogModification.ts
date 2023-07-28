@@ -25,10 +25,7 @@ export class ActivityDeletion extends LogModification {
 export class ActivityRenaming extends LogModification {
   public readonly type = LogModificationType.ACTIVITY_RENAMING;
 
-  constructor(
-    public activityName: string,
-    public newActivityName: string,
-  ) {
+  constructor(public activityName: string, public newActivityName: string) {
     super();
   }
 }

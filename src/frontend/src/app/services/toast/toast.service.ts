@@ -22,7 +22,7 @@ export class ToastService {
       this.defaultDelay,
       this.defaultAutoclose,
       icon,
-      ToastType.SUCCESS,
+      ToastType.SUCCESS
     );
   }
 
@@ -33,7 +33,7 @@ export class ToastService {
       this.defaultDelay,
       this.defaultAutoclose,
       icon,
-      ToastType.WARNING,
+      ToastType.WARNING
     );
   }
 
@@ -44,7 +44,7 @@ export class ToastService {
       this.defaultDelay,
       this.defaultAutoclose,
       icon,
-      ToastType.ERROR,
+      ToastType.ERROR
     );
   }
 
@@ -54,7 +54,7 @@ export class ToastService {
     delay: number,
     autoclose: boolean,
     icon: string,
-    type: ToastType,
+    type: ToastType
   ) {
     this._toastEvents.next({
       title,

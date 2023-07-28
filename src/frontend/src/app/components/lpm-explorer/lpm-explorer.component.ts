@@ -42,7 +42,7 @@ export class LpmExplorerComponent
     renderer: Renderer2,
     public lpmService: LpmService,
     public colorMapService: ColorMapService,
-    public lazyLoadingService: LazyLoadingServiceService,
+    public lazyLoadingService: LazyLoadingServiceService
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -60,12 +60,12 @@ export class LpmExplorerComponent
     left: number,
     top: number,
     width: number,
-    height: number,
+    height: number
   ): void {}
   handleVisibilityChange(visibility: boolean): void {}
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
-    defaultZIndex: string,
+    defaultZIndex: string
   ): void {}
 
   exportLocalProcessModels() {

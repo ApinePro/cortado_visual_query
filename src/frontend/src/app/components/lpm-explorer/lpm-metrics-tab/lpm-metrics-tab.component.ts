@@ -31,7 +31,7 @@ export class LpmMetricsTabComponent
     private container: ComponentContainer,
     elRef: ElementRef,
     private lpmService: LpmService,
-    private goldenLayoutService: GoldenLayoutComponentService,
+    private goldenLayoutService: GoldenLayoutComponentService
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -47,14 +47,14 @@ export class LpmMetricsTabComponent
     left: number,
     top: number,
     width: number,
-    height: number,
+    height: number
   ): void {}
 
   handleVisibilityChange(visibility: boolean): void {}
 
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
-    defaultZIndex: string,
+    defaultZIndex: string
   ): void {}
 }
 

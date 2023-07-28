@@ -22,12 +22,12 @@ export class HttpRequestInterceptor implements HttpInterceptor {
     private backgroundTaskInfoService: BackgroundTaskInfoService,
     private backendService: BackendService,
     private errorService: ErrorService,
-    private backendInfoService: BackendInfoService,
+    private backendInfoService: BackendInfoService
   ) {}
 
   intercept(
     request: HttpRequest<unknown>,
-    next: HttpHandler,
+    next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
     const calledEndpoint = request.url
       .slice(ROUTES.HTTP_BASE_URL.length)
@@ -52,7 +52,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
         if (id) {
           this.backgroundTaskInfoService.removeRequest(id);
         }
-      }),
+      })
     );
   }
 

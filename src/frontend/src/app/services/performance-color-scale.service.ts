@@ -48,7 +48,7 @@ export class ModelPerformanceColorScaleService {
 
   constructor(
     private sharedDataService: SharedDataService,
-    private performanceService: PerformanceService,
+    private performanceService: PerformanceService
   ) {
     performanceService.newValues.subscribe((n) => {
       if (n) {
@@ -56,7 +56,7 @@ export class ModelPerformanceColorScaleService {
           this.computeVariantComparisonColorScale('service_time', 'mean');
         this.nodeComparisonColorScale = this.computeNodeComparisonColorScale(
           'service_time',
-          'mean',
+          'mean'
         );
         this.updateCurrentColorScale();
       }
@@ -68,12 +68,12 @@ export class ModelPerformanceColorScaleService {
       this.computeColorScale(
         this.selectedColorScale.mode,
         this.selectedColorScale.performanceIndicator,
-        this.selectedColorScale.statistic,
-      ),
+        this.selectedColorScale.statistic
+      )
     );
     this.variantComparisonColorScale = this.computeVariantComparisonColorScale(
       this.selectedColorScale.performanceIndicator,
-      this.selectedColorScale.statistic,
+      this.selectedColorScale.statistic
     );
   }
 
@@ -92,25 +92,25 @@ export class ModelPerformanceColorScaleService {
   private computeColorScale(
     selection: string,
     performanceValue: string,
-    statistic: string,
+    statistic: string
   ) {
     switch (selection) {
       case 'compareVariants':
         return this.computeVariantComparisonColorScale(
           performanceValue,
-          statistic,
+          statistic
         );
       case 'compareNodes':
         return this.computeNodeComparisonColorScale(
           performanceValue,
-          statistic,
+          statistic
         );
     }
   }
 
   private computeNodeComparisonColorScale(
     performanceValue = 'service_time',
-    statistic = 'mean',
+    statistic = 'mean'
   ) {
     const colorScales = new Map<number, ColorMap>();
 
@@ -128,7 +128,7 @@ export class ModelPerformanceColorScaleService {
       .range(COLORS_TEAL);
 
     const leafNodes = getAllNodes(
-      this.performanceService.mergedTreePerformance,
+      this.performanceService.mergedTreePerformance
     );
     leafNodes.forEach((n) => colorScales.set(n.id, new ColorMap(colorScale)));
 
@@ -137,7 +137,7 @@ export class ModelPerformanceColorScaleService {
 
   private computeVariantComparisonColorScale(
     performanceValue = 'service_time',
-    statistic = 'mean',
+    statistic = 'mean'
   ) {
     const colorScales = new Map<number, ColorMap>();
     this.performanceService.allValues.forEach((performanceValues, treeId) => {
@@ -170,7 +170,7 @@ export class ModelPerformanceColorScaleService {
           (p) =>
             p[this.selectedColorScale.performanceIndicator][
               this.selectedColorScale.statistic
-            ],
+            ]
         );
       allValues.push(...values);
     });
@@ -192,7 +192,7 @@ export function getAllNodes(tree: ProcessTree): ProcessTree[] {
 export function getAllTreeValues(
   tree: ProcessTree,
   performanceValue: string,
-  statistic: string,
+  statistic: string
 ): number[] {
   const leafNodes = getAllNodes(tree);
   return leafNodes

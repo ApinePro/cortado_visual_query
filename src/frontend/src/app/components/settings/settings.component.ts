@@ -33,7 +33,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private backendService: BackendService,
     private settingsService: SettingsService,
     private logService: LogService,
-    private fb: UntypedFormBuilder,
+    private fb: UntypedFormBuilder
   ) {}
 
   ngOnInit(): void {
@@ -63,7 +63,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       .pipe(
         tap((config) => {
           this.settingsService.notify(config);
-        }),
+        })
       )
       .pipe(takeUntil(this._destroy$))
       .subscribe((config) => {
@@ -80,7 +80,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.backendService
       .saveConfiguration(this.configForm.getRawValue())
       .pipe(
-        tap(() => this.settingsService.notify(this.configForm.getRawValue())),
+        tap(() => this.settingsService.notify(this.configForm.getRawValue()))
       )
       .pipe(takeUntil(this._destroy$))
       .subscribe((_) => {

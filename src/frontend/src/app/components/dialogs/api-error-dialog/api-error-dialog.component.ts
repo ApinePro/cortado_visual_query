@@ -23,7 +23,7 @@ export class ApiErrorDialogComponent implements OnInit, OnDestroy {
 
   constructor(
     private errorService: ErrorService,
-    public readonly swalTargets: SwalPortalTargets,
+    public readonly swalTargets: SwalPortalTargets
   ) {}
 
   ngOnInit(): void {

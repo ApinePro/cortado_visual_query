@@ -5,7 +5,7 @@ export class VariantSorter {
   static sort(
     variants: Variant[] | SubvariantPattern[],
     sortKey: string,
-    isAscendingOrder: boolean,
+    isAscendingOrder: boolean
   ): Variant[] | SubvariantPattern[] {
     let sortFn: any;
     sortFn = (a: Variant | SubvariantPattern, b: Variant | SubvariantPattern) =>
@@ -21,14 +21,14 @@ export class VariantSorter {
 
     return variants.sort(
       (a: Variant | SubvariantPattern, b: Variant | SubvariantPattern) =>
-        VariantSorter.applyOrder(sortFn(a, b), isAscendingOrder),
+        VariantSorter.applyOrder(sortFn(a, b), isAscendingOrder)
     );
   }
 
   static attributeSorting(
     a: Variant | SubvariantPattern,
     b: Variant | SubvariantPattern,
-    sortAttribute: string,
+    sortAttribute: string
   ) {
     if (a[sortAttribute] < b[sortAttribute]) {
       return -1;
@@ -51,7 +51,7 @@ export class VariantSorter {
 
   static conformanceSorting(
     a: Variant | SubvariantPattern,
-    b: Variant | SubvariantPattern,
+    b: Variant | SubvariantPattern
   ) {
     if (a.calculationInProgress && !b.calculationInProgress) {
       return -1;

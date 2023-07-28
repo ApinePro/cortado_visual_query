@@ -43,7 +43,7 @@ export class ConformanceTabComponent
     private conformanceCheckingService: ConformanceCheckingService,
     private variantViewModeService: VariantViewModeService,
     public modelViewModeService: ModelViewModeService,
-    public processTreeService: ProcessTreeService,
+    public processTreeService: ProcessTreeService
   ) {
     super(elRef.nativeElement, renderer);
 
@@ -88,14 +88,14 @@ export class ConformanceTabComponent
     left: number,
     top: number,
     width: number,
-    height: number,
+    height: number
   ): void {}
 
   handleVisibilityChange(visibility: boolean): void {}
 
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
-    defaultZIndex: string,
+    defaultZIndex: string
   ): void {}
 
   public performanceStats: any;

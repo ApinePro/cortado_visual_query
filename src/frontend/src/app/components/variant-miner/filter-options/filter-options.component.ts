@@ -21,7 +21,7 @@ export class Choice {
   constructor(
     desc: string,
     value: boolean,
-    filterFnc: (p: SubvariantPattern) => boolean,
+    filterFnc: (p: SubvariantPattern) => boolean
   ) {
     this.desc = desc;
     this.value = value;

@@ -7,7 +7,7 @@ import { deserialize } from '../objects/Variants/variant_element';
 
 export function originalOrder(
   a: KeyValue<number, string>,
-  b: KeyValue<number, string>,
+  b: KeyValue<number, string>
 ): number {
   return 0;
 }
@@ -56,14 +56,11 @@ export function extractDeepPropertyByMapKey(obj: any, map: string): any {
   const keys = map.split('.');
   const head = keys.shift();
 
-  return keys.reduce(
-    (prop: any, key: string) => {
-      return !isUndefined(prop) && prop != null && !isUndefined(prop[key])
-        ? prop[key]
-        : undefined;
-    },
-    obj[head || ''],
-  );
+  return keys.reduce((prop: any, key: string) => {
+    return !isUndefined(prop) && prop != null && !isUndefined(prop[key])
+      ? prop[key]
+      : undefined;
+  }, obj[head || '']);
 }
 
 export function isFunction(value: any) {

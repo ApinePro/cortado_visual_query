@@ -53,8 +53,8 @@ export class ContextMenuItem {
     onClick: (
       variant: VariantElement,
       element: VariantElement,
-      directive: VariantDrawerDirective,
-    ) => {},
+      directive: VariantDrawerDirective
+    ) => {}
   ) {
     this.icon = icon;
     this.text = text;
@@ -64,7 +64,7 @@ export class ContextMenuItem {
   onClick: (
     variant: VariantElement,
     element: VariantElement,
-    directive: VariantDrawerDirective,
+    directive: VariantDrawerDirective
   ) => {};
 
   icon: string;

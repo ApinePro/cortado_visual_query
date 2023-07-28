@@ -4,7 +4,7 @@
       class="d-flex flex-wrap justify-content-end align-self-start operator-buttons"
     >
       <button
-        *ngFor="let op of processTreeOperators | slice: 0 : 2"
+        *ngFor="let op of processTreeOperators | slice : 0 : 2"
         type="button"
         [disabled]="operatorInsertionDisabled"
         [style.background]="operatorNodeColor"
@@ -19,7 +19,7 @@
       </button>
       <div class="w-100 d-block d-xl-none"></div>
       <button
-        *ngFor="let op of processTreeOperators | slice: 2"
+        *ngFor="let op of processTreeOperators | slice : 2"
         type="button"
         [disabled]="operatorInsertionDisabled"
         [style.background]="operatorNodeColor"

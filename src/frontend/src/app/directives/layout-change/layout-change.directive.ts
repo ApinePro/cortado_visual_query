@@ -5,29 +5,29 @@ import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 export abstract class LayoutChangeDirective {
   constructor(
     public rootHtmlElement: HTMLElement,
-    private renderer2: Renderer2,
+    private renderer2: Renderer2
   ) {}
 
   setPositionAndSize(left: number, top: number, width: number, height: number) {
     this.renderer2.setStyle(
       this.rootHtmlElement,
       'left',
-      this.numberToPixels(left),
+      this.numberToPixels(left)
     );
     this.renderer2.setStyle(
       this.rootHtmlElement,
       'top',
-      this.numberToPixels(top),
+      this.numberToPixels(top)
     );
     this.renderer2.setStyle(
       this.rootHtmlElement,
       'width',
-      this.numberToPixels(width),
+      this.numberToPixels(width)
     );
     this.renderer2.setStyle(
       this.rootHtmlElement,
       'height',
-      this.numberToPixels(height),
+      this.numberToPixels(height)
     );
   }
 
@@ -52,14 +52,14 @@ export abstract class LayoutChangeDirective {
     left: number,
     top: number,
     width: number,
-    height: number,
+    height: number
   ): void;
 
   abstract handleVisibilityChange(visibility: boolean): void;
 
   abstract handleZIndexChange(
     logicalZIndex: LogicalZIndex,
-    defaultZIndex: string,
+    defaultZIndex: string
   ): void;
 }
 

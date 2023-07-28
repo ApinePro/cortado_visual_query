@@ -96,7 +96,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
     private variantService: VariantService,
     private backendService: BackendService,
     private logService: LogService,
-    private colorMapService: ColorMapService,
+    private colorMapService: ColorMapService
   ) {
     const a = 1;
   }
@@ -158,7 +158,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
   computeActivityColor = (
     self: VariantDrawerDirective,
     element: VariantElement,
-    variant: Variant,
+    variant: Variant
   ) => {
     let color;
     color = this.colorMap.get(element.asLeafNode().activity[0]);
@@ -176,7 +176,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
   computeFocusOffset = (svg) => {
     const path = findPathToSelectedNode(
       this.currentVariant,
-      svg.select('.selected-variant-g').data()[0],
+      svg.select('.selected-variant-g').data()[0]
     ).slice(1);
     let translateX = 0;
 
@@ -264,11 +264,11 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
               this.handleInfrontInsert(
                 this.currentVariant,
                 leaf,
-                selectedElement,
+                selectedElement
               );
               const grandParent = this.findParent(
                 this.currentVariant,
-                this.findParent(this.currentVariant, leaf),
+                this.findParent(this.currentVariant, leaf)
               );
               if (grandParent instanceof ParallelGroup) {
                 this.sortParallel(grandParent);
@@ -280,11 +280,11 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
               this.handleBehindInsert(
                 this.currentVariant,
                 leaf,
-                selectedElement,
+                selectedElement
               );
               const grandParent = this.findParent(
                 this.currentVariant,
-                this.findParent(this.currentVariant, leaf),
+                this.findParent(this.currentVariant, leaf)
               );
               if (grandParent instanceof ParallelGroup) {
                 this.sortParallel(grandParent);
@@ -296,7 +296,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
               this.handleParallelInsert(
                 this.currentVariant,
                 leaf,
-                selectedElement,
+                selectedElement
               );
             }
             this.sortParallel(this.findParent(this.currentVariant, leaf));
@@ -311,7 +311,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
               this.handleFallthrough(
                 this.currentVariant,
                 leaf,
-                selectedElement,
+                selectedElement
               );
             }
             break;
@@ -331,7 +331,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
   handleParallelInsert(
     variant: VariantElement,
     leaf: LeafNode,
-    selectedElement,
+    selectedElement
   ) {
     const children = variant.getElements();
 
@@ -355,7 +355,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
             children.splice(
               index,
               1,
-              new ParallelGroup([leaf, selectedElement]),
+              new ParallelGroup([leaf, selectedElement])
             );
           }
         }
@@ -412,11 +412,11 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
     for (let i = 0; i < selectedElements.length - 1; i++) {
       const firstParent = this.findParent(
         this.currentVariant,
-        selectedElements[i],
+        selectedElements[i]
       );
       const secondParent = this.findParent(
         this.currentVariant,
-        selectedElements[i + 1],
+        selectedElements[i + 1]
       );
       if (
         firstParent != secondParent ||
@@ -536,7 +536,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
             children.splice(
               index,
               1,
-              new SequenceGroup([selectedElement, leaf]),
+              new SequenceGroup([selectedElement, leaf])
             );
           } else {
             // Inserting behind a ParallelGroup inside a ParallelGroup
@@ -544,7 +544,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
               children.splice(
                 children.indexOf(selectedElement),
                 1,
-                new SequenceGroup([selectedElement, leaf]),
+                new SequenceGroup([selectedElement, leaf])
               );
 
               // Inserting behind a SequeneGroup inside a ParallelGroup
@@ -571,7 +571,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
   handleInfrontInsert(
     variant: VariantElement,
     leaf: LeafNode,
-    selectedElement,
+    selectedElement
   ) {
     const children = variant.getElements();
 
@@ -586,7 +586,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
             children.splice(
               index,
               1,
-              new SequenceGroup([leaf, selectedElement]),
+              new SequenceGroup([leaf, selectedElement])
             );
           } else {
             // Inserting infront a ParallelGroup inside a ParallelGroup
@@ -594,7 +594,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
               children.splice(
                 children.indexOf(selectedElement),
                 1,
-                new SequenceGroup([leaf, selectedElement]),
+                new SequenceGroup([leaf, selectedElement])
               );
 
               // Inserting infront a SequeneGroup inside a ParallelGroup
@@ -672,7 +672,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
             children.splice(
               index,
               1,
-              new FallthroughGroup([leaf, selectedElement]),
+              new FallthroughGroup([leaf, selectedElement])
             );
           }
         }
@@ -792,7 +792,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
       this.deleteElementFromVariant(
         this.currentVariant,
         this.currentVariant,
-        ElementsToDelete,
+        ElementsToDelete
       );
 
       this.multiSelect = false;
@@ -807,7 +807,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
   deleteElementFromVariant(
     variant: VariantElement,
     parent: VariantElement,
-    elementsToDelete,
+    elementsToDelete
   ) {
     const children = variant.getElements();
 
@@ -937,7 +937,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
 
         svgSelection.classed(
           'selected-variant-g',
-          !svgSelection.classed('selected-variant-g'),
+          !svgSelection.classed('selected-variant-g')
         );
 
         const poly = svgSelection.select('polygon');

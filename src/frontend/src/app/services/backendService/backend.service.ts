@@ -34,7 +34,7 @@ export class BackendService {
     private logService: LogService,
     private processTreeService: ProcessTreeService,
     private sharedDataService: SharedDataService,
-    private electronService: ElectronService,
+    private electronService: ElectronService
   ) {}
 
   exportEventLogFromLog(bids: number[]) {
@@ -42,7 +42,7 @@ export class BackendService {
       .post(
         ROUTES.HTTP_BASE_URL + ROUTES.EXPORT + 'exportLogVariants',
         { bids: bids },
-        { responseType: 'blob' },
+        { responseType: 'blob' }
       )
       .pipe(take(1))
       .subscribe((blob) => {
@@ -51,7 +51,7 @@ export class BackendService {
           'xes',
           blob,
           'Save event log',
-          'Export event log',
+          'Export event log'
         );
       });
   }
@@ -72,7 +72,7 @@ export class BackendService {
         mapVariants(),
         tap((res) => {
           this.logService.processEventLog(res, filePath);
-        }),
+        })
       );
   }
 
@@ -83,7 +83,7 @@ export class BackendService {
     this.httpClient
       .post(
         ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'loadEventLogFromFile',
-        formData,
+        formData
       )
       .pipe(mapVariants())
       .subscribe((res) => {
@@ -99,11 +99,11 @@ export class BackendService {
           'loadProcessTreeFromPtmlFilePath',
         {
           file_path: filePath,
-        },
+        }
       )
       .subscribe((tree) => {
         this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
-          tree,
+          tree
         );
       });
   }
@@ -115,11 +115,11 @@ export class BackendService {
     this.httpClient
       .post(
         ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'loadProcessTreeFromPtmlFile',
-        formData,
+        formData
       )
       .subscribe((tree) => {
         this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
-          tree,
+          tree
         );
       });
   }
@@ -132,7 +132,7 @@ export class BackendService {
           'discoverProcessModelFromVariants',
         {
           variants,
-        },
+        }
       )
       .subscribe((tree) => {
         this.processTreeService.currentDisplayedProcessTree = tree;
@@ -140,7 +140,7 @@ export class BackendService {
   }
 
   discoverProcessModelFromConcurrencyVariants(
-    variants: Variant[],
+    variants: Variant[]
   ): Observable<any> {
     const variantsSerialized = variants.map((v) => [
       v.variant.serialize(1),
@@ -153,14 +153,14 @@ export class BackendService {
           'discoverProcessModelFromConcurrencyVariants',
         {
           variants: variantsSerialized,
-        },
+        }
       )
       .pipe(
         tap((tree) => {
           this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
-            tree,
+            tree
           );
-        }),
+        })
       );
   }
 
@@ -170,7 +170,7 @@ export class BackendService {
         ROUTES.HTTP_BASE_URL + ROUTES.PT_STRING + 'computeTreeStringFromTree',
         {
           pt: tree.copy(false),
-        },
+        }
       )
       .subscribe((tree) => {
         this.processTreeService.currentTreeString = tree;
@@ -182,7 +182,7 @@ export class BackendService {
       ROUTES.HTTP_BASE_URL + ROUTES.PT_STRING + 'parseStringToPT',
       {
         pt_string: treeString,
-      },
+      }
     );
   }
 
@@ -194,7 +194,7 @@ export class BackendService {
           .post(
             ROUTES.HTTP_BASE_URL + ROUTES.EXPORT + 'convertPtToBPMN',
             { pt: tree.copy(false) },
-            { responseType: 'blob' },
+            { responseType: 'blob' }
           )
           .subscribe((blob) => {
             this.electronService.showSaveDialog(
@@ -202,7 +202,7 @@ export class BackendService {
               'bpmn',
               blob,
               'Save BPMN model',
-              'Download current tree as BPMN',
+              'Download current tree as BPMN'
             );
             // FileSaver.saveAs(blob, 'bpmn_model.bpmn');
           });
@@ -217,7 +217,7 @@ export class BackendService {
           .post(
             ROUTES.HTTP_BASE_URL + ROUTES.EXPORT + 'convertPtToPTML',
             { pt: tree.copy(false) },
-            { responseType: 'blob' },
+            { responseType: 'blob' }
           )
           .subscribe((blob) => {
             this.electronService.showSaveDialog(
@@ -225,7 +225,7 @@ export class BackendService {
               'ptml',
               blob,
               'Save as ptml',
-              'Download current tree as PTML',
+              'Download current tree as PTML'
             );
             // FileSaver.saveAs(blob, 'process_tree.ptml');
           });
@@ -240,7 +240,7 @@ export class BackendService {
           .post(
             ROUTES.HTTP_BASE_URL + ROUTES.EXPORT + 'convertPtToPNML',
             { pt: tree.copy(false) },
-            { responseType: 'blob' },
+            { responseType: 'blob' }
           )
           .subscribe((blob) => {
             this.electronService.showSaveDialog(
@@ -248,7 +248,7 @@ export class BackendService {
               'pnml',
               blob,
               'Save as pnml',
-              'Download current tree as PNML',
+              'Download current tree as PNML'
             );
             // FileSaver.saveAs(blob, 'petri_net.pnml');
           });
@@ -266,12 +266,12 @@ export class BackendService {
               'applyReductionRulesToTree',
             {
               pt: tree.copy(false),
-            },
+            }
           )
           .subscribe((tree) =>
             this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
-              tree,
-            ),
+              tree
+            )
           );
       });
   }
@@ -279,7 +279,7 @@ export class BackendService {
   // TODO this function is currently unused
   addVariantsToModel(
     variantsToAdd: any[],
-    explicitlyAddedVariants: any[],
+    explicitlyAddedVariants: any[]
   ): void {
     const body = {
       pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
@@ -289,7 +289,7 @@ export class BackendService {
     this.httpClient
       .post(
         ROUTES.HTTP_BASE_URL + ROUTES.DISCOVER + 'addVariantsToProcessModel',
-        body,
+        body
       )
       .subscribe((res) => {
         this.processTreeService.set_currentDisplayedProcessTree_with_Cache(res);
@@ -307,13 +307,13 @@ export class BackendService {
       ROUTES.HTTP_BASE_URL +
         ROUTES.TREE_PERFORMANCE +
         'calculateVariantsPerformance',
-      body,
+      body
     );
   }
 
   addConcurrencyVariantsToProcessModel(
     variantsToAdd: Variant[],
-    variantsInModelLanguage: Variant[],
+    variantsInModelLanguage: Variant[]
   ): Observable<any> {
     const body = {
       pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
@@ -331,19 +331,19 @@ export class BackendService {
         ROUTES.HTTP_BASE_URL +
           ROUTES.DISCOVER +
           'addConcurrencyVariantsToProcessModel',
-        body,
+        body
       )
       .pipe(
         tap((res) => {
           this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
-            res,
+            res
           );
-        }),
+        })
       );
   }
 
   addConcurrencyVariantsToProcessModelForUnknownConformance(
-    selectedVariants: Variant[],
+    selectedVariants: Variant[]
   ): Observable<any> {
     const body = {
       pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
@@ -357,14 +357,14 @@ export class BackendService {
         ROUTES.HTTP_BASE_URL +
           ROUTES.DISCOVER +
           'addConcurrencyVariantsToProcessModelUnknownConformance',
-        body,
+        body
       )
       .pipe(
         tap((res) => {
           this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
-            res,
+            res
           );
-        }),
+        })
       );
   }
 
@@ -372,7 +372,7 @@ export class BackendService {
     this.httpClient
       .post<Array<any>>(
         ROUTES.HTTP_BASE_URL + ROUTES.VARIANTMINING + 'frequentSubtreeMining',
-        config.serialize(),
+        config.serialize()
       )
       .subscribe((res) => {
         this.sharedDataService.frequentMiningResults = res;
@@ -382,13 +382,13 @@ export class BackendService {
   saveConfiguration(configuration: Configuration): Observable<any> {
     return this.httpClient.post(
       ROUTES.HTTP_BASE_URL + ROUTES.CONFIG + 'saveConfiguration',
-      configuration,
+      configuration
     );
   }
 
   getConfiguration(): Observable<any> {
     return this.httpClient.get<Configuration>(
-      ROUTES.HTTP_BASE_URL + ROUTES.CONFIG + 'getConfiguration',
+      ROUTES.HTTP_BASE_URL + ROUTES.CONFIG + 'getConfiguration'
     );
   }
 
@@ -396,7 +396,7 @@ export class BackendService {
     const queryBody = { queryString: query };
     return this.httpClient.post(
       ROUTES.HTTP_BASE_URL + ROUTES.QUERY + 'variant-query',
-      queryBody,
+      queryBody
     );
   }
 
@@ -417,12 +417,12 @@ export class BackendService {
    */
   public getLogPropsAndUpdateState(
     timeGranularity?: TimeUnit,
-    logName?: string,
+    logName?: string
   ): Observable<any> {
     return this.getProperties(timeGranularity).pipe(
       tap((properties) => {
         this.logService.processEventLog(properties, logName);
-      }),
+      })
     );
   }
 
@@ -436,13 +436,13 @@ export class BackendService {
 
   public getLogGranularity(): Observable<TimeUnit> {
     return this.httpClient.get<TimeUnit>(
-      ROUTES.HTTP_BASE_URL + ROUTES.LOG + 'granularity',
+      ROUTES.HTTP_BASE_URL + ROUTES.LOG + 'granularity'
     );
   }
 
   public resetLogCache(): Observable<any> {
     return this.httpClient.get(
-      ROUTES.HTTP_BASE_URL + ROUTES.LOG + 'resetLogCache',
+      ROUTES.HTTP_BASE_URL + ROUTES.LOG + 'resetLogCache'
     );
   }
 
@@ -452,7 +452,7 @@ export class BackendService {
       ROUTES.HTTP_BASE_URL +
         ROUTES.VARIANT_PERFORMANCE +
         'logBasedVariantPerformance',
-      body,
+      body
     );
   }
 
@@ -462,7 +462,7 @@ export class BackendService {
     };
     return this.httpClient.post(
       ROUTES.HTTP_BASE_URL + ROUTES.SUBVARIANT_PERFORMANCE + 'subvariants',
-      body,
+      body
     );
   }
 
@@ -480,7 +480,7 @@ export class BackendService {
 
   public getTreeConformance(
     pt: ProcessTree,
-    variants: Variant[],
+    variants: Variant[]
   ): Observable<treeConformanceResult> {
     const body = {
       pt: pt,
@@ -502,20 +502,20 @@ export class BackendService {
         ROUTES.HTTP_BASE_URL +
           ROUTES.TREE_CONFORMANCE +
           'calculateVariantsConformance',
-        body,
+        body
       )
       .pipe(
         map((res: treeConformanceResult) => {
           const treeConfRes = {
             merged_conformance_tree: ProcessTree.fromObj(
-              res.merged_conformance_tree,
+              res.merged_conformance_tree
             ),
             variants_tree_conformance: res.variants_tree_conformance.map((pt) =>
-              ProcessTree.fromObj(pt),
+              ProcessTree.fromObj(pt)
             ),
           };
           return treeConfRes;
-        }),
+        })
       );
   }
   addUserDefinedVariant(variant: Variant) {
@@ -524,7 +524,7 @@ export class BackendService {
       {
         variant: variant.variant.serialize(),
         bid: variant.bid,
-      },
+      }
     );
   }
   addUserDefinedInfix(variant: Variant) {
@@ -534,7 +534,7 @@ export class BackendService {
         variant: variant.variant.serialize(),
         bid: variant.bid,
         infixType: variant.infixType,
-      },
+      }
     );
   }
 
@@ -546,7 +546,7 @@ export class BackendService {
         renameList: renameList,
         activityName: activityName,
         newActivityName: newActivityName,
-      },
+      }
     );
   }
 
@@ -555,7 +555,7 @@ export class BackendService {
     fallthrough,
     delete_member_list,
     merge_list,
-    delete_variant_list,
+    delete_variant_list
   ) {
     return this.httpClient.post(
       ROUTES.HTTP_BASE_URL + ROUTES.MODIFY_LOG + 'deleteActivity',
@@ -565,7 +565,7 @@ export class BackendService {
         delete_member_list: delete_member_list,
         merge_list: merge_list,
         delete_variant_list: delete_variant_list,
-      },
+      }
     );
   }
 
@@ -574,7 +574,7 @@ export class BackendService {
       ROUTES.HTTP_BASE_URL + ROUTES.MODIFY_LOG + 'deleteVariants',
       {
         bids: bids,
-      },
+      }
     );
   }
 
@@ -590,13 +590,13 @@ export class BackendService {
       {
         infixType: InfixType[variant.infixType],
         fragment: variant.variant.serialize(),
-      },
+      }
     );
   }
 
   getCollapsedVariants() {
     return this.httpClient.get(
-      ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'collapsedVariants',
+      ROUTES.HTTP_BASE_URL + ROUTES.IMPORT + 'collapsedVariants'
     );
   }
 
@@ -604,7 +604,7 @@ export class BackendService {
     return this.httpClient
       .post<any>(
         ROUTES.HTTP_BASE_URL + ROUTES.VARIANT + 'cluster',
-        clusteringConfig,
+        clusteringConfig
       )
       .pipe(mergeMap((clusters) => clusters)) // flat map
       .pipe(mapVariantsList()) // deserialize
@@ -616,7 +616,7 @@ export class BackendService {
       ROUTES.HTTP_BASE_URL + ROUTES.LPMMINER + 'lpmMining',
       {
         patterns: patterns,
-      },
+      }
     );
   }
 
@@ -625,7 +625,7 @@ export class BackendService {
       ROUTES.HTTP_BASE_URL + ROUTES.LPMMINER + 'lpmStatistics',
       {
         lpm: lpm.copy(false),
-      },
+      }
     );
   }
 
@@ -635,7 +635,7 @@ export class BackendService {
       ROUTES.BASE_URL + ROUTES.VARIANT + 'sortvariant',
       {
         variants,
-      },
+      }
     );
   }
 }

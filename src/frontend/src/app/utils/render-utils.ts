@@ -1,6 +1,6 @@
 export function textColorForBackgroundColor(
   backgroundColorInHex: string,
-  unselectedElementInTraceInfixSelectionMode: boolean = false,
+  unselectedElementInTraceInfixSelectionMode: boolean = false
 ): string {
   if (
     backgroundColorInHex === undefined ||
@@ -64,7 +64,7 @@ export function applyInverseStrokeToPoly(poly: Selection<any, any, any, any>) {
       poly.attr('stroke-width', 2);
       poly.attr(
         'stroke',
-        `rgb(${inversed[0]}, ${inversed[1]}, ${inversed[2]})`,
+        `rgb(${inversed[0]}, ${inversed[1]}, ${inversed[2]})`
       );
     } else {
       poly
@@ -79,7 +79,7 @@ import * as d3 from 'd3';
 
 export function computeLeafNodeWidth(
   nodeActivityLabels: string[],
-  nodeWidthCache: Map<string, number>,
+  nodeWidthCache: Map<string, number>
 ): Map<string, number> {
   const dummy_container = d3
     .select('body')
@@ -109,7 +109,7 @@ export function computeLeafNodeWidth(
     // Compute the true node width as specified above
     rendered_width = Math.max(
       rendered_width + 10,
-      PT_Constant.BASE_HEIGHT_WIDTH,
+      PT_Constant.BASE_HEIGHT_WIDTH
     );
 
     // Add to Cache

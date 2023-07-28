@@ -25,21 +25,21 @@ export class DropZoneComponent extends DropZoneDirective implements OnInit {
   dropZoneText: SafeStyle;
   @Input() dropzoneConfig: DropzoneConfig;
   @Output() fileOnHover: EventEmitter<boolean> = new EventEmitter<boolean>(
-    false,
+    false
   );
 
   dropZoneDirective = DropZoneDirective;
 
   constructor(
     private sanitizer: DomSanitizer,
-    private backendService: BackendService,
+    private backendService: BackendService
   ) {
     super();
   }
 
   ngOnInit() {
     this.dropZoneText = this.sanitizer.bypassSecurityTrustHtml(
-      this.dropzoneConfig.dropZoneHoverMessage,
+      this.dropzoneConfig.dropZoneHoverMessage
     );
   }
 
@@ -80,7 +80,7 @@ export class DropZoneComponent extends DropZoneDirective implements OnInit {
         const fileName: string = this.file.fileEntry.name;
         const fileEnding: string = fileName.slice(
           fileName.lastIndexOf('.'),
-          fileName.length,
+          fileName.length
         );
         const fileEntry = this.file.fileEntry as FileSystemFileEntry;
 
@@ -99,7 +99,7 @@ export class DropZoneComponent extends DropZoneDirective implements OnInit {
                 !environment.electron
                   ? this.backendService.loadProcessTreeFromFile(file)
                   : this.backendService.loadProcessTreeFromFilePath(
-                      file['path'],
+                      file['path']
                     );
                 break;
               default:
@@ -161,7 +161,7 @@ export class DropzoneConfig {
     acceptedFormats: string,
     directory: string,
     multiple: string,
-    dropZoneHoverMessage: string,
+    dropZoneHoverMessage: string
   ) {
     this.acceptedFormats = acceptedFormats;
     this.directory = directory;

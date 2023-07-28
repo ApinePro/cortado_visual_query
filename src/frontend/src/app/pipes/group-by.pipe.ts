@@ -17,7 +17,7 @@ export class GroupByPipe implements PipeTransform {
       const key = this.extractKeyByDiscriminator(
         discriminator,
         payload,
-        delimiter,
+        delimiter
       );
 
       acc[key] = Array.isArray(acc[key])
@@ -31,7 +31,7 @@ export class GroupByPipe implements PipeTransform {
   private extractKeyByDiscriminator(
     discriminator: any,
     payload: string,
-    delimiter: string,
+    delimiter: string
   ) {
     if (isFunction(discriminator)) {
       return (<Function>discriminator)(payload);

@@ -22,7 +22,7 @@ import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 export class ProcessTreeToolboxComponent implements OnDestroy {
   readonly operatorNodeColor = PT_Constant.OPERATOR_COLOR;
   readonly operatorTextColor = textColorForBackgroundColor(
-    PT_Constant.OPERATOR_COLOR,
+    PT_Constant.OPERATOR_COLOR
   );
   readonly ProcessTreeOperator = ProcessTreeOperator;
 
@@ -41,7 +41,7 @@ export class ProcessTreeToolboxComponent implements OnDestroy {
 
   constructor(
     private colorMapService: ColorMapService,
-    private logService: LogService,
+    private logService: LogService
   ) {
     this.processTreeOperators = [
       ProcessTreeOperator.sequence,

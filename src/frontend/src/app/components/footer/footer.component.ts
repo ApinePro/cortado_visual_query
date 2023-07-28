@@ -23,7 +23,7 @@ export class FooterComponent implements OnInit, OnDestroy {
     private backgroundTaskInfoService: BackgroundTaskInfoService,
     private backendInfoService: BackendInfoService,
     private _elRef: ElementRef<HTMLElement>,
-    @Inject(DOCUMENT) private document: Document,
+    @Inject(DOCUMENT) private document: Document
   ) {}
 
   currentTask = undefined;

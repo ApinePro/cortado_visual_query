@@ -14,7 +14,7 @@ export const openCloseComponent = trigger('openCloseComponent', [
       height: '75%',
       width: '55%',
       overflow: 'hidden',
-    }),
+    })
   ),
   state(
     'closeComponent',
@@ -22,7 +22,7 @@ export const openCloseComponent = trigger('openCloseComponent', [
       height: '25px',
       width: '125px',
       overflow: 'hidden',
-    }),
+    })
   ),
   transition('openComponent => closeComponent', [animate('175ms')]),
   transition('closeComponent => openComponent', [animate('175ms')]),
@@ -36,7 +36,7 @@ export const fadeInOutComponent = trigger('fadeInOutComponent', [
       opacity: '1',
       width: '100%',
       height: '100%',
-    }),
+    })
   ),
   state(
     'fadeOutComponent',
@@ -44,7 +44,7 @@ export const fadeInOutComponent = trigger('fadeInOutComponent', [
       opacity: '0',
       width: '0%',
       height: '0%',
-    }),
+    })
   ),
   transition('fadeInComponent => fadeOutComponent', [animate('175ms')]),
   transition('fadeOutComponent => fadeInComponent', [animate('175ms')]),
@@ -55,13 +55,13 @@ export const flyInComponent = trigger('flyInDiv', [
     style({ opacity: '0', transform: 'translateX(40px)' }),
     animate(
       '150ms 50ms ease-in',
-      style({ opacity: '1', transform: 'translateX(0)' }),
+      style({ opacity: '1', transform: 'translateX(0)' })
     ),
   ]),
   transition(':leave', [
     animate(
       '150ms 50ms ease-in',
-      style({ opacity: '0', transform: 'translateX(50px)' }),
+      style({ opacity: '0', transform: 'translateX(50px)' })
     ),
   ]),
 ]);

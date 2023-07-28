@@ -27,7 +27,7 @@ export class VariantColorMapComponent implements OnDestroy {
 
   constructor(
     public variantPerformanceService: VariantPerformanceService,
-    private changeDetectorRef: ChangeDetectorRef,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     this.variantPerformanceService.serviceTimeColorMap
       .pipe(takeUntil(this._destroy$))
@@ -52,7 +52,7 @@ export class VariantColorMapComponent implements OnDestroy {
     this.serviceTimeValues = this.getColorValues(
       colorMap,
       'serviceTime',
-      this.variantPerformanceService.serviceTimeStatistic,
+      this.variantPerformanceService.serviceTimeStatistic
     );
   }
 
@@ -60,14 +60,14 @@ export class VariantColorMapComponent implements OnDestroy {
     this.waitingTimeValues = this.getColorValues(
       colorMap,
       'waitingTime',
-      this.variantPerformanceService.waitingTimeStatistic,
+      this.variantPerformanceService.waitingTimeStatistic
     );
   }
 
   private getColorValues(
     colorScale,
     performanceIndicator,
-    value,
+    value
   ): ColorMapValue[] {
     return buildColorValues(colorScale, [
       this.variantPerformanceService.minValues[performanceIndicator],

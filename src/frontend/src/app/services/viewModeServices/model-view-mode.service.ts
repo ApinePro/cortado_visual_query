@@ -8,7 +8,7 @@ import { ViewMode } from 'src/app/objects/ViewMode';
 })
 export class ModelViewModeService {
   private _viewMode: BehaviorSubject<ViewMode> = new BehaviorSubject<ViewMode>(
-    ViewMode.STANDARD,
+    ViewMode.STANDARD
   );
 
   set viewMode(nextViewMode: ViewMode) {

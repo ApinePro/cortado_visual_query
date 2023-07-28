@@ -35,7 +35,7 @@ export class VariantPerformanceComponent
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
     elRef: ElementRef,
-    private variantViewModeService: VariantViewModeService,
+    private variantViewModeService: VariantViewModeService
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -44,14 +44,14 @@ export class VariantPerformanceComponent
     left: number,
     top: number,
     width: number,
-    height: number,
+    height: number
   ): void {}
 
   handleVisibilityChange(visibility: boolean): void {}
 
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
-    defaultZIndex: string,
+    defaultZIndex: string
   ): void {}
 
   public performanceStats: any;

@@ -26,7 +26,7 @@ export class TreeConformanceButtonComponent {
 
   get conformanceValue() {
     const tree = this.conformanceCheckingService.variantsTreeConformance.get(
-      this.variant,
+      this.variant
     );
 
     if (!tree) return null;
@@ -39,13 +39,13 @@ export class TreeConformanceButtonComponent {
 
   get isConformanceActive() {
     return this.conformanceCheckingService.isTreeConformanceActive(
-      this.variant,
+      this.variant
     );
   }
 
   get isConformanceCalcInProgress() {
     return this.conformanceCheckingService.isTreeConformanceCalcInProgress(
-      this.variant,
+      this.variant
     );
   }
 

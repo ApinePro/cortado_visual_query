@@ -15,7 +15,7 @@ export function initApp(initService: InitService) {
 export class InitService {
   constructor(
     private backendService: BackendService,
-    private backendInfoService: BackendInfoService,
+    private backendInfoService: BackendInfoService
   ) {}
 
   init() {

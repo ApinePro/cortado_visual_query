@@ -19,7 +19,7 @@ export const vqlEditorOptions: Monaco.editor.IStandaloneEditorConstructionOption
     lineHeight: 16,
     fixedOverflowWidgets: true,
     overflowWidgetsDomNode: document.getElementById(
-      'monaco-editor-overflow-widgets-root',
+      'monaco-editor-overflow-widgets-root'
     )!,
     minimap: { enabled: false },
     bracketPairColorization: {

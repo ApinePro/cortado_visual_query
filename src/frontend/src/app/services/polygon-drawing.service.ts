@@ -20,12 +20,12 @@ export class PolygonDrawingService {
 
   public setElementRefereneces(
     variantExplorerRef: ElementRef<HTMLDivElement>,
-    tooltipContainerRef: ElementRef<HTMLDivElement>,
+    tooltipContainerRef: ElementRef<HTMLDivElement>
   ) {
     this.variantExplorerDiv = variantExplorerRef.nativeElement;
     this.tooltipContainer = d3.select(tooltipContainerRef.nativeElement);
     this.tooltipInner = d3.select(
-      tooltipContainerRef.nativeElement.firstChild as HTMLElement,
+      tooltipContainerRef.nativeElement.firstChild as HTMLElement
     );
   }
 
@@ -33,7 +33,7 @@ export class PolygonDrawingService {
     elements: LeafNode[],
     parent: Selection<any, any, any, any>,
     colorMap: Map<string, string>,
-    textUnderLegend: string = 'Variants',
+    textUnderLegend: string = 'Variants'
   ): void {
     let offsetY = VARIANT_Constants.LEGEND_MARGIN_Y + 20;
     let offsetX = VARIANT_Constants.LEGEND_MARGIN_X;
@@ -90,7 +90,7 @@ export class PolygonDrawingService {
         .text(element.activity[0])
         .attr(
           'height',
-          VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y,
+          VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y
         );
 
       offsetX += width + VARIANT_Constants.LEGEND_MARGIN_X;

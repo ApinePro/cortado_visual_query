@@ -43,7 +43,7 @@ export class TreeStringRendererComponent
 
   constructor(
     private colorMapService: ColorMapService,
-    private renderer: Renderer,
+    private renderer: Renderer
   ) {}
 
   ngAfterViewInit() {
@@ -77,7 +77,7 @@ export class TreeStringRendererComponent
     this.renderer.setProperty(
       this.styledTextDiv.nativeElement,
       'innerHTML',
-      value,
+      value
     );
   }
 
@@ -100,14 +100,14 @@ export class TreeStringRendererComponent
         new RegExp("'" + activityName + "'", 'g'),
         `'<b><span style="color:${this.activityColorMap.get(activityName)}">` +
           activityName +
-          "</span></b>'",
+          "</span></b>'"
       );
     });
 
     unknowActivities.forEach((activityName: string) => {
       value = value.replace(
         new RegExp("'" + activityName + "'", 'g'),
-        '\'<span class="warning-highlight">' + activityName + "</span>'",
+        '\'<span class="warning-highlight">' + activityName + "</span>'"
       );
     });
 

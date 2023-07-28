@@ -10,7 +10,7 @@ export class VariantQueryService {
   constructor() {}
 
   private _variantQuery: BehaviorSubject<string> = new BehaviorSubject<string>(
-    '',
+    ''
   );
 
   set variantQuery(nextQuery: string) {

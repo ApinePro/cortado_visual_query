@@ -28,7 +28,7 @@ export class ClusteringSettingsDialogComponent implements OnInit {
 
   constructor(
     public modal: NgbActiveModal,
-    private variantService: VariantService,
+    private variantService: VariantService
   ) {}
 
   ngOnInit(): void {

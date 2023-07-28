@@ -31,7 +31,7 @@ export function computePerformanceButtonColor(variant: Variant) {
     return colorScale.getColor(
       tree.performance[selectedScale.performanceIndicator][
         selectedScale.statistic
-      ],
+      ]
     );
   }
   return '#d3d3d3';
@@ -40,20 +40,20 @@ export function computePerformanceButtonColor(variant: Variant) {
 export function clickCallback(
   drawer: VariantDrawerDirective,
   element: VariantElement,
-  variant: Variant,
+  variant: Variant
 ) {
   if (this.variantViewModeService.viewMode === ViewMode.PERFORMANCE) {
     drawer.changeSelected(element);
     if (element.serviceTime) {
       this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
         element.serviceTime,
-        true,
+        true
       );
     }
     if (element.waitingTime) {
       this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
         element.waitingTime,
-        false,
+        false
       );
     }
   } else if (this.traceInfixSelectionMode) {
@@ -83,7 +83,7 @@ export function contextMenuCallback(
   self: VariantDrawerDirective,
   element: VariantElement,
   variant: Variant,
-  event: PointerEvent,
+  event: PointerEvent
 ) {
   this.contextMenu_xPos = event.clientX;
   this.contextMenu_yPos = event.clientY;
@@ -95,7 +95,7 @@ export function contextMenuCallback(
 export function activityColor(
   self: VariantDrawerDirective,
   element: VariantElement,
-  variant: Variant,
+  variant: Variant
 ) {
   let color;
 
@@ -133,7 +133,7 @@ export function activityColor(
           else
             color =
               this.conformanceCheckingService.variantConformanceColorMap.getColor(
-                p,
+                p
               );
         } else color = '#d3d3d3';
         break;

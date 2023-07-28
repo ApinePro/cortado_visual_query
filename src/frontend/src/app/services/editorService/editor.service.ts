@@ -29,7 +29,7 @@ export class EditorService {
 
   constructor(
     private colorMapService: ColorMapService,
-    private logService: LogService,
+    private logService: LogService
   ) {
     this.colorMapService.colorMap$.subscribe((colormap: any) => {
       if (colormap && this.loaded) {
@@ -75,7 +75,7 @@ export class EditorService {
         () => {
           this.finishLoading();
         },
-        (error) => console.error('Error loading monaco-editor: ', error),
+        (error) => console.error('Error loading monaco-editor: ', error)
       );
     };
 
@@ -106,7 +106,7 @@ export class EditorService {
     }
 
     const createProposals = getVQLCompletionProvider(
-      Object.keys(this.logService.activitiesInEventLog),
+      Object.keys(this.logService.activitiesInEventLog)
     );
 
     this.updateTheme();
@@ -126,7 +126,7 @@ export class EditorService {
             suggestions: createProposals(range),
           };
         },
-      },
+      }
     );
   }
 }

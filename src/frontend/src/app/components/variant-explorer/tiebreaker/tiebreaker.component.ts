@@ -81,7 +81,7 @@ export class TiebreakerComponent implements OnInit, OnDestroy {
     private backendService: BackendService,
     private logService: LogService,
 
-    private colorMapService: ColorMapService,
+    private colorMapService: ColorMapService
   ) {
     const a = 1;
   }
@@ -168,12 +168,12 @@ export class TiebreakerComponent implements OnInit, OnDestroy {
     if (
       this.checkPattern(
         this.sourceEditor.currentVariant,
-        this.targetEditor.currentVariant,
+        this.targetEditor.currentVariant
       )
     ) {
       this.backendService.applyTiebreaker(
         this.sourceEditor.currentVariant.serialize(),
-        this.targetEditor.currentVariant.serialize(),
+        this.targetEditor.currentVariant.serialize()
       );
       this.hideModal();
     } else {

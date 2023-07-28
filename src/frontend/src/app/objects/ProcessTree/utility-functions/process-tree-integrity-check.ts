@@ -5,7 +5,7 @@ import {
 
 export function checkForLoadedTreeIntegrity(
   tree: ProcessTree,
-  activities: string[],
+  activities: string[]
 ): Set<string> {
   let unknownActivities = new Set<string>();
 

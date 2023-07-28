@@ -16,7 +16,7 @@ export class ResizeColumnDirective {
   @Output()
   readonly resizeable = fromEvent<MouseEvent>(
     this.elementRef.nativeElement,
-    'mousedown',
+    'mousedown'
   ).pipe(
     tap((e) => e.preventDefault()),
     switchMap(() => {
@@ -27,14 +27,14 @@ export class ResizeColumnDirective {
       return fromEvent<MouseEvent>(this.documentRef, 'mousemove').pipe(
         map(({ clientX }) => width + clientX - right),
         distinctUntilChanged(),
-        takeUntil(fromEvent(this.documentRef, 'mouseup')),
+        takeUntil(fromEvent(this.documentRef, 'mouseup'))
       );
-    }),
+    })
   );
 
   constructor(
     @Inject(DOCUMENT) private readonly documentRef: Document,
     @Inject(ElementRef)
-    private readonly elementRef: ElementRef<HTMLElement>,
+    private readonly elementRef: ElementRef<HTMLElement>
   ) {}
 }

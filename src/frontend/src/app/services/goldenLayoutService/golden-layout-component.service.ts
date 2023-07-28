@@ -34,7 +34,7 @@ export class GoldenLayoutComponentService {
 
   registerComponentType(
     name: string,
-    componentType: Type<LayoutChangeDirective>,
+    componentType: Type<LayoutChangeDirective>
   ) {
     this._componentTypeMap.set(name, componentType);
   }
@@ -58,7 +58,7 @@ export class GoldenLayoutComponentService {
   }
 
   set goldenLayoutHostComponent(
-    goldenLayoutHostComponent: GoldenLayoutHostComponent,
+    goldenLayoutHostComponent: GoldenLayoutHostComponent
   ) {
     this._goldenLayoutHostComponent = goldenLayoutHostComponent;
   }
@@ -69,10 +69,10 @@ export class GoldenLayoutComponentService {
 
   createComponent(
     componentTypeJsonValue: JsonValue,
-    container: ComponentContainer,
+    container: ComponentContainer
   ) {
     const componentType = this._componentTypeMap.get(
-      componentTypeJsonValue as string,
+      componentTypeJsonValue as string
     );
     if (componentType === undefined) {
       throw new Error('Unknown component type');
@@ -86,7 +86,7 @@ export class GoldenLayoutComponentService {
       });
       const componentFactoryRef =
         this.componentFactoryResolver.resolveComponentFactory<LayoutChangeDirective>(
-          componentType,
+          componentType
         );
       return componentFactoryRef.create(injector);
     }
@@ -96,14 +96,14 @@ export class GoldenLayoutComponentService {
     componentID: string,
     parentContainerID: string,
     LocationSelectors: LayoutManager.LocationSelector[],
-    itemConfig: ComponentItemConfig,
+    itemConfig: ComponentItemConfig
   ) {
     const editor = this._goldenLayout.findFirstComponentItemById(componentID);
 
     const createComponent = (
       parentContainerID,
       itemConfig,
-      LocationSelectors,
+      LocationSelectors
     ) => {
       if (parentContainerID) {
         this._goldenLayout
@@ -165,7 +165,7 @@ export class GoldenLayoutComponentService {
 
       const pt_editor_row = findContentItemByUniqueID(
         splitParentID + '_Container_Row',
-        this._goldenLayout.rootItem,
+        this._goldenLayout.rootItem
       );
 
       (pt_editor_row as RowOrColumn).addItem(itemConfig, 1);
@@ -179,21 +179,21 @@ export class GoldenLayoutComponentService {
 
     const stackItem = findContentItemByUniqueID(
       ActivityOverviewComponent.componentName + '_Container_Stack',
-      this.goldenLayout.rootItem,
+      this.goldenLayout.rootItem
     ) as Stack;
 
     stackItem.setActiveComponentItem(
       this.goldenLayout.findFirstComponentItemById(
-        LpmMetricsTabComponent.componentName,
+        LpmMetricsTabComponent.componentName
       ),
-      true,
+      true
     );
   }
 }
 
 export function findContentItemByUniqueID(
   id: string,
-  groundItem: ContentItem,
+  groundItem: ContentItem
 ): ContentItem | undefined {
   const contentItems = groundItem.contentItems;
 

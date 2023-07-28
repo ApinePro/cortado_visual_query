@@ -41,7 +41,7 @@ export class NodeSelectionPerformanceComponent implements OnInit, OnDestroy {
     public performanceColorScaleService: ModelPerformanceColorScaleService,
     public sharedDataService: SharedDataService,
     private variantService: VariantService,
-    private changeDetectorRef: ChangeDetectorRef,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     const durationLang = new HumanizeDurationLanguage();
     this.humanizeDuration = new HumanizeDuration(durationLang);
@@ -65,13 +65,13 @@ export class NodeSelectionPerformanceComponent implements OnInit, OnDestroy {
           this.meanValues = this.performanceService.allValuesMean.get(tree.id);
 
           const availableVariants = Array.from(
-            this.performanceService.allValues.get(tree.id).entries(),
+            this.performanceService.allValues.get(tree.id).entries()
           ).filter(
             ([v, perf]) =>
               perf.service_time ||
               perf.waiting_time ||
               perf.idle_time ||
-              perf.cycle_time,
+              perf.cycle_time
           );
 
           availableVariants.sort((a, b) => a[0].bid - b[0].bid);
@@ -82,7 +82,7 @@ export class NodeSelectionPerformanceComponent implements OnInit, OnDestroy {
                 <[number, TreePerformance]>[
                   this.variantService.variants.indexOf(v),
                   p,
-                ],
+                ]
             )
             .forEach(([vIdx, p]) => {
               const v = this.variantService.variants[vIdx];
@@ -90,21 +90,20 @@ export class NodeSelectionPerformanceComponent implements OnInit, OnDestroy {
               this.serviceTimeValues.set(
                 v,
                 this.performanceService.allValues.get(tree.id).get(v)
-                  .service_time,
+                  .service_time
               );
               this.waitingTimeValues.set(
                 v,
                 this.performanceService.allValues.get(tree.id).get(v)
-                  .waiting_time,
+                  .waiting_time
               );
               this.cycleTimeValues.set(
                 v,
-                this.performanceService.allValues.get(tree.id).get(v)
-                  .cycle_time,
+                this.performanceService.allValues.get(tree.id).get(v).cycle_time
               );
               this.idleTimeValues.set(
                 v,
-                this.performanceService.allValues.get(tree.id).get(v).idle_time,
+                this.performanceService.allValues.get(tree.id).get(v).idle_time
               );
             });
         }

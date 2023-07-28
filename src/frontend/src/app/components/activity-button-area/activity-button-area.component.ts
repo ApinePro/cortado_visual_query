@@ -79,7 +79,7 @@ export class ActivityButtonAreaComponent
   computeActivityColor = (
     self: VariantDrawerDirective,
     element: VariantElement,
-    variant: Variant,
+    variant: Variant
   ) => {
     let color;
     color = this.colorMap.get(element.asLeafNode().activity[0]);
@@ -95,7 +95,7 @@ export class ActivityButtonAreaComponent
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
     variant: VariantElement,
-    selection,
+    selection
   ) => {
     selection
       .on('mouseover', function (event, d) {
@@ -105,7 +105,7 @@ export class ActivityButtonAreaComponent
           .attr('style')
           .match(/[\d.]+/g);
         const lightend = rgb_code.map((d) =>
-          parseInt(d) + 50 > 255 ? 255 : parseInt(d) + 50,
+          parseInt(d) + 50 > 255 ? 255 : parseInt(d) + 50
         );
 
         d3.select(this)
@@ -120,7 +120,7 @@ export class ActivityButtonAreaComponent
           .attr('style')
           .match(/[\d.]+/g);
         const darkend = rgb_code.map((d) =>
-          parseInt(d) - 50 < 0 ? 0 : parseInt(d) - 50,
+          parseInt(d) - 50 < 0 ? 0 : parseInt(d) - 50
         );
 
         d3.select(this)
