@@ -1,8 +1,8 @@
-.border-lightgrey{
+.border-lightgrey {
   border-color: rgb(106, 106, 106, 0.6) !important;
 }
 
-.center-element{
+.center-element {
   border-color: rgb(106, 106, 106, 0.2) !important;
   border-right-width: 1px;
   border-left-width: 1px;
@@ -14,6 +14,6 @@
   align-items: center;
 }
 
-.text-size{
+.text-size {
   font-size: 0.9rem;
 }

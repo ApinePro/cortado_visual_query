@@ -50,7 +50,7 @@ export class ExpertModeComponent implements OnInit, OnDestroy {
   constructor(
     private logService: LogService,
     private backendService: BackendService,
-    private processTreeService: ProcessTreeService
+    private processTreeService: ProcessTreeService,
   ) {}
 
   ngOnInit() {
@@ -100,7 +100,7 @@ export class ExpertModeComponent implements OnInit, OnDestroy {
   // Preconducts expert mode specific highlighting and passes the tree-string down to the tree-string-renderer-component
   highlightText() {
     this.styled_tree_string = this.highlightImbalancedParenthesis(
-      this.syntax_tree.value
+      this.syntax_tree.value,
     );
   }
 
@@ -150,7 +150,7 @@ export class ExpertModeComponent implements OnInit, OnDestroy {
         if (!result.errors) {
           console.warn('Expert Mode Tree Update');
           this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
-            result.tree
+            result.tree,
           );
           this.backendErrorMessage = null;
         } else {
@@ -180,7 +180,7 @@ export class ExpertModeComponent implements OnInit, OnDestroy {
     this.editorActive = !this.editorActive;
     if (this.editorActive) {
       this.collectCurrentTreeString(
-        this.processTreeService.currentDisplayedProcessTree
+        this.processTreeService.currentDisplayedProcessTree,
       );
     }
   }
@@ -205,7 +205,7 @@ export class ExpertModeComponent implements OnInit, OnDestroy {
       const popStack = function (
         checkSymbol: string,
         index: number,
-        expected: string
+        expected: string,
       ) {
         let item = stack.pop();
 

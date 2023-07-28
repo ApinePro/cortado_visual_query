@@ -18,8 +18,8 @@ export function exportVariantDrawer() {
     addVariantExportInformation(
       c,
       this.variants[i].count,
-      this.variants[i].percentage
-    )
+      this.variants[i].percentage,
+    ),
   );
 
   // TODO Create the Legend Element and add it
@@ -49,7 +49,7 @@ export function exportVariantDrawer() {
       .select('#infixDotsForDrawer')
       .attr('width', 0)
       .attr('height', 0)
-      .node() as SVGGraphicsElement
+      .node() as SVGGraphicsElement,
   );
 
   // Send all Elements to the export service
@@ -62,7 +62,7 @@ export function exportVariantDrawer() {
 export function addVariantExportInformation(
   svgElement: SVGGraphicsElement,
   variantAbs: number,
-  variantPerc: number
+  variantPerc: number,
 ): SVGGraphicsElement {
   const exportMarginX: number = 65;
   const exportMarginY: number = 15;
@@ -72,11 +72,11 @@ export function addVariantExportInformation(
   // Shift all Elements to the right using transform chaining
   svgElement_copy.setAttribute(
     'width',
-    (svgElement.clientWidth + exportMarginX).toString()
+    (svgElement.clientWidth + exportMarginX).toString(),
   );
   svgElement_copy.setAttribute(
     'height',
-    (svgElement.clientHeight + exportMarginY).toString()
+    (svgElement.clientHeight + exportMarginY).toString(),
   );
 
   d3.select(svgElement_copy)
@@ -87,7 +87,7 @@ export function addVariantExportInformation(
         'transform',
         (this.getAttribute('transform')
           ? this.getAttribute('transform') + ','
-          : '') + `translate(${exportMarginX}, 0)`
+          : '') + `translate(${exportMarginX}, 0)`,
       );
     });
   // Add the Frequency Information
@@ -96,7 +96,7 @@ export function addVariantExportInformation(
     .append('text')
     .attr(
       'transform',
-      `translate(20, ${(svgElement.clientHeight - 25) / 2 + 10})`
+      `translate(20, ${(svgElement.clientHeight - 25) / 2 + 10})`,
     )
     .attr('height', 20)
     .attr('width', 50)

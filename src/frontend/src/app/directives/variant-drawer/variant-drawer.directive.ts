@@ -60,7 +60,7 @@ export class VariantDrawerDirective
     private sharedDataService: SharedDataService,
     private variantViewModeService: VariantViewModeService,
     private conformanceCheckingService: ConformanceCheckingService,
-    private variantService: VariantService
+    private variantService: VariantService,
   ) {
     this.svgHtmlElement = elRef;
   }
@@ -80,14 +80,14 @@ export class VariantDrawerDirective
   computeActivityColor: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
-    variant: IVariant
+    variant: IVariant,
   ) => string;
 
   @Input()
   onClickCbFc: (
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
-    variant: IVariant
+    variant: IVariant,
   ) => void;
 
   @Input()
@@ -95,7 +95,7 @@ export class VariantDrawerDirective
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
     variant: IVariant,
-    selection
+    selection,
   ) => void;
 
   @Input()
@@ -103,7 +103,7 @@ export class VariantDrawerDirective
     drawerDirective: VariantDrawerDirective,
     element: VariantElement,
     variant: IVariant,
-    event: Event
+    event: Event,
   ) => void;
 
   @Input()
@@ -158,7 +158,7 @@ export class VariantDrawerDirective
       .attr('transform', 'translate(2,0)')
       .attr(
         'fill',
-        this.conformanceCheckingService.modelConformanceStripeColors[0]
+        this.conformanceCheckingService.modelConformanceStripeColors[0],
       );
     modelConformanceStripePattern
       .append('rect')
@@ -167,7 +167,7 @@ export class VariantDrawerDirective
       .attr('transform', 'translate(0,0)')
       .attr(
         'fill',
-        this.conformanceCheckingService.modelConformanceStripeColors[1]
+        this.conformanceCheckingService.modelConformanceStripeColors[1],
       );
 
     const variantConformanceStripePattern = defs
@@ -184,7 +184,7 @@ export class VariantDrawerDirective
       .attr('transform', 'translate(2,0)')
       .attr(
         'fill',
-        this.conformanceCheckingService.variantConformanceStripeColors[0]
+        this.conformanceCheckingService.variantConformanceStripeColors[0],
       );
     variantConformanceStripePattern
       .append('rect')
@@ -193,7 +193,7 @@ export class VariantDrawerDirective
       .attr('transform', 'translate(0,0)')
       .attr(
         'fill',
-        this.conformanceCheckingService.variantConformanceStripeColors[1]
+        this.conformanceCheckingService.variantConformanceStripeColors[1],
       );
 
     this.svgSelection = this.svgSelection
@@ -241,11 +241,11 @@ export class VariantDrawerDirective
     if (this.variant.variant) {
       const height = this.variant.variant.recalculateHeight(
         !this.keepStandardView &&
-          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE,
       );
       const width = this.variant.variant.recalculateWidth(
         !this.keepStandardView &&
-          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE,
       );
 
       if (
@@ -260,13 +260,13 @@ export class VariantDrawerDirective
       const svg_container = d3.select(this.svgHtmlElement.nativeElement);
       this.variant.variant.updateWidth(
         !this.keepStandardView &&
-          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE,
       );
 
       const [svg, width_offset] = this.handleInfix(
         this.infixType,
         height,
-        width
+        width,
       );
 
       svg_container
@@ -330,7 +330,7 @@ export class VariantDrawerDirective
     ) {
       variant_svg.attr(
         'transform',
-        `translate(${PREFIX_OFFSET}, ${VARIANT_Constants.SELECTION_STROKE_WIDTH})`
+        `translate(${PREFIX_OFFSET}, ${VARIANT_Constants.SELECTION_STROKE_WIDTH})`,
       );
 
       svg
@@ -342,7 +342,7 @@ export class VariantDrawerDirective
     } else {
       variant_svg.attr(
         'transform',
-        `translate(0, ${VARIANT_Constants.SELECTION_STROKE_WIDTH})`
+        `translate(0, ${VARIANT_Constants.SELECTION_STROKE_WIDTH})`,
       );
     }
 
@@ -356,7 +356,7 @@ export class VariantDrawerDirective
           'transform',
           `translate(${
             width + (infixType === InfixType.PROPER_INFIX ? PREFIX_OFFSET : 0)
-          }, ${height_offset})`
+          }, ${height_offset})`,
         )
         .append('use')
         .attr('href', '#infixDots')
@@ -369,7 +369,7 @@ export class VariantDrawerDirective
   draw(
     element: VariantElement,
     svgElement: Selection<any, any, any, any>,
-    outerElement: boolean = false
+    outerElement: boolean = false,
   ): void {
     svgElement.datum(element).classed('variant-element-group', true);
 
@@ -387,7 +387,7 @@ export class VariantDrawerDirective
       this.drawSequenceGroup(
         element.asSequenceGroup(),
         svgElement,
-        outerElement
+        outerElement,
       );
     } else if (element instanceof LeafNode) {
       this.drawLeafNode(element.asLeafNode(), svgElement);
@@ -402,7 +402,7 @@ export class VariantDrawerDirective
 
   public drawLoopGroup(
     loopGroup: LoopGroup,
-    parent: Selection<any, any, any, any>
+    parent: Selection<any, any, any, any>,
   ): void {
     const width = loopGroup.getWidth();
     const height = loopGroup.getHeight();
@@ -433,7 +433,7 @@ export class VariantDrawerDirective
 
     const textcolor = textColorForBackgroundColor(
       color,
-      this.traceInfixSelectionMode && !loopGroup.selected
+      this.traceInfixSelectionMode && !loopGroup.selected,
     );
 
     const activityText = parent
@@ -460,11 +460,11 @@ export class VariantDrawerDirective
       .attr('fill', textcolor)
       .attr(
         'd',
-        'M11 5.466V4H5a4 4 0 0 0-3.584 5.777.5.5 0 1 1-.896.446A5 5 0 0 1 5 3h6V1.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192Zm3.81.086a.5.5 0 0 1 .67.225A5 5 0 0 1 11 13H5v1.466a.25.25 0 0 1-.41.192l-2.36-1.966a.25.25 0 0 1 0-.384l2.36-1.966a.25.25 0 0 1 .41.192V12h6a4 4 0 0 0 3.585-5.777.5.5 0 0 1 .225-.67Z'
+        'M11 5.466V4H5a4 4 0 0 0-3.584 5.777.5.5 0 1 1-.896.446A5 5 0 0 1 5 3h6V1.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192Zm3.81.086a.5.5 0 0 1 .67.225A5 5 0 0 1 11 13H5v1.466a.25.25 0 0 1-.41.192l-2.36-1.966a.25.25 0 0 1 0-.384l2.36-1.966a.25.25 0 0 1 .41.192V12h6a4 4 0 0 0 3.585-5.777.5.5 0 0 1 .225-.67Z',
       )
       .attr(
         'transform',
-        `translate(${width / 2 - 8}, ${VARIANT_Constants.MARGIN_Y})`
+        `translate(${width / 2 - 8}, ${VARIANT_Constants.MARGIN_Y})`,
       );
 
     let label = leafNode.activity[0];
@@ -474,7 +474,7 @@ export class VariantDrawerDirective
       .attr('y', y + VARIANT_Constants.FONT_SIZE - VARIANT_Constants.MARGIN_Y)
       .classed(
         'cursor-pointer',
-        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer,
       )
       .text(label);
 
@@ -500,8 +500,8 @@ export class VariantDrawerDirective
     for (const pointPair of points.split(' ')) {
       newPolygonPoints.push(
         `${Number(pointPair.split(',')[0]) - headLen},${Number(
-          pointPair.split(',')[1]
-        )}`
+          pointPair.split(',')[1],
+        )}`,
       );
     }
     let str = newPolygonPoints.join(' ');
@@ -511,7 +511,7 @@ export class VariantDrawerDirective
   drawSequenceGroup(
     element: SequenceGroup,
     parent: Selection<any, any, any, any>,
-    outerElement: boolean
+    outerElement: boolean,
   ): void {
     const width = element.getWidth();
     const height = element.getHeight();
@@ -521,14 +521,14 @@ export class VariantDrawerDirective
     if (outerElement) {
       const oldPolygonPoints = this.polygonService.getPolygonPoints(
         width,
-        height
+        height,
       );
       let headLength =
         Math.tan((VARIANT_Constants.ARROW_HEAD_ANGLE / 360) * Math.PI * 2) *
         (height / 2);
       polygonPoints = this.outerPolygonTranslation(
         oldPolygonPoints,
-        headLength
+        headLength,
       );
     }
 
@@ -544,7 +544,7 @@ export class VariantDrawerDirective
       polygonPoints,
       color,
       actionable,
-      true
+      true,
     );
 
     if (
@@ -594,7 +594,7 @@ export class VariantDrawerDirective
 
       const childWidth = child.getWidth(
         !this.keepStandardView &&
-          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE,
       );
       const childHeight = child.getHeight();
       const yOffset = height / 2 - childHeight / 2;
@@ -620,7 +620,7 @@ export class VariantDrawerDirective
 
   drawParallelGroup(
     element: ParallelGroup,
-    parent: Selection<any, any, any, any>
+    parent: Selection<any, any, any, any>,
   ): void {
     const width = element.getWidth();
     const height = element.getHeight();
@@ -638,7 +638,7 @@ export class VariantDrawerDirective
       polygonPoints,
       color,
       actionable,
-      true
+      true,
     );
 
     if (
@@ -687,7 +687,7 @@ export class VariantDrawerDirective
 
   drawChoiceGroup(
     element: ChoiceGroup,
-    parent: Selection<any, any, any, any>
+    parent: Selection<any, any, any, any>,
   ): void {
     const width = element.getWidth();
     const height = element.getHeight();
@@ -705,7 +705,7 @@ export class VariantDrawerDirective
       polygonPoints,
       color,
       actionable,
-      true
+      true,
     );
 
     if (
@@ -754,7 +754,7 @@ export class VariantDrawerDirective
 
   drawFallthroughGroup(
     element: FallthroughGroup,
-    parent: Selection<any, any, any, any>
+    parent: Selection<any, any, any, any>,
   ): void {
     const width = element.getWidth();
     const height = element.getHeight();
@@ -772,7 +772,7 @@ export class VariantDrawerDirective
       polygonPoints,
       color,
       actionable,
-      true
+      true,
     );
 
     if (
@@ -825,7 +825,7 @@ export class VariantDrawerDirective
     polygonPoints: string,
     color: string,
     actionable: boolean,
-    group = false
+    group = false,
   ) {
     const poly = parent
       .append('polygon')
@@ -833,7 +833,7 @@ export class VariantDrawerDirective
       .style('fill', color)
       .classed(
         'cursor-pointer',
-        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer,
       );
 
     if (group) {
@@ -849,7 +849,7 @@ export class VariantDrawerDirective
     polygonPoints: string,
     color: string,
     actionable: boolean,
-    group = false
+    group = false,
   ) {
     const poly = parent
       .append('polygon')
@@ -863,7 +863,7 @@ export class VariantDrawerDirective
 
   public drawLeafNode(
     element: LeafNode,
-    parent: Selection<any, any, any, any>
+    parent: Selection<any, any, any, any>,
   ): void {
     const width = element.getWidth();
     let height = element.getHeight();
@@ -886,7 +886,7 @@ export class VariantDrawerDirective
 
     const textcolor = textColorForBackgroundColor(
       color,
-      this.traceInfixSelectionMode && !element.selected
+      this.traceInfixSelectionMode && !element.selected,
     );
 
     //5.11
@@ -920,14 +920,15 @@ export class VariantDrawerDirective
         .attr('y', y + dy)
         .classed(
           'cursor-pointer',
-          (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+          (!this.traceInfixSelectionMode || actionable) &&
+            this.addCursorPointer,
         )
         .text(a);
 
       dy += VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y;
       tspan.attr(
         'height',
-        VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y
+        VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y,
       );
 
       const maxWidth =
@@ -974,7 +975,7 @@ export class VariantDrawerDirective
   private addInfixSelectionAttributes(
     element: VariantElement,
     polygon: any,
-    isLeafNode: boolean
+    isLeafNode: boolean,
   ) {
     if (
       !this.keepStandardView &&
@@ -1009,7 +1010,7 @@ export class VariantDrawerDirective
 
   private drawWaitingNode(
     element: LeafNode,
-    parent: Selection<any, any, any, any>
+    parent: Selection<any, any, any, any>,
   ) {
     const width = element.getWidth();
     const height = element.getHeight();
@@ -1041,7 +1042,7 @@ export class VariantDrawerDirective
 
   drawSkipGroup(
     element: SequenceGroup,
-    parent: Selection<any, any, any, any>
+    parent: Selection<any, any, any, any>,
   ): void {
     const height = element.getHeight();
 
@@ -1050,7 +1051,7 @@ export class VariantDrawerDirective
     element.elements.forEach((child, idx) => {
       const childWidth = child.getWidth(
         !this.keepStandardView &&
-          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE,
       );
       const childHeight = child.getHeight();
       const yOffset = height / 2 - childHeight / 2;
@@ -1083,7 +1084,7 @@ export class VariantDrawerDirective
   private wrapInnerLabelText(
     textSelection: Selection<any, any, any, any>,
     text: string,
-    maxWidth: number
+    maxWidth: number,
   ): boolean {
     let textLength = this.getComputedTextLength(textSelection);
 
@@ -1103,14 +1104,14 @@ export class VariantDrawerDirective
   }
 
   private getComputedTextLength(
-    textSelection: Selection<any, any, any, any>
+    textSelection: Selection<any, any, any, any>,
   ): number {
     let textLength;
     if (
       this.sharedDataService.computedTextLengthCache.has(textSelection.text())
     ) {
       textLength = this.sharedDataService.computedTextLengthCache.get(
-        textSelection.text()
+        textSelection.text(),
       );
     } else {
       textLength = textSelection.node().getBoundingClientRect().width;
@@ -1118,7 +1119,7 @@ export class VariantDrawerDirective
     if (textLength > 0) {
       this.sharedDataService.computedTextLengthCache.set(
         textSelection.text(),
-        textLength
+        textLength,
       );
     }
 
@@ -1140,13 +1141,13 @@ export class VariantDrawerDirective
       'cursor-pointer',
       !this.keepStandardView &&
         this.variantViewModeService.viewMode === ViewMode.PERFORMANCE &&
-        this.addCursorPointer
+        this.addCursorPointer,
     );
     d3.selectAll('.activity-text').classed(
       'cursor-pointer',
       !this.keepStandardView &&
         this.variantViewModeService.viewMode === ViewMode.PERFORMANCE &&
-        this.addCursorPointer
+        this.addCursorPointer,
     );
   }
 

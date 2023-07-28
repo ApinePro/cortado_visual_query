@@ -60,7 +60,7 @@ export class VariantService {
     private colorMapService: ColorMapService,
     private toastService: ToastService,
     private variantFilterService: VariantFilterService,
-    private backendService: BackendService
+    private backendService: BackendService,
   ) {
     this.logService.loadedEventLog$.subscribe(() => {
       this.variantFilterService.clearAllFilters();
@@ -74,7 +74,7 @@ export class VariantService {
   public showTiebreakerDialog: Subject<any> = new Subject<any>();
   private _variants = new BehaviorSubject<Variant[]>([]);
   private _collapsedVariants = new BehaviorSubject<LoopCollapsedVariant[]>(
-    null
+    null,
   );
   public areVariantLoopsCollapsed = false;
 
@@ -143,7 +143,7 @@ export class VariantService {
   public addSelectedTraceInfix(
     variant: Variant,
     sortingFeature: string,
-    isAscending: boolean
+    isAscending: boolean,
   ): void {
     let isWholeVariantSelected = variant.variant.selected;
 
@@ -151,7 +151,7 @@ export class VariantService {
       this.toastService.showWarningToast(
         'Variant Explorer',
         `A complete variant is selected. It will not be added.`,
-        'bi-list-ul'
+        'bi-list-ul',
       );
 
       return;
@@ -178,7 +178,7 @@ export class VariantService {
       false,
       true,
       0,
-      infixType
+      infixType,
     );
 
     let currentVariants = this.variants;
@@ -194,7 +194,7 @@ export class VariantService {
       this.toastService.showWarningToast(
         'Variant Explorer',
         `The selected infix is already present in the variant explorer. It will not be added.`,
-        'bi-list-ul'
+        'bi-list-ul',
       );
 
       return;
@@ -205,7 +205,9 @@ export class VariantService {
 
     this.addInfixToBackend(newVariant)
       .pipe(
-        mergeMap(() => this.backendService.countFragmentOccurrences(newVariant))
+        mergeMap(() =>
+          this.backendService.countFragmentOccurrences(newVariant),
+        ),
       )
       .subscribe((statistics) => {
         newVariant.fragmentStatistics = statistics;
@@ -215,7 +217,7 @@ export class VariantService {
         let sortedVariants = VariantSorter.sort(
           this.variants,
           sortingFeature,
-          isAscending
+          isAscending,
         ) as Variant[];
 
         this.toastService.showSuccessToast(
@@ -223,7 +225,7 @@ export class VariantService {
           `The selected infix is added at position ${
             sortedVariants.indexOf(newVariant) + 1
           }.`,
-          'bi-list-ul'
+          'bi-list-ul',
         );
         variant.variant.resetSelectionStatus();
       });
@@ -231,7 +233,7 @@ export class VariantService {
 
   public deleteVariant(variant: VariantElement): void {
     const matchingVariant = this.variants.filter(
-      (v) => v.variant === variant
+      (v) => v.variant === variant,
     )[0];
 
     this.deleteVariants([matchingVariant.bid]).subscribe();
@@ -243,18 +245,18 @@ export class VariantService {
       tap((res) => {
         this.logService.activitiesInEventLog = res['activities'];
         this.logService.startActivitiesInEventLog = new Set(
-          res['startActivities']
+          res['startActivities'],
         );
         this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
 
         let filtered_variants = this.variants.filter(
-          (v) => !bids.includes(v.bid)
+          (v) => !bids.includes(v.bid),
         );
 
         this.logService.computeLogStats(filtered_variants);
         this.variants = filtered_variants;
         this.cachedChange = true;
-      })
+      }),
     );
     // Count deleted Activites, Recompute if an Activity is a Start or End Activity.
   }
@@ -313,16 +315,16 @@ export class VariantService {
         fallthrough,
         delete_member_list,
         merge_list,
-        delete_list.map((v) => v.bid)
+        delete_list.map((v) => v.bid),
       )
       .pipe(
         tap((res) => {
           this.logService.startActivitiesInEventLog = new Set(
-            res['startActivities']
+            res['startActivities'],
           );
 
           this.logService.endActivitiesInEventLog = new Set(
-            res['endActivities']
+            res['endActivities'],
           );
 
           variants.forEach((v) => {
@@ -348,31 +350,31 @@ export class VariantService {
 
           this.afterVariantChange();
           this.variants = variants;
-        })
+        }),
       );
   }
 
   public renameActivity(activityName: string, newActivityName: string) {
     this.logService.logModifications.push(
-      new ActivityRenaming(activityName, newActivityName)
+      new ActivityRenaming(activityName, newActivityName),
     );
 
     const [variants, rename_list, merge_list, updateMap] =
       compute_rename_activity_variants(
         activityName,
         newActivityName,
-        this.variants
+        this.variants,
       );
 
     this.logService.renameActivitiesInEventLog(activityName, newActivityName);
     this.processTreeService.renameActivityInProcessTree(
       activityName,
-      newActivityName
+      newActivityName,
     );
 
     this.colorMapService.renameColorInActivityColorMap(
       activityName,
-      newActivityName
+      newActivityName,
     );
 
     return this.backendService
@@ -380,7 +382,7 @@ export class VariantService {
         merge_list,
         rename_list,
         activityName,
-        newActivityName
+        newActivityName,
       )
       .pipe(
         tap((res) => {
@@ -399,7 +401,7 @@ export class VariantService {
           this.cachedChange = true;
           this.lastChangeRenaming = [activityName, newActivityName];
           this.nameChanges.next([activityName, newActivityName]);
-        })
+        }),
       );
   }
 
@@ -407,7 +409,7 @@ export class VariantService {
     this.backendService.revertLastLogModification().subscribe((res) => {
       this.logService.activitiesInEventLog = res['activities'];
       this.logService.startActivitiesInEventLog = new Set(
-        res['startActivities']
+        res['startActivities'],
       );
       this.logService.endActivitiesInEventLog = new Set(res['endActivities']);
 
@@ -431,13 +433,13 @@ export class VariantService {
 
   public addUserDefinedVariant(variant: Variant) {
     this.logService.logModifications.push(
-      new UserDefinedVariantAddition(variant)
+      new UserDefinedVariantAddition(variant),
     );
     return this.backendService.addUserDefinedVariant(variant).pipe(
       tap(
         (res) => console.log(res),
-        (err) => console.log('error ' + err)
-      )
+        (err) => console.log('error ' + err),
+      ),
     );
   }
 
@@ -449,7 +451,7 @@ export class VariantService {
       this.toastService.showWarningToast(
         'Variant Explorer',
         `Disabled severeal features that are not applicable after collapsing loops.`,
-        'bi-arrow-repeat'
+        'bi-arrow-repeat',
       );
     }
     this.areVariantLoopsCollapsed = !this.areVariantLoopsCollapsed;
@@ -477,8 +479,8 @@ export class VariantService {
           new LoopCollapsedVariant(
             uuidv4(),
             underlyingVariants,
-            deserialize(collapsedVariant['variant'])
-          )
+            deserialize(collapsedVariant['variant']),
+          ),
         );
       }
 
@@ -488,7 +490,7 @@ export class VariantService {
 
   public addInfixToBackend(variant: Variant) {
     this.logService.logModifications.push(
-      new UserDefinedInfixAddition(variant)
+      new UserDefinedInfixAddition(variant),
     );
     return this.backendService.addUserDefinedInfix(variant).pipe(
       tap(
@@ -497,9 +499,9 @@ export class VariantService {
           this.toastService.showErrorToast(
             'Variant Explorer',
             `Adding the selected infix failed`,
-            'bi-exclamation-circle'
-          )
-      )
+            'bi-exclamation-circle',
+          ),
+      ),
     );
   }
 }

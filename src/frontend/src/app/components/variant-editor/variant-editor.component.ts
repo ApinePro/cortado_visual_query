@@ -103,7 +103,7 @@ export class VariantEditorComponent
     private container: ComponentContainer,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     elRef: ElementRef,
-    renderer: Renderer2
+    renderer: Renderer2,
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -145,7 +145,7 @@ export class VariantEditorComponent
     left: number,
     top: number,
     width: number,
-    height: number
+    height: number,
   ): void {
     if (width < 1150) {
       this.collapse = true;
@@ -157,7 +157,7 @@ export class VariantEditorComponent
   handleVisibilityChange(visibility: boolean): void {}
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
-    defaultZIndex: string
+    defaultZIndex: string,
   ): void {}
 
   handleRedraw(selection: Selection<any, any, any, any>) {
@@ -194,7 +194,7 @@ export class VariantEditorComponent
 
         svgSelection.classed(
           'selected-variant-g',
-          !svgSelection.classed('selected-variant-g')
+          !svgSelection.classed('selected-variant-g'),
         );
 
         const poly = svgSelection.select('polygon');
@@ -266,11 +266,11 @@ export class VariantEditorComponent
               this.handleInfrontInsert(
                 this.currentVariant,
                 leaf,
-                selectedElement
+                selectedElement,
               );
               const grandParent = this.findParent(
                 this.currentVariant,
-                this.findParent(this.currentVariant, leaf)
+                this.findParent(this.currentVariant, leaf),
               );
               if (grandParent instanceof ParallelGroup) {
                 this.sortParallel(grandParent);
@@ -282,11 +282,11 @@ export class VariantEditorComponent
               this.handleBehindInsert(
                 this.currentVariant,
                 leaf,
-                selectedElement
+                selectedElement,
               );
               const grandParent = this.findParent(
                 this.currentVariant,
-                this.findParent(this.currentVariant, leaf)
+                this.findParent(this.currentVariant, leaf),
               );
               if (grandParent instanceof ParallelGroup) {
                 this.sortParallel(grandParent);
@@ -298,7 +298,7 @@ export class VariantEditorComponent
               this.handleParallelInsert(
                 this.currentVariant,
                 leaf,
-                selectedElement
+                selectedElement,
               );
             } else {
               const selectedElements = this.variantEnrichedSelection
@@ -307,7 +307,7 @@ export class VariantEditorComponent
               this.handleMultiParallelInsert(
                 this.currentVariant,
                 leaf,
-                selectedElements
+                selectedElements,
               );
             }
             this.sortParallel(this.findParent(this.currentVariant, leaf));
@@ -344,7 +344,7 @@ export class VariantEditorComponent
   handleMultiParallelInsert(
     variant: VariantElement,
     leaf: LeafNode,
-    selectedElement
+    selectedElement,
   ) {
     const parent = this.findParent(variant, selectedElement[0]);
     const grandParent = this.findParent(variant, parent); // if parent is root, grandParent is null
@@ -372,7 +372,7 @@ export class VariantEditorComponent
   handleParallelInsert(
     variant: VariantElement,
     leaf: LeafNode,
-    selectedElement
+    selectedElement,
   ) {
     const children = variant.getElements();
 
@@ -396,7 +396,7 @@ export class VariantEditorComponent
             children.splice(
               index,
               1,
-              new ParallelGroup([leaf, selectedElement])
+              new ParallelGroup([leaf, selectedElement]),
             );
           }
         }
@@ -427,7 +427,7 @@ export class VariantEditorComponent
             children.splice(
               index,
               1,
-              new SequenceGroup([selectedElement, leaf])
+              new SequenceGroup([selectedElement, leaf]),
             );
           } else {
             // Inserting behind a ParallelGroup inside a ParallelGroup
@@ -435,7 +435,7 @@ export class VariantEditorComponent
               children.splice(
                 children.indexOf(selectedElement),
                 1,
-                new SequenceGroup([selectedElement, leaf])
+                new SequenceGroup([selectedElement, leaf]),
               );
 
               // Inserting behind a SequeneGroup inside a ParallelGroup
@@ -462,7 +462,7 @@ export class VariantEditorComponent
   handleInfrontInsert(
     variant: VariantElement,
     leaf: LeafNode,
-    selectedElement
+    selectedElement,
   ) {
     const children = variant.getElements();
 
@@ -477,7 +477,7 @@ export class VariantEditorComponent
             children.splice(
               index,
               1,
-              new SequenceGroup([leaf, selectedElement])
+              new SequenceGroup([leaf, selectedElement]),
             );
           } else {
             // Inserting infront a ParallelGroup inside a ParallelGroup
@@ -485,7 +485,7 @@ export class VariantEditorComponent
               children.splice(
                 children.indexOf(selectedElement),
                 1,
-                new SequenceGroup([leaf, selectedElement])
+                new SequenceGroup([leaf, selectedElement]),
               );
 
               // Inserting infront a SequeneGroup inside a ParallelGroup
@@ -549,7 +549,7 @@ export class VariantEditorComponent
       this.deleteElementFromVariant(
         this.currentVariant,
         this.currentVariant,
-        ElementsToDelete
+        ElementsToDelete,
       );
 
       this.multiSelect = false;
@@ -564,7 +564,7 @@ export class VariantEditorComponent
   computeActivityColor = (
     self: VariantDrawerDirective,
     element: VariantElement,
-    variant: Variant
+    variant: Variant,
   ) => {
     let color;
     color = this.colorMap.get(element.asLeafNode().activity[0]);
@@ -579,7 +579,7 @@ export class VariantEditorComponent
   deleteElementFromVariant(
     variant: VariantElement,
     parent: VariantElement,
-    elementsToDelete
+    elementsToDelete,
   ) {
     const children = variant.getElements();
 
@@ -781,11 +781,11 @@ export class VariantEditorComponent
     for (let i = 0; i < selectedElements.length - 1; i++) {
       const firstParent = this.findParent(
         this.currentVariant,
-        selectedElements[i]
+        selectedElements[i],
       );
       const secondParent = this.findParent(
         this.currentVariant,
-        selectedElements[i + 1]
+        selectedElements[i + 1],
       );
       if (
         firstParent != secondParent ||
@@ -854,7 +854,7 @@ export class VariantEditorComponent
   computeFocusOffset = (svg) => {
     const path = findPathToSelectedNode(
       this.currentVariant,
-      svg.select('.selected-variant-g').data()[0]
+      svg.select('.selected-variant-g').data()[0],
     ).slice(1);
     let translateX = 0;
 
@@ -892,7 +892,7 @@ export class VariantEditorComponent
       false,
       true,
       0,
-      this.curInfixType
+      this.curInfixType,
     );
 
     newVariant.alignment = undefined;
@@ -946,7 +946,7 @@ export class VariantEditorComponent
       return this.backendService.countFragmentOccurrences(newVariant).pipe(
         tap((statistics) => {
           newVariant.fragmentStatistics = statistics;
-        })
+        }),
       );
     }
     return of();
@@ -955,7 +955,7 @@ export class VariantEditorComponent
   applySortOnVariantEditor() {
     const variantExplorerRef =
       this.goldenLayoutComponentService.goldenLayout.findFirstComponentItemById(
-        VariantExplorerComponent.componentName
+        VariantExplorerComponent.componentName,
       );
     const variantExplorer =
       variantExplorerRef.component as VariantExplorerComponent;

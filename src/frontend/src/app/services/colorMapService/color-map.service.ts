@@ -64,7 +64,7 @@ export class ColorMapService {
     if (!this.colorMap.get(newActivityName)) {
       this.changeActivityColor(
         newActivityName,
-        this.colorMap.get(activityName)
+        this.colorMap.get(activityName),
       );
     }
   }

@@ -137,14 +137,14 @@
   filter: brightness(150%);
 }
 
-.badge-button{
+.badge-button {
   padding: 0;
   font-size: unset;
   display: contents;
 }
 
-.badge-container{
-  margin-left : -20px;
+.badge-container {
+  margin-left: -20px;
 }
 
 .close-icon {
@@ -269,20 +269,20 @@ thead {
   box-shadow: inset 0 -2px 1px var(--thin-border-color);
 }
 
-.cluster-badge-text-primary{
+.cluster-badge-text-primary {
   line-height: 22px;
 }
 
-.cluster-badge-text-secondary{
+.cluster-badge-text-secondary {
   color: #c6c6c6;
   margin-bottom: 4px;
 }
 
-.cluster-badge{
+.cluster-badge {
   width: 100%;
 }
 
-.cluster-app-search{
+.cluster-app-search {
   margin: 2px 0px 0px auto;
 }
 
@@ -290,7 +290,7 @@ thead {
   color: var(--bs-primary);
 }
 
-.control-button{
+.control-button {
   color: whitesmoke;
   font-size: 6px;
   padding: 0px 0px 0px 0px;

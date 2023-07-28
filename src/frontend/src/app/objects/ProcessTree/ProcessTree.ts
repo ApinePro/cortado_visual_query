@@ -30,7 +30,7 @@ export class ProcessTree {
     frozen: boolean,
     performance: TreePerformance,
     conformance: TreeConformance,
-    parent: ProcessTree
+    parent: ProcessTree,
   ) {
     this.label = label;
     this.operator = operator;
@@ -69,7 +69,7 @@ export class ProcessTree {
       treeObj['frozen'],
       treeObj['performance'],
       treeObj['conformance'],
-      null
+      null,
     );
     if (treeObj['children']) {
       treeObj['children'].forEach((c) => {
@@ -94,7 +94,7 @@ export class ProcessTree {
       this.frozen,
       this.performance,
       this.conformance,
-      parent
+      parent,
     );
   }
 
@@ -169,7 +169,7 @@ export class ProcessTreeSyntaxInfo {
 
 export function checkSyntax(
   pt: ProcessTree,
-  res = new ProcessTreeSyntaxInfo()
+  res = new ProcessTreeSyntaxInfo(),
 ): ProcessTreeSyntaxInfo {
   if (pt.label && pt.children.length > 0) {
     res.correctSyntax = false;
@@ -189,7 +189,7 @@ export function checkSyntax(
         ',' +
         ProcessTreeOperator.parallelism +
         ',' +
-        ') must have at least one child node'
+        ') must have at least one child node',
     );
   }
   if (
@@ -201,7 +201,7 @@ export function checkSyntax(
     res.errors.push(
       'a loop operator (' +
         ProcessTreeOperator.loop +
-        ') must have exactly two children'
+        ') must have exactly two children',
     );
   }
   if (
@@ -217,7 +217,7 @@ export function checkSyntax(
         ',' +
         ProcessTreeOperator.parallelism +
         ',' +
-        ') contains only one child node'
+        ') contains only one child node',
     );
   }
   if (pt.children) {

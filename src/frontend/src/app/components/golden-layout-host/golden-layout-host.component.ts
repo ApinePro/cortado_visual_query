@@ -57,11 +57,11 @@ export class GoldenLayoutHostComponent implements OnDestroy {
 
   private _goldenLayoutBindComponentEventListener = (
     container: ComponentContainer,
-    itemConfig: ResolvedComponentItemConfig
+    itemConfig: ResolvedComponentItemConfig,
   ) => this.handleBindComponentEvent(container, itemConfig);
 
   private _goldenLayoutUnbindComponentEventListener = (
-    container: ComponentContainer
+    container: ComponentContainer,
   ) => this.handleUnbindComponentEvent(container);
 
   @ViewChild('componentViewContainer', { read: ViewContainerRef, static: true })
@@ -75,7 +75,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     private _elRef: ElementRef<HTMLElement>,
     private renderer: Renderer2,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
-    private variantViewModeService: VariantViewModeService
+    private variantViewModeService: VariantViewModeService,
   ) {
     // Get the Layout Host Component
     this._goldenLayoutElement = this._elRef.nativeElement;
@@ -83,76 +83,76 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     // Register Components to the Layout Template Host
     this.goldenLayoutComponentService.registerComponentType(
       ProcessTreeEditorComponent.componentName,
-      ProcessTreeEditorComponent
+      ProcessTreeEditorComponent,
     );
     this.goldenLayoutComponentService.registerComponentType(
       ActivityOverviewComponent.componentName,
-      ActivityOverviewComponent
+      ActivityOverviewComponent,
     );
 
     this.goldenLayoutComponentService.registerComponentType(
       VariantPerformanceComponent.componentName,
-      VariantPerformanceComponent
+      VariantPerformanceComponent,
     );
 
     this.goldenLayoutComponentService.registerComponentType(
       ModelPerformanceComponent.componentName,
-      ModelPerformanceComponent
+      ModelPerformanceComponent,
     );
 
     this.goldenLayoutComponentService.registerComponentType(
       ConformanceTabComponent.componentName,
-      ConformanceTabComponent
+      ConformanceTabComponent,
     );
 
     this.goldenLayoutComponentService.registerComponentType(
       InfoBoxComponent.componentName,
-      InfoBoxComponent
+      InfoBoxComponent,
     );
     this.goldenLayoutComponentService.registerComponentType(
       SubvariantExplorerComponent.componentName,
-      SubvariantExplorerComponent
+      SubvariantExplorerComponent,
     );
 
     this.goldenLayoutComponentService.registerComponentType(
       VariantMinerComponent.componentName,
-      VariantMinerComponent
+      VariantMinerComponent,
     );
 
     this.goldenLayoutComponentService.registerComponentType(
       VariantExplorerComponent.componentName,
-      VariantExplorerComponent
+      VariantExplorerComponent,
     );
 
     this.goldenLayoutComponentService.registerComponentType(
       BpmnEditorComponent.componentName,
-      BpmnEditorComponent
+      BpmnEditorComponent,
     );
 
     this.goldenLayoutComponentService.registerComponentType(
       GoldenLayoutDummyComponent.componentName,
-      GoldenLayoutDummyComponent
+      GoldenLayoutDummyComponent,
     );
 
     this.goldenLayoutComponentService.registerComponentType(
       VariantEditorComponent.componentName,
-      VariantEditorComponent
+      VariantEditorComponent,
     );
 
     this.goldenLayoutComponentService.registerComponentType(
       LpmExplorerComponent.componentName,
-      LpmExplorerComponent
+      LpmExplorerComponent,
     );
 
     this.goldenLayoutComponentService.registerComponentType(
       LpmMetricsTabComponent.componentName,
-      LpmMetricsTabComponent
+      LpmMetricsTabComponent,
     );
 
     this._goldenLayout = new GoldenLayout(
       this._goldenLayoutElement,
       this._goldenLayoutBindComponentEventListener,
-      this._goldenLayoutUnbindComponentEventListener
+      this._goldenLayoutUnbindComponentEventListener,
     );
 
     this._goldenLayout.beforeVirtualRectingEvent = () =>
@@ -185,12 +185,12 @@ export class GoldenLayoutHostComponent implements OnDestroy {
 
   private handleBindComponentEvent(
     container: ComponentContainer,
-    itemConfig: ResolvedComponentItemConfig
+    itemConfig: ResolvedComponentItemConfig,
   ): ComponentContainer.BindableComponent {
     const componentType = itemConfig.componentType;
     const componentRef = this.goldenLayoutComponentService.createComponent(
       componentType,
-      container
+      container,
     );
 
     const component = componentRef.instance;
@@ -203,25 +203,25 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     container.virtualZIndexChangeRequiredEvent = (
       container,
       logicalZIndex,
-      defaultZIndex
+      defaultZIndex,
     ) =>
       this.handleContainerVirtualZIndexChangeRequiredEvent(
         container,
         logicalZIndex,
-        defaultZIndex
+        defaultZIndex,
       );
 
     if (itemConfig.componentState['cssParentClass']) {
       this.renderer.addClass(
         container.parent.parentItem.element,
-        itemConfig.componentState['cssParentClass']
+        itemConfig.componentState['cssParentClass'],
       );
     }
 
     if (itemConfig.componentState['cssContainerClass']) {
       this.renderer.addClass(
         container.element,
-        itemConfig.componentState['cssContainerClass']
+        itemConfig.componentState['cssContainerClass'],
       );
     }
 
@@ -258,7 +258,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
   private handleContainerVirtualRectingRequiredEvent(
     container: ComponentContainer,
     width: number,
-    height: number
+    height: number,
   ) {
     const containerBoundingClientRect =
       container.element.getBoundingClientRect();
@@ -272,7 +272,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     const componentRef = this._componentRefMap.get(container);
     if (componentRef === undefined) {
       throw new Error(
-        'handleContainerVirtualRectingRequiredEvent: ComponentRef not found'
+        'handleContainerVirtualRectingRequiredEvent: ComponentRef not found',
       );
     }
 
@@ -286,7 +286,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
         this.renderer.setStyle(
           grand_parent_children_elements[i],
           'visibility',
-          'hidden'
+          'hidden',
         );
       }
 
@@ -295,7 +295,7 @@ export class GoldenLayoutHostComponent implements OnDestroy {
 
       this.renderer.addClass(
         grand_parent.element,
-        'collapsed-golden-layout-container'
+        'collapsed-golden-layout-container',
       );
 
       if (width < 150) {
@@ -314,14 +314,14 @@ export class GoldenLayoutHostComponent implements OnDestroy {
       for (let i = 0; i < grand_parent_children_elements.length; i++) {
         this.renderer.removeStyle(
           grand_parent_children_elements[i],
-          'visibility'
+          'visibility',
         );
       }
 
       this._componentRefMap.get(container).instance.setVisibility(true);
       this.renderer.removeClass(
         grand_parent.element,
-        'collapsed-golden-layout-container'
+        'collapsed-golden-layout-container',
       );
 
       this.renderer.removeClass(grand_parent.element, 'vertical-dots');
@@ -334,12 +334,12 @@ export class GoldenLayoutHostComponent implements OnDestroy {
 
   private handleContainerVisibilityChangeRequiredEvent(
     container: ComponentContainer,
-    visible: boolean
+    visible: boolean,
   ) {
     const componentRef = this._componentRefMap.get(container);
     if (componentRef === undefined) {
       throw new Error(
-        'handleContainerVisibilityChangeRequiredEvent: ComponentRef not found'
+        'handleContainerVisibilityChangeRequiredEvent: ComponentRef not found',
       );
     }
 
@@ -352,12 +352,12 @@ export class GoldenLayoutHostComponent implements OnDestroy {
   private handleContainerVirtualZIndexChangeRequiredEvent(
     container: ComponentContainer,
     logicalZIndex: LogicalZIndex,
-    defaultZIndex: string
+    defaultZIndex: string,
   ) {
     const componentRef = this._componentRefMap.get(container);
     if (componentRef === undefined) {
       throw new Error(
-        'handleContainerVirtualZIndexChangeRequiredEvent: ComponentRef not found'
+        'handleContainerVirtualZIndexChangeRequiredEvent: ComponentRef not found',
       );
     }
 
@@ -369,11 +369,11 @@ export class GoldenLayoutHostComponent implements OnDestroy {
       // Triggers a Redraw, to prevent faulty rendering after minimization
       this.goldenLayout.setSize(
         this.goldenLayout.width + 4,
-        this.goldenLayout.height + 4
+        this.goldenLayout.height + 4,
       );
       this.goldenLayout.setSize(
         this.goldenLayout.width - 4,
-        this.goldenLayout.height - 4
+        this.goldenLayout.height - 4,
       );
     }
   }
@@ -382,34 +382,34 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     if (this.goldenLayout.rootItem) {
       const stackItem = findContentItemByUniqueID(
         ActivityOverviewComponent.componentName + '_Container_Stack',
-        this.goldenLayout.rootItem
+        this.goldenLayout.rootItem,
       ) as Stack;
 
       switch (viewMode) {
         case ViewMode.PERFORMANCE:
           stackItem.setActiveComponentItem(
             this.goldenLayout.findFirstComponentItemById(
-              VariantPerformanceComponent.componentName
+              VariantPerformanceComponent.componentName,
             ),
-            true
+            true,
           );
           break;
 
         case ViewMode.CONFORMANCE:
           stackItem.setActiveComponentItem(
             this.goldenLayout.findFirstComponentItemById(
-              ConformanceTabComponent.componentName
+              ConformanceTabComponent.componentName,
             ),
-            true
+            true,
           );
           break;
 
         default:
           stackItem.setActiveComponentItem(
             this.goldenLayout.findFirstComponentItemById(
-              ActivityOverviewComponent.componentName
+              ActivityOverviewComponent.componentName,
             ),
-            true
+            true,
           );
           break;
       }

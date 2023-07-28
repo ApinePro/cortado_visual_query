@@ -43,7 +43,7 @@ export class InfoBarComponent implements AfterViewInit, OnChanges, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe((activitiesInTree) => {
         this.numActivitiesInModel = this.activityFields.filter((act) =>
-          activitiesInTree.has(act.activityName)
+          activitiesInTree.has(act.activityName),
         ).length;
       });
   }

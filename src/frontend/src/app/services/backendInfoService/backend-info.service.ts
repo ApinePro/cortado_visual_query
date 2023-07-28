@@ -7,7 +7,7 @@ import { BackendService } from '../backendService/backend.service';
 })
 export class BackendInfoService {
   private isRunning: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
-    false
+    false,
   );
 
   private timer = timer(10000, 10000);
@@ -16,7 +16,7 @@ export class BackendInfoService {
     this.timer.subscribe((_) => {
       this.backendService.getInfo().subscribe(
         () => this.setRunning(true),
-        () => this.setRunning(false)
+        () => this.setRunning(false),
       );
     });
   }

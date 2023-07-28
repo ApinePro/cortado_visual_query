@@ -40,7 +40,7 @@ export class HeaderBarComponent implements OnDestroy {
     private projectService: ProjectService,
     private modalService: NgbModal,
     private _elRef: ElementRef<HTMLElement>,
-    private goldenLayoutComponentService: GoldenLayoutComponentService
+    private goldenLayoutComponentService: GoldenLayoutComponentService,
   ) {
     this.backendService.retryEventLogSelection
       .pipe(takeUntil(this._destroy$))
@@ -152,7 +152,7 @@ export class HeaderBarComponent implements OnDestroy {
       componentID,
       parentComponentID,
       LocationSelectors,
-      itemConfig
+      itemConfig,
     );
   }
 
@@ -183,7 +183,7 @@ export class HeaderBarComponent implements OnDestroy {
       componentID,
       null,
       LocationSelectors,
-      itemConfig
+      itemConfig,
     );
   }
 
@@ -214,7 +214,7 @@ export class HeaderBarComponent implements OnDestroy {
       componentID,
       parentComponentID,
       LocationSelectors,
-      itemConfig
+      itemConfig,
     );
   }
 
@@ -245,7 +245,7 @@ export class HeaderBarComponent implements OnDestroy {
       componentID,
       ProcessTreeEditorComponent.componentName,
       LocationSelectors,
-      itemConfig
+      itemConfig,
     );
   }
 
@@ -262,7 +262,7 @@ export class HeaderBarComponent implements OnDestroy {
             .filter((v) => {
               return v.deviations == 0;
             })
-            .map((v) => v.bid)
+            .map((v) => v.bid),
         );
         break;
 
@@ -272,7 +272,7 @@ export class HeaderBarComponent implements OnDestroy {
             .filter((v) => {
               return v.deviations > 0;
             })
-            .map((v) => v.bid)
+            .map((v) => v.bid),
         );
         break;
 
@@ -282,7 +282,7 @@ export class HeaderBarComponent implements OnDestroy {
             .filter((v) => {
               return v.isSelected;
             })
-            .map((v) => v.bid)
+            .map((v) => v.bid),
         );
         break;
 
@@ -292,7 +292,7 @@ export class HeaderBarComponent implements OnDestroy {
             .filter((v) => {
               return v.isDisplayed;
             })
-            .map((v) => v.bid)
+            .map((v) => v.bid),
         );
         break;
     }

@@ -28,7 +28,7 @@ export class LazyLoadingServiceService {
       {
         root: rootElement.nativeElement,
         rootMargin: '2000px 2000px 2000px 2000px',
-      }
+      },
     );
   }
 
@@ -51,14 +51,14 @@ export class LazyLoadingServiceService {
       {
         root: rootElement.nativeElement,
         rootMargin: '2000px 2000px 2000px 2000px',
-      }
+      },
     );
   }
 
   public addVariant(
     variantElement: any,
     rootElement: ElementRef,
-    callback: Function
+    callback: Function,
   ): void {
     if (
       this.intersectionObserver === null ||
@@ -74,7 +74,7 @@ export class LazyLoadingServiceService {
   public addSubPattern(
     variantElement: any,
     rootElement: ElementRef,
-    callback: Function
+    callback: Function,
   ): void {
     if (
       this.variantMinerIntersectionObserver === null ||
@@ -107,7 +107,7 @@ export class LazyLoadingServiceService {
       {
         root: rootElement.nativeElement,
         rootMargin: '2000px 2000px 2000px 2000px',
-      }
+      },
     );
 
     this.lpmExplorerMapping.forEach((callback, element) => {

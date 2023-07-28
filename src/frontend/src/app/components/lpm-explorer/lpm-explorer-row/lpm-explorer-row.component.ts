@@ -70,7 +70,7 @@ export class LpmExplorerRowComponent
     private colorMapService: ColorMapService,
     private processTreeService: ProcessTreeService,
     private backendService: BackendService,
-    private lpmService: LpmService
+    private lpmService: LpmService,
   ) {}
   ngOnInit(): void {
     let height = this.getHeightOfLpm(this.lpm.lpm);
@@ -104,13 +104,13 @@ export class LpmExplorerRowComponent
         if (self.isVisible) {
           this.processTreeDrawer.redraw(this.lpm.lpm);
         }
-      }
+      },
     );
   }
 
   showInProcessTreeEditor() {
     this.processTreeService.set_currentDisplayedProcessTree_with_Cache(
-      this.lpm.lpm
+      this.lpm.lpm,
     );
   }
 
@@ -118,7 +118,7 @@ export class LpmExplorerRowComponent
     this.backendService
       .getLpmMetrics(this.lpm.lpm)
       .subscribe(
-        (metrics: LpmMetrics) => (this.lpmService.lpmMetrics = metrics)
+        (metrics: LpmMetrics) => (this.lpmService.lpmMetrics = metrics),
       );
   }
 
@@ -147,7 +147,7 @@ export class LpmExplorerRowComponent
   computeActivityColor = (
     self: VariantDrawerDirective,
     element: VariantElement,
-    variant: Variant
+    variant: Variant,
   ) => {
     let color;
 

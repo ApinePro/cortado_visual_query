@@ -21,7 +21,7 @@ export class VariantConformanceDialogComponent implements OnInit, OnDestroy {
 
   constructor(
     private backendService: BackendService,
-    private conformanceCheckingService: ConformanceCheckingService
+    private conformanceCheckingService: ConformanceCheckingService,
   ) {}
 
   ngOnInit(): void {

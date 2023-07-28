@@ -67,7 +67,7 @@ export class VariantPerformanceService {
 
   setPerformanceStatsSelectedVariantElement(
     performanceStats: any,
-    isServiceTime: boolean
+    isServiceTime: boolean,
   ) {
     this.performanceStatsForSelectedVariantElement$.next([
       performanceStats,
@@ -79,7 +79,7 @@ export class VariantPerformanceService {
     private logService: LogService,
     private variantService: VariantService,
     private backendService: BackendService,
-    private variantViewModeService: VariantViewModeService
+    private variantViewModeService: VariantViewModeService,
   ) {
     this.logService.loadedEventLog$.subscribe((log) => {
       if (log !== undefined) {
@@ -98,8 +98,8 @@ export class VariantPerformanceService {
       this.computeVariantPerformanceColorMap(
         COLORS_CYAN,
         'serviceTime',
-        this.serviceTimeStatistic
-      )
+        this.serviceTimeStatistic,
+      ),
     );
     return this.serviceTimeColorMap;
   }
@@ -108,7 +108,7 @@ export class VariantPerformanceService {
     return this.getVariantsComparisonColorMap(
       COLORS_CYAN,
       'serviceTime',
-      this.serviceTimeStatistic
+      this.serviceTimeStatistic,
     );
   }
 
@@ -117,8 +117,8 @@ export class VariantPerformanceService {
       this.computeVariantPerformanceColorMap(
         COLORS_PINK,
         'waitingTime',
-        this.waitingTimeStatistic
-      )
+        this.waitingTimeStatistic,
+      ),
     );
     return this.waitingTimeColorMap;
   }
@@ -127,14 +127,14 @@ export class VariantPerformanceService {
     return this.getVariantsComparisonColorMap(
       COLORS_PINK,
       'waitingTime',
-      this.waitingTimeStatistic
+      this.waitingTimeStatistic,
     );
   }
 
   private getVariantsComparisonColorMap(
     colors,
     performanceIndicator,
-    statistic
+    statistic,
   ) {
     let values = this.variantService.variants
       .map((v) => v.variant)
@@ -157,10 +157,10 @@ export class VariantPerformanceService {
   private computeVariantPerformanceColorMap(
     colors,
     performanceIndicator,
-    value
+    value,
   ): ColorMap {
     let values = this.getAllValues(performanceIndicator, value).filter(
-      (v) => v !== undefined
+      (v) => v !== undefined,
     );
 
     let min = Math.min(...values);
@@ -202,7 +202,7 @@ export class VariantPerformanceService {
   getAllValuesElement(
     variantElement: VariantElement,
     performanceIndicator,
-    value
+    value,
   ): number[] {
     let values = [];
     if (
@@ -220,7 +220,7 @@ export class VariantPerformanceService {
       variantElement
         .asParallelGroup()
         .elements.map((el) =>
-          this.getAllValuesElement(el, performanceIndicator, value)
+          this.getAllValuesElement(el, performanceIndicator, value),
         )
         .forEach((v) => values.push(...v));
     }
@@ -237,7 +237,7 @@ export class VariantPerformanceService {
     this.performanceUpdateIsInProgress = true;
     let chunks = [];
     const maxVariantId = Math.max(
-      ...this.variantService.variants.map((v) => v.bid)
+      ...this.variantService.variants.map((v) => v.bid),
     );
     const nVariants = this.variantService.variants.length;
     for (let i = 0; i < nVariants; i += 100) {
@@ -246,7 +246,7 @@ export class VariantPerformanceService {
 
     return from(chunks).pipe(
       concatMap((chunk) =>
-        this.backendService.getLogBasedPerformance(chunk[0], chunk[1])
+        this.backendService.getLogBasedPerformance(chunk[0], chunk[1]),
       ),
       tap((res) => {
         this.addVariantPerformanceResults(res);
@@ -269,7 +269,7 @@ export class VariantPerformanceService {
         this.updateServiceTimeColorMap();
         this.updateWaitingTimeColorMap();
         injectWaitingTimeNodes(
-          this.variantService.variants.map((v) => v.variant)
+          this.variantService.variants.map((v) => v.variant),
         );
 
         setTimeout(() => {
@@ -277,7 +277,7 @@ export class VariantPerformanceService {
           this.performanceUpdateIsInProgress = false;
           this.variantViewModeService.viewMode = ViewMode.PERFORMANCE;
         }, 1000);
-      })
+      }),
     );
   }
 }

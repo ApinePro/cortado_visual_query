@@ -74,7 +74,7 @@ export class BpmnEditorComponent
     private processTreeService: ProcessTreeService,
     private imageExportService: ImageExportService,
     private modelViewModeService: ModelViewModeService,
-    private conformanceCheckingService: ConformanceCheckingService
+    private conformanceCheckingService: ConformanceCheckingService,
   ) {
     super(elRef.nativeElement, renderer);
     const state = this.container.initialState;
@@ -259,7 +259,7 @@ export class BpmnEditorComponent
         getPerformanceTable(
           d.performance,
           this.selectedPerformanceIndicator,
-          this.selectedStatistic
+          this.selectedStatistic,
         );
     } else if (
       this.modelViewModeService.viewMode === ViewMode.CONFORMANCE &&
@@ -276,7 +276,7 @@ export class BpmnEditorComponent
         `<tr>
             <td>Equally</td>
             <td>${(d.conformance?.weighted_equally.value * 100).toFixed(
-              2
+              2,
             )}%</td>
             <td>${d.conformance?.weighted_equally.weight}</td>
         </tr>` +
@@ -284,7 +284,7 @@ export class BpmnEditorComponent
           ? `<tr>
             <td>By Log Frequency</td>
             <td>${(d.conformance?.weighted_by_counts?.value * 100).toFixed(
-              2
+              2,
             )}%</td>
             <td>${d.conformance?.weighted_by_counts?.weight}</td>
         </tr>`
@@ -308,7 +308,7 @@ export class BpmnEditorComponent
             : pt.conformance?.weighted_equally.value;
         if (conformanceValue === 0) return 'url(#modelConformanceStriped)';
         return this.conformanceCheckingService.modelConformanceColorMap.getColor(
-          conformanceValue
+          conformanceValue,
         );
       case ViewMode.PERFORMANCE:
         if (
@@ -329,7 +329,7 @@ export class BpmnEditorComponent
               .getColor(
                 pt.performance[this.selectedPerformanceIndicator][
                   this.selectedStatistic
-                ]
+                ],
               );
         } else {
           color = '#404040';
@@ -409,7 +409,7 @@ export class BpmnEditorComponent
     left: number,
     top: number,
     width: number,
-    height: number
+    height: number,
   ): void {}
 
   handleVisibilityChange(visibile: boolean): void {
@@ -421,7 +421,7 @@ export class BpmnEditorComponent
 
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
-    defaultZIndex: string
+    defaultZIndex: string,
   ): void {}
 
   clearSelection() {
@@ -437,7 +437,7 @@ export class BpmnEditorComponent
       'transform',
       `translate(${
         3 * BPMN_Constant.HORIZONTALSPACING + 2 * BPMN_Constant.START_END_RADIUS
-      }, ${this.bpmnContainerElem.nativeElement.offsetHeight / 2})`
+      }, ${this.bpmnContainerElem.nativeElement.offsetHeight / 2})`,
     );
 
     const zooming = function (event) {
@@ -446,8 +446,8 @@ export class BpmnEditorComponent
         event.transform.translate(
           3 * BPMN_Constant.HORIZONTALSPACING +
             2 * BPMN_Constant.START_END_RADIUS,
-          this.bpmnContainerElem.nativeElement.offsetHeight / 2
-        )
+          this.bpmnContainerElem.nativeElement.offsetHeight / 2,
+        ),
       );
     }.bind(this);
 
@@ -469,8 +469,8 @@ export class BpmnEditorComponent
         d3.zoomIdentity.translate(
           3 * BPMN_Constant.HORIZONTALSPACING +
             2 * BPMN_Constant.START_END_RADIUS,
-          0
-        )
+          0,
+        ),
       );
   }
 
@@ -499,7 +499,7 @@ export class BpmnEditorComponent
         `translate(${
           3 * BPMN_Constant.HORIZONTALSPACING +
           2 * BPMN_Constant.START_END_RADIUS
-        }, ${2 * BPMN_Constant.VERTICALSPACING})`
+        }, ${2 * BPMN_Constant.VERTICALSPACING})`,
       );
 
     // Export the BPMN
@@ -509,7 +509,7 @@ export class BpmnEditorComponent
         5 * BPMN_Constant.HORIZONTALSPACING +
         4 * BPMN_Constant.START_END_RADIUS,
       svgBBox.height + 4 * BPMN_Constant.VERTICALSPACING,
-      bpmn_copy
+      bpmn_copy,
     );
   }
 }

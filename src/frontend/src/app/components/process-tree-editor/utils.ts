@@ -5,7 +5,7 @@ import { TreePerformance } from '../../objects/ProcessTree/ProcessTree';
 export function getPerformanceTable(
   performance: TreePerformance,
   selectedPerformanceIndicator,
-  selectedStatistic
+  selectedStatistic,
 ): string {
   let table = '<table class="table table-dark table-striped table-bordered">';
 
@@ -19,7 +19,7 @@ export function getPerformanceTable(
   if (performance.service_time?.[selectedStatistic] !== undefined) {
     const serviceTime = HumanizeDurationPipe.apply(
       performance?.service_time?.[selectedStatistic] * 1000,
-      options
+      options,
     );
     table += `<tr>
                 <td>Service Time (${selectedStatistic}):</td>
@@ -30,7 +30,7 @@ export function getPerformanceTable(
   if (performance.waiting_time?.[selectedStatistic] !== undefined) {
     const waitingTime = HumanizeDurationPipe.apply(
       performance.waiting_time?.[selectedStatistic] * 1000,
-      options
+      options,
     );
     table += `<tr>
                 <td>Waiting Time (${selectedStatistic}):</td>
@@ -41,7 +41,7 @@ export function getPerformanceTable(
   if (performance.idle_time?.[selectedStatistic] !== undefined) {
     const idleTime = HumanizeDurationPipe.apply(
       performance.idle_time?.[selectedStatistic] * 1000,
-      options
+      options,
     );
     table += `<tr>
                 <td>Idle Time (${selectedStatistic}):</td>
@@ -52,7 +52,7 @@ export function getPerformanceTable(
   if (performance.cycle_time?.[selectedStatistic] !== undefined) {
     const cycleTime = HumanizeDurationPipe.apply(
       performance.cycle_time?.[selectedStatistic] * 1000,
-      options
+      options,
     );
     table += `<tr>
                 <td>Cycle Time (${selectedStatistic}):</td>

@@ -19,7 +19,10 @@ export class SyntaxHighlightedTextareaDirective implements AfterViewInit {
   @Input()
   applyHighlights: (text: string) => string;
 
-  constructor(private renderer: Renderer2, private textarea: ElementRef) {}
+  constructor(
+    private renderer: Renderer2,
+    private textarea: ElementRef,
+  ) {}
 
   ngAfterViewInit(): void {
     this.renderer.listen(this.textarea.nativeElement, 'input', (input) => {
@@ -37,7 +40,7 @@ export class SyntaxHighlightedTextareaDirective implements AfterViewInit {
     this.renderer.setProperty(
       this.highlightText.nativeElement,
       'innerHTML',
-      text
+      text,
     );
   }
 
@@ -45,12 +48,12 @@ export class SyntaxHighlightedTextareaDirective implements AfterViewInit {
     this.renderer.setProperty(
       this.queryEditorBackdrop.nativeElement,
       'scrollTop',
-      this.queryEditor.nativeElement.scrollTop
+      this.queryEditor.nativeElement.scrollTop,
     );
     this.renderer.setProperty(
       this.queryEditorBackdrop.nativeElement,
       'scrollLeft',
-      this.queryEditor.nativeElement.scrollLeft
+      this.queryEditor.nativeElement.scrollLeft,
     );
   }
 }

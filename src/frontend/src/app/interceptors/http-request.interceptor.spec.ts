@@ -6,12 +6,12 @@ describe('HttpRequestInterceptor', () => {
   beforeEach(() =>
     TestBed.configureTestingModule({
       providers: [HttpRequestInterceptor],
-    })
+    }),
   );
 
   it('should be created', () => {
     const interceptor: HttpRequestInterceptor = TestBed.inject(
-      HttpRequestInterceptor
+      HttpRequestInterceptor,
     );
     expect(interceptor).toBeTruthy();
   });

@@ -119,7 +119,7 @@ export class EditorZoneComponent
 
     this._editor = monaco.editor.create(
       this._editorContainer.nativeElement,
-      vqlEditorOptions
+      vqlEditorOptions,
     );
 
     const model: Monaco.editor.ITextModel = this._editor.getModel();

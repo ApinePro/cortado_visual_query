@@ -359,7 +359,7 @@
         class="dropdown-menu custom-dropdown"
         aria-labelledby="granularityDropdown"
       >
-        <li *ngFor="let unit of timeUnit | keyvalue : originalOrder">
+        <li *ngFor="let unit of timeUnit | keyvalue: originalOrder">
           <button
             (click)="onGranularityChange(unit.value)"
             [ngClass]="{
@@ -624,7 +624,7 @@
           <ng-container
             *ngFor="
               let cluster of displayed_variants
-                | groupBy : 'clusterId'
+                | groupBy: 'clusterId'
                 | keyvalue;
               let i = index
             "

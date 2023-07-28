@@ -70,7 +70,7 @@ export abstract class VariantElement {
       equals = ((a, b) =>
         a.size === b.size && [...a].every((value) => b.has(value)))(
         this.getActivities(),
-        variantElement.getActivities()
+        variantElement.getActivities(),
       );
     } else if (
       this instanceof InvisibleSequenceGroup &&
@@ -192,7 +192,7 @@ export abstract class VariantElement {
 
   public setInfixSelectableState(
     state: SelectableState,
-    recursive: boolean = false
+    recursive: boolean = false,
   ): void {
     this.infixSelectableState = state;
 
@@ -252,11 +252,11 @@ export abstract class VariantElement {
 
   public abstract asString(): string;
   public abstract deleteActivity(
-    activityName: string
+    activityName: string,
   ): [VariantElement[], boolean];
   public abstract renameActivity(
     activityName: string,
-    newActivityName: string
+    newActivityName: string,
   ): void;
 }
 
@@ -330,7 +330,10 @@ export class SequenceGroup extends VariantElement {
     );
   }
 
-  constructor(public elements: VariantElement[], performance: any = undefined) {
+  constructor(
+    public elements: VariantElement[],
+    performance: any = undefined,
+  ) {
     super(performance);
   }
 
@@ -387,7 +390,7 @@ export class SequenceGroup extends VariantElement {
   public recalculateHeight(): number {
     this.elements.forEach((el) => (el.height = undefined));
     this.height = Math.max(
-      ...this.elements.map((el: VariantElement) => el.getHeight())
+      ...this.elements.map((el: VariantElement) => el.getHeight()),
     );
     if (!(this.parent instanceof SkipGroup))
       this.height += this.getMarginY() * 2;
@@ -449,13 +452,13 @@ export class SequenceGroup extends VariantElement {
     if (first > 0) {
       children[first - 1].setInfixSelectableState(
         SelectableState.Selectable,
-        false
+        false,
       );
     }
     if (last < children.length - 1) {
       children[last + 1].setInfixSelectableState(
         SelectableState.Selectable,
-        false
+        false,
       );
     }
   }
@@ -515,7 +518,10 @@ export class ParallelGroup extends VariantElement {
     }
   }
 
-  constructor(public elements: VariantElement[], performance: any = undefined) {
+  constructor(
+    public elements: VariantElement[],
+    performance: any = undefined,
+  ) {
     super(performance);
   }
 
@@ -597,7 +603,7 @@ export class ParallelGroup extends VariantElement {
       Math.max(
         ...this.elements
           .filter((el) => !(el instanceof WaitingTimeNode) || includeWaiting)
-          .map((el: VariantElement) => el.getWidth(includeWaiting))
+          .map((el: VariantElement) => el.getWidth(includeWaiting)),
       ) +
       VARIANT_Constants.MARGIN_X +
       2 * headLength;
@@ -683,7 +689,10 @@ export class FallthroughGroup extends VariantElement {
     }
   }
 
-  constructor(public elements: VariantElement[], performance: any = undefined) {
+  constructor(
+    public elements: VariantElement[],
+    performance: any = undefined,
+  ) {
     super(performance);
   }
 
@@ -765,7 +774,7 @@ export class FallthroughGroup extends VariantElement {
       Math.max(
         ...this.elements
           .filter((el) => !(el instanceof WaitingTimeNode) || includeWaiting)
-          .map((el: VariantElement) => el.getWidth(includeWaiting))
+          .map((el: VariantElement) => el.getWidth(includeWaiting)),
       ) +
       VARIANT_Constants.MARGIN_X +
       2 * headLength;
@@ -851,7 +860,10 @@ export class ChoiceGroup extends VariantElement {
     }
   }
 
-  constructor(public elements: VariantElement[], performance: any = undefined) {
+  constructor(
+    public elements: VariantElement[],
+    performance: any = undefined,
+  ) {
     super(performance);
   }
 
@@ -933,7 +945,7 @@ export class ChoiceGroup extends VariantElement {
       Math.max(
         ...this.elements
           .filter((el) => !(el instanceof WaitingTimeNode) || includeWaiting)
-          .map((el: VariantElement) => el.getWidth(includeWaiting))
+          .map((el: VariantElement) => el.getWidth(includeWaiting)),
       ) +
       VARIANT_Constants.MARGIN_X +
       2 * headLength;
@@ -988,7 +1000,10 @@ export class LoopGroup extends VariantElement {
     return [[new LoopGroup(res[0])], res[1]];
   }
 
-  constructor(public elements: VariantElement[], performance: any = undefined) {
+  constructor(
+    public elements: VariantElement[],
+    performance: any = undefined,
+  ) {
     super(performance);
   }
 
@@ -1093,7 +1108,10 @@ export class SkipGroup extends VariantElement {
     return 'skip(' + this.elements.map((v) => v.asString()).join(', ') + ')';
   }
 
-  constructor(public elements: VariantElement[], performance: any = undefined) {
+  constructor(
+    public elements: VariantElement[],
+    performance: any = undefined,
+  ) {
     super(performance);
   }
 
@@ -1164,7 +1182,7 @@ export class SkipGroup extends VariantElement {
           if (el instanceof SequenceGroup) {
             return el.elements
               .filter(
-                (el) => !(el instanceof WaitingTimeNode) || includeWaiting
+                (el) => !(el instanceof WaitingTimeNode) || includeWaiting,
               )
               .map((el: VariantElement) => el.getWidth(includeWaiting))
               .reduce((a: number, b: number) => a + b);
@@ -1232,7 +1250,7 @@ export class LeafNode extends VariantElement {
   constructor(
     public activity: string[],
     performance: any = undefined,
-    public conformance: number[] = undefined
+    public conformance: number[] = undefined,
   ) {
     super(performance);
   }
@@ -1246,7 +1264,7 @@ export class LeafNode extends VariantElement {
 
   public getWidth(
     includeWaiting = false,
-    full_text_width: boolean = false
+    full_text_width: boolean = false,
   ): number {
     if (this.width) {
       return this.width;
@@ -1262,7 +1280,7 @@ export class LeafNode extends VariantElement {
 
     this.width = Math.max(
       this.width * 0.75 + this.getHeadLength() * 2,
-      this.width - this.getHeadLength() * 2
+      this.width - this.getHeadLength() * 2,
     );
 
     return this.width;
@@ -1389,7 +1407,7 @@ export class InvisibleSequenceGroup extends SequenceGroup {
 
   public setInfixSelectableState(
     state: SelectableState,
-    recursive = false
+    recursive = false,
   ): void {
     this.infixSelectableState = state;
 
@@ -1497,22 +1515,22 @@ export function deserialize(obj: any): VariantElement {
   if ('follows' in obj) {
     return new SequenceGroup(
       obj.follows.map((e: any) => deserialize(e)).filter((e) => e),
-      obj.performance
+      obj.performance,
     );
   } else if ('parallel' in obj) {
     return new ParallelGroup(
       obj.parallel.map((e: any) => deserialize(e)).filter((e) => e),
-      obj.performance
+      obj.performance,
     );
   } else if ('choice' in obj) {
     return new ChoiceGroup(
       obj.choice.map((e: any) => deserialize(e)).filter((e) => e),
-      obj.performance
+      obj.performance,
     );
   } else if ('fallthrough' in obj) {
     return new FallthroughGroup(
       obj.fallthrough.map((e: any) => deserialize(e)).filter((e) => e),
-      obj.performance
+      obj.performance,
     );
   } else if ('leaf' in obj) {
     return new LeafNode(
@@ -1522,17 +1540,17 @@ export function deserialize(obj: any): VariantElement {
       obj.performance,
       obj.leaf.map((el) => {
         return typeof el === 'string' ? undefined : el[1];
-      })
+      }),
     );
   } else if ('loop' in obj) {
     return new LoopGroup(
       obj.loop.map((e: any) => deserialize(e)),
-      obj.performance
+      obj.performance,
     );
   } else if ('skip' in obj) {
     return new SkipGroup(
       obj.skip.map((e: any) => deserialize(e)),
-      obj.performance
+      obj.performance,
     );
   }
 }

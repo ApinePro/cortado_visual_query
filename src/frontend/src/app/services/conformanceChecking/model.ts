@@ -8,7 +8,7 @@ export class ConformanceCheckingResult {
     public cost: number,
     public deviations: number,
     public alignment: string,
-    public processTree: ProcessTree
+    public processTree: ProcessTree,
   ) {}
 }
 export interface treeConformanceResult {

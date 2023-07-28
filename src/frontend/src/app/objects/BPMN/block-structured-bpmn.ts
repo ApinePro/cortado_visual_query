@@ -102,7 +102,7 @@ export class SequenceBlock extends Block_Structured_BPMN {
   public recalculateHeight(): number {
     if (this.members.length > 0) {
       this.height = Math.max(
-        ...this.members.map((block: Block_Structured_BPMN) => block.height)
+        ...this.members.map((block: Block_Structured_BPMN) => block.height),
       );
     } else {
       this.height = BPMN_Constant.EVENT_HEIGHT;
@@ -135,7 +135,7 @@ export class Event extends Block_Structured_BPMN {
   constructor(
     eventName: string,
     pt: ProcessTree,
-    blockWidthCache: Map<string, number>
+    blockWidthCache: Map<string, number>,
   ) {
     super(null, pt);
     this._eventName = eventName;
@@ -171,7 +171,7 @@ export class Event extends Block_Structured_BPMN {
 
 export function convertPTtoBlockstructuredBPMN(
   pt: ProcessTree,
-  blockWidthCache: Map<string, number> = null
+  blockWidthCache: Map<string, number> = null,
 ): Block_Structured_BPMN {
   let block: Block_Structured_BPMN;
 
@@ -181,7 +181,7 @@ export function convertPTtoBlockstructuredBPMN(
 
   if (pt.operator) {
     const members = pt.children.map((c) =>
-      convertPTtoBlockstructuredBPMN(c, blockWidthCache)
+      convertPTtoBlockstructuredBPMN(c, blockWidthCache),
     );
 
     switch (pt.operator) {
@@ -234,7 +234,7 @@ function compute_height_vertical_group(model: any): number {
 function compute_width_vertical_group(model: any): number {
   if (model.members.length > 0) {
     model.width = Math.max(
-      ...model.members.map((block: Block_Structured_BPMN) => block.width)
+      ...model.members.map((block: Block_Structured_BPMN) => block.width),
     );
   } else {
     model.width = 0;

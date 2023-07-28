@@ -19,7 +19,7 @@ export class GoldenLayoutDummyComponent extends LayoutChangeDirective {
     private renderer: Renderer2,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
-    elRef: ElementRef
+    elRef: ElementRef,
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -28,14 +28,14 @@ export class GoldenLayoutDummyComponent extends LayoutChangeDirective {
     left: number,
     top: number,
     width: number,
-    height: number
+    height: number,
   ): void {}
 
   handleVisibilityChange(visibility: boolean): void {}
 
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
-    defaultZIndex: string
+    defaultZIndex: string,
   ): void {}
 }
 

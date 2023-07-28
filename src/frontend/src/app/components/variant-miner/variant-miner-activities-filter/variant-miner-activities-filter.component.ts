@@ -66,7 +66,7 @@ export class VariantMinerActivitiesFIlterComponent
       this.interleavedActivityNames
         .splice(0, Math.ceil(this.interleavedActivityNames.length / 2))
         .sort(),
-      this.interleavedActivityNames.sort()
+      this.interleavedActivityNames.sort(),
     );
 
     for (let activity of this.activityNames) {
@@ -113,7 +113,7 @@ export class VariantMinerActivitiesFIlterComponent
 
   interleaveArrays(
     array1: Array<string>,
-    array2: Array<string>
+    array2: Array<string>,
   ): Array<string> {
     const result = array1.reduce((arr, v, i) => {
       return arr.concat(v, array2[i]);
@@ -131,7 +131,7 @@ export class VariantMinerActivitiesFIlterComponent
   computeActivityColor = (
     self: VariantDrawerDirective,
     element: VariantElement,
-    variant: Variant
+    variant: Variant,
   ) => {
     let color;
     color = this.colorMap.get(element.asLeafNode().activity[0]);

@@ -55,7 +55,7 @@ export class ZoomFieldComponent implements AfterViewInit {
       .selectChild()
       .attr(
         'transform',
-        `translate(${boundingRect.width / 2}, ${boundingRect.height / 2})`
+        `translate(${boundingRect.width / 2}, ${boundingRect.height / 2})`,
       );
   }
 
@@ -69,8 +69,8 @@ export class ZoomFieldComponent implements AfterViewInit {
           'transform',
           event.transform.translate(
             this.editorWindow.nativeElement.offsetWidth / 2,
-            this.editorWindow.nativeElement.offsetHeight / 2
-          )
+            this.editorWindow.nativeElement.offsetHeight / 2,
+          ),
         );
     }.bind(this);
 
@@ -91,7 +91,7 @@ export class ZoomFieldComponent implements AfterViewInit {
       .ease(d3.easeExpInOut)
       .call(
         this.zoom.transform,
-        d3.zoomIdentity.translate(translateX, translateY)
+        d3.zoomIdentity.translate(translateX, translateY),
       );
   }
 
@@ -106,7 +106,7 @@ export class ZoomFieldComponent implements AfterViewInit {
       .ease(d3.easeExpInOut)
       .call(
         this.zoom.transform,
-        d3.zoomIdentity.translate(translateX, translateY)
+        d3.zoomIdentity.translate(translateX, translateY),
       );
   }
 }

@@ -17,7 +17,7 @@ export class ElectronDummyService implements ElectronInterface {
     fileExtension: string,
     blob: Blob,
     buttonLabel: string,
-    title: string
+    title: string,
   ): Promise<string> {
     saveAs(blob, fileName + '.' + fileExtension);
     return null;
@@ -25,7 +25,7 @@ export class ElectronDummyService implements ElectronInterface {
   saveToUserFolder(
     fileName: string,
     fileExtension: string,
-    data: string
+    data: string,
   ): Promise<undefined> {
     throw new Error('Method not implemented.');
   }

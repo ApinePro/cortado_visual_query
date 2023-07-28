@@ -38,15 +38,17 @@ export class TreePerformanceColorMapComponent implements OnInit, OnDestroy {
     public performanceColorScaleService: ModelPerformanceColorScaleService,
     private sharedDataService: SharedDataService,
     private processTreeService: ProcessTreeService,
-    private performanceService: PerformanceService
+    private performanceService: PerformanceService,
   ) {}
 
   ngOnInit(): void {
     this.modeHelpText = ModelPerformanceColorScaleService.COLOR_MAPS.filter(
-      (x) => x.key === this.performanceColorScaleService.selectedColorScale.mode
+      (x) =>
+        x.key === this.performanceColorScaleService.selectedColorScale.mode,
     )[0]?.description;
     this.modeLongHelpText = ModelPerformanceColorScaleService.COLOR_MAPS.filter(
-      (x) => x.key === this.performanceColorScaleService.selectedColorScale.mode
+      (x) =>
+        x.key === this.performanceColorScaleService.selectedColorScale.mode,
     )[0]?.longDescription;
     this.performanceColorScaleService.currentColorScale
       .pipe(takeUntil(this._destroy$))
@@ -75,7 +77,8 @@ export class TreePerformanceColorMapComponent implements OnInit, OnDestroy {
 
   colorScaleChange(e): void {
     const selected = this.availableColorMaps.find(
-      (m) => m.key === this.performanceColorScaleService.selectedColorScale.mode
+      (m) =>
+        m.key === this.performanceColorScaleService.selectedColorScale.mode,
     );
     this.modeHelpText = selected.description;
     this.modeLongHelpText = selected.longDescription;

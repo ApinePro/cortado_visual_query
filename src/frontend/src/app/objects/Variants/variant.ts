@@ -64,7 +64,7 @@ export class Variant implements IVariant {
     isConformanceOutdated: boolean,
     nSubVariants: number,
     infixType: InfixType = InfixType.NOT_AN_INFIX,
-    clusterId: number = -1
+    clusterId: number = -1,
   ) {
     this.count = count;
     this.variant = variant;

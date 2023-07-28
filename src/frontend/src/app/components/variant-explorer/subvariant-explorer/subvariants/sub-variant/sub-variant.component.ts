@@ -66,7 +66,7 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
     private sharedDataService: SharedDataService,
     private colorMapService: ColorMapService,
     private variantPerformanceService: VariantPerformanceService,
-    private variantViewModeService: VariantViewModeService
+    private variantViewModeService: VariantViewModeService,
   ) {
     this.serviceTimeColorMap =
       variantPerformanceService.serviceTimeColorMap.getValue();
@@ -191,7 +191,7 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
 
           this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
             d.performanceStats,
-            !d.isWaitingTimeNode
+            !d.isWaitingTimeNode,
           );
         });
     }
@@ -208,7 +208,9 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
       .attr(
         'width',
         (d) =>
-          xScale(d.xEnd) - xScale(d.xStart) + 2 * VARIANT_Constants.POINT_RADIUS
+          xScale(d.xEnd) -
+          xScale(d.xStart) +
+          2 * VARIANT_Constants.POINT_RADIUS,
       )
       .attr('height', VARIANT_Constants.POINT_RADIUS * 2)
       .attr('data-bs-toggle', (d) => {
@@ -223,7 +225,7 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
 
         this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
           d.performanceStats,
-          !d.isWaitingTimeNode
+          !d.isWaitingTimeNode,
         );
       });
 
@@ -243,7 +245,7 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
       this.wrapInnerLabelText(
         sel,
         sel.text(),
-        xEnd - xStart - 2 * VARIANT_Constants.POINT_RADIUS
+        xEnd - xStart - 2 * VARIANT_Constants.POINT_RADIUS,
       );
     });
   }
@@ -256,13 +258,13 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
         if (!subvariantData.isWaitingTimeNode) {
           let stat = this.variantPerformanceService.serviceTimeStatistic;
           return this.serviceTimeColorMap.getColor(
-            subvariantData.performanceStats[stat]
+            subvariantData.performanceStats[stat],
           );
         }
 
         let stat = this.variantPerformanceService.waitingTimeStatistic;
         return this.waitingTimeColorMap.getColor(
-          subvariantData.performanceStats[stat]
+          subvariantData.performanceStats[stat],
         );
       default:
         return this.colorMap.get(subvariantData.activity);
@@ -272,7 +274,7 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
   private wrapInnerLabelText(
     textSelection: Selection<any, any, any, any>,
     text: string,
-    maxWidth: number
+    maxWidth: number,
   ): boolean {
     const originalText = text;
     let textLength = this.getComputedTextLength(textSelection);
@@ -289,21 +291,21 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
   }
 
   private getComputedTextLength(
-    textSelection: Selection<any, any, any, any>
+    textSelection: Selection<any, any, any, any>,
   ): number {
     let textLength;
     if (
       this.sharedDataService.computedTextLengthCache.has(textSelection.text())
     ) {
       textLength = this.sharedDataService.computedTextLengthCache.get(
-        textSelection.text()
+        textSelection.text(),
       );
     } else {
       textLength = textSelection.node().getComputedTextLength();
     }
     this.sharedDataService.computedTextLengthCache.set(
       textSelection.text(),
-      textLength
+      textLength,
     );
     return textLength;
   }
@@ -320,25 +322,25 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
     let [yIndicesFromMainVariant, _] = this.computeYIndicesFromVariantElement(
       this.mainVariant,
       new Map<string, number[]>(),
-      0
+      0,
     );
 
     let xIndex = 0;
     this._variant.subvariant.forEach((group) => {
       let starting = group.filter(
-        (subvariantNode) => subvariantNode.lifecycle === 'start'
+        (subvariantNode) => subvariantNode.lifecycle === 'start',
       );
       let completing = group.filter(
-        (subvariantNode) => subvariantNode.lifecycle === 'complete'
+        (subvariantNode) => subvariantNode.lifecycle === 'complete',
       );
       starting.forEach((subvariantNode) => {
         let yIndicesForActivity = yIndicesFromMainVariant.get(
-          subvariantNode.activity
+          subvariantNode.activity,
         );
         let yIndex = yIndicesForActivity.shift();
         yIndicesFromMainVariant.set(
           subvariantNode.activity,
-          yIndicesForActivity
+          yIndicesForActivity,
         );
 
         // The tracking of active y-indices is necessary to ensure that we do not draw multiple overlapping subvariant nodes at the same y index.
@@ -377,7 +379,7 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
         activeYIndices.delete(m.yIndex);
 
         starts.delete(
-          (subvariantNode.activity, subvariantNode.activity_instance)
+          (subvariantNode.activity, subvariantNode.activity_instance),
         );
       });
 
@@ -393,7 +395,7 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
   }
 
   private buildWaitingTimeData(
-    nodesData: Map<string, SubvariantVisualization>
+    nodesData: Map<string, SubvariantVisualization>,
   ): SubvariantVisualization[] {
     let result = [];
 
@@ -404,11 +406,11 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
 
       let startActivityData = nodesData.get(
         waitingTimeEvent.start.activity +
-          waitingTimeEvent.start.activity_instance
+          waitingTimeEvent.start.activity_instance,
       );
       let completeActivityData = nodesData.get(
         waitingTimeEvent.complete.activity +
-          waitingTimeEvent.complete.activity_instance
+          waitingTimeEvent.complete.activity_instance,
       );
 
       if (waitingTimeEvent.start.lifecycle == 'start') {
@@ -441,7 +443,7 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
 
     // find duplicates in x-positions between Waiting Time Nodes and Subvariant Nodes; then, introduce gaps
     const yData = this.getSubvariantVisualizationsXPositionMapPerYIndex(
-      Array.from(nodesData.values())
+      Array.from(nodesData.values()),
     );
 
     for (let [i, wtEvent] of result.entries()) {
@@ -475,7 +477,7 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
   }
 
   private getSubvariantVisualizationsXPositionMapPerYIndex(
-    data: SubvariantVisualization[]
+    data: SubvariantVisualization[],
   ): Map<number, number[]> {
     const yData = new Map<number, number[]>();
     data.forEach((subvariant: SubvariantVisualization) => {
@@ -495,7 +497,7 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
   private computeYIndicesFromVariantElement(
     variantElement: VariantElement,
     results: Map<string, number[]>,
-    currentYIndex: number
+    currentYIndex: number,
   ): [Map<string, number[]>, number] {
     if (variantElement instanceof LeafNode) {
       for (let i = 0; i < variantElement.activity.length; i++) {
@@ -519,7 +521,7 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
         [results, maxIndex] = this.computeYIndicesFromVariantElement(
           child,
           results,
-          currentYIndex
+          currentYIndex,
         );
         maxIndices.push(maxIndex);
       }
@@ -533,7 +535,7 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
         [results, maxYIndex] = this.computeYIndicesFromVariantElement(
           child,
           results,
-          maxYIndex
+          maxYIndex,
         );
         maxYIndex++;
       }
@@ -556,7 +558,7 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
   changeSelection(sel: SubvariantVisualization) {
     d3.selectAll('.subvariant-rect').classed(
       'selected-subvariant',
-      (d) => sel === d
+      (d) => sel === d,
     );
   }
 }

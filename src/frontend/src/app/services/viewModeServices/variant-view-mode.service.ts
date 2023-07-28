@@ -13,11 +13,11 @@ export class VariantViewModeService {
   constructor(
     private modelViewModeService: ModelViewModeService,
     private conformanceCheckingService: ConformanceCheckingService,
-    private performanceService: PerformanceService
+    private performanceService: PerformanceService,
   ) {}
 
   private _viewMode: BehaviorSubject<ViewMode> = new BehaviorSubject<ViewMode>(
-    ViewMode.STANDARD
+    ViewMode.STANDARD,
   );
 
   set viewMode(nextViewMode: ViewMode) {

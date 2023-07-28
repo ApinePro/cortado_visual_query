@@ -19,7 +19,7 @@ export class LogService {
 
   public performanceInfoAvailable = false;
   private _timeGranularity: BehaviorSubject<TimeUnit> = new BehaviorSubject(
-    TimeUnit.SEC
+    TimeUnit.SEC,
   );
 
   private _numberFittingTraces: number = undefined;
@@ -32,8 +32,8 @@ export class LogService {
       this._numberFittingTraces,
       this._numberFittingVariants,
       this._totalNumberTraces,
-      this._totalNumberVariants
-    )
+      this._totalNumberVariants,
+    ),
   );
 
   get logStatistics$(): Observable<LogStats> {
@@ -52,7 +52,7 @@ export class LogService {
     numberFittingTraces: number = null,
     numberFittingVariants: number = null,
     totalNumberTraces: number = null,
-    totalNumberVariants: number = null
+    totalNumberVariants: number = null,
   ): void {
     if (numberFittingTraces) this._numberFittingTraces = numberFittingTraces;
     if (numberFittingVariants)
@@ -64,7 +64,7 @@ export class LogService {
       this._numberFittingTraces,
       this._numberFittingVariants,
       this._totalNumberTraces,
-      this._totalNumberVariants
+      this._totalNumberVariants,
     );
   }
 
@@ -74,7 +74,7 @@ export class LogService {
   }
 
   private _logGranularity: BehaviorSubject<TimeUnit> = new BehaviorSubject(
-    TimeUnit.SEC
+    TimeUnit.SEC,
   );
 
   public get logGranularity$(): Observable<TimeUnit> {
@@ -132,7 +132,7 @@ export class LogService {
 
   public renameActivitiesInEventLog(
     activityName: string,
-    newActivityName: string
+    newActivityName: string,
   ): any {
     // modifying related data in shared data service. Similar to processEventLog in backend service
     // relabeling activities
@@ -174,7 +174,7 @@ export class LogService {
   }
 
   private _startActivitiesInEventLog = new BehaviorSubject<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   get startActivitiesInEventLog$(): Observable<Set<string>> {
@@ -190,7 +190,7 @@ export class LogService {
   }
 
   private _endActivitiesInEventLog = new BehaviorSubject<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   get endActivitiesInEventLog$(): Observable<Set<string>> {
@@ -212,7 +212,7 @@ export class LogService {
 
     variants.forEach((v) => {
       v.percentage = Number.parseFloat(
-        ((v.count / totalNumberTraces) * 100).toFixed(2)
+        ((v.count / totalNumberTraces) * 100).toFixed(2),
       );
     });
 
@@ -224,7 +224,7 @@ export class LogService {
       numberFittingTraces,
       numberFittingVariants,
       totalNumberTraces,
-      totalNumberVariants
+      totalNumberVariants,
     );
   }
 
@@ -255,7 +255,7 @@ export class LogStats {
     numberFittingTraces: number,
     numberFittingVariants: number,
     totalNumberTraces: number,
-    totalNumberVariants: number
+    totalNumberVariants: number,
   ) {
     this.numberFittingTraces = numberFittingTraces;
     this.numberFittingVariants = numberFittingVariants;

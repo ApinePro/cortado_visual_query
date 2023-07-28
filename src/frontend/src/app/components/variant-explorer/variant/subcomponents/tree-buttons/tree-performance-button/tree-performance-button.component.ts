@@ -12,7 +12,7 @@ import { PerformanceService } from 'src/app/services/performance.service';
 export class TreePerformanceButtonComponent {
   constructor(
     private performanceService: PerformanceService,
-    private modelPerformanceColorScaleService: ModelPerformanceColorScaleService
+    private modelPerformanceColorScaleService: ModelPerformanceColorScaleService,
   ) {}
 
   @Input()
@@ -24,7 +24,7 @@ export class TreePerformanceButtonComponent {
 
   get isPerformanceCalcInProgress() {
     return this.performanceService.isTreePerformanceCalcInProgress(
-      this.variant
+      this.variant,
     );
   }
 
@@ -50,7 +50,7 @@ export class TreePerformanceButtonComponent {
     const selectedColorScale =
       this.modelPerformanceColorScaleService.selectedColorScale;
     let performance = this.performanceService.variantsTreePerformance.get(
-      this.variant
+      this.variant,
     ).performance[selectedColorScale.performanceIndicator]?.[
       selectedColorScale.statistic
     ];

@@ -32,7 +32,7 @@ export class HumanizeDurationPipe implements PipeTransform {
 
   public static apply(
     value: number,
-    options?: HumanizeDurationOptions
+    options?: HumanizeDurationOptions,
   ): string {
     return new HumanizeDurationPipe().humanizeDuration.humanize(value, options);
   }
@@ -42,7 +42,7 @@ export class HumanizeDurationPipe implements PipeTransform {
     isMilliseconds = false,
     round = true,
     largest?: number,
-    shortEn = false
+    shortEn = false,
   ): string {
     if (!isMilliseconds) {
       value = value * 1000;

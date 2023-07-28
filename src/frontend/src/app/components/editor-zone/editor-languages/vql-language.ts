@@ -16,7 +16,7 @@ export function getVQLTokenizer(): Monaco.languages.IMonarchLanguage {
 
     logicalOperator: groupOperator.concat(
       unarylogicalOperator,
-      binarylogicalOperator
+      binarylogicalOperator,
     ),
 
     operator: unaryOperator.concat(binaryOperator),

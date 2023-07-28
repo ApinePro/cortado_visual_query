@@ -17,7 +17,7 @@ export class LoopCollapsedVariant implements IVariant {
   constructor(
     id: string,
     variants: Variant[],
-    collapsedVariantElement: VariantElement
+    collapsedVariantElement: VariantElement,
   ) {
     this.id = id;
     this.variants = variants;
@@ -62,7 +62,7 @@ export class LoopCollapsedVariant implements IVariant {
 
   get percentage() {
     return Number(
-      this.variants.reduce((sum, v) => sum + v.percentage, 0).toFixed(2)
+      this.variants.reduce((sum, v) => sum + v.percentage, 0).toFixed(2),
     );
   }
 

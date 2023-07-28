@@ -29,7 +29,7 @@ export class ProcessTreeDrawerDirective {
     elRef: ElementRef,
     private processTreeService: ProcessTreeService,
     private modelViewModeService: ModelViewModeService,
-    private variantService: VariantService
+    private variantService: VariantService,
   ) {
     this.mainSvgGroup = d3.select(elRef.nativeElement);
   }
@@ -200,7 +200,7 @@ export class ProcessTreeDrawerDirective {
           d.x -
           Math.max(
             PT_Constant.BASE_HEIGHT_WIDTH,
-            this.nextSibling.getComputedTextLength() + 10
+            this.nextSibling.getComputedTextLength() + 10,
           ) /
             2
         );
@@ -208,7 +208,7 @@ export class ProcessTreeDrawerDirective {
       .attr('width', function () {
         return Math.max(
           PT_Constant.BASE_HEIGHT_WIDTH,
-          this.nextSibling.getComputedTextLength() + 10
+          this.nextSibling.getComputedTextLength() + 10,
         );
       });
 

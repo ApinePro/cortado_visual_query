@@ -3,7 +3,7 @@ import { EditorOptions } from '../../variant-explorer/variant-query/variant-quer
 
 export function generateVQLTheme(
   colorMap: Map<string, string>,
-  options: EditorOptions
+  options: EditorOptions,
 ): Monaco.editor.IStandaloneThemeData {
   const activityTokens = [];
   if (options.highlightActivityNames) {

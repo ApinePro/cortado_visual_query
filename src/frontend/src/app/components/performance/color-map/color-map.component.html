@@ -30,7 +30,7 @@
         {{ prefixes[i] }}
         {{
           timeBasedLabel
-            ? (e.lowerBound | humanizeDuration : false : true : 3 : true)
+            ? (e.lowerBound | humanizeDuration: false : true : 3 : true)
             : e.lowerBound
         }}{{ suffix }}
       </div>
@@ -41,7 +41,7 @@
           {{
             timeBasedLabel
               ? (colorMapValues[i + 1].lowerBound
-                | humanizeDuration : false : true : 3 : true)
+                | humanizeDuration: false : true : 3 : true)
               : colorMapValues[i + 1].lowerBound
           }}{{ suffix }}
         </div>
@@ -58,7 +58,7 @@
         {{ prefixes[i] }}
         {{
           timeBasedLabel
-            ? (e.lowerBound | humanizeDuration : false : true : 3 : true)
+            ? (e.lowerBound | humanizeDuration: false : true : 3 : true)
             : e.lowerBound
         }}{{ suffix }}
       </div>
@@ -75,7 +75,7 @@
         {{
           timeBasedLabel
             ? (colorMapValues[i + 1].lowerBound
-              | humanizeDuration : false : true : 3 : true)
+              | humanizeDuration: false : true : 3 : true)
             : colorMapValues[i + 1].lowerBound
         }}{{ suffix }}
       </div>

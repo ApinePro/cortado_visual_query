@@ -4,7 +4,7 @@ import * as objectHash from 'object-hash';
 
 export function compute_delete_activity_variants(
   activityName: string,
-  cur_variants: Variant[]
+  cur_variants: Variant[],
 ): [Variant[], any[], any[], any[], any[]] {
   const fallthrough = [];
   const updateMap: Map<string, Variant[]> = new Map<string, Variant[]>();
@@ -58,7 +58,7 @@ export function compute_delete_activity_variants(
       merge_list.push(
         updateMap.get(change).map((v) => {
           return v.bid;
-        })
+        }),
       );
     }
   }
@@ -95,7 +95,7 @@ export function apply_update_map(updateMap: Map<string, Variant[]>): Variant[] {
         false,
         true,
         0,
-        InfixType.NOT_AN_INFIX
+        InfixType.NOT_AN_INFIX,
       );
       variant.bid = Math.min(...bids);
       variant.id = objectHash(ls[0].variant);
@@ -112,7 +112,7 @@ export function apply_update_map(updateMap: Map<string, Variant[]>): Variant[] {
 export function compute_rename_activity_variants(
   activityName: string,
   newActivityName: string,
-  cur_variants: Variant[]
+  cur_variants: Variant[],
 ): [Variant[], any[], any[], Map<string, Variant[]>] {
   const updateMap: Map<string, Variant[]> = new Map<string, Variant[]>();
   const changedStrings: Set<string> = new Set<string>();
@@ -151,7 +151,7 @@ export function compute_rename_activity_variants(
       merge_list.push(
         updateMap.get(change).map((v) => {
           return v.bid;
-        })
+        }),
       );
     }
   }

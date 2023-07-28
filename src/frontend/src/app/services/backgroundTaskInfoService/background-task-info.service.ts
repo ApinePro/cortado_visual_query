@@ -11,19 +11,19 @@ export class BackgroundTaskInfoService {
   activeRequests = new Map<number, BackgroundTask>();
 
   private currentBackgroundTask = new BehaviorSubject<BackgroundTask>(
-    undefined
+    undefined,
   );
 
   private numberBackgroundTask = new BehaviorSubject<number>(0);
 
   public setRequest(
     description: string,
-    cancellationFunc: Function = null
+    cancellationFunc: Function = null,
   ): number {
     const id = Math.random();
     this.activeRequests.set(
       id,
-      new BackgroundTask(description, cancellationFunc)
+      new BackgroundTask(description, cancellationFunc),
     );
     this.currentBackgroundTask.next(this.activeRequests.values().next().value);
     this.numberBackgroundTask.next(this.numberBackgroundTask.getValue() + 1);

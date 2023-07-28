@@ -49,7 +49,7 @@ export class VariantMinerPatternComponent implements AfterViewInit {
       this.rootElement,
       (isIntersecting) => {
         self.isVisible = isIntersecting;
-      }
+      },
     );
   }
 

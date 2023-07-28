@@ -9,7 +9,7 @@ import { Observable } from 'rxjs/internal/Observable';
 export class VariantFilterService {
   private _variantFilters: BehaviorSubject<Map<string, VariantFilter>> =
     new BehaviorSubject<Map<string, VariantFilter>>(
-      new Map<string, VariantFilter>()
+      new Map<string, VariantFilter>(),
     );
 
   get variantFilters$(): Observable<Map<string, VariantFilter>> {

@@ -38,7 +38,7 @@ export class ActivityOverviewComponent
     private container: ComponentContainer,
     elRef: ElementRef,
     renderer: Renderer2,
-    private variantPerformanceService: VariantPerformanceService
+    private variantPerformanceService: VariantPerformanceService,
   ) {
     super(elRef.nativeElement, renderer);
     const state = this.container.initialState;
@@ -67,7 +67,7 @@ export class ActivityOverviewComponent
       '.xes',
       'false',
       'false',
-      '<large> Import <strong>Event Log</strong> .xes file</large>'
+      '<large> Import <strong>Event Log</strong> .xes file</large>',
     );
 
     this.activityFields = [];
@@ -77,7 +77,7 @@ export class ActivityOverviewComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe((eventLogName) => {
         console.log(
-          'new loadedEventLog$ in activity-overview.component:' + eventLogName
+          'new loadedEventLog$ in activity-overview.component:' + eventLogName,
         );
 
         this.resetActivityFields();
@@ -99,7 +99,7 @@ export class ActivityOverviewComponent
         if (this.activityFields) {
           for (let activityField of this.activityFields) {
             activityField.color = this.activityColorMap.get(
-              activityField.activityName
+              activityField.activityName,
             );
           }
         }
@@ -142,8 +142,8 @@ export class ActivityOverviewComponent
           this.activityColorMap.get(activity),
           this.activitiesInTree.has(activity),
           this.startActivities.has(activity),
-          this.endActivities.has(activity)
-        )
+          this.endActivities.has(activity),
+        ),
       );
     }
   }
@@ -156,14 +156,14 @@ export class ActivityOverviewComponent
     left: number,
     top: number,
     width: number,
-    height: number
+    height: number,
   ): void {}
 
   handleVisibilityChange(visibility: boolean): void {}
 
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
-    defaultZIndex: string
+    defaultZIndex: string,
   ): void {}
 
   toggleSort(sortKey: string) {
@@ -187,14 +187,14 @@ export class ActivityOverviewComponent
       activityField.color = color;
       this.colorMapService.changeActivityColor(
         activityField.activityName,
-        color
+        color,
       );
     }
   }
 
   resetActivityColors(): void {
     this.colorMapService.createColorMap(
-      Array.from(this.activityColorMap.keys())
+      Array.from(this.activityColorMap.keys()),
     );
   }
 
@@ -209,7 +209,7 @@ export class ActivityOverviewComponent
   // TODO: refactor this to shared data service
   applyActivityNameChanges(
     oldActivityName: string,
-    newActivityName: string
+    newActivityName: string,
   ): void {
     if (oldActivityName !== newActivityName) {
       this.variantService
@@ -242,7 +242,7 @@ export class ActivityField {
     color: string,
     inModel: boolean,
     isStart: boolean,
-    isEnd: boolean
+    isEnd: boolean,
   ) {
     this.activityName = activityName;
     this.occurences = occurences;

@@ -1,4 +1,4 @@
-.activity-button-area{
+.activity-button-area {
   color: var(--text-secondary);
   width: 100%;
   max-height: fit-content;
@@ -17,11 +17,11 @@
   border-bottom: var(--thin-border-color) 1px solid;
 }
 
-.header-first-col{
+.header-first-col {
   margin-left: 4px;
 }
 
-.activity-button-area-1{
+.activity-button-area-1 {
   width: 100%;
   color: var(--text-secondary);
   padding-top: 10px;
@@ -30,7 +30,7 @@
   border-bottom: var(--thin-border-color) 1px solid;
 }
 
-.activity-label{
+.activity-label {
   font-size: smaller;
   padding: 0px 2px 0px 2px;
   margin: 0px 4px 0px 2px;
@@ -41,9 +41,9 @@
   position: relative;
 }
 
-.filter-checkbox{
+.filter-checkbox {
   margin-left: 8px;
-  cursor : pointer;
+  cursor: pointer;
 }
 
 .filter-toggle {
@@ -52,5 +52,5 @@
 }
 
 .form-check-input {
-  cursor : pointer;
+  cursor: pointer;
 }

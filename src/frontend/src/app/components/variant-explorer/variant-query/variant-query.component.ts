@@ -60,7 +60,7 @@ export class VariantQueryComponent
 
   activityNameRegEx = new RegExp(
     this.apostropheString + "([^']*)" + this.apostropheString,
-    'g'
+    'g',
   );
 
   activityColorMap: Map<string, string>;
@@ -81,7 +81,7 @@ export class VariantQueryComponent
     private backendService: BackendService,
     private variantFilterService: VariantFilterService,
     private editorService: EditorService,
-    private variantService: VariantService
+    private variantService: VariantService,
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -146,7 +146,7 @@ export class VariantQueryComponent
           this.variantFilterService.addVariantFilter(
             'query filter',
             new Set(res.ids as Array<number>),
-            this.variantQuery.value
+            this.variantQuery.value,
           );
         } else {
           this.variantQuery.setErrors({ backendError: res.error });
@@ -189,7 +189,7 @@ export class VariantQueryComponent
       true,
       true,
       null,
-      true
+      true,
     )) {
       model.applyEdits([{ range: match.range, text: "'" + newName + "'" }]);
     }
@@ -205,7 +205,7 @@ export class VariantQueryComponent
       true,
       true,
       null,
-      true
+      true,
     )) {
       if (!this.activites.has(match.matches[1])) {
         const actvityRange = match.range;
@@ -230,7 +230,7 @@ export class VariantQueryComponent
       true,
       true,
       null,
-      true
+      true,
     );
 
     if (semicolon_matches.length > 1) {
@@ -250,7 +250,7 @@ export class VariantQueryComponent
       const semicolonRange = semicolon_matches[0].range;
 
       const firstWhiteSpace = model.getLineLastNonWhitespaceColumn(
-        semicolonRange.endLineNumber
+        semicolonRange.endLineNumber,
       );
 
       if (firstWhiteSpace !== semicolonRange.startColumn + 1) {

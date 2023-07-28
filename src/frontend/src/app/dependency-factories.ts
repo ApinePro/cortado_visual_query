@@ -9,7 +9,7 @@ export function electronServiceFactory(): ElectronInterface {
     return new ElectronService();
   } else {
     console.error(
-      'Cannot provide normal ElectronService when running in browser. Instead providing dummy with limited functionallity'
+      'Cannot provide normal ElectronService when running in browser. Instead providing dummy with limited functionallity',
     );
     return new ElectronDummyService();
   }

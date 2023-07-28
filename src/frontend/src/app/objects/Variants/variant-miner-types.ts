@@ -111,7 +111,7 @@ export class SubvariantPattern {
     valid: boolean,
     closed: boolean,
     infixType: InfixType,
-    bids: Set<number>
+    bids: Set<number>,
   ) {
     this.id = id;
     this.size = size;

@@ -16,7 +16,7 @@ export class StrFilterPipe implements PipeTransform {
         return item
           .toLocaleLowerCase()
           .includes(searchText.toLocaleLowerCase());
-      })
+      }),
     );
   }
 }

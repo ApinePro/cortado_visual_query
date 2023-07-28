@@ -74,7 +74,7 @@ export class ProcessTreeEditorComponent
     private renderer: Renderer2,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
-    elRef: ElementRef
+    elRef: ElementRef,
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -167,7 +167,7 @@ export class ProcessTreeEditorComponent
       '.ptml',
       'false',
       'false',
-      '<large> Import <strong>Process Tree</strong> .ptml file</large>'
+      '<large> Import <strong>Process Tree</strong> .ptml file</large>',
     );
 
     this.processTreeService.treeCacheIndex$
@@ -304,7 +304,7 @@ export class ProcessTreeEditorComponent
     left: number,
     top: number,
     width: number,
-    height: number
+    height: number,
   ): void {
     this.collapse = width < 970;
 
@@ -321,7 +321,7 @@ export class ProcessTreeEditorComponent
 
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
-    defaultZIndex: string
+    defaultZIndex: string,
   ): void {}
 
   insertNewNodeButtonDisabled(): boolean {
@@ -389,7 +389,7 @@ export class ProcessTreeEditorComponent
   centerTree(): void {
     this.mainSvgGroup.attr(
       'transform',
-      `translate(${this.processTreeOriginX}, ${this.processTreeOriginY})`
+      `translate(${this.processTreeOriginX}, ${this.processTreeOriginY})`,
     );
   }
 
@@ -403,7 +403,7 @@ export class ProcessTreeEditorComponent
       this.selectedRootNode?.data,
       this.nodeInsertionStrategy,
       operator,
-      label
+      label,
     );
     this.afterInsertNode();
   }
@@ -435,7 +435,7 @@ export class ProcessTreeEditorComponent
             : d.data.conformance?.weighted_equally.value;
         if (conformanceValue === 0) return 'url(#modelConformanceStriped)';
         return this.conformanceCheckingService.modelConformanceColorMap.getColor(
-          conformanceValue
+          conformanceValue,
         );
       case ViewMode.PERFORMANCE:
         if (d.data.label !== ProcessTreeOperator.tau) {
@@ -457,7 +457,7 @@ export class ProcessTreeEditorComponent
                 .getColor(
                   d.data.performance[this.selectedPerformanceIndicator][
                     this.selectedStatistic
-                  ]
+                  ],
                 );
           } else {
             return '#404040';
@@ -495,7 +495,7 @@ export class ProcessTreeEditorComponent
         getPerformanceTable(
           d.data.performance,
           this.selectedPerformanceIndicator,
-          this.selectedStatistic
+          this.selectedStatistic,
         );
     } else if (
       this.modelViewModeService.viewMode === ViewMode.CONFORMANCE &&
@@ -512,7 +512,7 @@ export class ProcessTreeEditorComponent
         `<tr>
             <td>Equally</td>
             <td>${(d.data.conformance?.weighted_equally.value * 100).toFixed(
-              2
+              2,
             )}%</td>
             <td>${d.data.conformance?.weighted_equally.weight}</td>
         </tr>` +
@@ -520,7 +520,7 @@ export class ProcessTreeEditorComponent
           ? `<tr>
             <td>By Log Frequency</td>
             <td>${(d.data.conformance?.weighted_by_counts?.value * 100).toFixed(
-              2
+              2,
             )}%</td>
             <td>${d.data.conformance?.weighted_by_counts?.weight}</td>
         </tr>`
@@ -566,8 +566,8 @@ export class ProcessTreeEditorComponent
         'transform',
         event.transform.translate(
           this.processTreeOriginX,
-          this.processTreeOriginY
-        )
+          this.processTreeOriginY,
+        ),
       );
     }.bind(this);
 
@@ -583,7 +583,7 @@ export class ProcessTreeEditorComponent
           .duration(250)
           .ease(d3.easeExpInOut)
           .call(zoom.transform, d3.zoomIdentity.translate(0, 0));
-      }.bind(this)
+      }.bind(this),
     );
   }
 
@@ -638,7 +638,7 @@ export class ProcessTreeEditorComponent
     d.children.forEach((c) => {
       this.selectAllChildren(
         this.mainSvgGroup.select('[id="' + c.data.id + '"]').node(),
-        c
+        c,
       );
     });
   };
@@ -690,7 +690,7 @@ export class ProcessTreeEditorComponent
   toggleBPMNEditor() {
     this.goldenLayoutComponentService.createBPMNSplitViewWindow(
       ProcessTreeEditorComponent.componentName,
-      BpmnEditorComponent.componentName
+      BpmnEditorComponent.componentName,
     );
   }
 
@@ -757,7 +757,7 @@ export class ProcessTreeEditorComponent
       'process_tree',
       svgBBox.width + 2 * PT_Constant.EXPORT_OFFSET,
       svgBBox.height + PT_Constant.EXPORT_OFFSET,
-      tree_copy
+      tree_copy,
     );
   }
 

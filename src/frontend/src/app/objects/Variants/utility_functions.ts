@@ -5,7 +5,7 @@ import {
 
 export function findPathToSelectedNode(
   start: VariantElement,
-  end
+  end,
 ): Array<VariantElement> {
   const path = searchPath(start, end);
 

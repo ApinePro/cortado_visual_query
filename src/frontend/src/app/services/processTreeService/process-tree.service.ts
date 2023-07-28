@@ -35,7 +35,7 @@ export class ProcessTreeService {
     this.logService.activitiesInEventLog$.subscribe((activites) => {
       this.nodeWidthCache = computeLeafNodeWidth(
         Object.keys(activites),
-        this.nodeWidthCache
+        this.nodeWidthCache,
       );
     });
 
@@ -43,7 +43,7 @@ export class ProcessTreeService {
       if (log && log !== 'preload') {
         this.nodeWidthCache = computeLeafNodeWidth(
           Object.keys(this.logService.activitiesInEventLog),
-          this.nodeWidthCache
+          this.nodeWidthCache,
         );
       }
     });
@@ -64,7 +64,7 @@ export class ProcessTreeService {
   }
 
   private _nodeWidthCache = new BehaviorSubject<Map<string, number>>(
-    new Map<string, number>()
+    new Map<string, number>(),
   );
 
   get nodeWidthCache$(): Observable<Map<string, number>> {
@@ -133,7 +133,7 @@ export class ProcessTreeService {
   }
 
   private _activitiesInCurrentTree = new BehaviorSubject<Set<string>>(
-    new Set<string>()
+    new Set<string>(),
   );
 
   public deleteActivityFromProcessTreeActivities(activityName: string): any {
@@ -144,7 +144,7 @@ export class ProcessTreeService {
 
   public renameActivityInProcessTree(
     activityName: string,
-    newActivityName: string
+    newActivityName: string,
   ): any {
     if (
       this.activitiesInCurrentTree &&
@@ -156,7 +156,7 @@ export class ProcessTreeService {
       this.currentDisplayedProcessTree = renameProcessTreeLeafs(
         this.currentDisplayedProcessTree,
         activityName,
-        newActivityName
+        newActivityName,
       );
     }
   }
@@ -183,11 +183,11 @@ export class ProcessTreeService {
 
     if (checkForLoadedTreeIntegrity(tree, activites).size > 0) {
       const unknownActivities = Array.from(
-        checkForLoadedTreeIntegrity(tree, activites)
+        checkForLoadedTreeIntegrity(tree, activites),
       );
       this.nodeWidthCache = computeLeafNodeWidth(
         unknownActivities,
-        this.nodeWidthCache
+        this.nodeWidthCache,
       );
 
       Swal.fire({
@@ -222,7 +222,7 @@ export class ProcessTreeService {
     // add activities in the tree to nodeWidthCache in processTreeService
     this.nodeWidthCache = computeLeafNodeWidth(
       Array.from(this.activitiesInCurrentTree),
-      this.nodeWidthCache
+      this.nodeWidthCache,
     );
 
     this.cacheCurrentTree(tree);
@@ -264,7 +264,7 @@ export class ProcessTreeService {
       // before change, undo was pressed --> remove newer versions since older version of process tree was changed
       this.previousTreeObjects = this.previousTreeObjects.slice(
         0,
-        this.treeCacheIndex + 1
+        this.treeCacheIndex + 1,
       );
     }
 
@@ -384,7 +384,7 @@ export class ProcessTreeService {
       this.set_currentDisplayedProcessTree_with_Cache(null);
     } else {
       this.set_currentDisplayedProcessTree_with_Cache(
-        delete_subtree(newTree, tree_to_delete)
+        delete_subtree(newTree, tree_to_delete),
       );
     }
 
@@ -395,7 +395,7 @@ export class ProcessTreeService {
     selectedNode: ProcessTree,
     strat: NodeInsertionStrategy,
     operator: ProcessTreeOperator,
-    label: string
+    label: string,
   ) {
     const newNode: ProcessTree = createNewRandomNode(label, operator);
 
@@ -407,7 +407,7 @@ export class ProcessTreeService {
       }
       this.selectedRootNodeID = selectedNode.id;
       this.set_currentDisplayedProcessTree_with_Cache(
-        this.currentDisplayedProcessTree
+        this.currentDisplayedProcessTree,
       );
     } else {
       // empty tree - just add a single node

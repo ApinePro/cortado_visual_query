@@ -22,7 +22,7 @@ export class VariantExplorerSidebarComponent implements OnInit, OnDestroy {
   constructor(
     public variantViewModeService: VariantViewModeService,
     private variantPerformanceService: VariantPerformanceService,
-    public variantService: VariantService
+    public variantService: VariantService,
   ) {}
 
   ngOnInit(): void {

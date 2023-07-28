@@ -9,13 +9,13 @@ export interface ElectronInterface {
     fileExtension: string,
     blob: Blob,
     buttonLabel: string,
-    title: string
+    title: string,
   ): Promise<string>;
 
   saveToUserFolder(
     fileName: string,
     fileExtension: string,
-    data: string
+    data: string,
   ): Promise<undefined>;
 
   readFromUserFolder(fileName: string, fileExtension: string): Promise<string>;

@@ -13,11 +13,11 @@ export class ElectronService implements ElectronInterface {
 
   constructor() {
     this.electronApi?.onCheckUnsavedChanges((event, value) =>
-      this.checkUnsavedChanges$.next(event.sender)
+      this.checkUnsavedChanges$.next(event.sender),
     );
 
     this.electronApi?.onSaveProject((event, value) =>
-      this.saveProject$.next(event.sender)
+      this.saveProject$.next(event.sender),
     );
   }
 
@@ -26,7 +26,7 @@ export class ElectronService implements ElectronInterface {
     fileExtension: string,
     blob: Blob,
     buttonLabel: string,
-    title: string
+    title: string,
   ): Promise<string> {
     let base64File = await blobToBase64(blob);
 
@@ -36,21 +36,21 @@ export class ElectronService implements ElectronInterface {
       fileExtension,
       base64File,
       buttonLabel,
-      title
+      title,
     );
   }
 
   public saveToUserFolder(
     fileName: string,
     fileExtension: string,
-    data: string
+    data: string,
   ): Promise<undefined> {
     return this.electronApi.saveToUserFolder(fileName, fileExtension, data);
   }
 
   public readFromUserFolder(
     fileName: string,
-    fileExtension: string
+    fileExtension: string,
   ): Promise<string> {
     return this.electronApi.readFromUserFolder(fileName, fileExtension);
   }

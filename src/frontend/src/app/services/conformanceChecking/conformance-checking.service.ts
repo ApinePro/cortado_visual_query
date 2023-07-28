@@ -38,7 +38,7 @@ export class ConformanceCheckingService {
     private variantService: VariantService,
     private processTreeService: ProcessTreeService,
     private backendService: BackendService,
-    private modelViewModeService: ModelViewModeService
+    private modelViewModeService: ModelViewModeService,
   ) {
     this.processTreeService.currentDisplayedProcessTree$.subscribe((pt) => {
       if (!processTreesEqual(pt, this.usedProcessTreeForTreeConformance)) {
@@ -59,9 +59,9 @@ export class ConformanceCheckingService {
     d3
       .scaleThreshold<any, any>()
       .domain(
-        COLORS_PURPLE.map((value, index) => index / (COLORS_PURPLE.length - 1))
+        COLORS_PURPLE.map((value, index) => index / (COLORS_PURPLE.length - 1)),
       )
-      .range(['#d3d3d3', ...COLORS_PURPLE])
+      .range(['#d3d3d3', ...COLORS_PURPLE]),
   );
   public readonly modelConformanceStripeColors = [
     COLORS_PURPLE[0],
@@ -72,9 +72,9 @@ export class ConformanceCheckingService {
     d3
       .scaleThreshold<any, any>()
       .domain(
-        COLORS_BLUE.map((value, index) => index / (COLORS_BLUE.length - 1))
+        COLORS_BLUE.map((value, index) => index / (COLORS_BLUE.length - 1)),
       )
-      .range(['#d3d3d3', ...COLORS_BLUE])
+      .range(['#d3d3d3', ...COLORS_BLUE]),
   );
   public readonly variantConformanceStripeColors = [
     COLORS_BLUE[0],
@@ -115,12 +115,12 @@ export class ConformanceCheckingService {
   public connect(): boolean {
     if (!this.socket || this.socket.closed) {
       this.socket = webSocket(
-        ROUTES.WS_HTTP_BASE_URL + ROUTES.VARIANT_CONFORMANCE + 'conformancews'
+        ROUTES.WS_HTTP_BASE_URL + ROUTES.VARIANT_CONFORMANCE + 'conformancews',
       );
       const results = this.socket.pipe(
         catchError((error) => {
           this.runningRequests.forEach((r: number) =>
-            this.infoService.removeRequest(r)
+            this.infoService.removeRequest(r),
           );
           this.runningRequests = [];
           this.socket = null;
@@ -154,13 +154,13 @@ export class ConformanceCheckingService {
             result['cost'],
             result['deviations'],
             result['alignment'],
-            result['pt']
+            result['pt'],
           );
-        })
+        }),
       );
       [this.varResults, this.patternResults] = partition(
         results,
-        (ccr: ConformanceCheckingResult) => ccr.type === 1 || 'error' in ccr
+        (ccr: ConformanceCheckingResult) => ccr.type === 1 || 'error' in ccr,
       );
 
       return true;
@@ -175,11 +175,11 @@ export class ConformanceCheckingService {
     pt: ProcessTree,
     variant: any,
     timeout: number,
-    alignType: AlignmentType
+    alignType: AlignmentType,
   ): boolean {
     const resubscribe = this.connect();
     const rid = this.infoService.setRequest('conformance checking', () =>
-      this.cancelConformanceCheckingRequests()
+      this.cancelConformanceCheckingRequests(),
     );
     this.runningRequests.push(rid);
     this.socket.next({
@@ -197,7 +197,7 @@ export class ConformanceCheckingService {
   private cancelConformanceCheckingRequests(): void {
     this.socket.next({ isCancellationRequested: true });
     this.runningRequests.forEach((r: number) =>
-      this.infoService.removeRequest(r)
+      this.infoService.removeRequest(r),
     );
     this.runningRequests = [];
     this.variantService.variants.forEach((v) => {
@@ -279,7 +279,10 @@ export class ConformanceCheckingService {
     ) {
       this.calculationInProgress.add(variant);
       const variantsCombined: Variant[] = Array.from(
-        new Set([...this.activeTreeConformances, ...this.calculationInProgress])
+        new Set([
+          ...this.activeTreeConformances,
+          ...this.calculationInProgress,
+        ]),
       );
       this.updateTreeConformance(Array.from(variantsCombined));
     } else {
@@ -297,7 +300,7 @@ export class ConformanceCheckingService {
           new Set([
             ...this.activeTreeConformances,
             ...this.calculationInProgress,
-          ])
+          ]),
         );
         this.updateTreeConformance(Array.from(variantsCombined));
       }

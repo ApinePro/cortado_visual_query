@@ -3,13 +3,13 @@ import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 export function renameProcessTreeLeafs(
   tree: ProcessTree,
   activityName: string,
-  newActivityName: string
+  newActivityName: string,
 ): ProcessTree {
   if (tree.label && tree.label === activityName) {
     tree.label = newActivityName;
   } else {
     tree.children.forEach((c) =>
-      renameProcessTreeLeafs(c, activityName, newActivityName)
+      renameProcessTreeLeafs(c, activityName, newActivityName),
     );
   }
 
@@ -17,7 +17,7 @@ export function renameProcessTreeLeafs(
 }
 
 export function getSetOfActivitiesInProcessTree(
-  tree: ProcessTree
+  tree: ProcessTree,
 ): Set<string> {
   if (tree) {
     let res: Set<string> = new Set();

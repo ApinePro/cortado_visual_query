@@ -82,7 +82,7 @@ export class SubvariantExplorerComponent
     public variantPerformanceService: VariantPerformanceService,
     public variantViewModeService: VariantViewModeService,
     private conformanceCheckingService: ConformanceCheckingService,
-    private processTreeService: ProcessTreeService
+    private processTreeService: ProcessTreeService,
   ) {
     super(elRef.nativeElement, renderer);
     let state = this.container.initialState;
@@ -169,7 +169,7 @@ export class SubvariantExplorerComponent
     left: number,
     top: number,
     width: number,
-    height: number
+    height: number,
   ): void {}
 
   handleVisibilityChange(visibility: boolean): void {
@@ -180,7 +180,7 @@ export class SubvariantExplorerComponent
   }
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
-    defaultZIndex: string
+    defaultZIndex: string,
   ): void {}
 
   public setIndex(index: number) {
@@ -208,7 +208,7 @@ export class SubvariantExplorerComponent
   variantClickCallBack = (
     drawer: VariantDrawerDirective,
     element: VariantElement,
-    variant: VariantElement
+    variant: VariantElement,
   ) => {
     this.toggleExpanded();
     if (this.variantViewModeService.viewMode === ViewMode.PERFORMANCE) {
@@ -217,13 +217,13 @@ export class SubvariantExplorerComponent
       if (element.serviceTime) {
         this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
           element.serviceTime,
-          true
+          true,
         );
       }
       if (element.waitingTime) {
         this.variantPerformanceService.setPerformanceStatsSelectedVariantElement(
           element.waitingTime,
-          false
+          false,
         );
       }
     }
@@ -263,14 +263,14 @@ export class SubvariantExplorerComponent
     this.svgRenderingInProgress = true;
 
     let mainVarDrawer = this.mainvariantDrawers.filter(
-      (v) => v.variant == this.mainVariant
+      (v) => v.variant == this.mainVariant,
     )[0];
     // Add the main variant to the SVG array
     const mainVariantSVG = this.addVariantExportInformation(
       mainVarDrawer.getSVGGraphicElement(),
       100,
       100,
-      true
+      true,
     );
     svgs.push(mainVariantSVG);
 
@@ -279,7 +279,7 @@ export class SubvariantExplorerComponent
 
     // Insert the subvariants svg to the array
     this.subVariantComponents.forEach((svc) =>
-      svgs.push(svc.svgElement.nativeElement)
+      svgs.push(svc.svgElement.nativeElement),
     );
 
     // Prepare frequency informations of the subvariants
@@ -297,7 +297,7 @@ export class SubvariantExplorerComponent
         svgs[i],
         counts[i - 1],
         percentages[i - 1],
-        false
+        false,
       );
     }
 
@@ -311,7 +311,7 @@ export class SubvariantExplorerComponent
       leafnodes,
       legend,
       this.colorMap,
-      'Subvariants'
+      'Subvariants',
     );
     svgs.unshift(legend.node());
 
@@ -320,7 +320,7 @@ export class SubvariantExplorerComponent
       `subvariants-for-${this.mainVariant.bid}`,
       0,
       0,
-      ...svgs
+      ...svgs,
     );
 
     // Reset everything back to normal
@@ -337,7 +337,7 @@ export class SubvariantExplorerComponent
     svgElement: any,
     variantAbs: number,
     variantPerc: number,
-    mainVariant: boolean = false
+    mainVariant: boolean = false,
   ): SVGGraphicsElement {
     const exportMarginX: number = 80;
     const exportMarginY: number = 15;
@@ -347,11 +347,11 @@ export class SubvariantExplorerComponent
     // Shift all Elements to the right using transform chaining
     svgElement_copy.setAttribute(
       'width',
-      (svgElement.clientWidth + exportMarginX).toString()
+      (svgElement.clientWidth + exportMarginX).toString(),
     );
     svgElement_copy.setAttribute(
       'height',
-      (svgElement.clientHeight + exportMarginY).toString()
+      (svgElement.clientHeight + exportMarginY).toString(),
     );
 
     d3.select(svgElement_copy)
@@ -361,7 +361,7 @@ export class SubvariantExplorerComponent
           'transform',
           (this.getAttribute('transform')
             ? this.getAttribute('transform') + ','
-            : '') + `translate(${exportMarginX}, 0)`
+            : '') + `translate(${exportMarginX}, 0)`,
         );
       });
 
@@ -371,7 +371,7 @@ export class SubvariantExplorerComponent
       .append('text')
       .attr(
         'transform',
-        `translate(20, ${(svgElement.clientHeight - 25) / 2 + 10})`
+        `translate(20, ${(svgElement.clientHeight - 25) / 2 + 10})`,
       )
       .attr('height', 20)
       .attr('width', 50)
@@ -427,7 +427,7 @@ export class SubvariantExplorerComponent
     if (variant.isTimeouted) {
       this.conformanceCheckingService.showConformanceTimeoutDialog(
         variant,
-        this.updateConformanceForVariant.bind(this)
+        this.updateConformanceForVariant.bind(this),
       );
     } else {
       this.updateConformanceForVariant(variant, 0);
@@ -452,7 +452,7 @@ export class SubvariantExplorerComponent
         this.processTreeService.currentDisplayedProcessTree,
         v.variant.serialize(1),
         timeout,
-        AlignmentType.VariantAlignment
+        AlignmentType.VariantAlignment,
       );
     });
   }

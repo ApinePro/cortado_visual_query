@@ -128,7 +128,7 @@ export class VariantExplorerComponent
     public variantViewModeService: VariantViewModeService,
     private toastService: ToastService,
     private modalService: NgbModal,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
   ) {
     super(elRef.nativeElement, renderer);
   }
@@ -243,7 +243,7 @@ export class VariantExplorerComponent
       '.xes',
       'false',
       'false',
-      '<large> Import <strong>Event Log</strong> .xes file</large>'
+      '<large> Import <strong>Event Log</strong> .xes file</large>',
     );
 
     // initialize variables and initial variants
@@ -275,7 +275,7 @@ export class VariantExplorerComponent
   ngAfterViewInit() {
     this.polygonDrawingService.setElementRefereneces(
       this.variantExplorerContainer,
-      this.tooltipContainer
+      this.tooltipContainer,
     );
 
     this._goldenLayoutHostComponent =
@@ -283,7 +283,7 @@ export class VariantExplorerComponent
     this._goldenLayout = this.goldenLayoutComponentService.goldenLayout;
 
     const variantExplorerItem = this._goldenLayout.findFirstComponentItemById(
-      VariantExplorerComponent.componentName
+      VariantExplorerComponent.componentName,
     );
 
     variantExplorerItem.focus();
@@ -358,9 +358,9 @@ export class VariantExplorerComponent
       .pipe(
         mergeMap(() =>
           // Time granularity is null because the granularity is determined in the backend
-          this.backendService.getLogPropsAndUpdateState(null, 'preload')
+          this.backendService.getLogPropsAndUpdateState(null, 'preload'),
         ),
-        takeUntil(this._destroy$)
+        takeUntil(this._destroy$),
       )
       .subscribe((val) => {
         this.selectedGranularity = val.timeGranularity;
@@ -372,8 +372,9 @@ export class VariantExplorerComponent
       .pipe(
         takeUntil(this._destroy$),
         filter(
-          (tree) => !processTreesEqual(tree, this.currentlyDisplayedProcessTree)
-        )
+          (tree) =>
+            !processTreesEqual(tree, this.currentlyDisplayedProcessTree),
+        ),
       )
       .subscribe((tree) => {
         this.currentlyDisplayedProcessTree = tree?.copy();
@@ -382,7 +383,7 @@ export class VariantExplorerComponent
           if (variant.usedTreeForConformanceChecking)
             variant.isConformanceOutdated = !processTreesEqual(
               tree,
-              variant.usedTreeForConformanceChecking
+              variant.usedTreeForConformanceChecking,
             );
         });
         this.redraw_components();
@@ -422,7 +423,7 @@ export class VariantExplorerComponent
           this.variantViewModeService.viewMode = ViewMode.STANDARD;
           this.variantService.areVariantLoopsCollapsed = false;
           this.variantService.clusteringConfig = null; // reset applied clustering
-        })
+        }),
       )
       .pipe(takeUntil(this._destroy$))
       .subscribe();
@@ -476,7 +477,7 @@ export class VariantExplorerComponent
 
           this.updateAlignmentStatistics();
           this.redraw_components();
-        }
+        },
       );
   }
 
@@ -500,7 +501,7 @@ export class VariantExplorerComponent
 
     this.logService.update_log_stats(
       numberFittingTraces,
-      numberFittingVariants
+      numberFittingVariants,
     );
   }
 
@@ -522,7 +523,7 @@ export class VariantExplorerComponent
         this.processTreeService.currentDisplayedProcessTree,
         v.variant.serialize(1),
         timeout,
-        AlignmentType.VariantAlignment
+        AlignmentType.VariantAlignment,
       );
 
       if (resubscribe) {
@@ -535,7 +536,7 @@ export class VariantExplorerComponent
     if (variant.isTimeouted) {
       this.conformanceCheckingService.showConformanceTimeoutDialog(
         variant,
-        this.updateConformanceForVariant.bind(this)
+        this.updateConformanceForVariant.bind(this),
       );
     } else {
       this.updateConformanceForVariant(variant, 0);
@@ -563,7 +564,7 @@ export class VariantExplorerComponent
       return colorScale.getColor(
         tree.performance[selectedScale.performanceIndicator][
           selectedScale.statistic
-        ]
+        ],
       );
     }
     return '#d3d3d3';
@@ -577,7 +578,7 @@ export class VariantExplorerComponent
     this.variantService.addSelectedTraceInfix(
       this.variants.filter((v) => v.bid === variant.bid)[0],
       this.sortingFeature,
-      this.isAscendingOrder
+      this.isAscendingOrder,
     );
   }
 
@@ -588,7 +589,7 @@ export class VariantExplorerComponent
       .discoverProcessModelFromConcurrencyVariants(variants)
       .pipe(takeUntil(this._destroy$))
       .subscribe((tree) =>
-        this.refreshConformanceIconsAfterModelChange(true, tree)
+        this.refreshConformanceIconsAfterModelChange(true, tree),
       );
   }
 
@@ -649,7 +650,7 @@ export class VariantExplorerComponent
     // find variant by id
     let variant = _.find(
       this.displayed_variants,
-      (variant) => variant_id === variant.id
+      (variant) => variant_id === variant.id,
     );
 
     const currently_maximized = this.maximized;
@@ -675,7 +676,7 @@ export class VariantExplorerComponent
       // Instantiate a new Subvariant Component for this variant if it did not exist or is closed
     } else {
       const variantExplorerItem = this._goldenLayout.findFirstComponentItemById(
-        VariantExplorerComponent.componentName
+        VariantExplorerComponent.componentName,
       );
 
       variantExplorerItem.focus();
@@ -750,7 +751,7 @@ export class VariantExplorerComponent
       if (
         componentItem &&
         !this._goldenLayoutHostComponent.getComponentRef(
-          componentItem.container
+          componentItem.container,
         )
       ) {
         this._subvariantcomponentItemsMap.delete(id);
@@ -775,11 +776,11 @@ export class VariantExplorerComponent
   }
 
   addSelectedVariantsToModelForOutdatedConformance(
-    selectedVariants: Variant[]
+    selectedVariants: Variant[],
   ): void {
     this.backendService
       .addConcurrencyVariantsToProcessModelForUnknownConformance(
-        selectedVariants
+        selectedVariants,
       )
       .pipe(takeUntil(this._destroy$))
       .subscribe((tree) => {
@@ -788,7 +789,7 @@ export class VariantExplorerComponent
   }
 
   addSelectedVariantsToModelForGivenConformance(
-    selectedVariants: Variant[]
+    selectedVariants: Variant[],
   ): void {
     const fittingVariants = selectedVariants
       .filter((v) => v.deviations == 0)
@@ -807,7 +808,7 @@ export class VariantExplorerComponent
 
   refreshConformanceIconsAfterModelChange(
     wasInitialDiscovery: boolean,
-    pt: ProcessTree
+    pt: ProcessTree,
   ): void {
     if (wasInitialDiscovery) {
       this.variants.forEach((v) => {
@@ -865,7 +866,7 @@ export class VariantExplorerComponent
     }
 
     const unexpandedVariantsExist = this.variants.some(
-      (v) => !v.variant.expanded
+      (v) => !v.variant.expanded,
     );
     return !unexpandedVariantsExist;
   }
@@ -892,7 +893,7 @@ export class VariantExplorerComponent
     left: number,
     top: number,
     width: number,
-    height: number
+    height: number,
   ): void {
     this.collapse = width < 875;
 
@@ -903,7 +904,7 @@ export class VariantExplorerComponent
 
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
-    defaultZIndex: string
+    defaultZIndex: string,
   ): void {
     this.maximized = logicalZIndex === 'stackMaximised';
   }
@@ -934,7 +935,7 @@ export class VariantExplorerComponent
       return colorScale.getColor(
         tree.performance[selectedScale.performanceIndicator][
           selectedScale.statistic
-        ]
+        ],
       );
     }
     return '#d3d3d3';
@@ -1031,7 +1032,7 @@ export class VariantExplorerComponent
     this.toastService.showSuccessToast(
       'Variants removed',
       infoText,
-      'bi-trash'
+      'bi-trash',
     );
   }
 
@@ -1063,7 +1064,7 @@ export class VariantExplorerComponent
       ClusteringSettingsDialogComponent,
       {
         ariaLabelledBy: 'modal-basic-title',
-      }
+      },
     );
 
     clusteringModel.componentInstance.numberOfVariants = this.variants.length;
@@ -1078,7 +1079,7 @@ export class VariantExplorerComponent
 
   sortAllClusters(sortingFeature: string) {
     const numOfClusters = Math.max(
-      ...this.displayed_variants.map((o) => o.clusterId)
+      ...this.displayed_variants.map((o) => o.clusterId),
     );
 
     for (let i = 0; i <= numOfClusters; i++) {

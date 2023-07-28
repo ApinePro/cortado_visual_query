@@ -32,13 +32,13 @@ export class ColorMapComponent {
     backgroundColor = this.stripeBackgroundColor,
     stripeColor = this.stripeColor,
     stripeSpacing = 3,
-    stripeThickness = 2
+    stripeThickness = 2,
   ) {
     return getCssStripes(
       backgroundColor,
       stripeColor,
       stripeSpacing,
-      stripeThickness
+      stripeThickness,
     );
   }
 
@@ -52,7 +52,7 @@ export interface ColorMapValue {
 
 export function buildColorValues(
   colorScale,
-  values?: number[]
+  values?: number[],
 ): ColorMapValue[] {
   let thresholds = colorScale.domain();
   if (values) {
@@ -80,7 +80,7 @@ export function getCssStripes(
   backgroundColor = 'white',
   stripeColor = '#EEEEEE',
   stripeSpacing = 3,
-  stripeThickness = 2
+  stripeThickness = 2,
 ) {
   return `repeating-linear-gradient(
       -45deg,

@@ -50,7 +50,7 @@ export class PerformanceService {
     private variantService: VariantService,
     private backendService: BackendService,
     private processTreeService: ProcessTreeService,
-    private modelViewModeService: ModelViewModeService
+    private modelViewModeService: ModelViewModeService,
   ) {
     this.currentPt = processTreeService.currentDisplayedProcessTree;
 
@@ -96,7 +96,7 @@ export class PerformanceService {
       .subscribe(
         (performance) => {
           this.mergedTreePerformance = ProcessTree.fromObj(
-            performance.merged_performance_tree
+            performance.merged_performance_tree,
           );
 
           this.allValues.clear();
@@ -123,7 +123,7 @@ export class PerformanceService {
         },
         (error) => {
           variants.forEach((v) => this.calculationInProgress.delete(v));
-        }
+        },
       );
   }
 
@@ -134,7 +134,7 @@ export class PerformanceService {
 
   public setVariantsPerformance(
     variants: Variant[],
-    performanceTrees: ProcessTree[]
+    performanceTrees: ProcessTree[],
   ): void {
     for (let i = 0; i < variants.length; i++) {
       this.variantsTreePerformance.set(variants[i], performanceTrees[i]);
@@ -150,7 +150,7 @@ export class PerformanceService {
   collectPerformance(
     vp: ProcessTree,
     variant: Variant,
-    performances: Map<number, Map<Variant, TreePerformance>>
+    performances: Map<number, Map<Variant, TreePerformance>>,
   ): Map<number, Map<Variant, TreePerformance>> {
     if (!performances.has(vp.id)) {
       performances.set(vp.id, new Map<Variant, TreePerformance>());
@@ -204,7 +204,10 @@ export class PerformanceService {
     ) {
       this.calculationInProgress.add(variant);
       const variantsCombined: Variant[] = Array.from(
-        new Set([...this.activeTreePerformances, ...this.calculationInProgress])
+        new Set([
+          ...this.activeTreePerformances,
+          ...this.calculationInProgress,
+        ]),
       );
       this.updateTreePerformance(Array.from(variantsCombined));
     } else {
@@ -222,7 +225,7 @@ export class PerformanceService {
           new Set([
             ...this.activeTreePerformances,
             ...this.calculationInProgress,
-          ])
+          ]),
         );
         this.updateTreePerformance(Array.from(variantsCombined));
       }

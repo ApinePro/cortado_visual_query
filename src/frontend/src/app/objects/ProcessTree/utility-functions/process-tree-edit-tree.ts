@@ -28,7 +28,7 @@ export function delete_subtree(tree: ProcessTree, tree_to_delete: ProcessTree) {
 export function createNewRandomNode(
   label: string,
   operator: ProcessTreeOperator,
-  id: number = Math.floor(1000000000 + Math.random() * 900000000)
+  id: number = Math.floor(1000000000 + Math.random() * 900000000),
 ): ProcessTree {
   return new ProcessTree(label, operator, [], id, false, null, null, null);
 }
@@ -38,7 +38,7 @@ export function insertNode(
   newNode: ProcessTree,
   strat: NodeInsertionStrategy,
   operator: ProcessTreeOperator,
-  label: string
+  label: string,
 ) {
   switch (strat) {
     case NodeInsertionStrategy.BELOW: {

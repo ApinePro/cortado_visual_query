@@ -1,28 +1,28 @@
-.tiebreaker-editor{
-    display: block;
-    margin: 0;
-    border-radius: 3px;
-    color : var(--text-secondary);
-    resize: none;
-    width: 100%;
-    cursor:text;
-    padding: 10px;
-    font-size: var(--standard-font-size);
-    letter-spacing: 0.25px;
-    background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
-  }
+.tiebreaker-editor {
+  display: block;
+  margin: 0;
+  border-radius: 3px;
+  color: var(--text-secondary);
+  resize: none;
+  width: 100%;
+  cursor: text;
+  padding: 10px;
+  font-size: var(--standard-font-size);
+  letter-spacing: 0.25px;
+  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+}
 
-  .tiebreaker-editor:focus{
-    outline: none;
-    box-shadow: none;
-  }
+.tiebreaker-editor:focus {
+  outline: none;
+  box-shadow: none;
+}
 
 :host {
   position: absolute;
   overflow: hidden;
 }
 
-.consistency-warning{
+.consistency-warning {
   position: absolute;
   left: 0px;
   bottom: 0px;
@@ -34,5 +34,4 @@
   padding-left: 5px;
   font-size: small;
   border-top-right-radius: 4px;
-
 }
