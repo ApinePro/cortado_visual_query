@@ -12,6 +12,7 @@ import { NgxFileDropEntry, FileSystemFileEntry } from 'ngx-file-drop';
 import { BackendService } from 'src/app/services/backendService/backend.service';
 import { DropZoneDirective } from 'src/app/directives/drop-zone/drop-zone.directive';
 import Swal from 'sweetalert2';
+import { LoadingOverlayService } from 'src/app/services/loadingOverlayService/loading-overlay.service';
 
 @Component({
   selector: 'app-drop-zone',
@@ -32,7 +33,8 @@ export class DropZoneComponent extends DropZoneDirective implements OnInit {
 
   constructor(
     private sanitizer: DomSanitizer,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private loadingOverlayService: LoadingOverlayService
   ) {
     super();
   }
@@ -88,11 +90,13 @@ export class DropZoneComponent extends DropZoneDirective implements OnInit {
           fileEntry.file((file: File) => {
             switch (fileEnding) {
               case '.xes':
-                !environment.electron
+                const backendCall = !environment.electron
                   ? this.backendService.uploadEventLog(file)
-                  : this.backendService
-                      .loadEventLogFromFilePath(file['path'])
-                      .subscribe();
+                  : this.backendService.loadEventLogFromFilePath(file['path']);
+                this.loadingOverlayService.showLoader('Loading Event-Log ...');
+                backendCall.subscribe((_) => {
+                  this.loadingOverlayService.hideLoader();
+                });
                 break;
 
               case '.ptml':

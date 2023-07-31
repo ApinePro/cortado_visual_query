@@ -263,7 +263,7 @@
     #fileUploadEventLog
     type="file"
     class="d-none"
-    (change)="handleSelectedEventLogFile($event)"
+    (change)="handleSelectedEventLogFile($event, false)"
     accept=".xes"
   />
 
@@ -286,7 +286,7 @@
     #fileUploadEventLogRetry
     type="file"
     class="d-none"
-    (change)="handleSelectedEventLogFileRetry($event)"
+    (change)="handleSelectedEventLogFile($event, true)"
     accept=".xes"
   />
 </div>

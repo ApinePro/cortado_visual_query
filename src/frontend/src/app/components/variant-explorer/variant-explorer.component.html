@@ -109,19 +109,35 @@
       class="button"
       [ngbTooltip]="tooltip3"
       container="body"
-      [disabled]="isNoVariantSelected() || isAlignmentCalculationInProgress()"
+      [disabled]="
+        isNoVariantSelected() ||
+        isAlignmentCalculationInProgress() ||
+        isInfixSelected()
+      "
       (click)="discoverInitialModel()"
     >
       <i
         class="bi bi-diagram-2-fill btn-icon"
         [ngClass]="{
           'text-success':
-            isAnyVariantSelected() && !isAlignmentCalculationInProgress()
+            isAnyVariantSelected() &&
+            !isAlignmentCalculationInProgress() &&
+            !isInfixSelected()
         }"
       ></i>
       <div @collapseText class="button-text px-1" *ngIf="!collapse">
         discover initial model
       </div>
+      <ng-template #infixSelectedTooltip>
+        Initial model discovery is not supported for infixes! <br />
+        First deselect all infixes.
+      </ng-template>
+      <i
+        class="bi bi-exclamation-triangle text-warning"
+        *ngIf="isInfixSelected()"
+        [ngbTooltip]="infixSelectedTooltip"
+        container="body"
+      ></i>
     </button>
 
     <div class="vr"></div>

@@ -95,6 +95,7 @@ import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_va
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ClusteringSettingsDialogComponent } from './clustering-settings-dialog/clustering-settings-dialog.component';
 import _ from 'lodash';
+import { InfixType } from 'src/app/objects/Variants/infix_selection';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -846,6 +847,12 @@ export class VariantExplorerComponent
 
   isNoVariantSelected(): boolean {
     return !this.isAnyVariantSelected();
+  }
+
+  isInfixSelected(): boolean {
+    return this.variants.some(
+      (v) => v.isSelected && v.infixType !== InfixType.NOT_AN_INFIX
+    );
   }
 
   areAllDisplayedVariantsSelected(): boolean {

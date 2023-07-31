@@ -13,7 +13,7 @@ import {
   InfixType,
   removeIntermediateGroupsWithSingleElements,
 } from 'src/app/objects/Variants/infix_selection';
-import { Variant } from 'src/app/objects/Variants/variant';
+import { FragmentStatistics, Variant } from 'src/app/objects/Variants/variant';
 import {
   deserialize,
   SequenceGroup,
@@ -207,7 +207,8 @@ export class VariantService {
       .pipe(
         mergeMap(() => this.backendService.countFragmentOccurrences(newVariant))
       )
-      .subscribe((statistics) => {
+      .subscribe((statistics: FragmentStatistics) => {
+        newVariant.count = statistics.traceOccurrences;
         newVariant.fragmentStatistics = statistics;
         currentVariants.push(newVariant);
         this.variants = currentVariants;

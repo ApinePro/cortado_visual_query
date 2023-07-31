@@ -89,6 +89,7 @@ import { VariantSortPipe } from './pipes/variant-sort.pipe';
 import { electronServiceFactory } from './dependency-factories';
 import { ProcessTreeToolboxComponent } from './components/process-tree-editor/process-tree-toolbox/process-tree-toolbox.component';
 import { InfoBarComponent } from './components/activity-overview/info-bar/info-bar.component';
+import { LoadingOverlayComponent } from './components/loading-overlay/loading-overlay.component';
 
 @NgModule({
   declarations: [
@@ -166,6 +167,7 @@ import { InfoBarComponent } from './components/activity-overview/info-bar/info-b
     VariantSortPipe,
     ProcessTreeToolboxComponent,
     InfoBarComponent,
+    LoadingOverlayComponent,
   ],
   imports: [
     BrowserModule,

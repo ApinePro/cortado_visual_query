@@ -18,6 +18,7 @@ $tooltip-max-width: 450px;
   --footer-bar-height: 20px;
   --header-bar-height: 25px;
   --width-sidebar: 30px;
+  --text-primary: #dddddd;
   --text-secondary: #a0a0a0;
   --thin-border-color: #1a1a1a;
   --standard-font-size: 14px;
@@ -435,18 +436,20 @@ th {
 }
 
 .cortadoLogo {
+  height: 100px;
   animation: pulse 2s infinite ease-out;
+  padding: 5px;
 }
 
 @keyframes pulse {
   0% {
-    transform: scale(0.2);
+    transform: scale(0.66);
   }
   50% {
-    transform: scale(0.3);
+    transform: scale(1);
   }
   100% {
-    transform: scale(0.2);
+    transform: scale(0.66);
   }
 }
 
@@ -454,6 +457,7 @@ th {
   width: 100vw !important;
   height: 100vh !important;
   background-color: var(--box-background-color);
+  color: var(--text-primary);
 }
 
 .activity-button-out {
