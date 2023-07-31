@@ -2,11 +2,11 @@
   position: absolute;
   overflow: hidden;
   color: whitesmoke;
-  border-left:1px solid black;
+  border-left: 1px solid black;
 }
 
-.btn-tool-bar{
-  border-top : 0px;
+.btn-tool-bar {
+  border-top: 0px;
 }
 
 .nav-tabs {
@@ -34,7 +34,7 @@
   &.active {
     background-color: none;
     border-bottom: 1px solid whitesmoke;
-    color: whitesmoke
+    color: whitesmoke;
   }
 }
 

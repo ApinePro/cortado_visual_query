@@ -14,12 +14,15 @@ module.exports = {
       {
         test: /\.css$/,
         include: MONACO_DIR,
-        use: ["style-loader", {
-          "loader": "css-loader",
-          "options": {
-            "url": false,
+        use: [
+          "style-loader",
+          {
+            loader: "css-loader",
+            options: {
+              url: false,
+            },
           },
-        }],
+        ],
       },
     ],
   },

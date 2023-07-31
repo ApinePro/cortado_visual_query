@@ -1,3 +1,5 @@
+from typing import Any
+from cortado_core.utils.split_graph import Group, SequenceGroup, ParallelGroup, ChoiceGroup, FallthroughGroup, LoopGroup, LeafGroup
 from collections import defaultdict
 
 from cortado_core.subprocess_discovery.concurrency_trees.cTrees import cTreeOperator
@@ -9,39 +11,37 @@ from pydantic import BaseModel
 
 import cache.cache
 from api.routes.variants.variants import VariantInformation
-from endpoints.alignments import InfixType
+#from endpoints.alignments import InfixType
+from cortado_core.models.infix_type import InfixType
 from endpoints.load_event_log import create_variant_object, compute_log_stats, variants_to_variant_objects
+
+from cortado_core.subprocess_discovery.concurrency_trees.cTrees import ConcurrencyTree, cTreeOperator, cTreeFromcGroup
 
 router = APIRouter(tags=['Tiebreaker'], prefix="/tiebreaker")
 
 
 class TiebreakerPatterns(BaseModel):
-    sourcePattern: str
-    targetPattern: str
+    sourcePattern: Any
+    targetPattern: Any
 
 
 @router.post("/apply")
 def apply_tiebreaker(payload: TiebreakerPatterns):
-    if not validate_string_pattern(payload.sourcePattern):
-        raise HTTPException(status_code=400, detail='Source pattern is invalid')
-
-    if not validate_string_pattern(payload.targetPattern):
-        raise HTTPException(status_code=400, detail='Target pattern is invalid')
-
-    source_pattern = parse_tiebreaker_pattern(payload.sourcePattern)
-    target_pattern = parse_tiebreaker_pattern(payload.targetPattern)
+    source_pattern = parse_pattern_from_variant(Group.deserialize(payload.sourcePattern))
+    target_pattern = parse_pattern_from_variant(Group.deserialize(payload.targetPattern))
 
     validate_patterns(source_pattern, target_pattern)
 
     variants = cache.cache.variants
+
     new_variants = {
         InfixType.NOT_AN_INFIX: defaultdict(list),
         InfixType.PROPER_INFIX: defaultdict(list),
         InfixType.PREFIX: defaultdict(list),
         InfixType.POSTFIX: defaultdict(list),
     }
-    n_traces = 0
 
+    n_traces = 0
     for _, (variant, traces, _, info) in variants.items():
         new_variants[info.infix_type][variant] += traces
         n_traces += len(traces)
@@ -53,7 +53,8 @@ def apply_tiebreaker(payload: TiebreakerPatterns):
     cache_max_bid = 0
     res_variants = []
 
-    for infix_type, var in new_variants.items():
+    for infix_type, var in new_variants.items(): #var: dict, key(variant) value(trace)
+
         new_variants = apply_tiebreaker_on_variants(var, source_pattern, target_pattern)
 
         res_vars, new_cache_variants = variants_to_variant_objects(new_variants,
@@ -99,7 +100,7 @@ def validate_patterns(source_pattern: TiebreakerPattern, target_pattern: Tiebrea
     activities = cache.cache.parameters["activites"]
     source_activities = get_activities_in_pattern(source_pattern)
     target_activities = get_activities_in_pattern(target_pattern)
-
+    
     for source_activity in source_activities:
         if source_activity not in activities:
             raise HTTPException(status_code=400, detail=f"Source pattern contains invalid activity '{source_activity}'")
@@ -162,3 +163,47 @@ def get_activity_nodes_in_pattern(pattern: TiebreakerPattern):
         nodes = nodes.union(get_activity_nodes_in_pattern(child))
 
     return nodes
+
+def parse_pattern_from_variant(variant):
+    root_node = parse_pattern_from_variant_recursive(variant, None)
+    if len(root_node.children) == 1 and root_node.children[0].operator == cTreeOperator.Concurrent:
+        return root_node.children[0]
+    else:
+        return root_node
+
+def parse_pattern_from_variant_recursive(variant, parent):
+    operator = None
+    node = None
+    if isinstance(variant, SequenceGroup):
+        operator = cTreeOperator.Sequential
+    elif isinstance(variant, ParallelGroup):
+        operator = cTreeOperator.Concurrent
+    elif isinstance(variant, FallthroughGroup):
+        operator = cTreeOperator.Fallthrough
+    elif isinstance(variant, LeafGroup) and sorted([activity for activity in variant])[0].startswith('...'):
+        operator = WILDCARD_MATCH
+
+    if operator is not None and operator != WILDCARD_MATCH:
+        node = TiebreakerPattern(operator=operator, parent=parent, children=None)
+        if parent is not None:
+            parent.children.append(node)
+        for child in variant:
+            parse_pattern_from_variant_recursive(child, node)
+    elif operator is not None and operator == WILDCARD_MATCH:
+        node = TiebreakerPattern(operator=operator, parent=parent, children=None)
+        if parent is not None:
+            parent.children.append(node)
+    else:
+        labels = []
+        if isinstance(variant, ChoiceGroup):
+            labels = [[activity for activity in leaf][0] for leaf in variant]
+            match_multiple = True
+        else:
+            labels = [[activity for activity in variant][0]]
+            match_multiple = False
+
+        node = TiebreakerPattern(labels=labels, parent=parent, match_multiple=match_multiple)
+        if parent is not None:
+            parent.children.append(node)
+
+    return node
