@@ -211,7 +211,7 @@ export class VariantDrawerDirective
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log("there changes");
+    console.log('there changes');
     if (
       changes.variant &&
       !changes.variant.firstChange &&

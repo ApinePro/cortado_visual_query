@@ -43,7 +43,6 @@ export class ZoomFieldComponent implements AfterViewInit {
   private zoom: any;
 
   ngAfterViewInit(): void {
-    console.log("inital apine");
     this.initalCenterContent();
     this.addZoomFunctionality();
   }
@@ -52,9 +51,8 @@ export class ZoomFieldComponent implements AfterViewInit {
     const boundingRect = (
       this.editorWindow.nativeElement as HTMLElement
     ).getBoundingClientRect();
-    console.log('apine from zoomfield');
     d3.select(this.content.nativeElement)
-      .select("g")
+      .select('g')
       .attr(
         'transform',
         `translate(${boundingRect.width / 2}, ${boundingRect.height / 2})`
@@ -66,7 +64,7 @@ export class ZoomFieldComponent implements AfterViewInit {
 
     const zooming = function (event) {
       d3.select(this.content.nativeElement)
-        .select("g")
+        .select('g')
         .attr(
           'transform',
           event.transform.translate(
