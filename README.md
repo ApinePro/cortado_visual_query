@@ -76,15 +76,14 @@ After the successful execution of the build script, the build is located in `src
 
 If you are using or referencing Cortado in scientific work, please cite Cortado as follows.
 
-> Schuster, D., van Zelst, S.J., van der Aalst, W.M.P. (2021). Cortado—An Interactive Tool for Data-Driven Process Discovery and Modeling. In: Application and Theory of Petri Nets and Concurrency. PETRI NETS 2021. Lecture Notes in Computer Science, vol 12734. Springer, Cham. https://doi.org/10.1007/978-3-030-76983-3_23
+> Schuster, D., van Zelst, S.J., van der Aalst, W.M.P. (2023). Cortado: A dedicated process mining tool for interactive process discovery. SoftwareX Vol. 22. Elsevier. https://doi.org/10.1016/j.softx.2023.101373.
+
 
 Download citation 
-[.BIB](https://citation-needed.springer.com/v2/references/10.1007/978-3-030-76983-3_23?format=bibtex&flavour=citation)&nbsp;
-[.RIS](https://citation-needed.springer.com/v2/references/10.1007/978-3-030-76983-3_23?format=refman&flavour=citation)&nbsp;
-[.ENW](https://citation-needed.springer.com/v2/references/10.1007/978-3-030-76983-3_23?format=endnote&flavour=citation)
+https://www.sciencedirect.com/science/article/pii/S2352711023000699
 
 DOI
-[10.1007/978-3-030-76983-3_23](https://doi.org/10.1007/978-3-030-76983-3_23)
+[10.1016/j.softx.2023.101373](https://doi.org/10.1016/j.softx.2023.101373)
 
 
 

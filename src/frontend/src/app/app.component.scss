@@ -2,7 +2,6 @@
 -------------------------------------------------- */
 /* Not required for template or sticky footer method. */
 
-
 :host {
   height: calc(100vh - var(--header-bar-height) - var(--footer-bar-height));
   width: 100%;
@@ -12,9 +11,7 @@
   margin-top: var(--header-bar-height);
 }
 
-
 .bootstrap-container {
   background-color: #2e3439;
   color: #f5f5f5;
 }
-

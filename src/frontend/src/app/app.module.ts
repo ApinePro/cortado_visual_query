@@ -1,6 +1,6 @@
 import { DropZoneComponent } from './components/drop-zone/drop-zone.component';
 import { BrowserModule } from '@angular/platform-browser';
-import {APP_INITIALIZER, NgModule, SecurityContext} from '@angular/core';
+import { APP_INITIALIZER, NgModule, SecurityContext } from '@angular/core';
 import {
   HttpClientModule,
   HTTP_INTERCEPTORS,
@@ -79,6 +79,7 @@ import { ConformanceTabComponent } from './components/conformance-tab/conformanc
 import { ConformanceStatusIconComponent } from './components/variant-explorer/variant/subcomponents/variant-info/conformance-status-icon/conformance-status-icon.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TiebreakerComponent } from './components/variant-explorer/tiebreaker/tiebreaker.component';
+import { PatternEditorComponent } from './components/variant-explorer/tiebreaker/pattern-editor/pattern-editor.component';
 import { TreeConformanceButtonComponent } from './components/variant-explorer/variant/subcomponents/tree-buttons/tree-conformance-button/tree-conformance-button.component';
 import { DecimalPipe } from '@angular/common';
 import { VariantMinerActivitiesFIlterComponent } from './components/variant-miner/variant-miner-activities-filter/variant-miner-activities-filter.component';
@@ -92,6 +93,7 @@ import { VariantSortPipe } from './pipes/variant-sort.pipe';
 import { electronServiceFactory } from './dependency-factories';
 import { ProcessTreeToolboxComponent } from './components/process-tree-editor/process-tree-toolbox/process-tree-toolbox.component';
 import { InfoBarComponent } from './components/activity-overview/info-bar/info-bar.component';
+import { LoadingOverlayComponent } from './components/loading-overlay/loading-overlay.component';
 import { DocumentationComponent } from './components/documentation/documentation.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { StripHtmlPipe } from './components/documentation/strip-html.pipe';
@@ -160,6 +162,7 @@ import { StripHtmlPipe } from './components/documentation/strip-html.pipe';
     ConformanceTabComponent,
     ConformanceStatusIconComponent,
     TiebreakerComponent,
+    PatternEditorComponent,
     TreeConformanceButtonComponent,
     VariantMinerActivitiesFIlterComponent,
     LpmExplorerComponent,
@@ -171,6 +174,7 @@ import { StripHtmlPipe } from './components/documentation/strip-html.pipe';
     VariantSortPipe,
     ProcessTreeToolboxComponent,
     InfoBarComponent,
+    LoadingOverlayComponent,
     DocumentationComponent,
     StripHtmlPipe,
   ],
