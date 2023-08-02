@@ -29,6 +29,7 @@ export class HeaderBarComponent implements OnDestroy {
 
   public exportVariant = ExportVariant;
   showSettingsEvent: Subject<void> = new Subject<void>();
+  showDocumentationEvent: Subject<void> = new Subject<void>();
 
   public oldEventLogPath: string;
 
@@ -108,6 +109,10 @@ export class HeaderBarComponent implements OnDestroy {
 
   showSettingsDialog(): void {
     this.showSettingsEvent.next();
+  }
+
+  showDocumentationDialog(): void {
+    this.showDocumentationEvent.next();
   }
 
   /* Handle Electron Window Behavior via IPC messages

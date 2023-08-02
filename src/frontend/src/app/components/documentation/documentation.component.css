@@ -1,0 +1,25 @@
+#documentationModalDialog {
+  --bs-modal-width: 1400px;
+}
+
+.flex-container {
+  display: flex;
+}
+
+nav {
+  align-self: flex-start;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 26px;
+  min-width: 200px;
+  border-left: 1px #a0a0a0 solid;
+  margin-left: 22px;
+}
+
+nav > ul {
+  padding: 0 16px;
+}
+
+ul {
+  list-style-type: none;
+}

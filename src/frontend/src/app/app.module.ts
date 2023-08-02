@@ -1,7 +1,11 @@
 import { DropZoneComponent } from './components/drop-zone/drop-zone.component';
 import { BrowserModule } from '@angular/platform-browser';
-import { APP_INITIALIZER, NgModule } from '@angular/core';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import {APP_INITIALIZER, NgModule, SecurityContext} from '@angular/core';
+import {
+  HttpClientModule,
+  HTTP_INTERCEPTORS,
+  HttpClient,
+} from '@angular/common/http';
 
 import { ActivityOverviewSortingPipe } from './pipes/activity-overview-sorting/activity-overview-sorting.pipe';
 import { AppComponent } from './app.component';
@@ -88,6 +92,9 @@ import { VariantSortPipe } from './pipes/variant-sort.pipe';
 import { electronServiceFactory } from './dependency-factories';
 import { ProcessTreeToolboxComponent } from './components/process-tree-editor/process-tree-toolbox/process-tree-toolbox.component';
 import { InfoBarComponent } from './components/activity-overview/info-bar/info-bar.component';
+import { DocumentationComponent } from './components/documentation/documentation.component';
+import { MarkdownModule } from 'ngx-markdown';
+import { StripHtmlPipe } from './components/documentation/strip-html.pipe';
 
 @NgModule({
   declarations: [
@@ -164,6 +171,8 @@ import { InfoBarComponent } from './components/activity-overview/info-bar/info-b
     VariantSortPipe,
     ProcessTreeToolboxComponent,
     InfoBarComponent,
+    DocumentationComponent,
+    StripHtmlPipe,
   ],
   imports: [
     BrowserModule,
@@ -177,6 +186,10 @@ import { InfoBarComponent } from './components/activity-overview/info-bar/info-b
     DialogModule,
     NgxSliderModule,
     NgbModule,
+    MarkdownModule.forRoot({
+      loader: HttpClient,
+      sanitize: SecurityContext.NONE,
+    }),
   ],
   providers: [
     {
