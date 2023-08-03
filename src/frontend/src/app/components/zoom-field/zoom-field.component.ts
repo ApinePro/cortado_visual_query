@@ -81,17 +81,18 @@ export class ZoomFieldComponent implements AfterViewInit {
 
   centerContent(animationDuration: number) {
     const svg = d3.select(this.content.nativeElement);
+    const variantElement = d3.select(this.content.nativeElement)
+    .select('g');
     const [translateX, translateY] = this.computeCenterOffsets
       ? this.computeCenterOffsets(svg)
       : [0, 0];
-
     d3.select(this.content.nativeElement)
       .transition()
       .duration(animationDuration)
       .ease(d3.easeExpInOut)
       .call(
         this.zoom.transform,
-        d3.zoomIdentity.translate(translateX, translateY)
+        d3.zoomIdentity.translate(translateX - +variantElement.attr('width')/2, translateY)
       );
   }
 
@@ -100,6 +101,8 @@ export class ZoomFieldComponent implements AfterViewInit {
     const [translateX, translateY] = this.computeFocusOffsets
       ? this.computeFocusOffsets(svg)
       : [0, 0];
+    console.log("offset");
+    console.log(translateX, translateY);
     svg
       .transition()
       .duration(animationDuration)

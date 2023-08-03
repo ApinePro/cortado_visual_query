@@ -84,7 +84,6 @@ def compute_log_stats(variants: Mapping[int, Tuple[Group, Trace]]):
 def get_c_variants(event_log: EventLog, use_mp: bool = False, time_granularity: TimeUnit = min(TimeUnit)):
     variants: dict[Group, list[Trace]] = \
         get_concurrency_variants(event_log, use_mp, time_granularity, PoolFactory.instance().get_pool())
-
     total_traces: int = len(event_log)
     info_generator: Callable[[list[Trace]], VariantInformation] = \
         lambda _: VariantInformation(infix_type=InfixType.NOT_AN_INFIX, is_user_defined=False)
