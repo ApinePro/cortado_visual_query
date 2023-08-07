@@ -14,6 +14,7 @@ import { takeUntil } from 'rxjs/operators';
 import { Modal } from 'bootstrap';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { LoadingOverlayService } from 'src/app/services/loadingOverlayService/loading-overlay.service';
+import { DocumentationService } from '../documentation/documentation.service';
 
 @Component({
   selector: 'app-header-bar',
@@ -30,7 +31,6 @@ export class HeaderBarComponent implements OnDestroy {
 
   public exportVariant = ExportVariant;
   showSettingsEvent: Subject<void> = new Subject<void>();
-  showDocumentationEvent: Subject<void> = new Subject<void>();
 
   public oldEventLogPath: string;
 
@@ -43,7 +43,8 @@ export class HeaderBarComponent implements OnDestroy {
     private modalService: NgbModal,
     private loadingOverlayService: LoadingOverlayService,
     private _elRef: ElementRef<HTMLElement>,
-    private goldenLayoutComponentService: GoldenLayoutComponentService
+    private goldenLayoutComponentService: GoldenLayoutComponentService,
+    public documentationService: DocumentationService
   ) {
     this.backendService.retryEventLogSelection
       .pipe(takeUntil(this._destroy$))
@@ -115,7 +116,9 @@ export class HeaderBarComponent implements OnDestroy {
   }
 
   showDocumentationDialog(): void {
-    this.showDocumentationEvent.next();
+    this.documentationService.showDocumentationEvent.next(
+      'Process Model Editor'
+    );
   }
 
   /* Handle Electron Window Behavior via IPC messages

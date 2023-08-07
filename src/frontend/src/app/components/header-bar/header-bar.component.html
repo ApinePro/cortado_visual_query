@@ -299,7 +299,9 @@
 
 <app-settings [showSettings]="showSettingsEvent.asObservable()"></app-settings>
 <app-documentation
-  [showDocumentation]="showDocumentationEvent.asObservable()"
+  [showDocumentation]="
+    documentationService.showDocumentationEvent.asObservable()
+  "
 ></app-documentation>
 
 <ng-template let-modal #eventLogSelectionRetryModal>
