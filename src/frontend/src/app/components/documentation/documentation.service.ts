@@ -6,4 +6,7 @@ import { Subject } from 'rxjs';
 })
 export class DocumentationService {
   showDocumentationEvent: Subject<string> = new Subject<string>();
+  showDocumentationDialog(heading: string = null) {
+    this.showDocumentationEvent.next(heading);
+  }
 }

@@ -31,12 +31,12 @@ export class DocumentationComponent implements OnInit {
     $('#documentationModalDialog').modal('show');
     $('#documentationModalDialog').on('shown.bs.modal', (e) => {
       if (heading) {
-        this.navToHeading(heading);
+        // this.navToHeading(heading);
       }
     });
     setTimeout(() => {
       this.navToHeading(heading);
-    }, 160);
+    }, 180);
   }
 
   onReady() {
@@ -61,9 +61,7 @@ export class DocumentationComponent implements OnInit {
     }
   }
 
-  onLoad(event) {
-    const aa = 10;
-  }
+  onLoad(event) {}
 
   onError(event) {}
 

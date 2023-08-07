@@ -116,9 +116,7 @@ export class HeaderBarComponent implements OnDestroy {
   }
 
   showDocumentationDialog(): void {
-    this.documentationService.showDocumentationEvent.next(
-      'Process Model Editor'
-    );
+    this.documentationService.showDocumentationDialog();
   }
 
   /* Handle Electron Window Behavior via IPC messages
