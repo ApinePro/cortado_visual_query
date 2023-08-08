@@ -87,7 +87,7 @@ export class TiebreakerComponent implements OnInit, OnDestroy {
         //var res = this.sourceEditor.logService.activitiesInEventLog;
         //反而加了这两行就不行了
         //this.sourceEditor.logService.activitiesInEventLog = res;
-        console.log("res");
+        console.log('res');
         //console.log(res);
       });
   }

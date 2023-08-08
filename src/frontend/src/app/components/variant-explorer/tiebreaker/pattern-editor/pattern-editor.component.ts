@@ -102,11 +102,11 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log("Pattern editor start!");
+    console.log('Pattern editor start!');
     this.logService.activitiesInEventLog$
       .pipe(takeUntil(this._destroy$))
       .subscribe((activities) => {
-        console.log("act changes");
+        console.log('act changes');
         this.activityNames = [];
         for (const activity in activities) {
           this.activityNames.push(activity);
@@ -120,7 +120,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe((newLog) => {
         if (newLog) {
-          console.log("loaded chages");
+          console.log('loaded chages');
           this.emptyVariant = true;
         }
       });
@@ -128,7 +128,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
     this.colorMapService.colorMap$
       .pipe(takeUntil(this._destroy$))
       .subscribe((map) => {
-        console.log("color chages");
+        console.log('color chages');
         this.colorMap = map;
         if (this.variantDrawer) {
           this.variantDrawer.redraw();

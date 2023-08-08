@@ -858,7 +858,7 @@ export class VariantEditorComponent
         .match(/[\d.]+/g);
       translateX += parseFloat(transform[0]);
     }
-    
+
     return [-translateX, 0];
   };
 
