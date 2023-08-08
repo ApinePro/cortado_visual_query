@@ -57,7 +57,7 @@ export class VariantDrawerDirective
   constructor(
     elRef: ElementRef,
     private polygonService: PolygonGeneratorService,
-    private sharedDataService: SharedDataService,
+    public sharedDataService: SharedDataService, //edited
     private variantViewModeService: VariantViewModeService,
     private conformanceCheckingService: ConformanceCheckingService,
     private variantService: VariantService
@@ -890,8 +890,6 @@ export class VariantDrawerDirective
       this.traceInfixSelectionMode && !element.selected
     );
 
-    //5.11
-
     const activityText = parent
       .append('text')
       .attr('x', width / 2)
@@ -935,7 +933,10 @@ export class VariantDrawerDirective
         element.getWidth() -
         element.getHeadLength() * 2 -
         VARIANT_Constants.MARGIN_X;
-
+      console.log("Text:");
+      console.log(a);
+      console.log("Width:");
+      console.log(width/2);
       const tr = this.wrapInnerLabelText(tspan, a, maxWidth);
       truncated ||= tr;
 
@@ -1095,6 +1096,10 @@ export class VariantDrawerDirective
       textLength = this.getComputedTextLength(textSelection);
       truncated = true;
     }
+    if (text === "confirm payment" && truncated === false ){
+      console.log("test length");
+      console.log(textLength);
+    }
 
     if (text === 'W_Nabellen incomplete dossiers' && !truncated) {
       console.log('Inner Text length after Wrap', text, textLength, maxWidth);
@@ -1110,11 +1115,15 @@ export class VariantDrawerDirective
     if (
       this.sharedDataService.computedTextLengthCache.has(textSelection.text())
     ) {
+      console.log("Has");
       textLength = this.sharedDataService.computedTextLengthCache.get(
         textSelection.text()
       );
     } else {
+      console.log("not Has");
       textLength = textSelection.node().getBoundingClientRect().width;
+      console.log(textSelection.node());
+      console.log(textSelection.node().getBoundingClientRect());
     }
     if (textLength > 0) {
       this.sharedDataService.computedTextLengthCache.set(
@@ -1125,6 +1134,11 @@ export class VariantDrawerDirective
 
     textLength = textSelection.node().getBoundingClientRect().width;
     return textLength;
+  }
+
+  public resetCachedTextLength(){
+    this.sharedDataService.computedTextLengthCache = new Map<string, number>();
+    console.log("reset");
   }
 
   getSVGGraphicElement(): SVGGraphicsElement {

@@ -186,8 +186,6 @@ export class VariantEditorComponent
         const poly = svgSelection.select('polygon');
         poly.classed('selected-polygon', true);
 
-        applyInverseStrokeToPoly(poly);
-
         this.multipleSelected = false;
       } else {
         this.multipleSelected = true;
@@ -200,12 +198,6 @@ export class VariantEditorComponent
         const poly = svgSelection.select('polygon');
 
         poly.classed('selected-polygon', !poly.classed('selected-polygon'));
-
-        if (!poly.attr('stroke')) {
-          applyInverseStrokeToPoly(poly);
-        } else {
-          poly.attr('stroke', null);
-        }
 
         // If one is selected reactivate insert
         if (
@@ -232,8 +224,6 @@ export class VariantEditorComponent
       .selectAll('.selected-variant-g')
       .select('polygon')
       .classed('selected-polygon', true);
-
-    applyInverseStrokeToPoly(poly);
 
     this.variantEnrichedSelection = selection;
   }
@@ -318,8 +308,6 @@ export class VariantEditorComponent
             }
             break;
         }
-        console.log(selectedElement);
-        console.log(this.currentVariant);
         this.triggerRedraw();
       }
       this.cacheCurrentVariant();

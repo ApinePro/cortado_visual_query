@@ -180,38 +180,34 @@
     </button>
   </div>
 
-  <div class="row mx-0 d-flex flex-row align-items-center">
-    <div>
-      <app-activity-button-area
-        [activityNames]="activityNames"
-        (activityButtonClick)="handleActivityButtonClick($event)"
-        [ngClass]="
-          (ifSource && checkSingleParallel()) || checkActivityDisable()
-            ? 'button-area-disabled'
-            : ''
-        "
-      >
-      </app-activity-button-area>
+  <app-activity-button-area
+    [activityNames]="activityNames"
+    (activityButtonClick)="handleActivityButtonClick($event)"
+    [ngClass]="
+      (ifSource && checkSingleParallel()) || checkActivityDisable()
+        ? 'button-area-disabled'
+        : ''
+    "
+  >
+  </app-activity-button-area>
 
-      <app-zoom-field
-        #ZoomField
-        [zoomScale]="[0.1, 3]"
-        [computeFocusOffsets]="computeFocusOffset"
-      >
-        <svg
-          #content
-          #VariantMainGroup
-          appVariantDrawer
-          id="PatternVariantMainGroup"
-          [variant]="{ variant: currentVariant }"
-          (selection)="handleRedraw($event)"
-          [computeActivityColor]="computeActivityColor"
-          [infixType]="curInfixType"
-          [keepStandardView]="true"
-          class="zoom-group-variant pattern-variant"
-        ></svg>
-      </app-zoom-field>
-      <div class="invalid-feedback">Please provide a valid input.</div>
-    </div>
-  </div>
+  <app-zoom-field
+    #ZoomField
+    [zoomScale]="[0.1, 3]"
+    [computeFocusOffsets]="computeFocusOffset"
+  >
+    <svg
+      #content
+      #VariantMainGroup
+      appVariantDrawer
+      id="PatternVariantMainGroup"
+      [variant]="{ variant: currentVariant }"
+      (selection)="handleRedraw($event)"
+      [computeActivityColor]="computeActivityColor"
+      [infixType]="curInfixType"
+      [keepStandardView]="true"
+      class="zoom-group-variant pattern-variant"
+    ></svg>
+  </app-zoom-field>
+  <div class="invalid-feedback">Please provide a valid input.</div>
 </div>

@@ -67,7 +67,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
 
   @Input() ifSource: boolean;
   currentVariant: VariantElement = null;
-  cachedVariants: VariantElement[] = [null]; // edited
+  cachedVariants: VariantElement[] = [null];
   cacheSize = 100;
   cacheIdx = 0;
 
@@ -95,16 +95,18 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
   constructor(
     private variantService: VariantService,
     private backendService: BackendService,
-    private logService: LogService,
+    public logService: LogService, //edited
     private colorMapService: ColorMapService
   ) {
     const a = 1;
   }
 
   ngOnInit(): void {
+    console.log("Pattern editor start!");
     this.logService.activitiesInEventLog$
       .pipe(takeUntil(this._destroy$))
       .subscribe((activities) => {
+        console.log("act changes");
         this.activityNames = [];
         for (const activity in activities) {
           this.activityNames.push(activity);
@@ -118,6 +120,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe((newLog) => {
         if (newLog) {
+          console.log("loaded chages");
           this.emptyVariant = true;
         }
       });
@@ -125,34 +128,16 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
     this.colorMapService.colorMap$
       .pipe(takeUntil(this._destroy$))
       .subscribe((map) => {
+        console.log("color chages");
         this.colorMap = map;
         if (this.variantDrawer) {
           this.variantDrawer.redraw();
         }
       });
-
-    this.variantService.showTiebreakerDialog
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((_) => {
-        this.showModal();
-      });
   }
 
   ngOnDestroy(): void {
     this._destroy$.next();
-  }
-
-  showModal(): void {
-    $('#tiebreakerModalDialog').modal('show');
-  }
-
-  hideModal(): void {
-    $('#tiebreakerModalDialog').modal('hide');
-  }
-
-  apply(sourcePattern, targetPattern): void {
-    this.hideModal();
-    this.backendService.applyTiebreaker(sourcePattern, targetPattern);
   }
 
   computeActivityColor = (
@@ -929,8 +914,6 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
         const poly = svgSelection.select('polygon');
         poly.classed('selected-polygon', true);
 
-        applyInverseStrokeToPoly(poly);
-
         this.multipleSelected = false;
       } else {
         this.multipleSelected = true;
@@ -943,12 +926,6 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
         const poly = svgSelection.select('polygon');
 
         poly.classed('selected-polygon', !poly.classed('selected-polygon'));
-
-        if (!poly.attr('stroke')) {
-          applyInverseStrokeToPoly(poly);
-        } else {
-          poly.attr('stroke', null);
-        }
 
         // If one is selected reactivate insert
         if (
@@ -975,8 +952,6 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
       .selectAll('.selected-variant-g')
       .select('polygon')
       .classed('selected-polygon', true);
-
-    applyInverseStrokeToPoly(poly);
 
     this.variantEnrichedSelection = selection;
   }

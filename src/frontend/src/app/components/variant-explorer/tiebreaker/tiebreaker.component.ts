@@ -34,7 +34,6 @@ import {
 } from 'src/app/objects/Variants/variant_element';
 import { collapsingText, fadeInText } from 'src/app/animations/text-animations';
 import { findPathToSelectedNode } from 'src/app/objects/Variants/utility_functions';
-import { applyInverseStrokeToPoly } from 'src/app/utils/render-utils';
 import { Observable, of, Subject } from 'rxjs';
 import { first, takeUntil, tap } from 'rxjs/operators';
 import {
@@ -53,12 +52,6 @@ export class TiebreakerComponent implements OnInit, OnDestroy {
   activityNames: Array<String> = [];
 
   public colorMap: Map<string, string>;
-
-  @ViewChild('SourceVariantMainGroup')
-  variantElement: ElementRef;
-
-  @ViewChild(VariantDrawerDirective)
-  variantDrawer: VariantDrawerDirective;
 
   @ViewChild('SourceEditor', { static: false })
   sourceEditor: PatternEditorComponent;
@@ -91,6 +84,11 @@ export class TiebreakerComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe((_) => {
         this.showModal();
+        //var res = this.sourceEditor.logService.activitiesInEventLog;
+        //反而加了这两行就不行了
+        //this.sourceEditor.logService.activitiesInEventLog = res;
+        console.log("res");
+        //console.log(res);
       });
   }
 
