@@ -6,7 +6,6 @@ import {
   ContentChild,
 } from '@angular/core';
 import * as d3 from 'd3';
-import { COLORS_BLUE } from 'src/app/objects/Colors';
 
 @Component({
   selector: 'app-zoom-field',
@@ -51,8 +50,9 @@ export class ZoomFieldComponent implements AfterViewInit {
     const boundingRect = (
       this.editorWindow.nativeElement as HTMLElement
     ).getBoundingClientRect();
+
     d3.select(this.content.nativeElement)
-      .select('g')
+      .selectChild()
       .attr(
         'transform',
         `translate(${boundingRect.width / 2}, ${boundingRect.height / 2})`
@@ -64,7 +64,7 @@ export class ZoomFieldComponent implements AfterViewInit {
 
     const zooming = function (event) {
       d3.select(this.content.nativeElement)
-        .select('g')
+        .selectChild()
         .attr(
           'transform',
           event.transform.translate(

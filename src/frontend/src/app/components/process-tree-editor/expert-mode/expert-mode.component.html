@@ -93,9 +93,7 @@
       >
         <div *ngIf="syntax_tree.errors?.['unknowActivities']">
           <li
-            *ngFor="
-              let unknownActivity of syntax_tree.errors?.['unknowActivities']
-            "
+            *ngFor="let unknownActivity of syntax_tree.errors?.['unknowActivities']"
           >
             Unknown activity name {{ unknownActivity.name }} at position
             {{ unknownActivity.index }}
@@ -123,11 +121,7 @@
         <button
           type="submit"
           class="button expert-mode-button"
-          [disabled]="
-            !allowRender ||
-            syntax_tree.errors?.['imbalanced'] ||
-            syntax_tree.errors?.['apostrophe']
-          "
+          [disabled]="!allowRender || syntax_tree.errors?.['imbalanced'] || syntax_tree.errors?.['apostrophe']"
         >
           Render Tree
         </button>

@@ -1,4 +1,4 @@
-.button {
+.button{
   border: 2px solid whitesmoke;
   color: whitesmoke;
   padding: 10px;
@@ -13,24 +13,24 @@
   white-space: nowrap;
 }
 
-.button:hover {
+.button:hover{
   background-color: #485158;
 }
 
-#title {
-  margin-bottom: 5px;
+#title{
+  margin-bottom: 5px
 }
 
-#license {
+#license{
   color: whitesmoke;
 }
 
-#main-head {
+#main-head{
   font-family: sans-serif;
   color: whitesmoke;
 }
 
-#body {
+#body{
   font-family: sans-serif;
   background-color: #2b2b2b;
   font-size: 14px;

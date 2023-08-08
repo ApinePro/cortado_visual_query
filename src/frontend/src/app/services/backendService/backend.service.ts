@@ -10,11 +10,7 @@ import { mapVariants, mapVariantsList } from 'src/app/utils/util';
 import { LogService } from '../logService/log.service';
 import { VariantService } from '../variantService/variant.service';
 import { ProcessTreeService } from './../processTreeService/process-tree.service';
-import {
-  VariantElement,
-  deserialize,
-  SequenceGroup,
-} from 'src/app/objects/Variants/variant_element';
+import { VariantElement } from 'src/app/objects/Variants/variant_element';
 import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { MiningConfig } from 'src/app/objects/Variants/variant-miner-types';
 import { ElectronService } from '../electronService/electron.service';
@@ -77,7 +73,7 @@ export class BackendService {
   }
 
   uploadEventLog(file: File) {
-    const formData = new FormData();
+    let formData = new FormData();
     formData.append('file', file);
 
     return this.httpClient
@@ -133,7 +129,7 @@ export class BackendService {
           ROUTES.DISCOVER +
           'discoverProcessModelFromVariants',
         {
-          variants,
+          variants: variants,
         }
       )
       .subscribe((tree) => {
@@ -301,7 +297,7 @@ export class BackendService {
   getTreePerformance(variants: number[], remove?: number[]): Observable<any> {
     const body = {
       pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
-      variants,
+      variants: variants,
       delete: remove,
     };
 
@@ -449,7 +445,7 @@ export class BackendService {
   }
 
   getLogBasedPerformance(start: number, end: number): Observable<any> {
-    const body = { start, end };
+    const body = { start: start, end: end };
     return this.httpClient.post(
       ROUTES.HTTP_BASE_URL +
         ROUTES.VARIANT_PERFORMANCE +
@@ -459,8 +455,8 @@ export class BackendService {
   }
 
   getSubvariantsForVariant(bid: number): Observable<any> {
-    const body = {
-      bid,
+    let body = {
+      bid: bid,
     };
     return this.httpClient.post(
       ROUTES.HTTP_BASE_URL + ROUTES.SUBVARIANT_PERFORMANCE + 'subvariants',
@@ -627,16 +623,6 @@ export class BackendService {
       ROUTES.HTTP_BASE_URL + ROUTES.LPMMINER + 'lpmStatistics',
       {
         lpm: lpm.copy(false),
-      }
-    );
-  }
-
-  public sortInVariantEditor(variant: VariantElement) {
-    const variants = variant.serialize();
-    return this.httpClient.post(
-      ROUTES.BASE_URL + ROUTES.VARIANT + 'sortvariant',
-      {
-        variants,
       }
     );
   }

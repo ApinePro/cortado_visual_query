@@ -111,7 +111,7 @@
         ngbTooltip="insert new activities infront the selected activtiy"
         container="body"
       >
-        <i class="bi bi-arrow-bar-left"></i>
+        <i class="bi bi-chevron-left"></i>
       </button>
 
       <button
@@ -126,7 +126,7 @@
         ngbTooltip="insert new activities behind of the selected activtiy"
         container="body"
       >
-        <i class="bi bi-arrow-bar-right"></i>
+        <i class="bi bi-chevron-right"></i>
       </button>
 
       <button
@@ -141,7 +141,7 @@
         ngbTooltip="insert new activities parallel of the selected activtiy"
         container="body"
       >
-        <i class="bi bi-arrows-expand"></i>
+        <i class="bi bi-chevron-expand"></i>
       </button>
 
       <button
@@ -195,18 +195,6 @@
 
     <button
       class="button"
-      (click)="removeSelection()"
-      [disabled]="!selectedElement"
-      ngbTooltip="remove current selection"
-      container="body"
-    >
-      <i class="bi bi-dash-square-dotted"></i>
-    </button>
-
-    <span class="vl mx-2"></span>
-
-    <button
-      class="button"
       (click)="onDeleteSelected()"
       ngbTooltip="remove the currently selected activity"
       container="body"
@@ -220,7 +208,7 @@
       ></i>
 
       <div @collapseText class="button-text px-1" *ngIf="!collapse">
-        remove selected chevron(s)
+        remove selected chevron
       </div>
     </button>
 
@@ -267,17 +255,7 @@
     [activityNames]="activityNames"
     (activityButtonClick)="handleActivityButtonClick($event)"
     [ngClass]="
-      (selectedElement &&
-        !multipleSelected &&
-        (selectedStrategy === insertionStrategy.infront ||
-          selectedStrategy === insertionStrategy.behind) &&
-        checkOverlapInsert()) ||
-      (multipleSelected &&
-        !(
-          checkNeighborSelection() &&
-          selectedStrategy === insertionStrategy.parallel
-        )) ||
-      (!selectedElement && !emptyVariant)
+      multipleSelected || (!selectedElement && !emptyVariant)
         ? 'button-area-disabled'
         : ''
     "
@@ -297,7 +275,6 @@
       (selection)="handleRedraw($event)"
       [computeActivityColor]="computeActivityColor"
       [infixType]="curInfixType"
-      [keepStandardView]="true"
       class="zoom-group-variant"
     ></svg>
   </app-zoom-field>

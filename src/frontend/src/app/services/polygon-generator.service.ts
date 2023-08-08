@@ -24,7 +24,6 @@ export class PolygonGeneratorService {
     width -= headLength;
 
     let points = [];
-
     points.push(`${x},${y}`); // Top left
     points.push(`${x + width},${y}`); // Top right
     points.push(`${x + width + headLength},${y + height / 2}`); // Arrow Head
