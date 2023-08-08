@@ -84,11 +84,6 @@ export class TiebreakerComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy$))
       .subscribe((_) => {
         this.showModal();
-        //var res = this.sourceEditor.logService.activitiesInEventLog;
-        //反而加了这两行就不行了
-        //this.sourceEditor.logService.activitiesInEventLog = res;
-        console.log('res');
-        //console.log(res);
       });
   }
 
