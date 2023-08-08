@@ -10,7 +10,7 @@
   /*
   min-width: 50px;
   */
-  font-size: 0.8rem;
+  font-size: .8rem;
   color: whitesmoke;
   color: var(--text-secondary);
 }
@@ -25,13 +25,13 @@
   display: flex;
 }
 
-.btn-tool-bar {
+.btn-tool-bar{
   min-height: 28px;
   display: flex;
   align-items: center;
   border-top: 0px;
-  position: sticky;
-  top: 0;
+	position: sticky;
+	top: 0;
   left: 0;
 }
 
@@ -48,6 +48,7 @@
 .svg-rendering-status {
   color: var(--text-secondary);
 }
+
 
 /* Move all below to central place - also used in variant explorer */
 
