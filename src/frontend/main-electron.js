@@ -30,7 +30,6 @@ const lastAcceptedVersionKey = "lastAcceptedVersion";
 
 let mainCortadoWin;
 let backendProcess;
-let licenseDialog;
 
 function startBackend() {
   switch (process.platform) {
@@ -43,38 +42,10 @@ function startBackend() {
   }
 }
 
-function createLicenseDialog(){
-  licenseDialog = new BrowserWindow({
-    //parent: mainCortadoWin,
-    modal: true,
-    width: 800,
-    height: 600,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false
-    }
-  })
-  licenseDialog.removeMenu();
-  licenseDialog.loadFile("license-dialog.html");
-}
-
 ipcMain.on('restartBackend', () => {
   console.log('Restarting Backend')
   killBackendProcess();
   backendProcess = startBackend();
-})
-
-ipcMain.on('license-dialog', (event, arg) => {
-  if (arg === 'accepted'){ // Refer to license-dialog.js
-    const store = new Store();
-    store.set(lastAcceptedVersionKey, app.getVersion());
-    backendProcess = startBackend();
-    createMainApplicationWindow();
-    licenseDialog.close();
-    ipcMain.removeAllListeners('license-dialog');
-  } else if (arg === 'denied') {
-    app.quit()
-  }
 })
 
 ipcMain.handle(
@@ -152,15 +123,8 @@ function killBackendProcess() {
 
 //app.on('ready', createWindow);
 app.whenReady().then(function () {
-  const store = new Store();
-  const lastAcceptedVersion = store.get(lastAcceptedVersionKey);
-  if (lastAcceptedVersion === app.getVersion()) {
-    backendProcess = startBackend();
-    createMainApplicationWindow();
-    return;
-  }
-
-  createLicenseDialog(); // ipcMain handles opening the frontend and backend
+  backendProcess = startBackend();
+  createMainApplicationWindow();
 });
 
 app.on("quit", function () {
