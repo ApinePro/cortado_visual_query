@@ -77,7 +77,7 @@ export class BackendService {
   }
 
   uploadEventLog(file: File) {
-    const formData = new FormData();
+    let formData = new FormData();
     formData.append('file', file);
 
     return this.httpClient
@@ -133,7 +133,7 @@ export class BackendService {
           ROUTES.DISCOVER +
           'discoverProcessModelFromVariants',
         {
-          variants,
+          variants: variants,
         }
       )
       .subscribe((tree) => {
@@ -301,7 +301,7 @@ export class BackendService {
   getTreePerformance(variants: number[], remove?: number[]): Observable<any> {
     const body = {
       pt: this.processTreeService.currentDisplayedProcessTree.copy(false),
-      variants,
+      variants: variants,
       delete: remove,
     };
 
@@ -449,7 +449,7 @@ export class BackendService {
   }
 
   getLogBasedPerformance(start: number, end: number): Observable<any> {
-    const body = { start, end };
+    const body = { start: start, end: end };
     return this.httpClient.post(
       ROUTES.HTTP_BASE_URL +
         ROUTES.VARIANT_PERFORMANCE +
@@ -459,8 +459,8 @@ export class BackendService {
   }
 
   getSubvariantsForVariant(bid: number): Observable<any> {
-    const body = {
-      bid,
+    let body = {
+      bid: bid,
     };
     return this.httpClient.post(
       ROUTES.HTTP_BASE_URL + ROUTES.SUBVARIANT_PERFORMANCE + 'subvariants',

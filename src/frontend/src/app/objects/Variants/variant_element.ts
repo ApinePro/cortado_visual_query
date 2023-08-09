@@ -187,7 +187,7 @@ export abstract class VariantElement {
   public abstract getActivities(): Set<string>;
 
   public updateConformance(confValue: number): void {
-    //pass
+    // pass
   }
 
   public setInfixSelectableState(
@@ -232,10 +232,13 @@ export abstract class VariantElement {
   }
 
   public isVisibleParentSelected(): boolean {
-    if (this.parent === null || this.parent.parent === null) return false;
+    if (this.parent === null || this.parent.parent === null) {
+      return false;
+    }
 
-    if (this.parent instanceof InvisibleSequenceGroup)
+    if (this.parent instanceof InvisibleSequenceGroup) {
       return this.parent.isVisibleParentSelected();
+    }
 
     return this.parent.selected;
   }
@@ -978,9 +981,8 @@ export class LoopGroup extends VariantElement {
     this.elements[0].renameActivity(activityName, newActivityName);
   }
 
-  // TODO niklas: check if correct
   public deleteActivity(activityName: string): [VariantElement[], boolean] {
-    let res = this.elements[0].deleteActivity(activityName);
+    const res = this.elements[0].deleteActivity(activityName);
     if (res[0].length == 0) {
       return [null, res[1]];
     }
@@ -999,7 +1001,7 @@ export class LoopGroup extends VariantElement {
   public setExpanded(expanded: boolean) {
     super.setExpanded(expanded);
 
-    for (let el of this.elements) {
+    for (const el of this.elements) {
       el.setExpanded(expanded);
     }
   }
@@ -1027,12 +1029,12 @@ export class LoopGroup extends VariantElement {
   }
 
   public updateWidth(includeWaiting) {
-    let headLength = this.getHeadLength();
-    for (let el of this.elements) {
+    const headLength = this.getHeadLength();
+    for (const el of this.elements) {
       el.width = this.width - VARIANT_Constants.MARGIN_X - 2 * headLength;
     }
 
-    for (let el of this.elements) {
+    for (const el of this.elements) {
       el.updateWidth(includeWaiting);
     }
   }
@@ -1059,7 +1061,7 @@ export class LoopGroup extends VariantElement {
   }
 
   public updateSurroundingSelectableElements(): void {
-    let children = this.elements.filter((c) => isElementWithActivity(c));
+    const children = this.elements.filter((c) => isElementWithActivity(c));
     children.forEach((c) => {
       if (!c.selected) {
         c.setInfixSelectableState(SelectableState.Selectable, false);
@@ -1201,6 +1203,15 @@ export class SkipGroup extends VariantElement {
 }
 
 export class LeafNode extends VariantElement {
+  constructor(
+    public activity: string[],
+    performance: any = undefined,
+    public conformance: number[] = undefined
+  ) {
+    super(performance);
+  }
+
+  public textLength = 10;
   public getActivities(): Set<string> {
     return new Set<string>(this.activity);
   }
@@ -1223,18 +1234,8 @@ export class LeafNode extends VariantElement {
     return [[this], false];
   }
 
-  public textLength: number = 10;
-
   public asString(): string {
     return this.activity.join(';');
-  }
-
-  constructor(
-    public activity: string[],
-    performance: any = undefined,
-    public conformance: number[] = undefined
-  ) {
-    super(performance);
   }
 
   public getHeight(): number {
