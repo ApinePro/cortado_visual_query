@@ -13,6 +13,7 @@
 
 */
 
+
 .frozen-node-operator {
   fill: #25306a !important;
 }
@@ -25,17 +26,18 @@
   fill: #161e40 !important;
 }
 
-.frozen-edge {
-  stroke: #425bbf !important;
+.frozen-edge{
+  stroke : #425bbf !important;
 }
 
-.selected-node {
-  stroke: #dc3545 !important;
+.selected-node{
+  stroke : #dc3545 !important;
 }
 
-.selected-edge {
-  stroke: #dc3545 !important;
+.selected-edge{
+  stroke : #dc3545 !important;
 }
+
 
 .performance-tooltip {
   max-width: none;
