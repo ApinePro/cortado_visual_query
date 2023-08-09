@@ -71,7 +71,6 @@ function createMainApplicationWindow() {
       nodeIntegration: true,
       contextIsolation: true,
     },
-    iconUrl: "./icon/cortado_icon_colorful_transparent.png",
     darkTheme: true
   });
   mainCortadoWin.removeMenu();
