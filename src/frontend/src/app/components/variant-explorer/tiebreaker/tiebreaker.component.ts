@@ -160,10 +160,10 @@ export class TiebreakerComponent implements OnInit, OnDestroy {
     return pattern;
   }
 
-  handleSourceChange(event){
+  handleSourceChange(event) {
     this.sourcePattern = event.variant;
   }
-  handleTargetChange(event){
+  handleTargetChange(event) {
     this.targetPattern = event.variant;
   }
 

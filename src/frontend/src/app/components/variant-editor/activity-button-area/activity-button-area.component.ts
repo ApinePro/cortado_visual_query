@@ -150,14 +150,14 @@ export class ActivityButtonAreaComponent
   }
 
   activityExist(leaf: LeafNode, variant: VariantElement) {
-    if(!variant){
+    if (!variant) {
       return true;
     }
     const children = variant.getElements();
     if (variant instanceof LeafNode) {
       return leaf.asLeafNode().activity[0] === variant.asLeafNode().activity[0];
     } else {
-      if(children){
+      if (children) {
         for (const child of children) {
           if (this.activityExist(leaf, child)) {
             return true;

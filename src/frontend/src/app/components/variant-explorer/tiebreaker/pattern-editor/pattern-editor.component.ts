@@ -1,4 +1,3 @@
-import { Input } from '@angular/core';
 import { ZoomFieldComponent } from 'src/app/components/zoom-field/zoom-field.component';
 import { VariantService } from 'src/app/services/variantService/variant.service';
 import { BackendService } from 'src/app/services/backendService/backend.service';
@@ -16,7 +15,10 @@ import {
   ViewChild,
   HostListener,
   OnDestroy,
+  OnChanges,
+  Input,
   Output,
+  SimpleChanges,
   EventEmitter,
 } from '@angular/core';
 
@@ -54,7 +56,7 @@ declare var $;
   templateUrl: './pattern-editor.component.html',
   styleUrls: ['./pattern-editor.component.css'],
 })
-export class PatternEditorComponent implements OnInit, OnDestroy {
+export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
   activityNames: Array<String> = [];
 
   public colorMap: Map<string, string>;
@@ -143,7 +145,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnChanges() {
+  ngOnChanges(changes: SimpleChanges) {
     this.logService.activitiesInEventLog$
       .pipe(takeUntil(this._destroy$))
       .subscribe((activities) => {
@@ -258,7 +260,9 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
         this.emptyVariant = false;
         this.selectedElement = true;
         this.editor.centerContent(250);
-        this.variantChange.emit({ variant: this.currentVariant? this.currentVariant.copy(): null })
+        this.variantChange.emit({
+          variant: this.currentVariant ? this.currentVariant.copy() : null,
+        });
       } else {
         leaf.setExpanded(true);
         const selectedElement = this.variantEnrichedSelection
@@ -327,11 +331,15 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
               this.handleReplace(this.currentVariant, leaf, selectedElement);
             }
             break;
-        };
-        this.variantChange.emit({ variant: this.currentVariant? this.currentVariant.copy(): null })
+        }
+        this.variantChange.emit({
+          variant: this.currentVariant ? this.currentVariant.copy() : null,
+        });
         this.triggerRedraw();
       }
-      this.variantChange.emit({ variant: this.currentVariant? this.currentVariant.copy(): null })
+      this.variantChange.emit({
+        variant: this.currentVariant ? this.currentVariant.copy() : null,
+      });
       this.cacheCurrentVariant();
     }
   }
@@ -805,7 +813,9 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
 
       this.multiSelect = false;
       this.multipleSelected = false;
-      this.variantChange.emit({ variant: this.currentVariant? this.currentVariant.copy(): null })
+      this.variantChange.emit({
+        variant: this.currentVariant ? this.currentVariant.copy() : null,
+      });
 
       this.cacheCurrentVariant();
 
@@ -901,7 +911,9 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
 
     this.cacheCurrentVariant();
 
-    this.variantChange.emit({ variant: this.currentVariant? this.currentVariant.copy(): null })
+    this.variantChange.emit({
+      variant: this.currentVariant ? this.currentVariant.copy() : null,
+    });
     this.triggerRedraw();
   }
   removeSelection() {
