@@ -31,3 +31,10 @@
   color: whitesmoke;
   position: relative;
 }
+
+.button-disabled{
+  opacity: 0.5;
+  -webkit-user-select: none;
+  pointer-events: none;
+
+}

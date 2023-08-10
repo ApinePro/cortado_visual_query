@@ -60,7 +60,9 @@ export class TiebreakerComponent implements OnInit, OnDestroy {
 
   consistencyWarning = false;
 
-  ifSource = true;
+  ifSource: boolean = true;
+  sourcePattern: VariantElement = null;
+  targetPattern: VariantElement = null;
 
   collapse = false;
 
@@ -157,6 +159,14 @@ export class TiebreakerComponent implements OnInit, OnDestroy {
     }
     return pattern;
   }
+
+  handleSourceChange(event){
+    this.sourcePattern = event.variant;
+  }
+  handleTargetChange(event){
+    this.targetPattern = event.variant;
+  }
+
   apply(): void {
     if (
       this.checkPattern(

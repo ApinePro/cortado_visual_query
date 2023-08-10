@@ -16,6 +16,8 @@ import {
   ViewChild,
   HostListener,
   OnDestroy,
+  Output,
+  EventEmitter,
 } from '@angular/core';
 
 import { cloneDeep } from 'lodash';
@@ -34,6 +36,7 @@ import {
   ParallelGroup,
   ChoiceGroup,
   FallthroughGroup,
+  deserialize,
 } from 'src/app/objects/Variants/variant_element';
 import { collapsingText, fadeInText } from 'src/app/animations/text-animations';
 import { findPathToSelectedNode } from 'src/app/objects/Variants/utility_functions';
@@ -66,6 +69,10 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
   variantDrawer: VariantDrawerDirective;
 
   @Input() ifSource: boolean;
+  @Input() referenceVariant: VariantElement;
+
+  @Output() variantChange = new EventEmitter();
+
   currentVariant: VariantElement = null;
   cachedVariants: VariantElement[] = [null];
   cacheSize = 100;
@@ -133,6 +140,20 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
         if (this.variantDrawer) {
           this.variantDrawer.redraw();
         }
+      });
+  }
+
+  ngOnChanges() {
+    this.logService.activitiesInEventLog$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((activities) => {
+        this.activityNames = [];
+        for (const activity in activities) {
+          this.activityNames.push(activity);
+          this.activityNames.sort();
+        }
+        this.activityNames.push('...');
+        this.activityNames.sort();
       });
   }
 
@@ -237,6 +258,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
         this.emptyVariant = false;
         this.selectedElement = true;
         this.editor.centerContent(250);
+        this.variantChange.emit({ variant: this.currentVariant? this.currentVariant.copy(): null })
       } else {
         leaf.setExpanded(true);
         const selectedElement = this.variantEnrichedSelection
@@ -305,10 +327,11 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
               this.handleReplace(this.currentVariant, leaf, selectedElement);
             }
             break;
-        }
+        };
+        this.variantChange.emit({ variant: this.currentVariant? this.currentVariant.copy(): null })
         this.triggerRedraw();
       }
-
+      this.variantChange.emit({ variant: this.currentVariant? this.currentVariant.copy(): null })
       this.cacheCurrentVariant();
     }
   }
@@ -782,6 +805,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
 
       this.multiSelect = false;
       this.multipleSelected = false;
+      this.variantChange.emit({ variant: this.currentVariant? this.currentVariant.copy(): null })
 
       this.cacheCurrentVariant();
 
@@ -877,6 +901,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy {
 
     this.cacheCurrentVariant();
 
+    this.variantChange.emit({ variant: this.currentVariant? this.currentVariant.copy(): null })
     this.triggerRedraw();
   }
   removeSelection() {

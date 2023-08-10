@@ -27,6 +27,8 @@
           #SourceEditor
           id="source-pattern"
           [ifSource]="ifSource"
+          [referenceVariant]="targetPattern"
+          (variantChange)="handleSourceChange($event)"
         >
           <label #patternTitle class="text-light dialog-label">
             Source Pattern
@@ -36,6 +38,8 @@
           #TargetEditor
           id="target-pattern"
           [ifSource]="!ifSource"
+          [referenceVariant]="sourcePattern"
+          (variantChange)="handleTargetChange($event)"
         >
           <label #patternTitle class="text-light dialog-label">
             Target Pattern

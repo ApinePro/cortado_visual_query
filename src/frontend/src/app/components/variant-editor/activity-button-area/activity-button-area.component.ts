@@ -37,6 +37,12 @@ export class ActivityButtonAreaComponent
   @Input()
   activityNames: Array<string> = [];
 
+  @Input()
+  referenceVariant: VariantElement = null;
+
+  @Input()
+  ifSource: boolean = null;
+
   activityDummyVariants: Map<string, LeafNode> = new Map<string, LeafNode>();
 
   @Output()
@@ -140,6 +146,25 @@ export class ActivityButtonAreaComponent
       const leaf = new LeafNode([activity]);
       leaf.setExpanded(true);
       this.activityDummyVariants.set(activity, leaf);
+    }
+  }
+
+  activityExist(leaf: LeafNode, variant: VariantElement) {
+    if(!variant){
+      return true;
+    }
+    const children = variant.getElements();
+    if (variant instanceof LeafNode) {
+      return leaf.asLeafNode().activity[0] === variant.asLeafNode().activity[0];
+    } else {
+      if(children){
+        for (const child of children) {
+          if (this.activityExist(leaf, child)) {
+            return true;
+          }
+        }
+      }
+      return false;
     }
   }
 }
