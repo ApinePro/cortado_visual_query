@@ -13,19 +13,8 @@ const ChildProcess = require('child_process');
 const Store = require('electron-store');
 const executablePath = app.getPath('exe');
 const downloadFolder = app.getPath('downloads')
-const backendWorkDirWindows = executablePath.substring(0, executablePath.lastIndexOf("\\")) +
-"\\cortado-backend";
-const backendWorkDirLinux = executablePath.substring(0, executablePath.lastIndexOf("/")) +
-  "/cortado-backend";
-let backendWorkDirMac = executablePath.substring(0, executablePath.lastIndexOf("/"))
-backendWorkDirMac = backendWorkDirMac.substring(0, backendWorkDirMac.lastIndexOf("/")) +
-  "/cortado-backend";
-const backendExecutablePathWindows = '"' + executablePath.substring(0, executablePath.lastIndexOf("\\")) +
-  "\\cortado-backend\\cortado-backend.exe" + '"';
-const backendExecutablePathLinux = executablePath.substring(0, executablePath.lastIndexOf("/")) +
-  "/cortado-backend/cortado-backend";
-const backendExecutablePathMac = backendWorkDirMac +
-  "/cortado-backend";
+const backendWorkDir = path.join(path.dirname(executablePath), 'cortado-backend');
+const backendExecutablePath = path.join(backendWorkDir, process.platform === 'win32' ? 'cortado-backend.exe' : 'cortado-backend');
 const lastAcceptedVersionKey = "lastAcceptedVersion";
 
 const isDevelopment = process.env.NODE_ENV === 'development';
@@ -34,14 +23,7 @@ let mainCortadoWin;
 let backendProcess;
 
 function startBackend() {
-  switch (process.platform) {
-    case 'linux':
-      return ChildProcess.spawn(backendExecutablePathLinux, {shell: true, detached: true, windowsHide: false, cwd: backendWorkDirLinux});
-    case 'win32':
-      return ChildProcess.spawn(backendExecutablePathWindows, {shell: true, detached: true, windowsHide: false, cwd: backendWorkDirWindows});
-    default:
-      return ChildProcess.spawn(backendExecutablePathMac, [], {shell: true, detached: true, windowsHide: false, cwd: backendWorkDirMac});
-  }
+  return ChildProcess.spawn(backendExecutablePath, {shell: true, detached: true, windowsHide: false, cwd: backendWorkDir});
 }
 
 ipcMain.on('restartBackend', () => {
