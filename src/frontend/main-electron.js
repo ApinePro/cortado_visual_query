@@ -28,6 +28,8 @@ const backendExecutablePathMac = backendWorkDirMac +
   "/cortado-backend";
 const lastAcceptedVersionKey = "lastAcceptedVersion";
 
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 let mainCortadoWin;
 let backendProcess;
 
@@ -43,9 +45,13 @@ function startBackend() {
 }
 
 ipcMain.on('restartBackend', () => {
-  console.log('Restarting Backend')
-  killBackendProcess();
-  backendProcess = startBackend();
+  if(isDevelopment){
+    console.log('DEV: Backend restart requested but backend is not managed while in development mode.')
+  } else {
+    console.log('Restarting Backend')
+    killBackendProcess();
+    backendProcess = startBackend();
+  }
 })
 
 ipcMain.handle(
@@ -89,7 +95,13 @@ function createMainApplicationWindow() {
   mainCortadoWin.removeMenu();
   //mainCortadoWin.webContents.openDevTools()
   //mainCortadoWin.loadURL('data:text/html;charset=utf-8,' + backendExecutablePathWindows);
-  mainCortadoWin.loadFile('dist/index.html');
+  if(isDevelopment) {
+    mainCortadoWin.loadURL('http://localhost:4444')
+    mainCortadoWin.webContents.openDevTools()
+  } else {
+    mainCortadoWin.loadFile('dist/index.html');
+  }
+
   mainCortadoWin.on('closed', function () {
     mainCortadoWin = null;
     app.quit();
@@ -121,14 +133,17 @@ function killBackendProcess() {
   }
 }
 
-//app.on('ready', createWindow);
 app.whenReady().then(function () {
-  backendProcess = startBackend();
+  if(!isDevelopment) {
+    backendProcess = startBackend();
+  }
   createMainApplicationWindow();
 });
 
 app.on("quit", function () {
-  killBackendProcess();
+  if(!isDevelopment) {
+    killBackendProcess();
+  }
 });
 
 app.on('window-all-closed', function () {
