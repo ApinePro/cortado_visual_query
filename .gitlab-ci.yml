@@ -117,8 +117,7 @@ build-electron-app-windows:
     - npm install -g n
     - n latest
   script:
-    - npm run build-prod
-    - npm run build-electron-only-windows
+    - npm run build-electron-windows
     - cd ../..
     - mkdir $WINDOWS_BUILD_DIR
     - cp -R src/frontend/app-dist/win-unpacked/* $WINDOWS_BUILD_DIR
@@ -142,8 +141,7 @@ build-electron-app-linux:
     - npm install -g n
     - n latest
   script:
-    - npm run build-prod
-    - npm run build-electron-only-linux
+    - npm run build-electron-linux
     - cd ../..
     - mkdir $LINUX_BUILD_DIR
     - cp -R src/frontend/app-dist/linux-unpacked/* $LINUX_BUILD_DIR

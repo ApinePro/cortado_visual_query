@@ -31,8 +31,9 @@
   },
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --port 4444 --configuration=browser",
-    "start-prod": "ng serve --configuration production --port 4444",
+    "start": "ng serve --port 4444 --configuration browser",
+    "start-electron-dev": "ng serve --port 4444",
+    "start-electron-prod": "ng serve --configuration production --port 4444",
     "build": "ng build",
     "build-prod": "ng build --configuration production",
     "test": "ng test",
@@ -40,12 +41,7 @@
     "e2e": "ng e2e",
     "input": "main-electron.js",
     "electron": "electron .",
-    "electron-live-reload": "wait-on http://localhost:4444 && cross-env NODE_ENV=development electron ./main-electron.js",
-    "electron-builder-app-production-windows": "ng build --configuration production && electron-builder build -w",
-    "electron-builder-app-production-linux": "ng build --configuration production && electron-builder build -l",
-    "electron-builder-app-production-macos": "ng build --configuration production && electron-builder build -m",
-    "build-electron-only-windows": "electron-builder build -w",
-    "build-electron-only-linux": "electron-builder build -l"
+    "electron-live-reload": "wait-on http://localhost:4444 && cross-env NODE_ENV=development electron ./main-electron.js"
   },
   "private": true,
   "dependencies": {
