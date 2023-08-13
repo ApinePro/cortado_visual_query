@@ -1,11 +1,9 @@
-
-
 export interface IElectronAPI {
-  requestRestart: () => void,
+  requestRestart: () => void;
 }
 
 declare global {
   interface Window {
-    electronAPI: IElectronAPI
+    electronAPI: IElectronAPI;
   }
 }

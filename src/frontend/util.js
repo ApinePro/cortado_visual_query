@@ -5,27 +5,27 @@ function decodeBase64Image(dataString) {
     response = {};
 
   if (matches.length !== 3) {
-    return new Error('Invalid input string');
+    return new Error("Invalid input string");
   }
 
   response.type = matches[1];
-  response.data = Buffer.from(matches[2], 'base64');
+  response.data = Buffer.from(matches[2], "base64");
 
   return response;
 }
 
 function fixPath(filePath, fileExtension) {
-  let splitted = filePath.split('/');
+  let splitted = filePath.split("/");
   let fileName = splitted[splitted.length - 1];
-  let splittedFileName = fileName.split('.');
+  let splittedFileName = fileName.split(".");
   let hasFileExtension = splittedFileName.length == 2;
   let hasCorrectFileExtension =
     hasFileExtension && splittedFileName[1] == fileExtension;
 
   if (!hasFileExtension) {
-    filePath = filePath + '.' + fileExtension;
+    filePath = filePath + "." + fileExtension;
   } else if (!hasCorrectFileExtension) {
-    filePath = filePath.split('.')[0] + '.' + fileExtension;
+    filePath = filePath.split(".")[0] + "." + fileExtension;
   }
 
   return filePath;
@@ -60,11 +60,11 @@ async function showSaveDialog(
     fs.writeFileSync(
       fixPath(filePath, fileExtension),
       imageBuffer.data,
-      'base64'
+      "base64"
     );
   }
 
-  return canceled ? undefined : filePath
+  return canceled ? undefined : filePath;
 }
 
 function saveToUserFolder(userFolderPath, fileName, fileExtension, data) {
