@@ -31,7 +31,7 @@ variables:
     - echo https://${pm4py_core_git_username}:${pm4py_core_git_password}@gitlab.fit.fraunhofer.de >> /root/.git-credentials
     - pip install -r src/backend/requirements.txt
 
-eslint-check:
+.node-critical-check: &node-critical-check
   stage: lint
   image: node
   rules:
@@ -39,8 +39,21 @@ eslint-check:
   before_script:
     - cd src/frontend
     - npm ci
+
+eslint-check:
+  <<: *node-critical-check
   script:
-    - ./node_modules/.bin/eslint src/
+    - npm run lint-scripts
+
+html-check:
+  <<: *node-critical-check
+  script:
+    - npm run lint-html
+
+styles-check:
+  <<: *node-critical-check
+  script:
+    - npm run lint-styles
   
 test-angular-app-build:
   stage: test
