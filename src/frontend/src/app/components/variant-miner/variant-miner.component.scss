@@ -426,21 +426,27 @@
   border-bottom: black 0.5px solid;
 }
 
-
-.btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
+.btn {
   color: whitesmoke;
-  background-color: rgb(119 117 117);
-  border-color: rgb(119 117 117);
+  background-color: var(--box-background-color);
+  border-color: #999;
   font-size: small;
 }
 
-.btn-check + .btn, :not(.btn-check) + .btn, .btn:first-child, .btn, .btn.show {
+.btn-check + .btn, :not(.btn-check) + .btn, .btn:first-child, .btn.show {
   color: #999;
   background-color: var(--box-background-color);
   border-color: #999;
   font-size: small;
 }
 
-.btn-check:hover + .btn, :not(.btn-check) + .btn, .btn:first-child, .btn, .btn.show {
+.btn:first-child, :not(.btn-check) + .btn, .btn-check:hover + .btn, .btn.show {
   color: whitesmoke;
+}
+
+.btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
+  color: whitesmoke;
+  background-color: rgb(119 117 117);
+  border-color: rgb(119 117 117);
+  font-size: small;
 }
