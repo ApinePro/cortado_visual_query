@@ -3,10 +3,11 @@
   background-color: var(--box-background-color);
 }
 
-.chart-variant__percentage {
+.chart-variant-percentage {
   margin-left: 4px;
   display: inline-flex;
   flex-direction: column;
+
   /*
   min-width: 50px;
   */
@@ -29,7 +30,7 @@
   min-height: 28px;
   display: flex;
   align-items: center;
-  border-top: 0px;
+  border-top: 0;
 	position: sticky;
 	top: 0;
   left: 0;

@@ -9,9 +9,9 @@
     padding: 10px;
     font-size: var(--standard-font-size);
     letter-spacing: 0.25px;
-    background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+    background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity));
   }
-  
+
   .tiebreaker-editor:focus{
     outline: none;
     box-shadow: none;

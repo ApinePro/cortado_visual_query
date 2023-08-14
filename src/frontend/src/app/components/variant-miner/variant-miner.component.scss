@@ -20,8 +20,7 @@
   width: 100%;
   display: flex;
   align-items: stretch;
-  flex-direction: column;
-  flex-wrap: wrap;
+  flex-flow: column wrap;
 }
 
 .close-icon{
@@ -55,20 +54,22 @@
 }
 
 ::ng-deep {
-
-
   .sup-selector .ngx-slider .ngx-slider-pointer {
     width: 8px;
     height: 16px;
     top: auto; /* to remove the default positioning */
     bottom: 0;
-    background-color: rgb(215, 213, 213);
+    background-color: rgb(215 213 213);
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
   }
 
-  .sup-selector .ngx-slider .ngx-slider-pointer:after {
+  .sup-selector .ngx-slider .ngx-slider-pointer::after {
     display: none;
+  }
+
+  .ngx-slider .ngx-slider-bubble {
+    color: whitesmoke !important;
   }
 
   .sup-selector .ngx-slider .ngx-slider-bubble {
@@ -89,10 +90,7 @@
 
   .ngx-slider .ngx-slider-ticks-values-under .ngx-slider-tick-value {
     display: none !important;
-  }
-
-  .ngx-slider .ngx-slider-bubble {
-    color: whitesmoke !important;
+    bottom: -24px !important;
   }
 }
 
@@ -102,16 +100,19 @@
   height: 100%;
   overflow: auto;
 }
+
 .pattern-table-container-secondary{
   overflow: auto;
   height: calc(100% - 28px);
   width: 100%;
 }
+
 .form-check-input:focus {
   border-color: none;
   outline: 0;
   box-shadow: none;
 }
+
 .pattern-table{
   color : var(--text-secondary);
   width : 100%;
@@ -141,7 +142,7 @@
 }
 
 .input-field{
-  width: -moz-fit-content;
+  width: fit-content;
   margin-right: 10px;
   border-radius: 3px;
   background-color: var(--box-background-color);
@@ -152,8 +153,8 @@
 }
 
 .input-field-number{
-  margin: 7px 0px 6px 7px;
-  width: -moz-fit-content;
+  margin: 7px 0 6px 7px;
+  width: fit-content;
   width: 80px;
   border-radius: 3px;
   background-color: var(--box-background-color);
@@ -183,8 +184,7 @@
 
 .header-text-container{
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
+  flex-flow: row nowrap;
   justify-content: space-evenly;
   font-size: 0.9rem;
 }
@@ -201,17 +201,17 @@
 }
 
 .filter-button{
-  padding: 4px 4px 4px 4px;
+  padding: 4px;
   color: whitesmoke;
   background-color: black;
   font-size: 13px;
   box-shadow: none;
-  border-radius: 0px 0px 0px 5px;
+  border-radius: 0 0 0 5px;
 }
 
 .control-button-container{
   position: absolute;
-  bottom: 0px;
+  bottom: 0;
   z-index:10;
 }
 
@@ -219,16 +219,15 @@
   color: whitesmoke;
   background-color: black;
   font-size: 6px;
-  padding: 0px 0px 0px 0px;
+  padding: 0;
   box-shadow: none;
-  border-radius: 0px 5px 0px 0px;
+  border-radius: 0 5px 0 0;
 }
 
 
 .filter-drop-down-content{
   display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
+  flex-flow: column wrap;
   align-items: stretch;
   align-content: center;
 }
@@ -236,7 +235,7 @@
 .filter-button-container{
   position: absolute;
   top: -4px;
-  right:0px;
+  right:0;
   z-index: 15;
 }
 
@@ -244,16 +243,16 @@
   position: absolute;
   right: 0;
   z-index: 15;
-  bottom: 0px;
+  bottom: 0;
 }
 
 .export-button{
   color: whitesmoke;
   background-color: black;
   font-size: 6px;
-  padding: 2px 4px 2px 4px;
+  padding: 2px 4px;
   box-shadow: none;
-  border-radius: 5px 0px 0px 0px;
+  border-radius: 5px 0 0;
 }
 
 .filter-button:hover{
@@ -279,13 +278,13 @@
 .filter-option-container{
   z-index: 12;
   display: flex;
-  flex-direction: row;
+  flex-flow: row nowrap;
   align-items: baseline;
-  flex-wrap: nowrap;
   align-content: flex-end;
   justify-content: left;
-  padding: 0px 10px 0px 10px;
+  padding: 0 10px;
 }
+
 .slider-container{
   width : 25vw;
   z-index: 12;
@@ -293,16 +292,10 @@
   margin-right: 0;
 }
 
-::ng-deep {
-  .ngx-slider .ngx-slider-ticks-values-under .ngx-slider-tick-value {
-    bottom: -24px !important;
-  }
-}
-
 .radio-content{
   display: flex;
   flex-direction: row;
-  padding: 5px 10px 5px 10px;
+  padding: 5px 10px;
   align-items: center;
   align-content: center;
 }
@@ -330,8 +323,8 @@
   color: whitesmoke;
   font-size: small;
   border-radius: 0.25rem;
-  padding: 5px 10px 30px 10px;
-  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+  padding: 5px 10px 30px;
+  background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity));
   overflow-y: scroll;
   overflow-x: auto;
   width: 35.5vw;
@@ -339,11 +332,10 @@
 }
 
 .filter-toggle-drop-down{
-  padding: 0;
   color: white;
   border-radius: 0.25rem;
   padding: 10px;
-  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+  background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity));
 }
 
 .confidence-names{
@@ -353,18 +345,18 @@
 
 .sticky-header-row{
   position: sticky;
-  top: 0px;
+  top: 0;
   z-index : 10;
   background-color: var(--box-background-color);
   box-shadow: inset 0 -2px 1px var(--thin-border-color);
 }
 
 .border-lightgrey{
-  border-color: rgb(106, 106, 106, 0.6) !important;
+  border-color: rgb(106 106 106 / 60%) !important;
 }
 
 .center-element{
-  border-color: rgb(106, 106, 106, 0.2) !important;
+  border-color: rgb(106 106 106 / 20%) !important;
   border-right-width: 1px;
   border-left-width: 1px;
 }
@@ -383,7 +375,7 @@
 }
 
 .variant-miner-submit-button{
-  background: rgb(119, 117, 117);
+  background: rgb(119 117 117);
   border-radius: 3px;
 }
 
@@ -393,13 +385,11 @@
 
 .mine-config-form{
   display: flex;
-  flex-direction: column;
+  flex-flow: column nowrap;
   justify-content: space-around;
   align-content: space-around;
   height: fit-content;
-  width: -moz-fit-content;
   width: fit-content;
-  flex-wrap: nowrap;
   align-items: flex-start;
 }
 
@@ -412,18 +402,16 @@
 }
 
 .control-container{
-  width: -moz-fit-content;
   width: fit-content;
-  height: -moz-fit-content;
+  height: fit-content;
   height: 100%;
   min-height: 100%;
-  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+  background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity));
   padding: 20px;
   display: flex;
-  flex-direction: column;
+  flex-flow: column nowrap;
   align-content: center;
   align-items: flex-start;
-  flex-wrap: nowrap;
   color: whitesmoke;
   border-right: black 0.5px solid;
   overflow-y: scroll;
@@ -441,15 +429,15 @@
 
 .btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
   color: whitesmoke;
-  background-color: rgb(119, 117, 117);
-  border-color: rgb(119, 117, 117);
+  background-color: rgb(119 117 117);
+  border-color: rgb(119 117 117);
   font-size: small;
 }
 
 .btn-check + .btn, :not(.btn-check) + .btn, .btn:first-child, .btn, .btn.show {
-  color: #999999;
+  color: #999;
   background-color: var(--box-background-color);
-  border-color: #999999;
+  border-color: #999;
   font-size: small;
 }
 
