@@ -46,7 +46,10 @@
     "e2e": "ng e2e",
     "input": "main-electron.js",
     "electron": "electron .",
-    "electron-live-reload": "wait-on http://localhost:4444 && cross-env NODE_ENV=development electron ./main-electron.js"
+    "electron-live-reload": "wait-on http://localhost:4444 && cross-env NODE_ENV=development electron ./main-electron.js",
+    "build-electron-windows": "ng build --configuration production && electron-builder build -w",
+    "build-electron-linux": "ng build --configuration production && electron-builder build -l",
+    "build-electron-macos": "ng build --configuration production && electron-builder build -m"
   },
   "private": true,
   "dependencies": {
