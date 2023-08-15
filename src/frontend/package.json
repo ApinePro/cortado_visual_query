@@ -42,7 +42,7 @@
     "lint-scripts-fix": "npx eslint --fix **/*.{ts,js}",
     "lint-styles": "npx stylelint **/*.{css,scss}",
     "lint-styles-fix": "npx stylelint --fix **/*.{css,scss}",
-    "lint-html": "npx htmlhint **/*.html --ignore=app-dist/**",
+    "lint-html": "npx htmlhint **/*.html --ignore=app-dist/**,dist/**",
     "e2e": "ng e2e",
     "input": "main-electron.js",
     "electron": "electron .",
