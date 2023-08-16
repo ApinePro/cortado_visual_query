@@ -168,3 +168,15 @@ build-electron-app-linux:
     paths:
       - "*.tar.xz"
     expire_in: 1 week
+
+.python-critical-check: &python-critical-check
+  stage: lint
+  image: registry.gitlab.com/gitlab-data/ci-python-image:v0.0.1
+  rules:
+    - when: on_success
+
+python-black-check:
+  <<: *python-critical-check
+  script:
+    - black --check .
+
