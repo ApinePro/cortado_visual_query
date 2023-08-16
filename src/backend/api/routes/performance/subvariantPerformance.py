@@ -15,7 +15,6 @@ class InputPerformanceSubvariant(BaseModel):
 
 @router.post("/subvariants")
 async def get_subvariants(data: InputPerformanceSubvariant):
-    
     sub_variants = cache.variants[data.bid][2]
     result = []
 

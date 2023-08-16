@@ -9,13 +9,12 @@ def evaluate_query_against_variant_graphs(query, variants, activities):
     ids = []
 
     try:
-
         qt = parse_query_to_query_tree(query.queryString)
 
         for bid, (variant, _, _, info) in variants.items():
             if info.is_user_defined:
                 continue
-            for g in variant.graphs.keys(): 
+            for g in variant.graphs.keys():
                 b = check_query_tree(qt, g, activities, True)
 
                 if b:

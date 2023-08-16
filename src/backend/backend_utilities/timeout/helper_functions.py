@@ -34,7 +34,9 @@ def execute_with_timeout(func, timeout, args=()):
 
 def raise_in_thread(thread, exception):
     # see https://stackoverflow.com/questions/36484151/throw-an-exception-into-another-thread
-    ret = ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread.ident), ctypes.py_object(exception))
+    ret = ctypes.pythonapi.PyThreadState_SetAsyncExc(
+        ctypes.c_long(thread.ident), ctypes.py_object(exception)
+    )
     if ret == 0:
         raise ValueError("Invalid thread ID")
     elif ret > 1:
