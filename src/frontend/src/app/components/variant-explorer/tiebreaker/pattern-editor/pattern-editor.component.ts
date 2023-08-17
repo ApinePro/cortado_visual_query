@@ -208,10 +208,11 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
     setTimeout(() => this.variantDrawer.redraw(), 1);
   }
 
+  //there is no nested parallel group in tiebreaker. The parallel could only contain leaf, choice and fallthrough
   compareNode(node1, node2) {
-    if (node1 instanceof SequenceGroup) {
+    if (!(node1 instanceof LeafNode)) {
       return false;
-    } else if (node2 instanceof SequenceGroup) {
+    } else if (!(node2 instanceof LeafNode)) {
       return true;
     } else {
       return node1.asLeafNode().activity[0] > node2.asLeafNode().activity[0];
@@ -248,6 +249,24 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
       }
     }
   } // check is node is a child of parent
+
+  reconstructVariant(variant: VariantElement) {
+    const children = variant.getElements();
+    if (!children) {
+      return variant;
+    } else {
+      if (variant instanceof ParallelGroup) {
+        return new ParallelGroup(children);
+      } else if (variant instanceof ChoiceGroup) {
+        return new ChoiceGroup(children);
+      } else if (variant instanceof FallthroughGroup) {
+        return new FallthroughGroup(children);
+      } else {
+        return new SequenceGroup(children);
+      }
+    }
+  }
+
   handleActivityButtonClick(event) {
     if (this.selectedElement || this.emptyVariant) {
       const leaf = new LeafNode([event.activityName]);
@@ -268,7 +287,6 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
         const selectedElement = this.variantEnrichedSelection
           .selectAll('.selected-variant-g')
           .data()[0];
-
         switch (this.selectedStrategy) {
           case this.insertionStrategy.infront:
             if (!this.multipleSelected) {
@@ -354,10 +372,13 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
     if (children) {
       const index = children.indexOf(selectedElement);
       if (variant && variant === selectedElement) {
+        console.log('here 1');
         variant.setElements([
-          new ParallelGroup([leaf, new SequenceGroup(children)]),
+          new ParallelGroup([leaf, this.reconstructVariant(variant)]),
         ]);
+        console.log('variant: ', variant);
       } else if (index > -1) {
+        console.log('here 2');
         // Handle parent ParallelGroup
         if (variant instanceof ParallelGroup) {
           children.splice(index, 0, leaf);
@@ -636,7 +657,6 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
     if (children) {
       const index = children.indexOf(selectedElement);
       if (variant && variant === selectedElement) {
-        // Only SequenceGroup and Leaf could be selected here?
         variant.setElements([
           new ChoiceGroup([leaf, new SequenceGroup(children)]),
         ]);

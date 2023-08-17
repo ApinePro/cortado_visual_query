@@ -211,7 +211,6 @@ export class VariantDrawerDirective
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('there changes');
     if (
       changes.variant &&
       !changes.variant.firstChange &&
@@ -238,7 +237,6 @@ export class VariantDrawerDirective
 
   redraw(): void {
     this.svgSelection.selectAll('*').remove();
-
     if (this.variant.variant) {
       const height = this.variant.variant.recalculateHeight(
         !this.keepStandardView &&
@@ -259,6 +257,7 @@ export class VariantDrawerDirective
       }
 
       const svg_container = d3.select(this.svgHtmlElement.nativeElement);
+      //for parallel group-like chevrons
       this.variant.variant.updateWidth(
         !this.keepStandardView &&
           this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
@@ -517,21 +516,7 @@ export class VariantDrawerDirective
     const width = element.getWidth();
     const height = element.getHeight();
 
-    // Weiran
-    let polygonPoints = this.polygonService.getPolygonPoints(width, height);
-    if (outerElement) {
-      const oldPolygonPoints = this.polygonService.getPolygonPoints(
-        width,
-        height
-      );
-      let headLength =
-        Math.tan((VARIANT_Constants.ARROW_HEAD_ANGLE / 360) * Math.PI * 2) *
-        (height / 2);
-      polygonPoints = this.outerPolygonTranslation(
-        oldPolygonPoints,
-        headLength
-      );
-    }
+    const polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
     const color = 'lightgrey';
 
@@ -572,12 +557,18 @@ export class VariantDrawerDirective
 
     let xOffset = 0;
 
+    //need to edit again
     if (
       (!outerElement ||
         (!this.keepStandardView &&
           this.variantViewModeService.viewMode === ViewMode.PERFORMANCE)) &&
       !(element.parent instanceof SkipGroup)
     ) {
+      xOffset +=
+        element.getHeadLength() +
+        element.getMarginX() -
+        element.elements[0].getHeadLength();
+    } else {
       xOffset +=
         element.getHeadLength() +
         element.getMarginX() -
@@ -732,6 +723,42 @@ export class VariantDrawerDirective
 
     let y = VARIANT_Constants.MARGIN_Y;
 
+    //edited
+    const textcolor = textColorForBackgroundColor(
+      color,
+      this.traceInfixSelectionMode && !element.selected
+    );
+
+    const v_height = element.getHeight();
+    const v_width = element.getWidth();
+
+    const activityText = parent
+      .append('text')
+      .attr('x', v_width / 2)
+      .attr('y', v_height / 2)
+      .classed('user-select-none', true)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr(
+        'font-size',
+        VARIANT_Constants.LEAF_HEIGHT * element.elements.length
+      )
+      .attr('fill', textcolor)
+      .classed('activity-text', true);
+
+    const tspan_infront = activityText
+      .append('tspan')
+      .attr(
+        'x',
+        element.getHeadLength() + VARIANT_Constants.CHOICE_BRACKET_FONT_SIZE
+      )
+      .attr('y', v_height / 2)
+      .classed(
+        'cursor-pointer',
+        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+      )
+      .text('{');
+
     for (const child of element.elements) {
       if (
         child instanceof WaitingTimeNode &&
@@ -742,11 +769,29 @@ export class VariantDrawerDirective
       }
 
       const height = child.getHeight();
-      const x = element.getHeadLength() + 0.5 * VARIANT_Constants.MARGIN_X;
+      const x =
+        element.getHeadLength() +
+        0.5 * VARIANT_Constants.MARGIN_X +
+        VARIANT_Constants.CHOICE_BRACKET_FONT_SIZE;
       const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
       this.draw(child, g, false);
       y += height + VARIANT_Constants.MARGIN_Y;
     }
+
+    const tspan_behind = activityText
+      .append('tspan')
+      .attr(
+        'x',
+        element.getWidth() -
+          element.getHeadLength() -
+          VARIANT_Constants.CHOICE_BRACKET_FONT_SIZE
+      )
+      .attr('y', v_height / 2)
+      .classed(
+        'cursor-pointer',
+        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+      )
+      .text('}');
 
     if (this.onMouseOverCbFc) {
       this.onMouseOverCbFc(this, element, this.variant, parent);
@@ -811,7 +856,6 @@ export class VariantDrawerDirective
       const height = child.getHeight();
       const x = element.getHeadLength() + 0.5 * VARIANT_Constants.MARGIN_X;
       const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
-      console.log;
       this.draw(child, g, false);
       y += height + VARIANT_Constants.MARGIN_Y;
     }
@@ -868,7 +912,6 @@ export class VariantDrawerDirective
   ): void {
     const width = element.getWidth();
     let height = element.getHeight();
-
     const polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
     const color = this.computeActivityColor(this, element, this.variant);
@@ -933,10 +976,6 @@ export class VariantDrawerDirective
         element.getWidth() -
         element.getHeadLength() * 2 -
         VARIANT_Constants.MARGIN_X;
-      console.log('Text:');
-      console.log(a);
-      console.log('Width:');
-      console.log(width / 2);
       const tr = this.wrapInnerLabelText(tspan, a, maxWidth);
       truncated ||= tr;
 
@@ -1096,10 +1135,6 @@ export class VariantDrawerDirective
       textLength = this.getComputedTextLength(textSelection);
       truncated = true;
     }
-    if (text === 'confirm payment' && truncated === false) {
-      console.log('test length');
-      console.log(textLength);
-    }
 
     if (text === 'W_Nabellen incomplete dossiers' && !truncated) {
       console.log('Inner Text length after Wrap', text, textLength, maxWidth);
@@ -1115,15 +1150,11 @@ export class VariantDrawerDirective
     if (
       this.sharedDataService.computedTextLengthCache.has(textSelection.text())
     ) {
-      console.log('Has');
       textLength = this.sharedDataService.computedTextLengthCache.get(
         textSelection.text()
       );
     } else {
-      console.log('not Has');
       textLength = textSelection.node().getBoundingClientRect().width;
-      console.log(textSelection.node());
-      console.log(textSelection.node().getBoundingClientRect());
     }
     if (textLength > 0) {
       this.sharedDataService.computedTextLengthCache.set(

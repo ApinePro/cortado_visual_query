@@ -912,7 +912,7 @@ export class ChoiceGroup extends VariantElement {
   public updateWidth(includeWaiting) {
     let headLength = this.getHeadLength();
     for (let el of this.elements) {
-      el.width = this.width - VARIANT_Constants.MARGIN_X - 2 * headLength;
+      el.width = this.width - VARIANT_Constants.MARGIN_X - 2 * headLength - 20;
     }
 
     for (let el of this.elements) {
@@ -939,7 +939,8 @@ export class ChoiceGroup extends VariantElement {
           .map((el: VariantElement) => el.getWidth(includeWaiting))
       ) +
       VARIANT_Constants.MARGIN_X +
-      2 * headLength;
+      2 * headLength +
+      20;
     return this.width;
   }
 
@@ -1288,7 +1289,7 @@ export class LeafNode extends VariantElement {
     } else {
       this.width = VARIANT_Constants.LEAF_WIDTH;
     }
-    this.width += VARIANT_Constants.MARGIN_X;
+    //this.width += VARIANT_Constants.MARGIN_X;
     return this.width;
   }
 
