@@ -13,39 +13,27 @@ const ChildProcess = require('child_process');
 const Store = require('electron-store');
 const executablePath = app.getPath('exe');
 const downloadFolder = app.getPath('downloads')
-const backendWorkDirWindows = executablePath.substring(0, executablePath.lastIndexOf("\\")) +
-"\\cortado-backend";
-const backendWorkDirLinux = executablePath.substring(0, executablePath.lastIndexOf("/")) +
-  "/cortado-backend";
-let backendWorkDirMac = executablePath.substring(0, executablePath.lastIndexOf("/"))
-backendWorkDirMac = backendWorkDirMac.substring(0, backendWorkDirMac.lastIndexOf("/")) +
-  "/cortado-backend";
-const backendExecutablePathWindows = '"' + executablePath.substring(0, executablePath.lastIndexOf("\\")) +
-  "\\cortado-backend\\cortado-backend.exe" + '"';
-const backendExecutablePathLinux = executablePath.substring(0, executablePath.lastIndexOf("/")) +
-  "/cortado-backend/cortado-backend";
-const backendExecutablePathMac = backendWorkDirMac +
-  "/cortado-backend";
+const backendWorkDir = path.join(path.dirname(executablePath), 'cortado-backend');
+const backendExecutablePath = path.join(backendWorkDir, process.platform === 'win32' ? 'cortado-backend.exe' : 'cortado-backend');
 const lastAcceptedVersionKey = "lastAcceptedVersion";
+
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 let mainCortadoWin;
 let backendProcess;
 
 function startBackend() {
-  switch (process.platform) {
-    case 'linux':
-      return ChildProcess.spawn(backendExecutablePathLinux, {shell: true, detached: true, windowsHide: false, cwd: backendWorkDirLinux});
-    case 'win32':
-      return ChildProcess.spawn(backendExecutablePathWindows, {shell: true, detached: true, windowsHide: false, cwd: backendWorkDirWindows});
-    default:
-      return ChildProcess.spawn(backendExecutablePathMac, [], {shell: true, detached: true, windowsHide: false, cwd: backendWorkDirMac});
-  }
+  return ChildProcess.spawn(backendExecutablePath, {shell: true, detached: true, windowsHide: false, cwd: backendWorkDir});
 }
 
 ipcMain.on('restartBackend', () => {
-  console.log('Restarting Backend')
-  killBackendProcess();
-  backendProcess = startBackend();
+  if(isDevelopment){
+    console.log('DEV: Backend restart requested but backend is not managed while in development mode.')
+  } else {
+    console.log('Restarting Backend')
+    killBackendProcess();
+    backendProcess = startBackend();
+  }
 })
 
 ipcMain.handle(
@@ -89,7 +77,13 @@ function createMainApplicationWindow() {
   mainCortadoWin.removeMenu();
   //mainCortadoWin.webContents.openDevTools()
   //mainCortadoWin.loadURL('data:text/html;charset=utf-8,' + backendExecutablePathWindows);
-  mainCortadoWin.loadFile('dist/index.html');
+  if(isDevelopment) {
+    mainCortadoWin.loadURL('http://localhost:4444')
+    mainCortadoWin.webContents.openDevTools()
+  } else {
+    mainCortadoWin.loadFile('dist/index.html');
+  }
+
   mainCortadoWin.on('closed', function () {
     mainCortadoWin = null;
     app.quit();
@@ -121,14 +115,17 @@ function killBackendProcess() {
   }
 }
 
-//app.on('ready', createWindow);
 app.whenReady().then(function () {
-  backendProcess = startBackend();
+  if(!isDevelopment) {
+    backendProcess = startBackend();
+  }
   createMainApplicationWindow();
 });
 
 app.on("quit", function () {
-  killBackendProcess();
+  if(!isDevelopment) {
+    killBackendProcess();
+  }
 });
 
 app.on('window-all-closed', function () {
