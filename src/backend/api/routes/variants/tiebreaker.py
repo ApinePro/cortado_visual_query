@@ -2,7 +2,11 @@ from collections import defaultdict
 
 from cortado_core.subprocess_discovery.concurrency_trees.cTrees import cTreeOperator
 from cortado_core.tiebreaker.algorithm import apply_tiebreaker_on_variants
-from cortado_core.tiebreaker.pattern import parse_tiebreaker_pattern, TiebreakerPattern, WILDCARD_MATCH
+from cortado_core.tiebreaker.pattern import (
+    parse_tiebreaker_pattern,
+    TiebreakerPattern,
+    WILDCARD_MATCH,
+)
 from cortado_core.tiebreaker.two_plus_two_free_check import get_wildcard_node
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -10,9 +14,13 @@ from pydantic import BaseModel
 import cache.cache
 from api.routes.variants.variants import VariantInformation
 from endpoints.alignments import InfixType
-from endpoints.load_event_log import create_variant_object, compute_log_stats, variants_to_variant_objects
+from endpoints.load_event_log import (
+    create_variant_object,
+    compute_log_stats,
+    variants_to_variant_objects,
+)
 
-router = APIRouter(tags=['Tiebreaker'], prefix="/tiebreaker")
+router = APIRouter(tags=["Tiebreaker"], prefix="/tiebreaker")
 
 
 class TiebreakerPatterns(BaseModel):
@@ -23,10 +31,10 @@ class TiebreakerPatterns(BaseModel):
 @router.post("/apply")
 def apply_tiebreaker(payload: TiebreakerPatterns):
     if not validate_string_pattern(payload.sourcePattern):
-        raise HTTPException(status_code=400, detail='Source pattern is invalid')
+        raise HTTPException(status_code=400, detail="Source pattern is invalid")
 
     if not validate_string_pattern(payload.targetPattern):
-        raise HTTPException(status_code=400, detail='Target pattern is invalid')
+        raise HTTPException(status_code=400, detail="Target pattern is invalid")
 
     source_pattern = parse_tiebreaker_pattern(payload.sourcePattern)
     target_pattern = parse_tiebreaker_pattern(payload.targetPattern)
@@ -46,8 +54,8 @@ def apply_tiebreaker(payload: TiebreakerPatterns):
         new_variants[info.infix_type][variant] += traces
         n_traces += len(traces)
 
-    print('SOURCE PATTERN:', str(source_pattern))
-    print('TARGET PATTERN:', str(target_pattern))
+    print("SOURCE PATTERN:", str(source_pattern))
+    print("TARGET PATTERN:", str(target_pattern))
 
     cache_variants = dict()
     cache_max_bid = 0
@@ -56,10 +64,12 @@ def apply_tiebreaker(payload: TiebreakerPatterns):
     for infix_type, var in new_variants.items():
         new_variants = apply_tiebreaker_on_variants(var, source_pattern, target_pattern)
 
-        res_vars, new_cache_variants = variants_to_variant_objects(new_variants,
-                                                                   cache.cache.parameters["cur_time_granularity"],
-                                                                   n_traces,
-                                                                   lambda ts: generate_variant_info(infix_type, ts))
+        res_vars, new_cache_variants = variants_to_variant_objects(
+            new_variants,
+            cache.cache.parameters["cur_time_granularity"],
+            n_traces,
+            lambda ts: generate_variant_info(infix_type, ts),
+        )
         res_variants += res_vars
 
         for bid, variant in new_cache_variants.items():
@@ -69,7 +79,9 @@ def apply_tiebreaker(payload: TiebreakerPatterns):
 
     cache.cache.variants = cache_variants
 
-    start_activities, end_activities, nActivities = compute_log_stats(cache.cache.variants)
+    start_activities, end_activities, nActivities = compute_log_stats(
+        cache.cache.variants
+    )
 
     cache.cache.parameters["activites"] = set(nActivities.keys())
 
@@ -92,55 +104,78 @@ def generate_variant_info(infix_type, traces):
 
 
 def validate_string_pattern(pattern: str) -> bool:
-    return pattern.count('(') == pattern.count(')')
+    return pattern.count("(") == pattern.count(")")
 
 
-def validate_patterns(source_pattern: TiebreakerPattern, target_pattern: TiebreakerPattern):
+def validate_patterns(
+    source_pattern: TiebreakerPattern, target_pattern: TiebreakerPattern
+):
     activities = cache.cache.parameters["activites"]
     source_activities = get_activities_in_pattern(source_pattern)
     target_activities = get_activities_in_pattern(target_pattern)
 
     for source_activity in source_activities:
         if source_activity not in activities:
-            raise HTTPException(status_code=400, detail=f"Source pattern contains invalid activity '{source_activity}'")
+            raise HTTPException(
+                status_code=400,
+                detail=f"Source pattern contains invalid activity '{source_activity}'",
+            )
 
     for target_activity in target_activities:
         if target_activity not in activities:
-            raise HTTPException(status_code=400, detail=f"Target pattern contains invalid activity '{target_activity}'")
+            raise HTTPException(
+                status_code=400,
+                detail=f"Target pattern contains invalid activity '{target_activity}'",
+            )
 
-    source_labeled_nodes = [set(p.labels) for p in get_activity_nodes_in_pattern(source_pattern)]
-    target_labeled_nodes = [set(p.labels) for p in get_activity_nodes_in_pattern(target_pattern)]
+    source_labeled_nodes = [
+        set(p.labels) for p in get_activity_nodes_in_pattern(source_pattern)
+    ]
+    target_labeled_nodes = [
+        set(p.labels) for p in get_activity_nodes_in_pattern(target_pattern)
+    ]
 
     for source_labeled_node in source_labeled_nodes:
         try:
             target_labeled_nodes.remove(source_labeled_node)
         except ValueError:
-            raise HTTPException(status_code=400,
-                                detail=f"Node with labels {source_labeled_node} is present in source pattern, but not in target pattern")
+            raise HTTPException(
+                status_code=400,
+                detail=f"Node with labels {source_labeled_node} is present in source pattern, but not in target pattern",
+            )
 
     if len(target_labeled_nodes) > 0:
-        raise HTTPException(status_code=400,
-                            detail=f"Node with labels {target_labeled_nodes[0]} is present in target pattern, but not in source pattern")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Node with labels {target_labeled_nodes[0]} is present in target pattern, but not in source pattern",
+        )
 
     source_wc_node = get_wildcard_node(source_pattern)
     target_wc_node = get_wildcard_node(target_pattern)
 
     if source_wc_node is None and target_wc_node is not None:
-        raise HTTPException(status_code=400,
-                            detail=f"Target pattern has wildcard (...), which is not present in source pattern")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Target pattern has wildcard (...), which is not present in source pattern",
+        )
 
     if source_wc_node is not None and target_wc_node is None:
-        raise HTTPException(status_code=400,
-                            detail=f"Source pattern has wildcard (...), which is not present in target pattern")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Source pattern has wildcard (...), which is not present in target pattern",
+        )
 
     if source_pattern.operator != cTreeOperator.Concurrent:
-        raise HTTPException(status_code=400,
-                            detail=f"Source pattern without concurrent operator at highest level")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Source pattern without concurrent operator at highest level",
+        )
 
     for child in source_pattern.children:
         if child.operator is not None and child.operator != WILDCARD_MATCH:
-            raise HTTPException(status_code=400,
-                                detail=f"Source pattern cannot have nested operators")
+            raise HTTPException(
+                status_code=400, detail=f"Source pattern cannot have nested operators"
+            )
 
 
 def get_activities_in_pattern(pattern: TiebreakerPattern):

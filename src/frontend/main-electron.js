@@ -1,51 +1,57 @@
-const {app, BrowserWindow, dialog, ipcMain} = require('electron')
-var fs = require('fs');
+const { app, BrowserWindow, dialog, ipcMain } = require("electron");
+var fs = require("fs");
 const {
   showSaveDialog,
   saveToUserFolder,
   readFromUserFolder,
 } = require("./util");
-const nativeImage = require('electron').nativeImage
+const nativeImage = require("electron").nativeImage;
 const url = require("url");
 const path = require("path");
-const kill = require("tree-kill")
-const ChildProcess = require('child_process');
-const Store = require('electron-store');
-const executablePath = app.getPath('exe');
-const downloadFolder = app.getPath('downloads')
-const backendWorkDir = path.join(path.dirname(executablePath), 'cortado-backend');
-const backendExecutablePath = path.join(backendWorkDir, process.platform === 'win32' ? 'cortado-backend.exe' : 'cortado-backend');
+const kill = require("tree-kill");
+const ChildProcess = require("child_process");
+const Store = require("electron-store");
+const executablePath = app.getPath("exe");
+const downloadFolder = app.getPath("downloads");
+const backendWorkDir = path.join(
+  path.dirname(executablePath),
+  "cortado-backend"
+);
+const backendExecutablePath = path.join(
+  backendWorkDir,
+  process.platform === "win32" ? "cortado-backend.exe" : "cortado-backend"
+);
 const lastAcceptedVersionKey = "lastAcceptedVersion";
 
-const isDevelopment = process.env.NODE_ENV === 'development';
+const isDevelopment = process.env.NODE_ENV === "development";
 
 let mainCortadoWin;
 let backendProcess;
 
 function startBackend() {
-  return ChildProcess.spawn(backendExecutablePath, {shell: true, detached: true, windowsHide: false, cwd: backendWorkDir});
+  return ChildProcess.spawn(backendExecutablePath, {
+    shell: true,
+    detached: true,
+    windowsHide: false,
+    cwd: backendWorkDir,
+  });
 }
 
-ipcMain.on('restartBackend', () => {
-  if(isDevelopment){
-    console.log('DEV: Backend restart requested but backend is not managed while in development mode.')
+ipcMain.on("restartBackend", () => {
+  if (isDevelopment) {
+    console.log(
+      "DEV: Backend restart requested but backend is not managed while in development mode."
+    );
   } else {
-    console.log('Restarting Backend')
+    console.log("Restarting Backend");
     killBackendProcess();
     backendProcess = startBackend();
   }
-})
+});
 
 ipcMain.handle(
   "showSaveDialog",
-  (
-    _,
-    fileName,
-    fileExtension,
-    base64File,
-    buttonLabel,
-    title
-  ) =>
+  (_, fileName, fileExtension, base64File, buttonLabel, title) =>
     showSaveDialog(
       downloadFolder,
       dialog,
@@ -67,24 +73,23 @@ function createMainApplicationWindow() {
     height: 800,
     frame: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
       contextIsolation: true,
     },
-    iconUrl: "./icon/cortado_icon_colorful_transparent.png",
-    darkTheme: true
+    darkTheme: true,
   });
   mainCortadoWin.removeMenu();
   //mainCortadoWin.webContents.openDevTools()
   //mainCortadoWin.loadURL('data:text/html;charset=utf-8,' + backendExecutablePathWindows);
-  if(isDevelopment) {
-    mainCortadoWin.loadURL('http://localhost:4444')
-    mainCortadoWin.webContents.openDevTools()
+  if (isDevelopment) {
+    mainCortadoWin.loadURL("http://localhost:4444");
+    mainCortadoWin.webContents.openDevTools();
   } else {
-    mainCortadoWin.loadFile('dist/index.html');
+    mainCortadoWin.loadFile("dist/index.html");
   }
 
-  mainCortadoWin.on('closed', function () {
+  mainCortadoWin.on("closed", function () {
     mainCortadoWin = null;
     app.quit();
   });
@@ -94,57 +99,55 @@ function createMainApplicationWindow() {
 
     // ask projectService for unsaved Changes
     // response on "unsaved-changes"
-    mainCortadoWin.webContents.send('check-unsaved-changes')
+    mainCortadoWin.webContents.send("check-unsaved-changes");
   });
 
   // prevent external links from being opened in an electron window
-  mainCortadoWin.webContents.on('new-window', function (e, url) {
+  mainCortadoWin.webContents.on("new-window", function (e, url) {
     e.preventDefault();
-    require('electron').shell.openExternal(url);
+    require("electron").shell.openExternal(url);
   });
 }
 
 function killBackendProcess() {
-  if (backendProcess){
-    if (process.platform == 'win32'){
+  if (backendProcess) {
+    if (process.platform == "win32") {
       kill(backendProcess.pid);
-    }
-    else {
-      ChildProcess.execSync("killall -9 cortado-backend", {shell: '/bin/sh'});
+    } else {
+      ChildProcess.execSync("killall -9 cortado-backend", { shell: "/bin/sh" });
     }
   }
 }
 
 app.whenReady().then(function () {
-  if(!isDevelopment) {
+  if (!isDevelopment) {
     backendProcess = startBackend();
   }
   createMainApplicationWindow();
 });
 
 app.on("quit", function () {
-  if(!isDevelopment) {
+  if (!isDevelopment) {
     killBackendProcess();
   }
 });
 
-app.on('window-all-closed', function () {
+app.on("window-all-closed", function () {
   //On macOS specific close process
-  if (process.platform !== 'darwin') {
+  if (process.platform !== "darwin") {
     app.quit();
   }
 });
 
-app.on('activate', function () {
-    //macOS specific
-    if (mainCortadoWin === null) {
-      createMainApplicationWindow();
-    }
+app.on("activate", function () {
+  //macOS specific
+  if (mainCortadoWin === null) {
+    createMainApplicationWindow();
   }
-);
+});
 
 ipcMain.on("unsaved-changes", async (_event, res) => {
-  if(!res) mainCortadoWin.destroy();
+  if (!res) mainCortadoWin.destroy();
   else {
     const { response } = await dialog.showMessageBox(mainCortadoWin, {
       type: "warning",
@@ -156,11 +159,11 @@ ipcMain.on("unsaved-changes", async (_event, res) => {
     });
 
     if (response === 0) mainCortadoWin.destroy();
-    else if (response === 2){
-      mainCortadoWin.webContents.send('save-project')
+    else if (response === 2) {
+      mainCortadoWin.webContents.send("save-project");
     }
   }
-})
+});
 
 ipcMain.on("saveToUserFolder", (_, fileName, fileExtension, data) =>
   saveToUserFolder(app.getPath("userData"), fileName, fileExtension, data)
@@ -170,6 +173,6 @@ ipcMain.handle("readFromUserFolder", (_, fileName, fileExtension) =>
   readFromUserFolder(app.getPath("userData"), fileName, fileExtension)
 );
 
-ipcMain.on("quit", ()=>{
+ipcMain.on("quit", () => {
   mainCortadoWin.destroy();
-})
+});

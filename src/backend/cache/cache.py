@@ -6,10 +6,10 @@ from cortado_core.utils.split_graph import ConcurrencyGroup
 from api.routes.variants.models import VariantInformation
 
 # raw event log
-event_log : EventLog = None
+event_log: EventLog = None
 # performance statistics
-pcache : Mapping = {}
+pcache: Mapping = {}
 
-parameters : Mapping = {}
+parameters: Mapping = {}
 
-variants : Mapping[int, Tuple[ConcurrencyGroup, Trace, List, VariantInformation]] = {}
+variants: Mapping[int, Tuple[ConcurrencyGroup, Trace, List, VariantInformation]] = {}

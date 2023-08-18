@@ -13,7 +13,7 @@ Write-Output "BUILD FRONTEND"
 cd ./../frontend
 npm install
 Remove-Item -Recurse ./app-dist/
-npm run electron-builder-app-production-windows
+npm run build-electron-windows
 Get-Location
 
 Write-Output "COPY FILES"

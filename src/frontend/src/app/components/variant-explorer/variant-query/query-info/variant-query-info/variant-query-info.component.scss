@@ -3,14 +3,14 @@
   height : 100%;
   background-color: black;
   overflow: auto;
-  padding: 10px 0px;
+  padding: 10px 0;
   color: var(--text-secondary);
 }
 
 .variant-query-info{
   margin-top: 25px;
   position: fixed;
-  top: 0px;
+  top: 0;
   left: 65%;
   height: calc(100vh - 45px);
   z-index: 100;
@@ -28,11 +28,11 @@
 }
 
 .variant-query-info-content{
-  padding: 0px 20px;
+  padding: 0 20px;
 }
 
 .logical-operator{
-  color :rgb(65, 141, 213);
+  color :rgb(65 141 213);
   padding: none;
   inline-size: 12px;
   user-select: text;
@@ -54,8 +54,4 @@
 tbody tr {
   padding-bottom: .25rem;
   padding-top: .25rem;
-}
-
-.button-heading{
-
 }

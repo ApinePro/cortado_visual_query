@@ -21,7 +21,7 @@
     >
       <!--    lower bound   -->
       <div
-        class="colorMapLabel"
+        class="color-map-label"
         *ngIf="
           !(i === colorMapValues.length - 2 && lastColorDetached);
           else lastDetachedLowerBound
@@ -36,7 +36,7 @@
       </div>
 
       <ng-template #lastDetachedLowerBound>
-        <div class="colorMapLabel">
+        <div class="color-map-label">
           {{ prefixes[i + 1] }}
           {{
             timeBasedLabel
@@ -54,7 +54,7 @@
       *ngIf="isLast && !excludeUpperLabel && !lastColorDetached"
       style="background: unset"
     >
-      <div class="colorMapLabel">
+      <div class="color-map-label">
         {{ prefixes[i] }}
         {{
           timeBasedLabel
@@ -70,7 +70,7 @@
       *ngIf="i === colorMapValues.length - 3 && lastColorDetached"
       style="background: unset"
     >
-      <div class="colorMapLabel">
+      <div class="color-map-label">
         {{ prefixes[i + 1] }}
         {{
           timeBasedLabel

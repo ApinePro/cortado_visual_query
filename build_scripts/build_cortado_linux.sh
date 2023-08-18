@@ -7,6 +7,6 @@ cp -r ./dist/cortado-backend ./../frontend/cortado-backend
 
 cd ./../frontend
 npm install
-npm run electron-builder-app-production-linux
+npm run build-electron-linux
 cp -r ./cortado-backend ./app-dist/linux-unpacked
 rm -r -f ./cortado-backend

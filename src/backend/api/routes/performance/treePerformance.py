@@ -116,7 +116,6 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
         if info.is_user_defined:
             continue
         if tree_cache_key in cache.pcache and bid in cache.pcache[tree_cache_key]:
-
             p_values = cache.pcache[tree_cache_key][bid]
             service_times_aggregated = p_values["service_times"]
             idle_times_aggregated = p_values["idle_times"]
@@ -125,7 +124,6 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
             mean_fitness = p_values["mean_fitness"]
 
         else:
-
             test_log = traces
             test_log = EventLog(test_log)
 

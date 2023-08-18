@@ -31,12 +31,12 @@
   overflow-y: auto;
 }
 
-#collapseButton {
+#collapse-button {
   height: fit-content;
   width: fit-content;
   text-align: center;
   position: absolute;
-  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+  background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity));
   border-radius: 0 0 5px 5px;
 }
 

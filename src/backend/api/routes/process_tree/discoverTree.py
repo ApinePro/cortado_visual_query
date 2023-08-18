@@ -39,7 +39,7 @@ def discover_process_model_from_variants(traces):
 
 @router.post("/discoverProcessModelFromConcurrencyVariants")
 async def discover_process_model_from_cvariants(
-        d: InputDiscoverProcessModelFromVariants,
+    d: InputDiscoverProcessModelFromVariants,
 ):
     all_traces = get_traces_from_variants(d.variants)
     print(f"nVariants: {len(all_traces)}")
@@ -57,7 +57,9 @@ class InputAddVariantsToProcessModel(BaseModel):
 async def add_cvariants_to_process_model(d: InputAddVariantsToProcessModel):
     fitting_variants = get_traces_from_variants(d.fitting_variants)
     to_add = get_traces_from_variants(d.variants_to_add)
-    return add_variants_to_process_model(d.pt, fitting_variants, to_add, PoolFactory.instance().get_pool())
+    return add_variants_to_process_model(
+        d.pt, fitting_variants, to_add, PoolFactory.instance().get_pool()
+    )
 
 
 class InputAddVariantsToProcessModelUnknownConformance(BaseModel):
@@ -67,7 +69,7 @@ class InputAddVariantsToProcessModelUnknownConformance(BaseModel):
 
 @router.post("/addConcurrencyVariantsToProcessModelUnknownConformance")
 async def add_cvariants_to_process_model_unknown_conformance(
-        d: InputAddVariantsToProcessModelUnknownConformance,
+    d: InputAddVariantsToProcessModelUnknownConformance,
 ):
     selected_variants = get_traces_from_variants(d.selected_variants)
 
@@ -80,18 +82,32 @@ async def add_cvariants_to_process_model_unknown_conformance(
         else:
             traces_to_add.add(selected_variant)
 
-    return add_variants_to_process_model(d.pt, list(fitting_traces), list(traces_to_add),
-                                         PoolFactory.instance().get_pool())
+    return add_variants_to_process_model(
+        d.pt,
+        list(fitting_traces),
+        list(traces_to_add),
+        PoolFactory.instance().get_pool(),
+    )
 
 
 def get_traces_from_variants(variants):
-    config = ConfigurationRepositoryFactory().get_config_repository().get_configuration()
-    n_sequentializations = -1 if not config.is_n_sequentialization_reduction_enabled else config.number_of_sequentializations_per_variant
+    config = (
+        ConfigurationRepositoryFactory().get_config_repository().get_configuration()
+    )
+    n_sequentializations = (
+        -1
+        if not config.is_n_sequentialization_reduction_enabled
+        else config.number_of_sequentializations_per_variant
+    )
     traces = []
 
     for cvariant, infix_type in variants:
-        sequentializations = generate_sequentializations(Group.deserialize(cvariant),
-                                                         n_sequentializations=n_sequentializations)
-        traces += [TypedTrace(variant_to_trace(seq), InfixType(infix_type)) for seq in sequentializations]
+        sequentializations = generate_sequentializations(
+            Group.deserialize(cvariant), n_sequentializations=n_sequentializations
+        )
+        traces += [
+            TypedTrace(variant_to_trace(seq), InfixType(infix_type))
+            for seq in sequentializations
+        ]
 
     return traces
