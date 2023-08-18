@@ -71,6 +71,29 @@ Thus, if you are building Cortado for Windows, you must run the corresponding sc
 
 After the successful execution of the build script, the build is located in `src/frontend/`
 
+## Contributing
+
+### Linting and Code Quality
+
+To maintain consistent code quality and formatting crucial, we have integrated GitLab's CI/CD pipeline along with npm scripts for linting and manual fixing of formatting errors.
+
+#### GitLab Pipeline
+
+Our GitLab pipeline plays a pivotal role in ensuring code quality. Whenever changes are pushed to the repository, the pipeline automatically triggers linting checks using various tools. We have separate stages within the pipeline to handle TypeScript, HTML, and SASS linting, as well as Python code formatting checks. If any issues are detected, the pipeline provides prompt feedback, helping contributors address the problems early in the development cycle.
+
+#### npm Scripts
+
+In addition to the automated pipeline, we have set up npm scripts that facilitate local development and manual checks for formatting errors.
+
+- To perform comprehensive linting across TypeScript, HTML, and SASS files, use: `npm run lint`
+
+- If linting issues are detected, you can initiate automatic fixes for TypeScript and SASS files using: `npm run lint-scripts-fix` and `npm run lint-styles-fix`
+
+- For HTML files, you can manually review and fix the issues identified by the linter.
+
+- We also support Python code formatting checks using the command: `black --check .`
+
+These tools and scripts are designed to streamline the development process, ensuring that our codebase remains clean, consistent, and of high quality. Before submitting your contributions, make sure to run these checks locally and address any issues to facilitate smoother code reviews and integration.
 
 ## Citing Cortado
 
