@@ -2,9 +2,6 @@
   font-size: small;
   max-height: 90vh;
   user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-user-select: none;
 }
 
 .dropdown-menu {
@@ -17,12 +14,12 @@
   color: var(--bs-white);
 }
 
-.dropdown-label {
+.dropdown-label{
   font-weight: initial;
-  margin: 8px 0px 2px 0px;
+  margin: 8px 0 2px;
 }
 
-.dropdown-item {
+.dropdown-item{
   padding-top: 8px;
   padding-bottom: 8px;
 }

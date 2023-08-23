@@ -1,6 +1,5 @@
 import { ZoomFieldComponent } from './../zoom-field/zoom-field.component';
 import { VariantService } from './../../services/variantService/variant.service';
-import { BackendService } from 'src/app/services/backendService/backend.service';
 import { VariantExplorerComponent } from './../variant-explorer/variant-explorer.component';
 import { GoldenLayoutComponentService } from './../../services/goldenLayoutService/golden-layout-component.service';
 import { ColorMapService } from './../../services/colorMapService/color-map.service';
@@ -18,7 +17,7 @@ import {
 } from '@angular/core';
 
 import { cloneDeep } from 'lodash';
-import { select, Selection } from 'd3';
+import { Selection } from 'd3';
 import * as objectHash from 'object-hash';
 import * as d3 from 'd3';
 import { LogService } from 'src/app/services/logService/log.service';
@@ -31,13 +30,13 @@ import {
   LeafNode,
   SequenceGroup,
   ParallelGroup,
-  deserialize,
 } from 'src/app/objects/Variants/variant_element';
 import { collapsingText, fadeInText } from 'src/app/animations/text-animations';
 import { findPathToSelectedNode } from 'src/app/objects/Variants/utility_functions';
 import { applyInverseStrokeToPoly } from 'src/app/utils/render-utils';
 import { Observable, of, Subject } from 'rxjs';
-import { first, takeUntil, tap } from 'rxjs/operators';
+import { takeUntil, tap } from 'rxjs/operators';
+import { BackendService } from 'src/app/services/backendService/backend.service';
 
 @Component({
   selector: 'app-variant-editor',
@@ -66,7 +65,7 @@ export class VariantEditorComponent
 
   currentVariant: VariantElement = null;
 
-  cachedVariants: VariantElement[] = [null]; // edited
+  cachedVariants: VariantElement[] = [];
   cacheSize: number = 100;
   cacheIdx: number = 0;
 
@@ -89,7 +88,7 @@ export class VariantEditorComponent
   variantEnrichedSelection: Selection<any, any, any, any>;
   zoom: any;
 
-  redundancyWarning = false;
+  redundancyWarning: boolean = false;
 
   private _destroy$ = new Subject();
 
@@ -97,8 +96,8 @@ export class VariantEditorComponent
     private sharedDataService: SharedDataService,
     private logService: LogService,
     private variantService: VariantService,
-    private backendService: BackendService,
     private colorMapService: ColorMapService,
+    private backendService: BackendService,
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
@@ -106,6 +105,12 @@ export class VariantEditorComponent
     renderer: Renderer2
   ) {
     super(elRef.nativeElement, renderer);
+    const activitites = this.logService.activitiesInEventLog;
+
+    for (let activity in activitites) {
+      this.activityNames.push(activity);
+      this.activityNames.sort();
+    }
   }
 
   ngOnInit(): void {
@@ -113,7 +118,7 @@ export class VariantEditorComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe((activities) => {
         this.activityNames = [];
-        for (const activity in activities) {
+        for (let activity in activities) {
           this.activityNames.push(activity);
           this.activityNames.sort();
         }
@@ -147,9 +152,8 @@ export class VariantEditorComponent
     width: number,
     height: number
   ): void {
-    if (width < 1150) {
-      this.collapse = true;
-    } else {
+    if (width < 1150) this.collapse = true;
+    else {
       this.collapse = false;
     }
   }
@@ -166,16 +170,13 @@ export class VariantEditorComponent
       const select = d3.select(this as SVGElement);
       toogleSelect(select);
     });
+
     const toogleSelect = function (svgSelection) {
       if (!this.multiSelect) {
         d3.select('#VariantMainGroup')
-          .selectAll('.selected-polygon')
-          .classed('selected-polygon', false)
-          .attr('stroke', false);
-
-        d3.select('#VariantMainGroup')
-          .selectAll('.chevron-group')
-          .style('fill-opacity', 0.5);
+          .selectAll('.selected-variant-poly')
+          .classed('selected-variant-poly', null)
+          .attr('stroke', null);
 
         d3.select('#VariantMainGroup')
           .selectAll('.selected-variant-g')
@@ -184,8 +185,7 @@ export class VariantEditorComponent
         svgSelection.classed('selected-variant-g', true);
 
         const poly = svgSelection.select('polygon');
-        poly.classed('selected-polygon', true);
-
+        poly.classed('selected-variant-poly', true);
         applyInverseStrokeToPoly(poly);
 
         this.multipleSelected = false;
@@ -199,7 +199,10 @@ export class VariantEditorComponent
 
         const poly = svgSelection.select('polygon');
 
-        poly.classed('selected-polygon', !poly.classed('selected-polygon'));
+        poly.classed(
+          'selected-variant-poly',
+          !poly.classed('selected-variant-poly')
+        );
 
         if (!poly.attr('stroke')) {
           applyInverseStrokeToPoly(poly);
@@ -231,7 +234,7 @@ export class VariantEditorComponent
     const poly = selection
       .selectAll('.selected-variant-g')
       .select('polygon')
-      .classed('selected-polygon', true);
+      .classed('selected-variant-poly', true);
 
     applyInverseStrokeToPoly(poly);
 
@@ -239,7 +242,7 @@ export class VariantEditorComponent
   }
 
   handleActivityButtonClick(event) {
-    if (this.selectedElement || this.emptyVariant) {
+    if (!this.multipleSelected && (this.selectedElement || this.emptyVariant)) {
       const leaf = new LeafNode([event.activityName]);
       this.newLeaf = leaf;
 
@@ -262,110 +265,30 @@ export class VariantEditorComponent
 
         switch (this.selectedStrategy) {
           case this.insertionStrategy.infront:
-            if (!this.multipleSelected) {
-              this.handleInfrontInsert(
-                this.currentVariant,
-                leaf,
-                selectedElement
-              );
-              const grandParent = this.findParent(
-                this.currentVariant,
-                this.findParent(this.currentVariant, leaf)
-              );
-              if (grandParent instanceof ParallelGroup) {
-                this.sortParallel(grandParent);
-              }
-            }
+            this.handleInfrontInsert(
+              this.currentVariant,
+              leaf,
+              selectedElement
+            );
             break;
           case this.insertionStrategy.behind:
-            if (!this.multipleSelected) {
-              this.handleBehindInsert(
-                this.currentVariant,
-                leaf,
-                selectedElement
-              );
-              const grandParent = this.findParent(
-                this.currentVariant,
-                this.findParent(this.currentVariant, leaf)
-              );
-              if (grandParent instanceof ParallelGroup) {
-                this.sortParallel(grandParent);
-              }
-            }
+            this.handleBehindInsert(this.currentVariant, leaf, selectedElement);
             break;
           case this.insertionStrategy.parallel:
-            if (!this.multipleSelected) {
-              this.handleParallelInsert(
-                this.currentVariant,
-                leaf,
-                selectedElement
-              );
-            } else {
-              const selectedElements = this.variantEnrichedSelection
-                .selectAll('.selected-variant-g')
-                .data();
-              this.handleMultiParallelInsert(
-                this.currentVariant,
-                leaf,
-                selectedElements
-              );
-            }
-            this.sortParallel(this.findParent(this.currentVariant, leaf));
+            this.handleParallelInsert(
+              this.currentVariant,
+              leaf,
+              selectedElement
+            );
             break;
           case this.insertionStrategy.replace:
-            if (!this.multipleSelected) {
-              this.handleReplace(this.currentVariant, leaf, selectedElement);
-            }
+            this.handleReplace(this.currentVariant, leaf, selectedElement);
             break;
         }
-        console.log(selectedElement);
-        console.log(this.currentVariant);
         this.triggerRedraw();
       }
+
       this.cacheCurrentVariant();
-    }
-  }
-
-  copyVariant(variant: VariantElement) {
-    const children = variant.getElements();
-    if (variant instanceof LeafNode) {
-      const newLeaf = new LeafNode([variant.asLeafNode().activity[0]]);
-      return newLeaf;
-    } else {
-      const newChildren = [];
-      for (const child of children) {
-        newChildren.push(this.copyVariant(child));
-      }
-      variant.setElements(newChildren);
-      return variant;
-    }
-  }
-
-  handleMultiParallelInsert(
-    variant: VariantElement,
-    leaf: LeafNode,
-    selectedElement
-  ) {
-    const parent = this.findParent(variant, selectedElement[0]);
-    const grandParent = this.findParent(variant, parent); // if parent is root, grandParent is null
-    const children = parent.getElements();
-    if (
-      children.length === selectedElement.length &&
-      grandParent &&
-      grandParent instanceof ParallelGroup
-    ) {
-      const parentSiblings = grandParent.getElements();
-      parentSiblings.splice(0, 0, leaf);
-      grandParent.setElements(parentSiblings);
-    } else {
-      const index = children.indexOf(selectedElement[0]);
-      const newParent = new ParallelGroup([
-        leaf,
-        new SequenceGroup(selectedElement),
-      ]);
-      children.splice(index, selectedElement.length);
-      children.splice(index, 0, newParent);
-      parent.setElements(children);
     }
   }
 
@@ -378,11 +301,8 @@ export class VariantEditorComponent
 
     if (children) {
       const index = children.indexOf(selectedElement);
-      if (variant && variant === selectedElement) {
-        variant.setElements([
-          new ParallelGroup([leaf, new SequenceGroup(children)]),
-        ]);
-      } else if (index > -1) {
+
+      if (index > -1) {
         // Handle parent ParallelGroup
         if (variant instanceof ParallelGroup) {
           children.splice(index, 0, leaf);
@@ -400,8 +320,10 @@ export class VariantEditorComponent
             );
           }
         }
+
+        //variant.setElements(children);
       } else {
-        for (const child of children) {
+        for (let child of children) {
           this.handleParallelInsert(child, leaf, selectedElement);
         }
       }
@@ -417,9 +339,8 @@ export class VariantEditorComponent
 
     if (children) {
       const index = children.indexOf(selectedElement);
-      if (variant && variant === selectedElement) {
-        children.splice(children.length, 0, leaf);
-      } else if (index > -1) {
+
+      if (index > -1) {
         // Handling Parent Parallel Group Cases
         if (variant instanceof ParallelGroup) {
           // Inserting behind a leafNode inside a ParallelGroup
@@ -452,7 +373,7 @@ export class VariantEditorComponent
 
         // Recursing into the Children
       } else {
-        for (const child of children) {
+        for (let child of children) {
           this.handleBehindInsert(child, leaf, selectedElement);
         }
       }
@@ -468,9 +389,7 @@ export class VariantEditorComponent
 
     if (children) {
       const index = children.indexOf(selectedElement);
-      if (variant && variant === selectedElement) {
-        children.splice(0, 0, leaf);
-      } else if (index > -1) {
+      if (index > -1) {
         if (variant instanceof ParallelGroup) {
           // Inserting infront a leafNode inside a ParallelGroup
           if (selectedElement instanceof LeafNode) {
@@ -498,7 +417,7 @@ export class VariantEditorComponent
           children.splice(index, 0, leaf);
         }
       } else {
-        for (const child of children) {
+        for (let child of children) {
           this.handleInfrontInsert(child, leaf, selectedElement);
         }
       }
@@ -510,13 +429,11 @@ export class VariantEditorComponent
 
     if (children) {
       const index = children.indexOf(selectedElement);
-      if (variant && variant === selectedElement) {
-        variant.setElements([leaf]);
-      }
+
       if (index > -1) {
         children.splice(index, 1, leaf);
       } else {
-        for (const child of children) {
+        for (let child of children) {
           this.handleReplace(child, leaf, selectedElement);
         }
       }
@@ -538,27 +455,19 @@ export class VariantEditorComponent
       .selectAll('.selected-variant-g')
       .data();
 
-    if (
-      ElementsToDelete.length === 1 &&
-      ElementsToDelete[0] instanceof SequenceGroup &&
-      this.currentVariant === ElementsToDelete[0]
-    ) {
-      this.onDeleteVariant();
-    } // need further check. Is this nested function allowed?
-    else {
-      this.deleteElementFromVariant(
-        this.currentVariant,
-        this.currentVariant,
-        ElementsToDelete
-      );
+    this.deleteElementFromVariant(
+      this.currentVariant,
+      this.currentVariant,
+      ElementsToDelete
+    );
 
-      this.multiSelect = false;
-      this.multipleSelected = false;
+    this.multiSelect = false;
+    this.multipleSelected = false;
 
+    if (this.currentVariant) {
       this.cacheCurrentVariant();
-
-      this.triggerRedraw();
     }
+    this.triggerRedraw();
   }
 
   computeActivityColor = (
@@ -584,7 +493,7 @@ export class VariantEditorComponent
     const children = variant.getElements();
 
     if (children) {
-      for (const elementToDelete of elementsToDelete) {
+      for (let elementToDelete of elementsToDelete) {
         const index = children.indexOf(elementToDelete);
         if (index > -1) {
           this.newLeaf = children[index - 1];
@@ -593,50 +502,6 @@ export class VariantEditorComponent
         }
       }
 
-      // weiran.yang added
-      if (
-        children.length === 1 &&
-        variant instanceof SequenceGroup &&
-        parent instanceof ParallelGroup &&
-        (children[0] instanceof ParallelGroup ||
-          children[0] instanceof LeafNode)
-      ) {
-        const childrenParent = parent.getElements();
-        const aloneChild = children[0];
-        if (aloneChild instanceof LeafNode) {
-          childrenParent.splice(childrenParent.indexOf(variant), 1, aloneChild);
-        } else {
-          const parallelChildren = children[0].getElements();
-          const deleteIndex = childrenParent.indexOf(variant);
-          childrenParent.splice(deleteIndex, 1);
-          for (const newNode of parallelChildren.reverse()) {
-            childrenParent.splice(deleteIndex, 0, newNode);
-          }
-        }
-        parent.setElements(childrenParent);
-      } else if (
-        children.length === 1 &&
-        variant instanceof ParallelGroup &&
-        parent instanceof SequenceGroup &&
-        (children[0] instanceof SequenceGroup ||
-          children[0] instanceof LeafNode)
-      ) {
-        const childrenParent = parent.getElements();
-        const aloneChild = children[0];
-        if (aloneChild instanceof LeafNode) {
-          childrenParent.splice(childrenParent.indexOf(variant), 1, aloneChild);
-        } else {
-          const sequenceChildren = children[0].getElements();
-          const deleteIndex = childrenParent.indexOf(variant);
-          childrenParent.splice(deleteIndex, 1);
-          for (const newNode of sequenceChildren.reverse()) {
-            childrenParent.splice(deleteIndex, 0, newNode);
-          }
-        }
-        parent.setElements(childrenParent);
-      }
-
-      // edited
       if (children.length === 0) {
         const childrenParent = parent.getElements();
         if (!(variant === this.currentVariant)) {
@@ -648,7 +513,7 @@ export class VariantEditorComponent
         }
       } else {
         variant.setElements(children);
-        for (const child of children) {
+        for (let child of children) {
           this.deleteElementFromVariant(child, variant, elementsToDelete);
         }
       }
@@ -662,8 +527,6 @@ export class VariantEditorComponent
     this.multiSelect = false;
     this.multipleSelected = false;
 
-    this.cacheCurrentVariant();
-
     this.triggerRedraw();
   }
 
@@ -671,12 +534,8 @@ export class VariantEditorComponent
     if (this.cacheIdx < this.cachedVariants.length - 1) {
       this.cachedVariants = this.cachedVariants.slice(0, this.cacheIdx + 1);
     }
-    // Weiran edited
-    if (this.currentVariant) {
-      this.cachedVariants.push(this.currentVariant.copy());
-    } else {
-      this.cachedVariants.push(null);
-    }
+
+    this.cachedVariants.push(this.currentVariant.copy());
     if (this.cachedVariants.length > this.cacheSize) {
       this.cachedVariants.shift();
     } else {
@@ -688,136 +547,12 @@ export class VariantEditorComponent
     }
   }
 
-  compareNode(node1, node2) {
-    if (node1 instanceof SequenceGroup) {
-      return false;
-    } else if (node2 instanceof SequenceGroup) {
-      return true;
-    } else {
-      return node1.asLeafNode().activity[0] > node2.asLeafNode().activity[0];
-    }
-  }
-  /*
-  sortParallel(variant) {
-    let children = variant.getElements();
-    console.log(children);
-    //children.sort((node1, node2) => this.compareNode(node1, node2));
-    children = children.sort((a, b) => true);
-    console.log(children);
-    variant.setElements(children);
-  }*/
-  sortParallel(variant) {
-    const children = variant.getElements();
-    for (let i = 1; i < children.length; i++) {
-      const temp = children[i];
-      let j = i - 1;
-      while (j >= 0 && this.compareNode(children[j], temp)) {
-        children[j + 1] = children[j];
-        j--;
-      }
-      children[j + 1] = temp;
-    }
-    return children;
-  }
-  findParent(parent, node) {
-    const children = parent.getElements();
-    if (!children) {
-      return null;
-    } else {
-      const index = children.indexOf(node);
-      if (index > -1) {
-        return parent;
-      } else {
-        for (const child of children) {
-          if (this.findParent(child, node) != null) {
-            return this.findParent(child, node);
-          }
-        }
-        return null;
-      }
-    }
-  } // check is node is a child of parent
-
-  checkOverlapInsert() {
-    if (this.emptyVariant || !this.variantEnrichedSelection) {
-      return false;
-    } else {
-      const selectedElement = this.variantEnrichedSelection
-        .selectAll('.selected-variant-g')
-        .data()[0];
-      const parent = this.findParent(this.currentVariant, selectedElement);
-      if (parent && !(parent instanceof ParallelGroup)) {
-        return false;
-      } else {
-        if (!parent) {
-          return false;
-        } else {
-          const siblings = parent.getElements();
-          for (const s of siblings) {
-            if (s instanceof SequenceGroup && s.getElements().length > 1) {
-              return true;
-            }
-          }
-          return false;
-        }
-      }
-    }
-  }
-
-  checkNeighborSelection() {
-    const selectedElements = this.variantEnrichedSelection
-      .selectAll('.selected-variant-g')
-      .data();
-
-    if (
-      !(
-        this.findParent(this.currentVariant, selectedElements[0]) instanceof
-        SequenceGroup
-      )
-    ) {
-      return false;
-    }
-
-    for (let i = 0; i < selectedElements.length - 1; i++) {
-      const firstParent = this.findParent(
-        this.currentVariant,
-        selectedElements[i]
-      );
-      const secondParent = this.findParent(
-        this.currentVariant,
-        selectedElements[i + 1]
-      );
-      if (
-        firstParent != secondParent ||
-        firstParent.getElements().indexOf(selectedElements[i + 1]) !=
-          firstParent.getElements().indexOf(selectedElements[i]) + 1
-      ) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  removeSelection() {
-    this.selectedElement = false;
-    this.multiSelect = false;
-    this.multipleSelected = false;
-
-    this.triggerRedraw();
-    this.newLeaf = null;
-  }
-
   redo() {
     this.selectedElement = false;
     this.emptyVariant = false;
 
     this.cacheIdx++;
-    if (this.cachedVariants[this.cacheIdx] === null) {
-      this.currentVariant = null;
-      this.emptyVariant = true;
-    } else {
-      this.currentVariant = this.cachedVariants[this.cacheIdx].copy();
-    }
+    this.currentVariant = this.cachedVariants[this.cacheIdx].copy();
     this.newLeaf = null;
   }
 
@@ -826,13 +561,7 @@ export class VariantEditorComponent
     this.emptyVariant = false;
 
     this.cacheIdx--;
-    if (this.cachedVariants[this.cacheIdx] === null) {
-      this.currentVariant = null;
-      this.emptyVariant = true;
-    } // edited
-    else {
-      this.currentVariant = this.cachedVariants[this.cacheIdx].copy();
-    }
+    this.currentVariant = this.cachedVariants[this.cacheIdx].copy();
     this.newLeaf = null;
   }
 
@@ -858,7 +587,7 @@ export class VariantEditorComponent
     ).slice(1);
     let translateX = 0;
 
-    for (const element of svg
+    for (let element of svg
       .selectAll('g')
       .filter((d: VariantElement) => {
         return path.indexOf(d) > -1;
@@ -962,12 +691,6 @@ export class VariantEditorComponent
       variantExplorerRef.component as VariantExplorerComponent;
     variantExplorer.sortingFeature = 'userDefined';
     variantExplorer.onSortOrderChanged(false);
-  }
-
-  sortVariant(variant) {
-    this.backendService.sortInVariantEditor(variant).subscribe((res) => {
-      this.currentVariant = deserialize(res['variants']);
-    });
   }
 }
 

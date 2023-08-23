@@ -4,7 +4,7 @@ $tooltip-max-width: 450px;
 @import "./@theme/theme";
 @import "~bootstrap-icons/font/bootstrap-icons.css";
 @import "../node_modules/bootstrap/scss/bootstrap";
-@import "./styles/custom_golden_layout_styles.scss";
+@import "./styles/custom_golden_layout_styles";
 
 /* You can add global styles to this file, and also import other style files */
 .btn-icon {
@@ -18,26 +18,31 @@ $tooltip-max-width: 450px;
   --footer-bar-height: 20px;
   --header-bar-height: 25px;
   --width-sidebar: 30px;
-  --text-primary: #dddddd;
+  --text-primary: #ddd;
   --text-secondary: #a0a0a0;
   --thin-border-color: #1a1a1a;
   --standard-font-size: 14px;
-  --bs-dark-rgb: 52, 58, 64;
-  --bs-bg-opacity: 1;
+  --bs-dark-rgb: 52 58 64;
+  --bs-bg-opacity: 100%;
 }
 
 body {
   overflow: hidden;
 }
 
+.bg-dark {
+  background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity)) !important;
+}
+
 .table-dark {
   --bs-table-bg: #343a40;
-  --bs-table-striped-bg: rgba(255, 255, 255, 0.05);
+  --bs-table-striped-bg: rgb(255 255 255 / 5%);
   --bs-table-striped-color: var(--text-secondary);
   --bs-table-active-bg: #373b3e;
   --bs-table-active-color: var(--text-secondary);
-  --bs-table-hover-bg: rgba(0, 0, 0, 0.05);
+  --bs-table-hover-bg: rgb(0 0 0 / 5%);
   --bs-table-hover-color: #fff;
+
   color: var(--text-secondary);
   border-color: #373b3e;
 }
@@ -56,9 +61,10 @@ body {
   display: inline-block;
   font-size: var(--standard-font-size);
   cursor: pointer;
-  background-color: Transparent;
+  background-color: transparent;
   user-select: none;
   height: 100%;
+
   /*
   vertical-align: top;
   */
@@ -69,16 +75,16 @@ body {
   background-color: darkgray;
 }
 
-.button:hover:enabled {
-  background-color: #515a64;
-}
-
 .button:disabled {
   color: #757575 !important;
 }
 
 .button:focus {
   outline: none;
+}
+
+.button:hover:enabled {
+  background-color: #515a64;
 }
 
 .btn-tool-bar {
@@ -117,18 +123,13 @@ hr {
   cursor: help;
 }
 
-/*style scroll bars*/
+/* style scroll bars */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 
 ::-webkit-scrollbar-corner {
-  background: var(--box-background-color);
-}
-
-/* Track */
-::-webkit-scrollbar-track:hover {
   background: var(--box-background-color);
 }
 
@@ -152,7 +153,7 @@ hr {
 }
 
 .warning-highlight {
-  background-color: rgba(255, 255, 0, 0.333);
+  background-color: rgb(255 255 0 / 33.3%);
 }
 
 .imbalanced-parenthesis {
@@ -226,23 +227,23 @@ th {
 }
 
 .logical-operator {
-  color: rgb(65, 141, 213);
+  color: rgb(65 141 213);
 }
 
 .query-operator {
-  color: rgb(65, 141, 213);
+  color: rgb(65 141 213);
 }
 
 .number-operator {
-  color: rgb(238, 205, 21);
+  color: rgb(238 205 21);
 }
 
 .syntax-operator {
-  color: rgb(255, 255, 255);
+  color: rgb(255 255 255);
 }
 
 .syntax-info {
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgb(0 0 0 / 40%);
   position: absolute;
   font-size: small;
   bottom: 0;
@@ -256,7 +257,7 @@ th {
 }
 
 .grid {
-  background-image: radial-gradient(var(--line-color) 1px, transparent 0px);
+  background-image: radial-gradient(var(--line-color) 1px, transparent 0);
   background-size: 20px 20px;
 }
 
@@ -291,13 +292,13 @@ th {
 }
 
 .accordion-button {
-  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
+  background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity)) !important;
   color: whitesmoke !important;
   display: flex;
   justify-content: space-between;
 
   .collapsed {
-    background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
+    background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity)) !important;
   }
 }
 
@@ -311,7 +312,6 @@ th {
   border-left: none;
   border-right: none;
   background-color: unset;
-
   border-bottom-right-radius: unset;
   border-bottom-left-radius: unset;
 
@@ -334,7 +334,7 @@ th {
 
 .styled-input-field,
 .styled-input-field:focus {
-  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+  background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity));
   padding: 0.45rem;
   border-radius: 0.25rem;
   color: var(--text-secondary);
@@ -342,7 +342,7 @@ th {
 }
 
 .form-select.styled-select {
-  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+  background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity));
   color: var(--text-secondary);
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='white' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
 }
@@ -353,9 +353,10 @@ th {
 
 .performance-tooltip-hr {
   height: 2px;
-  opacity: 100%;
+  opacity: 1;
   margin-top: 5px;
 }
+
 /* Make the color picker looks more cortado-y */
 
 .color-picker {
@@ -372,7 +373,7 @@ th {
 }
 
 .color-picker .type-policy {
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAgCAYAAAAffCjxAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEKSURBVEhL7ZXBDoIwDIaZJPoqEk6GBzHhyKtw5lU4En0YHoSjRsV16RY2WoqTi4lfQtqR7qddt5FINE0zwoNDFoWWJBSo65qN36GdoUUe6DqodxZWSJOinUK9M5CpSmtClTjLSIu80GWhYjyhPM/32iw2AFEY6/CEqqq6oSsSxrqvS+vCYdfLZLTUVgk715bGtnUFZq6KLSkkHYbhlGXZEcdRdF13RffPT6GKoriUZXnGcRTQ/s02pDlw34rBwbVn7Yk2BjN3s2vECQGfik3vbu+GbNv2gK5IGOsJ9X1/12ZNViPGOrzSLFKJ1O+IFAI4MUoE8EoLoLYEu03YjIAwKy6bVYCYvC2S5A27y2RrXIt7DgAAAABJRU5ErkJggg==) !important;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAgCAYAAAAffCjxAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEKSURBVEhL7ZXBDoIwDIaZJPoqEk6GBzHhyKtw5lU4En0YHoSjRsV16RY2WoqTi4lfQtqR7qddt5FINE0zwoNDFoWWJBSo65qN36GdoUUe6DqodxZWSJOinUK9M5CpSmtClTjLSIu80GWhYjyhPM/32iw2AFEY6/CEqqq6oSsSxrqvS+vCYdfLZLTUVgk715bGtnUFZq6KLSkkHYbhlGXZEcdRdF13RffPT6GKoriUZXnGcRTQ/s02pDlw34rBwbVn7Yk2BjN3s2vECQGfik3vbu+GbNv2gK5IGOsJ9X1/12ZNViPGOrzSLFKJ1O+IFAI4MUoE8EoLoLYEu03YjIAwKy6bVYCYvC2S5A27y2RrXIt7DgAAAABJRU5ErkJggg==") !important;
 }
 
 .cp-button {
@@ -383,7 +384,7 @@ th {
 }
 
 .variant-performance-button {
-  padding: 1px 5px 1px 5px;
+  padding: 1px 5px;
   margin-right: 5px;
 }
 
@@ -416,7 +417,7 @@ th {
   }
 
   text {
-    stroke: None;
+    stroke: none;
   }
 
   stroke: red;
@@ -435,7 +436,7 @@ th {
   stroke-dasharray: 2 1;
 }
 
-.cortadoLogo {
+.cortado-logo {
   height: 100px;
   animation: pulse 2s infinite ease-out;
   padding: 5px;
@@ -445,15 +446,17 @@ th {
   0% {
     transform: scale(0.66);
   }
+
   50% {
     transform: scale(1);
   }
+
   100% {
     transform: scale(0.66);
   }
 }
 
-.loadingIndicatorContainer {
+.loading-indicator-container {
   width: 100vw !important;
   height: 100vh !important;
   background-color: var(--box-background-color);
@@ -478,9 +481,6 @@ th {
   display: block;
   top: 50%;
   left: 50%;
-  -webkit-transform: translate(-50%, -50%);
-  -moz-transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
   color: white;
 }
@@ -491,20 +491,8 @@ th {
   display: block;
   top: 50%;
   left: 50%;
-  -webkit-transform: translate(-50%, -50%);
-  -moz-transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
   color: white;
-}
-
-tr:hover > td .remove-variant-button {
-  display: inline !important;
-  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
-}
-
-tr:hover > .fixed-right {
-  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
 }
 
 .remove-variant-button {
@@ -512,15 +500,22 @@ tr:hover > .fixed-right {
   background-color: var(--box-background-color);
 }
 
+tr:hover > td .remove-variant-button {
+  display: inline !important;
+  background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity)) !important;
+}
+
+tr:hover > .fixed-right {
+  background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity)) !important;
+}
+
 .custom-dropdown {
   font-size: small;
   max-height: 90vh;
   user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-user-select: none;
 }
 
+/* stylelint-disable-next-line selector-class-pattern */
 .lm_header .lm_tabdropdown_list .lm_tab .lm_title {
   width: 112px !important;
 }

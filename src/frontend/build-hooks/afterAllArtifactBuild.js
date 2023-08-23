@@ -14,6 +14,6 @@ exports.default = () => {
     return;
   }
   fs.mkdirSync(
-    path.join(__dirname, "..", appBuildDir, appOutDir, "cortado-backend"),
+    path.join(__dirname, "..", appBuildDir, appOutDir, "cortado-backend")
   );
 };

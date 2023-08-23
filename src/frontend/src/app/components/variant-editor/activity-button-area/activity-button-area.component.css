@@ -1,15 +1,14 @@
-.activity-button-area {
+.activity-button-area{
   color: var(--text-secondary);
   width: 100%;
   max-height: fit-content;
   overflow-x: auto;
   overflow-y: auto;
   justify-content: center;
-  flex-direction: row;
+  flex-flow: row wrap;
   align-items: center;
   align-content: baseline;
   display: flex;
-  flex-wrap: wrap;
   row-gap: 1px;
   padding-top: 10px;
   padding-bottom: 10px;
@@ -17,15 +16,15 @@
   border-bottom: var(--thin-border-color) 1px solid;
 }
 
-.activity-button {
-  cursor: pointer;
+.activity-button{
+  cursor : pointer;
 }
 
-.activity-label {
+.activity-label{
   font-size: smaller;
-  padding: 0px 2px 0px 2px;
-  margin: 0px 4px 0px 2px;
-  background: rgb(119, 117, 117);
+  padding: 0 2px;
+  margin: 0 4px 0 2px;
+  background: rgb(119 117 117);
   border-radius: 10px;
   vertical-align: middle;
   color: whitesmoke;

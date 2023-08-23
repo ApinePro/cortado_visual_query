@@ -19,7 +19,6 @@ class PropertiesParams(BaseModel):
 
 @router.post("/properties")
 async def get_event_log_properties(params: PropertiesParams):
-
     traces = list(itertools.chain(*[ts for _, (_, ts, _, _) in cache.variants.items()]))
     log = EventLog(traces, **cache.parameters["log_info"])
 

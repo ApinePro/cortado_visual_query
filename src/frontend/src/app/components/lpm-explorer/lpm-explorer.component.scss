@@ -5,6 +5,7 @@
   border-left: 1px solid var(--thin-border-color);
 }
 
+
 :host {
   position: absolute;
   overflow: hidden;
@@ -13,7 +14,8 @@
 .lpm-tr-divider {
   border-bottom: 1px solid black;
 }
-​ .lpm-table-container {
+
+.lpm-table-container {
   color: var(--text-secondary);
   width: 100%;
   height: 100%;
@@ -38,8 +40,7 @@
 
 .header-text-container {
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
+  flex-flow: row nowrap;
   justify-content: space-evenly;
   font-size: 0.9rem;
 }
@@ -55,19 +56,20 @@
   color: whitesmoke;
 }
 
+
 .sticky-header-row {
   position: sticky;
-  top: 0px;
+  top: 0;
   z-index: 10;
   background-color: var(--box-background-color);
 }
 
 .border-lightgrey {
-  border-color: rgb(106, 106, 106, 0.6) !important;
+  border-color: rgb(106 106 106 / 60%) !important;
 }
 
 .center-element {
-  border-color: rgb(106, 106, 106, 0.2) !important;
+  border-color: rgb(106 106 106 / 20%) !important;
   border-right-width: 1px;
   border-left-width: 1px;
 }

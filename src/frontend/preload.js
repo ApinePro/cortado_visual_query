@@ -11,7 +11,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
       fileExtension,
       base64File,
       buttonLabel,
-      title,
+      title
     ),
   saveToUserFolder: (fileName, fileExtension, base64File) =>
     ipcRenderer.send("saveToUserFolder", fileName, fileExtension, base64File),

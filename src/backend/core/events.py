@@ -21,12 +21,14 @@ def create_start_app_handler(
         cache.parameters = pickle.load(open("./resources/parameters.p", "rb"))
         # create process pool
         PoolFactory.instance()
-        
-        print('loaded parameters', cache.parameters)
+
+        print("loaded parameters", cache.parameters)
+
     return start_app
 
 
 def create_stop_app_handler(app: FastAPI) -> Callable:
     async def stop_app() -> None:
         logger.info("-------- Handling application stop -----------")
+
     return stop_app

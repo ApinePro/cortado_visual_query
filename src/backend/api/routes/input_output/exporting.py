@@ -66,7 +66,11 @@ class ExportLogXes(BaseModel):
 async def download_xes(d: ExportLogXes):
     traces = list(
         itertools.chain(
-            *[ts for bid, (_, ts, _, info) in cache.variants.items() if bid in d.bids and not info.is_user_defined]
+            *[
+                ts
+                for bid, (_, ts, _, info) in cache.variants.items()
+                if bid in d.bids and not info.is_user_defined
+            ]
         )
     )
     log = EventLog(traces, **cache.parameters["log_info"])

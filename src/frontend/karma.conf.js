@@ -18,7 +18,7 @@ module.exports = function (config) {
     coverageIstanbulReporter: {
       dir: require("path").join(
         __dirname,
-        "./coverage/interactive-process-mining-angular-app",
+        "./coverage/interactive-process-mining-angular-app"
       ),
       reports: ["html", "lcovonly", "text-summary"],
       fixWebpackSourcePaths: true,

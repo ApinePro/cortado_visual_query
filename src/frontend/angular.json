@@ -120,8 +120,14 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
-            "assets": ["src/favicon.ico", "src/assets", "src/assets/defs.svg"],
-            "styles": ["src/styles.scss"],
+            "assets": [
+              "src/favicon.ico",
+              "src/assets",
+              "src/assets/defs.svg"
+            ],
+            "styles": [
+              "src/styles.scss"
+            ],
             "scripts": [],
             "customWebpackConfig": {
               "path": "./custom-webpack.config.js"
@@ -143,7 +149,10 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
           }
         }
       }

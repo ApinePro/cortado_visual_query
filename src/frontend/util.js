@@ -40,7 +40,7 @@ async function showSaveDialog(
   fileExtension,
   base64File,
   buttonLabel,
-  title,
+  title
 ) {
   let downloadPath = downloadFolder + `/${fileName}.${fileExtension}`;
 
@@ -60,7 +60,7 @@ async function showSaveDialog(
     fs.writeFileSync(
       fixPath(filePath, fileExtension),
       imageBuffer.data,
-      "base64",
+      "base64"
     );
   }
 
@@ -70,14 +70,14 @@ async function showSaveDialog(
 function saveToUserFolder(userFolderPath, fileName, fileExtension, data) {
   return fsPromise.writeFile(
     `${userFolderPath}/${fileName}.${fileExtension}`,
-    data,
+    data
   );
 }
 
 function readFromUserFolder(userFolderPath, fileName, fileExtension) {
   return fsPromise.readFile(
     `${userFolderPath}/${fileName}.${fileExtension}`,
-    "utf8",
+    "utf8"
   );
 }
 

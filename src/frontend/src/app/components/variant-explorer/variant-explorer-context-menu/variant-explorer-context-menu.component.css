@@ -1,16 +1,17 @@
-.context-menu {
-  display: block;
-  position: fixed;
+.context-menu{
+  display : block;
+  position : fixed;
   color: white;
-  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+  background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity));;
   border-radius: 2px;
-  z-index: 100;
+  z-index :  100;
+
 }
 
-.context-menu-list {
-  list-style-type: none;
+.context-menu-list{
+  list-style-type:none;
   padding: 5px;
-  margin: 0px;
+  margin: 0;
 }
 
 .button:hover:enabled {

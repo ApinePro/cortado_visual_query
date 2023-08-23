@@ -23,8 +23,6 @@ import {
   VariantElement,
   SequenceGroup,
   ParallelGroup,
-  ChoiceGroup,
-  FallthroughGroup,
   LeafNode,
   WaitingTimeNode,
   InvisibleSequenceGroup,
@@ -211,7 +209,6 @@ export class VariantDrawerDirective
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('there changes');
     if (
       changes.variant &&
       !changes.variant.firstChange &&
@@ -273,6 +270,7 @@ export class VariantDrawerDirective
       svg_container
         .attr('width', width + width_offset)
         .attr('height', height + 2 * VARIANT_Constants.SELECTION_STROKE_WIDTH);
+
       if (
         !this.keepStandardView &&
         this.variantViewModeService.viewMode === ViewMode.CONFORMANCE &&
@@ -380,10 +378,6 @@ export class VariantDrawerDirective
 
     if (element instanceof ParallelGroup) {
       this.drawParallelGroup(element.asParallelGroup(), svgElement);
-    } else if (element instanceof ChoiceGroup) {
-      this.drawChoiceGroup(element.asChoiceGroup(), svgElement);
-    } else if (element instanceof FallthroughGroup) {
-      this.drawFallthroughGroup(element.asFallthroughGroup(), svgElement);
     } else if (element instanceof SequenceGroup) {
       this.drawSequenceGroup(
         element.asSequenceGroup(),
@@ -496,19 +490,6 @@ export class VariantDrawerDirective
     }
   }
 
-  outerPolygonTranslation(points, headLen): string {
-    let newPolygonPoints = [];
-    for (const pointPair of points.split(' ')) {
-      newPolygonPoints.push(
-        `${Number(pointPair.split(',')[0]) - headLen},${Number(
-          pointPair.split(',')[1]
-        )}`
-      );
-    }
-    let str = newPolygonPoints.join(' ');
-    return str;
-  }
-
   drawSequenceGroup(
     element: SequenceGroup,
     parent: Selection<any, any, any, any>,
@@ -516,22 +497,7 @@ export class VariantDrawerDirective
   ): void {
     const width = element.getWidth();
     const height = element.getHeight();
-
-    // Weiran
-    let polygonPoints = this.polygonService.getPolygonPoints(width, height);
-    if (outerElement) {
-      const oldPolygonPoints = this.polygonService.getPolygonPoints(
-        width,
-        height
-      );
-      let headLength =
-        Math.tan((VARIANT_Constants.ARROW_HEAD_ANGLE / 360) * Math.PI * 2) *
-        (height / 2);
-      polygonPoints = this.outerPolygonTranslation(
-        oldPolygonPoints,
-        headLength
-      );
-    }
+    const polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
     const color = 'lightgrey';
 
@@ -686,141 +652,6 @@ export class VariantDrawerDirective
     }
   }
 
-  drawChoiceGroup(
-    element: ChoiceGroup,
-    parent: Selection<any, any, any, any>
-  ): void {
-    const width = element.getWidth();
-    const height = element.getHeight();
-
-    const polygonPoints = this.polygonService.getPolygonPoints(width, height);
-
-    let laElement = getLowestSelectionActionableElement(element);
-    let actionable =
-      laElement.parent !== null &&
-      laElement.infixSelectableState !== SelectableState.None;
-
-    const color = 'lightgrey';
-    let polygon = this.createPolygon(
-      parent,
-      polygonPoints,
-      color,
-      actionable,
-      true
-    );
-
-    if (
-      this.traceInfixSelectionMode &&
-      !(element instanceof InvisibleSequenceGroup)
-    ) {
-      this.addInfixSelectionAttributes(element, polygon, false);
-    }
-
-    if (this.onClickCbFc) {
-      parent.on('click', (e: PointerEvent) => {
-        this.onClickCbFc(this, element, this.variant);
-        e.stopPropagation();
-      });
-    }
-
-    if (this.onRightMouseClickCbFc) {
-      parent.on('contextmenu', (e: PointerEvent) => {
-        this.onRightMouseClickCbFc(this, element, this.variant, e);
-        e.stopPropagation();
-      });
-    }
-
-    let y = VARIANT_Constants.MARGIN_Y;
-
-    for (const child of element.elements) {
-      if (
-        child instanceof WaitingTimeNode &&
-        (this.keepStandardView ||
-          this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE)
-      ) {
-        continue;
-      }
-
-      const height = child.getHeight();
-      const x = element.getHeadLength() + 0.5 * VARIANT_Constants.MARGIN_X;
-      const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
-      this.draw(child, g, false);
-      y += height + VARIANT_Constants.MARGIN_Y;
-    }
-
-    if (this.onMouseOverCbFc) {
-      this.onMouseOverCbFc(this, element, this.variant, parent);
-    }
-  }
-
-  drawFallthroughGroup(
-    element: FallthroughGroup,
-    parent: Selection<any, any, any, any>
-  ): void {
-    const width = element.getWidth();
-    const height = element.getHeight();
-
-    const polygonPoints = this.polygonService.getPolygonPoints(width, height);
-
-    let laElement = getLowestSelectionActionableElement(element);
-    let actionable =
-      laElement.parent !== null &&
-      laElement.infixSelectableState !== SelectableState.None;
-
-    const color = 'lightgrey';
-    let polygon = this.createFallthroughPolygon(
-      parent,
-      polygonPoints,
-      color,
-      actionable,
-      true
-    );
-
-    if (
-      this.traceInfixSelectionMode &&
-      !(element instanceof InvisibleSequenceGroup)
-    ) {
-      this.addInfixSelectionAttributes(element, polygon, false);
-    }
-
-    if (this.onClickCbFc) {
-      parent.on('click', (e: PointerEvent) => {
-        this.onClickCbFc(this, element, this.variant);
-        e.stopPropagation();
-      });
-    }
-
-    if (this.onRightMouseClickCbFc) {
-      parent.on('contextmenu', (e: PointerEvent) => {
-        this.onRightMouseClickCbFc(this, element, this.variant, e);
-        e.stopPropagation();
-      });
-    }
-
-    let y = VARIANT_Constants.MARGIN_Y;
-
-    for (const child of element.elements) {
-      if (
-        child instanceof WaitingTimeNode &&
-        (this.keepStandardView ||
-          this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE)
-      ) {
-        continue;
-      }
-
-      const height = child.getHeight();
-      const x = element.getHeadLength() + 0.5 * VARIANT_Constants.MARGIN_X;
-      const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
-      console.log;
-      this.draw(child, g, false);
-      y += height + VARIANT_Constants.MARGIN_Y;
-    }
-
-    if (this.onMouseOverCbFc) {
-      this.onMouseOverCbFc(this, element, this.variant, parent);
-    }
-  }
-
   private createPolygon(
     parent: d3.Selection<any, any, any, any>,
     polygonPoints: string,
@@ -838,27 +669,9 @@ export class VariantDrawerDirective
       );
 
     if (group) {
-      poly.classed('chevron-group', true);
       poly.style('fill-opacity', 0.5).style('stroke-width', 2);
     }
 
-    return poly;
-  }
-
-  private createFallthroughPolygon(
-    parent: d3.Selection<any, any, any, any>,
-    polygonPoints: string,
-    color: string,
-    actionable: boolean,
-    group = false
-  ) {
-    const poly = parent
-      .append('polygon')
-      .attr('points', polygonPoints)
-      .style('fill', color)
-      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable);
-    poly.classed('chevron-group', true);
-    poly.style('stroke-width', 2);
     return poly;
   }
 
@@ -890,8 +703,6 @@ export class VariantDrawerDirective
       this.traceInfixSelectionMode && !element.selected
     );
 
-    //5.11
-
     const activityText = parent
       .append('text')
       .attr('x', width / 2)
@@ -913,7 +724,6 @@ export class VariantDrawerDirective
 
     let truncated = false;
     let dy = 0;
-
     element.activity.forEach((a, _i) => {
       const tspan = activityText
         .append('tspan')
@@ -1114,16 +924,12 @@ export class VariantDrawerDirective
         textSelection.text()
       );
     } else {
-      textLength = textSelection.node().getBoundingClientRect().width;
+      textLength = textSelection.node().getComputedTextLength();
     }
-    if (textLength > 0) {
-      this.sharedDataService.computedTextLengthCache.set(
-        textSelection.text(),
-        textLength
-      );
-    }
-
-    textLength = textSelection.node().getBoundingClientRect().width;
+    this.sharedDataService.computedTextLengthCache.set(
+      textSelection.text(),
+      textLength
+    );
     return textLength;
   }
 

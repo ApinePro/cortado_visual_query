@@ -5,26 +5,35 @@ from appdirs import user_config_dir
 import os
 import errno
 
-CONFIG_FILENAME = 'config.json'
+CONFIG_FILENAME = "config.json"
 DEFAULT_TIMEOUT = 2
 DEFAULT_MIN_TRACES_VARIANT_DETECTION_MULTIPROCESSING = 1000
 DEFAULT_NUMBER_OF_SEQUENTIALIZATIONS = 10
-APP_NAME = 'cortado'
-COMPANY_NAME = 'Fraunhofer'
+APP_NAME = "cortado"
+COMPANY_NAME = "Fraunhofer"
 
 
 class Configuration:
     timeout_cvariant_alignment_computation: int
     min_traces_variant_detection_mp: int
 
-    def __init__(self, timeout_cvariant_alignment_computation=DEFAULT_TIMEOUT,
-                 min_traces_variant_detection_mp=DEFAULT_MIN_TRACES_VARIANT_DETECTION_MULTIPROCESSING,
-                 is_n_sequentialization_reduction_enabled=True,
-                 number_of_sequentializations_per_variant=DEFAULT_NUMBER_OF_SEQUENTIALIZATIONS):
-        self.timeout_cvariant_alignment_computation = timeout_cvariant_alignment_computation
+    def __init__(
+        self,
+        timeout_cvariant_alignment_computation=DEFAULT_TIMEOUT,
+        min_traces_variant_detection_mp=DEFAULT_MIN_TRACES_VARIANT_DETECTION_MULTIPROCESSING,
+        is_n_sequentialization_reduction_enabled=True,
+        number_of_sequentializations_per_variant=DEFAULT_NUMBER_OF_SEQUENTIALIZATIONS,
+    ):
+        self.timeout_cvariant_alignment_computation = (
+            timeout_cvariant_alignment_computation
+        )
         self.min_traces_variant_detection_mp = min_traces_variant_detection_mp
-        self.is_n_sequentialization_reduction_enabled = is_n_sequentialization_reduction_enabled
-        self.number_of_sequentializations_per_variant = number_of_sequentializations_per_variant
+        self.is_n_sequentialization_reduction_enabled = (
+            is_n_sequentialization_reduction_enabled
+        )
+        self.number_of_sequentializations_per_variant = (
+            number_of_sequentializations_per_variant
+        )
 
 
 class ConfigurationRepository(abc.ABC):
@@ -43,7 +52,7 @@ class FileBasedConfigurationRepository(ConfigurationRepository):
         filename = os.path.join(directory, CONFIG_FILENAME)
         self.__create_dir_if_not_exists(filename)
 
-        with open(filename, 'w+', encoding='utf-8') as f:
+        with open(filename, "w+", encoding="utf-8") as f:
             json.dump(config.__dict__, f, ensure_ascii=False, indent=4)
 
     def get_configuration(self) -> Configuration:
@@ -51,28 +60,38 @@ class FileBasedConfigurationRepository(ConfigurationRepository):
         if not Path(os.path.join(directory, CONFIG_FILENAME)).is_file():
             return Configuration(timeout_cvariant_alignment_computation=DEFAULT_TIMEOUT)
 
-        with open(os.path.join(directory, CONFIG_FILENAME), 'r', encoding='utf-8') as f:
+        with open(os.path.join(directory, CONFIG_FILENAME), "r", encoding="utf-8") as f:
             data = json.load(f)
 
-            min_traces_variant_detection_mp = (data['min_traces_variant_detection_mp']
-                                               if "min_traces_variant_detection_mp" in data
-                                               else DEFAULT_MIN_TRACES_VARIANT_DETECTION_MULTIPROCESSING)
+            min_traces_variant_detection_mp = (
+                data["min_traces_variant_detection_mp"]
+                if "min_traces_variant_detection_mp" in data
+                else DEFAULT_MIN_TRACES_VARIANT_DETECTION_MULTIPROCESSING
+            )
 
-            timeout_cvariant_alignment_computation = (data['timeout_cvariant_alignment_computation']
-                                                      if "timeout_cvariant_alignment_computation" in data
-                                                      else DEFAULT_TIMEOUT)
+            timeout_cvariant_alignment_computation = (
+                data["timeout_cvariant_alignment_computation"]
+                if "timeout_cvariant_alignment_computation" in data
+                else DEFAULT_TIMEOUT
+            )
 
-            is_n_sequentialization_reduction_enabled = (data['is_n_sequentialization_reduction_enabled']
-                                                        if "is_n_sequentialization_reduction_enabled" in data
-                                                        else True)
-            number_of_sequentializations_per_variant = (data['number_of_sequentializations_per_variant']
-                                                        if "number_of_sequentializations_per_variant" in data
-                                                        else DEFAULT_NUMBER_OF_SEQUENTIALIZATIONS)
+            is_n_sequentialization_reduction_enabled = (
+                data["is_n_sequentialization_reduction_enabled"]
+                if "is_n_sequentialization_reduction_enabled" in data
+                else True
+            )
+            number_of_sequentializations_per_variant = (
+                data["number_of_sequentializations_per_variant"]
+                if "number_of_sequentializations_per_variant" in data
+                else DEFAULT_NUMBER_OF_SEQUENTIALIZATIONS
+            )
 
-            return Configuration(timeout_cvariant_alignment_computation=timeout_cvariant_alignment_computation,
-                                 min_traces_variant_detection_mp=min_traces_variant_detection_mp,
-                                 is_n_sequentialization_reduction_enabled=is_n_sequentialization_reduction_enabled,
-                                 number_of_sequentializations_per_variant=number_of_sequentializations_per_variant)
+            return Configuration(
+                timeout_cvariant_alignment_computation=timeout_cvariant_alignment_computation,
+                min_traces_variant_detection_mp=min_traces_variant_detection_mp,
+                is_n_sequentialization_reduction_enabled=is_n_sequentialization_reduction_enabled,
+                number_of_sequentializations_per_variant=number_of_sequentializations_per_variant,
+            )
 
     # see https://stackoverflow.com/questions/12517451/automatically-creating-directories-with-file-output
     @staticmethod

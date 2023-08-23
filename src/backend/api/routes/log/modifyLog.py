@@ -95,7 +95,11 @@ async def add_user_defined_variant(request: userDefinedVariant, response: Respon
         return
 
     cache.cache.variants[request.bid] = (
-        v, [], dict(), VariantInformation(infix_type=InfixType.NOT_AN_INFIX, is_user_defined=True))
+        v,
+        [],
+        dict(),
+        VariantInformation(infix_type=InfixType.NOT_AN_INFIX, is_user_defined=True),
+    )
     return
 
 
@@ -115,5 +119,10 @@ async def add_user_defined_infix(request: userDefinedInfix, response: Response):
         response.status_code = status.HTTP_400_BAD_REQUEST
         return
 
-    cache.cache.variants[request.bid] = (v, [], dict(), VariantInformation(infix_type=infix_type, is_user_defined=True))
+    cache.cache.variants[request.bid] = (
+        v,
+        [],
+        dict(),
+        VariantInformation(infix_type=infix_type, is_user_defined=True),
+    )
     return

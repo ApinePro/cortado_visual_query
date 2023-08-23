@@ -13,6 +13,7 @@
 
 */
 
+
 .frozen-node-operator {
   fill: #25306a !important;
 }
@@ -25,17 +26,18 @@
   fill: #161e40 !important;
 }
 
-.frozen-edge {
-  stroke: #425bbf !important;
+.frozen-edge{
+  stroke : #425bbf !important;
 }
 
-.selected-node {
-  stroke: #dc3545 !important;
+.selected-node{
+  stroke : #dc3545 !important;
 }
 
-.selected-edge {
-  stroke: #dc3545 !important;
+.selected-edge{
+  stroke : #dc3545 !important;
 }
+
 
 .performance-tooltip {
   max-width: none;
@@ -58,10 +60,10 @@
 .performance-tooltip-header-style {
   margin-bottom: 0;
   background-color: #f0f0f0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgb(0 0 0 / 20%);
   border-top-left-radius: calc(0.3rem - 1px);
   border-top-right-radius: calc(0.3rem - 1px);
-  padding: 6px 10px 0px 10px;
+  padding: 6px 10px 0;
 }
 
 .performance-tooltip-header {
