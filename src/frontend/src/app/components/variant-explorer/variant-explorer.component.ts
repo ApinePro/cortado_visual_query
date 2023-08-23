@@ -96,7 +96,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ClusteringSettingsDialogComponent } from './clustering-settings-dialog/clustering-settings-dialog.component';
 import _ from 'lodash';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
-import {DocumentationService} from "../documentation/documentation.service";
+import { DocumentationService } from '../documentation/documentation.service';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -131,7 +131,7 @@ export class VariantExplorerComponent
     private toastService: ToastService,
     private modalService: NgbModal,
     private changeDetectorRef: ChangeDetectorRef,
-    private documentationService: DocumentationService,
+    private documentationService: DocumentationService
   ) {
     super(elRef.nativeElement, renderer);
   }

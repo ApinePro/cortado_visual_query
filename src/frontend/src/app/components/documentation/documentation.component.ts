@@ -4,6 +4,7 @@ import {
   Inject,
   Input,
   NgZone,
+  OnDestroy,
   OnInit,
   ViewEncapsulation,
 } from '@angular/core';
@@ -21,7 +22,7 @@ declare var $: any;
   styleUrls: ['./documentation.component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
-export class DocumentationComponent implements OnInit {
+export class DocumentationComponent implements OnInit, OnDestroy {
   @Input()
   showDocumentation: Observable<string>;
   headings: NodeListOf<Element>;
@@ -32,7 +33,7 @@ export class DocumentationComponent implements OnInit {
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private zone: NgZone,
-    private elementRef: ElementRef<HTMLElement>,
+    private elementRef: ElementRef<HTMLElement>
   ) {}
 
   ngOnInit() {
@@ -44,7 +45,7 @@ export class DocumentationComponent implements OnInit {
   }
 
   showModal(heading): void {
-    $('#documentationModalDialog').modal('show');
+    $('#documentation-modal-dialog').modal('show');
     setTimeout(() => {
       if (heading) {
         this.navToSectionByHeading(heading);

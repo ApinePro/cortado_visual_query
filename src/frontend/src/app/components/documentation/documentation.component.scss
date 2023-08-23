@@ -1,4 +1,4 @@
-#documentationModalDialog {
+#documentation-modal-dialog {
   --bs-modal-width: 1400px;
 }
 
@@ -8,7 +8,6 @@
 
 nav {
   align-self: flex-start;
-  position: -webkit-sticky;
   position: sticky;
   top: 26px;
   min-width: 220px;
@@ -16,12 +15,20 @@ nav {
   margin-left: 22px;
 }
 
+ul {
+  list-style-type: none;
+}
+
 nav > ul {
   padding: 0 16px;
 }
 
-ul {
-  list-style-type: none;
+li {
+  margin-left: -4px;
+}
+
+li.active {
+  border-left: 4px solid rgb(107 165 231);
 }
 
 ul.scrollspy-nav {
@@ -50,11 +57,13 @@ ul.scrollspy-nav {
       opacity: 0.6;
     }
   }
+
   .first {
     color: var(--bs-modal-color);
     padding-left: 12px;
     font-weight: 700;
   }
+
   .first.active {
     padding-left: 8px;
   }
@@ -64,6 +73,7 @@ ul.scrollspy-nav {
     padding-left: 20px;
     font-weight: 600;
   }
+
   .second.active {
     padding-left: 16px;
   }
@@ -73,6 +83,7 @@ ul.scrollspy-nav {
     padding-left: 28px;
     font-weight: 400;
   }
+
   .third.active {
     padding-left: 24px;
   }
@@ -82,6 +93,7 @@ ul.scrollspy-nav {
     padding-left: 36px;
     font-weight: 200;
   }
+
   .fourth.active {
     padding-left: 32px;
   }
@@ -91,17 +103,9 @@ ul.scrollspy-nav {
     padding-left: 44px;
     font-weight: 100;
   }
+
   .fifth.active {
     padding-left: 40px;
   }
 
 }
-
-li {
-  margin-left: -4px;
-}
-
-li.active {
-  border-left: 4px solid rgb(107, 165, 231);
-}
-
