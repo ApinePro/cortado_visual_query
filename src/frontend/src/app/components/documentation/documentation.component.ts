@@ -1,14 +1,25 @@
-import { Component, Inject, Input, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  Inject,
+  Input,
+  NgZone,
+  OnInit,
+  ViewEncapsulation,
+} from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { first, takeUntil } from 'rxjs/operators';
+
+declare let Gumshoe: any;
 
 declare var $: any;
 
 @Component({
   selector: 'app-documentation',
   templateUrl: './documentation.component.html',
-  styleUrls: ['./documentation.component.css'],
+  styleUrls: ['./documentation.component.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class DocumentationComponent implements OnInit {
   @Input()
@@ -16,8 +27,13 @@ export class DocumentationComponent implements OnInit {
   headings: NodeListOf<Element>;
   // tslint:disable-next-line:variable-name
   private _destroy$ = new Subject();
+  private scrollSpy: typeof Gumshoe;
 
-  constructor(@Inject(DOCUMENT) private document: Document) {}
+  constructor(
+    @Inject(DOCUMENT) private document: Document,
+    private zone: NgZone,
+    private elementRef: ElementRef<HTMLElement>,
+  ) {}
 
   ngOnInit() {
     this.showDocumentation
@@ -29,25 +45,44 @@ export class DocumentationComponent implements OnInit {
 
   showModal(heading): void {
     $('#documentationModalDialog').modal('show');
-    $('#documentationModalDialog').on('shown.bs.modal', (e) => {
-      if (heading) {
-        // this.navToHeading(heading);
-      }
-    });
     setTimeout(() => {
-      this.navToHeading(heading);
+      if (heading) {
+        this.navToSectionByHeading(heading);
+      }
+      if (this.scrollSpy) {
+        this.scrollSpy.detect();
+      }
     }, 180);
   }
 
-  onReady() {
+  onLoad() {
     setTimeout(() => {
       this.headings = this.document
         .querySelector('main')
         .querySelectorAll('h1, h2, h3, h4, h5, h6');
+      this.setScrollSpy();
     });
+    const tables = this.document
+      .querySelector('main')
+      .querySelectorAll('table, th, td');
+
+    // add class for styling the tables
+    for (let i = 0; i < tables.length; i++) {
+      tables[i].classList.add('markdown-table');
+    }
   }
 
-  navToHeading(heading: string) {
+  onScroll(): void {
+    if (this.scrollSpy) {
+      this.scrollSpy.detect();
+    }
+  }
+
+  navToSection(elementId) {
+    document.querySelector('#' + elementId).scrollIntoView();
+  }
+
+  navToSectionByHeading(heading: string) {
     let elementId;
     // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < this.headings.length; i++) {
@@ -57,15 +92,30 @@ export class DocumentationComponent implements OnInit {
       }
     }
     if (elementId) {
-      this.onClick(elementId);
+      document.querySelector('#' + elementId).scrollIntoView();
     }
   }
 
-  onLoad(event) {}
+  setScrollSpy(): void {
+    if (this.scrollSpy) {
+      this.scrollSpy.setup();
+      return;
+    }
+    this.zone.onStable.pipe(first()).subscribe(() => {
+      this.scrollSpy = new Gumshoe('#table-of-contents a', {
+        offset: 110,
+      });
+      this.scrollSpy.setup();
+    });
+  }
 
-  onError(event) {}
+  ngOnDestroy(): void {
+    this.destroyScrollSpy();
+  }
 
-  onClick(elementId): void {
-    document.querySelector('#' + elementId).scrollIntoView();
+  destroyScrollSpy(): void {
+    if (this.scrollSpy) {
+      this.scrollSpy.destroy();
+    }
   }
 }

@@ -57,6 +57,7 @@
     "copy-webpack-plugin": "^11.0.0",
     "d3": "^7.3.0",
     "electron-store": "^8.0.1",
+    "gumshoejs": "^5.1.2",
     "humanize-duration-ts": "^2.1.1",
     "jquery": "^3.6.0",
     "lodash": "^4.17.21",

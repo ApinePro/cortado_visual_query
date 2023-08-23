@@ -1,0 +1,107 @@
+#documentationModalDialog {
+  --bs-modal-width: 1400px;
+}
+
+.flex-container {
+  display: flex;
+}
+
+nav {
+  align-self: flex-start;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 26px;
+  min-width: 220px;
+  border-left: 1px #a0a0a0 solid;
+  margin-left: 22px;
+}
+
+nav > ul {
+  padding: 0 16px;
+}
+
+ul {
+  list-style-type: none;
+}
+
+ul.scrollspy-nav {
+  padding: 0;
+
+  li {
+    border-radius: 2px;
+    font-size: 16px;
+    font-weight: 500;
+    list-style: none;
+    padding: 4px 0 4px 16px;
+
+    > a {
+      color: white;
+    }
+
+    > a,
+    > a:active,
+    > a:focus,
+    > a:hover {
+      text-decoration: none;
+    }
+
+    &:not(.active) {
+      border-color: transparent;
+      opacity: 0.6;
+    }
+  }
+  .first {
+    color: var(--bs-modal-color);
+    padding-left: 12px;
+    font-weight: 700;
+  }
+  .first.active {
+    padding-left: 8px;
+  }
+
+  .second {
+    color: var(--bs-modal-color);
+    padding-left: 20px;
+    font-weight: 600;
+  }
+  .second.active {
+    padding-left: 16px;
+  }
+
+  .third {
+    color: var(--bs-modal-color);
+    padding-left: 28px;
+    font-weight: 400;
+  }
+  .third.active {
+    padding-left: 24px;
+  }
+
+  .fourth {
+    color: var(--bs-modal-color);
+    padding-left: 36px;
+    font-weight: 200;
+  }
+  .fourth.active {
+    padding-left: 32px;
+  }
+
+  .fifth {
+    color: var(--bs-modal-color);
+    padding-left: 44px;
+    font-weight: 100;
+  }
+  .fifth.active {
+    padding-left: 40px;
+  }
+
+}
+
+li {
+  margin-left: -4px;
+}
+
+li.active {
+  border-left: 4px solid rgb(107, 165, 231);
+}
+

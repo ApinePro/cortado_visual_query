@@ -97,6 +97,7 @@ import { LoadingOverlayComponent } from './components/loading-overlay/loading-ov
 import { DocumentationComponent } from './components/documentation/documentation.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { StripHtmlPipe } from './components/documentation/strip-html.pipe';
+import { RouterLink } from '@angular/router';
 
 @NgModule({
   declarations: [
@@ -194,6 +195,7 @@ import { StripHtmlPipe } from './components/documentation/strip-html.pipe';
       loader: HttpClient,
       sanitize: SecurityContext.NONE,
     }),
+    RouterLink,
   ],
   providers: [
     {

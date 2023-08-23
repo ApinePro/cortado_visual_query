@@ -5,11 +5,16 @@
   role="dialog"
   aria-labelledby="documentationModalLabel"
   aria-hidden="true"
+  (scroll)="onScroll()"
 >
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header h-line-modal-bottom">
-        <h5 class="modal-title text-light" id="settingsModalLabel">
+        <h5
+          class="modal-title text-light"
+          id="settingsModalLabel"
+          id="doc-modal-header"
+        >
           Documentation
         </h5>
         <button
@@ -27,12 +32,10 @@
             ngPreserveWhitespaces
             [src]="'./assets/doc/user_manual.md'"
             [srcRelativeLink]="true"
-            (load)="onLoad($event)"
-            (error)="onError($event)"
-            (ready)="onReady()"
+            (load)="onLoad()"
           ></main>
           <nav *ngIf="headings">
-            <ul>
+            <ul class="scrollspy-nav" id="table-of-contents">
               <li
                 *ngFor="let heading of headings"
                 [ngClass]="{
@@ -42,11 +45,12 @@
                   fourth: heading.nodeName === 'H4',
                   fifth: heading.nodeName === 'H5'
                 }"
+                (click)="navToSection(heading.id)"
               >
                 <a
                   style="cursor: pointer"
                   fragment="{{ heading.id }}"
-                  (click)="onClick(heading.id)"
+                  [attr.href]="'#' + heading.id"
                   >{{ heading.innerHTML | stripHtml }}</a
                 >
               </li>

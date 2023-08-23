@@ -536,3 +536,25 @@ svg *:focus {
   width: 100%;
   text-align: right;
 }
+
+code,
+pre {
+	background-color: rgba(248, 248, 248, 0.13);
+  color: rgb(107, 165, 231);;
+	border-radius: 3px;
+	margin: 0 2px;
+	padding: 0 5px;
+	white-space: pre;
+	}
+
+pre code {
+	border: none;
+	margin: 0;
+	padding: 0;
+	white-space: pre;
+}
+
+.markdown-table {
+  border: 1px solid rgba(255, 255, 255, 0.68);
+  padding: 3px;
+}
