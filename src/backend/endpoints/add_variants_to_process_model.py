@@ -37,18 +37,11 @@ def add_variants_to_process_model(
                 pt, fitting_traces, t, try_pulling_lca_down=True, pool=pool
             )
         else:
-            # TODO fix format and check how to adapt for infixes
             pt, frozen_subtrees = add_trace_to_pt_language_with_freezing(
                 pt,
                 frozen_subtrees,
-                EventLog(
-                    [
-                        t.trace
-                        for t in fitting_traces
-                        if t.infix_type == InfixType.NOT_AN_INFIX
-                    ]
-                ),
-                t.trace,
+                fitting_traces,
+                t,
                 try_pulling_lca_down=True,
                 pool=pool,
             )
