@@ -343,8 +343,6 @@ export class ProcessTreeService {
   }
 
   shiftSubtreeToLeft(tree: ProcessTree): void {
-    this.cacheCurrentTree(this.currentDisplayedProcessTree);
-
     if (tree.parent) {
       const siblings = tree.parent.children;
       const idxInParentChildList = siblings.indexOf(tree);
@@ -354,14 +352,14 @@ export class ProcessTreeService {
         siblings[idxInParentChildList] = childToRight;
         siblings[idxInParentChildList - 1] = childToLeft;
 
-        this.currentDisplayedProcessTree = this.currentDisplayedProcessTree;
+        this.set_currentDisplayedProcessTree_with_Cache(
+          this.currentDisplayedProcessTree
+        );
       }
     }
   }
 
   shiftSubtreeToRight(tree: ProcessTree): void {
-    this.cacheCurrentTree(this.currentDisplayedProcessTree);
-
     if (tree.parent) {
       const siblings = tree.parent.children;
       const idxInParentChildList = siblings.indexOf(tree);
@@ -371,7 +369,9 @@ export class ProcessTreeService {
         siblings[idxInParentChildList + 1] = childToRight;
         siblings[idxInParentChildList] = childToLeft;
 
-        this.currentDisplayedProcessTree = this.currentDisplayedProcessTree;
+        this.set_currentDisplayedProcessTree_with_Cache(
+          this.currentDisplayedProcessTree
+        );
       }
     }
   }
