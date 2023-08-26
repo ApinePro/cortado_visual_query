@@ -111,25 +111,31 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit(): void {
-    console.log('Pattern editor start!');
     this.logService.activitiesInEventLog$
       .pipe(takeUntil(this._destroy$))
       .subscribe((activities) => {
-        console.log('act changes');
         this.activityNames = [];
+        const newActivityNames = [];
         for (const activity in activities) {
           this.activityNames.push(activity);
           this.activityNames.sort();
+          newActivityNames.push(activity.valueOf())
+          newActivityNames.sort();
         }
-        this.activityNames.push('...');
+        
+        this.activityNames.push(String('...'));
         this.activityNames.sort();
+        /*
+        newActivityNames.push('...')
+        newActivityNames.sort();
+        this.colorMapService.createColorMap(newActivityNames)
+        */
       });
 
     this.logService.loadedEventLog$
       .pipe(takeUntil(this._destroy$))
       .subscribe((newLog) => {
         if (newLog) {
-          console.log('loaded chages');
           this.emptyVariant = true;
         }
       });
@@ -137,7 +143,6 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
     this.colorMapService.colorMap$
       .pipe(takeUntil(this._destroy$))
       .subscribe((map) => {
-        console.log('color chages');
         this.colorMap = map;
         if (this.variantDrawer) {
           this.variantDrawer.redraw();
@@ -372,13 +377,10 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
     if (children) {
       const index = children.indexOf(selectedElement);
       if (variant && variant === selectedElement) {
-        console.log('here 1');
         variant.setElements([
           new ParallelGroup([leaf, this.reconstructVariant(variant)]),
         ]);
-        console.log('variant: ', variant);
       } else if (index > -1) {
-        console.log('here 2');
         // Handle parent ParallelGroup
         if (variant instanceof ParallelGroup) {
           children.splice(index, 0, leaf);
@@ -860,45 +862,45 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
         }
       }
 
-      // weiran.yang added
+      //handle nested
       if (
         children.length === 1 &&
-        variant instanceof SequenceGroup &&
+        (variant instanceof SequenceGroup) &&
         parent instanceof ParallelGroup &&
         (children[0] instanceof ParallelGroup ||
-          children[0] instanceof LeafNode)
+          children[0] instanceof LeafNode || children[0] instanceof ChoiceGroup || children[0] instanceof FallthroughGroup)
       ) {
         const childrenParent = parent.getElements();
         const aloneChild = children[0];
-        if (aloneChild instanceof LeafNode) {
-          childrenParent.splice(childrenParent.indexOf(variant), 1, aloneChild);
-        } else {
+        if (aloneChild instanceof ParallelGroup) {
           const parallelChildren = children[0].getElements();
           const deleteIndex = childrenParent.indexOf(variant);
           childrenParent.splice(deleteIndex, 1);
           for (const newNode of parallelChildren.reverse()) {
             childrenParent.splice(deleteIndex, 0, newNode);
           }
+        } else {
+          childrenParent.splice(childrenParent.indexOf(variant), 1, aloneChild);
         }
         parent.setElements(childrenParent);
       } else if (
         children.length === 1 &&
-        variant instanceof ParallelGroup &&
+        (variant instanceof ParallelGroup || variant instanceof ChoiceGroup || variant instanceof FallthroughGroup) &&
         parent instanceof SequenceGroup &&
         (children[0] instanceof SequenceGroup ||
-          children[0] instanceof LeafNode)
+          children[0] instanceof LeafNode || children[0] instanceof ChoiceGroup || children[0] instanceof FallthroughGroup)
       ) {
         const childrenParent = parent.getElements();
         const aloneChild = children[0];
-        if (aloneChild instanceof LeafNode) {
-          childrenParent.splice(childrenParent.indexOf(variant), 1, aloneChild);
-        } else {
+        if (aloneChild instanceof SequenceGroup) {
           const sequenceChildren = children[0].getElements();
           const deleteIndex = childrenParent.indexOf(variant);
           childrenParent.splice(deleteIndex, 1);
           for (const newNode of sequenceChildren.reverse()) {
             childrenParent.splice(deleteIndex, 0, newNode);
           }
+        } else {
+          childrenParent.splice(childrenParent.indexOf(variant), 1, aloneChild);
         }
         parent.setElements(childrenParent);
       }
@@ -957,10 +959,6 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
           .selectAll('.selected-polygon')
           .classed('selected-polygon', false)
           .attr('stroke', false);
-
-        d3.selectAll('.pattern-variant')
-          .selectAll('.chevron-group')
-          .style('fill-opacity', 0.5);
 
         d3.selectAll('.pattern-variant')
           .selectAll('.selected-variant-g')

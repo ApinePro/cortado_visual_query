@@ -57,7 +57,7 @@ export class VariantDrawerDirective
   constructor(
     elRef: ElementRef,
     private polygonService: PolygonGeneratorService,
-    public sharedDataService: SharedDataService, //edited
+    private sharedDataService: SharedDataService, //edited
     private variantViewModeService: VariantViewModeService,
     private conformanceCheckingService: ConformanceCheckingService,
     private variantService: VariantService
@@ -495,19 +495,6 @@ export class VariantDrawerDirective
     }
   }
 
-  outerPolygonTranslation(points, headLen): string {
-    let newPolygonPoints = [];
-    for (const pointPair of points.split(' ')) {
-      newPolygonPoints.push(
-        `${Number(pointPair.split(',')[0]) - headLen},${Number(
-          pointPair.split(',')[1]
-        )}`
-      );
-    }
-    let str = newPolygonPoints.join(' ');
-    return str;
-  }
-
   drawSequenceGroup(
     element: SequenceGroup,
     parent: Selection<any, any, any, any>,
@@ -557,18 +544,14 @@ export class VariantDrawerDirective
 
     let xOffset = 0;
 
-    //need to edit again
+    const inEditor = d3.select(this.svgHtmlElement.nativeElement).classed('in-variant-editor') || d3.select(this.svgHtmlElement.nativeElement).classed('pattern-variant');
+    
     if (
-      (!outerElement ||
+      (!outerElement || inEditor ||
         (!this.keepStandardView &&
           this.variantViewModeService.viewMode === ViewMode.PERFORMANCE)) &&
       !(element.parent instanceof SkipGroup)
     ) {
-      xOffset +=
-        element.getHeadLength() +
-        element.getMarginX() -
-        element.elements[0].getHeadLength();
-    } else {
       xOffset +=
         element.getHeadLength() +
         element.getMarginX() -
@@ -731,33 +714,28 @@ export class VariantDrawerDirective
 
     const v_height = element.getHeight();
     const v_width = element.getWidth();
-
+    
     const activityText = parent
-      .append('text')
-      .attr('x', v_width / 2)
-      .attr('y', v_height / 2)
-      .classed('user-select-none', true)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr(
-        'font-size',
-        VARIANT_Constants.LEAF_HEIGHT * element.elements.length
-      )
-      .attr('fill', textcolor)
-      .classed('activity-text', true);
+    .append('text')
+    .attr('x', v_width / 2)
+    .attr('y', v_height / 2)
+    .classed('user-select-none', true)
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'middle')
+    .attr('font-size', (VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) * element.elements.length + VARIANT_Constants.MARGIN_Y)
+    .attr('font-weight', 300)
+    .attr('fill', textcolor)
+    .classed('activity-text', true);
 
-    const tspan_infront = activityText
-      .append('tspan')
-      .attr(
-        'x',
-        element.getHeadLength() + VARIANT_Constants.CHOICE_BRACKET_FONT_SIZE
-      )
-      .attr('y', v_height / 2)
-      .classed(
-        'cursor-pointer',
-        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
-      )
-      .text('{');
+      const tspan_infront = activityText
+        .append('tspan')
+        .attr('x', element.getHeadLength() + 0.5 * (((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) * element.elements.length + VARIANT_Constants.MARGIN_Y) / 2.8) + 0.5 * VARIANT_Constants.MARGIN_X)
+        .attr('y', v_height / 2)
+        .classed(
+          'cursor-pointer',
+          (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+        )
+        .text('{');
 
     for (const child of element.elements) {
       if (
@@ -769,29 +747,21 @@ export class VariantDrawerDirective
       }
 
       const height = child.getHeight();
-      const x =
-        element.getHeadLength() +
-        0.5 * VARIANT_Constants.MARGIN_X +
-        VARIANT_Constants.CHOICE_BRACKET_FONT_SIZE;
+      const x = element.getHeadLength() + 0.5 * VARIANT_Constants.MARGIN_X + ((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) * element.elements.length + VARIANT_Constants.MARGIN_Y) / 2.8;
       const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
       this.draw(child, g, false);
       y += height + VARIANT_Constants.MARGIN_Y;
     }
 
     const tspan_behind = activityText
-      .append('tspan')
-      .attr(
-        'x',
-        element.getWidth() -
-          element.getHeadLength() -
-          VARIANT_Constants.CHOICE_BRACKET_FONT_SIZE
-      )
-      .attr('y', v_height / 2)
-      .classed(
-        'cursor-pointer',
-        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
-      )
-      .text('}');
+    .append('tspan')
+    .attr('x', element.getWidth() - element.getHeadLength() - 0.5 * VARIANT_Constants.MARGIN_X - 0.5 * (((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) * element.elements.length + VARIANT_Constants.MARGIN_Y) / 2.8))
+    .attr('y', v_height / 2)
+    .classed(
+      'cursor-pointer',
+      (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+    )
+    .text('}');
 
     if (this.onMouseOverCbFc) {
       this.onMouseOverCbFc(this, element, this.variant, parent);
@@ -1127,12 +1097,17 @@ export class VariantDrawerDirective
     maxWidth: number
   ): boolean {
     let textLength = this.getComputedTextLength(textSelection);
+    //let textLength = textSelection.node().getBoundingClientRect().width;
 
     let truncated = false;
     while (textLength > maxWidth && text.length > 1) {
       text = text.slice(0, -1);
+      if(text[text.length - 1] == ' '){
+        text = text.slice(0, -1);
+      } 
       textSelection.text(text + '..');
       textLength = this.getComputedTextLength(textSelection);
+      //textLength = textSelection.node().getBoundingClientRect().width;
       truncated = true;
     }
 
@@ -1155,6 +1130,9 @@ export class VariantDrawerDirective
       );
     } else {
       textLength = textSelection.node().getBoundingClientRect().width;
+      if(textLength == 0){
+        textLength = textSelection.text().length * VARIANT_Constants.CHAR_LENGTH
+      }
     }
     if (textLength > 0) {
       this.sharedDataService.computedTextLengthCache.set(
@@ -1163,14 +1141,14 @@ export class VariantDrawerDirective
       );
     }
 
-    textLength = textSelection.node().getBoundingClientRect().width;
     return textLength;
   }
-
+  
+  /*
   public resetCachedTextLength() {
     this.sharedDataService.computedTextLengthCache = new Map<string, number>();
     console.log('reset');
-  }
+  }*/
 
   getSVGGraphicElement(): SVGGraphicsElement {
     return this.svgHtmlElement.nativeElement;

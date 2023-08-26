@@ -184,6 +184,7 @@
     [activityNames]="activityNames"
     [referenceVariant]="referenceVariant"
     [ifSource]="ifSource"
+    [redrawSingal]="false"
     (activityButtonClick)="handleActivityButtonClick($event)"
     [ngClass]="
       (ifSource && checkSingleParallel()) || checkActivityDisable()

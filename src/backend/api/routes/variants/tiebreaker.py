@@ -1,5 +1,5 @@
 from typing import Any
-from cortado_core.utils.split_graph import Group, SequenceGroup, ParallelGroup, ChoiceGroup, FallthroughGroup, LoopGroup, LeafGroup
+from cortado_core.utils.split_graph import Group, SequenceGroup, ParallelGroup, FallthroughGroup, ChoiceGroup, LoopGroup, LeafGroup
 from collections import defaultdict
 
 from cortado_core.subprocess_discovery.concurrency_trees.cTrees import cTreeOperator
@@ -178,8 +178,10 @@ def parse_pattern_from_variant_recursive(variant, parent):
         operator = cTreeOperator.Sequential
     elif isinstance(variant, ParallelGroup):
         operator = cTreeOperator.Concurrent
+    
     elif isinstance(variant, FallthroughGroup):
         operator = cTreeOperator.Fallthrough
+
     elif isinstance(variant, LeafGroup) and sorted([activity for activity in variant])[0].startswith('...'):
         operator = WILDCARD_MATCH
 
@@ -187,8 +189,12 @@ def parse_pattern_from_variant_recursive(variant, parent):
         node = TiebreakerPattern(operator=operator, parent=parent, children=None)
         if parent is not None:
             parent.children.append(node)
-        for child in variant:
-            parse_pattern_from_variant_recursive(child, node)
+        if operator != cTreeOperator.Fallthrough:
+            for child in variant:
+                parse_pattern_from_variant_recursive(child, node)
+        else:
+            fallthrough_leaf = LeafGroup([[activity for activity in leaf][0] for leaf in variant])
+            parse_pattern_from_variant_recursive(fallthrough_leaf, node)
     elif operator is not None and operator == WILDCARD_MATCH:
         node = TiebreakerPattern(operator=operator, parent=parent, children=None)
         if parent is not None:
@@ -199,7 +205,7 @@ def parse_pattern_from_variant_recursive(variant, parent):
             labels = [[activity for activity in leaf][0] for leaf in variant]
             match_multiple = True
         else:
-            labels = [[activity for activity in variant][0]]
+            labels = [activity for activity in variant]
             match_multiple = False
 
         node = TiebreakerPattern(labels=labels, parent=parent, match_multiple=match_multiple)

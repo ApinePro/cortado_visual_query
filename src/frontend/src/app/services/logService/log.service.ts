@@ -129,6 +129,16 @@ export class LogService {
 
     this.activitiesInEventLog = activities;
   }
+  
+  //edited
+  public addActivityInEventLog(activityName: string): any {
+    let activities = {};
+    for (let activity in this.activitiesInEventLog) {
+      activities[activity] = this.activitiesInEventLog[activity];
+    }
+    activities[activityName] = activityName;
+    this.activitiesInEventLog = activities;
+  }
 
   public renameActivitiesInEventLog(
     activityName: string,
