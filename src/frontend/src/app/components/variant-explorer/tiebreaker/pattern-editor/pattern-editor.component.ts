@@ -119,10 +119,10 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
         for (const activity in activities) {
           this.activityNames.push(activity);
           this.activityNames.sort();
-          newActivityNames.push(activity.valueOf())
+          newActivityNames.push(activity.valueOf());
           newActivityNames.sort();
         }
-        
+
         this.activityNames.push(String('...'));
         this.activityNames.sort();
         /*
@@ -865,10 +865,12 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
       //handle nested
       if (
         children.length === 1 &&
-        (variant instanceof SequenceGroup) &&
+        variant instanceof SequenceGroup &&
         parent instanceof ParallelGroup &&
         (children[0] instanceof ParallelGroup ||
-          children[0] instanceof LeafNode || children[0] instanceof ChoiceGroup || children[0] instanceof FallthroughGroup)
+          children[0] instanceof LeafNode ||
+          children[0] instanceof ChoiceGroup ||
+          children[0] instanceof FallthroughGroup)
       ) {
         const childrenParent = parent.getElements();
         const aloneChild = children[0];
@@ -885,10 +887,14 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
         parent.setElements(childrenParent);
       } else if (
         children.length === 1 &&
-        (variant instanceof ParallelGroup || variant instanceof ChoiceGroup || variant instanceof FallthroughGroup) &&
+        (variant instanceof ParallelGroup ||
+          variant instanceof ChoiceGroup ||
+          variant instanceof FallthroughGroup) &&
         parent instanceof SequenceGroup &&
         (children[0] instanceof SequenceGroup ||
-          children[0] instanceof LeafNode || children[0] instanceof ChoiceGroup || children[0] instanceof FallthroughGroup)
+          children[0] instanceof LeafNode ||
+          children[0] instanceof ChoiceGroup ||
+          children[0] instanceof FallthroughGroup)
       ) {
         const childrenParent = parent.getElements();
         const aloneChild = children[0];

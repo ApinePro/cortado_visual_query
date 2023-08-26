@@ -129,7 +129,7 @@ export class LogService {
 
     this.activitiesInEventLog = activities;
   }
-  
+
   //edited
   public addActivityInEventLog(activityName: string): any {
     let activities = {};

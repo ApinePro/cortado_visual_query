@@ -99,7 +99,6 @@ export class TiebreakerComponent implements OnInit, OnDestroy {
     this.redrawSignal = true;
     //this.logService.addActivityInEventLog('...');
     //this.colorMapService.createColorMap(Object.keys(this.logService.activitiesInEventLog));
-    
   }
 
   hideModal(): void {

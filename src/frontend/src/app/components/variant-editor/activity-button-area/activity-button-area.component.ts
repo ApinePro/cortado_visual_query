@@ -44,7 +44,7 @@ export class ActivityButtonAreaComponent
   ifSource: boolean = null;
 
   @Input()
-  redrawSingal : boolean = false;
+  redrawSingal: boolean = false;
 
   activityDummyVariants: Map<string, LeafNode> = new Map<string, LeafNode>();
 

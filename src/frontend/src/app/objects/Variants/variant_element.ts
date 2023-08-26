@@ -912,7 +912,15 @@ export class ChoiceGroup extends VariantElement {
   public updateWidth(includeWaiting) {
     let headLength = this.getHeadLength();
     for (let el of this.elements) {
-      el.width = this.width - VARIANT_Constants.MARGIN_X - 2 * headLength - 2 * ((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) * this.elements.length + VARIANT_Constants.MARGIN_Y) / 2.8;
+      el.width =
+        this.width -
+        VARIANT_Constants.MARGIN_X -
+        2 * headLength -
+        (2 *
+          ((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
+            this.elements.length +
+            VARIANT_Constants.MARGIN_Y)) /
+          2.8;
     }
 
     for (let el of this.elements) {
@@ -940,7 +948,11 @@ export class ChoiceGroup extends VariantElement {
       ) +
       VARIANT_Constants.MARGIN_X +
       2 * headLength +
-      2 * ((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) * this.elements.length + VARIANT_Constants.MARGIN_Y) / 2.8;
+      (2 *
+        ((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
+          this.elements.length +
+          VARIANT_Constants.MARGIN_Y)) /
+        2.8;
     return this.width;
   }
 
@@ -1254,8 +1266,9 @@ export class LeafNode extends VariantElement {
       return this.width;
     }
     if (this.expanded || includeWaiting) {
-      if(this.activity.length > 1){
-        this.width = VARIANT_Constants.LEAF_WIDTH_EXPANDED + 2 * this.getHeadLength();
+      if (this.activity.length > 1) {
+        this.width =
+          VARIANT_Constants.LEAF_WIDTH_EXPANDED + 2 * this.getHeadLength();
       } else {
         this.width = VARIANT_Constants.LEAF_WIDTH_EXPANDED;
       }

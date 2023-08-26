@@ -293,7 +293,7 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
     textSelection: Selection<any, any, any, any>
   ): number {
     let textLength;
-    
+
     if (
       this.sharedDataService.computedTextLengthCache.has(textSelection.text())
     ) {
@@ -307,8 +307,8 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
       textSelection.text(),
       textLength
     );
-    
-    textLength = textSelection.node().getComputedTextLength() //added
+
+    textLength = textSelection.node().getComputedTextLength(); //added
     return textLength;
   }
 
@@ -518,7 +518,7 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
 
     if (variantElement instanceof FallthroughGroup) {
       for (let child of variantElement.elements) {
-        if(child instanceof LeafNode){
+        if (child instanceof LeafNode) {
           let activity = child.activity[0];
           if (results.has(activity)) {
             let currentValues = results.get(activity);

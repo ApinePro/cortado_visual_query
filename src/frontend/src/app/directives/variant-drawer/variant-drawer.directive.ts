@@ -544,10 +544,15 @@ export class VariantDrawerDirective
 
     let xOffset = 0;
 
-    const inEditor = d3.select(this.svgHtmlElement.nativeElement).classed('in-variant-editor') || d3.select(this.svgHtmlElement.nativeElement).classed('pattern-variant');
-    
+    const inEditor =
+      d3
+        .select(this.svgHtmlElement.nativeElement)
+        .classed('in-variant-editor') ||
+      d3.select(this.svgHtmlElement.nativeElement).classed('pattern-variant');
+
     if (
-      (!outerElement || inEditor ||
+      (!outerElement ||
+        inEditor ||
         (!this.keepStandardView &&
           this.variantViewModeService.viewMode === ViewMode.PERFORMANCE)) &&
       !(element.parent instanceof SkipGroup)
@@ -714,28 +719,42 @@ export class VariantDrawerDirective
 
     const v_height = element.getHeight();
     const v_width = element.getWidth();
-    
-    const activityText = parent
-    .append('text')
-    .attr('x', v_width / 2)
-    .attr('y', v_height / 2)
-    .classed('user-select-none', true)
-    .attr('text-anchor', 'middle')
-    .attr('dominant-baseline', 'middle')
-    .attr('font-size', (VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) * element.elements.length + VARIANT_Constants.MARGIN_Y)
-    .attr('font-weight', 300)
-    .attr('fill', textcolor)
-    .classed('activity-text', true);
 
-      const tspan_infront = activityText
-        .append('tspan')
-        .attr('x', element.getHeadLength() + 0.5 * (((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) * element.elements.length + VARIANT_Constants.MARGIN_Y) / 2.8) + 0.5 * VARIANT_Constants.MARGIN_X)
-        .attr('y', v_height / 2)
-        .classed(
-          'cursor-pointer',
-          (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
-        )
-        .text('{');
+    const activityText = parent
+      .append('text')
+      .attr('x', v_width / 2)
+      .attr('y', v_height / 2)
+      .classed('user-select-none', true)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr(
+        'font-size',
+        (VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
+          element.elements.length +
+          VARIANT_Constants.MARGIN_Y
+      )
+      .attr('font-weight', 300)
+      .attr('fill', textcolor)
+      .classed('activity-text', true);
+
+    const tspan_infront = activityText
+      .append('tspan')
+      .attr(
+        'x',
+        element.getHeadLength() +
+          0.5 *
+            (((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
+              element.elements.length +
+              VARIANT_Constants.MARGIN_Y) /
+              2.8) +
+          0.5 * VARIANT_Constants.MARGIN_X
+      )
+      .attr('y', v_height / 2)
+      .classed(
+        'cursor-pointer',
+        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+      )
+      .text('{');
 
     for (const child of element.elements) {
       if (
@@ -747,21 +766,37 @@ export class VariantDrawerDirective
       }
 
       const height = child.getHeight();
-      const x = element.getHeadLength() + 0.5 * VARIANT_Constants.MARGIN_X + ((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) * element.elements.length + VARIANT_Constants.MARGIN_Y) / 2.8;
+      const x =
+        element.getHeadLength() +
+        0.5 * VARIANT_Constants.MARGIN_X +
+        ((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
+          element.elements.length +
+          VARIANT_Constants.MARGIN_Y) /
+          2.8;
       const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
       this.draw(child, g, false);
       y += height + VARIANT_Constants.MARGIN_Y;
     }
 
     const tspan_behind = activityText
-    .append('tspan')
-    .attr('x', element.getWidth() - element.getHeadLength() - 0.5 * VARIANT_Constants.MARGIN_X - 0.5 * (((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) * element.elements.length + VARIANT_Constants.MARGIN_Y) / 2.8))
-    .attr('y', v_height / 2)
-    .classed(
-      'cursor-pointer',
-      (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
-    )
-    .text('}');
+      .append('tspan')
+      .attr(
+        'x',
+        element.getWidth() -
+          element.getHeadLength() -
+          0.5 * VARIANT_Constants.MARGIN_X -
+          0.5 *
+            (((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
+              element.elements.length +
+              VARIANT_Constants.MARGIN_Y) /
+              2.8)
+      )
+      .attr('y', v_height / 2)
+      .classed(
+        'cursor-pointer',
+        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+      )
+      .text('}');
 
     if (this.onMouseOverCbFc) {
       this.onMouseOverCbFc(this, element, this.variant, parent);
@@ -1102,9 +1137,9 @@ export class VariantDrawerDirective
     let truncated = false;
     while (textLength > maxWidth && text.length > 1) {
       text = text.slice(0, -1);
-      if(text[text.length - 1] == ' '){
+      if (text[text.length - 1] == ' ') {
         text = text.slice(0, -1);
-      } 
+      }
       textSelection.text(text + '..');
       textLength = this.getComputedTextLength(textSelection);
       //textLength = textSelection.node().getBoundingClientRect().width;
@@ -1130,8 +1165,9 @@ export class VariantDrawerDirective
       );
     } else {
       textLength = textSelection.node().getBoundingClientRect().width;
-      if(textLength == 0){
-        textLength = textSelection.text().length * VARIANT_Constants.CHAR_LENGTH
+      if (textLength == 0) {
+        textLength =
+          textSelection.text().length * VARIANT_Constants.CHAR_LENGTH;
       }
     }
     if (textLength > 0) {
@@ -1143,7 +1179,7 @@ export class VariantDrawerDirective
 
     return textLength;
   }
-  
+
   /*
   public resetCachedTextLength() {
     this.sharedDataService.computedTextLengthCache = new Map<string, number>();
