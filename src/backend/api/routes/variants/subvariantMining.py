@@ -1,3 +1,4 @@
+from collections import defaultdict
 from cortado_core.eventually_follows_pattern_mining.algorithm import generate_eventually_follows_patterns_from_groups
 from cortado_core.eventually_follows_pattern_mining.blanket_mining.algorithm import postprocess_closed_patterns, \
     postprocess_maximal_patterns
@@ -35,6 +36,8 @@ from cortado_core.subprocess_discovery.subtree_mining.folding_label import (
 import cache.cache as cache
 import numpy as np
 
+from cortado_core.variant_pattern_replications.repetition_pairs import generate_dummy_tree
+
 router = APIRouter(tags=["subvariantMining"], prefix="/subvariantMining")
 
 
@@ -55,52 +58,7 @@ freq_strat_mapping = {
     4: FrequencyCountingStrategy.VariantOccurence,
 }
 
-
-@router.post("/frequentSubtreeMining")
-def mineFrequentSubtrees(config: VariantMinerConfig):
-    print(config)
-
-    print("K:", config.size)
-    print("min_sup:", config.min_sup)
-    print("Strat:", freq_strat_mapping[config.strat])
-    print("Mining Algo:", config.algo)
-    print("Loop", config.loop)
-    print("Artif. Start", config.artifical_start)
-
-    variants = {v: ts for _, (v, ts, _, info) in cache.variants.items() if not info.is_user_defined}
-
-    if config.algo == 3:
-        return get_eventually_follows_patterns(variants, config.min_sup, freq_strat_mapping[config.strat], config.size)
-
-    treeBank = create_treebank_from_cv_variants(variants, config.artifical_start)
-
-    if config.loop:
-        print('Folding Loops...')
-        fold_loops(treeBank, config.loop)
-
-    print()
-
-    if config.algo == 1:
-        print("Mining K Patterns...")
-        k_patterns = min_sub_mining(
-            treeBank,
-            frequency_counting_strat=freq_strat_mapping[config.strat],
-            k_it=config.size,
-            min_sup=config.min_sup,
-        )
-
-    else:
-
-        print("Mining CM K Patterns...")
-        k_patterns = cm_min_sub_mining(
-            treeBank,
-            frequency_counting_strat=freq_strat_mapping[config.strat],
-            k_it=config.size,
-            min_sup=config.min_sup,
-        )
-
-    print()
-    print('Post-Processing...')
+def postProcessFrequentTrees(k_patterns: defaultdict[any, set]):
     set_maximaly_closed_patterns(k_patterns)
 
     df = dataframe_from_k_patterns(k_patterns)
@@ -120,9 +78,58 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
 
     else:
         df_dict = False
-
     return df_dict
 
+@router.post("/frequentSubtreeMining")
+def mineFrequentSubtrees(config: VariantMinerConfig):
+    print(config)
+
+    print("K:", config.size)
+    print("min_sup:", config.min_sup)
+    print("Strat:", freq_strat_mapping[config.strat])
+    print("Mining Algo:", config.algo)
+    print("Loop", config.loop)
+    print("Artif. Start", config.artifical_start)
+
+    variants = {v: ts for _, (v, ts, _, info) in cache.variants.items() if not info.is_user_defined}
+
+    if config.algo == 3:
+        return get_eventually_follows_patterns(variants, config.min_sup, freq_strat_mapping[config.strat], config.size)
+
+    treeBank = create_treebank_from_cv_variants(variants, config.artifical_start)
+
+    # treeBank = generate_dummy_tree()
+
+    if config.loop:
+        print('Folding Loops...')
+        fold_loops(treeBank, config.loop)
+
+    print()
+
+    if config.algo == 1:
+        print("Mining K Patterns...")
+        k_patterns, _ = min_sub_mining(
+            # {0: treeBank},
+            treeBank,
+            frequency_counting_strat=freq_strat_mapping[config.strat],
+            k_it=config.size,
+            min_sup=config.min_sup,
+            # repetionPairsMining=True,
+        )
+
+    else:
+
+        print("Mining CM K Patterns...")
+        k_patterns = cm_min_sub_mining(
+            treeBank,
+            frequency_counting_strat=freq_strat_mapping[config.strat],
+            k_it=config.size,
+            min_sup=config.min_sup,
+        )
+
+    print()
+    print('Post-Processing...')
+    return postProcessFrequentTrees(k_patterns)
 
 def replace_loops_by_loop_group(group):
     result = group
