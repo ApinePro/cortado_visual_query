@@ -220,8 +220,14 @@ export class VariantExplorerComponent
     this.variantService.deleteVariants(bids);
   }.bind(this);
 
+  showArcDiagram = function () {
+    const variant = this.contextMenu_variant;
+    console.log(variant);
+  }.bind(this);
+
   contextMenuOptions: Array<ContextMenuItem> = [
     new ContextMenuItem('Delete Variant', 'bi-trash', this.deleteVariant),
+    new ContextMenuItem('Show Arc Diagram', 'bi-rainbow', this.showArcDiagram),
   ];
 
   // stores the sort settings for each cluster

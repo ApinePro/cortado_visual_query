@@ -84,6 +84,23 @@ export abstract class VariantElement {
     return equals;
   }
 
+  hasIntersection(variantElement: VariantElement) {
+    let hasIntersection = false;
+
+    if (
+      (this instanceof LeafNode && variantElement instanceof LeafNode) ||
+      (this instanceof LeafNode && variantElement instanceof ParallelGroup) ||
+      (this instanceof ParallelGroup && variantElement instanceof LeafNode) ||
+      (this instanceof ParallelGroup && variantElement instanceof ParallelGroup)
+    ) {
+      hasIntersection = ((a, b) => [...a].filter((x) => b.has(x)).length > 0)(
+        this.getActivities(),
+        variantElement.getActivities()
+      );
+    }
+    return hasIntersection;
+  }
+
   public asSequenceGroup(): SequenceGroup {
     const self: unknown = this;
     return self as SequenceGroup;
@@ -860,7 +877,8 @@ export class LeafNode extends VariantElement {
   constructor(
     public activity: string[],
     performance: any = undefined,
-    public conformance: number[] = undefined
+    public conformance: number[] = undefined,
+    public id: number = undefined
   ) {
     super(performance);
   }
@@ -1167,7 +1185,8 @@ export function deserialize(obj: any): VariantElement {
       obj.performance,
       obj.leaf.map((el) => {
         return typeof el === 'string' ? undefined : el[1];
-      })
+      }),
+      obj.id
     );
   } else if ('loop' in obj) {
     return new LoopGroup(

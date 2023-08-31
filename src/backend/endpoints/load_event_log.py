@@ -114,7 +114,7 @@ def variants_to_variant_objects(variants: dict[Group, list[Trace]], time_granula
 def create_variant_object(time_granularity: TimeUnit, total_traces: int, bid: int, v: Group,
                           ts: list[Trace], info: VariantInformation):
     sub_variants = create_subvariants(ts, time_granularity)
-
+    v.assign_dfs_ids()
     # Default value of clusterId in a variant = -1
     variant = {
         "count": len(ts),
