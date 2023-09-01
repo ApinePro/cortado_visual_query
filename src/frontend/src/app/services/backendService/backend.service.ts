@@ -626,4 +626,10 @@ export class BackendService {
       }
     );
   }
+
+  public showArcDiagram(bid: number) {
+    return this.httpClient.get(
+      ROUTES.HTTP_BASE_URL + ROUTES.VARIANTMINING + 'repetitionsMining/' + bid
+    );
+  }
 }

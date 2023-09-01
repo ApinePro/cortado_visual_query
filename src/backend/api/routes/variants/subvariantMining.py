@@ -36,7 +36,7 @@ from cortado_core.subprocess_discovery.subtree_mining.folding_label import (
 import cache.cache as cache
 import numpy as np
 
-from cortado_core.variant_pattern_replications.repetition_pairs import generate_dummy_tree
+from cortado_core.variant_pattern_replications.repetition_pairs import generate_consecutive_pairs, generate_dummy_tree
 
 router = APIRouter(tags=["subvariantMining"], prefix="/subvariantMining")
 
@@ -108,7 +108,7 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
 
     if config.algo == 1:
         print("Mining K Patterns...")
-        k_patterns, _ = min_sub_mining(
+        k_patterns, single_act_reps = min_sub_mining(
             # {0: treeBank},
             treeBank,
             frequency_counting_strat=freq_strat_mapping[config.strat],
@@ -116,6 +116,7 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
             min_sup=config.min_sup,
             # repetionPairsMining=True,
         )
+        # print(single_act_reps)
 
     else:
 
@@ -183,3 +184,16 @@ def sub_pattern_to_ctree(pattern: SubPattern, parent=None):
     t = ConcurrencyTree(parent=parent, op=pattern.operator, label=pattern.label)
     t.children = [sub_pattern_to_ctree(child, t) for child in pattern.children]
     return t
+
+
+@router.get("/repetitionsMining/{bid}")
+def mineRepetitionPatterns(bid: int):
+    v, ts, _, _ = cache.variants[bid]
+    # variant = {v: ts for vbid, (v, ts, _, _) in cache.variants.items() if vbid == bid}
+    treeBank = create_treebank_from_cv_variants({v: ts}, False)
+    k_patterns, single_act_reps = min_sub_mining(treeBank, FrequencyCountingStrategy.VariantOccurence, 20, 1, repetionPairsMining=True)
+    pairs = generate_consecutive_pairs(next(iter(single_act_reps.values())))
+    for pair in pairs:
+      print(str(pair))
+    # print(single_act_reps[bid])
+    return [k_patterns, pairs];

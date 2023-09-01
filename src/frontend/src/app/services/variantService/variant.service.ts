@@ -230,6 +230,15 @@ export class VariantService {
       });
   }
 
+  public showArcDiagram(variant: VariantElement) {
+    const matchingVariant = this.variants.find((v) => v.variant === variant);
+    this.backendService
+      .showArcDiagram(matchingVariant.bid)
+      .subscribe((patterns) => {
+        console.log(patterns);
+      });
+  }
+
   public deleteVariant(variant: VariantElement): void {
     const matchingVariant = this.variants.filter(
       (v) => v.variant === variant

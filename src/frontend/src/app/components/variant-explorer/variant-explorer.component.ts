@@ -223,6 +223,7 @@ export class VariantExplorerComponent
   showArcDiagram = function () {
     const variant = this.contextMenu_variant;
     console.log(variant);
+    this.variantService.showArcDiagram(variant);
   }.bind(this);
 
   contextMenuOptions: Array<ContextMenuItem> = [
