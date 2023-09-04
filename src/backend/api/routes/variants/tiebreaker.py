@@ -1,5 +1,13 @@
 from typing import Any
-from cortado_core.utils.split_graph import Group, SequenceGroup, ParallelGroup, FallthroughGroup, ChoiceGroup, LoopGroup, LeafGroup
+from cortado_core.utils.split_graph import (
+    Group,
+    SequenceGroup,
+    ParallelGroup,
+    FallthroughGroup,
+    ChoiceGroup,
+    LoopGroup,
+    LeafGroup,
+)
 from collections import defaultdict
 
 from cortado_core.subprocess_discovery.concurrency_trees.cTrees import cTreeOperator
@@ -15,11 +23,20 @@ from pydantic import BaseModel
 
 import cache.cache
 from api.routes.variants.variants import VariantInformation
-#from endpoints.alignments import InfixType
-from cortado_core.models.infix_type import InfixType
-from endpoints.load_event_log import create_variant_object, compute_log_stats, variants_to_variant_objects
 
-from cortado_core.subprocess_discovery.concurrency_trees.cTrees import ConcurrencyTree, cTreeOperator, cTreeFromcGroup
+# from endpoints.alignments import InfixType
+from cortado_core.models.infix_type import InfixType
+from endpoints.load_event_log import (
+    create_variant_object,
+    compute_log_stats,
+    variants_to_variant_objects,
+)
+
+from cortado_core.subprocess_discovery.concurrency_trees.cTrees import (
+    ConcurrencyTree,
+    cTreeOperator,
+    cTreeFromcGroup,
+)
 
 router = APIRouter(tags=["Tiebreaker"], prefix="/tiebreaker")
 
@@ -31,8 +48,12 @@ class TiebreakerPatterns(BaseModel):
 
 @router.post("/apply")
 def apply_tiebreaker(payload: TiebreakerPatterns):
-    source_pattern = parse_pattern_from_variant(Group.deserialize(payload.sourcePattern))
-    target_pattern = parse_pattern_from_variant(Group.deserialize(payload.targetPattern))
+    source_pattern = parse_pattern_from_variant(
+        Group.deserialize(payload.sourcePattern)
+    )
+    target_pattern = parse_pattern_from_variant(
+        Group.deserialize(payload.targetPattern)
+    )
 
     validate_patterns(source_pattern, target_pattern)
 
@@ -57,7 +78,7 @@ def apply_tiebreaker(payload: TiebreakerPatterns):
     cache_max_bid = 0
     res_variants = []
 
-    for infix_type, var in new_variants.items(): #var: dict, key(variant) value(trace)
+    for infix_type, var in new_variants.items():  # var: dict, key(variant) value(trace)
 
         new_variants = apply_tiebreaker_on_variants(var, source_pattern, target_pattern)
 
@@ -110,7 +131,7 @@ def validate_patterns(
     activities = cache.cache.parameters["activites"]
     source_activities = get_activities_in_pattern(source_pattern)
     target_activities = get_activities_in_pattern(target_pattern)
-    
+
     for source_activity in source_activities:
         if source_activity not in activities:
             raise HTTPException(
@@ -195,12 +216,17 @@ def get_activity_nodes_in_pattern(pattern: TiebreakerPattern):
 
     return nodes
 
+
 def parse_pattern_from_variant(variant):
     root_node = parse_pattern_from_variant_recursive(variant, None)
-    if len(root_node.children) == 1 and root_node.children[0].operator == cTreeOperator.Concurrent:
+    if (
+        len(root_node.children) == 1
+        and root_node.children[0].operator == cTreeOperator.Concurrent
+    ):
         return root_node.children[0]
     else:
         return root_node
+
 
 def parse_pattern_from_variant_recursive(variant, parent):
     operator = None
@@ -209,11 +235,13 @@ def parse_pattern_from_variant_recursive(variant, parent):
         operator = cTreeOperator.Sequential
     elif isinstance(variant, ParallelGroup):
         operator = cTreeOperator.Concurrent
-    
+
     elif isinstance(variant, FallthroughGroup):
         operator = cTreeOperator.Fallthrough
 
-    elif isinstance(variant, LeafGroup) and sorted([activity for activity in variant])[0].startswith('...'):
+    elif isinstance(variant, LeafGroup) and sorted([activity for activity in variant])[
+        0
+    ].startswith("..."):
         operator = WILDCARD_MATCH
 
     if operator is not None and operator != WILDCARD_MATCH:
@@ -224,7 +252,9 @@ def parse_pattern_from_variant_recursive(variant, parent):
             for child in variant:
                 parse_pattern_from_variant_recursive(child, node)
         else:
-            fallthrough_leaf = LeafGroup([[activity for activity in leaf][0] for leaf in variant])
+            fallthrough_leaf = LeafGroup(
+                [[activity for activity in leaf][0] for leaf in variant]
+            )
             parse_pattern_from_variant_recursive(fallthrough_leaf, node)
     elif operator is not None and operator == WILDCARD_MATCH:
         node = TiebreakerPattern(operator=operator, parent=parent, children=None)
@@ -239,7 +269,9 @@ def parse_pattern_from_variant_recursive(variant, parent):
             labels = [activity for activity in variant]
             match_multiple = False
 
-        node = TiebreakerPattern(labels=labels, parent=parent, match_multiple=match_multiple)
+        node = TiebreakerPattern(
+            labels=labels, parent=parent, match_multiple=match_multiple
+        )
         if parent is not None:
             parent.children.append(node)
 

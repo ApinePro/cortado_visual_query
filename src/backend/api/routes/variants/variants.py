@@ -70,8 +70,10 @@ def count_fragment_occurrences(payload: VariantFragment):
         "traceOccurrencesFraction": round(trace_occurrences / np.sum(trace_counts), 4),
     }
 
+
 class GroupToSort(BaseModel):
     variants: Any
+
 
 @router.post("/sortvariant")
 def sort_variant(payload: GroupToSort):
@@ -80,6 +82,7 @@ def sort_variant(payload: GroupToSort):
         "variants": sorted_variant,
     }
     return res
+
 
 @router.post("/cluster")
 def cluster(params: ClusteringParameters):
@@ -90,4 +93,3 @@ def cluster(params: ClusteringParameters):
     )
     result = map_clusters(clusters)
     return result
-
