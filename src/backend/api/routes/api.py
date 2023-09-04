@@ -4,10 +4,7 @@
 from fastapi import APIRouter
 
 from api.routes.configuration import configuration
-from api.routes.conformance import (
-    variantConformance,
-    treeConformance
-)
+from api.routes.conformance import variantConformance, treeConformance
 from api.routes.input_output import exporting, importing
 from api.routes.log import log, modifyLog
 from api.routes.performance import (
@@ -16,7 +13,13 @@ from api.routes.performance import (
     variantPerformance,
 )
 from api.routes.process_tree import discoverTree, modifyTree, treeString
-from api.routes.variants import variants, queryVariant, subvariantMining, tiebreaker, lpmMiner
+from api.routes.variants import (
+    variants,
+    queryVariant,
+    subvariantMining,
+    tiebreaker,
+    lpmMiner,
+)
 
 router = APIRouter()
 router.include_router(log.router)

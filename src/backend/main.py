@@ -6,13 +6,17 @@ from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
-from error_handlers import http_exception_handler, validation_exception_handler, exception_handler
+from error_handlers import (
+    http_exception_handler,
+    validation_exception_handler,
+    exception_handler,
+)
 from api.routes.api import router as api_router
 from core.events import create_start_app_handler, create_stop_app_handler
 from error_handlers import http_exception_handler, validation_exception_handler
 from middleware.http_middleware import http_middleware
 
-CORTADO_DEBUG = os.getenv('CORTADO_DEBUG', '0') == '1'
+CORTADO_DEBUG = os.getenv("CORTADO_DEBUG", "0") == "1"
 
 
 def get_application():
