@@ -9,7 +9,7 @@
   padding: 10px;
   font-size: var(--standard-font-size);
   letter-spacing: 0.25px;
-  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity));
+  background-color: rgb(var(--bs-dark-rgb) var(--bs-bg-opacity));
 }
 
 .tiebreaker-editor:focus {
@@ -24,14 +24,11 @@
 
 .consistency-warning {
   position: absolute;
-  left: 0px;
-  bottom: 0px;
+  left: 0;
+  bottom: 0;
   color: var(--bs-warning);
-  background-color: rgba(0, 0, 0, 1);
-  padding-right: 5px;
-  padding-top: 6px;
-  padding-bottom: 2.5px;
-  padding-left: 5px;
+  background-color: rgb(0 0 0 / 100%);
+  padding: 6px 5px 2.5px;
   font-size: small;
   border-top-right-radius: 4px;
 }
