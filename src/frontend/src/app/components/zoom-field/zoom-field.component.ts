@@ -6,6 +6,7 @@ import {
   ContentChild,
 } from '@angular/core';
 import * as d3 from 'd3';
+import { COLORS_BLUE } from 'src/app/objects/Colors';
 
 @Component({
   selector: 'app-zoom-field',
@@ -50,9 +51,8 @@ export class ZoomFieldComponent implements AfterViewInit {
     const boundingRect = (
       this.editorWindow.nativeElement as HTMLElement
     ).getBoundingClientRect();
-
     d3.select(this.content.nativeElement)
-      .selectChild()
+      .select('g')
       .attr(
         'transform',
         `translate(${boundingRect.width / 2}, ${boundingRect.height / 2})`
@@ -64,7 +64,7 @@ export class ZoomFieldComponent implements AfterViewInit {
 
     const zooming = function (event) {
       d3.select(this.content.nativeElement)
-        .selectChild()
+        .select('g')
         .attr(
           'transform',
           event.transform.translate(
@@ -81,17 +81,20 @@ export class ZoomFieldComponent implements AfterViewInit {
 
   centerContent(animationDuration: number) {
     const svg = d3.select(this.content.nativeElement);
+    const variantElement = d3.select(this.content.nativeElement).select('g');
     const [translateX, translateY] = this.computeCenterOffsets
       ? this.computeCenterOffsets(svg)
       : [0, 0];
-
     d3.select(this.content.nativeElement)
       .transition()
       .duration(animationDuration)
       .ease(d3.easeExpInOut)
       .call(
         this.zoom.transform,
-        d3.zoomIdentity.translate(translateX, translateY)
+        d3.zoomIdentity.translate(
+          translateX - +variantElement.attr('width') / 2,
+          translateY
+        )
       );
   }
 
@@ -100,6 +103,8 @@ export class ZoomFieldComponent implements AfterViewInit {
     const [translateX, translateY] = this.computeFocusOffsets
       ? this.computeFocusOffsets(svg)
       : [0, 0];
+    console.log('offset');
+    console.log(translateX, translateY);
     svg
       .transition()
       .duration(animationDuration)

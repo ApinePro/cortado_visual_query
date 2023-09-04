@@ -1,7 +1,8 @@
+from pydantic import BaseModel
 import functools
 import operator
 from typing import List, Mapping, Tuple
-
+from typing import Any
 import numpy as np
 from cortado_core.clustering.clusterer import Clusterer
 from cortado_core.clustering.variant_clusterer_adapter import calculate_clusters
@@ -68,6 +69,19 @@ def count_fragment_occurrences(payload: VariantFragment):
         "variantOccurrencesFraction": round(variant_occurrences / len(variants), 4),
         "traceOccurrencesFraction": round(trace_occurrences / np.sum(trace_counts), 4),
     }
+
+
+class GroupToSort(BaseModel):
+    variants: Any
+
+
+@router.post("/sortvariant")
+def sort_variant(payload: GroupToSort):
+    sorted_variant = Group.deserialize(payload.variants).sort().serialize()
+    res = {
+        "variants": sorted_variant,
+    }
+    return res
 
 
 @router.post("/cluster")

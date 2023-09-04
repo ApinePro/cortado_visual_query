@@ -30,3 +30,10 @@
   color: whitesmoke;
   position: relative;
 }
+
+.button-disabled{
+  opacity: 0.5;
+  user-select: none;
+  pointer-events: none;
+
+}
