@@ -1,3 +1,4 @@
+import { getSelectedChildren } from './../../objects/Variants/infix_selection';
 import { VARIANT_Constants } from './../../constants/variant_element_drawer_constants';
 
 import {
@@ -53,17 +54,17 @@ export class VariantDrawerDirective
   }
 
   constructor(
-    elRef: ElementRef,
+    elRef: ElementRef<HTMLElement>,
     private polygonService: PolygonGeneratorService,
     private sharedDataService: SharedDataService,
     private variantViewModeService: VariantViewModeService,
     private conformanceCheckingService: ConformanceCheckingService,
     private variantService: VariantService
   ) {
-    this.svgHtmlElement = elRef;
+    this.divHtmlElement = elRef;
   }
 
-  svgHtmlElement: ElementRef;
+  divHtmlElement: ElementRef;
 
   @Input()
   variant: IVariant;
@@ -118,7 +119,9 @@ export class VariantDrawerDirective
   private _destroy$ = new Subject();
 
   ngAfterViewInit(): void {
-    this.svgSelection = d3.select(this.svgHtmlElement.nativeElement);
+    this.svgSelection = d3.select(
+      this.divHtmlElement.nativeElement.querySelector('svg.drawer')
+    );
 
     //Pattern injection
     const defs = this.svgSelection.append('defs');
@@ -255,7 +258,9 @@ export class VariantDrawerDirective
         const width = this.variant.alignment.recalculateWidth(false);
       }
 
-      const svg_container = d3.select(this.svgHtmlElement.nativeElement);
+      const svg_container = d3.select(
+        this.divHtmlElement.nativeElement.querySelector('svg.drawer')
+      );
       this.variant.variant.updateWidth(
         !this.keepStandardView &&
           this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
@@ -934,7 +939,7 @@ export class VariantDrawerDirective
   }
 
   getSVGGraphicElement(): SVGGraphicsElement {
-    return this.svgHtmlElement.nativeElement;
+    return this.divHtmlElement.nativeElement.querySelector('svg.drawer');
   }
 
   isExpanded(): boolean {

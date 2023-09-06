@@ -773,7 +773,26 @@
                       }"
                       style="white-space: nowrap"
                     >
-                      <svg
+                      <div
+                        appVariantDrawer
+                        #drawer="variantDrawer"
+                        [variant]="variant"
+                        [onClickCbFc]="variantClickCallBack"
+                        [onRightMouseClickCbFc]="openContextCallback"
+                        [traceInfixSelectionMode]="traceInfixSelectionMode"
+                        [computeActivityColor]="computeActivityColor"
+                        [infixType]="variant.infixType"
+                        class="zoom-group-variant d-flex flex-column"
+                        style="display: inline-block"
+                      >
+                        <!-- <app-arc-diagram
+                          [contextMenu_directive]="contextMenu_directive"
+                          [contextMenu_variant]="contextMenu_variant"
+                        ></app-arc-diagram> -->
+                        <svg class="arc-diagram-chart"></svg>
+                        <svg class="drawer"></svg>
+                      </div>
+                      <!-- <svg
                         appVariantDrawer
                         #drawer="variantDrawer"
                         [variant]="variant"
@@ -784,7 +803,7 @@
                         [infixType]="variant.infixType"
                         class="zoom-group-variant"
                         style="display: inline-block"
-                      ></svg>
+                      ></svg> -->
                     </div>
                     <ng-template #infixSelection>
                       <app-infix-selection-controlls

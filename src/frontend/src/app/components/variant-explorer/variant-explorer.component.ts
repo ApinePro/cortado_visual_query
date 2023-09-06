@@ -96,6 +96,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ClusteringSettingsDialogComponent } from './clustering-settings-dialog/clustering-settings-dialog.component';
 import _ from 'lodash';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
+import { draw, parseInput } from './arc-diagram/arc-diagram';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -223,7 +224,14 @@ export class VariantExplorerComponent
   showArcDiagram = function () {
     const variant = this.contextMenu_variant;
     console.log(variant);
-    this.variantService.showArcDiagram(variant);
+    this.variantService
+      .showArcDiagram(variant)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((res) => {
+        const data = parseInput(res[1], this.logService.activitiesInEventLog);
+        draw(data, this.contextMenu_directive.divHtmlElement);
+        // console.log(res);
+      });
   }.bind(this);
 
   contextMenuOptions: Array<ContextMenuItem> = [

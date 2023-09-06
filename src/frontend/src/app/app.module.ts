@@ -1,3 +1,4 @@
+import { ArcDiagramComponent } from './components/variant-explorer/arc-diagram/arc-diagram.component';
 import { DropZoneComponent } from './components/drop-zone/drop-zone.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
@@ -166,6 +167,7 @@ import { LoadingOverlayComponent } from './components/loading-overlay/loading-ov
     ProcessTreeToolboxComponent,
     InfoBarComponent,
     LoadingOverlayComponent,
+    ArcDiagramComponent,
   ],
   imports: [
     BrowserModule,

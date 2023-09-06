@@ -232,11 +232,7 @@ export class VariantService {
 
   public showArcDiagram(variant: VariantElement) {
     const matchingVariant = this.variants.find((v) => v.variant === variant);
-    this.backendService
-      .showArcDiagram(matchingVariant.bid)
-      .subscribe((patterns) => {
-        console.log(patterns);
-      });
+    return this.backendService.showArcDiagram(matchingVariant.bid);
   }
 
   public deleteVariant(variant: VariantElement): void {
