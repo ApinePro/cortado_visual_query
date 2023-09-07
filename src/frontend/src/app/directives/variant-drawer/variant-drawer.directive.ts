@@ -662,9 +662,11 @@ export class VariantDrawerDirective
     polygonPoints: string,
     color: string,
     actionable: boolean,
-    group = false
+    group = false,
+    leafid?: number
   ) {
     const poly = parent
+      .classed(`leaf-${leafid}`, Boolean(leafid))
       .append('polygon')
       .attr('points', polygonPoints)
       .style('fill', color)
@@ -697,7 +699,14 @@ export class VariantDrawerDirective
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
 
-    let polygon = this.createPolygon(parent, polygonPoints, color, actionable);
+    let polygon = this.createPolygon(
+      parent,
+      polygonPoints,
+      color,
+      actionable,
+      false,
+      element.id
+    );
 
     if (this.traceInfixSelectionMode) {
       this.addInfixSelectionAttributes(element, polygon, true);
