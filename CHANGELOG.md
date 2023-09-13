@@ -1,6 +1,12 @@
 # Changelog of Cortado
 ---
 
+## [1.11.0] - 2023-09-13
+
+### Fixed
+
+* Various bug fixes and stability improvements [Frontend + Backend]
+
 ## [1.10.0] - 2023-03-07
 
 ### Added
