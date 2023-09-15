@@ -208,6 +208,7 @@
 .dropdown-menu {
   border-radius: 0;
   background-color: lightgray;
+  overflow-y: auto;
 }
 
 .selected-dropdown-item {
@@ -286,8 +287,4 @@ thead {
   font-size: 6px;
   padding: 0;
   box-shadow: none;
-}
-
-#sortDropdownMenu{
-  overflow-y: auto;
 }
