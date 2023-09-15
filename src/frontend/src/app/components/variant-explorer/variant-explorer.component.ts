@@ -134,7 +134,7 @@ export class VariantExplorerComponent
     private changeDetectorRef: ChangeDetectorRef
   ) {
     super(elRef.nativeElement, renderer);
-    this.explorerElement = elRef
+    this.explorerElement = elRef;
   }
   explorerElement: ElementRef;
 
@@ -267,10 +267,12 @@ export class VariantExplorerComponent
     this.listenForViewModeChange();
     this.listenForLoopCollapsedVariantsChange();
 
-    console.log("qwfqf");
-    const explorerElement = this.variantExplorerDiv.nativeElement
+    console.log('qwfqf');
+    const explorerElement = this.variantExplorerDiv.nativeElement;
     console.log(explorerElement.offsetHeight);
-    d3.select(this.explorerElement.nativeElement).select('.dropdown-menu').style('max-height', explorerElement.offsetHeight.toString() + "px");
+    d3.select(this.explorerElement.nativeElement)
+      .select('.dropdown-menu')
+      .style('max-height', explorerElement.offsetHeight.toString() + 'px');
   }
 
   ngOnDestroy(): void {
