@@ -1,5 +1,5 @@
 export class ROUTES {
-  public static BASE_URL = '127.0.0.1:41213/';
+  public static BASE_URL = '127.0.0.1:41211';
   public static HTTP_BASE_URL = 'http://' + this.BASE_URL;
   public static WS_HTTP_BASE_URL = 'ws://' + this.BASE_URL;
 

@@ -267,9 +267,7 @@ export class VariantExplorerComponent
     this.listenForViewModeChange();
     this.listenForLoopCollapsedVariantsChange();
 
-    console.log('qwfqf');
     const explorerElement = this.variantExplorerDiv.nativeElement;
-    console.log(explorerElement.offsetHeight);
     d3.select(this.explorerElement.nativeElement)
       .select('.dropdown-menu')
       .style('max-height', explorerElement.offsetHeight.toString() + 'px');
