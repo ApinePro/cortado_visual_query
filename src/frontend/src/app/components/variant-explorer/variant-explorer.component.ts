@@ -96,6 +96,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ClusteringSettingsDialogComponent } from './clustering-settings-dialog/clustering-settings-dialog.component';
 import _ from 'lodash';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
+import * as d3 from 'd3';
+import { Selection } from 'd3';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -132,7 +134,9 @@ export class VariantExplorerComponent
     private changeDetectorRef: ChangeDetectorRef
   ) {
     super(elRef.nativeElement, renderer);
+    this.explorerElement = elRef;
   }
+  explorerElement: ElementRef;
 
   collapse: boolean = false;
   maximized: boolean = false;
@@ -262,6 +266,11 @@ export class VariantExplorerComponent
     this.listenForLogStatChange();
     this.listenForViewModeChange();
     this.listenForLoopCollapsedVariantsChange();
+
+    const explorerElement = this.variantExplorerDiv.nativeElement;
+    d3.select(this.explorerElement.nativeElement)
+      .select('.dropdown-menu')
+      .style('max-height', explorerElement.offsetHeight.toString() + 'px');
   }
 
   ngOnDestroy(): void {
