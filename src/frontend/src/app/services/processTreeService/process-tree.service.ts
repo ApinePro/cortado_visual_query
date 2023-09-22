@@ -292,6 +292,30 @@ export class ProcessTreeService {
     this.treeCacheLength = this.previousTreeObjects.length;
   }
 
+  getFrozenList(previousTree){
+    let frozen_list = [];
+    if (previousTree.frozen){
+      frozen_list.push(previousTree.id);
+    }
+    for (const child of previousTree.children){
+      frozen_list = frozen_list.concat(this.getFrozenList(child));
+    }
+    return frozen_list
+  }
+
+  getFrozenTree(treeToLoad, previousTree){
+    let frozen_list = this.getFrozenList(previousTree);
+    var nodesToCheck = [];
+    nodesToCheck.push(treeToLoad);
+    while (nodesToCheck.length > 0) {
+      let nodeToCheck = nodesToCheck.pop();
+      if (frozen_list.includes(nodeToCheck.id)){
+        markNodeAsFrozen(nodeToCheck);
+      }
+      nodesToCheck = nodesToCheck.concat(nodeToCheck.children);
+    }
+  }
+
   undo() {
     if (
       this.treeCacheIndex &&
@@ -303,6 +327,7 @@ export class ProcessTreeService {
       let treeToLoad = null;
       if (this.previousTreeObjects[this.treeCacheIndex]) {
         treeToLoad = this.previousTreeObjects[this.treeCacheIndex].copy();
+        this.getFrozenTree(treeToLoad, this.previousTreeObjects[this.treeCacheIndex + 1]);
       }
 
       this.selectedRootNodeID = null;
@@ -317,6 +342,7 @@ export class ProcessTreeService {
       let treeToLoad = null;
       if (this.previousTreeObjects[this.treeCacheIndex]) {
         treeToLoad = this.previousTreeObjects[this.treeCacheIndex].copy();
+        this.getFrozenTree(treeToLoad, this.previousTreeObjects[this.treeCacheIndex - 1]);
       }
 
       this.selectedRootNodeID = null;
