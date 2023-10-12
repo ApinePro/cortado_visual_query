@@ -4,7 +4,9 @@ from cortado_core.eventually_follows_pattern_mining.blanket_mining.algorithm imp
     postprocess_maximal_patterns
 from cortado_core.eventually_follows_pattern_mining.obj import EventuallyFollowsPattern, SubPattern
 from cortado_core.eventually_follows_pattern_mining.util.pattern import flatten_patterns
+from cortado_core.variant_pattern_replications.repetition_pairs import create_pair
 from cortado_core.subprocess_discovery.concurrency_trees.cTrees import ConcurrencyTree
+from cortado_core.subprocess_discovery.subtree_mining.tree_pattern import TreePattern
 from cortado_core.utils.split_graph import LeafGroup, LoopGroup, ParallelGroup, SequenceGroup, SkipGroup
 
 import cache.cache as cache
@@ -35,6 +37,7 @@ from cortado_core.subprocess_discovery.subtree_mining.folding_label import (
 
 import cache.cache as cache
 import numpy as np
+from cortado_core.variant_pattern_replications.pair import Pair
 
 from cortado_core.variant_pattern_replications.repetition_pairs import generate_consecutive_pairs, generate_dummy_tree
 
@@ -189,11 +192,17 @@ def sub_pattern_to_ctree(pattern: SubPattern, parent=None):
 @router.get("/repetitionsMining/{bid}")
 def mineRepetitionPatterns(bid: int):
     v, ts, _, _ = cache.variants[bid]
-    # variant = {v: ts for vbid, (v, ts, _, _) in cache.variants.items() if vbid == bid}
     treeBank = create_treebank_from_cv_variants({v: ts}, False)
     k_patterns, single_act_reps = min_sub_mining(treeBank, FrequencyCountingStrategy.VariantOccurence, 20, 1, repetionPairsMining=True)
-    pairs = generate_consecutive_pairs(next(iter(single_act_reps.values())))
-    for pair in pairs:
-      print(str(pair))
-    # print(single_act_reps[bid])
-    return [k_patterns, pairs];
+    print(single_act_reps)
+    single_act_pairs = generate_consecutive_pairs(next(iter(single_act_reps.values())))
+    print(single_act_pairs)
+
+    tree_patterns = list(k_patterns[3])
+    pairs_from_kpatterns = set()
+    for _, treepat in enumerate(tree_patterns):
+      if len(treepat.tree.children) > 1:
+         pair = create_pair(treepat)
+         pairs_from_kpatterns.add(pair)
+    print(pairs_from_kpatterns)
+    return sorted(pairs_from_kpatterns.union(single_act_pairs), key=lambda x: x.positions[1] - x.positions[0], reverse=True)

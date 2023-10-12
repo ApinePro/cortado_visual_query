@@ -1,3 +1,4 @@
+import { element } from 'protractor';
 import { getSelectedChildren } from './../../objects/Variants/infix_selection';
 import { VARIANT_Constants } from './../../constants/variant_element_drawer_constants';
 
@@ -117,6 +118,8 @@ export class VariantDrawerDirective
   svgSelection!: Selection<any, any, any, any>;
 
   private _destroy$ = new Subject();
+
+  private groupId = 0;
 
   ngAfterViewInit(): void {
     this.svgSelection = d3.select(
@@ -276,6 +279,7 @@ export class VariantDrawerDirective
         .attr('width', width + width_offset)
         .attr('height', height + 2 * VARIANT_Constants.SELECTION_STROKE_WIDTH);
 
+      this.groupId = 0;
       if (
         !this.keepStandardView &&
         this.variantViewModeService.viewMode === ViewMode.CONFORMANCE &&
@@ -375,7 +379,10 @@ export class VariantDrawerDirective
     svgElement: Selection<any, any, any, any>,
     outerElement: boolean = false
   ): void {
-    svgElement.datum(element).classed('variant-element-group', true);
+    svgElement
+      .datum(element)
+      .classed('variant-element-group', true)
+      .classed(`group-${this.groupId++}`, true);
 
     if (outerElement) {
       svgElement.datum(element);
@@ -662,11 +669,9 @@ export class VariantDrawerDirective
     polygonPoints: string,
     color: string,
     actionable: boolean,
-    group = false,
-    leafid?: number
+    group = false
   ) {
     const poly = parent
-      .classed(`leaf-${leafid}`, Boolean(leafid))
       .append('polygon')
       .attr('points', polygonPoints)
       .style('fill', color)
@@ -704,8 +709,7 @@ export class VariantDrawerDirective
       polygonPoints,
       color,
       actionable,
-      false,
-      element.id
+      false
     );
 
     if (this.traceInfixSelectionMode) {

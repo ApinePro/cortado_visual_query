@@ -228,7 +228,7 @@ export class VariantExplorerComponent
       .showArcDiagram(variant)
       .pipe(takeUntil(this._destroy$))
       .subscribe((res) => {
-        const arcs = parseInput(res[1]);
+        const arcs = parseInput(res);
         draw(
           { arcs, activities: this.logService.activitiesInEventLog },
           this.contextMenu_directive

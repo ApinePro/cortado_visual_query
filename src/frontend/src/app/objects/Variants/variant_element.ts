@@ -43,6 +43,8 @@ export abstract class VariantElement {
 
   public parent;
 
+  public id;
+
   constructor(performance: any = undefined) {
     this.serviceTime = performance?.service_time;
     this.waitingTime = performance?.wait_time;

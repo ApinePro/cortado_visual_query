@@ -94,18 +94,28 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
   }
 
   width = variantDrawer.variant.variant.width;
-  var numElements = variantDrawer.variant.length;
+  var numElements =
+    variantDrawer.variant.length ||
+    variantDrawer.variant.variant.getElements().length;
   // var chevronWidth = width / Math.max(numElements, 1);
   var chevronHeight = variantDrawer.variant.variant.height;
 
-  var x = d3.scaleLinear().domain([0, numElements]).range([0, width]); // change to 0 later
+  // var x = d3.scaleLinear().domain([0, numElements]).range([0, width]); // change to 0 later
 
-  height = x(getMaxArcHeight(arcs));
-  // let upperArcLine = height - chevronHeight;
-  if (isMirrored) {
-    var mirroredArcHeight = getMaxArcHeight(mirroredArcs) * chevronHeight;
-    height = height + mirroredArcHeight;
+  const levelMap = {};
+  let idx = 0;
+  for (let i = 0; i < arcs.length; i++) {
+    const arc = arcs[i];
+    if (!levelMap[arc.targetPos - arc.sourcePos]) {
+      levelMap[arc.targetPos - arc.sourcePos] = idx++;
+    }
   }
+  console.log('here');
+  console.log(levelMap);
+  let i = 0;
+  const baseHeight = 50;
+  const step = 20;
+  const height = baseHeight + step * (idx - 1);
 
   var colour = d3.scaleLinear([0, getMaxArcWidth(arcs)], [fC, sC]); // nice coloring
 
@@ -155,32 +165,65 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
     .selectAll('path')
     .data(arcs)
     .enter()
-    .append('path')
-    .attr('transform', function (d) {
+    .append('polygon')
+    // .attr('transform', function (d) {
+    //   const variantEl = d3.select(variantDrawer.divHtmlElement.nativeElement);
+    //   const sourceLeafCoords = variantEl
+    //     .select(`g.group-${d.sourcePos}`)
+    //     .attr('transform')
+    //     .split(/[\s,()]+/);
+    //   const sourcex = parseFloat(sourceLeafCoords[1]);
+    //   return `translate(${sourcex}, 0)`;
+    // })
+    .attr('points', function (d) {
       const variantEl = d3.select(variantDrawer.divHtmlElement.nativeElement);
-      const sourceLeafCoords = variantEl
-        .select(`g.leaf-${d.sourcePos}`)
-        .attr('transform')
-        .split(/[\s,()]+/);
-      const sourcex = parseFloat(sourceLeafCoords[1]);
       const targetLeafCoords = variantEl
-        .select(`g.leaf-${d.targetPos}`)
+        .select(`g.group-${d.targetPos}`)
         .attr('transform')
         .split(/[\s,()]+/);
-      const targetx = parseFloat(targetLeafCoords[1]);
-      const x1 = (sourcex + targetx + x(d.numberEle)) / 2;
-      return `translate(${x1}, ${height})`;
+      const levelHeight = levelMap[d.targetPos - d.sourcePos] * step;
+      const dx = parseFloat(targetLeafCoords[1]);
+      const dy = height;
+      const targetwidth = variantEl
+        .select(`g.group-${d.targetPos}>polygon`)
+        .attr('points')
+        .split(' ')[1]
+        .split(',')[0];
+      const cx = dx + parseFloat(targetwidth);
+      const cy = dy;
+      const bx = cx;
+      const by = levelHeight;
+      const ex = dx;
+      const ey = 5 + levelHeight;
+      const sourceLeafCoords = variantEl
+        .select(`g.group-${d.sourcePos}`)
+        .attr('transform')
+        .split(/[\s,()]+/);
+      const hx = parseFloat(sourceLeafCoords[1]);
+      const hy = height;
+      const sourcewidth = variantEl
+        .select(`g.group-${d.sourcePos}>polygon`)
+        .attr('points')
+        .split(' ')[1]
+        .split(',')[0];
+      const gx = hx + parseFloat(sourcewidth);
+      const gy = hy;
+      const fx = gx;
+      const fy = ey;
+      const ax = hx;
+      const ay = levelHeight;
+      return `${ax},${ay} ${bx},${by} ${cx},${cy} ${dx},${dy} ${ex},${ey} ${fx},${fy} ${gx},${gy} ${hx},${hy}`;
     })
-    .attr('d', function (d) {
-      const outerRadius = x(d.targetPos - d.sourcePos + d.numberEle) / 2;
-      const innerRadius = x(d.targetPos - d.sourcePos - d.numberEle) / 2;
-      return d3.arc()({
-        startAngle: -Math.PI / 2,
-        endAngle: Math.PI / 2,
-        innerRadius,
-        outerRadius,
-      });
-    })
+    // .attr('d', function (d) {
+    //   const outerRadius = x(d.targetPos - d.sourcePos + d.numberEle) / 2;
+    //   const innerRadius = x(d.targetPos - d.sourcePos - d.numberEle) / 2;
+    //   return d3.arc()({
+    //     startAngle: -Math.PI / 2,
+    //     endAngle: Math.PI / 2,
+    //     innerRadius,
+    //     outerRadius,
+    //   });
+    // })
     .attr('fill', function (d) {
       return colour(d.numberEle);
     })
