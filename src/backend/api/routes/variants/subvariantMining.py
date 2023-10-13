@@ -194,15 +194,19 @@ def mineRepetitionPatterns(bid: int):
     v, ts, _, _ = cache.variants[bid]
     treeBank = create_treebank_from_cv_variants({v: ts}, False)
     k_patterns, single_act_reps = min_sub_mining(treeBank, FrequencyCountingStrategy.VariantOccurence, 20, 1, repetionPairsMining=True)
-    print(single_act_reps)
+    print("single act reps: \n", single_act_reps)
     single_act_pairs = generate_consecutive_pairs(next(iter(single_act_reps.values())))
-    print(single_act_pairs)
+    print("single act pairs: \n", single_act_pairs)
 
-    tree_patterns = list(k_patterns[3])
     pairs_from_kpatterns = set()
-    for _, treepat in enumerate(tree_patterns):
-      if len(treepat.tree.children) > 1:
-         pair = create_pair(treepat)
-         pairs_from_kpatterns.add(pair)
+    print("tree patterns: ")
+    for _, patterns in k_patterns.items():
+      tree_patterns = list(patterns)
+      print(tree_patterns)
+      for _, treepat in enumerate(tree_patterns):
+         if len(treepat.tree.children) > 1:
+            pair = create_pair(treepat)
+            pairs_from_kpatterns.add(pair)
+    print("pairs from k patterns: ")
     print(pairs_from_kpatterns)
     return sorted(pairs_from_kpatterns.union(single_act_pairs), key=lambda x: x.positions[1] - x.positions[0], reverse=True)

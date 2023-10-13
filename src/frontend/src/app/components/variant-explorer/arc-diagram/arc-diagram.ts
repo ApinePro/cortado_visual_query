@@ -117,7 +117,7 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
   const step = 20;
   const height = baseHeight + step * (idx - 1);
 
-  var colour = d3.scaleLinear([0, getMaxArcWidth(arcs)], [fC, sC]); // nice coloring
+  // var colour = d3.scaleLinear([0, getMaxArcWidth(arcs)], [fC, sC]); // nice coloring
 
   // create new chart with the specified width and height
   var chart = d3
@@ -177,36 +177,44 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
     // })
     .attr('points', function (d) {
       const variantEl = d3.select(variantDrawer.divHtmlElement.nativeElement);
-      const targetLeafCoords = variantEl
+      const targetStartLeafCoords = variantEl
         .select(`g.group-${d.targetPos}`)
         .attr('transform')
         .split(/[\s,()]+/);
       const levelHeight = levelMap[d.targetPos - d.sourcePos] * step;
-      const dx = parseFloat(targetLeafCoords[1]);
+      const dx = parseFloat(targetStartLeafCoords[1]);
       const dy = height;
       const targetwidth = variantEl
-        .select(`g.group-${d.targetPos}>polygon`)
+        .select(`g.group-${d.targetPos + d.numberEle - 1}>polygon`)
         .attr('points')
         .split(' ')[1]
         .split(',')[0];
-      const cx = dx + parseFloat(targetwidth);
+      const targetEndLeafCoords = variantEl
+        .select(`g.group-${d.targetPos + d.numberEle - 1}`)
+        .attr('transform')
+        .split(/[\s,()]+/);
+      const cx = parseFloat(targetEndLeafCoords[1]) + parseFloat(targetwidth);
       const cy = dy;
       const bx = cx;
       const by = levelHeight;
       const ex = dx;
       const ey = 5 + levelHeight;
-      const sourceLeafCoords = variantEl
+      const sourceStartLeafCoords = variantEl
         .select(`g.group-${d.sourcePos}`)
         .attr('transform')
         .split(/[\s,()]+/);
-      const hx = parseFloat(sourceLeafCoords[1]);
+      const hx = parseFloat(sourceStartLeafCoords[1]);
       const hy = height;
       const sourcewidth = variantEl
-        .select(`g.group-${d.sourcePos}>polygon`)
+        .select(`g.group-${d.sourcePos + d.numberEle - 1}>polygon`)
         .attr('points')
         .split(' ')[1]
         .split(',')[0];
-      const gx = hx + parseFloat(sourcewidth);
+      const sourceEndLeafCoords = variantEl
+        .select(`g.group-${d.sourcePos + d.numberEle - 1}`)
+        .attr('transform')
+        .split(/[\s,()]+/);
+      const gx = parseFloat(sourceEndLeafCoords[1]) + parseFloat(sourcewidth);
       const gy = hy;
       const fx = gx;
       const fy = ey;
@@ -224,9 +232,7 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
     //     outerRadius,
     //   });
     // })
-    .attr('fill', function (d) {
-      return colour(d.numberEle);
-    })
+    .attr('fill', fC)
     .attr('fill-opacity', transparency)
     // .attr('d', function (d, i) {
     //   const patternCenterDistance = (d.numberEle * chevronWidth) / 2;
@@ -261,9 +267,9 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
         else return transparency;
       });
     })
-    .on('mouseover', function (d) {
-      arcGroup.selectAll('path').style('stroke-opacity', function (x) {
-        if (d == x) return hoverTransparency;
+    .on('mouseover', function (d, i) {
+      arcGroup.selectAll('polygon').style('fill-opacity', function (x) {
+        if (i == x) return hoverTransparency;
         else return transparency;
       });
       // textPlot.select('text').style('fill-opacity', function (x, n) {
@@ -284,7 +290,7 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
       return tooltip.style('top', h + 'px').style('left', w + 'px');
     })
     .on('mouseout', function () {
-      arcGroup.selectAll('path').style('stroke-opacity', transparency);
+      arcGroup.selectAll('polygon').style('fill-opacity', transparency);
       // textPlot.select('text').style('fill-opacity', hoverTransparency);
       return tooltip.style('visibility', 'hidden');
     });
