@@ -1,7 +1,7 @@
 <div class="activity-button-area bg-dark">
   <div class="activity-button-container" *ngFor="let activity of activityNames">
     <!-- <app-variant-drag-source [colorMap]="colorMap" [activity]="activity"> </app-variant-drag-source> -->
-    <svg
+    <div
       #ActivityButton
       appVariantDrawer
       [variant]="{ variant: activityDummyVariants.get(activity) }"
@@ -10,6 +10,8 @@
       [highlightOnMouseover]="true"
       (click)="onActivityButtonClick(ActivityButton, activity)"
       class="activity-button"
-    ></svg>
+    >
+      <svg class="drawer"></svg>
+    </div>
   </div>
 </div>

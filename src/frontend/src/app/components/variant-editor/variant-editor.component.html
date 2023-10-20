@@ -266,7 +266,7 @@
     [zoomScale]="[0.1, 3]"
     [computeFocusOffsets]="computeFocusOffset"
   >
-    <svg
+    <div
       #content
       #VariantMainGroup
       appVariantDrawer
@@ -276,7 +276,9 @@
       [computeActivityColor]="computeActivityColor"
       [infixType]="curInfixType"
       class="zoom-group-variant"
-    ></svg>
+    >
+      <svg class="drawer"></svg>
+    </div>
   </app-zoom-field>
   <div class="redundancy-warning" @fadeIn *ngIf="redundancyWarning">
     This variant already exists

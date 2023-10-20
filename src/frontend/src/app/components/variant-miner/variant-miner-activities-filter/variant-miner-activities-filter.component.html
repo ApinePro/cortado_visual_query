@@ -21,14 +21,16 @@
         *ngIf="even"
       >
         <div class="col-3">
-          <svg
+          <div
             appVariantDrawer
             [variant]="{
               variant: activityDummyVariants.get(interleavedActivityNames[i])
             }"
             [computeActivityColor]="computeActivityColor"
             [addCursorPointer]="false"
-          ></svg>
+          >
+            <svg class="drawer"></svg>
+          </div>
         </div>
         <div class="col">
           <input

@@ -4,7 +4,7 @@ from cortado_core.eventually_follows_pattern_mining.blanket_mining.algorithm imp
     postprocess_maximal_patterns
 from cortado_core.eventually_follows_pattern_mining.obj import EventuallyFollowsPattern, SubPattern
 from cortado_core.eventually_follows_pattern_mining.util.pattern import flatten_patterns
-from cortado_core.variant_pattern_replications.repetition_pairs import create_pair
+from cortado_core.variant_pattern_replications.repetition_pairs import create_pair, pair_unions
 from cortado_core.subprocess_discovery.concurrency_trees.cTrees import ConcurrencyTree
 from cortado_core.subprocess_discovery.subtree_mining.tree_pattern import TreePattern
 from cortado_core.utils.split_graph import LeafGroup, LoopGroup, ParallelGroup, SequenceGroup, SkipGroup
@@ -101,8 +101,6 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
 
     treeBank = create_treebank_from_cv_variants(variants, config.artifical_start)
 
-    # treeBank = generate_dummy_tree()
-
     if config.loop:
         print('Folding Loops...')
         fold_loops(treeBank, config.loop)
@@ -111,15 +109,12 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
 
     if config.algo == 1:
         print("Mining K Patterns...")
-        k_patterns, single_act_reps = min_sub_mining(
-            # {0: treeBank},
+        k_patterns, _ = min_sub_mining(
             treeBank,
             frequency_counting_strat=freq_strat_mapping[config.strat],
             k_it=config.size,
             min_sup=config.min_sup,
-            # repetionPairsMining=True,
         )
-        # print(single_act_reps)
 
     else:
 
@@ -209,4 +204,6 @@ def mineRepetitionPatterns(bid: int):
             pairs_from_kpatterns.add(pair)
     print("pairs from k patterns: ")
     print(pairs_from_kpatterns)
-    return sorted(pairs_from_kpatterns.union(single_act_pairs), key=lambda x: x.positions[1] - x.positions[0], reverse=True)
+    combined_pairs = pair_unions(pairs_from_kpatterns, single_act_pairs)
+    result = sorted(combined_pairs, key=lambda x: x.positions[1] - x.positions[0], reverse=True)
+    return sorted(result, key=lambda x: x.positions[1] - x.positions[0], reverse=True)

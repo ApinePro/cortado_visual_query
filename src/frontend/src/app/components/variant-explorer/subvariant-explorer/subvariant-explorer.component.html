@@ -95,13 +95,15 @@
             </td>
             <td class="variant-cell">
               <div class="variant" style="">
-                <svg
+                <div
                   appVariantDrawer
                   #fragment
                   [variant]="mainVariant"
                   [onClickCbFc]="variantClickCallBack"
                   [computeActivityColor]="computeActivityColor"
-                ></svg>
+                >
+                  <svg class="drawer"></svg>
+                </div>
               </div>
             </td>
           </tr>

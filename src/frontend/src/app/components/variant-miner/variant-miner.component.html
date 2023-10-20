@@ -687,7 +687,7 @@
               "
               [rootElement]="variantMinerDiv"
             >
-              <svg
+              <div
                 appVariantDrawer
                 #fragment
                 [variant]="pattern"
@@ -698,7 +698,9 @@
                 [keepStandardView]="true"
                 [addCursorPointer]="false"
                 class="zoom-group-variant"
-              ></svg>
+              >
+                <svg class="drawer"></svg>
+              </div>
             </tr>
           </tbody>
         </table>

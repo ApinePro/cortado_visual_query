@@ -46,7 +46,7 @@
 
 <td class="border-start border-lightgrey ps-2 overflow-cell" *ngIf="isVisible">
   <div class="p-2" *ngFor="let pattern of lpm.patterns; let j = index">
-    <svg
+    <div
       appVariantDrawer
       #fragment
       [variant]="pattern"
@@ -56,7 +56,9 @@
       [keepStandardView]="true"
       [addCursorPointer]="false"
       class="zoom-group-variant"
-    ></svg>
+    >
+      <svg class="drawer"></svg>
+    </div>
   </div>
 </td>
 
