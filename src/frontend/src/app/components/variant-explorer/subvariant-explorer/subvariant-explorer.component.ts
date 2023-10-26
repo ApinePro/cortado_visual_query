@@ -125,6 +125,7 @@ export class SubvariantExplorerComponent
     if (variant.variant.asString() !== this.mainVariant.variant.asString()) {
       this.containsLoopCollapsedVariants = true;
     }
+    console.log(subvariant);
   }
 
   ngAfterViewInit() {

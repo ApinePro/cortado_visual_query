@@ -63,6 +63,8 @@ import { ImageExportService } from '../../services/imageExportService/image-expo
 import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
+import { SubvariantInfoExplorerComponent } from './subvariant-info-explorer/subvariant-info-explorer.component';
+import { CaseExplorerComponent } from './case-explorer/case-explorer.component';
 import { VariantSorter } from '../../objects/Variants/variant-sorter';
 import { Variant } from 'src/app/objects/Variants/variant';
 import {
@@ -451,7 +453,6 @@ export class VariantExplorerComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe(
         (res) => {
-          console.log(res);
           if ('error' in res) {
             this.variants.forEach((v) => {
               v.calculationInProgress = false;
@@ -718,6 +719,69 @@ export class VariantExplorerComponent
     }
   }
 
+  /**
+   * Create subvariant tab
+   * @param clusterId id of the cluster
+   * @param idx position in the cluster
+   * @param variant_id id of the variant
+   */
+  createSubVariantInfoView(clusterId, idx, variant_id) {
+    // find variant by id
+    let variant = _.find(
+      this.displayed_variants,
+      (variant) => variant_id === variant.id
+    );
+    const currently_maximized = this.maximized;
+
+    const LocationSelectors: LayoutManager.LocationSelector[] = [
+      {
+        typeId: LayoutManager.LocationSelector.TypeId.FocusedStack,
+        index: undefined,
+      },
+    ];
+    this.cleanUpSubVariantMap();
+
+    const id = SubvariantInfoExplorerComponent.componentName + variant_id;
+
+    let componentItem = this._subvariantcomponentItemsMap.get(id);
+    // Check if the component item reference already is stored and if the item still exists
+    // Saves on a search by ID
+    if (componentItem) {
+      componentItem.focus();
+      // Instantiate a new Subvariant Component for this variant if it did not exist or is closed
+    } else {
+      const variantExplorerItem = this._goldenLayout.findFirstComponentItemById(
+        VariantExplorerComponent.componentName
+      );
+      variantExplorerItem.focus();
+      const itemConfig: ComponentItemConfig = {
+        id: id,
+        type: 'component',
+        title: 'Sub-Variants\' info  for ' + idx + ' (Cluster ' + clusterId + ')',
+        isClosable: true,
+        reorderEnabled: true,
+        componentState: {
+          variant: variant,
+          index: idx,
+          clusterId: clusterId,
+          variant_id: variant_id,
+        },
+        maximised: true,
+        componentType: SubvariantInfoExplorerComponent.componentName,
+      };
+      this._goldenLayout.addItemAtLocation(itemConfig, LocationSelectors); //erroe here
+      componentItem = this._goldenLayout.findFirstComponentItemById(id);
+      this._subvariantcomponentItemsMap.set(id, componentItem);
+      // Keep the stack maximized
+      if (currently_maximized) {
+        const stack = componentItem.container.parent.parent as Stack;
+        stack.toggleMaximise();
+      }
+
+      variantExplorerItem.focus();
+    }
+  }
+
   closeAllSubvariantWindows(): void {
     this._subvariantcomponentItemsMap.forEach((value) => {
       if (
@@ -756,6 +820,19 @@ export class VariantExplorerComponent
     for (let index = 0; index < this.variants.length; index++) {
       const id =
         SubvariantExplorerComponent.componentName + this.variants[index].id;
+      const componentItem = this._subvariantcomponentItemsMap.get(id);
+      if (
+        componentItem &&
+        !this._goldenLayoutHostComponent.getComponentRef(
+          componentItem.container
+        )
+      ) {
+        this._subvariantcomponentItemsMap.delete(id);
+      }
+    }
+    for (let index = 0; index < this.variants.length; index++) {
+      const id =
+        SubvariantInfoExplorerComponent.componentName + this.variants[index].id;
       const componentItem = this._subvariantcomponentItemsMap.get(id);
       if (
         componentItem &&

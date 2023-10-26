@@ -74,6 +74,13 @@ def count_fragment_occurrences(payload: VariantFragment):
 class GroupToSort(BaseModel):
     variants: Any
 
+class IdQuery(BaseModel):
+    index: Any
+
+class caseQuery(BaseModel):
+    index: Any
+    caseId: Any
+
 
 @router.post("/sortvariant")
 def sort_variant(payload: GroupToSort):
@@ -93,3 +100,44 @@ def cluster(params: ClusteringParameters):
     )
     result = map_clusters(clusters)
     return result
+
+@router.post("/caseStatistics")
+def calculateStatistics(query: IdQuery):
+    index = int(query.index)
+    traces = cache.variants[index][1]
+    trace_statistics = []
+    for trace in traces:
+        statistics_temp = {}
+        statistics_temp["case_id"] = trace.attributes['concept:name']
+        statistics_temp["activity_num"] = len(trace)
+        statistics_temp["earliest_time"] = min([act["start_timestamp"] for act in trace]).strftime("%Y-%m-%d %H:%M:%S")
+        statistics_temp["latest_time"] = max([act["time:timestamp"] for act in trace]).strftime("%Y-%m-%d %H:%M:%S")
+        statistics_temp["total_duration"] = str(max([act["time:timestamp"] for act in trace]) - min([act["start_timestamp"] for act in trace]))
+        trace_statistics.append(statistics_temp)
+
+    res = {
+        "statistics": trace_statistics,
+    }
+    return res
+
+@router.post("/caseActivities")
+def getCaseActivities(query: caseQuery):
+    index = int(query.index)
+    id = str(query.caseId)
+    traces = cache.variants[index][1]
+    #print(len(traces))
+    case_activities = []
+    for trace in traces:
+        if trace.attributes['concept:name'] == id:
+            for act in trace:
+                activities_temp = {}
+                activities_temp["act_id"] = act['concept:name']
+                activities_temp["end_timestamp"] = act["time:timestamp"].strftime("%Y-%m-%d %H:%M:%S")
+                activities_temp["start_timestamp"] = act["start_timestamp"].strftime("%Y-%m-%d %H:%M:%S")
+                activities_temp["duration"] = str(act["time:timestamp"] - act["start_timestamp"])
+                case_activities.append(activities_temp)
+            break
+    res = {
+        "statistics": case_activities,
+    }
+    return res

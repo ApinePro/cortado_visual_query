@@ -32,6 +32,7 @@ async def load_event_log_from_file(
         len(event_log) > config_repo.get_configuration().min_traces_variant_detection_mp
     )
     info = calculate_event_log_properties(event_log, use_mp=use_mp)
+    print(event_log[1])
     return info
 
 
