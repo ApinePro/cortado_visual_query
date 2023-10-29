@@ -223,7 +223,6 @@ export class VariantExplorerComponent
 
   showArcDiagram = function () {
     const variant = this.contextMenu_variant;
-    console.log(variant);
     this.variantService
       .showArcDiagram(variant)
       .pipe(takeUntil(this._destroy$))
@@ -233,7 +232,6 @@ export class VariantExplorerComponent
           { arcs, activities: this.logService.activitiesInEventLog },
           this.contextMenu_directive
         );
-        // console.log(res);
       });
   }.bind(this);
 

@@ -31,18 +31,14 @@ export const parseInput = (pairs: Pair[]) => {
   var arcs = [];
   for (let i = 0; i < pairs.length; i++) {
     var pair = pairs[i];
-    for (let j = 0; j < pair.positions.length - 1; j++) {
-      // // reverse the text of the pattern (because of internal suffix tree representation)
-      // var text = pair.pattern.split('').reverse().join('');
-      arcs.push(
-        new Arc(
-          pair.positions[j],
-          pair.length,
-          pair.positions[j + 1],
-          JSON.stringify(pair.pattern)
-        )
-      );
-    }
+    arcs.push(
+      new Arc(
+        pair.positions.bfs[0],
+        pair.length,
+        pair.positions.bfs[1],
+        JSON.stringify(pair.pattern)
+      )
+    );
   }
   return arcs;
 };
@@ -106,12 +102,10 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
   let idx = 0;
   for (let i = 0; i < arcs.length; i++) {
     const arc = arcs[i];
-    if (!levelMap[arc.targetPos - arc.sourcePos]) {
-      levelMap[arc.targetPos - arc.sourcePos] = idx++;
+    if (!levelMap[arc.targetPos - arc.sourcePos - arc.numberEle - 1]) {
+      levelMap[arc.targetPos - arc.sourcePos - arc.numberEle - 1] = idx++;
     }
   }
-  console.log('here');
-  console.log(levelMap);
   let i = 0;
   const baseHeight = 50;
   const step = 20;
@@ -178,19 +172,20 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
     .attr('points', function (d) {
       const variantEl = d3.select(variantDrawer.divHtmlElement.nativeElement);
       const targetStartLeafCoords = variantEl
-        .select(`g.group-${d.targetPos}`)
+        .select(`g.bfs-group-${d.targetPos}`)
         .attr('transform')
         .split(/[\s,()]+/);
-      const levelHeight = levelMap[d.targetPos - d.sourcePos] * step;
+      const levelHeight =
+        levelMap[d.targetPos - d.sourcePos - d.numberEle - 1] * step;
       const dx = parseFloat(targetStartLeafCoords[1]);
       const dy = height;
       const targetwidth = variantEl
-        .select(`g.group-${d.targetPos + d.numberEle - 1}>polygon`)
+        .select(`g.bfs-group-${d.targetPos + d.numberEle - 1}>polygon`)
         .attr('points')
         .split(' ')[1]
         .split(',')[0];
       const targetEndLeafCoords = variantEl
-        .select(`g.group-${d.targetPos + d.numberEle - 1}`)
+        .select(`g.bfs-group-${d.targetPos + d.numberEle - 1}`)
         .attr('transform')
         .split(/[\s,()]+/);
       const cx = parseFloat(targetEndLeafCoords[1]) + parseFloat(targetwidth);
@@ -200,18 +195,18 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
       const ex = dx;
       const ey = 5 + levelHeight;
       const sourceStartLeafCoords = variantEl
-        .select(`g.group-${d.sourcePos}`)
+        .select(`g.bfs-group-${d.sourcePos}`)
         .attr('transform')
         .split(/[\s,()]+/);
       const hx = parseFloat(sourceStartLeafCoords[1]);
       const hy = height;
       const sourcewidth = variantEl
-        .select(`g.group-${d.sourcePos + d.numberEle - 1}>polygon`)
+        .select(`g.bfs-group-${d.sourcePos + d.numberEle - 1}>polygon`)
         .attr('points')
         .split(' ')[1]
         .split(',')[0];
       const sourceEndLeafCoords = variantEl
-        .select(`g.group-${d.sourcePos + d.numberEle - 1}`)
+        .select(`g.bfs-group-${d.sourcePos + d.numberEle - 1}`)
         .attr('transform')
         .split(/[\s,()]+/);
       const gx = parseFloat(sourceEndLeafCoords[1]) + parseFloat(sourcewidth);

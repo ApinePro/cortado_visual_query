@@ -297,6 +297,17 @@ export class VariantDrawerDirective
       }
 
       this.selection.emit(this.svgSelection);
+
+      d3.select(
+        this.divHtmlElement.nativeElement
+          .querySelector('.dfs-group-0')
+          .querySelectorAll(':scope > .variant-element-group')
+      ).each(function (d, i) {
+        let offset = 1;
+        this.forEach((child) => {
+          d3.select(child).classed(`bfs-group-${offset++}`, true);
+        });
+      });
     }
   }
 
@@ -382,7 +393,7 @@ export class VariantDrawerDirective
     svgElement
       .datum(element)
       .classed('variant-element-group', true)
-      .classed(`group-${this.groupId++}`, true);
+      .classed(`dfs-group-${this.groupId++}`, true);
 
     if (outerElement) {
       svgElement.datum(element);

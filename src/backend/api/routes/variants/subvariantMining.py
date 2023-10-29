@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import DefaultDict
 from cortado_core.eventually_follows_pattern_mining.algorithm import generate_eventually_follows_patterns_from_groups
 from cortado_core.eventually_follows_pattern_mining.blanket_mining.algorithm import postprocess_closed_patterns, \
     postprocess_maximal_patterns
@@ -40,6 +41,8 @@ import numpy as np
 from cortado_core.variant_pattern_replications.pair import Pair
 
 from cortado_core.variant_pattern_replications.repetition_pairs import generate_consecutive_pairs, generate_dummy_tree
+
+from cortado_core.subprocess_discovery.subtree_mining.maximal_connected_components.maximal_connected_check import check_if_valid_tree
 
 router = APIRouter(tags=["subvariantMining"], prefix="/subvariantMining")
 
@@ -194,16 +197,41 @@ def mineRepetitionPatterns(bid: int):
     print("single act pairs: \n", single_act_pairs)
 
     pairs_from_kpatterns = set()
-    print("tree patterns: ")
-    for _, patterns in k_patterns.items():
-      tree_patterns = list(patterns)
-      print(tree_patterns)
-      for _, treepat in enumerate(tree_patterns):
-         if len(treepat.tree.children) > 1:
-            pair = create_pair(treepat)
-            pairs_from_kpatterns.add(pair)
+
+    ks = list(k_patterns)
+    ks.reverse()
+        
+    k_patterns_filtered = DefaultDict(set)
+    pairs_filtered = DefaultDict()
+
+    for k in ks: 
+        for tp in k_patterns[k]: 
+            if len(tp.tree.children) > 1 and check_if_valid_tree(tp.tree):
+              pair = create_pair(tp, treeBank[0].tree)
+              if not pair.__overlapping__():
+                k_patterns_filtered[k].add(tp)
+                pairs_filtered[tp] = pair
+
+    set_maximaly_closed_patterns(k_patterns_filtered)
+
+    for k in ks: 
+      for tp in k_patterns_filtered[k]: 
+         print(tp)
+         if tp.maximal:
+            pairs_from_kpatterns.add(pairs_filtered[tp])
+
+    # pairs_from_kpatterns = set()
+    # print("tree patterns: ")
+    # for _, patterns in k_patterns.items():
+    #   tree_patterns = list(patterns)
+    #   print(tree_patterns)
+    #   for _, treepat in enumerate(tree_patterns):
+    #      if len(treepat.tree.children) > 1 and treepat.maximal and check_if_valid_tree(treepat.tree):
+    #         pair = create_pair(treepat, treeBank[0].tree)
+    #         pairs_from_kpatterns.add(pair)
+    
     print("pairs from k patterns: ")
     print(pairs_from_kpatterns)
     combined_pairs = pair_unions(pairs_from_kpatterns, single_act_pairs)
-    result = sorted(combined_pairs, key=lambda x: x.positions[1] - x.positions[0], reverse=True)
-    return sorted(result, key=lambda x: x.positions[1] - x.positions[0], reverse=True)
+    result = sorted(combined_pairs, key=lambda x: x.positions.dfs[1] - x.positions.dfs[0], reverse=True)
+    return sorted(result, key=lambda x: x.positions.dfs[1] - x.positions.dfs[0], reverse=True)

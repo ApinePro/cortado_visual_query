@@ -16,8 +16,17 @@ class Arc {
   }
 }
 
+class Positions {
+  dfs: number[];
+  bfs: number[];
+  constructor(dfs, bfs) {
+    this.dfs = dfs;
+    this.bfs = bfs;
+  }
+}
+
 class Pair {
-  positions: number[];
+  positions: Positions;
   pattern: string[];
   length: number;
   constructor(positions, pattern) {
