@@ -22,6 +22,7 @@ import {
   LeafNode,
   ParallelGroup,
   SequenceGroup,
+  FallthroughGroup,
   VariantElement,
 } from 'src/app/objects/Variants/variant_element';
 
@@ -292,6 +293,7 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
     textSelection: Selection<any, any, any, any>
   ): number {
     let textLength;
+
     if (
       this.sharedDataService.computedTextLengthCache.has(textSelection.text())
     ) {
@@ -305,6 +307,8 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
       textSelection.text(),
       textLength
     );
+
+    textLength = textSelection.node().getComputedTextLength(); //added
     return textLength;
   }
 
@@ -506,6 +510,23 @@ export class SubVariantComponent implements AfterViewInit, OnDestroy {
           results.set(activity, currentValues);
         } else {
           results.set(activity, [currentYIndex]);
+        }
+      }
+
+      return [results, currentYIndex];
+    }
+
+    if (variantElement instanceof FallthroughGroup) {
+      for (let child of variantElement.elements) {
+        if (child instanceof LeafNode) {
+          let activity = child.activity[0];
+          if (results.has(activity)) {
+            let currentValues = results.get(activity);
+            currentValues.push(currentYIndex);
+            results.set(activity, currentValues);
+          } else {
+            results.set(activity, [currentYIndex]);
+          }
         }
       }
 

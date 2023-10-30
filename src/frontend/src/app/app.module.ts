@@ -79,6 +79,7 @@ import { ConformanceTabComponent } from './components/conformance-tab/conformanc
 import { ConformanceStatusIconComponent } from './components/variant-explorer/variant/subcomponents/variant-info/conformance-status-icon/conformance-status-icon.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TiebreakerComponent } from './components/variant-explorer/tiebreaker/tiebreaker.component';
+import { PatternEditorComponent } from './components/variant-explorer/tiebreaker/pattern-editor/pattern-editor.component';
 import { TreeConformanceButtonComponent } from './components/variant-explorer/variant/subcomponents/tree-buttons/tree-conformance-button/tree-conformance-button.component';
 import { DecimalPipe } from '@angular/common';
 import { VariantMinerActivitiesFIlterComponent } from './components/variant-miner/variant-miner-activities-filter/variant-miner-activities-filter.component';
@@ -162,6 +163,7 @@ import { RouterLink } from '@angular/router';
     ConformanceTabComponent,
     ConformanceStatusIconComponent,
     TiebreakerComponent,
+    PatternEditorComponent,
     TreeConformanceButtonComponent,
     VariantMinerActivitiesFIlterComponent,
     LpmExplorerComponent,

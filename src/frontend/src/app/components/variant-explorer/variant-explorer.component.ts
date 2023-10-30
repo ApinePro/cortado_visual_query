@@ -97,6 +97,8 @@ import { ClusteringSettingsDialogComponent } from './clustering-settings-dialog/
 import _ from 'lodash';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
 import { DocumentationService } from '../documentation/documentation.service';
+import * as d3 from 'd3';
+import { Selection } from 'd3';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -134,7 +136,9 @@ export class VariantExplorerComponent
     private documentationService: DocumentationService
   ) {
     super(elRef.nativeElement, renderer);
+    this.explorerElement = elRef;
   }
+  explorerElement: ElementRef;
 
   collapse: boolean = false;
   maximized: boolean = false;
@@ -264,6 +268,11 @@ export class VariantExplorerComponent
     this.listenForLogStatChange();
     this.listenForViewModeChange();
     this.listenForLoopCollapsedVariantsChange();
+
+    const explorerElement = this.variantExplorerDiv.nativeElement;
+    d3.select(this.explorerElement.nativeElement)
+      .select('.dropdown-menu')
+      .style('max-height', explorerElement.offsetHeight.toString() + 'px');
   }
 
   ngOnDestroy(): void {
@@ -958,7 +967,7 @@ export class VariantExplorerComponent
 
   toggleQueryInfo(event: Event): void {
     this.documentationService.showDocumentationDialog('Variant Query Language');
-    // this.showQueryInfo = !this.showQueryInfo;
+    this.showQueryInfo = !this.showQueryInfo;
     event.stopPropagation();
   }
 

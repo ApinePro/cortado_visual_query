@@ -23,6 +23,8 @@ import {
   VariantElement,
   SequenceGroup,
   ParallelGroup,
+  ChoiceGroup,
+  FallthroughGroup,
   LeafNode,
   WaitingTimeNode,
   InvisibleSequenceGroup,
@@ -55,7 +57,7 @@ export class VariantDrawerDirective
   constructor(
     elRef: ElementRef,
     private polygonService: PolygonGeneratorService,
-    private sharedDataService: SharedDataService,
+    private sharedDataService: SharedDataService, //edited
     private variantViewModeService: VariantViewModeService,
     private conformanceCheckingService: ConformanceCheckingService,
     private variantService: VariantService
@@ -235,7 +237,6 @@ export class VariantDrawerDirective
 
   redraw(): void {
     this.svgSelection.selectAll('*').remove();
-
     if (this.variant.variant) {
       const height = this.variant.variant.recalculateHeight(
         !this.keepStandardView &&
@@ -256,6 +257,7 @@ export class VariantDrawerDirective
       }
 
       const svg_container = d3.select(this.svgHtmlElement.nativeElement);
+      //for parallel group-like chevrons
       this.variant.variant.updateWidth(
         !this.keepStandardView &&
           this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
@@ -270,7 +272,6 @@ export class VariantDrawerDirective
       svg_container
         .attr('width', width + width_offset)
         .attr('height', height + 2 * VARIANT_Constants.SELECTION_STROKE_WIDTH);
-
       if (
         !this.keepStandardView &&
         this.variantViewModeService.viewMode === ViewMode.CONFORMANCE &&
@@ -378,6 +379,10 @@ export class VariantDrawerDirective
 
     if (element instanceof ParallelGroup) {
       this.drawParallelGroup(element.asParallelGroup(), svgElement);
+    } else if (element instanceof ChoiceGroup) {
+      this.drawChoiceGroup(element.asChoiceGroup(), svgElement);
+    } else if (element instanceof FallthroughGroup) {
+      this.drawFallthroughGroup(element.asFallthroughGroup(), svgElement);
     } else if (element instanceof SequenceGroup) {
       this.drawSequenceGroup(
         element.asSequenceGroup(),
@@ -497,6 +502,7 @@ export class VariantDrawerDirective
   ): void {
     const width = element.getWidth();
     const height = element.getHeight();
+
     const polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
     const color = 'lightgrey';
@@ -538,8 +544,15 @@ export class VariantDrawerDirective
 
     let xOffset = 0;
 
+    const inEditor =
+      d3
+        .select(this.svgHtmlElement.nativeElement)
+        .classed('in-variant-editor') ||
+      d3.select(this.svgHtmlElement.nativeElement).classed('pattern-variant');
+
     if (
       (!outerElement ||
+        inEditor ||
         (!this.keepStandardView &&
           this.variantViewModeService.viewMode === ViewMode.PERFORMANCE)) &&
       !(element.parent instanceof SkipGroup)
@@ -652,6 +665,211 @@ export class VariantDrawerDirective
     }
   }
 
+  drawChoiceGroup(
+    element: ChoiceGroup,
+    parent: Selection<any, any, any, any>
+  ): void {
+    const width = element.getWidth();
+    const height = element.getHeight();
+
+    const polygonPoints = this.polygonService.getPolygonPoints(width, height);
+
+    let laElement = getLowestSelectionActionableElement(element);
+    let actionable =
+      laElement.parent !== null &&
+      laElement.infixSelectableState !== SelectableState.None;
+
+    const color = 'lightgrey';
+    let polygon = this.createPolygon(
+      parent,
+      polygonPoints,
+      color,
+      actionable,
+      true
+    );
+
+    if (
+      this.traceInfixSelectionMode &&
+      !(element instanceof InvisibleSequenceGroup)
+    ) {
+      this.addInfixSelectionAttributes(element, polygon, false);
+    }
+
+    if (this.onClickCbFc) {
+      parent.on('click', (e: PointerEvent) => {
+        this.onClickCbFc(this, element, this.variant);
+        e.stopPropagation();
+      });
+    }
+
+    if (this.onRightMouseClickCbFc) {
+      parent.on('contextmenu', (e: PointerEvent) => {
+        this.onRightMouseClickCbFc(this, element, this.variant, e);
+        e.stopPropagation();
+      });
+    }
+
+    let y = VARIANT_Constants.MARGIN_Y;
+
+    //edited
+    const textcolor = textColorForBackgroundColor(
+      color,
+      this.traceInfixSelectionMode && !element.selected
+    );
+
+    const v_height = element.getHeight();
+    const v_width = element.getWidth();
+
+    const activityText = parent
+      .append('text')
+      .attr('x', v_width / 2)
+      .attr('y', v_height / 2)
+      .classed('user-select-none', true)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr(
+        'font-size',
+        (VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
+          element.elements.length +
+          VARIANT_Constants.MARGIN_Y
+      )
+      .attr('font-weight', 300)
+      .attr('fill', textcolor)
+      .classed('activity-text', true);
+
+    const tspan_infront = activityText
+      .append('tspan')
+      .attr(
+        'x',
+        element.getHeadLength() +
+          0.5 *
+            (((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
+              element.elements.length +
+              VARIANT_Constants.MARGIN_Y) /
+              2.8) +
+          0.5 * VARIANT_Constants.MARGIN_X
+      )
+      .attr('y', v_height / 2)
+      .classed(
+        'cursor-pointer',
+        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+      )
+      .text('{');
+
+    for (const child of element.elements) {
+      if (
+        child instanceof WaitingTimeNode &&
+        (this.keepStandardView ||
+          this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE)
+      ) {
+        continue;
+      }
+
+      const height = child.getHeight();
+      const x =
+        element.getHeadLength() +
+        0.5 * VARIANT_Constants.MARGIN_X +
+        ((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
+          element.elements.length +
+          VARIANT_Constants.MARGIN_Y) /
+          2.8;
+      const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
+      this.draw(child, g, false);
+      y += height + VARIANT_Constants.MARGIN_Y;
+    }
+
+    const tspan_behind = activityText
+      .append('tspan')
+      .attr(
+        'x',
+        element.getWidth() -
+          element.getHeadLength() -
+          0.5 * VARIANT_Constants.MARGIN_X -
+          0.5 *
+            (((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
+              element.elements.length +
+              VARIANT_Constants.MARGIN_Y) /
+              2.8)
+      )
+      .attr('y', v_height / 2)
+      .classed(
+        'cursor-pointer',
+        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+      )
+      .text('}');
+
+    if (this.onMouseOverCbFc) {
+      this.onMouseOverCbFc(this, element, this.variant, parent);
+    }
+  }
+
+  drawFallthroughGroup(
+    element: FallthroughGroup,
+    parent: Selection<any, any, any, any>
+  ): void {
+    const width = element.getWidth();
+    const height = element.getHeight();
+
+    const polygonPoints = this.polygonService.getPolygonPoints(width, height);
+
+    let laElement = getLowestSelectionActionableElement(element);
+    let actionable =
+      laElement.parent !== null &&
+      laElement.infixSelectableState !== SelectableState.None;
+
+    const color = 'lightgrey';
+    let polygon = this.createFallthroughPolygon(
+      parent,
+      polygonPoints,
+      color,
+      actionable,
+      true
+    );
+
+    if (
+      this.traceInfixSelectionMode &&
+      !(element instanceof InvisibleSequenceGroup)
+    ) {
+      this.addInfixSelectionAttributes(element, polygon, false);
+    }
+
+    if (this.onClickCbFc) {
+      parent.on('click', (e: PointerEvent) => {
+        this.onClickCbFc(this, element, this.variant);
+        e.stopPropagation();
+      });
+    }
+
+    if (this.onRightMouseClickCbFc) {
+      parent.on('contextmenu', (e: PointerEvent) => {
+        this.onRightMouseClickCbFc(this, element, this.variant, e);
+        e.stopPropagation();
+      });
+    }
+
+    let y = VARIANT_Constants.MARGIN_Y;
+
+    for (const child of element.elements) {
+      if (
+        child instanceof WaitingTimeNode &&
+        (this.keepStandardView ||
+          this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE)
+      ) {
+        continue;
+      }
+
+      const height = child.getHeight();
+      const x = element.getHeadLength() + 0.5 * VARIANT_Constants.MARGIN_X;
+      const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
+      this.draw(child, g, false);
+      y += height + VARIANT_Constants.MARGIN_Y;
+    }
+
+    if (this.onMouseOverCbFc) {
+      this.onMouseOverCbFc(this, element, this.variant, parent);
+    }
+  }
+
   private createPolygon(
     parent: d3.Selection<any, any, any, any>,
     polygonPoints: string,
@@ -669,9 +887,27 @@ export class VariantDrawerDirective
       );
 
     if (group) {
+      poly.classed('chevron-group', true);
       poly.style('fill-opacity', 0.5).style('stroke-width', 2);
     }
 
+    return poly;
+  }
+
+  private createFallthroughPolygon(
+    parent: d3.Selection<any, any, any, any>,
+    polygonPoints: string,
+    color: string,
+    actionable: boolean,
+    group = false
+  ) {
+    const poly = parent
+      .append('polygon')
+      .attr('points', polygonPoints)
+      .style('fill', color)
+      .classed('cursor-pointer', !this.traceInfixSelectionMode || actionable);
+    poly.classed('chevron-group', true);
+    poly.style('stroke-width', 2);
     return poly;
   }
 
@@ -681,7 +917,6 @@ export class VariantDrawerDirective
   ): void {
     const width = element.getWidth();
     let height = element.getHeight();
-
     const polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
     const color = this.computeActivityColor(this, element, this.variant);
@@ -724,6 +959,7 @@ export class VariantDrawerDirective
 
     let truncated = false;
     let dy = 0;
+
     element.activity.forEach((a, _i) => {
       const tspan = activityText
         .append('tspan')
@@ -745,7 +981,6 @@ export class VariantDrawerDirective
         element.getWidth() -
         element.getHeadLength() * 2 -
         VARIANT_Constants.MARGIN_X;
-
       const tr = this.wrapInnerLabelText(tspan, a, maxWidth);
       truncated ||= tr;
 
@@ -897,12 +1132,17 @@ export class VariantDrawerDirective
     maxWidth: number
   ): boolean {
     let textLength = this.getComputedTextLength(textSelection);
+    //let textLength = textSelection.node().getBoundingClientRect().width;
 
     let truncated = false;
     while (textLength > maxWidth && text.length > 1) {
       text = text.slice(0, -1);
+      if (text[text.length - 1] == ' ') {
+        text = text.slice(0, -1);
+      }
       textSelection.text(text + '..');
       textLength = this.getComputedTextLength(textSelection);
+      //textLength = textSelection.node().getBoundingClientRect().width;
       truncated = true;
     }
 
@@ -924,14 +1164,27 @@ export class VariantDrawerDirective
         textSelection.text()
       );
     } else {
-      textLength = textSelection.node().getComputedTextLength();
+      textLength = textSelection.node().getBoundingClientRect().width;
+      if (textLength == 0) {
+        textLength =
+          textSelection.text().length * VARIANT_Constants.CHAR_LENGTH;
+      }
     }
-    this.sharedDataService.computedTextLengthCache.set(
-      textSelection.text(),
-      textLength
-    );
+    if (textLength > 0) {
+      this.sharedDataService.computedTextLengthCache.set(
+        textSelection.text(),
+        textLength
+      );
+    }
+
     return textLength;
   }
+
+  /*
+  public resetCachedTextLength() {
+    this.sharedDataService.computedTextLengthCache = new Map<string, number>();
+    console.log('reset');
+  }*/
 
   getSVGGraphicElement(): SVGGraphicsElement {
     return this.svgHtmlElement.nativeElement;
