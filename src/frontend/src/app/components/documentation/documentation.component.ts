@@ -79,8 +79,19 @@ export class DocumentationComponent implements OnInit, OnDestroy {
     }
   }
 
+  blink(element) {
+    let f = document.getElementById(element);
+    setTimeout(function () {
+      f.style.background = f.style.background == 'lightgray' ? '' : 'lightgray';
+    }, 200);
+    setTimeout(function () {
+      f.style.background = f.style.background == 'lightgray' ? '' : 'lightgray';
+    }, 1200);
+  }
+
   navToSection(elementId) {
     document.querySelector('#' + elementId).scrollIntoView();
+    // this.blink(elementId);
   }
 
   navToSectionByHeading(heading: string) {
@@ -94,6 +105,7 @@ export class DocumentationComponent implements OnInit, OnDestroy {
     }
     if (elementId) {
       document.querySelector('#' + elementId).scrollIntoView();
+      // this.blink(elementId);
     }
   }
 

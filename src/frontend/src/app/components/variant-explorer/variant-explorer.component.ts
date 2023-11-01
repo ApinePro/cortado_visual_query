@@ -966,9 +966,13 @@ export class VariantExplorerComponent
   }
 
   toggleQueryInfo(event: Event): void {
-    this.documentationService.showDocumentationDialog('Variant Query Language');
-    this.showQueryInfo = !this.showQueryInfo;
+    this.openDocumentation('Variant Query Language');
+    // this.showQueryInfo = !this.showQueryInfo;
     event.stopPropagation();
+  }
+
+  openDocumentation(heading: string) {
+    this.documentationService.showDocumentationDialog(heading);
   }
 
   toggleBlur(event) {
