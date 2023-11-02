@@ -118,7 +118,6 @@
                 formControlName="rel_sup"
                 class="input-field-number"
                 type="number"
-                [(ngModel)]="relSup"
                 step=".01"
                 min="0"
               />%
@@ -129,6 +128,7 @@
               <ngx-slider
                 [(value)]="relSup"
                 [options]="supportSliderOptions"
+                (valueChange)="relSupChanged()"
               ></ngx-slider>
             </div>
           </div>
@@ -149,7 +149,6 @@
                     ? totalTraces
                     : totalVariants
                 }}"
-                (change)="validateMinSupport($event)"
               />
               of
               {{
