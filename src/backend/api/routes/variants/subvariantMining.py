@@ -198,4 +198,3 @@ def sub_pattern_to_ctree(pattern: SubPattern, parent=None):
     t = ConcurrencyTree(parent=parent, op=pattern.operator, label=pattern.label)
     t.children = [sub_pattern_to_ctree(child, t) for child in pattern.children]
     return t
-

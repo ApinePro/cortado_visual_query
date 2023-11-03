@@ -43,7 +43,7 @@ def calculate_event_log_properties(
     res_variants, cache.variants = get_c_variants(event_log, use_mp, time_granularity)
     print(type(list(cache.variants.values())[0]))
     print(len(list(cache.variants.values())))
-    #print(type(list(cache.variants.values())))
+    # print(type(list(cache.variants.values())))
 
     start_activities, end_activities, nActivities = compute_log_stats(cache.variants)
 
@@ -57,7 +57,7 @@ def calculate_event_log_properties(
         "performanceInfoAvailable": cache.parameters["lifecycle_available"],
         "timeGranularity": time_granularity,
     }
-    
+
     cache.parameters["nBids"] = len(cache.variants.keys())
 
     # pickle.dump(cache.variants,  open( "./resources/variants.p", "wb" ))

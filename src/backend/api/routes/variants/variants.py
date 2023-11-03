@@ -74,8 +74,10 @@ def count_fragment_occurrences(payload: VariantFragment):
 class GroupToSort(BaseModel):
     variants: Any
 
+
 class IdQuery(BaseModel):
     index: Any
+
 
 class caseQuery(BaseModel):
     index: Any
@@ -101,6 +103,7 @@ def cluster(params: ClusteringParameters):
     result = map_clusters(clusters)
     return result
 
+
 @router.post("/caseStatistics")
 def calculateStatistics(query: IdQuery):
     index = int(query.index)
@@ -108,20 +111,28 @@ def calculateStatistics(query: IdQuery):
     trace_statistics = []
     for trace in traces:
         statistics_temp = {}
-        statistics_temp["case_id"] = trace.attributes['concept:name']
+        statistics_temp["case_id"] = trace.attributes["concept:name"]
         statistics_temp["activity_num"] = len(trace)
-        earliest_time = min(min([act["start_timestamp"] for act in trace]), max([act["time:timestamp"] for act in trace]))
-        statistics_temp["earliest_time"] = earliest_time.strftime("%Y-%m-%d %H:%M:%S") #there might not be a start 
+        earliest_time = min(
+            min([act["start_timestamp"] for act in trace]),
+            max([act["time:timestamp"] for act in trace]),
+        )
+        statistics_temp["earliest_time"] = earliest_time.strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )  # there might not be a start
         latest_time = max([act["time:timestamp"] for act in trace])
         statistics_temp["latest_time"] = latest_time.strftime("%Y-%m-%d %H:%M:%S")
         duration = latest_time - earliest_time
-        statistics_temp["total_duration"] = f"{duration.days} days, {duration.seconds // 3600:02}:{(duration.seconds % 3600) // 60:02}:{duration.seconds % 60:02}"
+        statistics_temp[
+            "total_duration"
+        ] = f"{duration.days} days, {duration.seconds // 3600:02}:{(duration.seconds % 3600) // 60:02}:{duration.seconds % 60:02}"
         trace_statistics.append(statistics_temp)
 
     res = {
         "statistics": trace_statistics,
     }
     return res
+
 
 @router.post("/caseActivities")
 def getCaseActivities(query: caseQuery):
@@ -130,14 +141,20 @@ def getCaseActivities(query: caseQuery):
     traces = cache.variants[index][1]
     case_activities = []
     for trace in traces:
-        if trace.attributes['concept:name'] == id:
+        if trace.attributes["concept:name"] == id:
             for act in trace:
                 activities_temp = {}
-                activities_temp["act_id"] = act['concept:name']
-                activities_temp["end_timestamp"] = act["time:timestamp"].strftime("%Y-%m-%d %H:%M:%S")
-                activities_temp["start_timestamp"] = act["start_timestamp"].strftime("%Y-%m-%d %H:%M:%S")
+                activities_temp["act_id"] = act["concept:name"]
+                activities_temp["end_timestamp"] = act["time:timestamp"].strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
+                activities_temp["start_timestamp"] = act["start_timestamp"].strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
                 duration = act["time:timestamp"] - act["start_timestamp"]
-                activities_temp["duration"] = f"{duration.days} days, {duration.seconds // 3600:02}:{(duration.seconds % 3600) // 60:02}:{duration.seconds % 60:02}"
+                activities_temp[
+                    "duration"
+                ] = f"{duration.days} days, {duration.seconds // 3600:02}:{(duration.seconds % 3600) // 60:02}:{duration.seconds % 60:02}"
                 case_activities.append(activities_temp)
             break
     res = {
