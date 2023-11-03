@@ -86,7 +86,7 @@ export class VariantInfoComponent implements OnInit, OnDestroy {
     );
   }
 
-  emitSubvariantInfoWindowEvent(){
+  emitSubvariantInfoWindowEvent() {
     this.subvariantInfoEvent.emit();
   }
 }

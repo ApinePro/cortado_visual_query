@@ -757,7 +757,8 @@ export class VariantExplorerComponent
       const itemConfig: ComponentItemConfig = {
         id: id,
         type: 'component',
-        title: 'Sub-Variants\' info  for ' + idx + ' (Cluster ' + clusterId + ')',
+        title:
+          "Sub-Variants' info  for " + idx + ' (Cluster ' + clusterId + ')',
         isClosable: true,
         reorderEnabled: true,
         componentState: {

@@ -93,7 +93,6 @@ import { InfoBarComponent } from './components/activity-overview/info-bar/info-b
 import { LoadingOverlayComponent } from './components/loading-overlay/loading-overlay.component';
 import { CaseExplorerComponent } from './components/variant-explorer/case-explorer/case-explorer.component';
 
-
 @NgModule({
   declarations: [
     AppComponent,
