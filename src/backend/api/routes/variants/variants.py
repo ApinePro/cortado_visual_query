@@ -110,9 +110,12 @@ def calculateStatistics(query: IdQuery):
         statistics_temp = {}
         statistics_temp["case_id"] = trace.attributes['concept:name']
         statistics_temp["activity_num"] = len(trace)
-        statistics_temp["earliest_time"] = min([act["start_timestamp"] for act in trace]).strftime("%Y-%m-%d %H:%M:%S")
-        statistics_temp["latest_time"] = max([act["time:timestamp"] for act in trace]).strftime("%Y-%m-%d %H:%M:%S")
-        statistics_temp["total_duration"] = str(max([act["time:timestamp"] for act in trace]) - min([act["start_timestamp"] for act in trace]))
+        earliest_time = min(min([act["start_timestamp"] for act in trace]), max([act["time:timestamp"] for act in trace]))
+        statistics_temp["earliest_time"] = earliest_time.strftime("%Y-%m-%d %H:%M:%S") #there might not be a start 
+        latest_time = max([act["time:timestamp"] for act in trace])
+        statistics_temp["latest_time"] = latest_time.strftime("%Y-%m-%d %H:%M:%S")
+        duration = latest_time - earliest_time
+        statistics_temp["total_duration"] = f"{duration.days} days, {duration.seconds // 3600:02}:{(duration.seconds % 3600) // 60:02}:{duration.seconds % 60:02}"
         trace_statistics.append(statistics_temp)
 
     res = {
@@ -125,7 +128,6 @@ def getCaseActivities(query: caseQuery):
     index = int(query.index)
     id = str(query.caseId)
     traces = cache.variants[index][1]
-    #print(len(traces))
     case_activities = []
     for trace in traces:
         if trace.attributes['concept:name'] == id:
@@ -134,7 +136,8 @@ def getCaseActivities(query: caseQuery):
                 activities_temp["act_id"] = act['concept:name']
                 activities_temp["end_timestamp"] = act["time:timestamp"].strftime("%Y-%m-%d %H:%M:%S")
                 activities_temp["start_timestamp"] = act["start_timestamp"].strftime("%Y-%m-%d %H:%M:%S")
-                activities_temp["duration"] = str(act["time:timestamp"] - act["start_timestamp"])
+                duration = act["time:timestamp"] - act["start_timestamp"]
+                activities_temp["duration"] = f"{duration.days} days, {duration.seconds // 3600:02}:{(duration.seconds % 3600) // 60:02}:{duration.seconds % 60:02}"
                 case_activities.append(activities_temp)
             break
     res = {

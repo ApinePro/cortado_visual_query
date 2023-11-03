@@ -235,7 +235,6 @@ export class ProcessTreeEditorComponent
           this.processTreeSyntaxInfo = checkSyntax(res);
           this.processTreeService.correctTreeSyntax =
             this.processTreeSyntaxInfo.correctSyntax;
-
           this.redraw(res);
         } else if (res === null && this.mainSvgGroup) {
           this.processTreeDrawer.redraw(null);
@@ -257,8 +256,7 @@ export class ProcessTreeEditorComponent
       this.performanceColorScaleService.getColorScale();
 
     this.processTreeDrawer.redraw(tree);
-
-    this.selectRootNodeFromID(this.selectedRootNodeId);
+    setTimeout(() => this.selectRootNodeFromID(this.selectedRootNodeId), 0);
   }
 
   ngAfterViewInit(): void {
@@ -277,8 +275,7 @@ export class ProcessTreeEditorComponent
       .subscribe((id) => {
         // Change the Selection
         if (id) {
-          this.selectRootNodeFromID(id);
-
+          this.selectRootNodeFromID(id); //the last one failed
           // Unselect all
         } else {
           this.clearDisplayedSelection();
@@ -290,8 +287,8 @@ export class ProcessTreeEditorComponent
 
   private selectRootNodeFromID(id) {
     const selectedRoot = this.mainSvgGroup.select('[id="' + id + '"]');
+    //const node = selectedRoot.data()[0];
     const node = selectedRoot.data()[0];
-
     if (id && node) {
       this.setSelectedRootNode(node);
       this.selectSubtreeFromRoot(selectedRoot.node(), node);
