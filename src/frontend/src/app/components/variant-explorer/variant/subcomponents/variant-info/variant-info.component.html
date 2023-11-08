@@ -24,15 +24,18 @@
     ></ng-template
   >
 
-  <small
-    *ngIf="!variant.userDefined"
-    class="ms-1 float-end cursor-help"
-    [ngbTooltip]="variantInfoTooltip"
-    placement="end"
-    container="body"
-  >
-    {{ variant.percentage }}%<br />
-    ({{ variant.count | number }})
+  <small *ngIf="!variant.userDefined" class="ms-1 float-end">
+    <span
+      class="cursor-help"
+      [ngbTooltip]="variantInfoTooltip"
+      placement="end"
+      container="body"
+    >
+      {{ variant.percentage }}%<br />
+    </span>
+    <span class="cursor-pointer" (click)="emitSubvariantInfoWindowEvent()">
+      ({{ variant.count | number }})
+    </span>
   </small>
 
   <small

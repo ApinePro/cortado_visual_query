@@ -13,6 +13,7 @@ dist
 .angular/
 
 src/backend/cortado_core
+src/cortado_core
 src/backend/pm4py
 *.sol
 *.mps

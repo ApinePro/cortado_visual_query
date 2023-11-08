@@ -244,8 +244,8 @@ export class LogService {
     this.activitiesInEventLog = res['activities'];
     this.startActivitiesInEventLog = new Set(res['startActivities']);
     this.endActivitiesInEventLog = new Set(res['endActivities']);
-
     this.variants = addVariantInformation(res['variants']);
+    console.log(res['variants']);
     this.computeLogStats(this.variants);
     this.loadedEventLog = filePath;
     this.performanceInfoAvailable = true;

@@ -640,4 +640,23 @@ export class BackendService {
       }
     );
   }
+
+  public calculateCaseStatistics(index) {
+    return this.httpClient.post(
+      ROUTES.HTTP_BASE_URL + ROUTES.VARIANT + 'caseStatistics',
+      {
+        index: index,
+      }
+    );
+  }
+
+  public getCaseActivities(index, caseId) {
+    return this.httpClient.post(
+      ROUTES.HTTP_BASE_URL + ROUTES.VARIANT + 'caseActivities',
+      {
+        index: index,
+        caseId: caseId,
+      }
+    );
+  }
 }
