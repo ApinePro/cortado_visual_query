@@ -31,7 +31,7 @@ variables:
     - echo https://${pm4py_core_git_username}:${pm4py_core_git_password}@gitlab.fit.fraunhofer.de >> /root/.git-credentials
     - pip install -r src/backend/requirements.txt
 
-eslint-check:
+.node-critical-check: &node-critical-check
   stage: lint
   image: node
   rules:
@@ -39,8 +39,21 @@ eslint-check:
   before_script:
     - cd src/frontend
     - npm ci
+
+eslint-check:
+  <<: *node-critical-check
   script:
-    - ./node_modules/.bin/eslint src/
+    - npm run lint-scripts
+
+html-check:
+  <<: *node-critical-check
+  script:
+    - npm run lint-html
+
+styles-check:
+  <<: *node-critical-check
+  script:
+    - npm run lint-styles
   
 test-angular-app-build:
   stage: test
@@ -112,13 +125,12 @@ build-electron-app-windows:
     - when: on_success
   before_script:
     - cd src/frontend
-    - npm install -g npm@latest
+    - npm install -g npm@9.8.0
     - npm ci
     - npm install -g n
     - n latest
   script:
-    - npm run build-prod
-    - npm run build-electron-only-windows
+    - npm run build-electron-windows
     - cd ../..
     - mkdir $WINDOWS_BUILD_DIR
     - cp -R src/frontend/app-dist/win-unpacked/* $WINDOWS_BUILD_DIR
@@ -137,13 +149,12 @@ build-electron-app-linux:
   before_script:
     - export LINUX_BUILD_DIR=${LINUX_BUILD_DIR//:}
     - cd src/frontend
-    - npm install -g npm@latest
+    - npm install -g npm@9.8.0
     - npm ci
     - npm install -g n
     - n latest
   script:
-    - npm run build-prod
-    - npm run build-electron-only-linux
+    - npm run build-electron-linux
     - cd ../..
     - mkdir $LINUX_BUILD_DIR
     - cp -R src/frontend/app-dist/linux-unpacked/* $LINUX_BUILD_DIR
@@ -157,3 +168,15 @@ build-electron-app-linux:
     paths:
       - "*.tar.xz"
     expire_in: 1 week
+
+.python-critical-check: &python-critical-check
+  stage: lint
+  image: registry.gitlab.com/gitlab-data/ci-python-image:v0.0.1
+  rules:
+    - when: on_success
+
+python-black-check:
+  <<: *python-critical-check
+  script:
+    - black --check .
+

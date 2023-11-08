@@ -37,6 +37,15 @@ export class ActivityButtonAreaComponent
   @Input()
   activityNames: Array<string> = [];
 
+  @Input()
+  referenceVariant: VariantElement = null;
+
+  @Input()
+  ifSource: boolean = null;
+
+  @Input()
+  redrawSingal: boolean = false;
+
   activityDummyVariants: Map<string, LeafNode> = new Map<string, LeafNode>();
 
   @Output()
@@ -68,6 +77,23 @@ export class ActivityButtonAreaComponent
           }
         }
       });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // A somewhat crude way to trigger a redraw after the value did change and preventing it from firing on the initalization
+    // Review when the colormap might change after init
+    this.activityDummyVariants = new Map<string, LeafNode>();
+
+    for (let activity of changes.activityNames.currentValue) {
+      const leaf = new LeafNode([activity]);
+      leaf.setExpanded(true);
+      this.activityDummyVariants.set(activity, leaf);
+    }
+    if (this.activityButtons) {
+      for (let button of this.activityButtons) {
+        button.redraw();
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -131,15 +157,22 @@ export class ActivityButtonAreaComponent
       });
   };
 
-  ngOnChanges(changes: SimpleChanges): void {
-    // A somewhat crude way to trigger a redraw after the value did change and preventing it from firing on the initalization
-    // Review when the colormap might change after init
-    this.activityDummyVariants = new Map<string, LeafNode>();
-
-    for (let activity of changes.activityNames.currentValue) {
-      const leaf = new LeafNode([activity]);
-      leaf.setExpanded(true);
-      this.activityDummyVariants.set(activity, leaf);
+  activityExist(leaf: LeafNode, variant: VariantElement) {
+    if (!variant) {
+      return true;
+    }
+    const children = variant.getElements();
+    if (variant instanceof LeafNode) {
+      return leaf.asLeafNode().activity[0] === variant.asLeafNode().activity[0];
+    } else {
+      if (children) {
+        for (const child of children) {
+          if (this.activityExist(leaf, child)) {
+            return true;
+          }
+        }
+      }
+      return false;
     }
   }
 }

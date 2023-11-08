@@ -5,8 +5,10 @@ from pydantic import BaseModel
 
 router = APIRouter(tags=["variantQuery"], prefix="/variantQuery")
 
+
 class variantQuery(BaseModel):
     queryString: str
+
 
 @router.post("/variant-query")
 def variant_query(query: variantQuery):
@@ -14,7 +16,7 @@ def variant_query(query: variantQuery):
         query, cache.variants, cache.parameters["activites"]
     )
 
-    for bid in res['ids']: 
+    for bid in res["ids"]:
         print(cache.variants[bid][0])
 
     return res

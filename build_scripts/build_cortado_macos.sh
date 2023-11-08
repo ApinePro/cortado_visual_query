@@ -9,6 +9,6 @@ cp -r ./dist/cortado-backend ./../frontend/cortado-backend
 
 cd ./../frontend
 npm install
-npm run electron-builder-app-production-macos
+npm run build-electron-macos
 rm -r -f ./cortado-backend
 open ./app-dist

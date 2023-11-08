@@ -42,6 +42,7 @@ import { VariantConformanceDialogComponent } from './components/variant-explorer
 import { BpmnEditorComponent } from './components/bpmn-editor/bpmn-editor.component';
 import { GoldenLayoutDummyComponent } from './components/golden-layout-host/golden-layout-dummy/golden-layout-dummy.component';
 import { SubVariantComponent } from './components/variant-explorer/subvariant-explorer/subvariants/sub-variant/sub-variant.component';
+import { SubvariantInfoExplorerComponent } from './components/variant-explorer/subvariant-info-explorer/subvariant-info-explorer.component';
 import { ActivityButtonAreaComponent } from './components/variant-editor/activity-button-area/activity-button-area.component';
 import { HeaderBarComponent } from './components/header-bar/header-bar.component';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
@@ -76,6 +77,7 @@ import { ConformanceTabComponent } from './components/conformance-tab/conformanc
 import { ConformanceStatusIconComponent } from './components/variant-explorer/variant/subcomponents/variant-info/conformance-status-icon/conformance-status-icon.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TiebreakerComponent } from './components/variant-explorer/tiebreaker/tiebreaker.component';
+import { PatternEditorComponent } from './components/variant-explorer/tiebreaker/pattern-editor/pattern-editor.component';
 import { TreeConformanceButtonComponent } from './components/variant-explorer/variant/subcomponents/tree-buttons/tree-conformance-button/tree-conformance-button.component';
 import { DecimalPipe } from '@angular/common';
 import { VariantMinerActivitiesFIlterComponent } from './components/variant-miner/variant-miner-activities-filter/variant-miner-activities-filter.component';
@@ -90,6 +92,7 @@ import { electronServiceFactory } from './dependency-factories';
 import { ProcessTreeToolboxComponent } from './components/process-tree-editor/process-tree-toolbox/process-tree-toolbox.component';
 import { InfoBarComponent } from './components/activity-overview/info-bar/info-bar.component';
 import { LoadingOverlayComponent } from './components/loading-overlay/loading-overlay.component';
+import { CaseExplorerComponent } from './components/variant-explorer/case-explorer/case-explorer.component';
 
 @NgModule({
   declarations: [
@@ -108,6 +111,7 @@ import { LoadingOverlayComponent } from './components/loading-overlay/loading-ov
     ActivityOverviewComponent,
     ProcessTreeEditorComponent,
     SubvariantExplorerComponent,
+    SubvariantInfoExplorerComponent,
     VariantInfoComponent,
     VariantColorMapComponent,
     VariantSelectionButtonComponent,
@@ -155,6 +159,7 @@ import { LoadingOverlayComponent } from './components/loading-overlay/loading-ov
     ConformanceTabComponent,
     ConformanceStatusIconComponent,
     TiebreakerComponent,
+    PatternEditorComponent,
     TreeConformanceButtonComponent,
     VariantMinerActivitiesFIlterComponent,
     LpmExplorerComponent,
@@ -168,6 +173,7 @@ import { LoadingOverlayComponent } from './components/loading-overlay/loading-ov
     InfoBarComponent,
     LoadingOverlayComponent,
     ArcDiagramComponent,
+    CaseExplorerComponent,
   ],
   imports: [
     BrowserModule,

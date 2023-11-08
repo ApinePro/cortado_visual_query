@@ -10,6 +10,12 @@
       [highlightOnMouseover]="true"
       (click)="onActivityButtonClick(ActivityButton, activity)"
       class="activity-button"
+      [ngClass]="
+        ifSource ||
+        activityExist(activityDummyVariants.get(activity), referenceVariant)
+          ? 'activity-button'
+          : 'button-disabled'
+      "
     >
       <svg class="drawer"></svg>
     </div>

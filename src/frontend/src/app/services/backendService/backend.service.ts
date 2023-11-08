@@ -10,7 +10,11 @@ import { mapVariants, mapVariantsList } from 'src/app/utils/util';
 import { LogService } from '../logService/log.service';
 import { VariantService } from '../variantService/variant.service';
 import { ProcessTreeService } from './../processTreeService/process-tree.service';
-import { VariantElement } from 'src/app/objects/Variants/variant_element';
+import {
+  VariantElement,
+  deserialize,
+  SequenceGroup,
+} from 'src/app/objects/Variants/variant_element';
 import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { MiningConfig } from 'src/app/objects/Variants/variant-miner-types';
 import { ElectronService } from '../electronService/electron.service';
@@ -630,6 +634,35 @@ export class BackendService {
   public showArcDiagram(bid: number) {
     return this.httpClient.get(
       ROUTES.HTTP_BASE_URL + ROUTES.VARIANTMINING + 'repetitionsMining/' + bid
+    );
+  }
+
+  public sortInVariantEditor(variant: VariantElement) {
+    const variants = variant.serialize();
+    return this.httpClient.post(
+      ROUTES.BASE_URL + ROUTES.VARIANT + 'sortvariant',
+      {
+        variants,
+      }
+    );
+  }
+
+  public calculateCaseStatistics(index) {
+    return this.httpClient.post(
+      ROUTES.HTTP_BASE_URL + ROUTES.VARIANT + 'caseStatistics',
+      {
+        index: index,
+      }
+    );
+  }
+
+  public getCaseActivities(index, caseId) {
+    return this.httpClient.post(
+      ROUTES.HTTP_BASE_URL + ROUTES.VARIANT + 'caseActivities',
+      {
+        index: index,
+        caseId: caseId,
+      }
     );
   }
 }
