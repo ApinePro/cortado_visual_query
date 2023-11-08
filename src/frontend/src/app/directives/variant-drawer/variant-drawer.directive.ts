@@ -569,9 +569,9 @@ export class VariantDrawerDirective
 
     const inEditor =
       d3
-        .select(this.svgHtmlElement.nativeElement)
+        .select(this.divHtmlElement.nativeElement)
         .classed('in-variant-editor') ||
-      d3.select(this.svgHtmlElement.nativeElement).classed('pattern-variant');
+      d3.select(this.divHtmlElement.nativeElement).classed('pattern-variant');
 
     if (
       (!outerElement ||

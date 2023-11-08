@@ -199,7 +199,7 @@
     [zoomScale]="[0.1, 3]"
     [computeFocusOffsets]="computeFocusOffset"
   >
-    <svg
+    <div
       #content
       #VariantMainGroup
       appVariantDrawer
@@ -210,7 +210,9 @@
       [infixType]="curInfixType"
       [keepStandardView]="true"
       class="zoom-group-variant pattern-variant"
-    ></svg>
+    >
+      <svg class="drawer"></svg>
+    </div>
   </app-zoom-field>
   <div class="invalid-feedback">Please provide a valid input.</div>
 </div>

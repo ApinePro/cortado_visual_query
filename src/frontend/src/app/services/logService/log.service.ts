@@ -239,13 +239,10 @@ export class LogService {
   }
 
   public processEventLog(res, filePath = null) {
-    console.warn('Processing Event Log', res);
-
     this.activitiesInEventLog = res['activities'];
     this.startActivitiesInEventLog = new Set(res['startActivities']);
     this.endActivitiesInEventLog = new Set(res['endActivities']);
     this.variants = addVariantInformation(res['variants']);
-    console.log(res['variants']);
     this.computeLogStats(this.variants);
     this.loadedEventLog = filePath;
     this.performanceInfoAvailable = true;

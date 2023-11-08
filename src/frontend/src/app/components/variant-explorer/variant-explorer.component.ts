@@ -99,6 +99,7 @@ import { ClusteringSettingsDialogComponent } from './clustering-settings-dialog/
 import _ from 'lodash';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
 import { draw, parseInput } from './arc-diagram/arc-diagram';
+import * as d3 from 'd3';
 
 @Component({
   selector: 'app-variant-explorer',
