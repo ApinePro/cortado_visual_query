@@ -49,7 +49,7 @@ from cortado_core.subprocess_discovery.subtree_mining.folding_label import fold_
 import cache.cache as cache
 import numpy as np
 
-from cortado_core.variant_pattern_replications.repetition_pairs import generate_consecutive_pairs, filter_overlapping_invalid_patterns, filter_maximal_patterns
+from cortado_core.variant_pattern_replications.repetition_pairs import generate_and_filter_patterns, filter_maximal_patterns
 
 router = APIRouter(tags=["subvariantMining"], prefix="/subvariantMining")
 
@@ -208,22 +208,10 @@ def sub_pattern_to_ctree(pattern: SubPattern, parent=None):
 def mineRepetitionPatterns(bid: int):
     v, ts, _, _ = cache.variants[bid]
     treeBank = create_treebank_from_cv_variants({v: ts}, False)
-    k_patterns, single_act_reps = min_sub_mining(treeBank, FrequencyCountingStrategy.VariantOccurence, 20, 1, repetionPairsMining=True)
-    print("single act reps: \n", single_act_reps)
-    single_act_pairs = generate_consecutive_pairs(next(iter(single_act_reps.values())))
-    print("single act pairs: \n", single_act_pairs)
 
-    pairs_from_kpatterns = set()
+    pairs_filtered, kpatterns_filtered, ks, single_act_pairs = generate_and_filter_patterns(treeBank)
 
-    ks = list(k_patterns)
-    ks.reverse()
-        
-    k_patterns_filtered = DefaultDict(set)
-    pairs_filtered = DefaultDict()
-
-    pairs_filtered, kpatterns_filtered = filter_overlapping_invalid_patterns(k_patterns, ks, treeBank[0].tree)
-    set_maximaly_closed_patterns(kpatterns_filtered)
-    pairs_from_kpatterns = filter_maximal_patterns(kpatterns_filtered, pairs_filtered, ks)
+    pairs_from_kpatterns = filter_maximal_patterns(kpatterns_filtered, pairs_filtered, ks, treeBank[0])
     
     print("pairs from k patterns: ")
     print(pairs_from_kpatterns)
