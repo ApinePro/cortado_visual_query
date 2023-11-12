@@ -11,8 +11,6 @@ var data: Data;
 var LoD = 1;
 var transparency = 0.3;
 var hoverTransparency = 1;
-var isMirrored = false;
-var isSmaller = false;
 var fC = 'beige';
 var sC = 'burlywood';
 
@@ -44,50 +42,16 @@ export const parseInput = (pairs: Pair[]) => {
   return arcs;
 };
 
-/** Method to calculate the correct arc height given the distance of the patterns
- * @param arcs All arcs for a pattern
- * @return The maximum arc height
- */
-function getMaxArcHeight(arcs) {
-  let maxPairDistance = 0;
-  for (let i = 0; i < arcs.length; i++) {
-    let currDistance =
-      (arcs[i].targetPos - arcs[i].sourcePos + arcs[i].numberEle) / 2;
-    if (currDistance > maxPairDistance) {
-      maxPairDistance = currDistance;
-    }
-  }
-
-  return Math.max(maxPairDistance, getMaxArcWidth(arcs));
-}
-
-/** Method to calculate the correct arc width given the distance of the patterns
- * @param arcs All arcs for a pattern
- * @return The maximum arc width
- */
-function getMaxArcWidth(arcs) {
-  let maxPairDimension = 0;
-  for (let i = 0; i < arcs.length; i++) {
-    if (arcs[i].numberEle > maxPairDimension) {
-      maxPairDimension = arcs[i].numberEle;
-    }
-  }
-  return maxPairDimension;
-}
-
 /** Draw the arc diagram
  */
 export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
   // clear the chart and redraw everything
   // $('#chart').empty();
   let arcs = [];
-  let mirroredArcs = [];
-  if (!isSmaller) mirroredArcs = data.arcs;
 
   //filter the data for LoD
   for (let j = 0; j < data.arcs.length; j++) {
     if (data.arcs[j].numberEle >= LoD) arcs.push(data.arcs[j]);
-    else if (isMirrored && isSmaller) mirroredArcs.push(data.arcs[j]);
   }
 
   width = variantDrawer.variant.variant.width;
@@ -188,12 +152,6 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
         if (i == x) return hoverTransparency;
         else return transparency;
       });
-      // d3.select(variantDrawer.divHtmlElement.nativeElement)
-      //     .selectAll('g')
-      //     .style('fill-opacity', function (x) {
-      //       if (i == x) return 1;
-      //       else return hoverTransparency;
-      //     });
       d3.select(variantDrawer.divHtmlElement.nativeElement)
         .selectAll('g')
         .style('fill-opacity', transparency);
@@ -202,23 +160,14 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
           .selectAll(`g.dfs-group-${dfsid}`)
           .style('fill-opacity', 1);
       });
-      let sel = d3.select(variantDrawer.divHtmlElement.nativeElement);
 
       tooltip.style('visibility', 'visible').text(d.text);
       return 1;
-    })
-    .on('mousemove', function (event) {
-      const bb = tooltip.node().getBoundingClientRect();
-      const w = event.pageX - bb.width / 2;
-      const h = event.pageY - bb.height - 13;
-      return tooltip.style('top', h + 'px').style('left', w + 'px');
     })
     .on('mouseout', function () {
       arcGroup.selectAll('polygon').style('fill-opacity', transparency);
       d3.select(variantDrawer.divHtmlElement.nativeElement)
         .selectAll('g')
         .style('fill-opacity', 1);
-      // textPlot.select('text').style('fill-opacity', hoverTransparency);
-      return tooltip.style('visibility', 'hidden');
     });
 };
