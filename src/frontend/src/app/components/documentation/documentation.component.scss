@@ -15,11 +15,8 @@ nav {
   margin-left: 22px;
 }
 
-ul {
-  list-style-type: none;
-}
-
 nav > ul {
+  list-style-type: none;
   padding: 0 16px;
 }
 
@@ -71,42 +68,42 @@ ul.scrollspy-nav {
 
   .second {
     color: var(--bs-modal-color);
-    padding-left: 20px;
+    padding-left: 24px;
     font-weight: 600;
   }
 
   .second.active {
-    padding-left: 16px;
+    padding-left: 20px;
   }
 
   .third {
     color: var(--bs-modal-color);
-    padding-left: 28px;
+    padding-left: 32px;
     font-weight: 400;
   }
 
   .third.active {
-    padding-left: 24px;
+    padding-left: 28px;
   }
 
   .fourth {
     color: var(--bs-modal-color);
-    padding-left: 36px;
+    padding-left: 40px;
     font-weight: 200;
   }
 
   .fourth.active {
-    padding-left: 32px;
+    padding-left: 36px;
   }
 
   .fifth {
     color: var(--bs-modal-color);
-    padding-left: 44px;
+    padding-left: 48px;
     font-weight: 100;
   }
 
   .fifth.active {
-    padding-left: 40px;
+    padding-left: 44px;
   }
 
 }
