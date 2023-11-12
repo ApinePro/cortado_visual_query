@@ -45,6 +45,7 @@ import { VariantConformanceDialogComponent } from './components/variant-explorer
 import { BpmnEditorComponent } from './components/bpmn-editor/bpmn-editor.component';
 import { GoldenLayoutDummyComponent } from './components/golden-layout-host/golden-layout-dummy/golden-layout-dummy.component';
 import { SubVariantComponent } from './components/variant-explorer/subvariant-explorer/subvariants/sub-variant/sub-variant.component';
+import { SubvariantInfoExplorerComponent } from './components/variant-explorer/subvariant-info-explorer/subvariant-info-explorer.component';
 import { ActivityButtonAreaComponent } from './components/variant-editor/activity-button-area/activity-button-area.component';
 import { HeaderBarComponent } from './components/header-bar/header-bar.component';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
@@ -98,6 +99,7 @@ import { DocumentationComponent } from './components/documentation/documentation
 import { MarkdownModule } from 'ngx-markdown';
 import { StripHtmlPipe } from './components/documentation/strip-html.pipe';
 import { RouterLink } from '@angular/router';
+import { CaseExplorerComponent } from './components/variant-explorer/case-explorer/case-explorer.component';
 
 @NgModule({
   declarations: [
@@ -116,6 +118,7 @@ import { RouterLink } from '@angular/router';
     ActivityOverviewComponent,
     ProcessTreeEditorComponent,
     SubvariantExplorerComponent,
+    SubvariantInfoExplorerComponent,
     VariantInfoComponent,
     VariantColorMapComponent,
     VariantSelectionButtonComponent,
@@ -178,6 +181,7 @@ import { RouterLink } from '@angular/router';
     LoadingOverlayComponent,
     DocumentationComponent,
     StripHtmlPipe,
+    CaseExplorerComponent,
   ],
   imports: [
     BrowserModule,

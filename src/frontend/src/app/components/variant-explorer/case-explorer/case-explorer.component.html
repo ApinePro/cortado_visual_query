@@ -1,0 +1,102 @@
+<app-performance-progress-bar></app-performance-progress-bar>
+
+<app-variant-explorer-sidebar></app-variant-explorer-sidebar>
+
+<div class="d-flex flex-column mh-100 h-100 container-variant-explorer">
+  <div class="main-variant-explorer flex-grow-1">
+    <div class="table-container flex-grow-1 table-responsive">
+      <table
+        class="table table-sm table-font table-hover table-striped table-borderless table-dark mb-0"
+        *ngIf="mainVariant"
+      >
+        <thead class="activity-overview-table-header">
+          <tr class="user-select-none">
+            <th
+              resizeable
+              scope="col"
+              class="bg-dark text-center toggle-select resizeable-header-element"
+              [margin]="-7"
+            >
+              <div
+                class="d-flex flex-row justify-content-center table-header-sort-group"
+              >
+                <div
+                  ngbTooltip="Number of activity occurrences in the loaded event log"
+                >
+                  <div class="user-select-none mx-1">Event</div>
+                </div>
+              </div>
+            </th>
+            <th
+              resizeable
+              scope="col"
+              class="bg-dark text-center toggle-select resizeable-header-element"
+              [margin]="-7"
+            >
+              <div
+                class="d-flex flex-row justify-content-center table-header-sort-group"
+              >
+                <div
+                  ngbTooltip="Number of activity occurrences in the loaded event log"
+                >
+                  <div class="user-select-none mx-1">Start timestamp</div>
+                </div>
+              </div>
+            </th>
+            <th
+              resizeable
+              scope="col"
+              class="bg-dark text-center toggle-select resizeable-header-element"
+              [margin]="-7"
+            >
+              <div
+                class="d-flex flex-row justify-content-center table-header-sort-group"
+              >
+                <div
+                  ngbTooltip="Number of activity occurrences in the loaded event log"
+                >
+                  <div class="user-select-none mx-1">End timestamp</div>
+                </div>
+              </div>
+            </th>
+            <th
+              resizeable
+              scope="col"
+              class="bg-dark text-center toggle-select resizeable-header-element"
+              [margin]="-7"
+            >
+              <div
+                class="d-flex flex-row justify-content-center table-header-sort-group"
+              >
+                <div
+                  ngbTooltip="Number of activity occurrences in the loaded event log"
+                >
+                  <div class="user-select-none mx-1">Duration</div>
+                </div>
+              </div>
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <ng-container *ngIf="caseActivities">
+            <tr *ngFor="let act of caseActivities">
+              <td class="text-center user-select-none">
+                {{ act.act_id }}
+              </td>
+              <td class="text-center user-select-none">
+                {{ act.start_timestamp }}
+              </td>
+              <td class="text-center user-select-none">
+                {{ act.end_timestamp }}
+              </td>
+              <td class="text-center user-select-none">
+                {{ act.duration }}
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

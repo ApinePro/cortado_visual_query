@@ -30,6 +30,9 @@ export class VariantInfoComponent implements OnInit, OnDestroy {
   @Output()
   public updateConformance = new EventEmitter<Variant>();
 
+  @Output()
+  public subvariantInfoEvent = new EventEmitter<void>();
+
   public processTreeIsPresent: boolean = false;
 
   private _destroy$ = new Subject();
@@ -81,5 +84,9 @@ export class VariantInfoComponent implements OnInit, OnDestroy {
         this.variant.isTimeouted ||
         this.variant.deviations === undefined)
     );
+  }
+
+  emitSubvariantInfoWindowEvent() {
+    this.subvariantInfoEvent.emit();
   }
 }

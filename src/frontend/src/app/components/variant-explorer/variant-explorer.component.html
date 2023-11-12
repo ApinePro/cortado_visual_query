@@ -749,6 +749,9 @@
                       (updateConformance)="
                         updateConformanceForSingleVariantClicked($event)
                       "
+                      (subvariantInfoEvent)="
+                        createSubVariantInfoView(i + 1, j + 1, variant.id)
+                      "
                     >
                     </app-variant-info>
                   </ng-template>
