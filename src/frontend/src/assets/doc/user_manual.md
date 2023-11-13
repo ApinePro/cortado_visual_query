@@ -29,7 +29,7 @@ Selected (marked with <i class="bi bi-check2-circle"></i>) <b>fitting</b> varian
 ## Variant Querying
 A valid **Query** is made up of **Activities** and **Operators**, which together form 
 expressions that can be linked by logical operators to form more complex queries.
-For syntactic reasons, every query ends with a semicolon ; .
+For syntactic reasons, ev**ery query ends with a semicolon ; .
 Operators come either as unary or binary operators, which express the relationships 
 between a single or multiple activities and the variant. As an example for a unary 
 operator, the following is a query made from a single unary expression that checks 
