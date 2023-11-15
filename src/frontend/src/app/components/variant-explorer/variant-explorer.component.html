@@ -272,7 +272,7 @@
         </div>
       </div>
     </div>
-
+    <!--
     <ng-container *ngIf="variantViewModeService.viewMode === VM.STANDARD">
       <div class="vr"></div>
       <button
@@ -291,6 +291,7 @@
         ></i>
       </button>
     </ng-container>
+  -->
 
     <ng-container *ngIf="variantViewModeService.viewMode === VM.STANDARD">
       <div class="vr"></div>
@@ -306,6 +307,7 @@
       </button>
     </ng-container>
 
+    <!--
     <ng-container *ngIf="variantViewModeService.viewMode !== VM.PERFORMANCE">
       <div class="vr"></div>
       <button
@@ -354,7 +356,7 @@
         <i class="bi bi-ui-checks-grid"></i>
       </button>
     </div>
-
+  -->
     <div class="vr"></div>
 
     <div
@@ -388,7 +390,7 @@
         </li>
       </ul>
     </div>
-
+    <!--
     <div class="vr"></div>
 
     <button
@@ -412,6 +414,92 @@
     >
       <i class="bi bi-save"></i>
     </button>
+  -->
+    <div class="vr"></div>
+
+    <div class="dropdown" ngbTooltip="Functions" container="body">
+      <button
+        class="button dropdown-toggle"
+        type="button"
+        id="FuntionDropdown"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        <i class="bi bi-tools btn-icon"></i>
+      </button>
+      <div
+        class="dropdown-menu custom-dropdown"
+        id="sortDropdownMenu"
+        aria-labelledby="sortDropdown"
+      >
+        <ng-container *ngIf="variantViewModeService.viewMode === VM.STANDARD">
+          <div
+            class="dropdown-item"
+            (click)="variantService.unCollapseLoopsInVariants()"
+          >
+            <i
+              *ngIf="variantService.areVariantLoopsCollapsed"
+              class="bi bi-arrow-repeat btn-icon cursor-pointer text-success"
+            ></i>
+            <i
+              *ngIf="!variantService.areVariantLoopsCollapsed"
+              class="bi bi-arrow-repeat btn-icon cursor-pointer"
+            ></i>
+            <span class="ms-3">(un)collapse loops in variants</span>
+          </div>
+        </ng-container>
+        <ng-container
+          *ngIf="variantViewModeService.viewMode !== VM.PERFORMANCE"
+        >
+          <div class="dropdown-item" (click)="unExpandAll()">
+            <i
+              *ngIf="areAllVariantsExpanded()"
+              class="bi bi-arrows-collapse btn-icon cursor-pointer rotate-90"
+            ></i>
+            <i
+              *ngIf="!areAllVariantsExpanded()"
+              class="bi bi-arrows-expand btn-icon cursor-pointer rotate-90"
+            ></i>
+            <span class="ms-3">(Un)expand all variants</span>
+          </div>
+        </ng-container>
+        <div
+          *ngIf="
+            variantViewModeService.viewMode === VM.STANDARD &&
+            !variantService.areVariantLoopsCollapsed &&
+            !traceInfixSelectionMode
+          "
+          class="dropdown-item"
+          (click)="toggleTraceInfixSelectionMode()"
+        >
+          <i class="bi bi-ui-checks-grid"></i>
+          <span class="ms-3">Exit trace infix selection mode</span>
+        </div>
+        <div
+          *ngIf="
+            variantViewModeService.viewMode === VM.STANDARD &&
+            !variantService.areVariantLoopsCollapsed &&
+            traceInfixSelectionMode
+          "
+          class="dropdown-item"
+          style="color: green"
+          (click)="toggleTraceInfixSelectionMode()"
+        >
+          <i class="bi bi-ui-checks-grid"></i>
+          <span class="ms-3">Exit trace infix selection mode</span>
+        </div>
+        <div class="dropdown-item" (click)="openClusteringSettingsDialog()">
+          <i class="bi bi-grid-1x2"></i>
+          <span class="ms-3">Variant clustering settings</span>
+        </div>
+        <div class="dropdown-item" (click)="exportVariantSVG()">
+          <i class="bi bi-save"></i>
+          <span class="ms-3">Export the view as an .svg</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="vr"></div>
   </div>
 
   <div

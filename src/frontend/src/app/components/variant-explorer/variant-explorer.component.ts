@@ -100,6 +100,7 @@ import _ from 'lodash';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
+import { ExplorerToolsService } from 'src/app/services/explorerToolsService/explorer-tools.service';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -115,6 +116,7 @@ export class VariantExplorerComponent
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
     public variantService: VariantService,
+    public explorerToolsService: ExplorerToolsService,
     private variantFilterService: VariantFilterService,
     private backendService: BackendService,
     private logService: LogService,
@@ -299,6 +301,19 @@ export class VariantExplorerComponent
     );
 
     variantExplorerItem.focus();
+
+    this.explorerToolsService.infixSelectionModeClick$.subscribe(() => {
+      this.toggleTraceInfixSelectionMode();
+    });
+
+    this.explorerToolsService.variantClusteringSettingsClick$.subscribe(() => {
+      this.openClusteringSettingsDialog();
+    });
+
+    this.explorerToolsService.exportSVGClick$.subscribe(() => {
+      this.exportVariantSVG();
+    });
+    //new
 
     this.variantService.variants$
       .pipe(takeUntil(this._destroy$))
@@ -758,7 +773,7 @@ export class VariantExplorerComponent
         id: id,
         type: 'component',
         title:
-          "Sub-Variants' info  for " + idx + ' (Cluster ' + clusterId + ')',
+          "Sub-Variants' info  for " + idx,
         isClosable: true,
         reorderEnabled: true,
         componentState: {

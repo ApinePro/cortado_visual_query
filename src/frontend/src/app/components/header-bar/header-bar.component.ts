@@ -14,6 +14,9 @@ import { takeUntil } from 'rxjs/operators';
 import { Modal } from 'bootstrap';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { LoadingOverlayService } from 'src/app/services/loadingOverlayService/loading-overlay.service';
+import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
+import { ViewMode } from 'src/app/objects/ViewMode';
+import { ExplorerToolsService } from 'src/app/services/explorerToolsService/explorer-tools.service';
 
 @Component({
   selector: 'app-header-bar',
@@ -36,11 +39,13 @@ export class HeaderBarComponent implements OnDestroy {
   private _destroy$ = new Subject();
 
   constructor(
-    private variantService: VariantService,
+    public variantService: VariantService,
     private backendService: BackendService,
     private projectService: ProjectService,
+    public variantViewModeService: VariantViewModeService,
     private modalService: NgbModal,
     private loadingOverlayService: LoadingOverlayService,
+    public explorerToolsService: ExplorerToolsService,
     private _elRef: ElementRef<HTMLElement>,
     private goldenLayoutComponentService: GoldenLayoutComponentService
   ) {
@@ -51,6 +56,8 @@ export class HeaderBarComponent implements OnDestroy {
         this.modalService.open(this.eventLogSelectionRetryModal);
       });
   }
+
+  public VM = ViewMode;
 
   ngOnDestroy(): void {
     this._destroy$.next();
@@ -316,6 +323,18 @@ export class HeaderBarComponent implements OnDestroy {
     }
     // reset form
     this.fileUploadProject.nativeElement.value = '';
+  }
+
+  changeInfixSelection(){
+    this.explorerToolsService.changeInfixSelectionMode();
+  }
+
+  openVariantClusteringSettings(){
+    this.explorerToolsService.handleVariantClusteringSettings();
+  }
+
+  exportSVG(){
+    this.explorerToolsService.handleExportSVG();
   }
 }
 
