@@ -56,7 +56,7 @@ declare var $;
   templateUrl: './pattern-editor.component.html',
   styleUrls: ['./pattern-editor.component.css'],
 })
-export class PatternEditorComponent extends LayoutChangeDirective implements OnInit, OnDestroy, OnChanges {
+export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
   activityNames: Array<String> = [];
 
   public colorMap: Map<string, string>;
@@ -110,12 +110,7 @@ export class PatternEditorComponent extends LayoutChangeDirective implements OnI
     private backendService: BackendService,
     public logService: LogService,
     private colorMapService: ColorMapService,
-    private goldenLayoutComponentService: GoldenLayoutComponentService,
-
-    elRef: ElementRef,
-    renderer: Renderer2,
   ) {
-    super(elRef.nativeElement, renderer);
     const a = 1;
   }
 
@@ -182,19 +177,6 @@ export class PatternEditorComponent extends LayoutChangeDirective implements OnI
     this._destroy$.next();
   }
 
-  handleResponsiveChange(
-    left: number,
-    top: number,
-    width: number,
-    height: number
-  ): void {
-    if (width < 1150) {
-      this.collapse = true;
-    } else {
-      this.collapse = false;
-    }
-  }
-
   checkButtonCollapse(){
     if (this.toolBar.nativeElement.offsetWidth < 620) {
       this.collapse = true;
@@ -202,12 +184,6 @@ export class PatternEditorComponent extends LayoutChangeDirective implements OnI
       this.collapse = false;
     }
   }
-
-  handleVisibilityChange(visibility: boolean): void {}
-  handleZIndexChange(
-    logicalZIndex: LogicalZIndex,
-    defaultZIndex: string
-  ): void {}
 
   computeActivityColor = (
     self: VariantDrawerDirective,

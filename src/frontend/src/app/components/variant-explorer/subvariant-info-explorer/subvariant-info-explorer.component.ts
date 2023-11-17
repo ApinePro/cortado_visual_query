@@ -82,7 +82,7 @@ export class SubvariantInfoExplorerComponent
   activityFields: ActivityField[];
   caseStatistics: Map<string, number>[];
 
-  sortKey: string = 'activityName';
+  sortKey: string = 'case_id';
   ascending: boolean = false;
 
   maximized: boolean = false;
@@ -305,7 +305,7 @@ export class SubvariantInfoExplorerComponent
       const itemConfig: ComponentItemConfig = {
         id: id,
         type: 'component',
-        title: 'Case ' + case_id + ' in Sub-Variants ' + state['index'],
+        title: 'Case ' + case_id + ' in Variant ' + state['index'],
         isClosable: true,
         reorderEnabled: true,
         componentState: {

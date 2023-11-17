@@ -773,7 +773,7 @@ export class VariantExplorerComponent
         id: id,
         type: 'component',
         title:
-          "Sub-Variants' info  for " + idx,
+          "Variant " + idx + "'s info",
         isClosable: true,
         reorderEnabled: true,
         componentState: {

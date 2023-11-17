@@ -14,70 +14,110 @@
             resizeable
             scope="col"
             class="bg-dark text-center toggle-select resizeable-header-element"
+            (click)="toggleSort('case_id')"
             [margin]="-7"
           >
             <div
               class="d-flex flex-row justify-content-center table-header-sort-group"
+              ngbTooltip="Unique ID of the case"
             >
-              <div ngbTooltip="Unique ID of the case">
-                <div class="user-select-none mx-1">Case ID</div>
-              </div>
+              <div class="user-select-none mx-1">Case ID</div>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-alpha-down': !ascending,
+                  'bi-sort-alpha-down-alt': ascending,
+                  invisible: sortKey !== 'case_id'
+                }"
+              ></i>
             </div>
           </th>
           <th
             resizeable
             scope="col"
             class="bg-dark text-center toggle-select resizeable-header-element"
+            (click)="toggleSort('activity_num')"
             [margin]="-7"
           >
             <div
               class="d-flex flex-row justify-content-center table-header-sort-group"
+              ngbTooltip="Number of activity occurrences in the case"
             >
-              <div ngbTooltip="Number of activity occurrences in the case">
-                <div class="user-select-none mx-1">Number of activities</div>
-              </div>
+              <div class="user-select-none mx-1">Number of activities</div>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-numeric-down': ascending,
+                  'bi-sort-numeric-down-alt': !ascending,
+                  invisible: sortKey !== 'activity_num'
+                }"
+              ></i>
             </div>
           </th>
           <th
             resizeable
             scope="col"
             class="bg-dark text-center toggle-select resizeable-header-element"
+            (click)="toggleSort('earliest_time')"
             [margin]="-7"
           >
             <div
               class="d-flex flex-row justify-content-center table-header-sort-group"
+              ngbTooltip="The earliest timestamp recorded in the case"
             >
-              <div ngbTooltip="The earliest timestamp recorded in the case">
-                <div class="user-select-none mx-1">Earliest timestamp</div>
-              </div>
+              <div class="user-select-none mx-1">Earliest timestamp</div>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-numeric-down': !ascending,
+                  'bi-sort-numeric-down-alt': ascending,
+                  invisible: sortKey !== 'earliest_time'
+                }"
+              ></i>
             </div>
           </th>
           <th
             resizeable
             scope="col"
             class="bg-dark text-center toggle-select resizeable-header-element"
+            (click)="toggleSort('latest_time')"
             [margin]="-7"
           >
             <div
               class="d-flex flex-row justify-content-center table-header-sort-group"
+              ngbTooltip="The latest timestamp recorded in the case"
             >
-              <div ngbTooltip="The latest timestamp recorded in the case">
-                <div class="user-select-none mx-1">Latest timestamp</div>
-              </div>
+              <div class="user-select-none mx-1">Latest timestamp</div>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-numeric-down': !ascending,
+                  'bi-sort-numeric-down-alt': ascending,
+                  invisible: sortKey !== 'latest_time'
+                }"
+              ></i>
             </div>
           </th>
           <th
             resizeable
             scope="col"
             class="bg-dark text-center toggle-select resizeable-header-element"
+            (click)="toggleSort('total_duration')"
             [margin]="-7"
           >
             <div
               class="d-flex flex-row justify-content-center table-header-sort-group"
+              ngbTooltip="Duration of the case"
             >
-              <div ngbTooltip="Duration of the case">
-                <div class="user-select-none mx-1">Total duration</div>
-              </div>
+              <div class="user-select-none mx-1">Total duration</div>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-numeric-down': !ascending,
+                  'bi-sort-numeric-down-alt': ascending,
+                  invisible: sortKey !== 'total_duration'
+                }"
+              ></i>
             </div>
           </th>
         </tr>
@@ -85,7 +125,12 @@
 
       <tbody>
         <ng-container *ngIf="caseStatistics">
-          <tr *ngFor="let case of caseStatistics">
+          <tr
+            *ngFor="
+              let case of caseStatistics
+                | activityOverviewSorting : sortKey : ascending
+            "
+          >
             <td
               class="text-center user-select-none cursor-pointer"
               (click)="createCaseInfoView(case.case_id)"

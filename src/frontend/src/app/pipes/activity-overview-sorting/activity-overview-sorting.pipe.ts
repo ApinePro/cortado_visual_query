@@ -11,7 +11,9 @@ export class ActivityOverviewSortingPipe implements PipeTransform {
     }
 
     // Reverse behavior for string keys
-    if (sortKey == 'activityName') {
+    if (sortKey == 'activityName' ||
+        sortKey == 'case_id' || sortKey == 'earliest_time'
+        || sortKey == 'latest_time' || sortKey == 'total_duration') {
       ascending = !ascending;
     }
 
