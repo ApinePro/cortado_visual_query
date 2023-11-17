@@ -325,15 +325,15 @@ export class HeaderBarComponent implements OnDestroy {
     this.fileUploadProject.nativeElement.value = '';
   }
 
-  changeInfixSelection(){
+  changeInfixSelection() {
     this.explorerToolsService.changeInfixSelectionMode();
   }
 
-  openVariantClusteringSettings(){
+  openVariantClusteringSettings() {
     this.explorerToolsService.handleVariantClusteringSettings();
   }
 
-  exportSVG(){
+  exportSVG() {
     this.explorerToolsService.handleExportSVG();
   }
 }

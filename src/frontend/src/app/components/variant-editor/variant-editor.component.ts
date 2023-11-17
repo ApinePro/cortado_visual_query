@@ -147,7 +147,6 @@ export class VariantEditorComponent
     width: number,
     height: number
   ): void {
-  
     if (width < 1150) {
       this.collapse = true;
     } else {

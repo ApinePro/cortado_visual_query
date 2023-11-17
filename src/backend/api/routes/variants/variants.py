@@ -161,7 +161,14 @@ def getCaseActivities(query: caseQuery):
                 activities_temp["property"] = act
                 case_activities.append(activities_temp)
             break
-    key_set.difference_update({'cortado_activity_instance', 'concept:name', 'time:timestamp', 'start_timestamp'})
+    key_set.difference_update(
+        {
+            "cortado_activity_instance",
+            "concept:name",
+            "time:timestamp",
+            "start_timestamp",
+        }
+    )
     res = {
         "statistics": case_activities,
         "keys": key_set,

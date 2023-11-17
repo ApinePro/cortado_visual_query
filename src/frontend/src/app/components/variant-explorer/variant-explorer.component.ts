@@ -772,8 +772,7 @@ export class VariantExplorerComponent
       const itemConfig: ComponentItemConfig = {
         id: id,
         type: 'component',
-        title:
-          "Variant " + idx + "'s info",
+        title: 'Variant ' + idx + "'s info",
         isClosable: true,
         reorderEnabled: true,
         componentState: {

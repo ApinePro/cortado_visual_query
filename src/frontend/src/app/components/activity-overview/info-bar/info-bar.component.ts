@@ -14,8 +14,7 @@ import { Subject } from 'rxjs';
   selector: 'app-activity-overview-info-bar',
   template: ` <div class="info-bar ps-2 pe-2">
     <span class="float-end" *ngIf="totalActivities"
-      >Activities in model: {{ numActivitiesInModel }}/{{ totalActivities }}
-      ({{
+      >Activities in model: {{ numActivitiesInModel }}/{{ totalActivities }} ({{
         ((numActivitiesInModel * 100) / totalActivities).toFixed(1)
       }}
       %)</span

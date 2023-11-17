@@ -64,7 +64,6 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild('ToolBar')
   toolBar: ElementRef;
 
-
   @ViewChild('VariantMainGroup')
   variantElement: ElementRef;
 
@@ -109,7 +108,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
     private variantService: VariantService,
     private backendService: BackendService,
     public logService: LogService,
-    private colorMapService: ColorMapService,
+    private colorMapService: ColorMapService
   ) {
     const a = 1;
   }
@@ -177,7 +176,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
     this._destroy$.next();
   }
 
-  checkButtonCollapse(){
+  checkButtonCollapse() {
     if (this.toolBar.nativeElement.offsetWidth < 620) {
       this.collapse = true;
     } else {
