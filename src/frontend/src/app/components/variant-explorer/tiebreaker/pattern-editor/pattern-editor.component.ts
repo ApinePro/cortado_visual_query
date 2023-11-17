@@ -56,10 +56,14 @@ declare var $;
   templateUrl: './pattern-editor.component.html',
   styleUrls: ['./pattern-editor.component.css'],
 })
-export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
+export class PatternEditorComponent extends LayoutChangeDirective implements OnInit, OnDestroy, OnChanges {
   activityNames: Array<String> = [];
 
   public colorMap: Map<string, string>;
+
+  @ViewChild('ToolBar')
+  toolBar: ElementRef;
+
 
   @ViewChild('VariantMainGroup')
   variantElement: ElementRef;
@@ -91,7 +95,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
 
   newLeaf;
 
-  collapse = false;
+  collapse: boolean = false;
 
   insertionStrategy = activityInsertionStrategy;
   selectedStrategy = this.insertionStrategy.behind;
@@ -104,9 +108,14 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
   constructor(
     private variantService: VariantService,
     private backendService: BackendService,
-    public logService: LogService, //edited
-    private colorMapService: ColorMapService
+    public logService: LogService,
+    private colorMapService: ColorMapService,
+    private goldenLayoutComponentService: GoldenLayoutComponentService,
+
+    elRef: ElementRef,
+    renderer: Renderer2,
   ) {
+    super(elRef.nativeElement, renderer);
     const a = 1;
   }
 
@@ -150,6 +159,11 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
       });
   }
 
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    this.checkButtonCollapse();
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     this.logService.activitiesInEventLog$
       .pipe(takeUntil(this._destroy$))
@@ -167,6 +181,33 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
   ngOnDestroy(): void {
     this._destroy$.next();
   }
+
+  handleResponsiveChange(
+    left: number,
+    top: number,
+    width: number,
+    height: number
+  ): void {
+    if (width < 1150) {
+      this.collapse = true;
+    } else {
+      this.collapse = false;
+    }
+  }
+
+  checkButtonCollapse(){
+    if (this.toolBar.nativeElement.offsetWidth < 620) {
+      this.collapse = true;
+    } else {
+      this.collapse = false;
+    }
+  }
+
+  handleVisibilityChange(visibility: boolean): void {}
+  handleZIndexChange(
+    logicalZIndex: LogicalZIndex,
+    defaultZIndex: string
+  ): void {}
 
   computeActivityColor = (
     self: VariantDrawerDirective,
