@@ -16,7 +16,6 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { LoadingOverlayService } from 'src/app/services/loadingOverlayService/loading-overlay.service';
 import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 import { ViewMode } from 'src/app/objects/ViewMode';
-import { ExplorerToolsService } from 'src/app/services/explorerToolsService/explorer-tools.service';
 
 @Component({
   selector: 'app-header-bar',
@@ -45,7 +44,6 @@ export class HeaderBarComponent implements OnDestroy {
     public variantViewModeService: VariantViewModeService,
     private modalService: NgbModal,
     private loadingOverlayService: LoadingOverlayService,
-    public explorerToolsService: ExplorerToolsService,
     private _elRef: ElementRef<HTMLElement>,
     private goldenLayoutComponentService: GoldenLayoutComponentService
   ) {
@@ -323,18 +321,6 @@ export class HeaderBarComponent implements OnDestroy {
     }
     // reset form
     this.fileUploadProject.nativeElement.value = '';
-  }
-
-  changeInfixSelection() {
-    this.explorerToolsService.changeInfixSelectionMode();
-  }
-
-  openVariantClusteringSettings() {
-    this.explorerToolsService.handleVariantClusteringSettings();
-  }
-
-  exportSVG() {
-    this.explorerToolsService.handleExportSVG();
   }
 }
 
