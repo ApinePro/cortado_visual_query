@@ -36,7 +36,6 @@
             resizeable
             scope="col"
             class="bg-dark text-center toggle-select resizeable-header-element"
-            (click)="toggleSort('activity_num')"
             [margin]="-7"
           >
             <div
@@ -44,14 +43,6 @@
               ngbTooltip="Number of activity occurrences in the case"
             >
               <div class="user-select-none mx-1">Number of activities</div>
-              <i
-                class="bi"
-                [ngClass]="{
-                  'bi-sort-numeric-down': ascending,
-                  'bi-sort-numeric-down-alt': !ascending,
-                  invisible: sortKey !== 'activity_num'
-                }"
-              ></i>
             </div>
           </th>
           <th
