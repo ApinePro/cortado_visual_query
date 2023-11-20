@@ -93,7 +93,6 @@ export class CaseExplorerComponent
       .subscribe((caseActivities: Map<string, any>[]) => {
         this.caseActivities = caseActivities['statistics'];
         this.activityPropertyKeys = caseActivities['keys'];
-        console.log(this.activityPropertyKeys);
       });
 
     this.variantService.cachedChange$
