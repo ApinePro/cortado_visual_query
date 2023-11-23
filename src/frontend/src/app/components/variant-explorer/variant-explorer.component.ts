@@ -63,7 +63,7 @@ import { ImageExportService } from '../../services/imageExportService/image-expo
 import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
 import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
-import { SubvariantInfoExplorerComponent } from './subvariant-info-explorer/subvariant-info-explorer.component';
+import { VariantInfoExplorerComponent } from './variant-info-explorer/variant-info-explorer.component';
 import { CaseExplorerComponent } from './case-explorer/case-explorer.component';
 import { VariantSorter } from '../../objects/Variants/variant-sorter';
 import { Variant } from 'src/app/objects/Variants/variant';
@@ -725,7 +725,7 @@ export class VariantExplorerComponent
    * @param idx position in the cluster
    * @param variant_id id of the variant
    */
-  createSubVariantInfoView(clusterId, idx, variant_id) {
+  createVariantInfoView(clusterId, idx, variant_id) {
     // find variant by id
     let variant = _.find(
       this.displayed_variants,
@@ -741,7 +741,7 @@ export class VariantExplorerComponent
     ];
     this.cleanUpSubVariantMap();
 
-    const id = SubvariantInfoExplorerComponent.componentName + variant_id;
+    const id = VariantInfoExplorerComponent.componentName + variant_id;
 
     let componentItem = this._subvariantcomponentItemsMap.get(id);
     // Check if the component item reference already is stored and if the item still exists
@@ -757,8 +757,7 @@ export class VariantExplorerComponent
       const itemConfig: ComponentItemConfig = {
         id: id,
         type: 'component',
-        title:
-          "Sub-Variants' info  for " + idx + ' (Cluster ' + clusterId + ')',
+        title: 'Variant ' + idx + "'s info",
         isClosable: true,
         reorderEnabled: true,
         componentState: {
@@ -768,7 +767,7 @@ export class VariantExplorerComponent
           variant_id: variant_id,
         },
         maximised: true,
-        componentType: SubvariantInfoExplorerComponent.componentName,
+        componentType: VariantInfoExplorerComponent.componentName,
       };
       this._goldenLayout.addItemAtLocation(itemConfig, LocationSelectors); //erroe here
       componentItem = this._goldenLayout.findFirstComponentItemById(id);
@@ -833,7 +832,7 @@ export class VariantExplorerComponent
     }
     for (let index = 0; index < this.variants.length; index++) {
       const id =
-        SubvariantInfoExplorerComponent.componentName + this.variants[index].id;
+        VariantInfoExplorerComponent.componentName + this.variants[index].id;
       const componentItem = this._subvariantcomponentItemsMap.get(id);
       if (
         componentItem &&

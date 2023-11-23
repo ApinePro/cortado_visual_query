@@ -61,6 +61,9 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
 
   public colorMap: Map<string, string>;
 
+  @ViewChild('ToolBar')
+  toolBar: ElementRef;
+
   @ViewChild('VariantMainGroup')
   variantElement: ElementRef;
 
@@ -91,7 +94,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
 
   newLeaf;
 
-  collapse = false;
+  collapse: boolean = false;
 
   insertionStrategy = activityInsertionStrategy;
   selectedStrategy = this.insertionStrategy.behind;
@@ -104,7 +107,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
   constructor(
     private variantService: VariantService,
     private backendService: BackendService,
-    public logService: LogService, //edited
+    public logService: LogService,
     private colorMapService: ColorMapService
   ) {
     const a = 1;
@@ -150,6 +153,11 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
       });
   }
 
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    this.checkButtonCollapse();
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     this.logService.activitiesInEventLog$
       .pipe(takeUntil(this._destroy$))
@@ -166,6 +174,14 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnDestroy(): void {
     this._destroy$.next();
+  }
+
+  checkButtonCollapse() {
+    if (this.toolBar.nativeElement.offsetWidth < 620) {
+      this.collapse = true;
+    } else {
+      this.collapse = false;
+    }
   }
 
   computeActivityColor = (
