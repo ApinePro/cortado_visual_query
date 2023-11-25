@@ -1,5 +1,6 @@
 import { VariantMinerComponent } from './../variant-miner/variant-miner.component';
 import { VariantEditorComponent } from './../variant-editor/variant-editor.component';
+import { GraphicalQueryEditorComponent } from '../graphical-query-editor/graphical-query-editor.component';
 import { ProcessTreeEditorComponent } from './../process-tree-editor/process-tree-editor.component';
 import { BpmnEditorComponent } from './../bpmn-editor/bpmn-editor.component';
 import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
@@ -247,6 +248,37 @@ export class HeaderBarComponent implements OnDestroy {
       },
       componentType: componentID,
       componentState: { cssParentClass: 'variant-editor-stack' },
+    };
+
+    this.goldenLayoutComponentService.openWindow(
+      componentID,
+      ProcessTreeEditorComponent.componentName,
+      LocationSelectors,
+      itemConfig
+    );
+  }
+
+  openGraphicalQueryEditor() {
+    const componentID = GraphicalQueryEditorComponent.componentName;
+
+    const LocationSelectors: LayoutManager.LocationSelector[] = [
+      {
+        typeId: LayoutManager.LocationSelector.TypeId.FocusedStack,
+        index: undefined,
+      },
+    ];
+
+    const itemConfig: ComponentItemConfig = {
+      id: componentID,
+      type: 'component',
+      title: 'Graphical Query Editor',
+      isClosable: true,
+      reorderEnabled: true,
+      header: {
+        show: Side.left,
+      },
+      componentType: componentID,
+      componentState: { cssParentClass: 'graphical-query-editor-stack' },
     };
 
     this.goldenLayoutComponentService.openWindow(

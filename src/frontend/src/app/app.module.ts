@@ -92,6 +92,7 @@ import { ProcessTreeToolboxComponent } from './components/process-tree-editor/pr
 import { InfoBarComponent } from './components/activity-overview/info-bar/info-bar.component';
 import { LoadingOverlayComponent } from './components/loading-overlay/loading-overlay.component';
 import { CaseExplorerComponent } from './components/variant-explorer/case-explorer/case-explorer.component';
+import { GraphicalQueryEditorComponent } from './components/graphical-query-editor/graphical-query-editor.component';
 
 @NgModule({
   declarations: [
@@ -172,6 +173,7 @@ import { CaseExplorerComponent } from './components/variant-explorer/case-explor
     InfoBarComponent,
     LoadingOverlayComponent,
     CaseExplorerComponent,
+    GraphicalQueryEditorComponent,
   ],
   imports: [
     BrowserModule,

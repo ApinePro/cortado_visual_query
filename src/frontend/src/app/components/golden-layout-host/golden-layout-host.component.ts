@@ -40,6 +40,7 @@ import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 import { LpmExplorerComponent } from '../lpm-explorer/lpm-explorer.component';
 import { LpmMetricsTabComponent } from '../lpm-explorer/lpm-metrics-tab/lpm-metrics-tab.component';
+import { GraphicalQueryEditorComponent } from '../graphical-query-editor/graphical-query-editor.component';
 @Component({
   selector: 'app-golden-layout-host',
   templateUrl: './golden-layout-host.component.html',
@@ -129,6 +130,11 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     this.goldenLayoutComponentService.registerComponentType(
       VariantMinerComponent.componentName,
       VariantMinerComponent
+    );
+
+    this.goldenLayoutComponentService.registerComponentType(
+      GraphicalQueryEditorComponent.componentName,
+      GraphicalQueryEditorComponent
     );
 
     this.goldenLayoutComponentService.registerComponentType(
