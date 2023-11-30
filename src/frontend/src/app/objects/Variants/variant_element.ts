@@ -5,6 +5,7 @@ import {
   SelectableState,
   updateSelectionAttributesForGroup,
 } from './infix_selection';
+import { equal } from 'assert';
 
 export class PerformanceStats {
   public min: number;
@@ -59,6 +60,8 @@ export abstract class VariantElement {
         variantElement instanceof SequenceGroup) ||
       (this instanceof ParallelGroup &&
         variantElement instanceof ParallelGroup) ||
+      (this instanceof ChoiceGroup && variantElement instanceof ChoiceGroup) ||
+      (this instanceof FallthroughGroup && variantElement instanceof FallthroughGroup) ||
       (this instanceof LoopGroup && variantElement instanceof LoopGroup) ||
       (this instanceof SkipGroup && variantElement instanceof SkipGroup) ||
       (this instanceof LeafNode && variantElement instanceof LeafNode) ||
@@ -117,6 +120,21 @@ export abstract class VariantElement {
   public asSkipGroup(): SkipGroup {
     const self: unknown = this;
     return self as SkipGroup;
+  }
+
+  public asParallelPattern(): ParallelPattern {
+    const self: unknown = this;
+    return self as ParallelPattern;
+  }
+
+  public asSequencePattern(): SequencePattern {
+    const self: unknown = this;
+    return self as SequencePattern;
+  }
+
+  public asLeafPattern(): LeafPattern {
+    const self: unknown = this;
+    return self as LeafPattern;
   }
 
   public setExpanded(expanded: boolean) {
@@ -1512,6 +1530,54 @@ export class EndGroup extends VariantElement {
   }
 }
 
+interface QueryPattern {
+  cardinality: number;
+  cardiOperator: CardinalityOperator;
+  eventually: boolean;
+}
+
+export class LeafPattern extends LeafNode implements QueryPattern {
+  constructor(
+    public activity: string[],
+    performance: any = undefined,
+    public conformance: number[] = undefined
+  ) {
+    super(performance);
+    this.cardinality = 0;
+    this.cardiOperator = CardinalityOperator.equal;
+    this.eventually = false;
+  }
+
+
+  public cardinality: number;
+  public cardiOperator: CardinalityOperator;
+  public eventually: boolean;
+}
+
+export class SequencePattern extends SequenceGroup implements QueryPattern {
+  constructor(public elements: VariantElement[], performance: any = undefined) {
+    super(performance);
+    this.cardinality = 0;
+    this.cardiOperator = CardinalityOperator.equal;
+    this.eventually = false;
+  }
+  public cardinality: number;
+  public cardiOperator: CardinalityOperator;
+  public eventually: boolean;
+}
+
+export class ParallelPattern extends ParallelGroup implements QueryPattern {
+  constructor(public elements: VariantElement[], performance: any = undefined) {
+    super(performance);
+    this.cardinality = 0;
+    this.cardiOperator = CardinalityOperator.equal;
+    this.eventually = false;
+  }
+  public cardinality: number;
+  public cardiOperator: CardinalityOperator;
+  public eventually: boolean;
+}
+
 export function deserialize(obj: any): VariantElement {
   if ('follows' in obj) {
     return new SequenceGroup(
@@ -1600,4 +1666,10 @@ export function injectWaitingTimeNodesVariant(variant: VariantElement) {
       variant.elements[i] = new InvisibleSequenceGroup(waitGroup);
     }
   }
+}
+
+enum CardinalityOperator {
+  lessequal = '≤',
+  equal = '=',
+  moreequal = '≥',
 }

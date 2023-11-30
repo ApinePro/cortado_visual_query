@@ -30,6 +30,8 @@ import {
   InvisibleSequenceGroup,
   LoopGroup,
   SkipGroup,
+  ParallelPattern,
+  SequencePattern,
 } from 'src/app/objects/Variants/variant_element';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { ViewMode } from 'src/app/objects/ViewMode';
@@ -236,6 +238,7 @@ export class VariantDrawerDirective
   }
 
   redraw(): void {
+    console.log("redraw, start!");
     this.svgSelection.selectAll('*').remove();
     if (this.variant.variant) {
       const height = this.variant.variant.recalculateHeight(
@@ -377,12 +380,20 @@ export class VariantDrawerDirective
       svgElement.datum(element);
     }
 
-    if (element instanceof ParallelGroup) {
+    if (element instanceof ParallelPattern) {
+      this.drawParallelPattern(element.asParallelPattern(), svgElement);
+    } else if (element instanceof ParallelGroup) {
       this.drawParallelGroup(element.asParallelGroup(), svgElement);
     } else if (element instanceof ChoiceGroup) {
       this.drawChoiceGroup(element.asChoiceGroup(), svgElement);
     } else if (element instanceof FallthroughGroup) {
       this.drawFallthroughGroup(element.asFallthroughGroup(), svgElement);
+    } else if (element instanceof SequencePattern) {
+      this.drawSequencePattern(
+        element.asSequencePattern(),
+        svgElement,
+        outerElement
+      );
     } else if (element instanceof SequenceGroup) {
       this.drawSequenceGroup(
         element.asSequenceGroup(),
@@ -819,6 +830,198 @@ export class VariantDrawerDirective
 
     const color = 'lightgrey';
     let polygon = this.createFallthroughPolygon(
+      parent,
+      polygonPoints,
+      color,
+      actionable,
+      true
+    );
+
+    if (
+      this.traceInfixSelectionMode &&
+      !(element instanceof InvisibleSequenceGroup)
+    ) {
+      this.addInfixSelectionAttributes(element, polygon, false);
+    }
+
+    if (this.onClickCbFc) {
+      parent.on('click', (e: PointerEvent) => {
+        this.onClickCbFc(this, element, this.variant);
+        e.stopPropagation();
+      });
+    }
+
+    if (this.onRightMouseClickCbFc) {
+      parent.on('contextmenu', (e: PointerEvent) => {
+        this.onRightMouseClickCbFc(this, element, this.variant, e);
+        e.stopPropagation();
+      });
+    }
+
+    let y = VARIANT_Constants.MARGIN_Y;
+
+    for (const child of element.elements) {
+      if (
+        child instanceof WaitingTimeNode &&
+        (this.keepStandardView ||
+          this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE)
+      ) {
+        continue;
+      }
+
+      const height = child.getHeight();
+      const x = element.getHeadLength() + 0.5 * VARIANT_Constants.MARGIN_X;
+      const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
+      this.draw(child, g, false);
+      y += height + VARIANT_Constants.MARGIN_Y;
+    }
+
+    if (this.onMouseOverCbFc) {
+      this.onMouseOverCbFc(this, element, this.variant, parent);
+    }
+  }
+
+  drawSequencePattern(
+    element: SequencePattern,
+    parent: Selection<any, any, any, any>,
+    outerElement: boolean
+  ): void {
+    const width = element.getWidth();
+    const height = element.getHeight();
+
+    const polygonPoints = this.polygonService.getPolygonPoints(width, height);
+
+    const color = 'lightgrey';
+
+    let laElement = getLowestSelectionActionableElement(element);
+    let actionable =
+      laElement.parent !== null &&
+      laElement.infixSelectableState !== SelectableState.None;
+
+    let polygon = this.createPolygon(
+      parent,
+      polygonPoints,
+      color,
+      actionable,
+      true
+    );
+
+    if (
+      this.traceInfixSelectionMode &&
+      element.parent &&
+      !(element instanceof InvisibleSequenceGroup)
+    ) {
+      this.addInfixSelectionAttributes(element, polygon, false);
+    }
+
+    if (
+      element instanceof InvisibleSequenceGroup ||
+      element.parent instanceof SkipGroup
+    ) {
+      polygon.style('fill', 'transparent');
+    } else {
+      if (this.onClickCbFc) {
+        parent.on('click', (e: PointerEvent) => {
+          this.onClickCbFc(this, element, this.variant);
+          e.stopPropagation();
+        });
+      }
+    }
+
+    let xOffset = 0;
+
+    const inEditor =
+      d3
+        .select(this.svgHtmlElement.nativeElement)
+        .classed('in-variant-editor') ||
+      d3.select(this.svgHtmlElement.nativeElement).classed('pattern-variant');
+
+    if (
+      (!outerElement ||
+        inEditor ||
+        (!this.keepStandardView &&
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE)) &&
+      !(element.parent instanceof SkipGroup)
+    ) {
+      xOffset +=
+        element.getHeadLength() +
+        element.getMarginX() -
+        element.elements[0].getHeadLength();
+    }
+
+    
+    //added
+    const cardinalityText = parent
+    .append('text')
+    .attr('x', width / 2)
+    .attr('y', -VARIANT_Constants.FONT_SIZE)
+    .classed('user-select-none', true)
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'middle')
+    .attr('font-size', VARIANT_Constants.FONT_SIZE)
+    .attr('fill', 'white')
+    .classed('activity-text', true);
+
+    const tspan = cardinalityText
+        .append('tspan')
+        .classed(
+          'cursor-pointer',
+          (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+        )
+        .text(element.cardiOperator + ' ' + element.cardinality);
+      
+
+    for (const child of element.elements) {
+      if (
+        child instanceof WaitingTimeNode &&
+        (this.keepStandardView ||
+          this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE)
+      ) {
+        continue;
+      }
+
+      const childWidth = child.getWidth(
+        !this.keepStandardView &&
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+      );
+      const childHeight = child.getHeight();
+      const yOffset = height / 2 - childHeight / 2;
+      const g = parent
+        .append('g')
+        .attr('transform', `translate(${xOffset}, ${yOffset})`);
+
+      this.draw(child, g, false);
+      xOffset += childWidth;
+    }
+
+    if (this.onMouseOverCbFc) {
+      this.onMouseOverCbFc(this, element, this.variant, parent);
+    }
+
+    if (this.onRightMouseClickCbFc) {
+      parent.on('contextmenu', (e: PointerEvent) => {
+        this.onRightMouseClickCbFc(this, element, this.variant, e);
+        e.stopPropagation();
+      });
+    }
+  }
+
+  drawParallelPattern(
+    element: ParallelPattern,
+    parent: Selection<any, any, any, any>
+  ): void {
+    const width = element.getWidth();
+    const height = element.getHeight();
+
+    const polygonPoints = this.polygonService.getPolygonPoints(width, height);
+
+    let laElement = getLowestSelectionActionableElement(element);
+    let actionable =
+      laElement.parent !== null &&
+      laElement.infixSelectableState !== SelectableState.None;
+
+    const color = 'lightgrey';
+    let polygon = this.createPolygon(
       parent,
       polygonPoints,
       color,
