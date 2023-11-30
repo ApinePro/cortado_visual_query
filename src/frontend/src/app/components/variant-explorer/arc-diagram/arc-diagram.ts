@@ -9,10 +9,13 @@ var height = 400; //> height of svg image
 
 var data: Data;
 var LoD = 1;
-var transparency = 0.3;
+var transparency = 0.4;
 var hoverTransparency = 1;
-var fC = 'beige';
-var sC = 'burlywood';
+var topArcWidth = 10;
+var colorScheme = 'interpolateSinebow';
+var color = 'lightgrey';
+
+var colorScale = d3.scaleSequential(d3.interpolateSinebow).domain([0, 1]);
 
 var tooltip = d3
   .select('body')
@@ -25,6 +28,8 @@ var tooltip = d3
  * @return Struct of characters and essential matching pair arcs to draw
  */
 export const parseInput = (pairs: Pair[]) => {
+  // colorState.n = pairs.length;
+  // console.log(colorState.colorScale(5));
   // create the arcs
   var arcs = [];
   for (let i = 0; i < pairs.length; i++) {
@@ -95,8 +100,8 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
         .select(`g.bfs-group-${d.targetPos}`)
         .attr('transform')
         .split(/[\s,()]+/);
-      const levelHeight =
-        levelMap[d.targetPos - d.sourcePos - d.numberEle - 1] * step;
+      const baseHeight = levelMap[d.targetPos - d.sourcePos - d.numberEle - 1];
+      const levelHeight = baseHeight * step;
       const dx = parseFloat(targetStartLeafCoords[1]);
       const dy = height;
       const targetwidth = variantEl
@@ -110,10 +115,22 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
         .split(/[\s,()]+/);
       const cx = parseFloat(targetEndLeafCoords[1]) + parseFloat(targetwidth);
       const cy = dy;
-      const bx = cx;
-      const by = levelHeight;
-      const ex = dx;
-      const ey = 5 + levelHeight;
+
+      const offset = (1 / (baseHeight + 1)) * step;
+      const b1x = cx - offset;
+      const b1y = levelHeight;
+      const b2x = cx;
+      const b2y = offset + levelHeight;
+      // const bx = cx;
+      // const by = levelHeight;
+
+      // const ex = dx;
+      // const ey = 5 + levelHeight;
+      const e1x = dx;
+      const e1y = topArcWidth + levelHeight + offset;
+      const e2x = dx - offset;
+      const e2y = topArcWidth + levelHeight;
+
       const sourceStartLeafCoords = variantEl
         .select(`g.bfs-group-${d.sourcePos}`)
         .attr('transform')
@@ -131,13 +148,28 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
         .split(/[\s,()]+/);
       const gx = parseFloat(sourceEndLeafCoords[1]) + parseFloat(sourcewidth);
       const gy = hy;
-      const fx = gx;
-      const fy = ey;
-      const ax = hx;
-      const ay = levelHeight;
-      return `${ax},${ay} ${bx},${by} ${cx},${cy} ${dx},${dy} ${ex},${ey} ${fx},${fy} ${gx},${gy} ${hx},${hy}`;
+
+      // const fx = gx;
+      // const fy = ey;
+      const f1x = gx + offset;
+      const f1y = e2y;
+      const f2x = gx;
+      const f2y = e2y + offset;
+
+      // const ax = hx;
+      // const ay = levelHeight;
+      const a1x = hx;
+      const a1y = levelHeight + offset;
+      const a2x = hx + offset;
+      const a2y = levelHeight;
+
+      // return `${ax},${ay} ${bx},${by} ${cx},${cy} ${dx},${dy} ${ex},${ey} ${fx},${fy} ${gx},${gy} ${hx},${hy}`;
+      return `${a1x},${a1y} ${a2x},${a2y} ${b1x},${b1y} ${b2x},${b2y} ${cx},${cy} ${dx},${dy} ${e1x},${e1y} ${e2x},${e2y} ${f1x},${f1y} ${f2x},${f2y} ${gx},${gy} ${hx},${hy}`;
     })
-    .attr('fill', fC)
+    .attr('fill', function (d, i, x) {
+      // return colorScale(d3.randomUniform()());
+      return color;
+    })
     .attr('fill-opacity', transparency)
 
     .on('click', function (d) {
@@ -148,7 +180,7 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
     })
     .on('mouseover', function (d, i) {
       arcGroup.selectAll('polygon').style('fill-opacity', function (x) {
-        console.log(d, i, x);
+        // console.log(d, i, x);
         if (i == x) return hoverTransparency;
         else return transparency;
       });
