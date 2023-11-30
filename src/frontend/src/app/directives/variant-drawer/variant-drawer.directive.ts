@@ -125,7 +125,8 @@ export class VariantDrawerDirective
 
   ngAfterViewInit(): void {
     this.svgSelection = d3.select(
-      this.divHtmlElement.nativeElement.querySelector('svg.drawer')
+      this.divHtmlElement.nativeElement.querySelector('svg.drawer') ||
+        this.divHtmlElement.nativeElement
     );
 
     //Pattern injection
