@@ -14,6 +14,8 @@ import { takeUntil } from 'rxjs/operators';
 import { Modal } from 'bootstrap';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { LoadingOverlayService } from 'src/app/services/loadingOverlayService/loading-overlay.service';
+import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
+import { ViewMode } from 'src/app/objects/ViewMode';
 
 @Component({
   selector: 'app-header-bar',
@@ -36,9 +38,10 @@ export class HeaderBarComponent implements OnDestroy {
   private _destroy$ = new Subject();
 
   constructor(
-    private variantService: VariantService,
+    public variantService: VariantService,
     private backendService: BackendService,
     private projectService: ProjectService,
+    public variantViewModeService: VariantViewModeService,
     private modalService: NgbModal,
     private loadingOverlayService: LoadingOverlayService,
     private _elRef: ElementRef<HTMLElement>,
@@ -51,6 +54,8 @@ export class HeaderBarComponent implements OnDestroy {
         this.modalService.open(this.eventLogSelectionRetryModal);
       });
   }
+
+  public VM = ViewMode;
 
   ngOnDestroy(): void {
     this._destroy$.next();

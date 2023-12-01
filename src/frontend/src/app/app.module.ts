@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
-import { ActivityOverviewSortingPipe } from './pipes/activity-overview-sorting/activity-overview-sorting.pipe';
+import { TableSortingPipe } from './pipes/table-sorting/table-sorting.pipe';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FooterComponent } from './components/footer/footer.component';
@@ -41,6 +41,7 @@ import { VariantConformanceDialogComponent } from './components/variant-explorer
 import { BpmnEditorComponent } from './components/bpmn-editor/bpmn-editor.component';
 import { GoldenLayoutDummyComponent } from './components/golden-layout-host/golden-layout-dummy/golden-layout-dummy.component';
 import { SubVariantComponent } from './components/variant-explorer/subvariant-explorer/subvariants/sub-variant/sub-variant.component';
+import { VariantInfoExplorerComponent } from './components/variant-explorer/variant-info-explorer/variant-info-explorer.component';
 import { ActivityButtonAreaComponent } from './components/variant-editor/activity-button-area/activity-button-area.component';
 import { HeaderBarComponent } from './components/header-bar/header-bar.component';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
@@ -90,6 +91,7 @@ import { electronServiceFactory } from './dependency-factories';
 import { ProcessTreeToolboxComponent } from './components/process-tree-editor/process-tree-toolbox/process-tree-toolbox.component';
 import { InfoBarComponent } from './components/activity-overview/info-bar/info-bar.component';
 import { LoadingOverlayComponent } from './components/loading-overlay/loading-overlay.component';
+import { CaseExplorerComponent } from './components/variant-explorer/case-explorer/case-explorer.component';
 
 @NgModule({
   declarations: [
@@ -97,7 +99,7 @@ import { LoadingOverlayComponent } from './components/loading-overlay/loading-ov
     FooterComponent,
     StrFilterPipe,
     EditorZoneComponent,
-    ActivityOverviewSortingPipe,
+    TableSortingPipe,
     GoldenLayoutHostComponent,
     VariantExplorerComponent,
     VariantInfoComponent,
@@ -108,6 +110,7 @@ import { LoadingOverlayComponent } from './components/loading-overlay/loading-ov
     ActivityOverviewComponent,
     ProcessTreeEditorComponent,
     SubvariantExplorerComponent,
+    VariantInfoExplorerComponent,
     VariantInfoComponent,
     VariantColorMapComponent,
     VariantSelectionButtonComponent,
@@ -168,6 +171,7 @@ import { LoadingOverlayComponent } from './components/loading-overlay/loading-ov
     ProcessTreeToolboxComponent,
     InfoBarComponent,
     LoadingOverlayComponent,
+    CaseExplorerComponent,
   ],
   imports: [
     BrowserModule,

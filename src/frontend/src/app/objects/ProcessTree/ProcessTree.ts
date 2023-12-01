@@ -21,6 +21,7 @@ export class ProcessTree {
   public conformance: TreeConformance;
   @Type(() => ProcessTree)
   public parent: ProcessTree;
+  //public selected: boolean;
 
   constructor(
     label: string,
@@ -40,6 +41,7 @@ export class ProcessTree {
     this.performance = performance;
     this.conformance = conformance;
     this.parent = parent;
+    //this.selected = false;
   }
 
   public equals(other: ProcessTree) {
