@@ -4,28 +4,26 @@ import {Arc, Data, Pair} from './data';
 
 // var width = $('.cursor-pointer').width(); //> width of svg image
 let width = 800; //> width of svg image
-const height = 400; //> height of svg image
 
-let data: Data;
 const LoD = 1;
 const transparency = 0.4;
 const hoverTransparency = 1;
-const topArcWidth = 10;
-const colorScheme = 'interpolateSinebow';
+
+
 const color = 'lightgrey';
 const strokeWidth = '2';
 
 
-const colorScale = d3.scaleSequential(d3.interpolateSinebow).domain([0, 1]);
+d3.scaleSequential(d3.interpolateSinebow).domain([0, 1]);
 
-const tooltip = d3
+d3
   .select('body')
   .append('div')
   .classed('arc-tooltip', true)
   .text('');
 
 /** Method to parse the input of the textfield or the file
- * @param input The string of data to be parsed and visualized as arcs
+ * @param pairs The array of pairs to be parsed and visualized as arcs
  * @return Struct of characters and essential matching pair arcs to draw
  */
 export const parseInput = (pairs: Pair[]) => {
@@ -61,11 +59,9 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
   }
 
   width = variantDrawer.variant.variant.width;
-  var numElements =
-    variantDrawer.variant.length ||
-    variantDrawer.variant.variant.getElements().length;
+  variantDrawer.variant.length ||
+  variantDrawer.variant.variant.getElements().length;
 
-  var chevronHeight = variantDrawer.variant.variant.height;
 
   const levelMap = {};
   let idx = 0;
@@ -75,7 +71,7 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
       levelMap[arc.targetPos - arc.sourcePos - arc.numberEle - 1] = idx++;
     }
   }
-  let i = 0;
+
   const baseHeight = 50;
   const step = 20;
   const height = baseHeight + step * (idx - 1);
@@ -149,7 +145,7 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
   appendBarBasedOn('target')
 
   // arc between the source and target bar
-  arcGroups.each(function (d) {
+  arcGroups.each(function () {
 
     const sbbox = (this.firstElementChild as SVGGraphicsElement).getBBox();
     let scx = sbbox.width / 2 + sbbox.x;
@@ -174,7 +170,7 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
       .style('stroke-width', strokeWidth)
       .style('stroke-opacity', transparency);
   })
-    .on('mouseover', function (d, i) {
+    .on('mouseover', function (_, i) {
 
       // highlight all corresponding bars
       arcGroups.selectAll('rect').style('fill-opacity', function (x) {
@@ -211,115 +207,3 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
     });
 
 }
-
-
-// .append('polygon')
-// .attr('points', function (d) {
-//   const variantEl = d3.select(variantDrawer.divHtmlElement.nativeElement);
-//   const targetStartLeafCoords = variantEl
-//     .select(`g.bfs-group-${d.targetPos}`)
-//     .attr('transform')
-//     .split(/[\s,()]+/);
-//   const baseHeight = levelMap[d.targetPos - d.sourcePos - d.numberEle - 1];
-//   const levelHeight = baseHeight * step;
-//   const dx = parseFloat(targetStartLeafCoords[1]);
-//   const dy = height;
-//   const targetwidth = variantEl
-//     .select(`g.bfs-group-${d.targetPos + d.numberEle - 1}>polygon`)
-//     .attr('points')
-//     .split(' ')[1]
-//     .split(',')[0];
-//   const targetEndLeafCoords = variantEl
-//     .select(`g.bfs-group-${d.targetPos + d.numberEle - 1}`)
-//     .attr('transform')
-//     .split(/[\s,()]+/);
-//   const cx = parseFloat(targetEndLeafCoords[1]) + parseFloat(targetwidth);
-//   const cy = dy;
-
-//   const offset = (1 / (baseHeight + 1)) * step;
-//   const b1x = cx - offset;
-//   const b1y = levelHeight;
-//   const b2x = cx;
-//   const b2y = offset + levelHeight;
-//   // const bx = cx;
-//   // const by = levelHeight;
-
-//   // const ex = dx;
-//   // const ey = 5 + levelHeight;
-//   const e1x = dx;
-//   const e1y = topArcWidth + levelHeight + offset;
-//   const e2x = dx - offset;
-//   const e2y = topArcWidth + levelHeight;
-
-//   const sourceStartLeafCoords = variantEl
-//     .select(`g.bfs-group-${d.sourcePos}`)
-//     .attr('transform')
-//     .split(/[\s,()]+/);
-//   const hx = parseFloat(sourceStartLeafCoords[1]);
-//   const hy = height;
-//   const sourcewidth = variantEl
-//     .select(`g.bfs-group-${d.sourcePos + d.numberEle - 1}>polygon`)
-//     .attr('points')
-//     .split(' ')[1]
-//     .split(',')[0];
-//   const sourceEndLeafCoords = variantEl
-//     .select(`g.bfs-group-${d.sourcePos + d.numberEle - 1}`)
-//     .attr('transform')
-//     .split(/[\s,()]+/);
-//   const gx = parseFloat(sourceEndLeafCoords[1]) + parseFloat(sourcewidth);
-//   const gy = hy;
-
-//   // const fx = gx;
-//   // const fy = ey;
-//   const f1x = gx + offset;
-//   const f1y = e2y;
-//   const f2x = gx;
-//   const f2y = e2y + offset;
-
-//   // const ax = hx;
-//   // const ay = levelHeight;
-//   const a1x = hx;
-//   const a1y = levelHeight + offset;
-//   const a2x = hx + offset;
-//   const a2y = levelHeight;
-
-//   // return `${ax},${ay} ${bx},${by} ${cx},${cy} ${dx},${dy} ${ex},${ey} ${fx},${fy} ${gx},${gy} ${hx},${hy}`;
-//   return `${a1x},${a1y} ${a2x},${a2y} ${b1x},${b1y} ${b2x},${b2y} ${cx},${cy} ${dx},${dy} ${e1x},${e1y} ${e2x},${e2y} ${f1x},${f1y} ${f2x},${f2y} ${gx},${gy} ${hx},${hy}`;
-// })
-// .attr('fill', function (d, i, x) {
-//   // return colorScale(d3.randomUniform()());
-//   return color;
-// })
-// .attr('fill-opacity', transparency)
-
-// .on('click', function (d) {
-//   arcGroup.selectAll('path').style('stroke-opacity', function (x: any) {
-//     if (d.text == x.text) return hoverTransparency;
-//     else return transparency;
-//   });
-// })
-// .on('mouseover', function (d, i) {
-//   arcGroup.selectAll('polygon').style('fill-opacity', function (x) {
-//     // console.log(d, i, x);
-//     if (i == x) return hoverTransparency;
-//     else return transparency;
-//   });
-//   d3.select(variantDrawer.divHtmlElement.nativeElement)
-//     .selectAll('g')
-//     .style('fill-opacity', transparency);
-//   i.matches.forEach((dfsid) => {
-//     d3.select(variantDrawer.divHtmlElement.nativeElement)
-//       .selectAll(`g.dfs-group-${dfsid}`)
-//       .style('fill-opacity', 1);
-//   });
-
-//   tooltip.style('visibility', 'visible').text(d.text);
-//   return 1;
-// })
-// .on('mouseout', function () {
-//   arcGroup.selectAll('polygon').style('fill-opacity', transparency);
-//   d3.select(variantDrawer.divHtmlElement.nativeElement)
-//     .selectAll('g')
-//     .style('fill-opacity', 1);
-// });
-
