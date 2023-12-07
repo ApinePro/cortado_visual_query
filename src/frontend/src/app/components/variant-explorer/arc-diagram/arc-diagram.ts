@@ -1,7 +1,6 @@
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
-import { ElementRef } from '@angular/core';
+import {VariantDrawerDirective} from 'src/app/directives/variant-drawer/variant-drawer.directive';
 import * as d3 from 'd3';
-import { Arc, Data, Pair } from './data';
+import {Arc, Data, Pair} from './data';
 
 // var width = $('.cursor-pointer').width(); //> width of svg image
 var width = 800; //> width of svg image
@@ -79,127 +78,202 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
   const step = 20;
   const height = baseHeight + step * (idx - 1);
 
-  var chart = d3
+  const chart = d3
     .select(variantDrawer.divHtmlElement.nativeElement)
     .select('svg.arc-diagram-chart')
     .attr('width', width)
     .attr('height', height)
     .style('display', 'block');
 
-  //plot the arcs like defined in the arcs array of the parsed data
-  var arcGroup = chart.append('g').attr('id', 'arcGroup');
+  const variantEl = d3.select(
+    variantDrawer.divHtmlElement.nativeElement
+  );
 
-  arcGroup
+  //plot the arcs like defined in the arcs array of the parsed data
+  const arcSvg = chart.append('g').attr('id', 'arcGroup');
+
+  // source base bar
+  const arcGroups = arcSvg
     .selectAll('path')
     .data(arcs)
     .enter()
-    .append('polygon')
-    .attr('points', function (d) {
-      const variantEl = d3.select(variantDrawer.divHtmlElement.nativeElement);
-      const targetStartLeafCoords = variantEl
-        .select(`g.bfs-group-${d.targetPos}`)
-        .attr('transform')
-        .split(/[\s,()]+/);
-      const baseHeight = levelMap[d.targetPos - d.sourcePos - d.numberEle - 1];
-      const levelHeight = baseHeight * step;
-      const dx = parseFloat(targetStartLeafCoords[1]);
-      const dy = height;
-      const targetwidth = variantEl
-        .select(`g.bfs-group-${d.targetPos + d.numberEle - 1}>polygon`)
-        .attr('points')
-        .split(' ')[1]
-        .split(',')[0];
-      const targetEndLeafCoords = variantEl
-        .select(`g.bfs-group-${d.targetPos + d.numberEle - 1}`)
-        .attr('transform')
-        .split(/[\s,()]+/);
-      const cx = parseFloat(targetEndLeafCoords[1]) + parseFloat(targetwidth);
-      const cy = dy;
+    .append('g');
 
-      const offset = (1 / (baseHeight + 1)) * step;
-      const b1x = cx - offset;
-      const b1y = levelHeight;
-      const b2x = cx;
-      const b2y = offset + levelHeight;
-      // const bx = cx;
-      // const by = levelHeight;
+  function appendBarBasedOn(dest: string) {
+    arcGroups.append('rect')
+      .attr('x', function (d: Arc) {
+        const startLeafCoords = variantEl
+          .select(`g.bfs-group-${d[`${dest}Pos`]}`)
+          .attr('transform')
+          .split(/[\s,()]+/);
+        return parseFloat(startLeafCoords[1]);
+      })
+      .attr('y', height - 10)
+      .attr('width', function (d: Arc) {
+        const width = variantEl
+          .select(`g.bfs-group-${d[`${dest}Pos`] + d.numberEle - 1}>polygon`)
+          .attr('points')
+          .split(' ')[1]
+          .split(',')[0];
+        const endLeafCoords = variantEl
+          .select(`g.bfs-group-${d[`${dest}Pos`] + d.numberEle - 1}`)
+          .attr('transform')
+          .split(/[\s,()]+/);
+        const startLeafCoords = variantEl
+          .select(`g.bfs-group-${d[`${dest}Pos`]}`)
+          .attr('transform')
+          .split(/[\s,()]+/);
+        return (
+          parseFloat(endLeafCoords[1]) +
+          parseFloat(width) -
+          parseFloat(startLeafCoords[1])
+        );
+      })
+      .attr('class', `${dest}-rect`)
+  }
 
-      // const ex = dx;
-      // const ey = 5 + levelHeight;
-      const e1x = dx;
-      const e1y = topArcWidth + levelHeight + offset;
-      const e2x = dx - offset;
-      const e2y = topArcWidth + levelHeight;
+  appendBarBasedOn('source')
+  appendBarBasedOn('target')
 
-      const sourceStartLeafCoords = variantEl
-        .select(`g.bfs-group-${d.sourcePos}`)
-        .attr('transform')
-        .split(/[\s,()]+/);
-      const hx = parseFloat(sourceStartLeafCoords[1]);
-      const hy = height;
-      const sourcewidth = variantEl
-        .select(`g.bfs-group-${d.sourcePos + d.numberEle - 1}>polygon`)
-        .attr('points')
-        .split(' ')[1]
-        .split(',')[0];
-      const sourceEndLeafCoords = variantEl
-        .select(`g.bfs-group-${d.sourcePos + d.numberEle - 1}`)
-        .attr('transform')
-        .split(/[\s,()]+/);
-      const gx = parseFloat(sourceEndLeafCoords[1]) + parseFloat(sourcewidth);
-      const gy = hy;
-
-      // const fx = gx;
-      // const fy = ey;
-      const f1x = gx + offset;
-      const f1y = e2y;
-      const f2x = gx;
-      const f2y = e2y + offset;
-
-      // const ax = hx;
-      // const ay = levelHeight;
-      const a1x = hx;
-      const a1y = levelHeight + offset;
-      const a2x = hx + offset;
-      const a2y = levelHeight;
-
-      // return `${ax},${ay} ${bx},${by} ${cx},${cy} ${dx},${dy} ${ex},${ey} ${fx},${fy} ${gx},${gy} ${hx},${hy}`;
-      return `${a1x},${a1y} ${a2x},${a2y} ${b1x},${b1y} ${b2x},${b2y} ${cx},${cy} ${dx},${dy} ${e1x},${e1y} ${e2x},${e2y} ${f1x},${f1y} ${f2x},${f2y} ${gx},${gy} ${hx},${hy}`;
-    })
-    .attr('fill', function (d, i, x) {
-      // return colorScale(d3.randomUniform()());
-      return color;
-    })
+  // set all common attrs of bars
+  arcGroups.selectAll('rect')
+    .attr('height', 10)
+    .attr('fill', color)
     .attr('fill-opacity', transparency)
+    .attr('rx', 4)
+    .attr('ry', 4);
 
-    .on('click', function (d) {
-      arcGroup.selectAll('path').style('stroke-opacity', function (x: any) {
-        if (d.text == x.text) return hoverTransparency;
-        else return transparency;
-      });
-    })
-    .on('mouseover', function (d, i) {
-      arcGroup.selectAll('polygon').style('fill-opacity', function (x) {
-        // console.log(d, i, x);
-        if (i == x) return hoverTransparency;
-        else return transparency;
-      });
-      d3.select(variantDrawer.divHtmlElement.nativeElement)
-        .selectAll('g')
-        .style('fill-opacity', transparency);
-      i.matches.forEach((dfsid) => {
-        d3.select(variantDrawer.divHtmlElement.nativeElement)
-          .selectAll(`g.dfs-group-${dfsid}`)
-          .style('fill-opacity', 1);
-      });
+  // arc between the source and target bar
+  arcGroups.selectAll('.source-rect').each(function (d) {
+    const node = this as SVGGraphicsElement;
+    const sbbox = node.getBBox();
+    let scx = sbbox.width / 2 + sbbox.x;
+    d3.select(node.nextElementSibling).each(function (d) {
+      const sbbox = (this as SVGGraphicsElement).getBBox();
+      let tcx = sbbox.width / 2 + sbbox.x;
+      arcGroups.append('path')
+        .attr('d', function (d) {
+          const path = d3.path();
 
-      tooltip.style('visibility', 'visible').text(d.text);
-      return 1;
-    })
-    .on('mouseout', function () {
-      arcGroup.selectAll('polygon').style('fill-opacity', transparency);
-      d3.select(variantDrawer.divHtmlElement.nativeElement)
-        .selectAll('g')
-        .style('fill-opacity', 1);
+          path.moveTo(scx, height - 10);
+
+          path.quadraticCurveTo((scx + tcx) / 2, 0, tcx, height - 10);
+
+          return path.toString();
+        })
+        .style('stroke', 'white')
+        .style('fill', 'none');
     });
+  });
+
+
+  // .append('polygon')
+  // .attr('points', function (d) {
+  //   const variantEl = d3.select(variantDrawer.divHtmlElement.nativeElement);
+  //   const targetStartLeafCoords = variantEl
+  //     .select(`g.bfs-group-${d.targetPos}`)
+  //     .attr('transform')
+  //     .split(/[\s,()]+/);
+  //   const baseHeight = levelMap[d.targetPos - d.sourcePos - d.numberEle - 1];
+  //   const levelHeight = baseHeight * step;
+  //   const dx = parseFloat(targetStartLeafCoords[1]);
+  //   const dy = height;
+  //   const targetwidth = variantEl
+  //     .select(`g.bfs-group-${d.targetPos + d.numberEle - 1}>polygon`)
+  //     .attr('points')
+  //     .split(' ')[1]
+  //     .split(',')[0];
+  //   const targetEndLeafCoords = variantEl
+  //     .select(`g.bfs-group-${d.targetPos + d.numberEle - 1}`)
+  //     .attr('transform')
+  //     .split(/[\s,()]+/);
+  //   const cx = parseFloat(targetEndLeafCoords[1]) + parseFloat(targetwidth);
+  //   const cy = dy;
+
+  //   const offset = (1 / (baseHeight + 1)) * step;
+  //   const b1x = cx - offset;
+  //   const b1y = levelHeight;
+  //   const b2x = cx;
+  //   const b2y = offset + levelHeight;
+  //   // const bx = cx;
+  //   // const by = levelHeight;
+
+  //   // const ex = dx;
+  //   // const ey = 5 + levelHeight;
+  //   const e1x = dx;
+  //   const e1y = topArcWidth + levelHeight + offset;
+  //   const e2x = dx - offset;
+  //   const e2y = topArcWidth + levelHeight;
+
+  //   const sourceStartLeafCoords = variantEl
+  //     .select(`g.bfs-group-${d.sourcePos}`)
+  //     .attr('transform')
+  //     .split(/[\s,()]+/);
+  //   const hx = parseFloat(sourceStartLeafCoords[1]);
+  //   const hy = height;
+  //   const sourcewidth = variantEl
+  //     .select(`g.bfs-group-${d.sourcePos + d.numberEle - 1}>polygon`)
+  //     .attr('points')
+  //     .split(' ')[1]
+  //     .split(',')[0];
+  //   const sourceEndLeafCoords = variantEl
+  //     .select(`g.bfs-group-${d.sourcePos + d.numberEle - 1}`)
+  //     .attr('transform')
+  //     .split(/[\s,()]+/);
+  //   const gx = parseFloat(sourceEndLeafCoords[1]) + parseFloat(sourcewidth);
+  //   const gy = hy;
+
+  //   // const fx = gx;
+  //   // const fy = ey;
+  //   const f1x = gx + offset;
+  //   const f1y = e2y;
+  //   const f2x = gx;
+  //   const f2y = e2y + offset;
+
+  //   // const ax = hx;
+  //   // const ay = levelHeight;
+  //   const a1x = hx;
+  //   const a1y = levelHeight + offset;
+  //   const a2x = hx + offset;
+  //   const a2y = levelHeight;
+
+  //   // return `${ax},${ay} ${bx},${by} ${cx},${cy} ${dx},${dy} ${ex},${ey} ${fx},${fy} ${gx},${gy} ${hx},${hy}`;
+  //   return `${a1x},${a1y} ${a2x},${a2y} ${b1x},${b1y} ${b2x},${b2y} ${cx},${cy} ${dx},${dy} ${e1x},${e1y} ${e2x},${e2y} ${f1x},${f1y} ${f2x},${f2y} ${gx},${gy} ${hx},${hy}`;
+  // })
+  // .attr('fill', function (d, i, x) {
+  //   // return colorScale(d3.randomUniform()());
+  //   return color;
+  // })
+  // .attr('fill-opacity', transparency)
+
+  // .on('click', function (d) {
+  //   arcGroup.selectAll('path').style('stroke-opacity', function (x: any) {
+  //     if (d.text == x.text) return hoverTransparency;
+  //     else return transparency;
+  //   });
+  // })
+  // .on('mouseover', function (d, i) {
+  //   arcGroup.selectAll('polygon').style('fill-opacity', function (x) {
+  //     // console.log(d, i, x);
+  //     if (i == x) return hoverTransparency;
+  //     else return transparency;
+  //   });
+  //   d3.select(variantDrawer.divHtmlElement.nativeElement)
+  //     .selectAll('g')
+  //     .style('fill-opacity', transparency);
+  //   i.matches.forEach((dfsid) => {
+  //     d3.select(variantDrawer.divHtmlElement.nativeElement)
+  //       .selectAll(`g.dfs-group-${dfsid}`)
+  //       .style('fill-opacity', 1);
+  //   });
+
+  //   tooltip.style('visibility', 'visible').text(d.text);
+  //   return 1;
+  // })
+  // .on('mouseout', function () {
+  //   arcGroup.selectAll('polygon').style('fill-opacity', transparency);
+  //   d3.select(variantDrawer.divHtmlElement.nativeElement)
+  //     .selectAll('g')
+  //     .style('fill-opacity', 1);
+  // });
 };
