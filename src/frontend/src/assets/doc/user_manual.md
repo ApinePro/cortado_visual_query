@@ -1,3 +1,24 @@
+&nbsp;
+# Contribution Guidelines
+* Adding Screenshots
+
+
+* Screenshot without border
+
+![clustering_dialog.png](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustering_dialog.png)
+
+* Screenshot with border
+
+|![clustered_variant_explorer.png](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustered_variant_explorer.png)|
+-
+
+&nbsp;
+
+* Ideas for referring to buttons / icons:
+  * Example: Use (<i class="bi bi-diagram-2-fill btn-icon">discover initial model</i>) button to discover an initial model.
+
+
+&nbsp;
 # Introduction
 * What is Cortado about
 * General high-level ideas behind the tool
@@ -23,7 +44,12 @@ Selected (marked with <i class="bi bi-check2-circle"></i>) <b>fitting</b> varian
 
 &nbsp;
 ## Variant Clustering 
-
+* Overview of Variant Clustering
+* Clustering Methods
+  * Agglomerative edit distance clustering
+  * Label vector clustering
+* Cluster Information
+* Sorting
 
 &nbsp;
 ## Variant Querying
@@ -186,12 +212,26 @@ is a start activity.
 &nbsp;
 ## Visualizing & Editing Process Models
 * Process Tree Editor
-* BPMN-Visualizer 
+  * Selecting Nodes for Updates
+  * Inserting Nodes
+  * Replacing Nodes
+  * Removing Nodes
+  * Shifting Nodes
+  * Applying Reduction Rules
+  * (Un)Freezing Subtrees
+  * Undo/Redo Applied Changes
+  * Exporting the Model
+* BPMN-Visualizer
+  * Selecting Nodes for Updates
+  * Removing Nodes
+  * Exporting the Model
 
 
 &nbsp;
-## Incremental Process Discovery 
-
+## Incremental Process Discovery
+* Idea and Overview
+* Discovering Initial Model
+* Incrementally Adding Traces
 
 
 
