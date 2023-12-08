@@ -22,7 +22,7 @@ import { ProcessTreeEditorComponent } from '../process-tree-editor/process-tree-
 import { VariantExplorerComponent } from '../variant-explorer/variant-explorer.component';
 import { ActivityOverviewComponent } from '../activity-overview/activity-overview.component';
 import { SubvariantExplorerComponent } from '../variant-explorer/subvariant-explorer/subvariant-explorer.component';
-import { SubvariantInfoExplorerComponent } from '../variant-explorer/subvariant-info-explorer/subvariant-info-explorer.component';
+import { VariantInfoExplorerComponent } from '../variant-explorer/variant-info-explorer/variant-info-explorer.component';
 import { CaseExplorerComponent } from '../variant-explorer/case-explorer/case-explorer.component';
 import {
   findContentItemByUniqueID,
@@ -117,8 +117,8 @@ export class GoldenLayoutHostComponent implements OnDestroy {
     );
 
     this.goldenLayoutComponentService.registerComponentType(
-      SubvariantInfoExplorerComponent.componentName,
-      SubvariantInfoExplorerComponent
+      VariantInfoExplorerComponent.componentName,
+      VariantInfoExplorerComponent
     );
 
     this.goldenLayoutComponentService.registerComponentType(

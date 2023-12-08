@@ -190,7 +190,7 @@
           <tr
             *ngFor="
               let activityField of activityFields
-                | activityOverviewSorting : sortKey : ascending
+                | tableSorting : sortKey : ascending
             "
           >
             <!-- <th class="user-select-none" [ngStyle]="{'background-color': activityField.color}">&nbsp;</th> -->
