@@ -93,6 +93,7 @@ import { InfoBarComponent } from './components/activity-overview/info-bar/info-b
 import { LoadingOverlayComponent } from './components/loading-overlay/loading-overlay.component';
 import { CaseExplorerComponent } from './components/variant-explorer/case-explorer/case-explorer.component';
 import { GraphicalQueryEditorComponent } from './components/graphical-query-editor/graphical-query-editor.component';
+import { CardinalityModalComponent } from './components/graphical-query-editor/cardinality-modal/cardinality-modal.component';
 
 @NgModule({
   declarations: [
@@ -174,6 +175,7 @@ import { GraphicalQueryEditorComponent } from './components/graphical-query-edit
     LoadingOverlayComponent,
     CaseExplorerComponent,
     GraphicalQueryEditorComponent,
+    CardinalityModalComponent,
   ],
   imports: [
     BrowserModule,

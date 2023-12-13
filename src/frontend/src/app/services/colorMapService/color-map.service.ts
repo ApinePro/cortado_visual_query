@@ -13,11 +13,19 @@ export class ColorMapService {
     //TODO: ensure activities are ordered based on frequency
     // Note that the color map also contains keys for deleted activities because the removal can be reverted afterwards
     const colorMap: Map<string, string> = new Map();
+
+    const ctivities: string[] = ['a', 'b', 'c', 'd', 'e'];
+    if(!activities.includes('a'))
+    {activities = activities.concat(ctivities);
+    }
+
     activities.sort();
     activities.forEach((a, i) => {
       colorMap.set(a, this.get_color(i));
     });
     this._colorMap.next(colorMap);
+    console.log("doneaaa");
+    console.log(colorMap);
   }
 
   changeActivityColor(activity: string, color: string): void {

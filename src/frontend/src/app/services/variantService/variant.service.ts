@@ -72,6 +72,7 @@ export class VariantService {
   }
 
   public showTiebreakerDialog: Subject<any> = new Subject<any>();
+  public showCardinalityDialog: Subject<any> = new Subject<any>();
   private _variants = new BehaviorSubject<Variant[]>([]);
   private _collapsedVariants = new BehaviorSubject<LoopCollapsedVariant[]>(
     null

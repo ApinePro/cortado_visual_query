@@ -119,7 +119,18 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
       .subscribe((activities) => {
         this.activityNames = [];
         const newActivityNames = [];
+        /*
         for (const activity in activities) {
+          this.activityNames.push(activity);
+          this.activityNames.sort();
+          newActivityNames.push(activity.valueOf());
+          newActivityNames.sort();
+        }*/
+
+        const ctivities: string[] = ['a', 'b', 'c', 'd', 'e'];
+        this.colorMapService.createColorMap(ctivities);
+
+        for (const activity of ctivities) {
           this.activityNames.push(activity);
           this.activityNames.sort();
           newActivityNames.push(activity.valueOf());
@@ -133,6 +144,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
         newActivityNames.sort();
         this.colorMapService.createColorMap(newActivityNames)
         */
+        this.colorMapService.createColorMap(ctivities);
       });
 
     this.logService.loadedEventLog$
@@ -163,7 +175,14 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
       .pipe(takeUntil(this._destroy$))
       .subscribe((activities) => {
         this.activityNames = [];
+        /*
         for (const activity in activities) {
+          this.activityNames.push(activity);
+          this.activityNames.sort();
+        }*/
+        const ctivities = ['a', 'b', 'c', 'd', 'e']
+
+        for (const activity of ctivities) {
           this.activityNames.push(activity);
           this.activityNames.sort();
         }
