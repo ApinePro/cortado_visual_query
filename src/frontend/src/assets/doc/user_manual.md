@@ -20,6 +20,43 @@ Selected (marked with <i class="bi bi-check2-circle"></i>) <b>fitting</b> varian
 * Low-level Variants (Subvariants)
 * Sorting Variants
 
+In the variant explorer, you can perform various actions.
+
+### Variant Information Explorer
+By clicking the variant's count in Variant Explorer, a new Variant Information Explorer window opened in the stack of Variant Explorer. In Variant Information Explorer, all cases of the selected variant are listed, with their information including case ID, earliest and latest timestamp, and duration. The case list could be sorted by case ID (alphabet order), timestamp, and duration.
+
+### Case Information Exploerer
+By clicking the case ID in Variant Information Explorer, a new Case Information Explorer window opened in the stack of Variant Explorer. In Case Information Explorer, the events of the selected case are listed in time order, with their information including starting timestamp, ending timestamp, duration, and resources of the event.
+
+### Tiebreaker
+![Tiebreaker](./tiebreaker.png)
+Tiebreaker is a sequentialization tool which provides a function to match source pattern in variants and replace them with the target pattern. In tiebreaker, there are two pattern editors to model the source pattern and target pattern, respectively. In addition to sequential and parallel pattern, the tiebreaker allows to create:
+1. choice group, which could match any combination of any activities in the group;
+![ChoiceGroup](./choicegroup.png)
+2. fallthrough group;
+![FallthroughGroup](./fallthroughgroup.png)
+3. pattern with a wildcard option '..' to allow partial match, which represents "rest of the variant".
+![Wildcard](./wildcard.png)
+
+Note：
+1. in source pattern, only parallel variants are allowed.
+2. The invalid patterns are checked when editing.
+3. The activities in target pattern should be consistent with activities in the source pattern. Acitivities in target pattern editor are only enabled when they are already in the source pattern.
+
+Here are some examples to show how variants are transformed by the tiebreaker:
+- (1)![Wildcard](./images/1.png)
+- (2)![Wildcard](./images/2.png)
+- (3)![Wildcard](./images/3.png)
+- (4)![Wildcard](./images/4.png)
+- (5)![Wildcard](./images/5.png)
+
+| Source Pattern   | Target Pattern | Result for examples       |
+|:-------:|:-----:|----------|
+| ![Wildcard](./images/1.png)   | ![Wildcard](./images/6.png)  | (1)No match<br> (2)![Wildcard](./images/6.png)<br> (3)No match<br> (4)No match<br> (5)No match<br>   |
+| ![Wildcard](./images/7.png)   | ![Wildcard](./images/8.png)  | (1)![Wildcard](./images/9.png)<br> (2)![Wildcard](./images/6.png)<br> (3)No match<br> (4)![Wildcard](./images/10.png)<br> (5)![Wildcard](./images/9.png)<br>   |
+| ![Wildcard](./images/7.png)   | ![Wildcard](./images/11.png)  | (1)![Wildcard](./images/12.png)<br> (2)![Wildcard](./images/6.png)<br> (3)![Wildcard](./images/13.png)<br> (4)![Wildcard](./images/14.png)<br> (5)![Wildcard](./images/12.png)<br>   |
+| ![Wildcard](./images/15.png)   | ![Wildcard](./images/16.png)  | (1)No match<br> (2)![Wildcard](./images/6.png)<br> (3)No match<br><br> (4)![Wildcard](./images/22.png)<br> (5)No match<br><br>   |
+| ![Wildcard](./images/18.png)   | ![Wildcard](./images/19.png)  | (1)![Wildcard](./images/20.png)<br> (2)![Wildcard](./images/6.png)<br> (3)![Wildcard](./images/21.png)<br> (4)![Wildcard](./images/22.png)<br> (5)![Wildcard](./images/23.png)<br>   |
 
 &nbsp;
 ## Variant Clustering 
@@ -167,7 +204,22 @@ is a start activity.
 
 &nbsp;
 ## Variant Modeler
+![Variant Modeler](./variant_modeler.png)
 
+The variant modeler allows users to manually create a variant with sequential and parallel patterns.
+
+How to create a new variant:
+
+1. Select the insertion strategy in the toolbar;
+2. Select a chevron (could be both single activity or an activity group);
+3. Click the activity button;
+4. Click `add new variant to log` button to add the user created variant to the variant list.
+
+Other functions in the tool:
+1. Variant modeler allows the variant be displayed in 4 variant types: full, prefix, infix, and postfix.
+2. View focus functions are also provided:
+    - focus selected: move the selected activity/group to the view center.
+    - move the variant center to the view center.
 
 &nbsp;
 ## Variant Frequent Pattern Mining 
