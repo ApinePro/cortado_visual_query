@@ -1,0 +1,51 @@
+<div
+  class="modal fade show tiebreaker-modal"
+  id="cardinalityModalDialog"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="cardinalityModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content dialog">
+      <div class="modal-header h-line-modal-bottom">
+        <h5 class="modal-title text-light" id="cardinalityModalLabel">
+          Cardinality
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <label for="maxDistance" class="input-label">Cardinality: </label>
+        <input
+          id="cardinality"
+          type="number"
+          class="input-field-number"
+          [(ngModel)]="cardinality"
+          aria-describedby="nSeqHelp"
+          placeholder="max distance"
+          min="0"
+        />
+        <div class="modal-footer h-line-modal-top">
+          <button
+            id="close-modal"
+            type="button"
+            class="button"
+            data-bs-dismiss="modal"
+          >
+            <i class="bi bi-x btn-icon text-danger"></i>
+            Close
+          </button>
+          <button type="button" class="button" (click)="applyCardinality()">
+            <i class="bi bi-save btn-icon text-success"></i>
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
