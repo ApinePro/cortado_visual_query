@@ -73,7 +73,7 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
   }
 
   const baseHeight = 50;
-  const step = 20;
+  const step = 30;
   const height = baseHeight + step * (idx - 1);
   const barHeight = 10;
   const barRoundedness = 4;
@@ -161,7 +161,7 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
 
         path.moveTo(scx, levelHeight);
 
-        path.quadraticCurveTo((scx + tcx) / 2, 0, tcx, levelHeight);
+        path.quadraticCurveTo((scx + tcx) / 2, levelHeight - step, tcx, levelHeight);
 
         return path.toString();
       })
@@ -174,8 +174,10 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
 
       // highlight all corresponding bars
       arcGroups.selectAll('rect').style('fill-opacity', function (x) {
-        if (i == x) return hoverTransparency;
-        else return transparency;
+        if (i == x) {
+          console.log(x);
+          return hoverTransparency;
+        } else return transparency;
       });
 
       // highlight the corresponding arc
