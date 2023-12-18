@@ -44,19 +44,19 @@ Note：
 3. The activities in target pattern should be consistent with activities in the source pattern. Acitivities in target pattern editor are only enabled when they are already in the source pattern.
 
 Here are some examples to show how variants are transformed by the tiebreaker:
-- (1)![Wildcard](./images/1.png)
-- (2)![Wildcard](./images/2.png)
-- (3)![Wildcard](./images/3.png)
-- (4)![Wildcard](./images/4.png)
-- (5)![Wildcard](./images/5.png)
+- (1)![](./images/1.png)
+- (2)![](./images/2.png)
+- (3)![](./images/3.png)
+- (4)![](./images/4.png)
+- (5)![](./images/5.png)
 
 | Source Pattern   | Target Pattern | Result for examples       |
 |:-------:|:-----:|----------|
-| ![Wildcard](./images/1.png)   | ![Wildcard](./images/6.png)  | (1)No match<br> (2)![Wildcard](./images/6.png)<br> (3)No match<br> (4)No match<br> (5)No match<br>   |
-| ![Wildcard](./images/7.png)   | ![Wildcard](./images/8.png)  | (1)![Wildcard](./images/9.png)<br> (2)![Wildcard](./images/6.png)<br> (3)No match<br> (4)![Wildcard](./images/10.png)<br> (5)![Wildcard](./images/9.png)<br>   |
-| ![Wildcard](./images/7.png)   | ![Wildcard](./images/11.png)  | (1)![Wildcard](./images/12.png)<br> (2)![Wildcard](./images/6.png)<br> (3)![Wildcard](./images/13.png)<br> (4)![Wildcard](./images/14.png)<br> (5)![Wildcard](./images/12.png)<br>   |
-| ![Wildcard](./images/15.png)   | ![Wildcard](./images/16.png)  | (1)No match<br> (2)![Wildcard](./images/6.png)<br> (3)No match<br><br> (4)![Wildcard](./images/22.png)<br> (5)No match<br><br>   |
-| ![Wildcard](./images/18.png)   | ![Wildcard](./images/19.png)  | (1)![Wildcard](./images/20.png)<br> (2)![Wildcard](./images/6.png)<br> (3)![Wildcard](./images/21.png)<br> (4)![Wildcard](./images/22.png)<br> (5)![Wildcard](./images/23.png)<br>   |
+| ![](./images/2.png)   | ![](./images/6.png)  | (1) No match<br> (2) ![](./images/6.png)<br> (3) No match<br> (4) No match<br> (5) No match<br>   |
+| ![](./images/7.png)   | ![](./images/8.png)  | (1) ![](./images/9.png)<br> (2) ![](./images/6.png)<br> (3) No match<br> (4) ![](./images/10.png)<br> (5) ![](./images/9.png)<br>   |
+| ![](./images/7.png)   | ![](./images/11.png)  | (1) ![](./images/12.png)<br> (2) ![](./images/6.png)<br> (3) ![](./images/13.png)<br> (4) ![](./images/14.png)<br> (5) ![](./images/12.png)<br>   |
+| ![](./images/15.png)   | ![](./images/16.png)  | (1) No match<br> (2) ![](./images/6.png)<br> (3) No match<br><br> (4) ![](./images/17.png)<br> (5) No match<br><br>   |
+| ![](./images/18.png)   | ![](./images/19.png)  | (1) ![](./images/20.png)<br> (2) ![](./images/6.png)<br> (3) ![](./images/21.png)<br> (4) ![](./images/17.png)<br> (5) ![](./images/20.png)<br>   |
 
 &nbsp;
 ## Variant Clustering 
