@@ -2,6 +2,15 @@
   <h5 class="modal-title text-light" id="clusteringSettingsLabel">
     Variant Clustering Settings
   </h5>
+
+  <span style="margin-left: 37%">
+    <i
+      class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text cursor-help question-icon"
+      container="body"
+      (click)="openDocumentation('Variant Clustering')"
+    ></i>
+  </span>
+
   <button
     type="button"
     class="btn-close btn-close-white"
@@ -30,7 +39,7 @@
       "
     >
       <label for="maxDistance" class="input-label"
-        >Max. Variant Edit Distance Within a Cluster:
+      >Max. Variant Edit Distance Within a Cluster:
       </label>
       <input
         id="maxDistance"
