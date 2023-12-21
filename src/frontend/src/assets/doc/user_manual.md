@@ -23,20 +23,22 @@ Selected (marked with <i class="bi bi-check2-circle"></i>) <b>fitting</b> varian
 In the variant explorer, you can perform various actions.
 
 ### Variant Information Explorer
+![Variant Info Explorer](./images/variant_info_explorer.png)
 By clicking the variant's count in Variant Explorer, a new Variant Information Explorer window opened in the stack of Variant Explorer. In Variant Information Explorer, all cases of the selected variant are listed, with their information including case ID, earliest and latest timestamp, and duration. The case list could be sorted by case ID (alphabet order), timestamp, and duration.
 
 ### Case Information Exploerer
+![Case Explorer](./images/case_explorer.png)
 By clicking the case ID in Variant Information Explorer, a new Case Information Explorer window opened in the stack of Variant Explorer. In Case Information Explorer, the events of the selected case are listed in time order, with their information including starting timestamp, ending timestamp, duration, and resources of the event.
 
 ### Tiebreaker
-![Tiebreaker](./tiebreaker.png)
+![Tiebreaker](./images/tiebreaker.png)
 Tiebreaker is a sequentialization tool which provides a function to match source pattern in variants and replace them with the target pattern. In tiebreaker, there are two pattern editors to model the source pattern and target pattern, respectively. In addition to sequential and parallel pattern, the tiebreaker allows to create:
 1. choice group, which could match any combination of any activities in the group;
-![ChoiceGroup](./choicegroup.png)
+![ChoiceGroup](./images/choicegroup.png)
 2. fallthrough group;
-![FallthroughGroup](./fallthroughgroup.png)
+![FallthroughGroup](./images/fallthroughgroup.png)
 3. pattern with a wildcard option '..' to allow partial match, which represents "rest of the variant".
-![Wildcard](./wildcard.png)
+![Wildcard](./images/wildcard.png)
 
 Note：
 1. in source pattern, only parallel variants are allowed.
