@@ -1,3 +1,26 @@
+&nbsp;
+## Contribution Guidelines
+### Internal Notes (remove or move to different location before publication)
+
+### Creating Screenshots
+Screenshots can be captured consistently by using the fixed cortado window of electron. 
+
+#### Screenshot without border
+![clustering_dialog.png](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustering_dialog.png)
+
+#### Screenshot with border
+|![clustered_variant_explorer.png](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustered_variant_explorer.png)|
+-
+
+&nbsp;
+
+* Ideas for referring to buttons / icons:
+  * Examples:
+    * Use (<i class="bi bi-diagram-2-fill btn-icon">discover initial model</i>) button to discover an initial model.
+    * Click `Files` &rarr; <i class="bi bi-file-earmark-arrow-up btn-icon"></i>`Import process tree (.ptml)` to import an existing process tree from a file.
+
+
+&nbsp;
 # Introduction
 * What is Cortado about
 * General high-level ideas behind the tool
@@ -62,7 +85,38 @@ Here are some examples to show how variants are transformed by the tiebreaker:
 
 &nbsp;
 ## Variant Clustering 
+Variant clustering can be used for listing the variants grouped into clusters in the Variant Explorer view. This allows for a convenient way to organize and access similar variants in their respective clusters.
 
+In the Variant Explorer view, clustering settings can be accessed using <i class="bi bi-grid-1x2 btn-icon"></i>`Variant clustering settings` option in the <i class="bi bi-tools btn-icon"></i>`Functions` dropdown menu. 
+
+|![clustered_variant_explorer.png](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustering_dialog.png)|
+-
+
+&nbsp;
+
+#### Clustering Methods
+The Clustering Method dropdown allows for selection of the clustering method. The following clustering techniques are included:
+
+##### Agglomerative edit distance clustering: 
+- Using this technique, variants are represented as trees and their edit distances are pairwise compared and used as a distance measure between variants during clustering.
+- Having selected `Agglomerative edit distance clustering`, the second input field can be used to specify the `Max. Variant Edit Distance Within a Cluster`
+
+##### Label vector clustering:
+- Using this technique, vectored labels of activities in variants are used for clustering. The ordering of the labels are ignored.
+- Having selected `Label vector clustering`, the second input field can be used to specify the `Number of Clusters`
+
+After selection of the desired settings, click <i class="bi bi-save btn-icon"></i>`Apply` to apply the settings and cluster all variants in Variant Explorer. 
+
+<i class="bi bi-arrow-clockwise btn-icon"></i>`Reset` can be used to discard the clusters and restore to the default list of variants.
+
+##### Cluster Information
+After applying clustering, variants are grouped in their respective clusters as shown below:
+- Using the <i class="bi bi-chevron-down btn-icon"></i> toggle, each cluster can be hidden or expanded.
+- Using <i class="bi bi-sort-alpha-down btn-icon"></i>, each cluster can be individually sorted. Note that using the global sorting of Variant Explorer view overrides the sorting of individual clusters.
+- Each cluster information bar shows the number of variants and the number traces in that cluster. 
+
+|![clustered_variant_explorer.png](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustered_variant_explorer.png)|
+-
 
 &nbsp;
 ## Variant Querying
@@ -240,12 +294,26 @@ Other functions in the tool:
 &nbsp;
 ## Visualizing & Editing Process Models
 * Process Tree Editor
-* BPMN-Visualizer 
+  * Selecting Nodes for Updates
+  * Inserting Nodes
+  * Replacing Nodes
+  * Removing Nodes
+  * Shifting Nodes
+  * Applying Reduction Rules
+  * (Un)Freezing Subtrees
+  * Undo/Redo Applied Changes
+  * Exporting the Model
+* BPMN-Visualizer
+  * Selecting Nodes for Updates
+  * Removing Nodes
+  * Exporting the Model
 
 
 &nbsp;
-## Incremental Process Discovery 
-
+## Incremental Process Discovery
+* Idea and Overview
+* Discovering Initial Model
+* Incrementally Adding Traces
 
 
 

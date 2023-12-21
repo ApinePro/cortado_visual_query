@@ -60,7 +60,7 @@ export class DocumentationComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.headings = this.document
         .querySelector('main')
-        .querySelectorAll('h1, h2, h3, h4, h5, h6');
+        .querySelectorAll('h1, h2');
       this.setScrollSpy();
     });
     const tables = this.document
