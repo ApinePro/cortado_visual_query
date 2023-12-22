@@ -207,6 +207,7 @@ def sub_pattern_to_ctree(pattern: SubPattern, parent=None):
 @router.get("/repetitionsMining/{bid}")
 def mineRepetitionPatterns(bid: int):
     v, ts, _, _ = cache.variants[bid]
+
     treeBank = create_treebank_from_cv_variants({v: ts}, False)
 
     pairs_filtered, kpatterns_filtered, ks, single_act_pairs = generate_and_filter_patterns(treeBank)

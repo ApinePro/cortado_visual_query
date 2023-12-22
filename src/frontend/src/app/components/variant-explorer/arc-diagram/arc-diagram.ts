@@ -145,7 +145,8 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
   appendBarBasedOn('target')
 
   // arc between the source and target bar
-  arcGroups.each(function () {
+  arcGroups.each(function (d: Arc) {
+
 
     const sbbox = (this.firstElementChild as SVGGraphicsElement).getBBox();
     let scx = sbbox.width / 2 + sbbox.x;
@@ -168,7 +169,9 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
       .style('stroke', strokeColor)
       .style('fill', 'none')
       .style('stroke-width', strokeWidth)
+      .style('stroke-linecap', 'round')
       .style('stroke-opacity', transparency);
+
   })
     .on('mouseover', function (_, i) {
 
