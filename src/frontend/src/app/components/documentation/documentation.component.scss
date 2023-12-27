@@ -15,6 +15,7 @@ nav {
   margin-left: 22px;
 }
 
+
 nav > ul {
   list-style-type: none;
   padding: 0 16px;
@@ -40,7 +41,7 @@ ul.scrollspy-nav {
     padding: 4px 0 4px 16px;
 
     > a {
-      color: white;
+      color: whitesmoke;
     }
 
     > a,
@@ -107,3 +108,43 @@ ul.scrollspy-nav {
   }
 
 }
+
+main {
+  margin-top: -30px;
+}
+
+main > h1 {
+  margin: 50px 0px 23px 0px;
+  font-weight: 700;
+}
+
+main > h2 {
+  margin: 44px 0px 20px 0px;
+  font-weight: 600;
+}
+
+main > h3 {
+  margin: 38px 0px 17px 0px;
+  font-weight: 400;
+}
+
+main > h4 {
+  margin: 32px 0px 14px 0px;
+  font-weight: 100;
+  font-size: calc(1.2rem + 0.3vw);
+}
+
+main > h5 {
+  margin: 26px 0px 11px 0px;
+  font-weight: 100;
+  font-size: 1.1rem;
+}
+
+
+
+
+//.light-style {
+//  background-color: #9b9a9a;
+//    color: black;
+//}
+
