@@ -2,13 +2,13 @@
 # Contribution Guidelines
 Internal Notes (remove or move to different location before publication)
 
-### Creating Screenshots
+## Creating Screenshots
 Screenshots can be captured consistently by using the fixed cortado window of electron. 
 
-#### Screenshot without border
+### Screenshot without border
 ![clustering_dialog.png](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustering_dialog.png)
 
-#### Screenshot with border
+### Screenshot with border
 |![clustered_variant_explorer.png](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustered_variant_explorer.png)|
 -
 
