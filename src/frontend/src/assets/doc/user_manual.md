@@ -309,7 +309,7 @@ The editor comprises primarily of <i>three sections</i>, all of which rely heavi
         <tr>
             <td>Fold loops</td>
             <td>Loop Threshold</td>
-            <td>when specified as `n`, folds all `n` or more consecutive occurrences of an activity into a one single loop<br><img src="screenshots/frequent_pattern_mining/fold-loops.png" alt="fold-loops" style="width: 50%"/></td>
+            <td>when specified as `n`, folds all `n` or more consecutive occurrences of an activity into a one single loop before mining<br><img src="screenshots/frequent_pattern_mining/fold-loops.png" alt="fold-loops" style="width: 50%"/></td>
         </tr>
     </tbody>
   </table>
