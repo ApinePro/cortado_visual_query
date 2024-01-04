@@ -114,37 +114,35 @@ main {
 }
 
 main > h1 {
-  margin: 50px 0px 23px 0px;
+  margin: 50px 0 23px;
   font-weight: 700;
 }
 
 main > h2 {
-  margin: 44px 0px 20px 0px;
+  margin: 44px 0 20px;
   font-weight: 600;
 }
 
 main > h3 {
-  margin: 38px 0px 17px 0px;
+  margin: 38px 0 17px;
   font-weight: 400;
 }
 
 main > h4 {
-  margin: 32px 0px 14px 0px;
+  margin: 32px 0 14px;
   font-weight: 100;
   font-size: calc(1.2rem + 0.3vw);
 }
 
 main > h5 {
-  margin: 26px 0px 11px 0px;
+  margin: 26px 0 11px;
   font-weight: 100;
   font-size: 1.1rem;
 }
 
 
-
-
-//.light-style {
+// .light-style {
 //  background-color: #9b9a9a;
 //    color: black;
-//}
+// }
 
