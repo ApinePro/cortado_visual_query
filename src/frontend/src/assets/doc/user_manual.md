@@ -233,11 +233,17 @@ Based on which of the activities they contain, trace fragments can be categorise
 * **Prefix** fragments contain only an end activity.  
   ![prefix.png](screenshots%2Fvariant_fragments%2Fprefix.png)
 
-Trace fragments are used and can frequently be seen in [*Incremental Discovery*](#incremental-process-discovery), [*Tiebreaker*](#variant-sequentialization) and [*Frequent Pattern Mining*](#variant-frequent-pattern-mining), pool of which can either be manually extracted, automatically identified or discovered in the process of 'Frequent Pattern Mining'. Further, manually created fragments can also be added to this pool.
+Trace fragments are used and can frequently be seen in [*Incremental Discovery*](#incremental-process-discovery), [*Tiebreaker*](#variant-sequentialization) and [*Frequent Pattern Mining*](#variant-frequent-pattern-mining), pool of which can either be -
+
+* manually extracted using [infix selection mode](#extracting-variant-fragments),
+* automatically identified,
+* discovered in the process of '[Frequent Pattern Mining]((#variant-frequent-pattern-mining))', or
+* manually created
 
 ### Extracting variant fragments
 
 One way to select infixes (and add them to the pool) is through the `trace infix selection mode`. To enable it in the variant explorer, simply click on (<i class="bi bi-ui-checks-grid btn-icon">Exit trace infix selection mode</i>) option in the (<i class="bi bi-tools btn-icon">Functions</i>) menu.
+With the icons on the right, one can add the current selection to the variant explorer, reset selection or select the whole variant.
 
 |![infix-selection-mode.png](screenshots%2Fvariant_fragments%2Finfix-selection-mode.png)|
 -  
@@ -255,10 +261,10 @@ To open the `Variant Miner Editor`, go to `Editors` &rarr; (<i class="bi bi-mine
 -  
 
 <br/>
-The editor comprises primarily of three sections, all of which rely heavily upon the tree representation of variants -  
+The editor comprises primarily of <i>three sections</i>, all of which rely heavily upon the tree representation of variants -  
 <br/>
 <br/>
-1. shows the **parameter selection**, allowing a choice of support definition, the minimum support threshold used for mining and more
+1. shows the <b>parameter selection</b>, allowing a choice of support definition, the minimum support threshold used for mining and more
   <br/>
   <br/>
   <table>
@@ -273,19 +279,19 @@ The editor comprises primarily of three sections, all of which rely heavily upon
         <tr>
             <td rowspan=4>Support Counting Strategy</td>
             <td>Trace Transaction</td>
-            <td>counts the number of trees (multiplied by the number of traces) in the tree bank (pool of all variants represented as trees) with at least one occurrence of a subtree</td>
+            <td>counts the number of occurrences of a sub-pattern, counting each occurrence as one for each trace</td>
         </tr>
         <tr>
             <td>Variant Transaction</td>
-            <td>counts the number of trees in the tree bank with at least one occurrence of a subtree</td>
+            <td>counts the number of occurrences of a sub-pattern, counting each occurrence as one for each variant</td>
         </tr>
         <tr>
             <td>Trace Root-Occurrence</td>
-            <td>counts the number of occurrences (counting each occurrence as one for each trace) with unique roots in the trees of the treebank</td>
+            <td>counts the number of occurrences of a sub-pattern having unique parents, counting each occurrence as one for each trace</td>
         </tr>
         <tr>
             <td>Variant Root-Occurrence</td>
-            <td>counts the number of occurrences (counting each occurrence as one for each variant) with unique roots in the trees of the treebank</td>
+            <td>counts the number of occurrences of a sub-pattern having unique parents, counting each occurrence as one for each variant</td>
         </tr>
         <tr>
             <td>Maximum Size</td>
@@ -302,7 +308,8 @@ The editor comprises primarily of three sections, all of which rely heavily upon
         </tr>
         <tr>
             <td>Fold loops</td>
-            <td colspan=2>?</td>
+            <td>Loop Threshold</td>
+            <td>when specified as `n`, folds all `n` or more consecutive occurrences of an activity into a one single loop<br><img src="screenshots/frequent_pattern_mining/fold-loops.png" alt="fold-loops" style="width: 50%"/></td>
         </tr>
     </tbody>
   </table>
@@ -310,14 +317,14 @@ The editor comprises primarily of three sections, all of which rely heavily upon
 
 2. **Visualization table** shows further information on the infixes - `size`, `support`, `type`, and a `visualization` of the fragment.
    Apart from the `Type` itself, all the rest of the properties are directly taken from the parameter selection before mining. An infix subtree is of *type*
-   `Maximal` if no frequent supertree exists and it is of *type* `Closed` if none of its proper supertrees have the same support.  
+   `Maximal` if no frequent super-pattern exists and it is of *type* `Closed` if none of its proper super-patterns have the same support.  
    In addition, alignments between the infix and an existing process model, i.e., if the infix conforms to the process model, can be computed using
    the (<i class="bi bi-layers-fill btn-icon">conformance check</i>) button right above the table. Subsequently, if the infixes 'fit' to the model or not can also be seen
    in the `Fitting` column of the table. Apart from the above, it is also possible to export the mined infixes as svg for analysis,
    by clicking on (<i class="bi bi-save"></i>) button located in the top-right corner of the editor.
 
 
-3. finally in the **Filters** menu, a user can choose which of the infixes to retain. Here, the option `Valid` for `Type` retains only *valid* trees, meaning the trees in which all operator nodes have at least one child.
+3. finally in the **Filters** menu, a user can choose which of the infixes to retain. Here, the option `Valid` for `Type` retains only *valid* infixes, meaning the infixes in which all operator nodes have at least one child.
    The section at the bottom allows users to selectively filter in or out certain activities. For instance, for a particular activity, checking the box for `Filter` and turning the toggle switch for `Out/In` on, retains only the infixes *containing* the activity.
    Switching the toggle off, retains only the infixes *not* containing the activity.
 
