@@ -324,7 +324,7 @@ The editor comprises primarily of <i>three sections</i>, all of which rely heavi
    by clicking on (<i class="bi bi-save"></i>) button located in the top-right corner of the editor.
 
 
-3. finally in the **Filters** menu, a user can choose which of the infixes to retain. Here, the option `Valid` for `Type` retains only *valid* infixes, meaning the infixes in which all operator nodes have at least one child.
+3. finally in the **Filters** menu, a user can choose which of the infixes to retain. Here, the option `Valid` for `Type` retains only *valid* infixes, meaning the infixes in which all elements have at least activity.
    The section at the bottom allows users to selectively filter in or out certain activities. For instance, for a particular activity, checking the box for `Filter` and turning the toggle switch for `Out/In` on, retains only the infixes *containing* the activity.
    Switching the toggle off, retains only the infixes *not* containing the activity.
 
