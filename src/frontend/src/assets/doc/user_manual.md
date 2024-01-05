@@ -50,6 +50,47 @@ Selected (marked with <i class="bi bi-check2-circle"></i>) <b>fitting</b> varian
 * Low-level Variants (Subvariants)
 * Sorting Variants
 
+In the variant explorer, you can perform various actions.
+
+### Variant Information Explorer
+![Variant Info Explorer](./screenshots/variant_explorer/variant_info_explorer_detail.png)
+By clicking the variant's count in Variant Explorer, a new Variant Information Explorer window opened in the stack of Variant Explorer. In Variant Information Explorer, all cases of the selected variant are listed, with their information including case ID, earliest and latest timestamp, and duration. The case list could be sorted by case ID (alphabet order), timestamp, and duration.
+
+### Case Information Exploerer
+![Case Explorer](./screenshots/variant_explorer/case_explorer_detail.png)
+By clicking the case ID in Variant Information Explorer, a new Case Information Explorer window opened in the stack of Variant Explorer. In Case Information Explorer, the events of the selected case are listed in time order, with their information including starting timestamp, ending timestamp, duration, and resources of the event.
+
+### Tiebreaker
+![Tiebreaker](./screenshots/variant_explorer/tiebreaker.png)
+Tiebreaker is a sequentialization tool which provides a function to match source pattern in variants and replace them with the target pattern. In tiebreaker, there are two pattern editors to model the source pattern and target pattern, respectively. In addition to sequential and parallel pattern, the tiebreaker allows to create:
+1. choice group, which could match any combination of any activities in the group;  
+![ChoiceGroup](./screenshots/variant_explorer/choicegroup.png)
+2. fallthrough group;  
+![FallthroughGroup](./screenshots/variant_explorer/fallthroughgroup.png)
+3. pattern with a wildcard option '..' to allow partial match, which represents "rest of the variant".  
+![Wildcard](./screenshots/variant_explorer/wildcard.png)
+
+Note：
+1. in source pattern, only parallel variants are allowed.
+2. The invalid patterns are checked when editing.
+3. The activities in target pattern should be consistent with activities in the source pattern. Acitivities in target pattern editor are only enabled when they are already in the source pattern.
+
+Here are some examples to show how variants are transformed by the tiebreaker:
+- (1)![](./screenshots/variant_explorer/tiebreaker_examples_1.png)
+- (2)![](./screenshots/variant_explorer/tiebreaker_examples_2.png)
+- (3)![](./screenshots/variant_explorer/tiebreaker_examples_3.png)
+- (4)![](./screenshots/variant_explorer/tiebreaker_examples_4.png)
+- (5)![](./screenshots/variant_explorer/tiebreaker_examples_5.png)
+
+| Source Pattern   | Target Pattern | Result for examples       |
+|:-------:|:-----:|----------|
+| ![](./screenshots/variant_explorer/tiebreaker_examples_2.png)   | ![](./screenshots/variant_explorer/tiebreaker_examples_6.png)  | (1) No match<br> (2) ![](./screenshots/variant_explorer/tiebreaker_examples_6.png)<br> (3) No match<br> (4) No match<br> (5) No match<br>   |
+| ![](./screenshots/variant_explorer/tiebreaker_examples_7.png)   | ![](./screenshots/variant_explorer/tiebreaker_examples_8.png)  | (1) ![](./screenshots/variant_explorer/tiebreaker_examples_9.png)<br> (2) ![](./screenshots/variant_explorer/tiebreaker_examples_6.png)<br> (3) No match<br> (4) ![](./screenshots/variant_explorer/tiebreaker_examples_10.png)<br> (5) ![](./screenshots/variant_explorer/tiebreaker_examples_9.png)<br>   |
+| ![](./screenshots/variant_explorer/tiebreaker_examples_7.png)   | ![](./screenshots/variant_explorer/tiebreaker_examples_11.png)  | (1) ![](./screenshots/variant_explorer/tiebreaker_examples_12.png)<br> (2) ![](./screenshots/variant_explorer/tiebreaker_examples_6.png)<br> (3) ![](./screenshots/variant_explorer/tiebreaker_examples_13.png)<br> (4) ![](./screenshots/variant_explorer/tiebreaker_examples_14.png)<br> (5) ![](./screenshots/variant_explorer/tiebreaker_examples_12.png)<br>   |
+| ![](./screenshots/variant_explorer/tiebreaker_examples_15.png)   | ![](./screenshots/variant_explorer/tiebreaker_examples_16.png)  | (1) No match<br> (2) ![](./screenshots/variant_explorer/tiebreaker_examples_6.png)<br> (3) No match<br><br> (4) ![](./screenshots/variant_explorer/tiebreaker_examples_17.png)<br> (5) No match<br><br>   |
+| ![](./screenshots/variant_explorer/tiebreaker_examples_18.png)   | ![](./screenshots/variant_explorer/tiebreaker_examples_19.png)  | (1) ![](./screenshots/variant_explorer/tiebreaker_examples_20.png)<br> (2) ![](./screenshots/variant_explorer/tiebreaker_examples_6.png)<br> (3) ![](./screenshots/variant_explorer/tiebreaker_examples_21.png)<br> (4) ![](./screenshots/variant_explorer/tiebreaker_examples_17.png)<br> (5) ![](./screenshots/variant_explorer/tiebreaker_examples_20.png)<br>   |
+
+
 ## Variant Clustering
 
 Variant clustering can be used for listing the variants grouped into clusters in the Variant Explorer view. This allows for a convenient way to organize and access similar variants in their respective clusters.
@@ -249,6 +290,22 @@ With the icons on the right, one can add the current selection to the variant ex
 -  
 
 ## Variant Modeler
+![Variant Modeler](./screenshots/variant_modeler/variant_modeler.png)
+
+The variant modeler allows users to manually create a variant with sequential and parallel patterns.
+
+How to create a new variant:
+
+1. Select the insertion strategy in the toolbar;
+2. Select a chevron (could be both single activity or an activity group);
+3. Click the activity button;
+4. Click `add new variant to log` button to add the user created variant to the variant list.
+
+Other functions in the tool:
+1. Variant modeler allows the variant be displayed in 4 variant types: full, prefix, infix, and postfix.
+2. View focus functions are also provided:
+    - focus selected: move the selected activity/group to the view center.
+    - move the variant center to the view center.
 
 ## Variant Frequent Pattern Mining
 
