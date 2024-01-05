@@ -239,4 +239,3 @@ ul.scrollspy-nav > .second::before {
     counter-increment: second;
     content: counter(first) "." counter(second) ". "
 }
-
