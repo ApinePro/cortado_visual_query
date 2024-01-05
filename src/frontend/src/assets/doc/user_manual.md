@@ -275,7 +275,7 @@ After selecting an operator node, the following choices are available:
 
 Having selected the following operator and **insert new node below** option, adding an activity from the list of available activities in the toolbox adds it under the selected operator follows:
 
-![insert_node_below_1.png](screenshots%2Fprocess_discovery%2Finsert_node_below_1.png)   &rarr;  ![insert_node_below_2.png](screenshots%2Fprocess_discovery%2Finsert_node_below_2.png)
+![insert_node_below_1.png](screenshots%2Fprocess_discovery%2Finsert_node_below_1.png) &rarr; ![insert_node_below_2.png](screenshots%2Fprocess_discovery%2Finsert_node_below_2.png)
 
 Similarly, adding an operator adds that operator **below** the selected operator. It works similarly for adding activities or operators **above**, to the **left** or to the **right**. 
 
@@ -287,7 +287,7 @@ After selecting an activity, the following choices are available:
 
 Having selected the following activity and **insert new node right to the selected one** option, adding an activity from the list of available activities in the toolbox adds it to the right of the selected activity as follows:
 
-![insert_node_right_1.png](screenshots%2Fprocess_discovery%2Finsert_node_right_1.png)   &rarr;  ![insert_node_right_2.png](screenshots%2Fprocess_discovery%2Finsert_node_right_2.png)
+![insert_node_right_1.png](screenshots%2Fprocess_discovery%2Finsert_node_right_1.png) &rarr; ![insert_node_right_2.png](screenshots%2Fprocess_discovery%2Finsert_node_right_2.png)
 
 Similarly, adding an operator adds that operator **to the right** the selected activity. It works similarly for adding activities or operators **to the left**.
 
@@ -297,7 +297,7 @@ The `replace the currently selected node` (<i class="bi bi-arrow-repeat"></i>) o
 
 Having selected an activity and **replace the currently selected node** option, choosing another activity from the toolbox replaces the selected activity as follows: 
 
-![replace_node_1.png](screenshots%2Fprocess_discovery%2Freplace_node_1.png)   &rarr;  ![replace_node_2.png](screenshots%2Fprocess_discovery%2Freplace_node_2.png)
+![replace_node_1.png](screenshots%2Fprocess_discovery%2Freplace_node_1.png) &rarr; ![replace_node_2.png](screenshots%2Fprocess_discovery%2Freplace_node_2.png)
 
 Similarly, choosing an operator node from the toolbox **replaces** the selected activity with the selected operator. It works similarly for **replacing** selected operators with either operators or activities form the list of available operators and activities in the toolbox. 
 
@@ -307,7 +307,7 @@ Selecting an operator node or an activity and clicking the <i class="bi bi-trash
 
 Having selected an operator node and removing it results as follows:
 
-![remove_node_1.png](screenshots%2Fprocess_discovery%2Fremove_node_1.png)   &rarr;  ![remove_node_2.png](screenshots%2Fprocess_discovery%2Fremove_node_2.png)
+![remove_node_1.png](screenshots%2Fprocess_discovery%2Fremove_node_1.png) &rarr; ![remove_node_2.png](screenshots%2Fprocess_discovery%2Fremove_node_2.png)
 
 #### Shifting Nodes
 Selecting an operator node or an activity and clicking the <i class="bi bi-chevron-double-left btn-icon"></i>`shift selected node(s) to left` or <i class="bi bi-chevron-double-right btn-icon"></i>`shift selected node(s) to right` button **shifts** the selected node to the left or to the right respectively. 
@@ -315,7 +315,7 @@ The shift to right or to the left is with respect to the sibling node(s) of the 
 
 Having selected the following operator node and clicking the <i class="bi bi-chevron-double-left btn-icon"></i>`shift selected node(s) to left` button **shifts** the operator node to the left as follows:
 
-![shift_node_1.png](screenshots%2Fprocess_discovery%2Fshift_node_1.png)   &rarr;  ![shift_node_2.png](screenshots%2Fprocess_discovery%2Fshift_node_2.png)
+![shift_node_1.png](screenshots%2Fprocess_discovery%2Fshift_node_1.png) &rarr; ![shift_node_2.png](screenshots%2Fprocess_discovery%2Fshift_node_2.png)
 
 
 #### Applying Reduction Rules
@@ -363,7 +363,7 @@ Selecting a node and clicking the <i class="bi bi-trash btn-icon"></i>`remove se
 
 Having selected a node and removing it results as follows:
 
-![remove_bpmn_node_1.png](screenshots%2Fprocess_discovery%2Fremove_bpmn_node_1.png)   &rarr;  ![remove_bpmn_node_2.png](screenshots%2Fprocess_discovery%2Fremove_bpmn_node_2.png)
+![remove_bpmn_node_1.png](screenshots%2Fprocess_discovery%2Fremove_bpmn_node_1.png) &rarr; ![remove_bpmn_node_2.png](screenshots%2Fprocess_discovery%2Fremove_bpmn_node_2.png)
 
 #### Exporting the Model
 
