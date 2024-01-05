@@ -116,7 +116,7 @@ export class DocumentationComponent implements OnInit, OnDestroy {
     }
     this.zone.onStable.pipe(first()).subscribe(() => {
       this.scrollSpy = new Gumshoe('#table-of-contents a', {
-        offset: 110,
+        offset: 90,
       });
       this.scrollSpy.setup();
     });
