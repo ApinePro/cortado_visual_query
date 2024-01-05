@@ -46,21 +46,21 @@ Selected (marked with <i class="bi bi-check2-circle"></i>) <b>fitting</b> varian
 In the variant explorer, you can perform various actions.
 
 ### Variant Information Explorer
-![Variant Info Explorer](./images/variant_info_explorer.png)
+![Variant Info Explorer](./images/variant_info_explorer_detail.png)
 By clicking the variant's count in Variant Explorer, a new Variant Information Explorer window opened in the stack of Variant Explorer. In Variant Information Explorer, all cases of the selected variant are listed, with their information including case ID, earliest and latest timestamp, and duration. The case list could be sorted by case ID (alphabet order), timestamp, and duration.
 
 ### Case Information Exploerer
-![Case Explorer](./images/case_explorer.png)
+![Case Explorer](./images/case_explorer_detail.png)
 By clicking the case ID in Variant Information Explorer, a new Case Information Explorer window opened in the stack of Variant Explorer. In Case Information Explorer, the events of the selected case are listed in time order, with their information including starting timestamp, ending timestamp, duration, and resources of the event.
 
 ### Tiebreaker
 ![Tiebreaker](./images/tiebreaker.png)
 Tiebreaker is a sequentialization tool which provides a function to match source pattern in variants and replace them with the target pattern. In tiebreaker, there are two pattern editors to model the source pattern and target pattern, respectively. In addition to sequential and parallel pattern, the tiebreaker allows to create:
-1. choice group, which could match any combination of any activities in the group;
+1. choice group, which could match any combination of any activities in the group;  
 ![ChoiceGroup](./images/choicegroup.png)
-2. fallthrough group;
+2. fallthrough group;  
 ![FallthroughGroup](./images/fallthroughgroup.png)
-3. pattern with a wildcard option '..' to allow partial match, which represents "rest of the variant".
+3. pattern with a wildcard option '..' to allow partial match, which represents "rest of the variant".  
 ![Wildcard](./images/wildcard.png)
 
 Note：
@@ -69,19 +69,19 @@ Note：
 3. The activities in target pattern should be consistent with activities in the source pattern. Acitivities in target pattern editor are only enabled when they are already in the source pattern.
 
 Here are some examples to show how variants are transformed by the tiebreaker:
-- (1)![](./images/1.png)
-- (2)![](./images/2.png)
-- (3)![](./images/3.png)
-- (4)![](./images/4.png)
-- (5)![](./images/5.png)
+- (1)![](./images/tiebreaker_examples_1.png)
+- (2)![](./images/tiebreaker_examples_2.png)
+- (3)![](./images/tiebreaker_examples_3.png)
+- (4)![](./images/tiebreaker_examples_4.png)
+- (5)![](./images/tiebreaker_examples_5.png)
 
 | Source Pattern   | Target Pattern | Result for examples       |
 |:-------:|:-----:|----------|
-| ![](./images/2.png)   | ![](./images/6.png)  | (1) No match<br> (2) ![](./images/6.png)<br> (3) No match<br> (4) No match<br> (5) No match<br>   |
-| ![](./images/7.png)   | ![](./images/8.png)  | (1) ![](./images/9.png)<br> (2) ![](./images/6.png)<br> (3) No match<br> (4) ![](./images/10.png)<br> (5) ![](./images/9.png)<br>   |
-| ![](./images/7.png)   | ![](./images/11.png)  | (1) ![](./images/12.png)<br> (2) ![](./images/6.png)<br> (3) ![](./images/13.png)<br> (4) ![](./images/14.png)<br> (5) ![](./images/12.png)<br>   |
-| ![](./images/15.png)   | ![](./images/16.png)  | (1) No match<br> (2) ![](./images/6.png)<br> (3) No match<br><br> (4) ![](./images/17.png)<br> (5) No match<br><br>   |
-| ![](./images/18.png)   | ![](./images/19.png)  | (1) ![](./images/20.png)<br> (2) ![](./images/6.png)<br> (3) ![](./images/21.png)<br> (4) ![](./images/17.png)<br> (5) ![](./images/20.png)<br>   |
+| ![](./images/tiebreaker_examples_2.png)   | ![](./images/tiebreaker_examples_6.png)  | (1) No match<br> (2) ![](./images/tiebreaker_examples_6.png)<br> (3) No match<br> (4) No match<br> (5) No match<br>   |
+| ![](./images/tiebreaker_examples_7.png)   | ![](./images/tiebreaker_examples_8.png)  | (1) ![](./images/tiebreaker_examples_9.png)<br> (2) ![](./images/tiebreaker_examples_6.png)<br> (3) No match<br> (4) ![](./images/tiebreaker_examples_10.png)<br> (5) ![](./images/tiebreaker_examples_9.png)<br>   |
+| ![](./images/tiebreaker_examples_7.png)   | ![](./images/tiebreaker_examples_11.png)  | (1) ![](./images/tiebreaker_examples_12.png)<br> (2) ![](./images/tiebreaker_examples_6.png)<br> (3) ![](./images/tiebreaker_examples_13.png)<br> (4) ![](./images/tiebreaker_examples_14.png)<br> (5) ![](./images/tiebreaker_examples_12.png)<br>   |
+| ![](./images/tiebreaker_examples_15.png)   | ![](./images/tiebreaker_examples_16.png)  | (1) No match<br> (2) ![](./images/tiebreaker_examples_6.png)<br> (3) No match<br><br> (4) ![](./images/tiebreaker_examples_17.png)<br> (5) No match<br><br>   |
+| ![](./images/tiebreaker_examples_18.png)   | ![](./images/tiebreaker_examples_19.png)  | (1) ![](./images/tiebreaker_examples_20.png)<br> (2) ![](./images/tiebreaker_examples_6.png)<br> (3) ![](./images/tiebreaker_examples_21.png)<br> (4) ![](./images/tiebreaker_examples_17.png)<br> (5) ![](./images/tiebreaker_examples_20.png)<br>   |
 
 &nbsp;
 ## Variant Clustering 
