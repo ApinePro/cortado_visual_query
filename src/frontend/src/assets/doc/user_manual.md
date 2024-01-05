@@ -36,14 +36,41 @@ Screenshots can be captured consistently by using the fixed cortado window of el
 # Variant Handling
 
 ## Variant Explorer
-Selected (marked with <i class="bi bi-check2-circle"></i>) <b>non-fitting</b> variants will be added to the process model. 
 
-Selected (marked with <i class="bi bi-check2-circle"></i>) <b>fitting</b> variants will remain in the process tree's language when incrementally adding new variants.
+In the Variant Explorer, users can get a comprehensive list of all variants present in the loaded event log. Unlike classical sequential variants found in other process mining tools, the Variant Explorer captures additional parallel behavior. The explorer also lists [*Variant Fragments*](#variant-fragments). The explorer offers different views on the variants, including:
 
-* Variants (high-level variants)
-* Low-level Variants (Subvariants)
-* Sorting Variants
+- **Standard View:** Provides general information about each variant.
+- **Performance View:** Refer to section [*Temporal Performance Analysis*](#temporal-performance-analysis).
+- **Conformance View:** Refer to section [*Conformance Analysis*](#conformance-analysis).
 
+For each variant, the explorer displays its frequency within the log and the number of sub-variants it has. Variants can be selected for discovering an initial model (<i class="bi bi-diagram-2-fill btn-icon text-success">discover initial model</i>), and they can also be added incrementally (<i class="bi bi-plus-lg btn-icon text-success">add variant(s) to model</i>) (when discovering an initial model there may not be any variant fragments be selected).
+
+When a model is present, conformance is available within the standard view. Click the (<i class="bi bi-question-square btn-icon"></i>) button for individual variant conformance or use (<i class="bi bi-layers-fill btn-icon">conformance check</i>) for all variants. For more detailed conformance insights, refer to the [*Conformance Analysis*](#conformance-analysis) section. Variants can also be deleted by hovering over a variant row and clicking the deletion icon.
+
+Besides that there are also multiple actions available from the <i class="bi bi-tools btn-icon"></i>`Functions` dropdown menu within the toolbar of the variant explorer. For there functionalities refer to the corresponding sections.
+
+Beneath the listed variants, there are also statistic displayed for the whole event log, i.e. how many traces/variants are fitting the model or selected.
+
+### Variant Sorting
+
+From the dropdown <i class="bi bi-sort-alpha-down btn-icon"></i>`Sorting` one can sort the listed variants based on different criteria:
+- activites: the total number of activties in the event log
+- conformance: how the variant conformance is (unknown, fitting and non-fitting)
+- frequency: the frequency of variant in event log
+- length: the length of the variant
+- sub-variants: the number of sub-variants
+- user-created: whether or not the variants are user-created (trace-fragments or modelled)
+
+
+### Collapsing Activity Loops
+
+From the <i class="bi bi-tools btn-icon"></i>`Functions` dropdown menu one can collapse activities occuring multiple times within a trace into looped activites. This is useful for certain event logs where activities repeat very often.
+Certain features may be disabled as they are not working with the collapsed loops.
+
+
+### Low-level Variants
+
+By clicking on the number of sub-variants for a variant, users can inspect the corresponding low-level variants. For each sub-variant, the order in which the starting and ending of activities occur is displayed. Note that the length of the nodes does not correspond to a temporal length of the activity but only to how it started and ended relative to others.
 
 
 ## Variant Clustering
