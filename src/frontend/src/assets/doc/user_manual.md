@@ -406,13 +406,32 @@ The current BPMN model in the BPMN viewer can be exported (.svg) using the <i cl
 
 
 # Temporal Performance Analysis
-* Model-independent performance analysis
-* Model-based performance analysis 
+## Model-independent performance analysis
+When opening the Performance View from the side bar, the performance of each variant is calculated, which may take a while depending on the size of the event log. 
+In this view the variants are no longer uniquely colored to be differentiated but based on their service times. Additionally, there are now nodes displayed inbetween activites to show the waiting times. These are colored using a separate color scale to show their waiting times. 
 
+Both color maps can be seen in a sub-tab from the `Variant Performance` tab.
+Here the used statistic for the color maps can be changed from their default showing the mean values of all instances for each variant to other statisics such as their minimum, maximum or standard deviation. Upon change the color map will be immediatley be updated.
 
+To get further insight into the performance of certain parts of a variant, let it be single activites, waiting nodes or parallel sections, one can simply click on them in the Variant Explorer and inspect their service or waiting times in the `Selection` sub-tab of the `Variant Performance` tab.
 
+## Model-based performance analysis 
+For understanding the performance of a process model one can project the performance of selected variants onto the model from the Performance View. When there is a model present there will be two additional columns in the Variant Explorer, namely `Model Projection` and by default `service time (mean)`.
 
- 
+By clicking the toggle in the `Model Projection` column the variant will be added to the pool of projected variant. On the other hand unclicking the toggle of already projected variants will remove them again from the pool. To clear the whole pool one can click (<i class="bi bi-x-circle-fill btn-icon"></i>) in the header of the `Model Projection` column.
+
+Please note that in most cases it only makes sense to project variants that are actually fitting the process tree as otherwise the projection is not complete. Because of that there will be a warning sign displayed for variant that are actually not fitting.
+
+The other column shows in the default setting the mean service overall model performance of the variant.
+
+Further information can be gained from `Model Performance` tab. Here in the `Selection` subtab the *service time*, *waiting time*, *cycle time* and *idle time* are shown for the selection made within the model.
+The same information can be gained for certain process tree nodes by hovering over them. 
+
+In the `Color Map` subtab adjustments can be made to how the model is colored and the statistics are aggregated.
+One can choose which of the four performance times will be used for the projection as well between the statistical measure (mean, min, max, stdev). 
+
+The changes made to this will also change what will be displayed in the variants explorer column.
+
 # Software Architecture
 
 
