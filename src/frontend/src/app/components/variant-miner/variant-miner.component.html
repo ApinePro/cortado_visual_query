@@ -18,7 +18,7 @@
         >
           <div class="form-select-element">
             <label for="frequent_mining_strat" class="input-label"
-              >Support Counting Strategy:
+            >Support Counting Strategy:
             </label>
             <select
               formControlName="frequent_mining_strat"
@@ -44,7 +44,7 @@
 
           <div class="form-select-element">
             <label for="frequent_mining_algo" class="input-label"
-              >Algorithm:
+            >Algorithm:
             </label>
             <select
               formControlName="frequent_mining_algo"
@@ -154,10 +154,10 @@
               {{
                 (variantMinerConfigInput.value.frequent_mining_strat ===
                   FrequentMiningStrategy.TraceTransaction ||
-                variantMinerConfigInput.value.frequent_mining_strat ===
+                  variantMinerConfigInput.value.frequent_mining_strat ===
                   FrequentMiningStrategy.TraceOccurence
-                  ? totalTraces
-                  : totalVariants
+                    ? totalTraces
+                    : totalVariants
                 ) | number
               }}
             </div>
@@ -177,7 +177,7 @@
               class="input-field"
             />
             <label for="artifical_start" class="input-label"
-              >Mine prefixes and suffixes
+            >Mine prefixes and suffixes
             </label>
           </div>
 
@@ -248,21 +248,21 @@
       <div class="bg-dark btn-tool-bar">
         <ng-template #toolTip2>
           calculate conformance checking statistics
-          <br /><i class="bi bi-question-square text-secondary"> unknown</i>
-          <br /><i class="bi bi-hourglass-split text-secondary">
-            being calculated</i
-          >
-          <br /><i class="bi bi-check-square text-success">
-            variant fits model</i
-          >
-          <br /><i class="bi bi-x-square text-danger">
-            variant does not fit model</i
-          >
-          <br /><i class="bi bi-check-square text-warning"></i>
+          <br/><i class="bi bi-question-square text-secondary"> unknown</i>
+          <br/><i class="bi bi-hourglass-split text-secondary">
+          being calculated</i
+        >
+          <br/><i class="bi bi-check-square text-success">
+          variant fits model</i
+        >
+          <br/><i class="bi bi-x-square text-danger">
+          variant does not fit model</i
+        >
+          <br/><i class="bi bi-check-square text-warning"></i>
           <i class="bi bi-x-square text-warning">
             outdated results (model has changed)</i
           >
-          <br /><i class="bi bi-hourglass-bottom text-warning"> timeout</i>
+          <br/><i class="bi bi-hourglass-bottom text-warning"> timeout</i>
         </ng-template>
         <button
           [ngbTooltip]="toolTip2"
@@ -407,7 +407,7 @@
               </div>
             </div>
             <div class="radio-content">
-              <span> Closed and Maximal: </span>
+              <span> Type: </span>
               <div class="btn-group btn-group-sm radio-container" role="group">
                 <ng-template
                   ngFor
@@ -498,207 +498,207 @@
       <div class="pattern-table-container-secondary">
         <table class="pattern-table">
           <thead class="user-select-none sticky-header-row">
-            <tr>
-              <th class="text-center header-text">No.</th>
-              <th class="text-center header-text">
-                <app-variant-selection-button
-                  *ngIf="
+          <tr>
+            <th class="text-center header-text">No.</th>
+            <th class="text-center header-text">
+              <app-variant-selection-button
+                *ngIf="
                     !(
                       areAllPatternSkipGroups() &&
                       displayedVariantsPatterns.length > 0
                     )
                   "
-                  [isSelected]="
+                [isSelected]="
                     areAllPatternsSelected() &&
                     displayedVariantsPatterns.length > 0
                   "
-                  (selectionChanged)="setAllPatternsSelectionState($event)"
-                  tooltipText="(un)select all variants"
-                >
-                </app-variant-selection-button>
-              </th>
-              <th resizeable class="text-center" rowspan="1" [margin]="-4">
-                <div class="header-text-container">
-                  <div
-                    class="header-text"
-                    (click)="sort(VariantSortKey.size)"
-                    [ngClass]="{
+                (selectionChanged)="setAllPatternsSelectionState($event)"
+                tooltipText="(un)select all variants"
+              >
+              </app-variant-selection-button>
+            </th>
+            <th resizeable class="text-center" rowspan="1" [margin]="-4">
+              <div class="header-text-container">
+                <div
+                  class="header-text"
+                  (click)="sort(VariantSortKey.size)"
+                  [ngClass]="{
                       'selected-header-text':
                         currentSortKey === VariantSortKey.size
                     }"
-                  >
-                    Size
-                  </div>
+                >
+                  Size
                 </div>
-              </th>
-              <th
-                resizeable
-                class="text-center"
-                rowspan="1"
-                [margin]="-4"
-                *ngIf="
+              </div>
+            </th>
+            <th
+              resizeable
+              class="text-center"
+              rowspan="1"
+              [margin]="-4"
+              *ngIf="
                   lastExecutedMiningAlgorithm !==
                   FrequentMiningAlgorithm.EfPatternMiner
                 "
-              >
-                <div class="header-text-container">
-                  <div
-                    class="header-text"
-                    (click)="sort(VariantSortKey.conformance)"
-                    [ngClass]="{
+            >
+              <div class="header-text-container">
+                <div
+                  class="header-text"
+                  (click)="sort(VariantSortKey.conformance)"
+                  [ngClass]="{
                       'selected-header-text':
                         currentSortKey === VariantSortKey.conformance
                     }"
-                  >
-                    Fitting
-                  </div>
+                >
+                  Fitting
                 </div>
-              </th>
-              <th resizeable class="text-center" rowspan="1" [margin]="-4">
-                <div class="header-text-container">
-                  <div
-                    class="header-text"
-                    (click)="sort(VariantSortKey.support)"
-                    [ngClass]="{
+              </div>
+            </th>
+            <th resizeable class="text-center" rowspan="1" [margin]="-4">
+              <div class="header-text-container">
+                <div
+                  class="header-text"
+                  (click)="sort(VariantSortKey.support)"
+                  [ngClass]="{
                       'selected-header-text':
                         currentSortKey === VariantSortKey.support
                     }"
-                  >
-                    Support
-                  </div>
+                >
+                  Support
                 </div>
-              </th>
-              <th resizeable class="text-center" colspan="2" [margin]="-4">
-                <div class="header-text-container">
-                  <div
-                    class="header-text"
-                    (click)="sort(VariantSortKey.closed)"
-                  >
-                    Type
-                  </div>
-                  <i
-                    *ngIf="
+              </div>
+            </th>
+            <th resizeable class="text-center" colspan="2" [margin]="-4">
+              <div class="header-text-container">
+                <div
+                  class="header-text"
+                  (click)="sort(VariantSortKey.closed)"
+                >
+                  Type
+                </div>
+                <i
+                  *ngIf="
                       currentSortKey === VariantSortKey.closed ||
                       currentSortKey === VariantSortKey.maximal
                     "
-                    [ngClass]="{
+                  [ngClass]="{
                       'bi-sort-down-alt': ascending,
                       'bi-sort-down': !ascending
                     }"
-                  ></i>
-                </div>
-              </th>
-              <th resizeable class="text-start" rowspan="1" [margin]="-4">
-                <div
-                  class="header-text-container variant-header"
-                  [style.min-width.px]="maxWidth + 90"
-                >
-                  <div class="header-text">Variant</div>
-                  <i
-                    class="bi"
-                    [ngClass]="{
+                ></i>
+              </div>
+            </th>
+            <th resizeable class="text-start" rowspan="1" [margin]="-4">
+              <div
+                class="header-text-container variant-header"
+                [style.min-width.px]="maxWidth + 90"
+              >
+                <div class="header-text">Variant</div>
+                <i
+                  class="bi"
+                  [ngClass]="{
                       'bi-sort-up': ascending,
                       'bi-sort-down': !ascending,
                       invisible: true
                     }"
-                  ></i>
-                </div>
-              </th>
-            </tr>
-            <tr class="sticky-header-row">
-              <th>
-                <!-- Placeholder for No. column -->
-              </th>
-              <th>
-                <!-- Placeholder for column showing selection -->
-              </th>
-              <th class="text-center">
-                <i
-                  [ngClass]="{
+                ></i>
+              </div>
+            </th>
+          </tr>
+          <tr class="sticky-header-row">
+            <th>
+              <!-- Placeholder for No. column -->
+            </th>
+            <th>
+              <!-- Placeholder for column showing selection -->
+            </th>
+            <th class="text-center">
+              <i
+                [ngClass]="{
                     'bi-sort-numeric-down': ascending,
                     'bi-sort-numeric-down-alt': !ascending,
                     invisible: !(currentSortKey === VariantSortKey.size)
                   }"
-                ></i>
-              </th>
-              <th
-                class="text-center"
-                *ngIf="
+              ></i>
+            </th>
+            <th
+              class="text-center"
+              *ngIf="
                   lastExecutedMiningAlgorithm !==
                   FrequentMiningAlgorithm.EfPatternMiner
                 "
-              >
-                <i
-                  [ngClass]="{
+            >
+              <i
+                [ngClass]="{
                     'bi-sort-numeric-down': ascending,
                     'bi-sort-numeric-down-alt': !ascending,
                     invisible: !(currentSortKey === VariantSortKey.conformance)
                   }"
-                ></i>
-              </th>
-              <th class="text-center">
-                <i
-                  [ngClass]="{
+              ></i>
+            </th>
+            <th class="text-center">
+              <i
+                [ngClass]="{
                     'bi-sort-numeric-down': ascending,
                     'bi-sort-numeric-down-alt': !ascending,
                     invisible: !(currentSortKey === VariantSortKey.support)
                   }"
-                ></i>
-              </th>
-              <th class="confidence-names text-center">
-                <div
-                  (click)="sort(VariantSortKey.closed)"
-                  class="header-text"
-                  [ngClass]="{
+              ></i>
+            </th>
+            <th class="confidence-names text-center">
+              <div
+                (click)="sort(VariantSortKey.closed)"
+                class="header-text"
+                [ngClass]="{
                     'selected-header-text':
                       currentSortKey === VariantSortKey.closed
                   }"
-                >
-                  Closed
-                </div>
-              </th>
-              <th class="confidence-names text-center">
-                <div
-                  (click)="sort(VariantSortKey.maximal)"
-                  class="header-text"
-                  [ngClass]="{
+              >
+                Closed
+              </div>
+            </th>
+            <th class="confidence-names text-center">
+              <div
+                (click)="sort(VariantSortKey.maximal)"
+                class="header-text"
+                [ngClass]="{
                     'selected-header-text':
                       currentSortKey === VariantSortKey.maximal
                   }"
-                >
-                  Maximal
-                </div>
-              </th>
-              <th class="confidence-names text-center">
-                <div class="header-text"></div>
-              </th>
-            </tr>
+              >
+                Maximal
+              </div>
+            </th>
+            <th class="confidence-names text-center">
+              <div class="header-text"></div>
+            </th>
+          </tr>
           </thead>
           <tbody>
-            <tr
-              app-variant-miner-pattern
-              *ngFor="let pattern of displayedVariantsPatterns; let i = index"
-              [id]="i + 1"
-              [pattern]="pattern"
-              [showConformance]="
+          <tr
+            app-variant-miner-pattern
+            *ngFor="let pattern of displayedVariantsPatterns; let i = index"
+            [id]="i + 1"
+            [pattern]="pattern"
+            [showConformance]="
                 lastExecutedMiningAlgorithm !==
                 FrequentMiningAlgorithm.EfPatternMiner
               "
-              [rootElement]="variantMinerDiv"
-            >
-              <svg
-                appVariantDrawer
-                #fragment
-                [variant]="pattern"
-                [computeActivityColor]="computeActivityColor"
-                [onRightMouseClickCbFc]="openContextCallback"
-                [onClickCbFc]="onClickCbFc"
-                [infixType]="pattern.infixType"
-                [keepStandardView]="true"
-                [addCursorPointer]="false"
-                class="zoom-group-variant"
-              ></svg>
-            </tr>
+            [rootElement]="variantMinerDiv"
+          >
+            <svg
+              appVariantDrawer
+              #fragment
+              [variant]="pattern"
+              [computeActivityColor]="computeActivityColor"
+              [onRightMouseClickCbFc]="openContextCallback"
+              [onClickCbFc]="onClickCbFc"
+              [infixType]="pattern.infixType"
+              [keepStandardView]="true"
+              [addCursorPointer]="false"
+              class="zoom-group-variant"
+            ></svg>
+          </tr>
           </tbody>
         </table>
       </div>
