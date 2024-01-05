@@ -240,22 +240,134 @@ is a start activity.
 
 
 
-## Visualizing & Editing Process Models
-* Process Tree Editor
-  * Selecting Nodes for Updates
-  * Inserting Nodes
-  * Replacing Nodes
-  * Removing Nodes
-  * Shifting Nodes
-  * Applying Reduction Rules
-  * (Un)Freezing Subtrees
-  * Undo/Redo Applied Changes
-  * Exporting the Model
-* BPMN-Visualizer
-  * Selecting Nodes for Updates
-  * Removing Nodes
-  * Exporting the Model
+## Visualizing and Editing Process Models
 
+### Process Tree Editor
+
+Process tree editor tab is open by default in the top pane, it can also be accessed using <i class="bi bi-diagram-2 btn-icon"></i> `Open Process Tree Editor` option in `Editors` dropdown menu. The `Process Tree Editor` tab is also always available in the list of tabs to the left of the top pane. 
+After a tree is available in the process tree editor by either importing or through discovery, it can be edited in the following ways.
+
+#### Selecting Nodes for Updates
+
+A tree node (either activity or operator) can be selected for updates by clicking on it. After selection of a node, all buttons of updates available for that node are enabled. 
+
+After selecting a node, clicking the <i class="bi bi-x-circle btn-icon"></i>`clear selection` button, clears that selection.
+
+A selected node is highlighted through a red border as follows:
+
+|![selecting_nodes_for_updates.png](screenshots%2Fprocess_discovery%2Fselecting_nodes_for_updates.png)|
+-
+
+
+#### Inserting Nodes
+New nodes available for insertion in the tree are available in the process tree toolbox. The toolbox can be revealed using the <i class="btn-icon bi bi-chevron-bar-down"></i> button at the top of the editor.
+
+|![proc_tree_toolbox.png](screenshots%2Fprocess_discovery%2Fproc_tree_toolbox.png)|
+-
+
+##### Inserting nodes along operators
+
+After selecting an operator node, the following choices are available:
+- insert new node above the selected one (<i class="bi bi-chevron-up"></i>)
+- insert new node below the selected one (<i class="bi bi-chevron-down"></i>)
+- insert new node left to the selected one (<i class="bi bi-chevron-left"></i>)
+- insert new node right to the selected one (<i class="bi bi-chevron-right"></i>)
+
+Having selected the following operator and **insert new node below** option, adding an activity from the list of available activities in the toolbox adds it under the selected operator follows:
+
+![insert_node_below_1.png](screenshots%2Fprocess_discovery%2Finsert_node_below_1.png)   &rarr;  ![insert_node_below_2.png](screenshots%2Fprocess_discovery%2Finsert_node_below_2.png)
+
+Similarly, adding an operator adds that operator **below** the selected operator. It works similarly for adding activities or operators **above**, to the **left** or to the **right**. 
+
+##### Inserting nodes along activities
+
+After selecting an activity, the following choices are available:
+- insert new node left to the selected one (<i class="bi bi-chevron-left"></i>)
+- insert new node right to the selected one (<i class="bi bi-chevron-right"></i>)
+
+Having selected the following activity and **insert new node right to the selected one** option, adding an activity from the list of available activities in the toolbox adds it to the right of the selected activity as follows:
+
+![insert_node_right_1.png](screenshots%2Fprocess_discovery%2Finsert_node_right_1.png)   &rarr;  ![insert_node_right_2.png](screenshots%2Fprocess_discovery%2Finsert_node_right_2.png)
+
+Similarly, adding an operator adds that operator **to the right** the selected activity. It works similarly for adding activities or operators **to the left**.
+
+#### Replacing Nodes
+
+The `replace the currently selected node` (<i class="bi bi-arrow-repeat"></i>) option can be used to replace a selected activity or operator node with either an activity or an operator node from the list of available activities and operators in the toolbox.
+
+Having selected an activity and **replace the currently selected node** option, choosing another activity from the toolbox replaces the selected activity as follows: 
+
+![replace_node_1.png](screenshots%2Fprocess_discovery%2Freplace_node_1.png)   &rarr;  ![replace_node_2.png](screenshots%2Fprocess_discovery%2Freplace_node_2.png)
+
+Similarly, choosing an operator node from the toolbox **replaces** the selected activity with the selected operator. It works similarly for **replacing** selected operators with either operators or activities form the list of available operators and activities in the toolbox. 
+
+#### Removing Nodes
+
+Selecting an operator node or an activity and clicking the <i class="bi bi-trash btn-icon"></i>`remove selected node(s)` button removes that activity or the operator node along with all child nodes.
+
+Having selected an operator node and removing it results as follows:
+
+![remove_node_1.png](screenshots%2Fprocess_discovery%2Fremove_node_1.png)   &rarr;  ![remove_node_2.png](screenshots%2Fprocess_discovery%2Fremove_node_2.png)
+
+#### Shifting Nodes
+Selecting an operator node or an activity and clicking the <i class="bi bi-chevron-double-left btn-icon"></i>`shift selected node(s) to left` or <i class="bi bi-chevron-double-right btn-icon"></i>`shift selected node(s) to right` button **shifts** the selected node to the left or to the right respectively. 
+The shift to right or to the left is with respect to the sibling node(s) of the selected node under a single operator.
+
+Having selected the following operator node and clicking the <i class="bi bi-chevron-double-left btn-icon"></i>`shift selected node(s) to left` button **shifts** the operator node to the left as follows:
+
+![shift_node_1.png](screenshots%2Fprocess_discovery%2Fshift_node_1.png)   &rarr;  ![shift_node_2.png](screenshots%2Fprocess_discovery%2Fshift_node_2.png)
+
+
+#### Applying Reduction Rules
+
+Selecting an operator node and clicking the <i class="bi bi-diagram-2"></i> button applies **reduction rules** to remove redundant and unnecessary nodes from that subtree.
+
+#### (Un)Freezing Subtrees
+
+Freezing a subtree prevents that subtree from being updated during the incremental discovery process and this subtree always remains in the tree.  
+
+Selecting an operator node and clicking the <i class="bi bi-snow btn-icon"></i>`(un)freeze subtrees` button **freezes** the subtree under that operator node. The frozen subtree is highlighted blue as seen below:
+
+![freeze_node_1.png](screenshots%2Fprocess_discovery%2Ffreeze_node_1.png)
+
+Similarly, selecting root operator node of an already frozen subtree and clicking the <i class="bi bi-snow btn-icon"></i>`(un)freeze subtrees` button unfreezes that subtree. After unfreezing, that subtree may be updated diring the incremental discovery process and its presence is no longer ensured.
+
+
+#### Undo/Redo Applied Changes
+
+During the process of updating the tree, history is maintained and the edits can be undone or redone using the <i class="bi bi-arrow-counterclockwise btn-icon"></i>`undo` and <i class="bi bi-arrow-clockwise btn-icon"></i>`redo` buttons.
+
+#### Exporting the Model
+
+The current tree in the process tree editor can be exported (.svg) using the <i class="bi bi-save"></i>`export the tree as an .svg` button.
+
+### BPMN-Visualizer
+
+BPMN visualizer can be accessed using <i class="bi bi-diagram-2 btn-icon rotate-270"></i> `Open BPMN Viewer` option in `Editors` dropdown menu. The `BPMN Viewer` tab is also available in the list of tabs to the left of the top pane after it was accessed. 
+After a tree is available in the process tree editor by either importing or through discovery, the BPMN representation of that process tree is available in the BPMN viewer.
+
+#### Selecting Nodes for Updates
+
+A node can be selected for updates by clicking on it. After selection of a node, all buttons of updates available for that node are enabled. 
+
+After selecting a node, clicking the <i class="bi bi-x-circle btn-icon"></i>`clear selection` button, clears that selection.
+
+A selected node is highlighted through a red border as follows:
+
+|![select_node_bpmn.png](screenshots%2Fprocess_discovery%2Fselect_node_bpmn.png)|
+-
+
+#### Removing Nodes
+
+Selecting a node and clicking the <i class="bi bi-trash btn-icon"></i>`remove selected node(s)` button removes that node as well as the relevant connected nodes from the BPMN model.
+
+Having selected a node and removing it results as follows:
+
+![remove_bpmn_node_1.png](screenshots%2Fprocess_discovery%2Fremove_bpmn_node_1.png)   &rarr;  ![remove_bpmn_node_2.png](screenshots%2Fprocess_discovery%2Fremove_bpmn_node_2.png)
+
+#### Exporting the Model
+
+The current BPMN model in the BPMN viewer can be exported (.svg) using the <i class="bi bi-save"></i>`export the model as an .svg` button.
 
 
 ## Incremental Process Discovery
