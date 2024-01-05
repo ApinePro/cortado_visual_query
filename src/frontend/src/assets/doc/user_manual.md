@@ -44,11 +44,19 @@ Screenshots can be captured consistently by using the fixed cortado window of el
 
 Selected (marked with <i class="bi bi-check2-circle"></i>) <b>non-fitting</b> variants will be added to the process model.
 
-Selected (marked with <i class="bi bi-check2-circle"></i>) <b>fitting</b> variants will remain in the process tree's language when incrementally adding new variants.
+In the Variant Explorer, users can get a comprehensive list of all variants present in the loaded event log. Unlike classical sequential variants found in other process mining tools, the Variant Explorer captures additional parallel behavior. The explorer also lists [*Variant Fragments*](#variant-fragments). The explorer offers different views on the variants, including:
 
-* Variants (high-level variants)
-* Low-level Variants (Subvariants)
-* Sorting Variants
+- **Standard View:** Provides general information about each variant.
+- **Performance View:** Refer to section [*Temporal Performance Analysis*](#temporal-performance-analysis).
+- **Conformance View:** Refer to section [*Conformance Analysis*](#conformance-analysis).
+
+For each variant, the explorer displays its frequency within the log and the number of sub-variants it has. Variants can be selected for discovering an initial model (<i class="bi bi-diagram-2-fill btn-icon text-success">discover initial model</i>), and they can also be added incrementally (<i class="bi bi-plus-lg btn-icon text-success">add variant(s) to model</i>) (when discovering an initial model there may not be any variant fragments be selected).
+
+When a model is present, conformance is available within the standard view. Click the (<i class="bi bi-question-square btn-icon"></i>) button for individual variant conformance or use (<i class="bi bi-layers-fill btn-icon">conformance check</i>) for all variants. For more detailed conformance insights, refer to the [*Conformance Analysis*](#conformance-analysis) section. Variants can also be deleted by hovering over a variant row and clicking the deletion icon.
+
+Besides that there are also multiple actions available from the <i class="bi bi-tools btn-icon"></i>`Functions` dropdown menu within the toolbar of the variant explorer. For there functionalities refer to the corresponding sections.
+
+Beneath the listed variants, there are also statistic displayed for the whole event log, i.e. how many traces/variants are fitting the model or selected.
 
 In the variant explorer, you can perform various actions.
 
@@ -89,6 +97,26 @@ Here are some examples to show how variants are transformed by the tiebreaker:
 | ![](./screenshots/variant_explorer/tiebreaker_examples_7.png)   | ![](./screenshots/variant_explorer/tiebreaker_examples_11.png)  | (1) ![](./screenshots/variant_explorer/tiebreaker_examples_12.png)<br> (2) ![](./screenshots/variant_explorer/tiebreaker_examples_6.png)<br> (3) ![](./screenshots/variant_explorer/tiebreaker_examples_13.png)<br> (4) ![](./screenshots/variant_explorer/tiebreaker_examples_14.png)<br> (5) ![](./screenshots/variant_explorer/tiebreaker_examples_12.png)<br>   |
 | ![](./screenshots/variant_explorer/tiebreaker_examples_15.png)   | ![](./screenshots/variant_explorer/tiebreaker_examples_16.png)  | (1) No match<br> (2) ![](./screenshots/variant_explorer/tiebreaker_examples_6.png)<br> (3) No match<br><br> (4) ![](./screenshots/variant_explorer/tiebreaker_examples_17.png)<br> (5) No match<br><br>   |
 | ![](./screenshots/variant_explorer/tiebreaker_examples_18.png)   | ![](./screenshots/variant_explorer/tiebreaker_examples_19.png)  | (1) ![](./screenshots/variant_explorer/tiebreaker_examples_20.png)<br> (2) ![](./screenshots/variant_explorer/tiebreaker_examples_6.png)<br> (3) ![](./screenshots/variant_explorer/tiebreaker_examples_21.png)<br> (4) ![](./screenshots/variant_explorer/tiebreaker_examples_17.png)<br> (5) ![](./screenshots/variant_explorer/tiebreaker_examples_20.png)<br>   |
+### Variant Sorting
+
+From the dropdown <i class="bi bi-sort-alpha-down btn-icon"></i>`Sorting` one can sort the listed variants based on different criteria:
+- activites: the total number of activties in the event log
+- conformance: how the variant conformance is (unknown, fitting and non-fitting)
+- frequency: the frequency of variant in event log
+- length: the length of the variant
+- sub-variants: the number of sub-variants
+- user-created: whether or not the variants are user-created (trace-fragments or modelled)
+
+
+### Collapsing Activity Loops
+
+From the <i class="bi bi-tools btn-icon"></i>`Functions` dropdown menu one can collapse activities occuring multiple times within a trace into looped activites. This is useful for certain event logs where activities repeat very often.
+Certain features may be disabled as they are not working with the collapsed loops.
+
+
+### Low-level Variants
+
+By clicking on the number of sub-variants for a variant, users can inspect the corresponding low-level variants. For each sub-variant, the order in which the starting and ending of activities occur is displayed. Note that the length of the nodes does not correspond to a temporal length of the activity but only to how it started and ended relative to others.
 
 
 ## Variant Clustering
@@ -529,6 +557,31 @@ The current BPMN model in the BPMN viewer can be exported (.svg) using the <i cl
 
 * Model-independent performance analysis
 * Model-based performance analysis
+## Model-independent performance analysis
+When opening the Performance View from the side bar, the performance of each variant is calculated, which may take a while depending on the size of the event log. 
+In this view the variants are no longer uniquely colored to be differentiated but based on their service times. Additionally, there are now nodes displayed inbetween activites to show the waiting times. These are colored using a separate color scale to show their waiting times. 
+
+Both color maps can be seen in a sub-tab from the `Variant Performance` tab.
+Here the used statistic for the color maps can be changed from their default showing the mean values of all instances for each variant to other statisics such as their minimum, maximum or standard deviation. Upon change the color map will be immediatley be updated.
+
+To get further insight into the performance of certain parts of a variant, let it be single activites, waiting nodes or parallel sections, one can simply click on them in the Variant Explorer and inspect their service or waiting times in the `Selection` sub-tab of the `Variant Performance` tab.
+
+## Model-based performance analysis 
+For understanding the performance of a process model one can project the performance of selected variants onto the model from the Performance View. When there is a model present there will be two additional columns in the Variant Explorer, namely `Model Projection` and by default `service time (mean)`.
+
+By clicking the toggle in the `Model Projection` column the variant will be added to the pool of projected variant. On the other hand unclicking the toggle of already projected variants will remove them again from the pool. To clear the whole pool one can click (<i class="bi bi-x-circle-fill btn-icon"></i>) in the header of the `Model Projection` column.
+
+Please note that in most cases it only makes sense to project variants that are actually fitting the process tree as otherwise the projection is not complete. Because of that there will be a warning sign displayed for variant that are actually not fitting.
+
+The other column shows in the default setting the mean service overall model performance of the variant.
+
+Further information can be gained from `Model Performance` tab. Here in the `Selection` subtab the *service time*, *waiting time*, *cycle time* and *idle time* are shown for the selection made within the model.
+The same information can be gained for certain process tree nodes by hovering over them. 
+
+In the `Color Map` subtab adjustments can be made to how the model is colored and the statistics are aggregated.
+One can choose which of the four performance times will be used for the projection as well between the statistical measure (mean, min, max, stdev). 
+
+The changes made to this will also change what will be displayed in the variants explorer column.
 
 # Software Architecture
 
