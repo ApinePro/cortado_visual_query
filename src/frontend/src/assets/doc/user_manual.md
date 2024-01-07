@@ -2,35 +2,56 @@
 
 Internal Notes (remove or move to different location before publication)
 
-### Creating Screenshots
+## Creating Screenshots
 
 Screenshots can be captured consistently by using the fixed cortado window of electron.
 
-#### Screenshot without border
+### Screenshot without border
 
 ![clustering_dialog.png](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustering_dialog.png)
 
-#### Screenshot with border
+### Screenshot with border
 
 |![clustered_variant_explorer.png](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustered_variant_explorer.png)|
 -
 
+### Producing GIFs
+
+- Use https://www.screentogif.com/screenshots for creating GIFs similar to the ones below.
+- Any part of the screen can be put into the frame that records the GIF.
+- There's also a convenient way to post-process and edit the recorded GIFs. 
+- It should be made sure to crop out the extra cursor movements at the start or end of the recordings.
+
+|![shift_pt_node.gif](screenshots%2Fprocess_discovery%2Fshift_pt_node.gif)|
+-
+
+|![discover_initial_model.gif](screenshots%2Fprocess_discovery%2Fdiscover_initial_model.gif)|
+-
+
+### Drawing boxes on screenshots:
+
+  * Drawing numbered boxes on images to refer to sections:
+    * Box: Rectangle with 3px border. 
+    * Number Text: Calibri, size: 26pt, Bold. 
+    * Color Palette for box border and text:
+      * Red: #C7171E
+      * Green: #22B14C 
+      * Purple: #C659C7
+      * Blue: #00A2E8
+      * Yellow/Gold: #FFC90E
+    * See example below which was produced using **paint** in **windows**:
+
+|![box_example.png](screenshots%2Fbox_example.png)|
+-
+
 &nbsp;
 
-* Ideas for referring to buttons / icons:
+## Referring to buttons / icons:
   * Examples:
     * Use (<i class="bi bi-diagram-2-fill btn-icon">discover initial model</i>) button to discover an initial model.
     * Click `Files` &rarr; <i class="bi bi-file-earmark-arrow-up btn-icon"></i>`Import process tree (.ptml)` to import an existing process tree from a file.
+* Use `code blocks` for referring to something in the UI like a button, an item in the menu or any displayed label in Cortado.
 
-# Heading 1
-
-## Heading 2
-
-### Heading 3
-
-#### Heading 4
-
-##### Heading 5
 
 # Introduction
 
@@ -415,6 +436,7 @@ The editor comprises primarily of <i>three sections</i>, all of which rely heavi
 
 ## Variant Sequentialization (Tiebreaker)
 
+
 # Process Discovery
 
 ## Visualizing and Editing Process Models
@@ -428,7 +450,7 @@ After a tree is available in the process tree editor by either importing or thro
 
 A tree node (either activity or operator) can be selected for updates by clicking on it. After selection of a node, all buttons of updates available for that node are enabled. 
 
-After selecting a node, clicking the <i class="bi bi-x-circle btn-icon"></i>`clear selection` button, clears that selection.
+After selecting a node, clicking the <i class="bi bi-x-circle btn-icon"></i>`clear selection` button or clicking the node again, clears that selection.
 
 A selected node is highlighted through a red border as follows:
 
@@ -527,7 +549,7 @@ After a tree is available in the process tree editor by either importing or thro
 
 A node can be selected for updates by clicking on it. After selection of a node, all buttons of updates available for that node are enabled. 
 
-After selecting a node, clicking the <i class="bi bi-x-circle btn-icon"></i>`clear selection` button, clears that selection.
+After selecting a node, clicking the <i class="bi bi-x-circle btn-icon"></i>`clear selection` button or clicking the node again, clears that selection.
 
 A selected node is highlighted through a red border as follows:
 
