@@ -607,8 +607,14 @@ After discovering or importing an initial process tree, trace(s) can be chosen f
 
 * Variant(s) can be incrementally added to the process model using the following steps:
   1. Select variant(s) in the `Variant Explorer` that are not yet added to the process tree.
-  2. Press the <i class="bi bi-plus-lg btn-icon"></i>`add variant(s) to model` button
-  3. The modified process tree (which the selecting traces are fitting to) would be displayed in the `Process Tree Editor` as follows:
+  2. Press the <i class="bi bi-plus-lg btn-icon"></i>`add variant(s) to model` button.
+     * Infix, prefix and suffix can not be selected for the incremental process discovery.
+     * After selecting and adding to the model, the variant is in the language of the process tree and should not be un-selected.
+     * All variants in the variant explorer can be selected for the incremental process discovery including:
+       * Variants from the log.
+       * Variant fragments.
+       * Variants from the variant modeler.
+  3. The modified process tree (which the selecting traces fit to) would be displayed in the `Process Tree Editor` as follows:
   
 |![incremental_trace_addition.gif](screenshots%2Fprocess_discovery%2Fincremental_trace_addition.gif)|
 -
