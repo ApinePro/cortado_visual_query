@@ -19,7 +19,8 @@ Screenshots can be captured consistently by using the fixed cortado window of el
 
 - Use https://www.screentogif.com/screenshots for creating GIFs similar to the ones below.
 - Any part of the screen can be put into the frame that records the GIF.
-- There's also a convenient way to post-process and edit the recorded GIFs. 
+- There's also a convenient way to post-process and edit the recorded GIFs.
+- Size of GIF (individual images) can also be resized to fit the Documentation popup. **Ideally less than 800px**.
 - It should be made sure to crop out the extra cursor movements at the start or end of the recordings.
 
 |![shift_pt_node.gif](screenshots%2Fprocess_discovery%2Fshift_pt_node.gif)|
