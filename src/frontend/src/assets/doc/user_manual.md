@@ -17,11 +17,13 @@ Screenshots can be captured consistently by using the fixed cortado window of el
 
 ### Producing GIFs
 
-- Use https://www.screentogif.com/screenshots for creating GIFs similar to the ones below.
-- Any part of the screen can be put into the frame that records the GIF.
-- There's also a convenient way to post-process and edit the recorded GIFs.
-- Size of GIF (individual images) can also be resized to fit the Documentation popup. **Ideally less than 800px**.
-- It should be made sure to crop out the extra cursor movements at the start or end of the recordings.
+* Use https://www.screentogif.com/screenshots for creating GIFs similar to the ones below.
+* Any part of the screen can be put into the frame that records the GIF.
+* There's also a convenient way to post-process and edit the recorded GIFs.
+* Size of GIF (individual images) can also be resized to fit the Documentation popup. Ideally less than **800px**.
+  * Resize with the option **Fant (Higher Quality)** 
+  * While saving, check **Use global color table** option, and leave **Encoder** to **default** with Sampling set to **1 (Best)** for producing relatively high quality GIFs.
+* It should also be made sure to crop out the extra cursor movements at the start or end of the recordings.
 
 |![shift_pt_node.gif](screenshots%2Fprocess_discovery%2Fshift_pt_node.gif)|
 -
@@ -449,15 +451,15 @@ After a tree is available in the process tree editor by either importing or thro
 
 #### Selecting Nodes for Updates
 
-A tree node (either activity or operator) can be selected for updates by clicking on it. After selection of a node, all buttons of updates available for that node are enabled. 
+A tree node (either activity or operator) can be selected for updates by clicking on it. 
 
-After selecting a node, clicking the <i class="bi bi-x-circle btn-icon"></i>`clear selection` button or clicking the node again, clears that selection.
+* After selection of a node, all buttons of updates available for that node are enabled. 
+* Clicking the <i class="bi bi-x-circle btn-icon"></i>`clear selection` button or clicking the node again, clears that selection.
 
-A selected node is highlighted through a red border as follows:
+A selected node is highlighted with a red border as follows:
 
-|![selecting_nodes_for_updates.png](screenshots%2Fprocess_discovery%2Fselecting_nodes_for_updates.png)|
+|![selecting_nodes_for_updates.gif](screenshots%2Fprocess_discovery%2Fselecting_nodes_for_updates.gif)|
 -
-
 
 #### Inserting Nodes
 New nodes available for insertion in the tree are available in the process tree toolbox. The toolbox can be revealed using the <i class="btn-icon bi bi-chevron-bar-down"></i> button at the top of the editor.
@@ -475,7 +477,8 @@ After selecting an operator node, the following choices are available:
 
 Having selected the following operator and **insert new node below** option, adding an activity from the list of available activities in the toolbox adds it under the selected operator follows:
 
-![insert_node_below_1.png](screenshots%2Fprocess_discovery%2Finsert_node_below_1.png) &rarr; ![insert_node_below_2.png](screenshots%2Fprocess_discovery%2Finsert_node_below_2.png)
+|![insert_node_below.gif](screenshots%2Fprocess_discovery%2Finsert_node_below.gif)|
+-
 
 Similarly, adding an operator adds that operator **below** the selected operator. It works similarly for adding activities or operators **above**, to the **left** or to the **right**. 
 
@@ -487,7 +490,8 @@ After selecting an activity, the following choices are available:
 
 Having selected the following activity and **insert new node right to the selected one** option, adding an activity from the list of available activities in the toolbox adds it to the right of the selected activity as follows:
 
-![insert_node_right_1.png](screenshots%2Fprocess_discovery%2Finsert_node_right_1.png) &rarr; ![insert_node_right_2.png](screenshots%2Fprocess_discovery%2Finsert_node_right_2.png)
+|![insert_node_right.gif](screenshots%2Fprocess_discovery%2Finsert_node_right.gif)|
+-
 
 Similarly, adding an operator adds that operator **to the right** the selected activity. It works similarly for adding activities or operators **to the left**.
 
@@ -497,7 +501,8 @@ The `replace the currently selected node` (<i class="bi bi-arrow-repeat"></i>) o
 
 Having selected an activity and **replace the currently selected node** option, choosing another activity from the toolbox replaces the selected activity as follows: 
 
-![replace_node_1.png](screenshots%2Fprocess_discovery%2Freplace_node_1.png) &rarr; ![replace_node_2.png](screenshots%2Fprocess_discovery%2Freplace_node_2.png)
+|![replace_node.gif](screenshots%2Fprocess_discovery%2Freplace_node.gif)|
+-
 
 Similarly, choosing an operator node from the toolbox **replaces** the selected activity with the selected operator. It works similarly for **replacing** selected operators with either operators or activities form the list of available operators and activities in the toolbox. 
 
@@ -507,7 +512,8 @@ Selecting an operator node or an activity and clicking the <i class="bi bi-trash
 
 Having selected an operator node and removing it results as follows:
 
-![remove_node_1.png](screenshots%2Fprocess_discovery%2Fremove_node_1.png) &rarr; ![remove_node_2.png](screenshots%2Fprocess_discovery%2Fremove_node_2.png)
+|![remove_node.gif](screenshots%2Fprocess_discovery%2Fremove_node.gif)|
+-
 
 #### Shifting Nodes
 Selecting an operator node or an activity and clicking the <i class="bi bi-chevron-double-left btn-icon"></i>`shift selected node(s) to left` or <i class="bi bi-chevron-double-right btn-icon"></i>`shift selected node(s) to right` button **shifts** the selected node to the left or to the right respectively. 
@@ -515,12 +521,15 @@ The shift to right or to the left is with respect to the sibling node(s) of the 
 
 Having selected the following operator node and clicking the <i class="bi bi-chevron-double-left btn-icon"></i>`shift selected node(s) to left` button **shifts** the operator node to the left as follows:
 
-![shift_node_1.png](screenshots%2Fprocess_discovery%2Fshift_node_1.png) &rarr; ![shift_node_2.png](screenshots%2Fprocess_discovery%2Fshift_node_2.png)
-
+|![shift_pt_node.gif](screenshots%2Fprocess_discovery%2Fshift_pt_node.gif)|
+-
 
 #### Applying Reduction Rules
 
-Selecting an operator node and clicking the <i class="bi bi-diagram-2"></i> button applies **reduction rules** to remove redundant and unnecessary nodes from that subtree.
+Selecting an operator node and clicking the <i class="bi bi-diagram-2"></i> button applies **reduction rules** to remove redundant and unnecessary nodes from that subtree as follows:
+
+|![reduction_rules.gif](screenshots%2Fprocess_discovery%2Freduction_rules.gif)|
+-
 
 #### (Un)Freezing Subtrees
 
@@ -528,7 +537,8 @@ Freezing a subtree prevents that subtree from being updated during the increment
 
 Selecting an operator node and clicking the <i class="bi bi-snow btn-icon"></i>`(un)freeze subtrees` button **freezes** the subtree under that operator node. The frozen subtree is highlighted blue as seen below:
 
-![freeze_node_1.png](screenshots%2Fprocess_discovery%2Ffreeze_node_1.png)
+|![freeze_node.gif](screenshots%2Fprocess_discovery%2Ffreeze_node.gif)|
+-
 
 Similarly, selecting root operator node of an already frozen subtree and clicking the <i class="bi bi-snow btn-icon"></i>`(un)freeze subtrees` button unfreezes that subtree. After unfreezing, that subtree may be updated diring the incremental discovery process and its presence is no longer ensured.
 
@@ -548,13 +558,14 @@ After a tree is available in the process tree editor by either importing or thro
 
 #### Selecting Nodes for Updates
 
-A node can be selected for updates by clicking on it. After selection of a node, all buttons of updates available for that node are enabled. 
+A node can be selected for updates by clicking on it. 
 
-After selecting a node, clicking the <i class="bi bi-x-circle btn-icon"></i>`clear selection` button or clicking the node again, clears that selection.
+* After selection of a node, all buttons of updates available for that node are enabled. 
+* Clicking the <i class="bi bi-x-circle btn-icon"></i>`clear selection` button or clicking the node again, clears that selection.
 
 A selected node is highlighted through a red border as follows:
 
-|![select_node_bpmn.png](screenshots%2Fprocess_discovery%2Fselect_node_bpmn.png)|
+|![select_node_bpmn.gif](screenshots%2Fprocess_discovery%2Fselect_node_bpmn.gif)|
 -
 
 #### Removing Nodes
@@ -563,7 +574,8 @@ Selecting a node and clicking the <i class="bi bi-trash btn-icon"></i>`remove se
 
 Having selected a node and removing it results as follows:
 
-![remove_bpmn_node_1.png](screenshots%2Fprocess_discovery%2Fremove_bpmn_node_1.png) &rarr; ![remove_bpmn_node_2.png](screenshots%2Fprocess_discovery%2Fremove_bpmn_node_2.png)
+|![remove_bpmn_node.gif](screenshots%2Fprocess_discovery%2Fremove_bpmn_node.gif)|
+-
 
 #### Exporting the Model
 
@@ -588,7 +600,8 @@ After discovering or importing an initial process tree, trace(s) can be chosen f
   2. Press the <i class="bi bi-diagram-2-fill btn-icon"></i>`discover initial model` button
   3. The discovered process tree would be displayed in the `Process Tree Editor` as follows:
 
-![discover_initial_model.gif](screenshots%2Fprocess_discovery%2Fdiscover_initial_model.gif)
+|![discover_initial_model.gif](screenshots%2Fprocess_discovery%2Fdiscover_initial_model.gif)|
+-
 
 ### Incrementally Adding Variants
 
@@ -597,7 +610,8 @@ After discovering or importing an initial process tree, trace(s) can be chosen f
   2. Press the <i class="bi bi-plus-lg btn-icon"></i>`add variant(s) to model` button
   3. The modified process tree (which the selecting traces are fitting to) would be displayed in the `Process Tree Editor` as follows:
   
-![incremental_trace_addition.gif](screenshots%2Fprocess_discovery%2Fincremental_trace_addition.gif)
+|![incremental_trace_addition.gif](screenshots%2Fprocess_discovery%2Fincremental_trace_addition.gif)|
+-
 
 # Temporal Performance Analysis
 
