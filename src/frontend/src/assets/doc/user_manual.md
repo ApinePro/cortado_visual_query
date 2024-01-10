@@ -571,9 +571,32 @@ The current BPMN model in the BPMN viewer can be exported (.svg) using the <i cl
 
 ## Incremental Process Discovery
 
-* Idea and Overview
-* Discovering Initial Model
-* Incrementally Adding Traces
+### Idea and Overview
+
+Cortado uses incremental process discovery which involves incrementally discovering a process model by adding trace by trace to an existing process model. 
+Thereby, the process model under construction gets incrementally extended. Using the trace to be added in an iteration, specific parts 
+of the process tree which must be altered to fit the trace are identified. This is followed by updates to those identified parts which 
+allow the trace to fit the process tree. 
+
+After discovering or importing an initial process tree, trace(s) can be chosen for incrementally adding them to the process tree.  
+
+### Discovering Initial Model
+
+* An initial model can be discovered using the following steps:
+  1. Select variant(s) in the `Variant Explorer`
+  2. Press the <i class="bi bi-diagram-2-fill btn-icon"></i>`discover initial model` button
+  3. The discovered process tree would be displayed in the `Process Tree Editor` as follows:
+
+![discover_initial_model.gif](screenshots%2Fprocess_discovery%2Fdiscover_initial_model.gif)
+
+### Incrementally Adding Variants
+
+* Variant(s) can be incrementally added to the process model using the following steps:
+  1. Select variant(s) in the `Variant Explorer` that are not yet added to the process tree.
+  2. Press the <i class="bi bi-plus-lg btn-icon"></i>`add variant(s) to model` button
+  3. The modified process tree (which the selecting traces are fitting to) would be displayed in the `Process Tree Editor` as follows:
+  
+![incremental_trace_addition.gif](screenshots%2Fprocess_discovery%2Fincremental_trace_addition.gif)
 
 # Temporal Performance Analysis
 
