@@ -214,3 +214,10 @@ ul.scrollspy-nav > .second::before {
   counter-increment: second;
   content: counter(first) "." counter(second) ". "
 }
+
+img[alt="xsmall"] { width: calc(20vw); }
+img[alt="small"] { width: calc(30vw); }
+img[alt="medium"] { width: calc(40vw); }
+img[alt="large"] { width: calc(50vw); }
+img[alt="xlarge"] { width: calc(60vw); }
+img[alt="xxlarge"] { width: calc(70vw); }
