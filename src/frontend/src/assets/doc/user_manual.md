@@ -2,17 +2,23 @@
 
 Internal Notes (remove or move to different location before publication)
 
+## Sizing images / GIFs in the markdown:
+* Size of images and GIFs can be specified the following way:
+  * `![medium](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustering_dialog.png)`
+  * The `medium` above specifies the width of the image/GIF used.
+  * Possible other sizes can be `xsmall`, `small`, `medium`, `large`, `xlarge`, `xxlarge`
+
 ## Creating Screenshots
 
 Screenshots can be captured consistently by using the fixed cortado window of electron.
 
 ### Screenshot without border
 
-![clustering_dialog.png](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustering_dialog.png)
+![medium](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustering_dialog.png)
 
 ### Screenshot with border
 
-|![clustered_variant_explorer.png](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustered_variant_explorer.png)|
+|![medium](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustered_variant_explorer.png)|
 -
 
 ### Producing GIFs
@@ -20,15 +26,12 @@ Screenshots can be captured consistently by using the fixed cortado window of el
 * Use https://www.screentogif.com/screenshots for creating GIFs similar to the ones below.
 * Any part of the screen can be put into the frame that records the GIF.
 * There's also a convenient way to post-process and edit the recorded GIFs.
-* Size of GIF (individual images) can also be resized to fit the Documentation popup. Ideally less than **800px**.
-  * Resize with the option **Fant (Higher Quality)** 
-  * While saving, check **Use global color table** option, and leave **Encoder** to **default** with Sampling set to **1 (Best)** for producing relatively high quality GIFs.
 * It should also be made sure to crop out the extra cursor movements at the start or end of the recordings.
 
-|![shift_pt_node.gif](screenshots%2Fprocess_discovery%2Fshift_pt_node.gif)|
+|![large](screenshots%2Fprocess_discovery%2Fshift_pt_node.gif)|
 -
 
-|![discover_initial_model.gif](screenshots%2Fprocess_discovery%2Fdiscover_initial_model.gif)|
+|![large](screenshots%2Fprocess_discovery%2Fdiscover_initial_model.gif)|
 -
 
 ### Drawing boxes on screenshots:
@@ -613,7 +616,7 @@ After discovering or importing an initial process tree, trace(s) can be chosen f
      * All variants in the variant explorer can be selected for the incremental process discovery including:
        * Variants from the log.
        * Variant fragments.
-       * Variants from the variant modeler.
+       * Variants from the `Variant Modeler`.
   3. The modified process tree (which the selecting traces fit to) would be displayed in the `Process Tree Editor` as follows:
   
 |![incremental_trace_addition.gif](screenshots%2Fprocess_discovery%2Fincremental_trace_addition.gif)|
