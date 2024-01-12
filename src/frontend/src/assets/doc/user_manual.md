@@ -69,21 +69,28 @@ Screenshots can be captured consistently by using the fixed cortado window of el
 
 ## Variant Explorer
 
-In the Variant Explorer, users can get a comprehensive list of all variants present in the loaded event log. Unlike classical sequential variants found in other process mining tools, the Variant Explorer captures additional parallel behavior. The explorer also lists [*Variant Fragments*](#variant-fragments). The explorer offers different views on the variants, including:
+In the Variant Explorer, users can get a comprehensive list of all variants present in the loaded event log. Unlike classical sequential variants found in other process mining tools, the Variant Explorer captures additional parallel behavior. The explorer also lists [*Variant Fragments*](#variant-fragments). 
+
+![large](screenshots/variant_explorer/standard-view.png)
+
+🔴 There are different views on the variants, including:
 
 - **Standard View:** Provides general information about each variant.
 - **Performance View:** Refer to section [*Temporal Performance Analysis*](#temporal-performance-analysis).
 - **Conformance View:** Refer to section [*Conformance Analysis*](#conformance-analysis).
 
-For each variant, the explorer displays its frequency within the log and the number of sub-variants it has. Variants can be selected for discovering an initial model (<i class="bi bi-diagram-2-fill btn-icon text-success">discover initial model</i>), and they can also be added incrementally (<i class="bi bi-plus-lg btn-icon text-success">add variant(s) to model</i>) (when discovering an initial model there may not be any variant fragments be selected).
+🟢 For each variant, the explorer displays its frequency within the log and the number of sub-variants it has.
 
-When a model is present, conformance is available within the standard view. Click the (<i class="bi bi-question-square btn-icon"></i>) button for individual variant conformance or use (<i class="bi bi-layers-fill btn-icon">conformance check</i>) for all variants. For more detailed conformance insights, refer to the [*Conformance Analysis*](#conformance-analysis) section. Variants can also be deleted by hovering over a variant row and clicking the deletion icon.
+🟣 Variants can be selected for discovering an initial model (<i class="bi bi-diagram-2-fill btn-icon text-success">discover initial model</i>), and they can also be added incrementally (<i class="bi bi-plus-lg btn-icon text-success">add variant(s) to model</i>) (when discovering an initial model there may not be any variant fragments be selected).
 
-Besides that there are also multiple actions available from the <i class="bi bi-tools btn-icon"></i>`Functions` dropdown menu within the toolbar of the variant explorer. For there functionalities refer to the corresponding sections.
+🔵 Variants can also be deleted by hovering over a variant row and clicking the deletion icon.
+
+🟡 Besides that there are also multiple actions available from the <i class="bi bi-tools btn-icon"></i>`Functions` dropdown menu within the toolbar of the variant explorer. For there functionalities refer to the corresponding sections.
+
+When a model is present, conformance is available within the standard view. Click the (<i class="bi bi-question-square btn-icon"></i>) button for individual variant conformance or use (<i class="bi bi-layers-fill btn-icon">conformance check</i>) for all variants. For more detailed conformance insights, refer to the [*Conformance Analysis*](#conformance-analysis) section.
+
 
 Beneath the listed variants, there are also statistic displayed for the whole event log, i.e. how many traces/variants are fitting the model or selected.
-
-In the variant explorer, you can perform various actions.
 
 ### Variant Information Explorer
 ![Variant Info Explorer](./screenshots/variant_explorer/variant_info_explorer_detail.png)
@@ -622,19 +629,30 @@ After discovering or importing an initial process tree, trace(s) can be chosen f
 
 # Temporal Performance Analysis
 
-* Model-independent performance analysis
-* Model-based performance analysis
 ## Model-independent performance analysis
 When opening the Performance View from the side bar, the performance of each variant is calculated, which may take a while depending on the size of the event log. 
+
+![large](screenshots/variant_explorer/performance-view.png)
+
 In this view the variants are no longer uniquely colored to be differentiated but based on their service times. Additionally, there are now nodes displayed inbetween activites to show the waiting times. These are colored using a separate color scale to show their waiting times. 
 
 Both color maps can be seen in a sub-tab from the `Variant Performance` tab.
+
+![large](screenshots/temporal_performance_analysis/variant-performance_color-map.png)
+
 Here the used statistic for the color maps can be changed from their default showing the mean values of all instances for each variant to other statisics such as their minimum, maximum or standard deviation. Upon change the color map will be immediatley be updated.
 
 To get further insight into the performance of certain parts of a variant, let it be single activites, waiting nodes or parallel sections, one can simply click on them in the Variant Explorer and inspect their service or waiting times in the `Selection` sub-tab of the `Variant Performance` tab.
 
+![large](screenshots/temporal_performance_analysis/variant-performance_selection.png)
+
+
 ## Model-based performance analysis 
-For understanding the performance of a process model one can project the performance of selected variants onto the model from the Performance View. When there is a model present there will be two additional columns in the Variant Explorer, namely `Model Projection` and by default `service time (mean)`.
+For understanding the performance of a process model one can project the performance of selected variants onto the model from the Performance View. 
+
+![large](screenshots/temporal_performance_analysis/model-performance_projection.png)
+
+🔴 When there is a model present there will be two additional columns in the Variant Explorer, namely `Model Projection` and by default `service time (mean)`.
 
 By clicking the toggle in the `Model Projection` column the variant will be added to the pool of projected variant. On the other hand unclicking the toggle of already projected variants will remove them again from the pool. To clear the whole pool one can click (<i class="bi bi-x-circle-fill btn-icon"></i>) in the header of the `Model Projection` column.
 
@@ -642,10 +660,14 @@ Please note that in most cases it only makes sense to project variants that are 
 
 The other column shows in the default setting the mean service overall model performance of the variant.
 
-Further information can be gained from `Model Performance` tab. Here in the `Selection` subtab the *service time*, *waiting time*, *cycle time* and *idle time* are shown for the selection made within the model.
-The same information can be gained for certain process tree nodes by hovering over them. 
+🟢 Further information can be gained from `Model Performance` tab. Here in the `Selection` subtab the *service time*, *waiting time*, *cycle time* and *idle time* are shown for the selection made within the model.
+
+🟣 The same information can be gained for certain process tree nodes by hovering over them. 
 
 In the `Color Map` subtab adjustments can be made to how the model is colored and the statistics are aggregated.
+
+![large](screenshots/temporal_performance_analysis/model-performance_color-map.png)
+
 One can choose which of the four performance times will be used for the projection as well between the statistical measure (mean, min, max, stdev). 
 
 The changes made to this will also change what will be displayed in the variants explorer column.
