@@ -69,8 +69,6 @@ Screenshots can be captured consistently by using the fixed cortado window of el
 
 ## Variant Explorer
 
-Selected (marked with <i class="bi bi-check2-circle"></i>) <b>non-fitting</b> variants will be added to the process model.
-
 In the Variant Explorer, users can get a comprehensive list of all variants present in the loaded event log. Unlike classical sequential variants found in other process mining tools, the Variant Explorer captures additional parallel behavior. The explorer also lists [*Variant Fragments*](#variant-fragments). The explorer offers different views on the variants, including:
 
 - **Standard View:** Provides general information about each variant.
