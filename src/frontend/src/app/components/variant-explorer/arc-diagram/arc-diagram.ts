@@ -8,9 +8,10 @@ let width = 800; //> width of svg image
 const LoD = 1;
 const transparency = 0.4;
 const hoverTransparency = 1;
+const hoverColor = 'red';
 
-
-const color = 'lightgrey';
+const strokeColor = 'white';
+const fillColor = 'lightgrey';
 const strokeWidth = '2';
 
 
@@ -77,7 +78,6 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
   const height = baseHeight + step * (idx - 1);
   const barHeight = 10;
   const barRoundedness = 4;
-  const strokeColor = 'white';
 
   const chart = d3
     .select(variantDrawer.divHtmlElement.nativeElement)
@@ -134,15 +134,18 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
         );
       })
       .attr('height', barHeight)
-      .attr('fill', color)
+      // .attr('stroke', 'red')
+      .attr('fill', fillColor)
       .attr('fill-opacity', transparency)
       .attr('rx', barRoundedness)
       .attr('ry', barRoundedness)
-      .attr('class', `${dest}-rect`)
+      .attr('class', `${dest}-rect rect-shadow`)
   }
 
   appendBarBasedOn('source')
   appendBarBasedOn('target')
+
+  let areOtherArcsHidden = false
 
   // arc between the source and target bar
   arcGroups.each(function (d: Arc) {
@@ -175,20 +178,25 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
   })
     .on('mouseover', function (_, i) {
 
-      // highlight all corresponding bars
-      arcGroups.selectAll('rect').style('fill-opacity', function (x) {
-        if (i == x) {
-          console.log(x);
-          return hoverTransparency;
-        } else return transparency;
-      });
+      // highlight all corresponding bars and arcs
+      arcGroups.selectAll('rect').each(highlightArcComponents);
+      arcGroups.selectAll('path').each(highlightArcComponents);
 
-      // highlight the corresponding arc
-      arcGroups.selectAll('path')
-        .style('stroke-opacity', function (x) {
-          if (i == x) return hoverTransparency;
-          else return transparency;
-        });
+      function highlightArcComponents(x: Arc) {
+        if (i.text == x.text) {
+          d3.select(this).style('fill', function () {
+            return this.tagName == 'rect' ? hoverColor : 'none';
+          }).style('stroke', function () {
+            return this.tagName == 'path' ? hoverColor : 'none';
+          });
+        }
+        if (i == x) {
+          d3.select(this).style('fill-opacity', hoverTransparency).style('stroke-opacity', hoverTransparency);
+        } else {
+          d3.select(this).style('fill-opacity', transparency).style('stroke-opacity', transparency);
+        }
+
+      }
 
       // blur out all the chevrons
       d3.select(variantDrawer.divHtmlElement.nativeElement)
@@ -203,12 +211,34 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
       })
     })
     .on('mouseout', function () {
-      arcGroups.selectAll('rect').style('fill-opacity', transparency);
-      arcGroups.selectAll('path')
-        .style('stroke-opacity', transparency);
+      arcGroups.selectAll('rect').style('fill-opacity', transparency).style('fill', fillColor);
+      arcGroups.selectAll('path').style('stroke-opacity', transparency).style('stroke', strokeColor);
       d3.select(variantDrawer.divHtmlElement.nativeElement)
         .selectAll('g')
         .style('fill-opacity', hoverTransparency);
+    })
+    .on('click', function (d, i) {
+
+      // move all patterns to the same level as that of the clicked one
+      arcGroups.selectAll('rect').each(function (x: Arc) {
+        moveArcComponents(this, x, areOtherArcsHidden)
+      });
+      arcGroups.selectAll('path').each(function (x: Arc) {
+        moveArcComponents(this, x, areOtherArcsHidden)
+      });
+      areOtherArcsHidden = !areOtherArcsHidden;
+
+      function moveArcComponents(el, x: Arc, reset: boolean) {
+
+        if (i.text == x.text && i != x) {
+          d3.select(el.parentNode).attr('transform', function () {
+            return reset ? null : `translate(0, ${d.target.getAttribute('y') - this.firstChild.getAttribute('y')})`;
+          });
+        }
+        if (i.text != x.text) {
+          d3.select(el).transition().duration(900).style('visibility', reset ? 'visible' : 'hidden');
+        }
+      }
     });
 
 }
