@@ -55,6 +55,7 @@ declare var $;
   selector: 'app-pattern-editor',
   templateUrl: './pattern-editor.component.html',
   styleUrls: ['./pattern-editor.component.css'],
+  animations: [collapsingText],
 })
 export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
   activityNames: Array<String> = [];
