@@ -82,7 +82,7 @@ async def revert_last_change():
 
 
 class userDefinedVariant(BaseModel):
-    variant: Any
+    variant: Any = None
     bid: int
 
 
@@ -105,7 +105,7 @@ async def add_user_defined_variant(request: userDefinedVariant, response: Respon
 
 
 class userDefinedInfix(BaseModel):
-    variant: Any
+    variant: Any = None
     bid: int
     infixType: int
 

@@ -6,7 +6,7 @@ from backend_utilities.configuration.repository import (
     ConfigurationRepositoryFactory,
 )
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 
 router = APIRouter(tags=["config"], prefix="/config")
 
@@ -28,9 +28,7 @@ class Configuration(BaseModel):
     is_n_sequentialization_reduction_enabled: bool = Field(
         alias="isNSequentializationReductionEnabled"
     )
-
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 @router.post("/saveConfiguration")
