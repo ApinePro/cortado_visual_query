@@ -32,7 +32,7 @@ def merge_performance(all_performances):
 class InputCalculatePerformance(BaseModel):
     pt: dict
     variants: List[int]
-    delete: Optional[List[int]]
+    delete: Optional[List[int]] = None
 
 
 pcache = {}

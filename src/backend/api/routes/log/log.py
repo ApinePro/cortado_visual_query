@@ -14,7 +14,7 @@ router = APIRouter(tags=["Log"], prefix="/log")
 
 
 class PropertiesParams(BaseModel):
-    time_granularity: Optional[TimeUnit] = Field(alias="timeGranularity")
+    time_granularity: Optional[TimeUnit] = Field(None, alias="timeGranularity")
 
 
 @router.post("/properties")
