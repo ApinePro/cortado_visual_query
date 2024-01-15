@@ -48,7 +48,7 @@ import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { DialogModule } from './components/dialogs/dialog.module';
 import { VariantMinerComponent } from './components/variant-miner/variant-miner.component';
 import { VariantMinerPatternComponent } from './components/variant-miner/variant-miner-pattern/variant-miner-pattern.component';
-import { NgxSliderModule } from '@angular-slider/ngx-slider';
+import { NgxSliderModule } from 'ngx-slider-v2';
 import { VariantQueryComponent } from './components/variant-explorer/variant-query/variant-query.component';
 import { ConformanceInfoBarComponent } from './components/variant-explorer/conformance-info/info-bar/conformance-info-bar.component';
 import { initApp, InitService } from './services/init.service';
