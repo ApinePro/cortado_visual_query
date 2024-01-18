@@ -88,42 +88,15 @@ Beneath the listed variants, there are also statistic displayed for the whole ev
 In the variant explorer, you can perform various actions.
 
 ### Variant Information Explorer
-![Variant Info Explorer](./screenshots/variant_explorer/variant_info_explorer_detail.png)
-By clicking the variant's count in Variant Explorer, a new Variant Information Explorer window opened in the stack of Variant Explorer. In Variant Information Explorer, all cases of the selected variant are listed, with their information including case ID, earliest and latest timestamp, and duration. The case list could be sorted by case ID (alphabet order), timestamp, and duration.
+![Variant Info Explorer](./screenshots/variant_explorer/variant_info_explorer_detail.png) <br>
+
+By clicking the variant's count in Variant Explorer, a new Variant Information Explorer window opened in the stack of Variant Explorer. In Variant Information Explorer, all cases of the selected variant are listed, with their information including case ID, earliest and latest timestamp, and duration. The case list could be sorted by case ID (in alphabet order), timestamp, and duration.
 
 ### Case Information Exploerer
-![Case Explorer](./screenshots/variant_explorer/case_explorer_detail.png)
+![Case Explorer](./screenshots/variant_explorer/case_explorer_detail.png)<br>
+
 By clicking the case ID in Variant Information Explorer, a new Case Information Explorer window opened in the stack of Variant Explorer. In Case Information Explorer, the events of the selected case are listed in time order, with their information including starting timestamp, ending timestamp, duration, and resources of the event.
 
-### Tiebreaker
-![Tiebreaker](./screenshots/variant_explorer/tiebreaker.png)
-Tiebreaker is a sequentialization tool which provides a function to match source pattern in variants and replace them with the target pattern. In tiebreaker, there are two pattern editors to model the source pattern and target pattern, respectively. In addition to sequential and parallel pattern, the tiebreaker allows to create:
-1. choice group, which could match any combination of any activities in the group;  
-![ChoiceGroup](./screenshots/variant_explorer/choicegroup.png)
-2. fallthrough group;  
-![FallthroughGroup](./screenshots/variant_explorer/fallthroughgroup.png)
-3. pattern with a wildcard option '..' to allow partial match, which represents "rest of the variant".  
-![Wildcard](./screenshots/variant_explorer/wildcard.png)
-
-Note：
-1. in source pattern, only parallel variants are allowed.
-2. The invalid patterns are checked when editing.
-3. The activities in target pattern should be consistent with activities in the source pattern. Acitivities in target pattern editor are only enabled when they are already in the source pattern.
-
-Here are some examples to show how variants are transformed by the tiebreaker:
-- (1)![](./screenshots/variant_explorer/tiebreaker_examples_1.png)
-- (2)![](./screenshots/variant_explorer/tiebreaker_examples_2.png)
-- (3)![](./screenshots/variant_explorer/tiebreaker_examples_3.png)
-- (4)![](./screenshots/variant_explorer/tiebreaker_examples_4.png)
-- (5)![](./screenshots/variant_explorer/tiebreaker_examples_5.png)
-
-| Source Pattern   | Target Pattern | Result for examples       |
-|:-------:|:-----:|----------|
-| ![](./screenshots/variant_explorer/tiebreaker_examples_2.png)   | ![](./screenshots/variant_explorer/tiebreaker_examples_6.png)  | (1) No match<br> (2) ![](./screenshots/variant_explorer/tiebreaker_examples_6.png)<br> (3) No match<br> (4) No match<br> (5) No match<br>   |
-| ![](./screenshots/variant_explorer/tiebreaker_examples_7.png)   | ![](./screenshots/variant_explorer/tiebreaker_examples_8.png)  | (1) ![](./screenshots/variant_explorer/tiebreaker_examples_9.png)<br> (2) ![](./screenshots/variant_explorer/tiebreaker_examples_6.png)<br> (3) No match<br> (4) ![](./screenshots/variant_explorer/tiebreaker_examples_10.png)<br> (5) ![](./screenshots/variant_explorer/tiebreaker_examples_9.png)<br>   |
-| ![](./screenshots/variant_explorer/tiebreaker_examples_7.png)   | ![](./screenshots/variant_explorer/tiebreaker_examples_11.png)  | (1) ![](./screenshots/variant_explorer/tiebreaker_examples_12.png)<br> (2) ![](./screenshots/variant_explorer/tiebreaker_examples_6.png)<br> (3) ![](./screenshots/variant_explorer/tiebreaker_examples_13.png)<br> (4) ![](./screenshots/variant_explorer/tiebreaker_examples_14.png)<br> (5) ![](./screenshots/variant_explorer/tiebreaker_examples_12.png)<br>   |
-| ![](./screenshots/variant_explorer/tiebreaker_examples_15.png)   | ![](./screenshots/variant_explorer/tiebreaker_examples_16.png)  | (1) No match<br> (2) ![](./screenshots/variant_explorer/tiebreaker_examples_6.png)<br> (3) No match<br><br> (4) ![](./screenshots/variant_explorer/tiebreaker_examples_17.png)<br> (5) No match<br><br>   |
-| ![](./screenshots/variant_explorer/tiebreaker_examples_18.png)   | ![](./screenshots/variant_explorer/tiebreaker_examples_19.png)  | (1) ![](./screenshots/variant_explorer/tiebreaker_examples_20.png)<br> (2) ![](./screenshots/variant_explorer/tiebreaker_examples_6.png)<br> (3) ![](./screenshots/variant_explorer/tiebreaker_examples_21.png)<br> (4) ![](./screenshots/variant_explorer/tiebreaker_examples_17.png)<br> (5) ![](./screenshots/variant_explorer/tiebreaker_examples_20.png)<br>   |
 ### Variant Sorting
 
 From the dropdown <i class="bi bi-sort-alpha-down btn-icon"></i>`Sorting` one can sort the listed variants based on different criteria:
@@ -441,6 +414,41 @@ The editor comprises primarily of <i>three sections</i>, all of which rely heavi
    Switching the toggle off, retains only the infixes *not* containing the activity.
 
 ## Variant Sequentialization (Tiebreaker)
+Tiebreaker is a sequentialization tool which provides a function to match source pattern in variants and replace them with the target pattern. In tiebreaker, there are two pattern editors to model the source pattern and target pattern, respectively. In addition to sequential and parallel pattern, the tiebreaker allows to create:<br>
+
+![Tiebreaker](./screenshots/variant_sequentialization/tiebreaker.png)
+
+1. choice group, which could match any combination of any activities in the group;
+
+![ChoiceGroup](./screenshots/variant_sequentialization/choicegroup.png)
+
+2. fallthrough group;
+
+![FallthroughGroup](./screenshots/variant_sequentialization/fallthroughgroup.png)
+
+3. pattern with a wildcard option '..' to allow partial match, which represents "rest of the variant".
+
+![medium](./screenshots/variant_sequentialization/wildcard.png)
+
+Note：
+1. in source pattern, only parallel variants are allowed.
+2. The invalid patterns are checked when editing.
+3. The activities in target pattern should be consistent with activities in the source pattern. Acitivities in target pattern editor are only enabled when they are already in the source pattern.
+
+Here are some examples to show how variants are transformed by the tiebreaker:
+- (1)![](./screenshots/variant_sequentialization/tiebreaker_examples_1.png)
+- (2)![](./screenshots/variant_sequentialization/tiebreaker_examples_2.png)
+- (3)![](./screenshots/variant_sequentialization/tiebreaker_examples_3.png)
+- (4)![](./screenshots/variant_sequentialization/tiebreaker_examples_4.png)
+- (5)![](./screenshots/variant_sequentialization/tiebreaker_examples_5.png)
+
+| Source Pattern   | Target Pattern | Result for examples       |
+|:-------:|:-----:|----------|
+| ![](./screenshots/variant_sequentialization/tiebreaker_examples_2.png)   | ![](./screenshots/variant_sequentialization/tiebreaker_examples_6.png)  | (1) No match<br> (2) ![](./screenshots/variant_sequentialization/tiebreaker_examples_6.png)<br> (3) No match<br> (4) No match<br> (5) No match<br>   |
+| ![](./screenshots/variant_sequentialization/tiebreaker_examples_7.png)   | ![](./screenshots/variant_sequentialization/tiebreaker_examples_8.png)  | (1) ![](./screenshots/variant_sequentialization/tiebreaker_examples_9.png)<br> (2) ![](./screenshots/variant_sequentialization/tiebreaker_examples_6.png)<br> (3) No match<br> (4) ![](./screenshots/variant_sequentialization/tiebreaker_examples_10.png)<br> (5) ![](./screenshots/variant_sequentialization/tiebreaker_examples_9.png)<br>   |
+| ![](./screenshots/variant_sequentialization/tiebreaker_examples_7.png)   | ![](./screenshots/variant_sequentialization/tiebreaker_examples_11.png)  | (1) ![](./screenshots/variant_sequentialization/tiebreaker_examples_12.png)<br> (2) ![](./screenshots/variant_sequentialization/tiebreaker_examples_6.png)<br> (3) ![](./screenshots/variant_sequentialization/tiebreaker_examples_13.png)<br> (4) ![](./screenshots/variant_sequentialization/tiebreaker_examples_14.png)<br> (5) ![](./screenshots/variant_sequentialization/tiebreaker_examples_12.png)<br>   |
+| ![](./screenshots/variant_sequentialization/tiebreaker_examples_15.png)   | ![](./screenshots/variant_sequentialization/tiebreaker_examples_16.png)  | (1) No match<br> (2) ![](./screenshots/variant_sequentialization/tiebreaker_examples_6.png)<br> (3) No match<br><br> (4) ![](./screenshots/variant_sequentialization/tiebreaker_examples_17.png)<br> (5) No match<br><br>   |
+| ![](./screenshots/variant_sequentialization/tiebreaker_examples_18.png)   | ![](./screenshots/variant_sequentialization/tiebreaker_examples_19.png)  | (1) ![](./screenshots/variant_sequentialization/tiebreaker_examples_20.png)<br> (2) ![](./screenshots/variant_sequentialization/tiebreaker_examples_6.png)<br> (3) ![](./screenshots/variant_sequentialization/tiebreaker_examples_21.png)<br> (4) ![](./screenshots/variant_sequentialization/tiebreaker_examples_17.png)<br> (5) ![](./screenshots/variant_sequentialization/tiebreaker_examples_20.png)<br>   |
 
 
 # Process Discovery
