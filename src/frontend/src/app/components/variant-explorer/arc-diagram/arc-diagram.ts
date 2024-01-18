@@ -10,8 +10,7 @@ const transparency = 0.4;
 const hoverTransparency = 1;
 const hoverColor = 'red';
 
-const strokeColor = 'white';
-const fillColor = 'lightgrey';
+const arcColor = 'lightgrey';
 const strokeWidth = '2';
 
 
@@ -134,12 +133,12 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
         );
       })
       .attr('height', barHeight)
-      // .attr('stroke', 'red')
-      .attr('fill', fillColor)
-      .attr('fill-opacity', transparency)
       .attr('rx', barRoundedness)
       .attr('ry', barRoundedness)
-      .attr('class', `${dest}-rect rect-shadow`)
+      .attr('class', `${dest}-rect`)
+      .style('fill', arcColor)
+      .style('fill-opacity', transparency)
+      .style('cursor', 'pointer');
   }
 
   appendBarBasedOn('source')
@@ -169,18 +168,18 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
 
         return path.toString();
       })
-      .style('stroke', strokeColor)
+      .style('stroke', arcColor)
       .style('fill', 'none')
       .style('stroke-width', strokeWidth)
       .style('stroke-linecap', 'round')
-      .style('stroke-opacity', transparency);
+      .style('stroke-opacity', transparency)
+      .style('cursor', 'pointer');
 
   })
     .on('mouseover', function (_, i) {
 
       // highlight all corresponding bars and arcs
-      arcGroups.selectAll('rect').each(highlightArcComponents);
-      arcGroups.selectAll('path').each(highlightArcComponents);
+      arcGroups.selectAll('rect,path').each(highlightArcComponents);
 
       function highlightArcComponents(x: Arc) {
         if (i.text == x.text) {
@@ -190,53 +189,63 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
             return this.tagName == 'path' ? hoverColor : 'none';
           });
         }
-        if (i == x) {
-          d3.select(this).style('fill-opacity', hoverTransparency).style('stroke-opacity', hoverTransparency);
-        } else {
-          d3.select(this).style('fill-opacity', transparency).style('stroke-opacity', transparency);
-        }
+        let highlightTransparency = i == x ? hoverTransparency : transparency
+        d3.select(this).style('fill-opacity', highlightTransparency).style('stroke-opacity', highlightTransparency);
 
       }
 
       // blur out all the chevrons
-      d3.select(variantDrawer.divHtmlElement.nativeElement)
-        .selectAll('g')
-        .style('fill-opacity', transparency);
+      d3.select(variantDrawer.divHtmlElement.nativeElement).selectAll('g.variant-element-group').style('fill-opacity', transparency)
 
-      // highlight the corresponding chevrons
-      i.matches.forEach((dfsId: number) => {
-        d3.select(variantDrawer.divHtmlElement.nativeElement)
-          .selectAll(`g.dfs-group-${dfsId}`)
-          .style('fill-opacity', hoverTransparency);
-      })
+      arcs.forEach(highlightMatchingChevrons);
+
+      function highlightMatchingChevrons(x: Arc) {
+
+        if (i.text == x.text) {
+          x.matches.forEach((dfsId: number) => {
+            if (dfsId == 0) {
+              return;
+            }
+            let el = d3.select(variantDrawer.divHtmlElement.nativeElement).select(`g.dfs-group-${dfsId}`)
+            if (i == x) {
+              el.style('fill-opacity', hoverTransparency)
+            }
+            el.select('polygon')
+              .style('stroke', hoverColor)
+
+          })
+        }
+      }
     })
     .on('mouseout', function () {
-      arcGroups.selectAll('rect').style('fill-opacity', transparency).style('fill', fillColor);
-      arcGroups.selectAll('path').style('stroke-opacity', transparency).style('stroke', strokeColor);
+      arcGroups.selectAll('rect').style('fill-opacity', transparency).style('fill', arcColor);
+      arcGroups.selectAll('path').style('stroke-opacity', transparency).style('stroke', arcColor);
       d3.select(variantDrawer.divHtmlElement.nativeElement)
         .selectAll('g')
-        .style('fill-opacity', hoverTransparency);
+        .style('fill-opacity', hoverTransparency)
+        .selectAll('polygon')
+        .style('stroke', 'none');
     })
     .on('click', function (d, i) {
 
       // move all patterns to the same level as that of the clicked one
-      arcGroups.selectAll('rect').each(function (x: Arc) {
-        moveArcComponents(this, x, areOtherArcsHidden)
-      });
-      arcGroups.selectAll('path').each(function (x: Arc) {
+      arcGroups.selectAll('rect,path').each(function (x: Arc) {
         moveArcComponents(this, x, areOtherArcsHidden)
       });
       areOtherArcsHidden = !areOtherArcsHidden;
 
       function moveArcComponents(el, x: Arc, reset: boolean) {
 
-        if (i.text == x.text && i != x) {
-          d3.select(el.parentNode).attr('transform', function () {
-            return reset ? null : `translate(0, ${d.target.getAttribute('y') - this.firstChild.getAttribute('y')})`;
+        if (i.text == x.text && i != x && !reset) {
+          d3.select(el.parentNode).transition().duration(500).attr('transform', function () {
+            return `translate(0, ${d.target.getAttribute('y') - this.firstChild.getAttribute('y')})`;
           });
         }
+        if (reset) {
+          d3.select(el.parentNode).transition().duration(500).attr('transform', null);
+        }
         if (i.text != x.text) {
-          d3.select(el).transition().duration(900).style('visibility', reset ? 'visible' : 'hidden');
+          d3.select(el).style('visibility', reset ? 'visible' : 'hidden');
         }
       }
     });
