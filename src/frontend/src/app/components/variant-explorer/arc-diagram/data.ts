@@ -1,8 +1,3 @@
-class Data {
-  activities: string[];
-  arcs: Arc[];
-}
-
 class Arc {
   sourcePos: number;
   numberEle: number;
@@ -47,4 +42,4 @@ class Pair {
   }
 }
 
-export {Data, Arc, Pair};
+export {Arc, Pair};

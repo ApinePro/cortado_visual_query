@@ -1,41 +1,36 @@
-import { VariantFilterService } from './../variantFilterService/variant-filter.service';
-import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
-import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
-import { LogService } from 'src/app/services/logService/log.service';
+import {VariantFilterService} from './../variantFilterService/variant-filter.service';
+import {ColorMapService} from 'src/app/services/colorMapService/color-map.service';
+import {ProcessTreeService} from 'src/app/services/processTreeService/process-tree.service';
+import {LogService} from 'src/app/services/logService/log.service';
 import * as objectHash from 'object-hash';
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { map, mergeMap, tap, toArray } from 'rxjs/operators';
-import { v4 as uuidv4 } from 'uuid';
+import {Injectable} from '@angular/core';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {map, mergeMap, tap} from 'rxjs/operators';
+import {v4 as uuidv4} from 'uuid';
 import {
   getInfixTypeForSelectedInfix,
   getSelectedChildren,
   InfixType,
   removeIntermediateGroupsWithSingleElements,
 } from 'src/app/objects/Variants/infix_selection';
-import { FragmentStatistics, Variant } from 'src/app/objects/Variants/variant';
-import {
-  deserialize,
-  SequenceGroup,
-  VariantElement,
-} from 'src/app/objects/Variants/variant_element';
+import {FragmentStatistics, Variant} from 'src/app/objects/Variants/variant';
+import {deserialize, SequenceGroup, VariantElement,} from 'src/app/objects/Variants/variant_element';
 import {
   addVariantInformation,
   compute_delete_activity_variants,
   compute_rename_activity_variants,
 } from './variant-transformation';
-import { ROUTES } from 'src/app/constants/backend_route_constants';
-import { ToastService } from '../toast/toast.service';
-import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
-import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
-import { ClusteringConfig } from 'src/app/objects/ClusteringConfig';
-import { BackendService } from '../backendService/backend.service';
+import {ToastService} from '../toast/toast.service';
+import {VariantSorter} from 'src/app/objects/Variants/variant-sorter';
+import {LoopCollapsedVariant} from 'src/app/objects/Variants/loop_collapsed_variant';
+import {ClusteringConfig} from 'src/app/objects/ClusteringConfig';
+import {BackendService} from '../backendService/backend.service';
 import {
+  ActivityDeletion,
+  ActivityRenaming,
   UserDefinedInfixAddition,
   UserDefinedVariantAddition,
-  ActivityDeletion,
   VariantsDeletion,
-  ActivityRenaming,
 } from 'src/app/objects/LogModification';
 
 @Injectable({
@@ -50,6 +45,7 @@ export class VariantService {
   get activityTooltipReference() {
     return this._activityTooltipReference;
   }
+
   set activityTooltipReference(value) {
     this._activityTooltipReference = value;
   }
@@ -230,9 +226,8 @@ export class VariantService {
       });
   }
 
-  public showArcDiagram(variant: VariantElement) {
-    const matchingVariant = this.variants.find((v) => v.variant === variant);
-    return this.backendService.showArcDiagram(matchingVariant.bid);
+  public showArcDiagram(bid: number) {
+    return this.backendService.showArcDiagram(bid);
   }
 
   public deleteVariant(variant: VariantElement): void {

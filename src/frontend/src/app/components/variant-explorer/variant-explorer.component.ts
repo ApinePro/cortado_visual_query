@@ -1,7 +1,4 @@
-import {
-  VariantFilter,
-  VariantFilterService,
-} from './../../services/variantFilterService/variant-filter.service';
+import {VariantFilter, VariantFilterService,} from './../../services/variantFilterService/variant-filter.service';
 
 import {
   AfterViewInit,
@@ -27,79 +24,57 @@ import {
   LogicalZIndex,
   Stack,
 } from 'golden-layout';
-import { Subject } from 'rxjs';
-import {
-  delay,
-  finalize,
-  mergeMap,
-  retryWhen,
-  take,
-  tap,
-  takeUntil,
-  filter,
-} from 'rxjs/operators';
-import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
-import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import {Subject} from 'rxjs';
+import {delay, filter, mergeMap, retryWhen, take, takeUntil, tap,} from 'rxjs/operators';
+import {GoldenLayoutHostComponent} from 'src/app/components/golden-layout-host/golden-layout-host.component';
+import {LayoutChangeDirective} from 'src/app/directives/layout-change/layout-change.directive';
+import {VariantDrawerDirective} from 'src/app/directives/variant-drawer/variant-drawer.directive';
 
-import { TimeUnit } from 'src/app/objects/TimeUnit';
-import { HumanizeDurationPipe } from 'src/app/pipes/humanize-duration.pipe';
+import {TimeUnit} from 'src/app/objects/TimeUnit';
+import {HumanizeDurationPipe} from 'src/app/pipes/humanize-duration.pipe';
 import {
   AlignmentType,
   ConformanceCheckingService,
 } from 'src/app/services/conformanceChecking/conformance-checking.service';
-import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
-import { LogService, LogStats } from 'src/app/services/logService/log.service';
-import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
-import { PerformanceService } from 'src/app/services/performance.service';
-import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
-import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
-import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
-import { VariantService } from 'src/app/services/variantService/variant.service';
-import { originalOrder } from 'src/app/utils/util';
-import { BackendService } from '../../services/backendService/backend.service';
-import { ColorMapService } from '../../services/colorMapService/color-map.service';
-import { ImageExportService } from '../../services/imageExportService/image-export-service';
-import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
-import { DropzoneConfig } from '../drop-zone/drop-zone.component';
-import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
-import { SubvariantInfoExplorerComponent } from './subvariant-info-explorer/subvariant-info-explorer.component';
-import { CaseExplorerComponent } from './case-explorer/case-explorer.component';
-import { VariantSorter } from '../../objects/Variants/variant-sorter';
-import { Variant } from 'src/app/objects/Variants/variant';
-import {
-  VariantElement,
-  SequenceGroup,
-  ParallelGroup,
-  deserialize,
-} from 'src/app/objects/Variants/variant_element';
-import {
-  activityColor,
-  clickCallback,
-  contextMenuCallback,
-} from './functions/variant-drawer-callbacks';
-import { exportVariantDrawer } from './functions/export-variant-explorer';
-import {
-  fadeInOutComponent,
-  openCloseComponent,
-} from 'src/app/animations/component-animations';
-import { collapsingText } from 'src/app/animations/text-animations';
-import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
-import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
-import { ViewMode } from 'src/app/objects/ViewMode';
-import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
-import { EditorOptions } from './variant-query/variant-query.component';
-import { ContextMenuItem } from './variant-explorer-context-menu/variant-explorer-context-menu.component';
-import { ToastService } from 'src/app/services/toast/toast.service';
-import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
-import { IVariant } from 'src/app/objects/Variants/variant_interface';
-import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ClusteringSettingsDialogComponent } from './clustering-settings-dialog/clustering-settings-dialog.component';
+import {GoldenLayoutComponentService} from 'src/app/services/goldenLayoutService/golden-layout-component.service';
+import {LogService, LogStats} from 'src/app/services/logService/log.service';
+import {ModelPerformanceColorScaleService} from 'src/app/services/performance-color-scale.service';
+import {PerformanceService} from 'src/app/services/performance.service';
+import {PolygonDrawingService} from 'src/app/services/polygon-drawing.service';
+import {ProcessTreeService} from 'src/app/services/processTreeService/process-tree.service';
+import {VariantPerformanceService} from 'src/app/services/variant-performance.service';
+import {VariantService} from 'src/app/services/variantService/variant.service';
+import {originalOrder} from 'src/app/utils/util';
+import {BackendService} from '../../services/backendService/backend.service';
+import {ColorMapService} from '../../services/colorMapService/color-map.service';
+import {ImageExportService} from '../../services/imageExportService/image-export-service';
+import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
+import {DropzoneConfig} from '../drop-zone/drop-zone.component';
+import {SubvariantExplorerComponent} from './subvariant-explorer/subvariant-explorer.component';
+import {SubvariantInfoExplorerComponent} from './subvariant-info-explorer/subvariant-info-explorer.component';
+import {Variant} from 'src/app/objects/Variants/variant';
+import {deserialize, ParallelGroup, SequenceGroup, VariantElement,} from 'src/app/objects/Variants/variant_element';
+import {activityColor, clickCallback, contextMenuCallback,} from './functions/variant-drawer-callbacks';
+import {exportVariantDrawer} from './functions/export-variant-explorer';
+import {fadeInOutComponent, openCloseComponent,} from 'src/app/animations/component-animations';
+import {collapsingText} from 'src/app/animations/text-animations';
+import {textColorForBackgroundColor} from 'src/app/utils/render-utils';
+import {processTreesEqual} from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
+import {ViewMode} from 'src/app/objects/ViewMode';
+import {VariantViewModeService} from 'src/app/services/viewModeServices/variant-view-mode.service';
+import {EditorOptions} from './variant-query/variant-query.component';
+import {ContextMenuItem} from './variant-explorer-context-menu/variant-explorer-context-menu.component';
+import {ToastService} from 'src/app/services/toast/toast.service';
+import {ProcessTree} from 'src/app/objects/ProcessTree/ProcessTree';
+import {IVariant} from 'src/app/objects/Variants/variant_interface';
+import {LoopCollapsedVariant} from 'src/app/objects/Variants/loop_collapsed_variant';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ClusteringSettingsDialogComponent} from './clustering-settings-dialog/clustering-settings-dialog.component';
 import _ from 'lodash';
-import { InfixType } from 'src/app/objects/Variants/infix_selection';
-import { draw, parseInput } from './arc-diagram/arc-diagram';
+import {InfixType} from 'src/app/objects/Variants/infix_selection';
+import {draw, parseInput} from './arc-diagram/arc-diagram';
 import * as d3 from 'd3';
+import {Arc, Pair} from './arc-diagram/data';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -109,8 +84,7 @@ import * as d3 from 'd3';
 })
 export class VariantExplorerComponent
   extends LayoutChangeDirective
-  implements OnInit, AfterViewInit, OnDestroy
-{
+  implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
@@ -138,6 +112,7 @@ export class VariantExplorerComponent
     super(elRef.nativeElement, renderer);
     this.explorerElement = elRef;
   }
+
   explorerElement: ElementRef;
 
   collapse: boolean = false;
@@ -196,7 +171,7 @@ export class VariantExplorerComponent
 
   public traceInfixSelectionMode: boolean = false;
 
-  @ViewChild('variantExplorer', { static: true })
+  @ViewChild('variantExplorer', {static: true})
   variantExplorerDiv: ElementRef<HTMLDivElement>;
 
   @ViewChildren(VariantDrawerDirective)
@@ -218,6 +193,8 @@ export class VariantExplorerComponent
 
   originalOrder = originalOrder;
 
+  public arcs: { [id: number]: Arc[] } = {};
+
   deleteVariant = function () {
     const bids = this.variantService.variants
       .filter((v) => v.variant === this.contextMenu_variant)
@@ -227,14 +204,15 @@ export class VariantExplorerComponent
   }.bind(this);
 
   showArcDiagram = function () {
-    const variant = this.contextMenu_variant;
+    const matchingVariant = this.variantService.variants.find((v) => v.variant === this.contextMenu_variant);
     this.variantService
-      .showArcDiagram(variant)
+      .showArcDiagram(matchingVariant.bid)
       .pipe(takeUntil(this._destroy$))
-      .subscribe((res) => {
+      .subscribe((res: Pair[]) => {
         const arcs = parseInput(res);
+        this.arcs[matchingVariant.bid] = arcs;
         draw(
-          { arcs, activities: this.logService.activitiesInEventLog },
+          arcs,
           this.contextMenu_directive
         );
       });
@@ -449,6 +427,7 @@ export class VariantExplorerComponent
           this.variantViewModeService.viewMode = ViewMode.STANDARD;
           this.variantService.areVariantLoopsCollapsed = false;
           this.variantService.clusteringConfig = null; // reset applied clustering
+          this.arcs = {};
         })
       )
       .pipe(takeUntil(this._destroy$))
@@ -584,12 +563,12 @@ export class VariantExplorerComponent
       colorScale &&
       tree.performance?.[selectedScale.performanceIndicator]?.[
         selectedScale.statistic
-      ] !== undefined
+        ] !== undefined
     ) {
       return colorScale.getColor(
         tree.performance[selectedScale.performanceIndicator][
           selectedScale.statistic
-        ]
+          ]
       );
     }
     return '#d3d3d3';
@@ -1008,7 +987,8 @@ export class VariantExplorerComponent
     this.sidebarHeight = height;
   }
 
-  handleVisibilityChange(visibility: boolean): void {}
+  handleVisibilityChange(visibility: boolean): void {
+  }
 
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
@@ -1022,7 +1002,7 @@ export class VariantExplorerComponent
     let selectedScale = this.performanceColorService.selectedColorScale;
     let pValue =
       p[selectedScale.performanceIndicator]?.[selectedScale.statistic];
-    return HumanizeDurationPipe.apply(pValue * 1000, { round: true });
+    return HumanizeDurationPipe.apply(pValue * 1000, {round: true});
   }
 
   variantPerformanceColor(): string {
@@ -1038,12 +1018,12 @@ export class VariantExplorerComponent
       colorScale &&
       tree.performance?.[selectedScale.performanceIndicator]?.[
         selectedScale.statistic
-      ] !== undefined
+        ] !== undefined
     ) {
       return colorScale.getColor(
         tree.performance[selectedScale.performanceIndicator][
           selectedScale.statistic
-        ]
+          ]
       );
     }
     return '#d3d3d3';
@@ -1116,7 +1096,8 @@ export class VariantExplorerComponent
       });
   }
 
-  onScroll(): void {}
+  onScroll(): void {
+  }
 
   executeRemovalActionOnFilteredVariants(removeFiltered: boolean): void {
     let bids = [];

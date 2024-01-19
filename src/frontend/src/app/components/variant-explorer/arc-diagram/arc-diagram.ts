@@ -1,6 +1,6 @@
 import {VariantDrawerDirective} from 'src/app/directives/variant-drawer/variant-drawer.directive';
 import * as d3 from 'd3';
-import {Arc, Data, Pair} from './data';
+import {Arc, Pair} from './data';
 
 // var width = $('.cursor-pointer').width(); //> width of svg image
 let width = 800; //> width of svg image
@@ -30,7 +30,7 @@ export const parseInput = (pairs: Pair[]) => {
   // colorState.n = pairs.length;
   // console.log(colorState.colorScale(5));
   // create the arcs
-  let arcs = [];
+  let arcs: Arc[] = [];
   for (let i = 0; i < pairs.length; i++) {
     let pair = pairs[i];
     arcs.push(
@@ -48,14 +48,14 @@ export const parseInput = (pairs: Pair[]) => {
 
 /** Draw the arc diagram
  */
-export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
+export const draw = (arcsFromApi: Arc[], variantDrawer: VariantDrawerDirective) => {
   // clear the chart and redraw everything
   // $('#chart').empty();
   let arcs = [];
 
   //filter the data for LoD
-  for (let j = 0; j < data.arcs.length; j++) {
-    if (data.arcs[j].numberEle >= LoD) arcs.push(data.arcs[j]);
+  for (let j = 0; j < arcsFromApi.length; j++) {
+    if (arcsFromApi[j].numberEle >= LoD) arcs.push(arcsFromApi[j]);
   }
 
   width = variantDrawer.variant.variant.width;
@@ -76,7 +76,7 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
   const step = 30;
   const height = baseHeight + step * (idx - 1);
   const barHeight = 10;
-  const barRoundedness = 4;
+  const barRoundness = 4;
 
   const chart = d3
     .select(variantDrawer.divHtmlElement.nativeElement)
@@ -133,8 +133,8 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
         );
       })
       .attr('height', barHeight)
-      .attr('rx', barRoundedness)
-      .attr('ry', barRoundedness)
+      .attr('rx', barRoundness)
+      .attr('ry', barRoundness)
       .attr('class', `${dest}-rect`)
       .style('fill', arcColor)
       .style('fill-opacity', transparency)
