@@ -80,24 +80,7 @@ export abstract class VariantElement {
 
     return equals;
   }
-
-  hasIntersection(variantElement: VariantElement) {
-    let hasIntersection = false;
-
-    if (
-      (this instanceof LeafNode && variantElement instanceof LeafNode) ||
-      (this instanceof LeafNode && variantElement instanceof ParallelGroup) ||
-      (this instanceof ParallelGroup && variantElement instanceof LeafNode) ||
-      (this instanceof ParallelGroup && variantElement instanceof ParallelGroup)
-    ) {
-      hasIntersection = ((a, b) => [...a].filter((x) => b.has(x)).length > 0)(
-        this.getActivities(),
-        variantElement.getActivities()
-      );
-    }
-    return hasIntersection;
-  }
-
+  
   public asSequenceGroup(): SequenceGroup {
     const self: unknown = this;
     return self as SequenceGroup;

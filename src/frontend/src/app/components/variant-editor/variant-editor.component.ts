@@ -1,43 +1,33 @@
-import { ZoomFieldComponent } from './../zoom-field/zoom-field.component';
-import { VariantService } from './../../services/variantService/variant.service';
-import { BackendService } from 'src/app/services/backendService/backend.service';
-import { VariantExplorerComponent } from './../variant-explorer/variant-explorer.component';
-import { GoldenLayoutComponentService } from './../../services/goldenLayoutService/golden-layout-component.service';
-import { ColorMapService } from './../../services/colorMapService/color-map.service';
-import { ComponentContainer, LogicalZIndex } from 'golden-layout';
-import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
-import {
-  Component,
-  ElementRef,
-  Inject,
-  OnInit,
-  Renderer2,
-  ViewChild,
-  HostListener,
-  OnDestroy,
-} from '@angular/core';
+import {ZoomFieldComponent} from '../zoom-field/zoom-field.component';
+import {VariantService} from '../../services/variantService/variant.service';
+import {BackendService} from 'src/app/services/backendService/backend.service';
+import {VariantExplorerComponent} from '../variant-explorer/variant-explorer.component';
+import {GoldenLayoutComponentService} from '../../services/goldenLayoutService/golden-layout-component.service';
+import {ColorMapService} from '../../services/colorMapService/color-map.service';
+import {ComponentContainer, LogicalZIndex} from 'golden-layout';
+import {SharedDataService} from 'src/app/services/sharedDataService/shared-data.service';
+import {Component, ElementRef, HostListener, Inject, OnDestroy, OnInit, Renderer2, ViewChild,} from '@angular/core';
 
-import { cloneDeep } from 'lodash';
-import { select, Selection } from 'd3';
-import * as objectHash from 'object-hash';
+import {cloneDeep} from 'lodash';
 import * as d3 from 'd3';
-import { LogService } from 'src/app/services/logService/log.service';
-import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
-import { InfixType, setParent } from 'src/app/objects/Variants/infix_selection';
-import { FragmentStatistics, Variant } from 'src/app/objects/Variants/variant';
+import {Selection} from 'd3';
+import * as objectHash from 'object-hash';
+import {LogService} from 'src/app/services/logService/log.service';
+import {LayoutChangeDirective} from 'src/app/directives/layout-change/layout-change.directive';
+import {VariantDrawerDirective} from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import {InfixType, setParent} from 'src/app/objects/Variants/infix_selection';
+import {FragmentStatistics, Variant} from 'src/app/objects/Variants/variant';
 import {
-  VariantElement,
-  LeafNode,
-  SequenceGroup,
-  ParallelGroup,
   deserialize,
+  LeafNode,
+  ParallelGroup,
+  SequenceGroup,
+  VariantElement,
 } from 'src/app/objects/Variants/variant_element';
-import { collapsingText, fadeInText } from 'src/app/animations/text-animations';
-import { findPathToSelectedNode } from 'src/app/objects/Variants/utility_functions';
-import { applyInverseStrokeToPoly } from 'src/app/utils/render-utils';
-import { Observable, of, Subject } from 'rxjs';
-import { first, takeUntil, tap } from 'rxjs/operators';
+import {collapsingText, fadeInText} from 'src/app/animations/text-animations';
+import {findPathToSelectedNode} from 'src/app/objects/Variants/utility_functions';
+import {Observable, of, Subject} from 'rxjs';
+import {takeUntil, tap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-variant-editor',
@@ -47,8 +37,7 @@ import { first, takeUntil, tap } from 'rxjs/operators';
 })
 export class VariantEditorComponent
   extends LayoutChangeDirective
-  implements OnInit, OnDestroy
-{
+  implements OnInit, OnDestroy {
   activityNames: Array<String> = [];
 
   public colorMap: Map<string, string>;
@@ -147,25 +136,21 @@ export class VariantEditorComponent
     width: number,
     height: number
   ): void {
-    if (width < 1150) {
-      this.collapse = true;
-    } else {
-      this.collapse = false;
-    }
+    this.collapse = width < 1150;
   }
 
-  handleVisibilityChange(visibility: boolean): void {}
+  handleVisibilityChange(visibility: boolean): void {
+  }
+
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
     defaultZIndex: string
-  ): void {}
+  ): void {
+  }
 
   handleRedraw(selection: Selection<any, any, any, any>) {
-    console.log('here');
-    console.log(selection);
-    selection.selectAll('g').on('click', function (event, d) {
+    selection.selectAll('g').on('click', function (event, _) {
       event.stopPropagation();
-      console.log(this);
       const select = d3.select(this as SVGElement);
       toogleSelect(select);
     });
@@ -222,11 +207,6 @@ export class VariantEditorComponent
     if (!(selection.selectAll('.selected-variant-g').nodes().length > 0)) {
       this.selectedElement = false;
     }
-
-    const poly = selection
-      .selectAll('.selected-variant-g')
-      .select('polygon')
-      .classed('selected-polygon', true);
 
     this.variantEnrichedSelection = selection;
   }
@@ -320,8 +300,7 @@ export class VariantEditorComponent
   copyVariant(variant: VariantElement) {
     const children = variant.getElements();
     if (variant instanceof LeafNode) {
-      const newLeaf = new LeafNode([variant.asLeafNode().activity[0]]);
-      return newLeaf;
+      return new LeafNode([variant.asLeafNode().activity[0]]);
     } else {
       const newChildren = [];
       for (const child of children) {
@@ -515,12 +494,12 @@ export class VariantEditorComponent
   }
 
   @HostListener('window:keydown.control', ['$event'])
-  onMultiSelectStart(e) {
+  onMultiSelectStart() {
     this.multiSelect = true;
   }
 
   @HostListener('window:keyup.control', ['$event'])
-  onMultiSelectStop(e) {
+  onMultiSelectStop() {
     this.multiSelect = false;
   }
 
@@ -554,8 +533,7 @@ export class VariantEditorComponent
 
   computeActivityColor = (
     self: VariantDrawerDirective,
-    element: VariantElement,
-    variant: Variant
+    element: VariantElement
   ) => {
     let color;
     color = this.colorMap.get(element.asLeafNode().activity[0]);
@@ -688,6 +666,7 @@ export class VariantEditorComponent
       return node1.asLeafNode().activity[0] > node2.asLeafNode().activity[0];
     }
   }
+
   /*
   sortParallel(variant) {
     let children = variant.getElements();
@@ -710,6 +689,7 @@ export class VariantEditorComponent
     }
     return children;
   }
+
   findParent(parent, node) {
     const children = parent.getElements();
     if (!children) {
@@ -781,7 +761,7 @@ export class VariantEditorComponent
       if (
         firstParent != secondParent ||
         firstParent.getElements().indexOf(selectedElements[i + 1]) !=
-          firstParent.getElements().indexOf(selectedElements[i]) + 1
+        firstParent.getElements().indexOf(selectedElements[i]) + 1
       ) {
         return false;
       }
@@ -904,7 +884,7 @@ export class VariantEditorComponent
       if (newVariant.infixType === InfixType.NOT_AN_INFIX) {
         this.variantService
           .addUserDefinedVariant(newVariant)
-          .subscribe((response) => {
+          .subscribe(() => {
             if (this.variantService.clusteringConfig) {
               // trigger new clustering
               this.variantService.clusteringConfig =
@@ -916,7 +896,7 @@ export class VariantEditorComponent
       } else {
         this.variantService
           .addInfixToBackend(newVariant)
-          .subscribe((response) => {
+          .subscribe(() => {
             if (this.variantService.clusteringConfig) {
               // trigger new clustering
               this.variantService.clusteringConfig =

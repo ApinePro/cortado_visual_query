@@ -11,7 +11,7 @@ const hoverTransparency = 1;
 const hoverColor = 'red';
 
 const arcColor = 'lightgrey';
-const strokeWidth = '2';
+const strokeWidth = '1';
 
 
 d3.scaleSequential(d3.interpolateSinebow).domain([0, 1]);
@@ -147,7 +147,7 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
   let areOtherArcsHidden = false
 
   // arc between the source and target bar
-  arcGroups.each(function (d: Arc) {
+  arcGroups.each(function () {
 
 
     const sbbox = (this.firstElementChild as SVGGraphicsElement).getBBox();
@@ -170,7 +170,6 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
       })
       .style('stroke', arcColor)
       .style('fill', 'none')
-      .style('stroke-width', strokeWidth)
       .style('stroke-linecap', 'round')
       .style('stroke-opacity', transparency)
       .style('cursor', 'pointer');
@@ -212,6 +211,7 @@ export const draw = (data: Data, variantDrawer: VariantDrawerDirective) => {
             }
             el.select('polygon')
               .style('stroke', hoverColor)
+              .style('stroke-width', strokeWidth);
 
           })
         }
