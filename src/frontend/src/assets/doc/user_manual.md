@@ -334,11 +334,11 @@ Based on which of the activities they contain, trace fragments can be categorise
 * **Prefix** fragments contain only an end activity.  
   ![prefix.png](screenshots%2Fvariant_fragments%2Fprefix.png)
 
-Trace fragments are used and can frequently be seen in [*Incremental Discovery*](#incremental-process-discovery), [*Tiebreaker*](#variant-sequentialization) and [*Frequent Pattern Mining*](#variant-frequent-pattern-mining), pool of which can either be -
+Trace fragments are used and can frequently be seen in [*Incremental Discovery*](#incremental-process-discovery), [*Tiebreaker*](#variant-sequentialization-tiebreaker) and [*Frequent Pattern Mining*](#variant-frequent-pattern-mining), pool of which can either be -
 
 * manually extracted using [infix selection mode](#extracting-variant-fragments),
 * automatically identified,
-* discovered in the process of '[Frequent Pattern Mining]((#variant-frequent-pattern-mining))', or
+* discovered in the process of '[Frequent Pattern Mining](#variant-frequent-pattern-mining)', or
 * manually created
 
 ### Extracting variant fragments
@@ -441,7 +441,7 @@ The editor comprises primarily of <i>three sections</i>, all of which rely heavi
    by clicking on (<i class="bi bi-save"></i>) button located in the top-right corner of the editor.
 
 
-3. finally in the **Filters** menu, a user can choose which of the infixes to retain. Here, the option `Valid` for `Type` retains only *valid* infixes, meaning the infixes in which all operator nodes have at least one child.
+3. finally in the **Filters** menu, a user can choose which of the infixes to retain. Here, the option `Valid` for `Type` retains only *valid* infixes, meaning the infixes in which all elements have at least activity.
    The section at the bottom allows users to selectively filter in or out certain activities. For instance, for a particular activity, checking the box for `Filter` and turning the toggle switch for `Out/In` on, retains only the infixes *containing* the activity.
    Switching the toggle off, retains only the infixes *not* containing the activity.
 
@@ -454,7 +454,7 @@ The editor comprises primarily of <i>three sections</i>, all of which rely heavi
 
 ### Process Tree Editor
 
-Process tree editor tab is open by default in the top pane, it can also be accessed using <i class="bi bi-diagram-2 btn-icon"></i> `Open Process Tree Editor` option in `Editors` dropdown menu. The `Process Tree Editor` tab is also always available in the list of tabs to the left of the top pane. 
+Process tree editor tab is open by default in the top pane, it can also be accessed using <i class="bi bi-diagram-2 btn-icon"></i> `Open Process Tree Editor` option in `Editors` dropdown menu. The `Process Tree Editor` tab is also always available in the list of tabs to the left of the top pane.
 After a tree is available in the process tree editor by either importing or through discovery, it can be edited in the following ways.
 
 #### Selecting Nodes for Updates
@@ -470,6 +470,7 @@ A selected node is highlighted with a red border as follows:
 -
 
 #### Inserting Nodes
+
 New nodes available for insertion in the tree are available in the process tree toolbox. The toolbox can be revealed using the <i class="btn-icon bi bi-chevron-bar-down"></i> button at the top of the editor.
 
 |![proc_tree_toolbox.png](screenshots%2Fprocess_discovery%2Fproc_tree_toolbox.png)|
@@ -478,6 +479,7 @@ New nodes available for insertion in the tree are available in the process tree 
 ##### Inserting nodes along operators
 
 After selecting an operator node, the following choices are available:
+
 - insert new node above the selected one (<i class="bi bi-chevron-up"></i>)
 - insert new node below the selected one (<i class="bi bi-chevron-down"></i>)
 - insert new node left to the selected one (<i class="bi bi-chevron-left"></i>)
@@ -488,11 +490,12 @@ Having selected the following operator and **insert new node below** option, add
 |![insert_node_below.gif](screenshots%2Fprocess_discovery%2Finsert_node_below.gif)|
 -
 
-Similarly, adding an operator adds that operator **below** the selected operator. It works similarly for adding activities or operators **above**, to the **left** or to the **right**. 
+Similarly, adding an operator adds that operator **below** the selected operator. It works similarly for adding activities or operators **above**, to the **left** or to the **right**.
 
 ##### Inserting nodes along activities
 
 After selecting an activity, the following choices are available:
+
 - insert new node left to the selected one (<i class="bi bi-chevron-left"></i>)
 - insert new node right to the selected one (<i class="bi bi-chevron-right"></i>)
 
@@ -507,12 +510,12 @@ Similarly, adding an operator adds that operator **to the right** the selected a
 
 The `replace the currently selected node` (<i class="bi bi-arrow-repeat"></i>) option can be used to replace a selected activity or operator node with either an activity or an operator node from the list of available activities and operators in the toolbox.
 
-Having selected an activity and **replace the currently selected node** option, choosing another activity from the toolbox replaces the selected activity as follows: 
+Having selected an activity and **replace the currently selected node** option, choosing another activity from the toolbox replaces the selected activity as follows:
 
 |![replace_node.gif](screenshots%2Fprocess_discovery%2Freplace_node.gif)|
 -
 
-Similarly, choosing an operator node from the toolbox **replaces** the selected activity with the selected operator. It works similarly for **replacing** selected operators with either operators or activities form the list of available operators and activities in the toolbox. 
+Similarly, choosing an operator node from the toolbox **replaces** the selected activity with the selected operator. It works similarly for **replacing** selected operators with either operators or activities form the list of available operators and activities in the toolbox.
 
 #### Removing Nodes
 
@@ -524,13 +527,16 @@ Having selected an operator node and removing it results as follows:
 -
 
 #### Shifting Nodes
-Selecting an operator node or an activity and clicking the <i class="bi bi-chevron-double-left btn-icon"></i>`shift selected node(s) to left` or <i class="bi bi-chevron-double-right btn-icon"></i>`shift selected node(s) to right` button **shifts** the selected node to the left or to the right respectively. 
+
+Selecting an operator node or an activity and clicking the <i class="bi bi-chevron-double-left btn-icon"></i>`shift selected node(s) to left` or <i class="bi bi-chevron-double-right btn-icon"></i>`shift selected node(s) to right` button **shifts** the selected node to the left or to the right respectively.
 The shift to right or to the left is with respect to the sibling node(s) of the selected node under a single operator.
 
 Having selected the following operator node and clicking the <i class="bi bi-chevron-double-left btn-icon"></i>`shift selected node(s) to left` button **shifts** the operator node to the left as follows:
 
 |![shift_pt_node.gif](screenshots%2Fprocess_discovery%2Fshift_pt_node.gif)|
 -
+
+![shift_node_1.png](screenshots%2Fprocess_discovery%2Fshift_node_1.png) &rarr; ![shift_node_2.png](screenshots%2Fprocess_discovery%2Fshift_node_2.png)
 
 #### Applying Reduction Rules
 
@@ -541,7 +547,7 @@ Selecting an operator node and clicking the <i class="bi bi-diagram-2"></i> butt
 
 #### (Un)Freezing Subtrees
 
-Freezing a subtree prevents that subtree from being updated during the incremental discovery process and this subtree always remains in the tree.  
+Freezing a subtree prevents that subtree from being updated during the incremental discovery process and this subtree always remains in the tree.
 
 Selecting an operator node and clicking the <i class="bi bi-snow btn-icon"></i>`(un)freeze subtrees` button **freezes** the subtree under that operator node. The frozen subtree is highlighted blue as seen below:
 
@@ -549,7 +555,6 @@ Selecting an operator node and clicking the <i class="bi bi-snow btn-icon"></i>`
 -
 
 Similarly, selecting root operator node of an already frozen subtree and clicking the <i class="bi bi-snow btn-icon"></i>`(un)freeze subtrees` button unfreezes that subtree. After unfreezing, that subtree may be updated diring the incremental discovery process and its presence is no longer ensured.
-
 
 #### Undo/Redo Applied Changes
 
@@ -561,7 +566,7 @@ The current tree in the process tree editor can be exported (.svg) using the <i 
 
 ### BPMN-Visualizer
 
-BPMN visualizer can be accessed using <i class="bi bi-diagram-2 btn-icon rotate-270"></i> `Open BPMN Viewer` option in `Editors` dropdown menu. The `BPMN Viewer` tab is also available in the list of tabs to the left of the top pane after it was accessed. 
+BPMN visualizer can be accessed using <i class="bi bi-diagram-2 btn-icon rotate-270"></i> `Open BPMN Viewer` option in `Editors` dropdown menu. The `BPMN Viewer` tab is also available in the list of tabs to the left of the top pane after it was accessed.
 After a tree is available in the process tree editor by either importing or through discovery, the BPMN representation of that process tree is available in the BPMN viewer.
 
 #### Selecting Nodes for Updates
