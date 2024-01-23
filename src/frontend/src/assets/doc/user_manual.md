@@ -536,7 +536,6 @@ Having selected the following operator node and clicking the <i class="bi bi-che
 |![shift_pt_node.gif](screenshots%2Fprocess_discovery%2Fshift_pt_node.gif)|
 -
 
-![shift_node_1.png](screenshots%2Fprocess_discovery%2Fshift_node_1.png) &rarr; ![shift_node_2.png](screenshots%2Fprocess_discovery%2Fshift_node_2.png)
 
 #### Applying Reduction Rules
 
