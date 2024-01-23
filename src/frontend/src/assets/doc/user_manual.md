@@ -442,6 +442,30 @@ Here are some examples to show how variants are transformed by the tiebreaker:
 - (4)![](./screenshots/variant_sequentialization/tiebreaker_examples_4.png)
 - (5)![](./screenshots/variant_sequentialization/tiebreaker_examples_5.png)
 
+<table style="width: 50%; border-collapse: collapse;">
+  <tr>
+    <td >Source Pattern</td> <td>Target Pattern</td> <td>Result for examples</td>
+  </tr>
+  <tr>
+    <td rowspan="5"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_2.png"></td>
+    <td rowspan="5"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td>
+    <td>No match</td>
+  </tr>
+  <tr><td>(2) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></td></tr>
+  <tr><td>No match</td></tr>
+  <tr><td>No match</td></tr>
+  <tr><td>No match</td></tr>
+  <tr>
+    <td rowspan="5"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_7.png"></td>
+    <td rowspan="5"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_8.png"></td>
+    <td><span>1 </span><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_9.png"></td>
+  </tr>
+  <tr><td><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></td></tr>
+  <tr><td>No match</td></tr>
+  <tr><td><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_10.png"></td></tr>
+  <tr><td><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_9.png"></td></tr>
+</table>
+
 | Source Pattern   | Target Pattern | Result for examples       |
 |:-------:|:-----:|----------|
 | ![](./screenshots/variant_sequentialization/tiebreaker_examples_2.png)   | ![](./screenshots/variant_sequentialization/tiebreaker_examples_6.png)  | (1) No match<br> (2) ![](./screenshots/variant_sequentialization/tiebreaker_examples_6.png)<br> (3) No match<br> (4) No match<br> (5) No match<br>   |
