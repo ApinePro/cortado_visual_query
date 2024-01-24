@@ -466,14 +466,14 @@ A tree node (either activity or operator) can be selected for updates by clickin
 
 A selected node is highlighted with a red border as follows:
 
-|![selecting_nodes_for_updates.gif](screenshots%2Fprocess_discovery%2Fselecting_nodes_for_updates.gif)|
+|![large](screenshots%2Fprocess_discovery%2Fselecting_nodes_for_updates.gif)|
 -
 
 #### Inserting Nodes
 
 New nodes available for insertion in the tree are available in the process tree toolbox. The toolbox can be revealed using the <i class="btn-icon bi bi-chevron-bar-down"></i> button at the top of the editor.
 
-|![proc_tree_toolbox.png](screenshots%2Fprocess_discovery%2Fproc_tree_toolbox.png)|
+|![xlarge](screenshots%2Fprocess_discovery%2Fproc_tree_toolbox.png)|
 -
 
 ##### Inserting nodes along operators
@@ -487,7 +487,7 @@ After selecting an operator node, the following choices are available:
 
 Having selected the following operator and **insert new node below** option, adding an activity from the list of available activities in the toolbox adds it under the selected operator follows:
 
-|![insert_node_below.gif](screenshots%2Fprocess_discovery%2Finsert_node_below.gif)|
+|![large](screenshots%2Fprocess_discovery%2Finsert_node_below.gif)|
 -
 
 Similarly, adding an operator adds that operator **below** the selected operator. It works similarly for adding activities or operators **above**, to the **left** or to the **right**.
@@ -501,7 +501,7 @@ After selecting an activity, the following choices are available:
 
 Having selected the following activity and **insert new node right to the selected one** option, adding an activity from the list of available activities in the toolbox adds it to the right of the selected activity as follows:
 
-|![insert_node_right.gif](screenshots%2Fprocess_discovery%2Finsert_node_right.gif)|
+|![large](screenshots%2Fprocess_discovery%2Finsert_node_right.gif)|
 -
 
 Similarly, adding an operator adds that operator **to the right** the selected activity. It works similarly for adding activities or operators **to the left**.
@@ -512,7 +512,7 @@ The `replace the currently selected node` (<i class="bi bi-arrow-repeat"></i>) o
 
 Having selected an activity and **replace the currently selected node** option, choosing another activity from the toolbox replaces the selected activity as follows:
 
-|![replace_node.gif](screenshots%2Fprocess_discovery%2Freplace_node.gif)|
+|![large](screenshots%2Fprocess_discovery%2Freplace_node.gif)|
 -
 
 Similarly, choosing an operator node from the toolbox **replaces** the selected activity with the selected operator. It works similarly for **replacing** selected operators with either operators or activities form the list of available operators and activities in the toolbox.
@@ -523,7 +523,7 @@ Selecting an operator node or an activity and clicking the <i class="bi bi-trash
 
 Having selected an operator node and removing it results as follows:
 
-|![remove_node.gif](screenshots%2Fprocess_discovery%2Fremove_node.gif)|
+|![large](screenshots%2Fprocess_discovery%2Fremove_node.gif)|
 -
 
 #### Shifting Nodes
@@ -533,7 +533,7 @@ The shift to right or to the left is with respect to the sibling node(s) of the 
 
 Having selected the following operator node and clicking the <i class="bi bi-chevron-double-left btn-icon"></i>`shift selected node(s) to left` button **shifts** the operator node to the left as follows:
 
-|![shift_pt_node.gif](screenshots%2Fprocess_discovery%2Fshift_pt_node.gif)|
+|![large](screenshots%2Fprocess_discovery%2Fshift_pt_node.gif)|
 -
 
 
@@ -541,7 +541,7 @@ Having selected the following operator node and clicking the <i class="bi bi-che
 
 Selecting an operator node and clicking the <i class="bi bi-diagram-2"></i> button applies **reduction rules** to remove redundant and unnecessary nodes from that subtree as follows:
 
-|![reduction_rules.gif](screenshots%2Fprocess_discovery%2Freduction_rules.gif)|
+|![large](screenshots%2Fprocess_discovery%2Freduction_rules.gif)|
 -
 
 #### (Un)Freezing Subtrees
@@ -550,7 +550,7 @@ Freezing a subtree prevents that subtree from being updated during the increment
 
 Selecting an operator node and clicking the <i class="bi bi-snow btn-icon"></i>`(un)freeze subtrees` button **freezes** the subtree under that operator node. The frozen subtree is highlighted blue as seen below:
 
-|![freeze_node.gif](screenshots%2Fprocess_discovery%2Ffreeze_node.gif)|
+|![large](screenshots%2Fprocess_discovery%2Ffreeze_node.gif)|
 -
 
 Similarly, selecting root operator node of an already frozen subtree and clicking the <i class="bi bi-snow btn-icon"></i>`(un)freeze subtrees` button unfreezes that subtree. After unfreezing, that subtree may be updated diring the incremental discovery process and its presence is no longer ensured.
@@ -577,7 +577,7 @@ A node can be selected for updates by clicking on it.
 
 A selected node is highlighted through a red border as follows:
 
-|![select_node_bpmn.gif](screenshots%2Fprocess_discovery%2Fselect_node_bpmn.gif)|
+|![large](screenshots%2Fprocess_discovery%2Fselect_node_bpmn.gif)|
 -
 
 #### Removing Nodes
@@ -586,7 +586,7 @@ Selecting a node and clicking the <i class="bi bi-trash btn-icon"></i>`remove se
 
 Having selected a node and removing it results as follows:
 
-|![remove_bpmn_node.gif](screenshots%2Fprocess_discovery%2Fremove_bpmn_node.gif)|
+|![large](screenshots%2Fprocess_discovery%2Fremove_bpmn_node.gif)|
 -
 
 #### Exporting the Model
@@ -612,7 +612,7 @@ After discovering or importing an initial process tree, trace(s) can be chosen f
   2. Press the <i class="bi bi-diagram-2-fill btn-icon"></i>`discover initial model` button
   3. The discovered process tree would be displayed in the `Process Tree Editor` as follows:
 
-|![discover_initial_model.gif](screenshots%2Fprocess_discovery%2Fdiscover_initial_model.gif)|
+|![xlarge](screenshots%2Fprocess_discovery%2Fdiscover_initial_model.gif)|
 -
 
 ### Incrementally Adding Variants
@@ -628,7 +628,7 @@ After discovering or importing an initial process tree, trace(s) can be chosen f
        * Variants from the `Variant Modeler`.
   3. The modified process tree (which the selecting traces fit to) would be displayed in the `Process Tree Editor` as follows:
   
-|![incremental_trace_addition.gif](screenshots%2Fprocess_discovery%2Fincremental_trace_addition.gif)|
+|![xlarge](screenshots%2Fprocess_discovery%2Fincremental_trace_addition.gif)|
 -
 
 # Temporal Performance Analysis
