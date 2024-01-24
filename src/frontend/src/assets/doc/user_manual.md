@@ -288,13 +288,19 @@ is a start activity.
 
 ## Variant Fragments
 
-Variant fragments or trace fragments are portions of the trace variants which are sequentially complete, meaning that no activity is skipped in a sequence.  
+Variant fragments or trace fragments are portions of the trace variants which are sequentially complete, meaning that no activity is skipped in a sequence.
+
 For example,  
 ![sequentially-complete-fragment.png](screenshots%2Fvariant_fragments%2Fsequentially-complete-fragment.png)
 
-is a sequentially complete fragment of the full trace variant ![full-trace-variant.png](screenshots%2Fvariant_fragments%2Ffull-trace-variant.png),  
+is a sequentially complete fragment of the full trace variant 
+
+![full-trace-variant.png](screenshots%2Fvariant_fragments%2Ffull-trace-variant.png),  
+
 while   
-![sequentially-incomplete-fragment.png](screenshots%2Fvariant_fragments%2Fsequentially-incomplete-fragment.png)  
+
+![sequentially-incomplete-fragment.png](screenshots%2Fvariant_fragments%2Fsequentially-incomplete-fragment.png)
+
 is not.
 
 Trace fragments are in contrast to full trace executions which have a well-defined start *and* end activity. These only contain either the start activity or end activity or none.
@@ -442,15 +448,15 @@ Note：
 
 Here are some examples to show how variants are transformed by the tiebreaker:
 
-(1)![](./screenshots/variant_sequentialization/tiebreaker_examples_1.png)<br>
+(1)![xxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_1.png)<br>
 
-(2)![](./screenshots/variant_sequentialization/tiebreaker_examples_2.png)<br>
+(2)![xxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_2.png)<br>
 
-(3)![](./screenshots/variant_sequentialization/tiebreaker_examples_3.png)<br>
+(3)![xxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_3.png)<br>
 
-(4)![](./screenshots/variant_sequentialization/tiebreaker_examples_4.png)<br>
+(4)![xxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_4.png)<br>
 
-(5)![](./screenshots/variant_sequentialization/tiebreaker_examples_5.png)<br>
+(5)![xxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_5.png)<br>
 
 <br>
 
@@ -459,50 +465,50 @@ Here are some examples to show how variants are transformed by the tiebreaker:
     <td >Source Pattern</td> <td>Target Pattern</td> <td>Result for examples</td>
   </tr>
   <tr>
-    <td rowspan="5" style="text-align: center;"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_2.png"></td>
-    <td rowspan="5" style="text-align: center;"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_2.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td>
     <td>(1) No match</td>
   </tr>
-  <tr><td>(2) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
+  <tr><td>(2) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
   <tr><td>(3) No match</td></tr>
   <tr><td>(4) No match</td></tr>
   <tr><td>(5) No match</td></tr>
   <tr>
-    <td rowspan="5" style="text-align: center;"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_7.png"></td>
-    <td rowspan="5" style="text-align: center;"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_8.png"></td>
-    <td>(1) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_9.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_7.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_8.png"></td>
+    <td>(1) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_9.png"></td>
   </tr>
-  <tr><td>(2) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
+  <tr><td>(2) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
   <tr><td>(3) No match</td></tr>
-  <tr><td>(4) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_10.png"></td></tr>
-  <tr><td>(5) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_9.png"></td></tr>
+  <tr><td>(4) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_10.png"></td></tr>
+  <tr><td>(5) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_9.png"></td></tr>
   <tr>
-    <td rowspan="5" style="text-align: center;"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_7.png"></td>
-    <td rowspan="5" style="text-align: center;"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_11.png"></td>
-    <td>(1) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_12.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_7.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_11.png"></td>
+    <td>(1) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_12.png"></td>
   </tr>
-  <tr><td>(2) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
-  <tr><td>(3) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_13.png"></td></tr>
-  <tr><td>(4) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_14.png"></td></tr>
-  <tr><td>(5) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_12.png"></td></tr>
+  <tr><td>(2) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
+  <tr><td>(3) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_13.png"></td></tr>
+  <tr><td>(4) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_14.png"></td></tr>
+  <tr><td>(5) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_12.png"></td></tr>
   <tr>
-    <td rowspan="5" style="text-align: center;"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_15.png"></td>
-    <td rowspan="5" style="text-align: center;"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_16.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_15.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_16.png"></td>
     <td>(1) No match</td>
   </tr>
-  <tr><td>(2) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
+  <tr><td>(2) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
   <tr><td>(3) No match</td></tr>
-  <tr><td>(4) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_17.png"></td></tr>
+  <tr><td>(4) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_17.png"></td></tr>
   <tr><td>(5) No match</td></tr>
   <tr>
-    <td rowspan="5" style="text-align: center;"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_18.png"></td>
-    <td rowspan="5" style="text-align: center;"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_19.png"></td>
-    <td>(1) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_20.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_18.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_19.png"></td>
+    <td>(1) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_20.png"></td>
   </tr>
-  <tr><td>(2) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
-  <tr><td>(3) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_21.png"></td></tr>
-  <tr><td>(4) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_17.png"></td></tr>
-  <tr><td>(5) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_20.png"></td></tr>
+  <tr><td>(2) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
+  <tr><td>(3) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_21.png"></td></tr>
+  <tr><td>(4) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_17.png"></td></tr>
+  <tr><td>(5) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_20.png"></td></tr>
 </table>
 
 # Process Discovery
