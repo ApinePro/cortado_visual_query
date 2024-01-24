@@ -88,12 +88,12 @@ Beneath the listed variants, there are also statistic displayed for the whole ev
 In the variant explorer, you can perform various actions.
 
 ### Variant Information Explorer
-![Variant Info Explorer](./screenshots/variant_explorer/variant_info_explorer_detail.png) <br>
+![medium](./screenshots/variant_explorer/variant_info_explorer_detail.png) <br>
 
 By clicking the variant's count in Variant Explorer, a new Variant Information Explorer window opened in the stack of Variant Explorer. In Variant Information Explorer, all cases of the selected variant are listed, with their information including case ID, earliest and latest timestamp, and duration. The case list could be sorted by case ID (in alphabet order), timestamp, and duration.
 
-### Case Information Exploerer
-![Case Explorer](./screenshots/variant_explorer/case_explorer_detail.png)<br>
+### Case Information Explorer
+![medium](./screenshots/variant_explorer/case_explorer_detail.png)<br>
 
 By clicking the case ID in Variant Information Explorer, a new Case Information Explorer window opened in the stack of Variant Explorer. In Case Information Explorer, the events of the selected case are listed in time order, with their information including starting timestamp, ending timestamp, duration, and resources of the event.
 
@@ -318,7 +318,7 @@ With the icons on the right, one can add the current selection to the variant ex
 -  
 
 ## Variant Modeler
-![Variant Modeler](./screenshots/variant_modeler/variant_modeler.png)
+![medium](./screenshots/variant_modeler/variant_modeler.png)
 
 The variant modeler allows users to manually create a variant with sequential and parallel patterns.
 
@@ -416,17 +416,17 @@ The editor comprises primarily of <i>three sections</i>, all of which rely heavi
 ## Variant Sequentialization (Tiebreaker)
 Tiebreaker is a sequentialization tool which provides a function to match source pattern in variants and replace them with the target pattern. In tiebreaker, there are two pattern editors to model the source pattern and target pattern, respectively. In addition to sequential and parallel pattern, the tiebreaker allows to create:<br>
 
-![Tiebreaker](./screenshots/variant_sequentialization/tiebreaker.png)
+![medium](./screenshots/variant_sequentialization/tiebreaker.png)
 
 1. choice group, which could match any combination of any activities in the group;
 
-![ChoiceGroup](./screenshots/variant_sequentialization/choicegroup.png)
+![medium](./screenshots/variant_sequentialization/choicegroup.png)
 
-2. fallthrough group;
+1. fallthrough group;
 
-![FallthroughGroup](./screenshots/variant_sequentialization/fallthroughgroup.png)
+![medium](./screenshots/variant_sequentialization/fallthroughgroup.png)
 
-3. pattern with a wildcard option '..' to allow partial match, which represents "rest of the variant".
+1. pattern with a wildcard option '..' to allow partial match, which represents "rest of the variant".
 
 ![medium](./screenshots/variant_sequentialization/wildcard.png)
 
@@ -436,11 +436,29 @@ Note：
 3. The activities in target pattern should be consistent with activities in the source pattern. Acitivities in target pattern editor are only enabled when they are already in the source pattern.
 
 Here are some examples to show how variants are transformed by the tiebreaker:
-- (1)![](./screenshots/variant_sequentialization/tiebreaker_examples_1.png)
-- (2)![](./screenshots/variant_sequentialization/tiebreaker_examples_2.png)
-- (3)![](./screenshots/variant_sequentialization/tiebreaker_examples_3.png)
-- (4)![](./screenshots/variant_sequentialization/tiebreaker_examples_4.png)
-- (5)![](./screenshots/variant_sequentialization/tiebreaker_examples_5.png)
+
+(1)![](./screenshots/variant_sequentialization/tiebreaker_examples_1.png)<br>
+
+(2)![](./screenshots/variant_sequentialization/tiebreaker_examples_2.png)<br>
+
+(3)![](./screenshots/variant_sequentialization/tiebreaker_examples_3.png)<br>
+
+(4)![](./screenshots/variant_sequentialization/tiebreaker_examples_4.png)<br>
+
+(5)![](./screenshots/variant_sequentialization/tiebreaker_examples_5.png)<br>
+
+<br>
+
+<style>
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 15px;
+  vertical-align: middle;
+}
+</style>
 
 <table style="width: 50%; border-collapse: collapse;">
   <tr>
@@ -449,31 +467,49 @@ Here are some examples to show how variants are transformed by the tiebreaker:
   <tr>
     <td rowspan="5"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_2.png"></td>
     <td rowspan="5"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td>
-    <td>No match</td>
+    <td>(1) No match</td>
   </tr>
   <tr><td>(2) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></td></tr>
-  <tr><td>No match</td></tr>
-  <tr><td>No match</td></tr>
-  <tr><td>No match</td></tr>
+  <tr><td>(3) No match</td></tr>
+  <tr><td>(4) No match</td></tr>
+  <tr><td>(5) No match</td></tr>
   <tr>
     <td rowspan="5"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_7.png"></td>
     <td rowspan="5"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_8.png"></td>
-    <td><span>1 </span><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_9.png"></td>
+    <td>(1) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_9.png"></td>
   </tr>
-  <tr><td><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></td></tr>
-  <tr><td>No match</td></tr>
-  <tr><td><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_10.png"></td></tr>
-  <tr><td><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_9.png"></td></tr>
+  <tr><td>(2)<img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></td></tr>
+  <tr><td>(3) No match</td></tr>
+  <tr><td>(4) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_10.png"></td></tr>
+  <tr><td>(5) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_9.png"></td></tr>
+  <tr>
+    <td rowspan="5"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_7.png"></td>
+    <td rowspan="5"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_11.png"></td>
+    <td>(1) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_12.png"></td>
+  </tr>
+  <tr><td>(2) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></td></tr>
+  <tr><td>(3) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_13.png"></td></tr>
+  <tr><td>(4) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_14.png"></td></tr>
+  <tr><td>(5) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_12.png"></td></tr>
+  <tr>
+    <td rowspan="5"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_15.png"></td>
+    <td rowspan="5"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_16.png"></td>
+    <td>(1) No match</td>
+  </tr>
+  <tr><td>(2) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></td></tr>
+  <tr><td>(3) No match</td></tr>
+  <tr><td>(4) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_17.png"></td></tr>
+  <tr><td>(5) No match</td></tr>
+  <tr>
+    <td rowspan="5"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_18.png"></td>
+    <td rowspan="5"><img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_19.png"></td>
+    <td>(1) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_20.png"></td>
+  </tr>
+  <tr><td>(2) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></td></tr>
+  <tr><td>(3) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_21.png"></td></tr>
+  <tr><td>(4) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_17.png"></td></tr>
+  <tr><td>(5) <img src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_20.png"></td></tr>
 </table>
-
-| Source Pattern   | Target Pattern | Result for examples       |
-|:-------:|:-----:|----------|
-| ![](./screenshots/variant_sequentialization/tiebreaker_examples_2.png)   | ![](./screenshots/variant_sequentialization/tiebreaker_examples_6.png)  | (1) No match<br> (2) ![](./screenshots/variant_sequentialization/tiebreaker_examples_6.png)<br> (3) No match<br> (4) No match<br> (5) No match<br>   |
-| ![](./screenshots/variant_sequentialization/tiebreaker_examples_7.png)   | ![](./screenshots/variant_sequentialization/tiebreaker_examples_8.png)  | (1) ![](./screenshots/variant_sequentialization/tiebreaker_examples_9.png)<br> (2) ![](./screenshots/variant_sequentialization/tiebreaker_examples_6.png)<br> (3) No match<br> (4) ![](./screenshots/variant_sequentialization/tiebreaker_examples_10.png)<br> (5) ![](./screenshots/variant_sequentialization/tiebreaker_examples_9.png)<br>   |
-| ![](./screenshots/variant_sequentialization/tiebreaker_examples_7.png)   | ![](./screenshots/variant_sequentialization/tiebreaker_examples_11.png)  | (1) ![](./screenshots/variant_sequentialization/tiebreaker_examples_12.png)<br> (2) ![](./screenshots/variant_sequentialization/tiebreaker_examples_6.png)<br> (3) ![](./screenshots/variant_sequentialization/tiebreaker_examples_13.png)<br> (4) ![](./screenshots/variant_sequentialization/tiebreaker_examples_14.png)<br> (5) ![](./screenshots/variant_sequentialization/tiebreaker_examples_12.png)<br>   |
-| ![](./screenshots/variant_sequentialization/tiebreaker_examples_15.png)   | ![](./screenshots/variant_sequentialization/tiebreaker_examples_16.png)  | (1) No match<br> (2) ![](./screenshots/variant_sequentialization/tiebreaker_examples_6.png)<br> (3) No match<br><br> (4) ![](./screenshots/variant_sequentialization/tiebreaker_examples_17.png)<br> (5) No match<br><br>   |
-| ![](./screenshots/variant_sequentialization/tiebreaker_examples_18.png)   | ![](./screenshots/variant_sequentialization/tiebreaker_examples_19.png)  | (1) ![](./screenshots/variant_sequentialization/tiebreaker_examples_20.png)<br> (2) ![](./screenshots/variant_sequentialization/tiebreaker_examples_6.png)<br> (3) ![](./screenshots/variant_sequentialization/tiebreaker_examples_21.png)<br> (4) ![](./screenshots/variant_sequentialization/tiebreaker_examples_17.png)<br> (5) ![](./screenshots/variant_sequentialization/tiebreaker_examples_20.png)<br>   |
-
 
 # Process Discovery
 

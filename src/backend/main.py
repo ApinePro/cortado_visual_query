@@ -76,6 +76,6 @@ def get_all_urls():
 if __name__ == "__main__":
     # print(DEFAULT_LP_SOLVER_VARIANT)
     freeze_support()
-    uvicorn.run("main:app", host="0.0.0.0", port=41213, workers=1, reload=CORTADO_DEBUG)
+    uvicorn.run("main:app", host="0.0.0.0", port=41211, workers=1, reload=CORTADO_DEBUG)
     # dev mode
     # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
