@@ -69,23 +69,28 @@ Screenshots can be captured consistently by using the fixed cortado window of el
 
 ## Variant Explorer
 
-Selected (marked with <i class="bi bi-check2-circle"></i>) <b>non-fitting</b> variants will be added to the process model.
+In the Variant Explorer, users can get a comprehensive list of all variants present in the loaded event log. Unlike classical sequential variants found in other process mining tools, the Variant Explorer captures additional parallel behavior. The explorer also lists [*Variant Fragments*](#variant-fragments). 
 
-In the Variant Explorer, users can get a comprehensive list of all variants present in the loaded event log. Unlike classical sequential variants found in other process mining tools, the Variant Explorer captures additional parallel behavior. The explorer also lists [*Variant Fragments*](#variant-fragments). The explorer offers different views on the variants, including:
+![large](screenshots/variant_explorer/standard-view.png)
+
+🔴 There are different views on the variants, including:
 
 - **Standard View:** Provides general information about each variant.
 - **Performance View:** Refer to section [*Temporal Performance Analysis*](#temporal-performance-analysis).
 - **Conformance View:** Refer to section [*Conformance Analysis*](#conformance-analysis).
 
-For each variant, the explorer displays its frequency within the log and the number of sub-variants it has. Variants can be selected for discovering an initial model (<i class="bi bi-diagram-2-fill btn-icon text-success">discover initial model</i>), and they can also be added incrementally (<i class="bi bi-plus-lg btn-icon text-success">add variant(s) to model</i>) (when discovering an initial model there may not be any variant fragments be selected).
+🟢 For each variant, the explorer displays its frequency within the log and the number of sub-variants it has.
 
-When a model is present, conformance is available within the standard view. Click the (<i class="bi bi-question-square btn-icon"></i>) button for individual variant conformance or use (<i class="bi bi-layers-fill btn-icon">conformance check</i>) for all variants. For more detailed conformance insights, refer to the [*Conformance Analysis*](#conformance-analysis) section. Variants can also be deleted by hovering over a variant row and clicking the deletion icon.
+🟣 Variants can be selected for discovering an initial model (<i class="bi bi-diagram-2-fill btn-icon text-success">discover initial model</i>), and they can also be added incrementally (<i class="bi bi-plus-lg btn-icon text-success">add variant(s) to model</i>) (when discovering an initial model there may not be any variant fragments be selected).
 
-Besides that there are also multiple actions available from the <i class="bi bi-tools btn-icon"></i>`Functions` dropdown menu within the toolbar of the variant explorer. For there functionalities refer to the corresponding sections.
+🔵 Variants can also be deleted by hovering over a variant row and clicking the deletion icon.
+
+🟡 Besides that there are also multiple actions available from the <i class="bi bi-tools btn-icon"></i>`Functions` dropdown menu within the toolbar of the variant explorer. For there functionalities refer to the corresponding sections.
+
+When a model is present, conformance is available within the standard view. Click the (<i class="bi bi-question-square btn-icon"></i>) button for individual variant conformance or use (<i class="bi bi-layers-fill btn-icon">conformance check</i>) for all variants. For more detailed conformance insights, refer to the [*Conformance Analysis*](#conformance-analysis) section.
+
 
 Beneath the listed variants, there are also statistic displayed for the whole event log, i.e. how many traces/variants are fitting the model or selected.
-
-In the variant explorer, you can perform various actions.
 
 ### Variant Information Explorer
 ![medium](./screenshots/variant_explorer/variant_info_explorer_detail.png) <br>
@@ -302,11 +307,11 @@ Based on which of the activities they contain, trace fragments can be categorise
 * **Prefix** fragments contain only an end activity.  
   ![prefix.png](screenshots%2Fvariant_fragments%2Fprefix.png)
 
-Trace fragments are used and can frequently be seen in [*Incremental Discovery*](#incremental-process-discovery), [*Tiebreaker*](#variant-sequentialization) and [*Frequent Pattern Mining*](#variant-frequent-pattern-mining), pool of which can either be -
+Trace fragments are used and can frequently be seen in [*Incremental Discovery*](#incremental-process-discovery), [*Tiebreaker*](#variant-sequentialization-tiebreaker) and [*Frequent Pattern Mining*](#variant-frequent-pattern-mining), pool of which can either be -
 
 * manually extracted using [infix selection mode](#extracting-variant-fragments),
 * automatically identified,
-* discovered in the process of '[Frequent Pattern Mining]((#variant-frequent-pattern-mining))', or
+* discovered in the process of '[Frequent Pattern Mining](#variant-frequent-pattern-mining)', or
 * manually created
 
 ### Extracting variant fragments
@@ -409,7 +414,7 @@ The editor comprises primarily of <i>three sections</i>, all of which rely heavi
    by clicking on (<i class="bi bi-save"></i>) button located in the top-right corner of the editor.
 
 
-3. finally in the **Filters** menu, a user can choose which of the infixes to retain. Here, the option `Valid` for `Type` retains only *valid* infixes, meaning the infixes in which all operator nodes have at least one child.
+3. finally in the **Filters** menu, a user can choose which of the infixes to retain. Here, the option `Valid` for `Type` retains only *valid* infixes, meaning the infixes in which all elements have at least activity.
    The section at the bottom allows users to selectively filter in or out certain activities. For instance, for a particular activity, checking the box for `Filter` and turning the toggle switch for `Out/In` on, retains only the infixes *containing* the activity.
    Switching the toggle off, retains only the infixes *not* containing the activity.
 
@@ -517,7 +522,7 @@ th, td {
 
 ### Process Tree Editor
 
-Process tree editor tab is open by default in the top pane, it can also be accessed using <i class="bi bi-diagram-2 btn-icon"></i> `Open Process Tree Editor` option in `Editors` dropdown menu. The `Process Tree Editor` tab is also always available in the list of tabs to the left of the top pane. 
+Process tree editor tab is open by default in the top pane, it can also be accessed using <i class="bi bi-diagram-2 btn-icon"></i> `Open Process Tree Editor` option in `Editors` dropdown menu. The `Process Tree Editor` tab is also always available in the list of tabs to the left of the top pane.
 After a tree is available in the process tree editor by either importing or through discovery, it can be edited in the following ways.
 
 #### Selecting Nodes for Updates
@@ -533,6 +538,7 @@ A selected node is highlighted with a red border as follows:
 -
 
 #### Inserting Nodes
+
 New nodes available for insertion in the tree are available in the process tree toolbox. The toolbox can be revealed using the <i class="btn-icon bi bi-chevron-bar-down"></i> button at the top of the editor.
 
 |![proc_tree_toolbox.png](screenshots%2Fprocess_discovery%2Fproc_tree_toolbox.png)|
@@ -541,6 +547,7 @@ New nodes available for insertion in the tree are available in the process tree 
 ##### Inserting nodes along operators
 
 After selecting an operator node, the following choices are available:
+
 - insert new node above the selected one (<i class="bi bi-chevron-up"></i>)
 - insert new node below the selected one (<i class="bi bi-chevron-down"></i>)
 - insert new node left to the selected one (<i class="bi bi-chevron-left"></i>)
@@ -551,11 +558,12 @@ Having selected the following operator and **insert new node below** option, add
 |![insert_node_below.gif](screenshots%2Fprocess_discovery%2Finsert_node_below.gif)|
 -
 
-Similarly, adding an operator adds that operator **below** the selected operator. It works similarly for adding activities or operators **above**, to the **left** or to the **right**. 
+Similarly, adding an operator adds that operator **below** the selected operator. It works similarly for adding activities or operators **above**, to the **left** or to the **right**.
 
 ##### Inserting nodes along activities
 
 After selecting an activity, the following choices are available:
+
 - insert new node left to the selected one (<i class="bi bi-chevron-left"></i>)
 - insert new node right to the selected one (<i class="bi bi-chevron-right"></i>)
 
@@ -570,12 +578,12 @@ Similarly, adding an operator adds that operator **to the right** the selected a
 
 The `replace the currently selected node` (<i class="bi bi-arrow-repeat"></i>) option can be used to replace a selected activity or operator node with either an activity or an operator node from the list of available activities and operators in the toolbox.
 
-Having selected an activity and **replace the currently selected node** option, choosing another activity from the toolbox replaces the selected activity as follows: 
+Having selected an activity and **replace the currently selected node** option, choosing another activity from the toolbox replaces the selected activity as follows:
 
 |![replace_node.gif](screenshots%2Fprocess_discovery%2Freplace_node.gif)|
 -
 
-Similarly, choosing an operator node from the toolbox **replaces** the selected activity with the selected operator. It works similarly for **replacing** selected operators with either operators or activities form the list of available operators and activities in the toolbox. 
+Similarly, choosing an operator node from the toolbox **replaces** the selected activity with the selected operator. It works similarly for **replacing** selected operators with either operators or activities form the list of available operators and activities in the toolbox.
 
 #### Removing Nodes
 
@@ -587,13 +595,15 @@ Having selected an operator node and removing it results as follows:
 -
 
 #### Shifting Nodes
-Selecting an operator node or an activity and clicking the <i class="bi bi-chevron-double-left btn-icon"></i>`shift selected node(s) to left` or <i class="bi bi-chevron-double-right btn-icon"></i>`shift selected node(s) to right` button **shifts** the selected node to the left or to the right respectively. 
+
+Selecting an operator node or an activity and clicking the <i class="bi bi-chevron-double-left btn-icon"></i>`shift selected node(s) to left` or <i class="bi bi-chevron-double-right btn-icon"></i>`shift selected node(s) to right` button **shifts** the selected node to the left or to the right respectively.
 The shift to right or to the left is with respect to the sibling node(s) of the selected node under a single operator.
 
 Having selected the following operator node and clicking the <i class="bi bi-chevron-double-left btn-icon"></i>`shift selected node(s) to left` button **shifts** the operator node to the left as follows:
 
 |![shift_pt_node.gif](screenshots%2Fprocess_discovery%2Fshift_pt_node.gif)|
 -
+
 
 #### Applying Reduction Rules
 
@@ -604,7 +614,7 @@ Selecting an operator node and clicking the <i class="bi bi-diagram-2"></i> butt
 
 #### (Un)Freezing Subtrees
 
-Freezing a subtree prevents that subtree from being updated during the incremental discovery process and this subtree always remains in the tree.  
+Freezing a subtree prevents that subtree from being updated during the incremental discovery process and this subtree always remains in the tree.
 
 Selecting an operator node and clicking the <i class="bi bi-snow btn-icon"></i>`(un)freeze subtrees` button **freezes** the subtree under that operator node. The frozen subtree is highlighted blue as seen below:
 
@@ -612,7 +622,6 @@ Selecting an operator node and clicking the <i class="bi bi-snow btn-icon"></i>`
 -
 
 Similarly, selecting root operator node of an already frozen subtree and clicking the <i class="bi bi-snow btn-icon"></i>`(un)freeze subtrees` button unfreezes that subtree. After unfreezing, that subtree may be updated diring the incremental discovery process and its presence is no longer ensured.
-
 
 #### Undo/Redo Applied Changes
 
@@ -624,7 +633,7 @@ The current tree in the process tree editor can be exported (.svg) using the <i 
 
 ### BPMN-Visualizer
 
-BPMN visualizer can be accessed using <i class="bi bi-diagram-2 btn-icon rotate-270"></i> `Open BPMN Viewer` option in `Editors` dropdown menu. The `BPMN Viewer` tab is also available in the list of tabs to the left of the top pane after it was accessed. 
+BPMN visualizer can be accessed using <i class="bi bi-diagram-2 btn-icon rotate-270"></i> `Open BPMN Viewer` option in `Editors` dropdown menu. The `BPMN Viewer` tab is also available in the list of tabs to the left of the top pane after it was accessed.
 After a tree is available in the process tree editor by either importing or through discovery, the BPMN representation of that process tree is available in the BPMN viewer.
 
 #### Selecting Nodes for Updates
@@ -692,19 +701,30 @@ After discovering or importing an initial process tree, trace(s) can be chosen f
 
 # Temporal Performance Analysis
 
-* Model-independent performance analysis
-* Model-based performance analysis
 ## Model-independent performance analysis
 When opening the Performance View from the side bar, the performance of each variant is calculated, which may take a while depending on the size of the event log. 
+
+![large](screenshots/variant_explorer/performance-view.png)
+
 In this view the variants are no longer uniquely colored to be differentiated but based on their service times. Additionally, there are now nodes displayed inbetween activites to show the waiting times. These are colored using a separate color scale to show their waiting times. 
 
 Both color maps can be seen in a sub-tab from the `Variant Performance` tab.
+
+![large](screenshots/temporal_performance_analysis/variant-performance_color-map.png)
+
 Here the used statistic for the color maps can be changed from their default showing the mean values of all instances for each variant to other statisics such as their minimum, maximum or standard deviation. Upon change the color map will be immediatley be updated.
 
 To get further insight into the performance of certain parts of a variant, let it be single activites, waiting nodes or parallel sections, one can simply click on them in the Variant Explorer and inspect their service or waiting times in the `Selection` sub-tab of the `Variant Performance` tab.
 
+![large](screenshots/temporal_performance_analysis/variant-performance_selection.png)
+
+
 ## Model-based performance analysis 
-For understanding the performance of a process model one can project the performance of selected variants onto the model from the Performance View. When there is a model present there will be two additional columns in the Variant Explorer, namely `Model Projection` and by default `service time (mean)`.
+For understanding the performance of a process model one can project the performance of selected variants onto the model from the Performance View. 
+
+![large](screenshots/temporal_performance_analysis/model-performance_projection.png)
+
+🔴 When there is a model present there will be two additional columns in the Variant Explorer, namely `Model Projection` and by default `service time (mean)`.
 
 By clicking the toggle in the `Model Projection` column the variant will be added to the pool of projected variant. On the other hand unclicking the toggle of already projected variants will remove them again from the pool. To clear the whole pool one can click (<i class="bi bi-x-circle-fill btn-icon"></i>) in the header of the `Model Projection` column.
 
@@ -712,10 +732,14 @@ Please note that in most cases it only makes sense to project variants that are 
 
 The other column shows in the default setting the mean service overall model performance of the variant.
 
-Further information can be gained from `Model Performance` tab. Here in the `Selection` subtab the *service time*, *waiting time*, *cycle time* and *idle time* are shown for the selection made within the model.
-The same information can be gained for certain process tree nodes by hovering over them. 
+🟢 Further information can be gained from `Model Performance` tab. Here in the `Selection` subtab the *service time*, *waiting time*, *cycle time* and *idle time* are shown for the selection made within the model.
+
+🟣 The same information can be gained for certain process tree nodes by hovering over them. 
 
 In the `Color Map` subtab adjustments can be made to how the model is colored and the statistics are aggregated.
+
+![large](screenshots/temporal_performance_analysis/model-performance_color-map.png)
+
 One can choose which of the four performance times will be used for the projection as well between the statistical measure (mean, min, max, stdev). 
 
 The changes made to this will also change what will be displayed in the variants explorer column.

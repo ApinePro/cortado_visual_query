@@ -72,16 +72,16 @@ def count_fragment_occurrences(payload: VariantFragment):
 
 
 class GroupToSort(BaseModel):
-    variants: Any
+    variants: Any = None
 
 
 class IdQuery(BaseModel):
-    index: Any
+    index: Any = None
 
 
 class caseQuery(BaseModel):
-    index: Any
-    caseId: Any
+    index: Any = None
+    caseId: Any = None
 
 
 @router.post("/sortvariant")
