@@ -732,7 +732,6 @@ export class VariantExplorerComponent
       (variant) => variant_id === variant.id
     );
     const currently_maximized = this.maximized;
-
     const LocationSelectors: LayoutManager.LocationSelector[] = [
       {
         typeId: LayoutManager.LocationSelector.TypeId.FocusedStack,

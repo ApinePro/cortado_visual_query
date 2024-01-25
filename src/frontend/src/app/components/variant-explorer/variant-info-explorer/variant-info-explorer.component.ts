@@ -203,7 +203,9 @@ export class VariantInfoExplorerComponent
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
     defaultZIndex: string
-  ): void {}
+  ): void {
+    this.maximized = logicalZIndex === 'stackMaximised';
+  }
 
   toggleSort(sortKey: string) {
     // On the first Click always make descending
@@ -273,7 +275,6 @@ export class VariantInfoExplorerComponent
     let variant = state['variant'];
 
     const currently_maximized = this.maximized;
-
     const LocationSelectors: LayoutManager.LocationSelector[] = [
       {
         typeId: LayoutManager.LocationSelector.TypeId.FocusedStack,
