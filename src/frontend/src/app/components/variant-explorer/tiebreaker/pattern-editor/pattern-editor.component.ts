@@ -179,7 +179,8 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
 
   checkButtonCollapse() {
     console.log(this.toolBar.nativeElement.offsetWidth);
-    if (this.toolBar.nativeElement.offsetWidth < 766) { //according to the width of toolbar
+    if (this.toolBar.nativeElement.offsetWidth < 766) {
+      //according to the width of toolbar
       this.collapse = true;
     } else {
       this.collapse = false;
