@@ -10,16 +10,16 @@ import {
   ViewChild,
 } from '@angular/core';
 
-import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
-import { InfixType } from 'src/app/objects/Variants/infix_selection';
-import { Variant } from 'src/app/objects/Variants/variant';
-import { ViewMode } from 'src/app/objects/ViewMode';
-import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
-import { PerformanceService } from 'src/app/services/performance.service';
-import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
-import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
-import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
-import { getCssStripes } from '../../performance/color-map/color-map.component';
+import {LazyLoadingServiceService} from 'src/app/services/lazyLoadingService/lazy-loading.service';
+import {InfixType} from 'src/app/objects/Variants/infix_selection';
+import {Variant} from 'src/app/objects/Variants/variant';
+import {ViewMode} from 'src/app/objects/ViewMode';
+import {VariantViewModeService} from 'src/app/services/viewModeServices/variant-view-mode.service';
+import {PerformanceService} from 'src/app/services/performance.service';
+import {ConformanceCheckingService} from 'src/app/services/conformanceChecking/conformance-checking.service';
+import {ModelPerformanceColorScaleService} from 'src/app/services/performance-color-scale.service';
+import {textColorForBackgroundColor} from 'src/app/utils/render-utils';
+import {getCssStripes} from '../../performance/color-map/color-map.component';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -34,6 +34,7 @@ export class VariantComponent implements AfterViewInit {
   @ContentChild('subvariantButton') subvariantButton!: TemplateRef<any>;
   @ContentChild('infixSelection') infixSelection!: TemplateRef<any>;
   @ContentChild('removeVariantButton') removeVariantButton!: TemplateRef<any>;
+  // @ContentChild('arcDiagram') arcDiagram!: TemplateRef<any>;
 
   @Input()
   index: number;
@@ -68,7 +69,8 @@ export class VariantComponent implements AfterViewInit {
     private conformanceCheckingService: ConformanceCheckingService,
     private performanceService: PerformanceService,
     private modelPerformanceColorScaleService: ModelPerformanceColorScaleService
-  ) {}
+  ) {
+  }
 
   ngAfterViewInit(): void {
     const self = this;
@@ -100,7 +102,7 @@ export class VariantComponent implements AfterViewInit {
     if (!tree) return null;
 
     return this.conformanceCheckingService.isConformanceWeighted &&
-      tree.conformance?.weighted_by_counts != undefined
+    tree.conformance?.weighted_by_counts != undefined
       ? tree.conformance?.weighted_by_counts.value
       : tree.conformance?.weighted_equally.value;
   }
@@ -116,7 +118,7 @@ export class VariantComponent implements AfterViewInit {
       this.variant
     ).performance[selectedColorScale.performanceIndicator]?.[
       selectedColorScale.statistic
-    ];
+      ];
     if (performance == undefined) {
       performance = 0;
     }
@@ -147,19 +149,19 @@ export class VariantComponent implements AfterViewInit {
         colorScale &&
         tree.performance?.[selectedScale.performanceIndicator]?.[
           selectedScale.statistic
-        ] !== undefined
+          ] !== undefined
       ) {
         if (
           tree.performance[selectedScale.performanceIndicator][
             selectedScale.statistic
-          ] == 0
+            ] == 0
         )
           return getCssStripes();
         else
           return colorScale.getColor(
             tree.performance[selectedScale.performanceIndicator][
               selectedScale.statistic
-            ]
+              ]
           );
       }
     }

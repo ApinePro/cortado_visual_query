@@ -142,6 +142,18 @@
 
     <div class="vr"></div>
 
+    <button
+      [hidden]="isNoVariantSelected()"
+      (click)="showArcDiagram()"
+      class="button"
+    >
+      <i class="bi bi-rainbow btn-icon text-success"></i>
+      <div @collapseText class="button-text px-2" *ngIf="!collapse">
+        show arc diagram
+      </div>
+
+    </button>
+
     <!--
     <div class="vr"></div>
 
@@ -155,7 +167,7 @@
       <i class="bi bi-arrow-counterclockwise"></i>
     </button> -->
 
-    <div class="vr"></div>
+    <div class="vr" [hidden]="isNoVariantSelected()"></div>
     <ng-template #tooltip4>
       sort variants by one of the following attributes:
       <br/><i class="bi bi-chevron-double-right">
@@ -768,7 +780,7 @@
 
                   <ng-template #variantDrawer>
                     <div
-                      class="variant"
+                      class="variant d-flex flex-column"
                       [ngStyle]="{
                         'border-color': variant.isSelected
                           ? 'unset'
@@ -776,29 +788,18 @@
                       }"
                       style="white-space: nowrap"
                     >
-                      <div
-                        appVariantDrawer
-                        #drawer="variantDrawer"
+
+
+                      <svg
+                        #arcDiagram="arcDiagram"
+                        appArcDiagram
                         [variant]="variant"
-                        [onClickCbFc]="variantClickCallBack"
-                        [onRightMouseClickCbFc]="openContextCallback"
-                        [traceInfixSelectionMode]="traceInfixSelectionMode"
-                        [computeActivityColor]="computeActivityColor"
-                        [infixType]="variant.infixType"
-                        class="zoom-group-variant d-flex flex-column"
-                        style="display: inline-block"
-                      >
-                        <!-- <app-arc-diagram
-                          [contextMenu_directive]="contextMenu_directive"
-                          [contextMenu_variant]="contextMenu_variant"
-                        ></app-arc-diagram> -->
-                        <svg
-                          class="arc-diagram-chart"
-                          style="display: none"
-                        />
-                        <svg class="drawer"></svg>
-                      </div>
-                      <!-- <svg
+                        class="arc-diagram-chart"
+                        style="display: none">
+                        <g id="arcGroup"></g>
+                      </svg>
+
+                      <svg
                         appVariantDrawer
                         #drawer="variantDrawer"
                         [variant]="variant"
@@ -809,7 +810,7 @@
                         [infixType]="variant.infixType"
                         class="zoom-group-variant"
                         style="display: inline-block"
-                      ></svg> -->
+                      ></svg>
                     </div>
                     <ng-template #infixSelection>
                       <app-infix-selection-controlls

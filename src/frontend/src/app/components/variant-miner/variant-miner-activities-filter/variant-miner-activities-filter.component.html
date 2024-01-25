@@ -21,16 +21,14 @@
         *ngIf="even"
       >
         <div class="col-3">
-          <div
+          <svg
             appVariantDrawer
             [variant]="{
               variant: activityDummyVariants.get(interleavedActivityNames[i])
             }"
             [computeActivityColor]="computeActivityColor"
             [addCursorPointer]="false"
-          >
-            <svg class="drawer"></svg>
-          </div>
+          ></svg>
         </div>
         <div class="col">
           <input
@@ -63,7 +61,7 @@
         </div>
 
         <div class="col-3" *ngIf="i + 1 < interleavedActivityNames.length">
-          <div
+          <svg
             appVariantDrawer
             [variant]="{
               variant: activityDummyVariants.get(
@@ -72,9 +70,7 @@
             }"
             [computeActivityColor]="computeActivityColor"
             [addCursorPointer]="false"
-          >
-            <svg class="drawer"></svg>
-          </div>
+          ></svg>
         </div>
         <div class="col" *ngIf="i + 1 < interleavedActivityNames.length">
           <input

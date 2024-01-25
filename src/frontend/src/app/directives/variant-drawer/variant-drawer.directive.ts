@@ -61,10 +61,10 @@ export class VariantDrawerDirective
     private conformanceCheckingService: ConformanceCheckingService,
     private variantService: VariantService
   ) {
-    this.divHtmlElement = elRef;
+    this.svgHtmlElement = elRef;
   }
 
-  divHtmlElement: ElementRef;
+  svgHtmlElement: ElementRef;
 
   @Input()
   variant: IVariant;
@@ -120,9 +120,7 @@ export class VariantDrawerDirective
 
   ngAfterViewInit(): void {
     this.svgSelection = d3.select(
-      this.divHtmlElement.nativeElement.querySelector('svg.drawer') ||
-      this.divHtmlElement.nativeElement
-    );
+      this.svgHtmlElement.nativeElement);
 
     //Pattern injection
     const defs = this.svgSelection.append('defs');
@@ -258,9 +256,7 @@ export class VariantDrawerDirective
         const width = this.variant.alignment.recalculateWidth(false);
       }
 
-      const svg_container = d3.select(
-        this.divHtmlElement.nativeElement.querySelector('svg.drawer')
-      );
+      const svg_container = d3.select(this.svgHtmlElement.nativeElement);
       this.variant.variant.updateWidth(
         !this.keepStandardView &&
         this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
@@ -294,7 +290,7 @@ export class VariantDrawerDirective
 
       this.selection.emit(this.svgSelection);
 
-      let outerElement = this.divHtmlElement.nativeElement
+      let outerElement = this.svgHtmlElement.nativeElement
         .querySelector('.dfs-group-0')
 
       if (outerElement) {
@@ -569,9 +565,9 @@ export class VariantDrawerDirective
 
     const inEditor =
       d3
-        .select(this.divHtmlElement.nativeElement)
+        .select(this.svgHtmlElement.nativeElement)
         .classed('in-variant-editor') ||
-      d3.select(this.divHtmlElement.nativeElement).classed('pattern-variant');
+      d3.select(this.svgHtmlElement.nativeElement).classed('pattern-variant');
 
     if (
       (!outerElement ||
@@ -1216,7 +1212,7 @@ export class VariantDrawerDirective
   }*/
 
   getSVGGraphicElement(): SVGGraphicsElement {
-    return this.divHtmlElement.nativeElement.querySelector('svg.drawer');
+    return this.svgHtmlElement.nativeElement;
   }
 
   isExpanded(): boolean {

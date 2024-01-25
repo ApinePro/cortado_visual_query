@@ -72,9 +72,9 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ClusteringSettingsDialogComponent} from './clustering-settings-dialog/clustering-settings-dialog.component';
 import _ from 'lodash';
 import {InfixType} from 'src/app/objects/Variants/infix_selection';
-import {draw, parseInput} from './arc-diagram/arc-diagram';
 import * as d3 from 'd3';
-import {Arc, Pair} from './arc-diagram/data';
+import {Arc, Pair} from '../../directives/arc-diagram/data';
+import {ArcDiagramDirective} from "../../directives/arc-diagram/arc-diagram.directive";
 
 @Component({
   selector: 'app-variant-explorer',
@@ -183,6 +183,9 @@ export class VariantExplorerComponent
   @ViewChild('tooltipContainer')
   tooltipContainer: ElementRef<HTMLDivElement>;
 
+  @ViewChildren(ArcDiagramDirective)
+  arcDiagrams: QueryList<ArcDiagramDirective>;
+
   public visibleVariantsHeight = 1000;
 
   public deletedVariants: Variant[][] = [];
@@ -204,23 +207,25 @@ export class VariantExplorerComponent
   }.bind(this);
 
   showArcDiagram = function () {
-    const matchingVariant = this.variantService.variants.find((v) => v.variant === this.contextMenu_variant);
+    const matchingVariant = this.getSelectedVariants()[0];
+    // const matchingVariant = this.variantService.variants.find((v) => v.variant === this.contextMenu_variant);
     this.variantService
       .showArcDiagram(matchingVariant.bid)
       .pipe(takeUntil(this._destroy$))
       .subscribe((res: Pair[]) => {
-        const arcs = parseInput(res);
+        const arcDiagramDir: ArcDiagramDirective = this.arcDiagrams.find((dir: ArcDiagramDirective) => dir.variant.bid == matchingVariant.bid);
+        const arcs = arcDiagramDir.parseInput(res);
         this.arcs[matchingVariant.bid] = arcs;
-        draw(
+        const variantDrawerDir: VariantDrawerDirective = this.variantDrawers.find((drawer: VariantDrawerDirective) => drawer.variant.id == matchingVariant.id);
+        arcDiagramDir.draw(
           arcs,
-          this.contextMenu_directive
+          variantDrawerDir
         );
       });
   }.bind(this);
 
   contextMenuOptions: Array<ContextMenuItem> = [
     new ContextMenuItem('Delete Variant', 'bi-trash', this.deleteVariant),
-    new ContextMenuItem('Show Arc Diagram', 'bi-rainbow', this.showArcDiagram),
   ];
 
   // stores the sort settings for each cluster
@@ -278,6 +283,7 @@ export class VariantExplorerComponent
   }
 
   ngAfterViewInit() {
+
     this.polygonDrawingService.setElementRefereneces(
       this.variantExplorerContainer,
       this.tooltipContainer

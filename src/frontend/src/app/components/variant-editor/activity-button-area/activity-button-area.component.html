@@ -1,7 +1,7 @@
 <div class="activity-button-area bg-dark">
   <div class="activity-button-container" *ngFor="let activity of activityNames">
     <!-- <app-variant-drag-source [colorMap]="colorMap" [activity]="activity"> </app-variant-drag-source> -->
-    <div
+    <svg
       #ActivityButton
       appVariantDrawer
       [variant]="{ variant: activityDummyVariants.get(activity) }"
@@ -16,8 +16,6 @@
           ? 'activity-button'
           : 'button-disabled'
       "
-    >
-      <svg class="drawer"></svg>
-    </div>
+    ></svg>
   </div>
 </div>

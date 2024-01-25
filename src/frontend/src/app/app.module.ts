@@ -142,6 +142,7 @@ import {
 import {InfoBarComponent} from './components/activity-overview/info-bar/info-bar.component';
 import {LoadingOverlayComponent} from './components/loading-overlay/loading-overlay.component';
 import {CaseExplorerComponent} from './components/variant-explorer/case-explorer/case-explorer.component';
+import {ArcDiagramDirective} from "./directives/arc-diagram/arc-diagram.directive";
 
 @NgModule({
   declarations: [
@@ -222,6 +223,7 @@ import {CaseExplorerComponent} from './components/variant-explorer/case-explorer
     InfoBarComponent,
     LoadingOverlayComponent,
     CaseExplorerComponent,
+    ArcDiagramDirective,
   ],
   imports: [
     BrowserModule,
