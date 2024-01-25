@@ -14,7 +14,7 @@ import {
   removeIntermediateGroupsWithSingleElements,
 } from 'src/app/objects/Variants/infix_selection';
 import {FragmentStatistics, Variant} from 'src/app/objects/Variants/variant';
-import {deserialize, SequenceGroup, VariantElement,} from 'src/app/objects/Variants/variant_element';
+import {deserialize, SequenceGroup,} from 'src/app/objects/Variants/variant_element';
 import {
   addVariantInformation,
   compute_delete_activity_variants,
@@ -230,12 +230,8 @@ export class VariantService {
     return this.backendService.showArcDiagram(bid);
   }
 
-  public deleteVariant(variant: VariantElement): void {
-    const matchingVariant = this.variants.filter(
-      (v) => v.variant === variant
-    )[0];
-
-    this.deleteVariants([matchingVariant.bid]).subscribe();
+  public deleteVariant(bid: number): void {
+    this.deleteVariants([bid]).subscribe();
   }
 
   public deleteVariants(bids: number[]): Observable<any> {

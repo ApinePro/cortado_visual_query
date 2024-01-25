@@ -108,8 +108,8 @@ import {FilterOptionsComponent} from './components/variant-miner/filter-options/
 import {ResizeableTableHeaderComponent} from './components/resizeable-table-header/resizeable-table-header.component';
 import {ResizeColumnDirective} from './directives/resize-column.directive';
 import {
-  VariantDeleteButtonComponent
-} from './components/variant-explorer/variant/subcomponents/variant-delete-button/variant-delete-button.component';
+  VariantActionButtonsComponent
+} from './components/variant-explorer/variant/subcomponents/variant-action-buttons/variant-action-buttons.component';
 import {ElectronService} from './services/electronService/electron.service';
 import {UnavailableInfoComponent} from './components/unavailable-info/unavailable-info.component';
 import {ConformanceTabComponent} from './components/conformance-tab/conformance-tab.component';
@@ -204,7 +204,7 @@ import {ArcDiagramDirective} from "./directives/arc-diagram/arc-diagram.directiv
     FilterOptionsComponent,
     ResizeableTableHeaderComponent,
     ResizeColumnDirective,
-    VariantDeleteButtonComponent,
+    VariantActionButtonsComponent,
     UnavailableInfoComponent,
     ConformanceTabComponent,
     ConformanceStatusIconComponent,

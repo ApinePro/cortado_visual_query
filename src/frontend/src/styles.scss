@@ -497,12 +497,12 @@ th {
 
 .remove-variant-button {
   display: none;
-  background-color: var(--box-background-color);
+  // background-color: var(--box-background-color);
 }
 
 tr:hover > td .remove-variant-button {
   display: inline !important;
-  background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity)) !important;
+  // background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity)) !important;
 }
 
 tr:hover > .fixed-right {

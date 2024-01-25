@@ -140,20 +140,6 @@
       ></i>
     </button>
 
-    <div class="vr"></div>
-
-    <button
-      [hidden]="isNoVariantSelected()"
-      (click)="showArcDiagram()"
-      class="button"
-    >
-      <i class="bi bi-rainbow btn-icon text-success"></i>
-      <div @collapseText class="button-text px-2" *ngIf="!collapse">
-        show arc diagram
-      </div>
-
-    </button>
-
     <!--
     <div class="vr"></div>
 
@@ -909,10 +895,13 @@
                     </ng-template>
                   </ng-template>
                   <ng-template #removeVariantButton>
-                    <app-variant-delete-button
-                      [variant]="variant.variant"
-                    ></app-variant-delete-button>
+                    <app-variant-action-buttons
+                      [variant]="variant"
+                      [arcDiagrams]="arcDiagrams"
+                      [variantDrawers]="variantDrawers"
+                    ></app-variant-action-buttons>
                   </ng-template>
+
                 </tr>
               </ng-container>
             </ng-container>

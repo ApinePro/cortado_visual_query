@@ -74,7 +74,7 @@ import _ from 'lodash';
 import {InfixType} from 'src/app/objects/Variants/infix_selection';
 import * as d3 from 'd3';
 import {ArcDiagramDirective} from "../../directives/arc-diagram/arc-diagram.directive";
-import {Arc, Pair} from "../../directives/arc-diagram/data";
+import {Arc} from "../../directives/arc-diagram/data";
 
 @Component({
   selector: 'app-variant-explorer',
@@ -197,25 +197,6 @@ export class VariantExplorerComponent
   originalOrder = originalOrder;
 
   public arcs: { [id: number]: Arc[] } = {};
-
-  showArcDiagram = function () {
-    const matchingVariant = this.getSelectedVariants()[0];
-    // const matchingVariant = this.variantService.variants.find((v) => v.variant === this.contextMenu_variant);
-    this.variantService
-      .showArcDiagram(matchingVariant.bid)
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((res: Pair[]) => {
-        const arcDiagramDir: ArcDiagramDirective = this.arcDiagrams.find((dir: ArcDiagramDirective) => dir.variant.bid == matchingVariant.bid);
-        const arcs = arcDiagramDir.parseInput(res);
-        this.arcs[matchingVariant.bid] = arcs;
-        const variantDrawerDir: VariantDrawerDirective = this.variantDrawers.find((drawer: VariantDrawerDirective) => drawer.variant.id == matchingVariant.id);
-        arcDiagramDir.draw(
-          arcs,
-          variantDrawerDir
-        );
-      });
-  }.bind(this);
-
 
   deleteVariant = function () {
     const bids = this.variantService.variants
