@@ -34,7 +34,6 @@ export class VariantComponent implements AfterViewInit {
   @ContentChild('subvariantButton') subvariantButton!: TemplateRef<any>;
   @ContentChild('infixSelection') infixSelection!: TemplateRef<any>;
   @ContentChild('removeVariantButton') removeVariantButton!: TemplateRef<any>;
-  // @ContentChild('arcDiagram') arcDiagram!: TemplateRef<any>;
 
   @Input()
   index: number;
@@ -69,8 +68,7 @@ export class VariantComponent implements AfterViewInit {
     private conformanceCheckingService: ConformanceCheckingService,
     private performanceService: PerformanceService,
     private modelPerformanceColorScaleService: ModelPerformanceColorScaleService
-  ) {
-  }
+  ) {}
 
   ngAfterViewInit(): void {
     const self = this;

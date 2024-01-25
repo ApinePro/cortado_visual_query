@@ -19,7 +19,7 @@
       <div class="vr ms-auto"></div>
       <ng-template #tooltip1>
         Sort subvariants by frequency
-        <br/>Click to change sort order <br/>Current sort order: ascending
+        <br />Click to change sort order <br />Current sort order: ascending
       </ng-template>
       <div
         *ngIf="sortAscending"
@@ -45,7 +45,7 @@
       </div>
       <ng-template #tooltip2>
         Sort subvariants by frequency
-        <br/>Click to change sort order <br/>Current sort order: descending
+        <br />Click to change sort order <br />Current sort order: descending
       </ng-template>
       <div
         *ngIf="!sortAscending"
@@ -118,12 +118,10 @@
             <tr>
               <td style="padding-right: 15px; padding-left: 5px">
                 <ng-container *ngIf="containsLoopCollapsedVariants"
-                >Parent {{ index }}.{{ i + 1 }}
-                </ng-container
+                >Parent {{ index }}.{{ i + 1 }}</ng-container
                 >
                 <ng-container *ngIf="!containsLoopCollapsedVariants"
-                >Parent
-                </ng-container
+                >Parent</ng-container
                 >
               </td>
               <td>
@@ -155,18 +153,16 @@
             >
               <td style="padding-right: 15px; padding-left: 5px">
                 <ng-container *ngIf="containsLoopCollapsedVariants"
-                >{{ index }}.{{ i + 1 }}.{{ j + 1 }}
-                </ng-container
+                >{{ index }}.{{ i + 1 }}.{{ j + 1 }}</ng-container
                 >
                 <ng-container *ngIf="!containsLoopCollapsedVariants"
-                >{{ index }}.{{ j + 1 }}
-                </ng-container
+                >{{ index }}.{{ j + 1 }}</ng-container
                 >
               </td>
               <td style="text-align: start">
                 <ng-template #tooltip3>
                   sub-variant describes ~{{ subVariant.percentage }}% of all
-                  traces of the main-variant<br/>
+                  traces of the main-variant<br />
                   <span class="text-secondary"
                   >sub-variant occurs {{ subVariant.count | number }} time(s)
                     in total</span
@@ -177,7 +173,7 @@
                   [ngbTooltip]="tooltip3"
                   container="body"
                 >
-                  {{ subVariant.percentage }}%<br/>
+                  {{ subVariant.percentage }}%<br />
                   ({{ subVariant.count | number }})
                 </small>
               </td>

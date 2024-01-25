@@ -1,54 +1,39 @@
-import { ZoomFieldComponent } from 'src/app/components/zoom-field/zoom-field.component';
-import { VariantService } from 'src/app/services/variantService/variant.service';
-import { BackendService } from 'src/app/services/backendService/backend.service';
-import { VariantExplorerComponent } from 'src/app/components/variant-explorer/variant-explorer.component';
-import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
-import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
-import { ComponentContainer, LogicalZIndex } from 'golden-layout';
-import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
+import {ZoomFieldComponent} from 'src/app/components/zoom-field/zoom-field.component';
+import {VariantService} from 'src/app/services/variantService/variant.service';
+import {BackendService} from 'src/app/services/backendService/backend.service';
+import {ColorMapService} from 'src/app/services/colorMapService/color-map.service';
 import {
   Component,
   ElementRef,
-  Inject,
-  OnInit,
-  Renderer2,
-  ViewChild,
+  EventEmitter,
   HostListener,
-  OnDestroy,
-  OnChanges,
   Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
   Output,
   SimpleChanges,
-  EventEmitter,
+  ViewChild,
 } from '@angular/core';
-
-import { cloneDeep } from 'lodash';
-import { select, Selection } from 'd3';
-import * as objectHash from 'object-hash';
 import * as d3 from 'd3';
-import { LogService } from 'src/app/services/logService/log.service';
-import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
-import { InfixType, setParent } from 'src/app/objects/Variants/infix_selection';
-import { Variant } from 'src/app/objects/Variants/variant';
+import {Selection} from 'd3';
+import {LogService} from 'src/app/services/logService/log.service';
+import {VariantDrawerDirective} from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import {InfixType} from 'src/app/objects/Variants/infix_selection';
+import {Variant} from 'src/app/objects/Variants/variant';
 import {
-  VariantElement,
-  LeafNode,
-  SequenceGroup,
-  ParallelGroup,
   ChoiceGroup,
   FallthroughGroup,
-  deserialize,
+  LeafNode,
+  ParallelGroup,
+  SequenceGroup,
+  VariantElement,
 } from 'src/app/objects/Variants/variant_element';
-import { collapsingText, fadeInText } from 'src/app/animations/text-animations';
-import { findPathToSelectedNode } from 'src/app/objects/Variants/utility_functions';
-import { applyInverseStrokeToPoly } from 'src/app/utils/render-utils';
-import { Observable, of, Subject } from 'rxjs';
-import { first, takeUntil, tap } from 'rxjs/operators';
-import { VariantEditorComponent } from 'src/app/components/variant-editor/variant-editor.component';
-import { parallel } from '@angular/cdk/testing';
-import { PreloadAllModules } from '@angular/router';
-import { element } from 'protractor';
+import {collapsingText} from 'src/app/animations/text-animations';
+import {findPathToSelectedNode} from 'src/app/objects/Variants/utility_functions';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
+
 declare var $;
 
 @Component({
@@ -61,6 +46,9 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
   activityNames: Array<String> = [];
 
   public colorMap: Map<string, string>;
+
+  @ViewChild('ToolBar')
+  toolBar: ElementRef;
 
   @ViewChild('VariantMainGroup')
   variantElement: ElementRef;
@@ -92,7 +80,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
 
   newLeaf;
 
-  collapse = false;
+  collapse: boolean = false;
 
   insertionStrategy = activityInsertionStrategy;
   selectedStrategy = this.insertionStrategy.behind;
@@ -105,7 +93,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
   constructor(
     private variantService: VariantService,
     private backendService: BackendService,
-    public logService: LogService, //edited
+    public logService: LogService,
     private colorMapService: ColorMapService
   ) {
     const a = 1;
@@ -151,6 +139,11 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
       });
   }
 
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    this.checkButtonCollapse();
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     this.logService.activitiesInEventLog$
       .pipe(takeUntil(this._destroy$))
@@ -167,6 +160,15 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnDestroy(): void {
     this._destroy$.next();
+  }
+
+  checkButtonCollapse() {
+    if (this.toolBar.nativeElement.offsetWidth < 766) {
+      //according to the width of toolbar
+      this.collapse = true;
+    } else {
+      this.collapse = false;
+    }
   }
 
   computeActivityColor = (
@@ -461,7 +463,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
       if (
         firstParent != secondParent ||
         firstParent.getElements().indexOf(selectedElements[i + 1]) !=
-          firstParent.getElements().indexOf(selectedElements[i]) + 1
+        firstParent.getElements().indexOf(selectedElements[i]) + 1
       ) {
         return false;
       }
