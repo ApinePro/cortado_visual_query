@@ -65,6 +65,7 @@ export class CaseExplorerComponent
   activitiesInLog: any;
   activityFields: ActivityField[];
   caseActivities: Map<string, number>[];
+  activityPropertyKeys: any; //how to improve
 
   sortKey: string = 'activityName';
   ascending: boolean = false;
@@ -89,8 +90,9 @@ export class CaseExplorerComponent
 
     this.backendService
       .getCaseActivities(this.index, this.caseId)
-      .subscribe((caseActivities: Map<string, number>[]) => {
+      .subscribe((caseActivities: Map<string, any>[]) => {
         this.caseActivities = caseActivities['statistics'];
+        this.activityPropertyKeys = caseActivities['keys'];
       });
 
     this.variantService.cachedChange$

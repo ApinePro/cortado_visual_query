@@ -72,16 +72,16 @@ def count_fragment_occurrences(payload: VariantFragment):
 
 
 class GroupToSort(BaseModel):
-    variants: Any
+    variants: Any = None
 
 
 class IdQuery(BaseModel):
-    index: Any
+    index: Any = None
 
 
 class caseQuery(BaseModel):
-    index: Any
-    caseId: Any
+    index: Any = None
+    caseId: Any = None
 
 
 @router.post("/sortvariant")
@@ -140,6 +140,9 @@ def getCaseActivities(query: caseQuery):
     id = str(query.caseId)
     traces = cache.variants[index][1]
     case_activities = []
+    key_set = set()
+    for trace in traces:
+        key_set = key_set.union(list(trace[0].keys()))
     for trace in traces:
         if trace.attributes["concept:name"] == id:
             for act in trace:
@@ -155,9 +158,19 @@ def getCaseActivities(query: caseQuery):
                 activities_temp[
                     "duration"
                 ] = f"{duration.days} days, {duration.seconds // 3600:02}:{(duration.seconds % 3600) // 60:02}:{duration.seconds % 60:02}"
+                activities_temp["property"] = act
                 case_activities.append(activities_temp)
             break
+    key_set.difference_update(
+        {
+            "cortado_activity_instance",
+            "concept:name",
+            "time:timestamp",
+            "start_timestamp",
+        }
+    )
     res = {
         "statistics": case_activities,
+        "keys": key_set,
     }
     return res

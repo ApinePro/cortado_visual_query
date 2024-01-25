@@ -1,6 +1,6 @@
 from typing import List, Any
 
-from cortado_core.utils.split_graph import Group
+from cortado_core.utils.split_graph import Group, create_graph_for_cvariant
 from fastapi import Response, status
 
 import cache.cache
@@ -82,13 +82,14 @@ async def revert_last_change():
 
 
 class userDefinedVariant(BaseModel):
-    variant: Any
+    variant: Any = None
     bid: int
 
 
 @router.post("/addUserDefinedVariant", status_code=201)
 async def add_user_defined_variant(request: userDefinedVariant, response: Response):
     v = Group.deserialize(request.variant)
+    v.graphs[create_graph_for_cvariant(v)] = 1
 
     if request.bid in cache.cache.variants:
         response.status_code = status.HTTP_400_BAD_REQUEST
@@ -104,7 +105,7 @@ async def add_user_defined_variant(request: userDefinedVariant, response: Respon
 
 
 class userDefinedInfix(BaseModel):
-    variant: Any
+    variant: Any = None
     bid: int
     infixType: int
 
@@ -114,6 +115,7 @@ async def add_user_defined_infix(request: userDefinedInfix, response: Response):
     infix_type = InfixType(request.infixType)
     v = Group.deserialize(request.variant)
     v.infix_type = InfixType(request.infixType)
+    v.graphs[create_graph_for_cvariant(v)] = 1
 
     if request.bid in cache.cache.variants:
         response.status_code = status.HTTP_400_BAD_REQUEST

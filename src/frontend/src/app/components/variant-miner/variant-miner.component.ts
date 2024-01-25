@@ -29,7 +29,7 @@ import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import * as d3 from 'd3';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
-import { Options } from '@angular-slider/ngx-slider';
+import { Options } from 'ngx-slider-v2';
 import { animate, style, transition, trigger } from '@angular/animations';
 import {
   AlignmentType,

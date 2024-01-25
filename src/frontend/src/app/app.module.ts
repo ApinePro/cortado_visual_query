@@ -3,7 +3,7 @@ import {BrowserModule} from '@angular/platform-browser';
 import {APP_INITIALIZER, NgModule} from '@angular/core';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 
-import {ActivityOverviewSortingPipe} from './pipes/activity-overview-sorting/activity-overview-sorting.pipe';
+import {TableSortingPipe} from './pipes/table-sorting/table-sorting.pipe';
 import {AppComponent} from './app.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {FooterComponent} from './components/footer/footer.component';
@@ -58,8 +58,8 @@ import {
   SubVariantComponent
 } from './components/variant-explorer/subvariant-explorer/subvariants/sub-variant/sub-variant.component';
 import {
-  SubvariantInfoExplorerComponent
-} from './components/variant-explorer/subvariant-info-explorer/subvariant-info-explorer.component';
+  VariantInfoExplorerComponent
+} from './components/variant-explorer/variant-info-explorer/variant-info-explorer.component';
 import {
   ActivityButtonAreaComponent
 } from './components/variant-editor/activity-button-area/activity-button-area.component';
@@ -70,7 +70,7 @@ import {VariantMinerComponent} from './components/variant-miner/variant-miner.co
 import {
   VariantMinerPatternComponent
 } from './components/variant-miner/variant-miner-pattern/variant-miner-pattern.component';
-import {NgxSliderModule} from '@angular-slider/ngx-slider';
+import {NgxSliderModule} from 'ngx-slider-v2';
 import {VariantQueryComponent} from './components/variant-explorer/variant-query/variant-query.component';
 import {
   ConformanceInfoBarComponent
@@ -150,7 +150,7 @@ import {ArcDiagramDirective} from "./directives/arc-diagram/arc-diagram.directiv
     FooterComponent,
     StrFilterPipe,
     EditorZoneComponent,
-    ActivityOverviewSortingPipe,
+    TableSortingPipe,
     GoldenLayoutHostComponent,
     VariantExplorerComponent,
     VariantInfoComponent,
@@ -161,7 +161,7 @@ import {ArcDiagramDirective} from "./directives/arc-diagram/arc-diagram.directiv
     ActivityOverviewComponent,
     ProcessTreeEditorComponent,
     SubvariantExplorerComponent,
-    SubvariantInfoExplorerComponent,
+    VariantInfoExplorerComponent,
     VariantInfoComponent,
     VariantColorMapComponent,
     VariantSelectionButtonComponent,
@@ -250,11 +250,10 @@ import {ArcDiagramDirective} from "./directives/arc-diagram/arc-diagram.directiv
       deps: [InitService],
       multi: true,
     },
-    {provide: ElectronService, useFactory: electronServiceFactory},
+    { provide: ElectronService, useFactory: electronServiceFactory },
     GoldenLayoutComponentService,
     DecimalPipe,
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {
-}
+export class AppModule {}

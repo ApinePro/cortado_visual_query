@@ -40,11 +40,11 @@ import { SubvariantExplorerComponent } from '../subvariant-explorer/subvariant-e
 import _ from 'lodash';
 
 @Component({
-  selector: 'app-subvariant-info-explorer',
-  templateUrl: './subvariant-info-explorer.component.html',
-  styleUrls: ['./subvariant-info-explorer.component.css'],
+  selector: 'app-variant-info-explorer',
+  templateUrl: './variant-info-explorer.component.html',
+  styleUrls: ['./variant-info-explorer.component.css'],
 })
-export class SubvariantInfoExplorerComponent
+export class VariantInfoExplorerComponent
   extends LayoutChangeDirective
   implements OnInit, AfterViewInit, OnDestroy
 {
@@ -82,7 +82,7 @@ export class SubvariantInfoExplorerComponent
   activityFields: ActivityField[];
   caseStatistics: Map<string, number>[];
 
-  sortKey: string = 'activityName';
+  sortKey: string = 'case_id';
   ascending: boolean = false;
 
   maximized: boolean = false;
@@ -203,7 +203,9 @@ export class SubvariantInfoExplorerComponent
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
     defaultZIndex: string
-  ): void {}
+  ): void {
+    this.maximized = logicalZIndex === 'stackMaximised';
+  }
 
   toggleSort(sortKey: string) {
     // On the first Click always make descending
@@ -273,7 +275,6 @@ export class SubvariantInfoExplorerComponent
     let variant = state['variant'];
 
     const currently_maximized = this.maximized;
-
     const LocationSelectors: LayoutManager.LocationSelector[] = [
       {
         typeId: LayoutManager.LocationSelector.TypeId.FocusedStack,
@@ -297,7 +298,7 @@ export class SubvariantInfoExplorerComponent
     } else {
       const subvariantInfoExplorerItem =
         this._goldenLayout.findFirstComponentItemById(
-          SubvariantInfoExplorerComponent.componentName + state['variant_id']
+          VariantInfoExplorerComponent.componentName + state['variant_id']
         );
 
       subvariantInfoExplorerItem.focus();
@@ -305,7 +306,7 @@ export class SubvariantInfoExplorerComponent
       const itemConfig: ComponentItemConfig = {
         id: id,
         type: 'component',
-        title: 'Case ' + case_id + ' in Sub-Variants ' + state['index'],
+        title: 'Case ' + case_id + ' in Variant ' + state['index'],
         isClosable: true,
         reorderEnabled: true,
         componentState: {
@@ -350,7 +351,7 @@ export class SubvariantInfoExplorerComponent
     }
     for (let index = 0; index < this.variants.length; index++) {
       const id =
-        SubvariantInfoExplorerComponent.componentName + this.variants[index].id;
+        VariantInfoExplorerComponent.componentName + this.variants[index].id;
       const componentItem = this._subvariantcomponentItemsMap.get(id);
       if (
         componentItem &&
@@ -406,6 +407,6 @@ export class ActivityField {
   }
 }
 
-export namespace SubvariantInfoExplorerComponent {
-  export const componentName = 'SubvariantInfoExplorerComponent';
+export namespace VariantInfoExplorerComponent {
+  export const componentName = 'VariantInfoExplorerComponent';
 }

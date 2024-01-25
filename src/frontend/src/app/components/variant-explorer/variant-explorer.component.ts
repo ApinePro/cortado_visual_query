@@ -51,7 +51,7 @@ import {ImageExportService} from '../../services/imageExportService/image-export
 import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
 import {DropzoneConfig} from '../drop-zone/drop-zone.component';
 import {SubvariantExplorerComponent} from './subvariant-explorer/subvariant-explorer.component';
-import {SubvariantInfoExplorerComponent} from './subvariant-info-explorer/subvariant-info-explorer.component';
+import {VariantInfoExplorerComponent} from './variant-info-explorer/variant-info-explorer.component';
 import {Variant} from 'src/app/objects/Variants/variant';
 import {deserialize, ParallelGroup, SequenceGroup, VariantElement,} from 'src/app/objects/Variants/variant_element';
 import {activityColor, clickCallback, contextMenuCallback,} from './functions/variant-drawer-callbacks';
@@ -73,8 +73,8 @@ import {ClusteringSettingsDialogComponent} from './clustering-settings-dialog/cl
 import _ from 'lodash';
 import {InfixType} from 'src/app/objects/Variants/infix_selection';
 import * as d3 from 'd3';
-import {Arc, Pair} from '../../directives/arc-diagram/data';
 import {ArcDiagramDirective} from "../../directives/arc-diagram/arc-diagram.directive";
+import {Arc, Pair} from "../../directives/arc-diagram/data";
 
 @Component({
   selector: 'app-variant-explorer',
@@ -84,7 +84,8 @@ import {ArcDiagramDirective} from "../../directives/arc-diagram/arc-diagram.dire
 })
 export class VariantExplorerComponent
   extends LayoutChangeDirective
-  implements OnInit, AfterViewInit, OnDestroy {
+  implements OnInit, AfterViewInit, OnDestroy
+{
   constructor(
     private colorMapService: ColorMapService,
     private sharedDataService: SharedDataService,
@@ -112,7 +113,6 @@ export class VariantExplorerComponent
     super(elRef.nativeElement, renderer);
     this.explorerElement = elRef;
   }
-
   explorerElement: ElementRef;
 
   collapse: boolean = false;
@@ -171,7 +171,7 @@ export class VariantExplorerComponent
 
   public traceInfixSelectionMode: boolean = false;
 
-  @ViewChild('variantExplorer', {static: true})
+  @ViewChild('variantExplorer', { static: true })
   variantExplorerDiv: ElementRef<HTMLDivElement>;
 
   @ViewChildren(VariantDrawerDirective)
@@ -198,14 +198,6 @@ export class VariantExplorerComponent
 
   public arcs: { [id: number]: Arc[] } = {};
 
-  deleteVariant = function () {
-    const bids = this.variantService.variants
-      .filter((v) => v.variant === this.contextMenu_variant)
-      .map((v) => v.bid);
-
-    this.variantService.deleteVariants(bids);
-  }.bind(this);
-
   showArcDiagram = function () {
     const matchingVariant = this.getSelectedVariants()[0];
     // const matchingVariant = this.variantService.variants.find((v) => v.variant === this.contextMenu_variant);
@@ -222,6 +214,15 @@ export class VariantExplorerComponent
           variantDrawerDir
         );
       });
+  }.bind(this);
+
+
+  deleteVariant = function () {
+    const bids = this.variantService.variants
+      .filter((v) => v.variant === this.contextMenu_variant)
+      .map((v) => v.bid);
+
+    this.variantService.deleteVariants(bids);
   }.bind(this);
 
   contextMenuOptions: Array<ContextMenuItem> = [
@@ -283,7 +284,6 @@ export class VariantExplorerComponent
   }
 
   ngAfterViewInit() {
-
     this.polygonDrawingService.setElementRefereneces(
       this.variantExplorerContainer,
       this.tooltipContainer
@@ -569,12 +569,12 @@ export class VariantExplorerComponent
       colorScale &&
       tree.performance?.[selectedScale.performanceIndicator]?.[
         selectedScale.statistic
-        ] !== undefined
+      ] !== undefined
     ) {
       return colorScale.getColor(
         tree.performance[selectedScale.performanceIndicator][
           selectedScale.statistic
-          ]
+        ]
       );
     }
     return '#d3d3d3';
@@ -725,14 +725,13 @@ export class VariantExplorerComponent
    * @param idx position in the cluster
    * @param variant_id id of the variant
    */
-  createSubVariantInfoView(clusterId, idx, variant_id) {
+  createVariantInfoView(clusterId, idx, variant_id) {
     // find variant by id
     let variant = _.find(
       this.displayed_variants,
       (variant) => variant_id === variant.id
     );
     const currently_maximized = this.maximized;
-
     const LocationSelectors: LayoutManager.LocationSelector[] = [
       {
         typeId: LayoutManager.LocationSelector.TypeId.FocusedStack,
@@ -741,7 +740,7 @@ export class VariantExplorerComponent
     ];
     this.cleanUpSubVariantMap();
 
-    const id = SubvariantInfoExplorerComponent.componentName + variant_id;
+    const id = VariantInfoExplorerComponent.componentName + variant_id;
 
     let componentItem = this._subvariantcomponentItemsMap.get(id);
     // Check if the component item reference already is stored and if the item still exists
@@ -757,8 +756,7 @@ export class VariantExplorerComponent
       const itemConfig: ComponentItemConfig = {
         id: id,
         type: 'component',
-        title:
-          "Sub-Variants' info  for " + idx + ' (Cluster ' + clusterId + ')',
+        title: 'Variant ' + idx + "'s info",
         isClosable: true,
         reorderEnabled: true,
         componentState: {
@@ -768,7 +766,7 @@ export class VariantExplorerComponent
           variant_id: variant_id,
         },
         maximised: true,
-        componentType: SubvariantInfoExplorerComponent.componentName,
+        componentType: VariantInfoExplorerComponent.componentName,
       };
       this._goldenLayout.addItemAtLocation(itemConfig, LocationSelectors); //erroe here
       componentItem = this._goldenLayout.findFirstComponentItemById(id);
@@ -833,7 +831,7 @@ export class VariantExplorerComponent
     }
     for (let index = 0; index < this.variants.length; index++) {
       const id =
-        SubvariantInfoExplorerComponent.componentName + this.variants[index].id;
+        VariantInfoExplorerComponent.componentName + this.variants[index].id;
       const componentItem = this._subvariantcomponentItemsMap.get(id);
       if (
         componentItem &&
@@ -993,8 +991,7 @@ export class VariantExplorerComponent
     this.sidebarHeight = height;
   }
 
-  handleVisibilityChange(visibility: boolean): void {
-  }
+  handleVisibilityChange(visibility: boolean): void {}
 
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
@@ -1008,7 +1005,7 @@ export class VariantExplorerComponent
     let selectedScale = this.performanceColorService.selectedColorScale;
     let pValue =
       p[selectedScale.performanceIndicator]?.[selectedScale.statistic];
-    return HumanizeDurationPipe.apply(pValue * 1000, {round: true});
+    return HumanizeDurationPipe.apply(pValue * 1000, { round: true });
   }
 
   variantPerformanceColor(): string {
@@ -1024,12 +1021,12 @@ export class VariantExplorerComponent
       colorScale &&
       tree.performance?.[selectedScale.performanceIndicator]?.[
         selectedScale.statistic
-        ] !== undefined
+      ] !== undefined
     ) {
       return colorScale.getColor(
         tree.performance[selectedScale.performanceIndicator][
           selectedScale.statistic
-          ]
+        ]
       );
     }
     return '#d3d3d3';
@@ -1102,8 +1099,7 @@ export class VariantExplorerComponent
       });
   }
 
-  onScroll(): void {
-  }
+  onScroll(): void {}
 
   executeRemovalActionOnFilteredVariants(removeFiltered: boolean): void {
     let bids = [];

@@ -35,11 +35,13 @@
         [ngClass]="
           curInfixType === infixType.NOT_AN_INFIX ? 'strategy-selected' : ''
         "
-        ngbTooltip="model variant"
+        ngbTooltip="model as full variant"
         container="body"
-        ><svg height="20" width="20">
-          <use href="#variantChevron"></use></svg
-      ></label>
+      >
+        <svg height="20" width="20">
+          <use href="#variantChevron"></use>
+        </svg>
+      </label>
 
       <input
         type="radio"
@@ -51,11 +53,13 @@
         class="button"
         for="radio_prefix"
         [ngClass]="curInfixType === infixType.PREFIX ? 'strategy-selected' : ''"
-        ngbTooltip="model prefix variant"
+        ngbTooltip="model as prefix"
         container="body"
-        ><svg height="20" width="20">
-          <use href="#prefixChevron"></use></svg
-      ></label>
+      >
+        <svg height="20" width="20">
+          <use href="#prefixChevron"></use>
+        </svg>
+      </label>
 
       <input
         type="radio"
@@ -69,11 +73,13 @@
         [ngClass]="
           curInfixType === infixType.PROPER_INFIX ? 'strategy-selected' : ''
         "
-        ngbTooltip="model infix variant"
+        ngbTooltip="model as infix"
         container="body"
-        ><svg height="20" width="20">
-          <use href="#infixChevron"></use></svg
-      ></label>
+      >
+        <svg height="20" width="35">
+          <use href="#infixChevron"></use>
+        </svg>
+      </label>
 
       <input
         type="radio"
@@ -87,7 +93,7 @@
         [ngClass]="
           curInfixType === infixType.POSTFIX ? 'strategy-selected' : ''
         "
-        ngbTooltip="model postfix variant"
+        ngbTooltip="model as postfix"
         container="body"
       >
         <svg height="20" width="20">
@@ -341,41 +347,38 @@
     <path
       fill="white"
       fill-rule="evenodd"
-      d="M3.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L9.293 8 3.646 2.354a.5.5 0 0 1 0-.708z"
-    />
-    <path
-      fill="white"
-      fill-rule="evenodd"
-      d="M7.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L13.293 8 7.646 2.354a.5.5 0 0 1 0-.708z"
-    />
-    <path
-      fill="grey"
-      fill-rule="evenodd"
-      d="M11.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L17.293 8 11.646 2.354a.5.5 0 0 1 0-.708z"
-    />
+      d="M-1.354 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L4.293 8 -1.354 2.354a.5.5 0 0 1 0-.708z"
+      transform="translate(1 1)"
+    ></path>
+    <g>
+      <circle r="1" fill="white" transform="translate(10 9)" />
+      <circle r="1" fill="white" transform="translate(14 9)" />
+      <circle r="1" fill="white" transform="translate(18 9)" />
+    </g>
   </symbol>
   <symbol
     xmlns="http://www.w3.org/2000/svg"
-    width="20"
+    width="35"
     height="20"
     id="infixChevron"
     transform-origin="10 10"
   >
-    <path
-      fill="grey"
-      fill-rule="evenodd"
-      d="M3.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L9.293 8 3.646 2.354a.5.5 0 0 1 0-.708z"
-    />
+    <g>
+      <circle r="1" fill="white" transform="translate(2 9)" />
+      <circle r="1" fill="white" transform="translate(6 9)" />
+      <circle r="1" fill="white" transform="translate(10 9)" />
+    </g>
     <path
       fill="white"
       fill-rule="evenodd"
-      d="M7.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L13.293 8 7.646 2.354a.5.5 0 0 1 0-.708z"
-    />
-    <path
-      fill="grey"
-      fill-rule="evenodd"
-      d="M11.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L17.293 8 11.646 2.354a.5.5 0 0 1 0-.708z"
-    />
+      d="M-1.354 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L4.293 8 -1.354 2.354a.5.5 0 0 1 0-.708z"
+      transform="translate(14 1)"
+    ></path>
+    <g>
+      <circle r="1" fill="white" transform="translate(24 9)" />
+      <circle r="1" fill="white" transform="translate(28 9)" />
+      <circle r="1" fill="white" transform="translate(32 9)" />
+    </g>
   </symbol>
   <symbol
     xmlns="http://www.w3.org/2000/svg"
@@ -384,20 +387,16 @@
     id="postfixChevron"
     transform-origin="10 10"
   >
-    <path
-      fill="grey"
-      fill-rule="evenodd"
-      d="M3.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L9.293 8 3.646 2.354a.5.5 0 0 1 0-.708z"
-    />
-    <path
-      fill="white"
-      fill-rule="evenodd"
-      d="M7.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L13.293 8 7.646 2.354a.5.5 0 0 1 0-.708z"
-    />
+    <g>
+      <circle r="1" fill="white" transform="translate(1 9)" />
+      <circle r="1" fill="white" transform="translate(5 9)" />
+      <circle r="1" fill="white" transform="translate(9 9)" />
+    </g>
     <path
       fill="white"
       fill-rule="evenodd"
-      d="M11.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L17.293 8 11.646 2.354a.5.5 0 0 1 0-.708z"
-    />
+      d="M-1.354 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L4.293 8 -1.354 2.354a.5.5 0 0 1 0-.708z"
+      transform="translate(13 1)"
+    ></path>
   </symbol>
 </svg>

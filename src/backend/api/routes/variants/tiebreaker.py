@@ -42,8 +42,8 @@ router = APIRouter(tags=["Tiebreaker"], prefix="/tiebreaker")
 
 
 class TiebreakerPatterns(BaseModel):
-    sourcePattern: Any
-    targetPattern: Any
+    sourcePattern: Any = None
+    targetPattern: Any = None
 
 
 @router.post("/apply")
