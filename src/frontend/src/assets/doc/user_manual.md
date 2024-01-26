@@ -34,9 +34,11 @@ Cortado's functionalities are divided into the following broad categories:
   Cortado features [*Temporal Performance Analysis*](#temporal-performance-analysis) allowing, for example, the identification of slow process stages or activities, i.e., bottlenecks within the process. Temporal performance statistics can allow user to know which behavior to add to the process model incrementally based on any performance requirements.  
 
 
-The following figure contains the simplified overview of Cortado’s functionality:
+&nbsp;
 
-![xlarge](screenshots%2Fintroduction%2Foverview.png)
+The following figure contains a simplified overview of Cortado’s functionality:
+
+![large](screenshots%2Fintroduction%2Foverview.png)
 
 #### Contact information
 Contact information can be found at the <a href="https://cortado.fit.fraunhofer.de/#contact" target="_blank">Cortado webpage</a>.
@@ -106,7 +108,7 @@ Variant clustering can be used for listing the variants grouped into clusters in
 
 In the Variant Explorer view, clustering settings can be accessed using <i class="bi bi-grid-1x2 btn-icon"></i>`Variant clustering settings` option in the <i class="bi bi-tools btn-icon"></i>`Functions` dropdown menu.
 
-|![clustered_variant_explorer.png](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustering_dialog.png)|
+|![small](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustering_dialog.png)|
 -
 
 ### Clustering Methods
@@ -137,7 +139,7 @@ After applying clustering, variants are grouped in their respective clusters as 
 - Using <i class="bi bi-sort-alpha-down btn-icon"></i>, each cluster can be individually sorted. Note that using the global sorting of Variant Explorer view overrides the sorting of individual clusters.
 - Each cluster information bar shows the number of variants and the number traces in that cluster.
 
-|![clustered_variant_explorer.png](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustered_variant_explorer.png)|
+|![small](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustered_variant_explorer.png)|
 -
 
 ## Variant Querying
@@ -267,15 +269,15 @@ is a start activity.
 Variant fragments or trace fragments are portions of the trace variants which are sequentially complete, meaning that no activity is skipped in a sequence.
 
 For example,  
-![sequentially-complete-fragment.png](screenshots%2Fvariant_fragments%2Fsequentially-complete-fragment.png)
+![xsmall](screenshots%2Fvariant_fragments%2Fsequentially-complete-fragment.png)
 
 is a sequentially complete fragment of the full trace variant 
 
-![full-trace-variant.png](screenshots%2Fvariant_fragments%2Ffull-trace-variant.png),  
+![xlarge](screenshots%2Fvariant_fragments%2Ffull-trace-variant.png),  
 
 while   
 
-![sequentially-incomplete-fragment.png](screenshots%2Fvariant_fragments%2Fsequentially-incomplete-fragment.png)
+![xsmall](screenshots%2Fvariant_fragments%2Fsequentially-incomplete-fragment.png)
 
 is not.
 
@@ -285,9 +287,9 @@ Based on which of the activities they contain, trace fragments can be categorise
 * **Infix** fragments contain none of the start or end activities and hence they are preceded *and* succeeded by dots. The fragments above are examples of the same
 
 * **Suffix** fragments contain only an end activity.  
-  ![suffix.png](screenshots%2Fvariant_fragments%2Fsuffix.png)
+  ![xsmall](screenshots%2Fvariant_fragments%2Fsuffix.png)
 * **Prefix** fragments contain only an end activity.  
-  ![prefix.png](screenshots%2Fvariant_fragments%2Fprefix.png)
+  ![xsmall](screenshots%2Fvariant_fragments%2Fprefix.png)
 
 Trace fragments are used and can frequently be seen in [*Incremental Discovery*](#incremental-process-discovery), [*Tiebreaker*](#variant-sequentialization-tiebreaker) and [*Frequent Pattern Mining*](#variant-frequent-pattern-mining), pool of which can either be -
 
@@ -301,7 +303,7 @@ Trace fragments are used and can frequently be seen in [*Incremental Discovery*]
 One way to select infixes (and add them to the pool) is through the `trace infix selection mode`. To enable it in the variant explorer, simply click on (<i class="bi bi-ui-checks-grid btn-icon">Exit trace infix selection mode</i>) option in the (<i class="bi bi-tools btn-icon">Functions</i>) menu.
 With the icons on the right, one can add the current selection to the variant explorer, reset selection or select the whole variant.
 
-|![infix-selection-mode.png](screenshots%2Fvariant_fragments%2Finfix-selection-mode.png)|
+|![medium](screenshots%2Fvariant_fragments%2Finfix-selection-mode.png)|
 -  
 
 ## Variant Modeler
@@ -329,7 +331,7 @@ Under the hood, concurrency variants are modelled as labeled, rooted, ordered tr
 
 To open the `Variant Miner Editor`, go to `Editors` &rarr; (<i class="bi bi-minecart btn-icon"><b>Open</b> Variant Miner</i>).
 
-|![editor.png](screenshots%2Ffrequent_pattern_mining%2Feditor.png)|
+|![medium](screenshots%2Ffrequent_pattern_mining%2Feditor.png)|
 -  
 
 <br/>
@@ -424,15 +426,15 @@ Note：
 
 Here are some examples to show how variants are transformed by the tiebreaker:
 
-(1)![xxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_1.png)<br>
+(1)![xxxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_1.png)<br>
 
-(2)![xxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_2.png)<br>
+(2)![xxxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_2.png)<br>
 
 (3)![xxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_3.png)<br>
 
-(4)![xxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_4.png)<br>
+(4)![xxxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_4.png)<br>
 
-(5)![xxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_5.png)<br>
+(5)![xxxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_5.png)<br>
 
 <br>
 
@@ -440,8 +442,9 @@ Here are some examples to show how variants are transformed by the tiebreaker:
   <tr>
     <td >Source Pattern</td> <td>Target Pattern</td> <td>Result for examples</td>
   </tr>
+
   <tr>
-    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_2.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_2.png"></td>
     <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td>
     <td>(1) No match</td>
   </tr>
@@ -449,8 +452,9 @@ Here are some examples to show how variants are transformed by the tiebreaker:
   <tr><td>(3) No match</td></tr>
   <tr><td>(4) No match</td></tr>
   <tr><td>(5) No match</td></tr>
+
   <tr>
-    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_7.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_7.png"></td>
     <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_8.png"></td>
     <td>(1) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_9.png"></td>
   </tr>
@@ -458,17 +462,19 @@ Here are some examples to show how variants are transformed by the tiebreaker:
   <tr><td>(3) No match</td></tr>
   <tr><td>(4) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_10.png"></td></tr>
   <tr><td>(5) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_9.png"></td></tr>
+  
   <tr>
-    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_7.png"></td>
-    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_11.png"></td>
-    <td>(1) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_12.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_7.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_11.png"></td>
+    <td>(1) <img class="xsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_12.png"></td>
   </tr>
   <tr><td>(2) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
-  <tr><td>(3) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_13.png"></td></tr>
-  <tr><td>(4) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_14.png"></td></tr>
-  <tr><td>(5) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_12.png"></td></tr>
+  <tr><td>(3) <img class="xsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_13.png"></td></tr>
+  <tr><td>(4) <img class="xsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_14.png"></td></tr>
+  <tr><td>(5) <img class="xsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_12.png"></td></tr>
+  
   <tr>
-    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_15.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_15.png"></td>
     <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_16.png"></td>
     <td>(1) No match</td>
   </tr>
@@ -476,13 +482,14 @@ Here are some examples to show how variants are transformed by the tiebreaker:
   <tr><td>(3) No match</td></tr>
   <tr><td>(4) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_17.png"></td></tr>
   <tr><td>(5) No match</td></tr>
+
   <tr>
     <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_18.png"></td>
-    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_19.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxxmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_19.png"></td>
     <td>(1) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_20.png"></td>
   </tr>
   <tr><td>(2) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
-  <tr><td>(3) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_21.png"></td></tr>
+  <tr><td>(3) <img class="xsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_21.png"></td></tr>
   <tr><td>(4) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_17.png"></td></tr>
   <tr><td>(5) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_20.png"></td></tr>
 </table>
@@ -505,7 +512,7 @@ A tree node (either activity or operator) can be selected for updates by clickin
 
 A selected node is highlighted with a red border as follows:
 
-|![large](screenshots%2Fprocess_discovery%2Fselecting_nodes_for_updates.gif)|
+|![medium](screenshots%2Fprocess_discovery%2Fselecting_nodes_for_updates.gif)|
 -
 
 #### Inserting Nodes
@@ -526,7 +533,7 @@ After selecting an operator node, the following choices are available:
 
 Having selected the following operator and **insert new node below** option, adding an activity from the list of available activities in the toolbox adds it under the selected operator follows:
 
-|![large](screenshots%2Fprocess_discovery%2Finsert_node_below.gif)|
+|![medium](screenshots%2Fprocess_discovery%2Finsert_node_below.gif)|
 -
 
 Similarly, adding an operator adds that operator **below** the selected operator. It works similarly for adding activities or operators **above**, to the **left** or to the **right**.
@@ -540,7 +547,7 @@ After selecting an activity, the following choices are available:
 
 Having selected the following activity and **insert new node right to the selected one** option, adding an activity from the list of available activities in the toolbox adds it to the right of the selected activity as follows:
 
-|![large](screenshots%2Fprocess_discovery%2Finsert_node_right.gif)|
+|![medium](screenshots%2Fprocess_discovery%2Finsert_node_right.gif)|
 -
 
 Similarly, adding an operator adds that operator **to the right** the selected activity. It works similarly for adding activities or operators **to the left**.
@@ -551,7 +558,7 @@ The `replace the currently selected node` (<i class="bi bi-arrow-repeat"></i>) o
 
 Having selected an activity and **replace the currently selected node** option, choosing another activity from the toolbox replaces the selected activity as follows:
 
-|![large](screenshots%2Fprocess_discovery%2Freplace_node.gif)|
+|![medium](screenshots%2Fprocess_discovery%2Freplace_node.gif)|
 -
 
 Similarly, choosing an operator node from the toolbox **replaces** the selected activity with the selected operator. It works similarly for **replacing** selected operators with either operators or activities form the list of available operators and activities in the toolbox.
@@ -562,7 +569,7 @@ Selecting an operator node or an activity and clicking the <i class="bi bi-trash
 
 Having selected an operator node and removing it results as follows:
 
-|![large](screenshots%2Fprocess_discovery%2Fremove_node.gif)|
+|![medium](screenshots%2Fprocess_discovery%2Fremove_node.gif)|
 -
 
 #### Shifting Nodes
@@ -572,7 +579,7 @@ The shift to right or to the left is with respect to the sibling node(s) of the 
 
 Having selected the following operator node and clicking the <i class="bi bi-chevron-double-left btn-icon"></i>`shift selected node(s) to left` button **shifts** the operator node to the left as follows:
 
-|![large](screenshots%2Fprocess_discovery%2Fshift_pt_node.gif)|
+|![medium](screenshots%2Fprocess_discovery%2Fshift_pt_node.gif)|
 -
 
 
@@ -580,7 +587,7 @@ Having selected the following operator node and clicking the <i class="bi bi-che
 
 Selecting an operator node and clicking the <i class="bi bi-diagram-2"></i> button applies **reduction rules** to remove redundant and unnecessary nodes from that subtree as follows:
 
-|![large](screenshots%2Fprocess_discovery%2Freduction_rules.gif)|
+|![medium](screenshots%2Fprocess_discovery%2Freduction_rules.gif)|
 -
 
 #### (Un)Freezing Subtrees
@@ -589,7 +596,7 @@ Freezing a subtree prevents that subtree from being updated during the increment
 
 Selecting an operator node and clicking the <i class="bi bi-snow btn-icon"></i>`(un)freeze subtrees` button **freezes** the subtree under that operator node. The frozen subtree is highlighted blue as seen below:
 
-|![large](screenshots%2Fprocess_discovery%2Ffreeze_node.gif)|
+|![medium](screenshots%2Fprocess_discovery%2Ffreeze_node.gif)|
 -
 
 Similarly, selecting root operator node of an already frozen subtree and clicking the <i class="bi bi-snow btn-icon"></i>`(un)freeze subtrees` button unfreezes that subtree. After unfreezing, that subtree may be updated diring the incremental discovery process and its presence is no longer ensured.
@@ -616,7 +623,7 @@ A node can be selected for updates by clicking on it.
 
 A selected node is highlighted through a red border as follows:
 
-|![large](screenshots%2Fprocess_discovery%2Fselect_node_bpmn.gif)|
+|![medium](screenshots%2Fprocess_discovery%2Fselect_node_bpmn.gif)|
 -
 
 #### Removing Nodes
@@ -625,7 +632,7 @@ Selecting a node and clicking the <i class="bi bi-trash btn-icon"></i>`remove se
 
 Having selected a node and removing it results as follows:
 
-|![large](screenshots%2Fprocess_discovery%2Fremove_bpmn_node.gif)|
+|![medium](screenshots%2Fprocess_discovery%2Fremove_bpmn_node.gif)|
 -
 
 #### Exporting the Model
@@ -651,7 +658,7 @@ After discovering or importing an initial process tree, trace(s) can be chosen f
   2. Press the <i class="bi bi-diagram-2-fill btn-icon"></i>`discover initial model` button
   3. The discovered process tree would be displayed in the `Process Tree Editor` as follows:
 
-|![xlarge](screenshots%2Fprocess_discovery%2Fdiscover_initial_model.gif)|
+|![large](screenshots%2Fprocess_discovery%2Fdiscover_initial_model.gif)|
 -
 
 ### Incrementally Adding Variants
@@ -667,7 +674,7 @@ After discovering or importing an initial process tree, trace(s) can be chosen f
        * Variants from the `Variant Modeler`.
   3. The modified process tree (which the selecting traces fit to) would be displayed in the `Process Tree Editor` as follows:
   
-|![xlarge](screenshots%2Fprocess_discovery%2Fincremental_trace_addition.gif)|
+|![large](screenshots%2Fprocess_discovery%2Fincremental_trace_addition.gif)|
 -
 
 # Temporal Performance Analysis
@@ -717,7 +724,22 @@ The changes made to this will also change what will be displayed in the variants
 
 # Software Architecture
 
+Cortado is an end-user process mining tool offered as a standalone desktop application supporting all major operating systems. Cortado is built using a Python based backend and a frontend based on web development technologies.
+
+The following figure illustrates the main architecture of Cortado:
+
 ![xlarge](screenshots%2Fsoftware_architecture%2Farchitecture.png)
 
+
+#### Backend
+The library Cortado-core is central to Cortado's backend. The library implements algorithms and methods for incremental process discovery, temporal performance analysis, process execution variant detection, variant querying and conformance checking. The library can also be embedded and utilized in other software applications and is considered an independent contribution.
+
+The backend around Cortado-core is an application programming interface for the frontend i.e. it bundles functionality from Cortado-core into webservices tailored to the frontend using the framework FastAPI. Additionally, PyInstaller is used to bundle the backend, including Cortado-core library into a single executable package.
+
+#### Frontend
+
+The frontend is developed as a web application using web development languages including HTML, CSS, Javascript and Typescript bundled in Angular as an application framework. For various visualizations, the javascript library d3.js is used.
+
+Additionally, Electron framework is used to produce cross-platform desktop applications.
 
 
