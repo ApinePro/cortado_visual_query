@@ -1,69 +1,45 @@
-# Contribution Guidelines
-
-Internal Notes (remove or move to different location before publication)
-
-## Sizing images / GIFs in the markdown:
-* Size of images and GIFs can be specified the following way:
-  * `![medium](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustering_dialog.png)`
-  * The `medium` above specifies the width of the image/GIF used.
-  * Possible other sizes can be `xsmall`, `small`, `medium`, `large`, `xlarge`, `xxlarge`
-
-## Creating Screenshots
-
-Screenshots can be captured consistently by using the fixed cortado window of electron.
-
-### Screenshot without border
-
-![medium](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustering_dialog.png)
-
-### Screenshot with border
-
-|![medium](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustered_variant_explorer.png)|
--
-
-### Producing GIFs
-
-* Use https://www.screentogif.com/screenshots for creating GIFs similar to the ones below.
-* Any part of the screen can be put into the frame that records the GIF.
-* There's also a convenient way to post-process and edit the recorded GIFs.
-* It should also be made sure to crop out the extra cursor movements at the start or end of the recordings.
-
-|![large](screenshots%2Fprocess_discovery%2Fshift_pt_node.gif)|
--
-
-|![large](screenshots%2Fprocess_discovery%2Fdiscover_initial_model.gif)|
--
-
-### Drawing boxes on screenshots:
-
-  * Drawing numbered boxes on images to refer to sections:
-    * Box: Rectangle with 3px border. 
-    * Number Text: Calibri, size: 26pt, Bold. 
-    * Color Palette for box border and text:
-      * Red: #C7171E
-      * Green: #22B14C 
-      * Purple: #C659C7
-      * Blue: #00A2E8
-      * Yellow/Gold: #FFC90E
-    * See example below which was produced using **paint** in **windows**:
-
-|![box_example.png](screenshots%2Fbox_example.png)|
--
-
-&nbsp;
-
-## Referring to buttons / icons:
-  * Examples:
-    * Use (<i class="bi bi-diagram-2-fill btn-icon">discover initial model</i>) button to discover an initial model.
-    * Click `Files` &rarr; <i class="bi bi-file-earmark-arrow-up btn-icon"></i>`Import process tree (.ptml)` to import an existing process tree from a file.
-* Use `code blocks` for referring to something in the UI like a button, an item in the menu or any displayed label in Cortado.
-
-
 # Introduction
 
-* What is Cortado about
-* General high-level ideas behind the tool
-* Contact info etc. and references to publications
+In process mining, process discovery is a key discipline that deals with data driven generation of insights into operational processes. 
+Given event data, process discovery algorithms learn process models that describe the execution of various activities in the process. 
+These discovered process models are important artifacts and are used in various process mining techniques. 
+Most conventional process discovery techniques act as a black-box and do not support user involvement apart from initial parameter tuning. These techniques often result in process models having poor quality.
+Cortado is a tool that allows for interactive process discovery enabling user to gradually learn process models while having complete control during the increments. This allows for learning process models incrementally
+while leveraging insights extracted from the data as well as the domain knowledge.
+
+
+Cortado allows user to interact with its process discovery algorithm, in each increment, the user has the choice to either select process behavior to add to the model under construction or manually edit parts of the model. 
+
+#### Functionalities
+Cortado's functionalities are divided into the following broad categories:
+
+* Event data handling
+
+  Event data handling in Cortado includes exploring, filtering, preprocessing, querying, and visualization of event data. Different executions of the process are summarized by grouping them into process execution variants that are visualized within the [*Variant Explorer*](#variant-explorer).
+  Cortado also provides [*Variant Querying*](#variant-querying) which includes a query language designed specifically for querying variants. Cortado also allows specifying time granularity which influences the ordering of activities within variants. Furthermore, Cortado allows manual extraction
+  and mining of frequent patterns through [*Frequent Pattern Mining*](#variant-frequent-pattern-mining).
+  
+
+* Incremental process discovery
+  
+  A subset of variants/variant fragments can be selected by the user to initially discover and then incrementally add to the process model under construction during [*Incremental Process Discovery*](#incremental-process-discovery).  
+
+* Conformance checking 
+
+  Cortado implements alignments, a state-of-the-art conformance checking technique that provides diagnostics on the mismatches between the observed (i.e., event data) and modeled process behavior (i.e., the process model). 
+  The user can compare the process model with the event data at any time during incremental process discovery allowing them to make informed decisions on which variants to add further. It also provides an overview of the degree of observed behavior which is covered in the current process model.
+
+* Temporal performance analysis
+
+  Cortado features [*Temporal Performance Analysis*](#temporal-performance-analysis) allowing, for example, the identification of slow process stages or activities, i.e., bottlenecks within the process. Temporal performance statistics can allow user to know which behavior to add to the process model incrementally based on any performance requirements.  
+
+
+The following figure contains the simplified overview of Cortado’s functionality:
+
+![xlarge](screenshots%2Fintroduction%2Foverview.png)
+
+#### Contact information
+Contact information can be found at the <a href="https://cortado.fit.fraunhofer.de/#contact" target="_blank">Cortado webpage</a>.
 
 # Variant Handling
 
@@ -740,6 +716,8 @@ One can choose which of the four performance times will be used for the projecti
 The changes made to this will also change what will be displayed in the variants explorer column.
 
 # Software Architecture
+
+![xlarge](screenshots%2Fsoftware_architecture%2Farchitecture.png)
 
 
 
