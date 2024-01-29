@@ -26,6 +26,7 @@
                 type="button"
                 class="button"
                 ngbTooltip="Reset activity colors"
+                triggers="hover"
                 (click)="resetActivityColors()"
               >
                 <i class="bi bi-arrow-counterclockwise btn-icon me-1"></i>
@@ -60,6 +61,7 @@
                   (click)="revertLastChange($event)"
                   *ngIf="resetAvailable"
                   ngbTooltip="revert last change to the event log"
+                  triggers="hover"
                   container="body"
                 >
                   <i class="bi bi-arrow-counterclockwise btn-icon"></i>
@@ -104,6 +106,7 @@
               </ng-template>
               <div
                 [ngbTooltip]="startActivityTooltip"
+                triggers="hover"
                 container="body"
                 class="mx-1"
               >
@@ -136,7 +139,11 @@
                 <b class="text-primary">end-activity</b> (in the event log,
                 there exists a case that ends with the given activity)
               </ng-template>
-              <div [ngbTooltip]="endActivityTooltip" container="body">
+              <div
+                [ngbTooltip]="endActivityTooltip"
+                triggers="hover"
+                container="body"
+              >
                 <!--            <i class="bi bi-chevron-double-right"></i>-->
                 <i
                   class="bi bi-chevron-double-right"
@@ -169,6 +176,7 @@
             >
               <div
                 ngbTooltip="Number of activity occurrences in the loaded event log"
+                triggers="hover"
               >
                 <i class="bi bi-hash"></i>
               </div>
@@ -234,6 +242,7 @@
                 class="cursor-pointer remove-activity-button"
                 (click)="deleteActivity($event, activityField)"
                 ngbTooltip="remove activity from event log"
+                triggers="hover"
                 container="body"
               >
                 <i class="bi bi-trash"></i>

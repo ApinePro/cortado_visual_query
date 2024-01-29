@@ -98,6 +98,7 @@
                 but the number of nodes in its tree representation. Therefore the
                 size of a sequence without any parallelism is its number of
                 activities plus one."
+                triggers="hover"
                 container="body"
               ></i>
             </label>
@@ -266,6 +267,7 @@
         </ng-template>
         <button
           [ngbTooltip]="toolTip2"
+          triggers="hover"
           container="body"
           class="button"
           (click)="computeAlignments()"
@@ -292,6 +294,7 @@
             [disabled]="!isAnyPatternSelected()"
             (click)="addSelectedPatternsToLog()"
             ngbTooltip="Add pattern(s) to log"
+            triggers="hover"
             container="body"
           >
             <i
@@ -329,6 +332,7 @@
         <button
           class="button ms-auto"
           ngbTooltip="apply filters to variants"
+          triggers="hover"
           id="dropdownMenuButton1"
           data-bs-toggle="dropdown"
           data-bs-reference="parent"
@@ -477,6 +481,7 @@
         <button
           class="button"
           ngbTooltip="export the process variant"
+          triggers="hover"
           container="body"
           (click)="exportVariantMiner()"
         >
