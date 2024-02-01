@@ -500,89 +500,100 @@
     <div class="vr"></div>
   </div>
 
-  <div
-    *ngIf="!variantService.areVariantLoopsCollapsed"
-    class="variant-query-button accordion accordion-flush d-flex flex-column"
-    [@openCloseComponent]="'openComponent'"
-    id="accordion"
-  >
-    <div class="accordion-item">
-      <div class="accordion-header d-flex flex-row" id="headingVariantQuery">
-        <div class="query-button accordion-button me-auto py-2 collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#variantQueryPanel" aria-expanded="false" aria-controls="variantQueryPanel">
-          <span class="ms-2 user-select-none">Variant Query</span>
-          <div class="ms-2">
-            <button
-              type="button"
-              class="query-info-button"
-              title="Variant Query Language"
-              (click)="toggleQueryInfo($event)"
-            >
-              <i
-                class="bi bi-question-circle-fill font-large secondary-text fs-6 cursor-help question-icon"
+  <div class="d-flex flex-row">
+    <div class="variant-query-button flex-row px-2" role="button" (click)="showFilterMenu=!showFilterMenu">
+      <i class="bi bi-funnel"></i>
+      <span class="ms-2 user-select-none">Filter</span>
+    </div>
+    <div
+      *ngIf="!variantService.areVariantLoopsCollapsed && showFilterMenu"
+      [@fadeInOutComponent]="showFilterMenu ? 'fadeInComponent' : 'fadeOutComponent'"
+      class="variant-query-button accordion d-flex flex-column"
+      id="accordion"
+    >
+      <div class="flex-row px-2" role="button" (click)="showFilterMenu=!showFilterMenu">
+        <i class="bi-arrows-angle-contract"></i>
+        <span class="ms-2 user-select-none">Filter</span>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-header d-flex flex-row" id="headingVariantQuery">
+          <div class="query-button accordion-button me-auto py-2 collapsed" role="button" data-bs-toggle="collapse" data-bs-target="#variantQueryPanel" aria-expanded="false" aria-controls="variantQueryPanel">
+            <span class="ms-2 user-select-none secondary-text">Variant Query</span>
+            <div class="ms-2">
+              <button
+                type="button"
+                class="query-info-button"
+                title="Variant Query Language"
+                (click)="toggleQueryInfo($event)"
               >
-              </i>
-            </button>
-          </div>
-          <div class="me-2 dropdown">
-            <button
-              class="query-info-button"
-              type="button"
-              id="Options"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              <i
-                class="bi bi-gear font-large secondary-text fs-6 question-icon"
-              ></i>
-            </button>
-            <ul
-              class="dropdown-menu query-bar-drop query-bar-dropdown"
-              aria-labelledby="Files"
-            >
-              <li>
-                <div class="form-check form-switch">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="flexSwitchCheckChecked"
-                    checked
-                    (change)="changeQueryOption($event, 'highlightActivityNames')"
-                  />
-                  <label class="form-check-label" for="flexSwitchCheckChecked"
-                  >Syntax Highlighting</label
-                  >
-                </div>
-              </li>
-            </ul>
+                <i
+                  class="bi bi-question-circle-fill font-large secondary-text fs-6 cursor-help question-icon"
+                >
+                </i>
+              </button>
+            </div>
+            <div class="me-2 dropdown">
+              <button
+                class="query-info-button"
+                type="button"
+                id="Options"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i
+                  class="bi bi-gear font-large secondary-text fs-6 question-icon"
+                ></i>
+              </button>
+              <ul
+                class="dropdown-menu query-bar-drop query-bar-dropdown"
+                aria-labelledby="Files"
+              >
+                <li>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="flexSwitchCheckChecked"
+                      checked
+                      (change)="changeQueryOption($event, 'highlightActivityNames')"
+                    />
+                    <label class="form-check-label" for="flexSwitchCheckChecked"
+                    >Syntax Highlighting</label
+                    >
+                  </div>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
+        <div
+          class="query-app-container accordion-collapse collapse"
+          id="variantQueryPanel"
+          aria-labelledby="headingVariantQuery"
+          data-bs-parent="#accordion"
+        >
+          <app-variant-query
+            [active]="true"
+            [options]="options"
+            (executeFilteredVariantsAction)="
+              executeRemovalActionOnFilteredVariants($event)
+            "
+          ></app-variant-query>
+        </div>
       </div>
-      <div
-        class="query-app-container accordion-collapse"
-        id="variantQueryPanel"
-        aria-labelledby="headingVariantQuery"
-        data-bs-parent="#accordion"
-      >
-        <app-variant-query
-          [active]="true"
-          [options]="options"
-          (executeFilteredVariantsAction)="
-            executeRemovalActionOnFilteredVariants($event)
-          "
-        ></app-variant-query>
-      </div>
-    </div>
-    <div class="accordion-item">
-      <div class="accordion-header" id="flush-headingOne">
-        <button class="query-button accordion-button collapsed py-2" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-          <span class="ms-2">Arc Visualisation</span>
-        </button>
-      </div>
-      <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-        <div class="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> class. This is the first item's accordion body.</div>
+      <div class="accordion-item">
+        <div class="accordion-header" id="flush-headingOne">
+          <button class="query-button accordion-button collapsed py-2" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+            <span class="ms-2 secondary-text">Arc Visualisation</span>
+          </button>
+        </div>
+        <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+          <div class="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> class. This is the first item's accordion body.</div>
+        </div>
       </div>
     </div>
   </div>
+
   <div
     class="main-variant-explorer flex-grow-1"
     (scroll)="onScroll()"

@@ -198,6 +198,8 @@ export class VariantExplorerComponent
 
   public arcs: { [id: number]: Arc[] } = {};
 
+  public showFilterMenu: boolean = false;
+
   deleteVariant = function () {
     const bids = this.variantService.variants
       .filter((v) => v.variant === this.contextMenu_variant)
