@@ -143,6 +143,8 @@ import {InfoBarComponent} from './components/activity-overview/info-bar/info-bar
 import {LoadingOverlayComponent} from './components/loading-overlay/loading-overlay.component';
 import {CaseExplorerComponent} from './components/variant-explorer/case-explorer/case-explorer.component';
 import {ArcDiagramDirective} from "./directives/arc-diagram/arc-diagram.directive";
+import {ArcDiagramFilterComponent} from './components/variant-explorer/arc-diagram/filter/filter.component';
+import { VariantVisualisationComponent } from './components/variant-explorer/variant/subcomponents/variant-visualisation/variant-visualisation.component';
 
 @NgModule({
   declarations: [
@@ -224,6 +226,8 @@ import {ArcDiagramDirective} from "./directives/arc-diagram/arc-diagram.directiv
     LoadingOverlayComponent,
     CaseExplorerComponent,
     ArcDiagramDirective,
+    ArcDiagramFilterComponent,
+    VariantVisualisationComponent,
   ],
   imports: [
     BrowserModule,

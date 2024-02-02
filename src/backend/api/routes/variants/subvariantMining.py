@@ -49,7 +49,8 @@ from cortado_core.subprocess_discovery.subtree_mining.folding_label import fold_
 import cache.cache as cache
 import numpy as np
 
-from cortado_core.variant_pattern_replications.repetition_pairs import generate_and_filter_patterns, filter_maximal_patterns
+from cortado_core.variant_pattern_replications.repetition_pairs import generate_and_filter_patterns, \
+    filter_maximal_patterns
 
 router = APIRouter(tags=["subvariantMining"], prefix="/subvariantMining")
 
@@ -64,12 +65,22 @@ class VariantMinerConfig(BaseModel):
     artifical_start: bool
 
 
+class FilterParams(BaseModel):
+    min_size: int
+
+
+class RepetitionsMiningConfig(BaseModel):
+    bids: [int]
+    filter_params: FilterParams
+
+
 freq_strat_mapping = {
     1: FrequencyCountingStrategy.TraceTransaction,
     2: FrequencyCountingStrategy.VariantTransaction,
     3: FrequencyCountingStrategy.TraceOccurence,
     4: FrequencyCountingStrategy.VariantOccurence,
 }
+
 
 def postProcessFrequentTrees(k_patterns: defaultdict[any, set]):
     set_maximaly_closed_patterns(k_patterns)
@@ -92,6 +103,7 @@ def postProcessFrequentTrees(k_patterns: defaultdict[any, set]):
     else:
         df_dict = False
     return df_dict
+
 
 @router.post("/frequentSubtreeMining")
 def mineFrequentSubtrees(config: VariantMinerConfig):
@@ -144,6 +156,7 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
     print()
     print('Post-Processing...')
     return postProcessFrequentTrees(k_patterns)
+
 
 def replace_loops_by_loop_group(group):
     result = group
@@ -204,18 +217,22 @@ def sub_pattern_to_ctree(pattern: SubPattern, parent=None):
     return t
 
 
-@router.get("/repetitionsMining/{bid}")
-def mineRepetitionPatterns(bid: int):
-    v, ts, _, _ = cache.variants[bid]
+@router.post("/repetitionsMining/", response_model=DefaultDict[int, list])
+def mineRepetitionPatterns(config: RepetitionsMiningConfig):
+    result = []
+    for bid in config.bids:
+        v, ts, _, _ = cache.variants[bid]
 
-    treeBank = create_treebank_from_cv_variants({v: ts}, False)
+        treeBank = create_treebank_from_cv_variants({v: ts}, False)
 
-    pairs_filtered, kpatterns_filtered, ks, single_act_pairs = generate_and_filter_patterns(treeBank)
+        pairs_filtered, kpatterns_filtered, ks, single_act_pairs = generate_and_filter_patterns(treeBank)
 
-    pairs_from_kpatterns = filter_maximal_patterns(kpatterns_filtered, pairs_filtered, ks, treeBank[0])
-    
-    print("pairs from k patterns: ")
-    print(pairs_from_kpatterns)
-    combined_pairs = pair_unions(pairs_from_kpatterns, single_act_pairs)
-    # result = sorted(combined_pairs, key=lambda x: x.positions.bfs[1] - x.positions.bfs[0], reverse=True)
-    return sorted(combined_pairs, key=lambda x: x.positions.bfs[1] - x.positions.bfs[0], reverse=True)
+        pairs_from_kpatterns = filter_maximal_patterns(kpatterns_filtered, pairs_filtered, ks, treeBank[0])
+
+        print("pairs from k patterns: ")
+        print(pairs_from_kpatterns)
+        combined_pairs = pair_unions(pairs_from_kpatterns, single_act_pairs)
+        result.append(
+            {bid: sorted(combined_pairs, key=lambda x: x.positions.bfs[1] - x.positions.bfs[0], reverse=True)})
+        # result = sorted(combined_pairs, key=lambda x: x.positions.bfs[1] - x.positions.bfs[0], reverse=True)
+    return result

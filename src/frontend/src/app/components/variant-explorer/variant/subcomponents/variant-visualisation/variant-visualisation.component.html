@@ -1,0 +1,31 @@
+<div
+  class="variant d-flex flex-column"
+  [ngStyle]="{
+                        'border-color': variant.isSelected
+                          ? 'unset'
+                          : 'transparent'
+                      }"
+  style="white-space: nowrap"
+>
+  <svg
+    #arcDiagram="arcDiagram"
+    appArcDiagram
+    [variant]="variant"
+    class="arc-diagram-chart"
+    style="display: none">
+    <g id="arcGroup"></g>
+  </svg>
+
+  <svg
+    appVariantDrawer
+    #drawer="variantDrawer"
+    [variant]="variant"
+    [onClickCbFc]="variantClickCallBack"
+    [onRightMouseClickCbFc]="openContextCallback"
+    [traceInfixSelectionMode]="traceInfixSelectionMode"
+    [computeActivityColor]="computeActivityColor"
+    [infixType]="variant.infixType"
+    class="zoom-group-variant"
+    style="display: inline-block"
+  ></svg>
+</div>

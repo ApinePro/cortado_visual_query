@@ -4,6 +4,7 @@ import {Arc, Pair} from "./data";
 import * as d3 from 'd3';
 import {IVariant} from "../../objects/Variants/variant_interface";
 import {VariantDrawerDirective} from "../variant-drawer/variant-drawer.directive";
+import {FilterConfig} from "./filter-config";
 
 @Directive({
   selector: '[appArcDiagram]',
@@ -19,6 +20,9 @@ export class ArcDiagramDirective {
 
   @Input()
   variant: IVariant;
+
+  @Input()
+  filterConfig: FilterConfig;
 
   private config = {
     width: 800,

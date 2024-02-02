@@ -54,7 +54,6 @@ import {SubvariantExplorerComponent} from './subvariant-explorer/subvariant-expl
 import {VariantInfoExplorerComponent} from './variant-info-explorer/variant-info-explorer.component';
 import {Variant} from 'src/app/objects/Variants/variant';
 import {deserialize, ParallelGroup, SequenceGroup, VariantElement,} from 'src/app/objects/Variants/variant_element';
-import {activityColor, clickCallback, contextMenuCallback,} from './functions/variant-drawer-callbacks';
 import {exportVariantDrawer} from './functions/export-variant-explorer';
 import {fadeInOutComponent, openCloseComponent,} from 'src/app/animations/component-animations';
 import {collapsingText} from 'src/app/animations/text-animations';
@@ -73,8 +72,11 @@ import {ClusteringSettingsDialogComponent} from './clustering-settings-dialog/cl
 import _ from 'lodash';
 import {InfixType} from 'src/app/objects/Variants/infix_selection';
 import * as d3 from 'd3';
-import {ArcDiagramDirective} from "../../directives/arc-diagram/arc-diagram.directive";
-import {Arc} from "../../directives/arc-diagram/data";
+import {Arc, Pair} from "../../directives/arc-diagram/data";
+import {
+  VariantVisualisationComponent
+} from "./variant/subcomponents/variant-visualisation/variant-visualisation.component";
+import {FilterParams} from "./arc-diagram/filter/filter-params";
 
 @Component({
   selector: 'app-variant-explorer',
@@ -159,11 +161,6 @@ export class VariantExplorerComponent
 
   filterMap: Map<string, VariantFilter> = new Map<string, VariantFilter>();
 
-  // Define Callbacks
-  variantClickCallBack = clickCallback.bind(this);
-  openContextCallback = contextMenuCallback.bind(this);
-  computeActivityColor = activityColor.bind(this);
-
   public options: EditorOptions = new EditorOptions();
 
   // Exporter
@@ -174,8 +171,8 @@ export class VariantExplorerComponent
   @ViewChild('variantExplorer', { static: true })
   variantExplorerDiv: ElementRef<HTMLDivElement>;
 
-  @ViewChildren(VariantDrawerDirective)
-  variantDrawers: QueryList<VariantDrawerDirective>;
+  // @ViewChildren(VariantDrawerDirective)
+  // variantDrawers: QueryList<VariantDrawerDirective>;
 
   @ViewChild('variantExplorerContainer')
   variantExplorerContainer: ElementRef<HTMLDivElement>;
@@ -183,8 +180,13 @@ export class VariantExplorerComponent
   @ViewChild('tooltipContainer')
   tooltipContainer: ElementRef<HTMLDivElement>;
 
-  @ViewChildren(ArcDiagramDirective)
-  arcDiagrams: QueryList<ArcDiagramDirective>;
+  // @ViewChildren(ArcDiagramDirective)
+  // arcDiagrams: QueryList<ArcDiagramDirective>;
+
+  @ViewChildren(VariantVisualisationComponent)
+  variantVisualisations: QueryList<VariantVisualisationComponent>;
+
+  public filterParams: FilterParams = { minSize: 0 };
 
   public visibleVariantsHeight = 1000;
 
@@ -424,9 +426,9 @@ export class VariantExplorerComponent
   }
 
   private redraw_components() {
-    if (this.variantDrawers) {
-      for (let component of this.variantDrawers) {
-        component.redraw();
+    if (this.variantVisualisations) {
+      for (let component of this.variantVisualisations) {
+        component.variantDrawer.redraw();
       }
     }
   }
@@ -459,8 +461,9 @@ export class VariantExplorerComponent
           }
 
           this.updateAlignmentStatistics();
-          this.variantDrawers
-            .find((drawer) => drawer.variant.id == res.id)
+          this.variantVisualisations
+            .find((vv) => vv.id == res.id)
+            ?.variantDrawer
             ?.redraw();
         },
         (_) => {
@@ -903,9 +906,9 @@ export class VariantExplorerComponent
     // redraw if in conformance view
     if (this.variantViewModeService.viewMode === ViewMode.CONFORMANCE)
       this.getSelectedVariants().forEach((v) => {
-        this.variantDrawers
-          .find((drawer) => drawer.variant.id == v.id)
-          .redraw();
+        this.variantVisualisations
+          .find((vv) => vv.id == v.id)
+          .variantDrawer.redraw();
       });
   }
 
@@ -933,7 +936,7 @@ export class VariantExplorerComponent
 
   areAllVariantsExpanded(): boolean {
     if (
-      this.variantDrawers === undefined ||
+      this.variantVisualisations === undefined ||
       (this.variants && this.variants.length < 1)
     ) {
       return false;
@@ -948,13 +951,13 @@ export class VariantExplorerComponent
   unExpandAll(): void {
     const shouldExpand = !this.areAllVariantsExpanded();
 
-    this.variantDrawers.forEach((c) => {
+    this.variantVisualisations.forEach((vv) => {
       if (
         this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE &&
-        shouldExpand != c.variant.variant.expanded
+        shouldExpand != vv.variantDrawer.variant.variant.expanded
       ) {
-        c.setExpanded(shouldExpand);
-        c.redraw();
+        vv.variantDrawer.setExpanded(shouldExpand);
+        vv.variantDrawer.redraw();
       }
     });
 
@@ -1186,6 +1189,26 @@ export class VariantExplorerComponent
   performanceColumnHeader() {
     const selectedColorScale = this.performanceColorService.selectedColorScale;
     return `${selectedColorScale.performanceIndicator}\n(${selectedColorScale.statistic})`;
+  }
+
+  drawArcDiagram(bid: string, computedArcs: Pair[]) {
+    const variantViz: VariantVisualisationComponent = this.variantVisualisations.find((vv: VariantVisualisationComponent) => vv.bid as unknown as string == bid);
+    const arcs = variantViz.arcDiagram.parseInput(computedArcs);
+    variantViz.arcsComputed = true;
+    variantViz.arcDiagram.draw(
+      arcs,
+      variantViz.variantDrawer
+    );
+  }
+  showArcDiagram(bids: string[]) {
+    this.variantService
+      .showArcDiagram(bids, this.filterParams)
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((res: {[bid: string]: Pair[]}) => {
+        for (let [bid, computedArcs] of Object.entries(res)) {
+          this.drawArcDiagram(bid, computedArcs)
+        }
+      });
   }
 }
 

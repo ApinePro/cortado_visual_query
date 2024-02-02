@@ -1,11 +1,8 @@
-import {Component, Input, QueryList} from '@angular/core';
+import {Component, EventEmitter, Input, Output, QueryList} from '@angular/core';
 import {VariantService} from 'src/app/services/variantService/variant.service';
-import {takeUntil} from "rxjs/operators";
-import {Pair} from "../../../../../directives/arc-diagram/data";
-import {ArcDiagramDirective} from "../../../../../directives/arc-diagram/arc-diagram.directive";
-import {VariantDrawerDirective} from "../../../../../directives/variant-drawer/variant-drawer.directive";
 import {IVariant} from "../../../../../objects/Variants/variant_interface";
 import {Subject} from "rxjs";
+import {VariantVisualisationComponent} from "../variant-visualisation/variant-visualisation.component";
 
 @Component({
   selector: 'app-variant-action-buttons',
@@ -16,9 +13,9 @@ export class VariantActionButtonsComponent {
   @Input()
   private variant: IVariant;
   @Input()
-  protected variantDrawers: QueryList<VariantDrawerDirective>
-  @Input()
-  protected arcDiagrams: QueryList<ArcDiagramDirective>
+  protected variantVisualisations: QueryList<VariantVisualisationComponent>
+  @Output()
+  showArcDiagram = new EventEmitter<number>();
 
   constructor(private variantService: VariantService) {}
 
@@ -28,19 +25,7 @@ export class VariantActionButtonsComponent {
     this.variantService.deleteVariant(this.variant.bid);
   }
 
-  showArcDiagram() {
-    this.variantService
-      .showArcDiagram(this.variant.bid)
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((res: Pair[]) => {
-        const arcDiagramDir: ArcDiagramDirective = this.arcDiagrams.find((dir: ArcDiagramDirective) => dir.variant.bid == this.variant.bid);
-        const arcs = arcDiagramDir.parseInput(res);
-        // this.arcs[this.variant.bid] = arcs;
-        const variantDrawerDir: VariantDrawerDirective = this.variantDrawers.find((drawer: VariantDrawerDirective) => drawer.variant.id == this.variant.id);
-        arcDiagramDir.draw(
-          arcs,
-          variantDrawerDir
-        );
-      });
+  showArcDiagramBtnClicked() {
+    this.showArcDiagram.emit(this.variant.bid);
   };
 }

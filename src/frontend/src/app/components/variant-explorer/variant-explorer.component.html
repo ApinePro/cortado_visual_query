@@ -588,7 +588,7 @@
           </button>
         </div>
         <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-          <div class="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> class. This is the first item's accordion body.</div>
+          <app-arc-diagram-filter></app-arc-diagram-filter>
         </div>
       </div>
     </div>
@@ -868,39 +868,11 @@
                   </ng-template>
 
                   <ng-template #variantDrawer>
-                    <div
-                      class="variant d-flex flex-column"
-                      [ngStyle]="{
-                        'border-color': variant.isSelected
-                          ? 'unset'
-                          : 'transparent'
-                      }"
-                      style="white-space: nowrap"
-                    >
-
-
-                      <svg
-                        #arcDiagram="arcDiagram"
-                        appArcDiagram
-                        [variant]="variant"
-                        class="arc-diagram-chart"
-                        style="display: none">
-                        <g id="arcGroup"></g>
-                      </svg>
-
-                      <svg
-                        appVariantDrawer
-                        #drawer="variantDrawer"
-                        [variant]="variant"
-                        [onClickCbFc]="variantClickCallBack"
-                        [onRightMouseClickCbFc]="openContextCallback"
-                        [traceInfixSelectionMode]="traceInfixSelectionMode"
-                        [computeActivityColor]="computeActivityColor"
-                        [infixType]="variant.infixType"
-                        class="zoom-group-variant"
-                        style="display: inline-block"
-                      ></svg>
-                    </div>
+                    <app-variant-visualisation
+                      [variant]="variant"
+                      [traceInfixSelectionMode]="traceInfixSelectionMode"
+                      [colorMap]="colorMap"
+                    ></app-variant-visualisation>
                     <ng-template #infixSelection>
                       <app-infix-selection-controlls
                         [variant]="variant"
@@ -912,8 +884,8 @@
                   <ng-template #removeVariantButton>
                     <app-variant-action-buttons
                       [variant]="variant"
-                      [arcDiagrams]="arcDiagrams"
-                      [variantDrawers]="variantDrawers"
+                      [variantVisualisations]="variantVisualisations"
+                      (showArcDiagram)="showArcDiagram($event)"
                     ></app-variant-action-buttons>
                   </ng-template>
 

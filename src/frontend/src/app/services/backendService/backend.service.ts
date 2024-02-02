@@ -1,27 +1,23 @@
-import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
-import { HttpClient } from '@angular/common/http';
-import { Inject, Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { catchError, map, mergeMap, take, tap, toArray } from 'rxjs/operators';
-import { Configuration } from 'src/app/components/settings/model';
-import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
-import { TimeUnit } from 'src/app/objects/TimeUnit';
-import { mapVariants, mapVariantsList } from 'src/app/utils/util';
-import { LogService } from '../logService/log.service';
-import { VariantService } from '../variantService/variant.service';
-import { ProcessTreeService } from './../processTreeService/process-tree.service';
-import {
-  VariantElement,
-  deserialize,
-  SequenceGroup,
-} from 'src/app/objects/Variants/variant_element';
-import { ROUTES } from 'src/app/constants/backend_route_constants';
-import { MiningConfig } from 'src/app/objects/Variants/variant-miner-types';
-import { ElectronService } from '../electronService/electron.service';
-import { InfixType } from 'src/app/objects/Variants/infix_selection';
-import { treeConformanceResult } from '../conformanceChecking/model';
-import { Variant } from 'src/app/objects/Variants/variant';
-import { ClusteringConfig } from 'src/app/objects/ClusteringConfig';
+import {SharedDataService} from 'src/app/services/sharedDataService/shared-data.service';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {Observable, Subject} from 'rxjs';
+import {catchError, map, mergeMap, take, tap, toArray} from 'rxjs/operators';
+import {Configuration} from 'src/app/components/settings/model';
+import {ProcessTree} from 'src/app/objects/ProcessTree/ProcessTree';
+import {TimeUnit} from 'src/app/objects/TimeUnit';
+import {mapVariants, mapVariantsList} from 'src/app/utils/util';
+import {LogService} from '../logService/log.service';
+import {ProcessTreeService} from './../processTreeService/process-tree.service';
+import {VariantElement,} from 'src/app/objects/Variants/variant_element';
+import {ROUTES} from 'src/app/constants/backend_route_constants';
+import {MiningConfig} from 'src/app/objects/Variants/variant-miner-types';
+import {ElectronService} from '../electronService/electron.service';
+import {InfixType} from 'src/app/objects/Variants/infix_selection';
+import {treeConformanceResult} from '../conformanceChecking/model';
+import {Variant} from 'src/app/objects/Variants/variant';
+import {ClusteringConfig} from 'src/app/objects/ClusteringConfig';
+import {FilterParams} from "../../components/variant-explorer/arc-diagram/filter/filter-params";
 
 @Injectable({
   providedIn: 'root',
@@ -631,9 +627,13 @@ export class BackendService {
     );
   }
 
-  public showArcDiagram(bid: number) {
-    return this.httpClient.get(
-      ROUTES.HTTP_BASE_URL + ROUTES.VARIANTMINING + 'repetitionsMining/' + bid
+  public showArcDiagram(bids: string[], filterParams: FilterParams) {
+    return this.httpClient.post(
+      ROUTES.HTTP_BASE_URL + ROUTES.VARIANTMINING + 'repetitionsMining',
+      {
+        bids,
+        filterParams,
+      }
     );
   }
 
