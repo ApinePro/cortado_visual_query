@@ -8,13 +8,8 @@ import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import { TimeUnit } from 'src/app/objects/TimeUnit';
 import { mapVariants, mapVariantsList } from 'src/app/utils/util';
 import { LogService } from '../logService/log.service';
-import { VariantService } from '../variantService/variant.service';
 import { ProcessTreeService } from './../processTreeService/process-tree.service';
-import {
-  VariantElement,
-  deserialize,
-  SequenceGroup,
-} from 'src/app/objects/Variants/variant_element';
+import { VariantElement } from 'src/app/objects/Variants/variant_element';
 import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { MiningConfig } from 'src/app/objects/Variants/variant-miner-types';
 import { ElectronService } from '../electronService/electron.service';

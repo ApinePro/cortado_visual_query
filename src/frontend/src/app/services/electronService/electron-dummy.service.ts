@@ -32,4 +32,8 @@ export class ElectronDummyService implements ElectronInterface {
   readFromUserFolder(fileName: string, fileExtension: string): Promise<string> {
     throw new Error('Method not implemented.');
   }
+
+  getWSPort(): Promise<number> {
+    return Promise.resolve(0);
+  }
 }

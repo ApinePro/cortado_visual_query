@@ -54,4 +54,8 @@ export class ElectronService implements ElectronInterface {
   ): Promise<string> {
     return this.electronApi.readFromUserFolder(fileName, fileExtension);
   }
+
+  public async getWSPort(): Promise<number> {
+    return this.electronApi.getWSPort();
+  }
 }

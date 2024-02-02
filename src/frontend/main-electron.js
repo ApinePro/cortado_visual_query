@@ -22,14 +22,17 @@ const backendExecutablePath = path.join(
   process.platform === "win32" ? "cortado-backend.exe" : "cortado-backend"
 );
 const lastAcceptedVersionKey = "lastAcceptedVersion";
-
 const isDevelopment = process.env.NODE_ENV === "development";
 
 let mainCortadoWin;
 let backendProcess;
 
+WS_PORT = 40000;
+const portfinder = require("portfinder");
+
 function startBackend() {
-  return ChildProcess.spawn(backendExecutablePath, {
+  let portArgument = "--WEBSERVER_PORT " + WS_PORT;
+  return ChildProcess.spawn(backendExecutablePath, [portArgument], {
     shell: true,
     detached: true,
     windowsHide: false,
@@ -80,8 +83,10 @@ function createMainApplicationWindow() {
     darkTheme: true,
   });
   mainCortadoWin.removeMenu();
+
   //mainCortadoWin.webContents.openDevTools()
   //mainCortadoWin.loadURL('data:text/html;charset=utf-8,' + backendExecutablePathWindows);
+
   if (isDevelopment) {
     mainCortadoWin.loadURL("http://localhost:4444");
     mainCortadoWin.webContents.openDevTools();
@@ -121,9 +126,19 @@ function killBackendProcess() {
 
 app.whenReady().then(function () {
   if (!isDevelopment) {
-    backendProcess = startBackend();
+    // Find free port
+    portfinder.getPort(
+      {
+        port: 40000, // minimum port
+        stopPort: 49999, // maximum port
+      },
+      function (err, port) {
+        WS_PORT = port;
+        createMainApplicationWindow();
+        backendProcess = startBackend();
+      }
+    );
   }
-  createMainApplicationWindow();
 });
 
 app.on("quit", function () {
@@ -172,6 +187,10 @@ ipcMain.on("saveToUserFolder", (_, fileName, fileExtension, data) =>
 ipcMain.handle("readFromUserFolder", (_, fileName, fileExtension) =>
   readFromUserFolder(app.getPath("userData"), fileName, fileExtension)
 );
+
+ipcMain.handle("getWSPort", (_) => {
+  return WS_PORT;
+});
 
 ipcMain.on("quit", () => {
   mainCortadoWin.destroy();

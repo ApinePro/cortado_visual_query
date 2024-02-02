@@ -51,7 +51,11 @@ import { VariantMinerPatternComponent } from './components/variant-miner/variant
 import { NgxSliderModule } from 'ngx-slider-v2';
 import { VariantQueryComponent } from './components/variant-explorer/variant-query/variant-query.component';
 import { ConformanceInfoBarComponent } from './components/variant-explorer/conformance-info/info-bar/conformance-info-bar.component';
-import { initApp, InitService } from './services/init.service';
+import {
+  initApp,
+  InitService,
+  InitServiceAlternatePort,
+} from './services/init.service';
 import { ToastComponent } from './components/toast/toast/toast.component';
 import { ToasterComponent } from './components/toast/toaster/toaster.component';
 import { PerformanceProgressBarComponent } from './components/performance/performance-progress-bar/performance-progress-bar.component';
@@ -195,7 +199,7 @@ import { CaseExplorerComponent } from './components/variant-explorer/case-explor
     {
       provide: APP_INITIALIZER,
       useFactory: initApp,
-      deps: [InitService],
+      deps: [InitService, InitServiceAlternatePort],
       multi: true,
     },
     { provide: ElectronService, useFactory: electronServiceFactory },
