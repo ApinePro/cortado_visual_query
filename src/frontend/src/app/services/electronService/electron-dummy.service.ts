@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { ElectronInterface } from './electron-interface';
 import { Subject } from 'rxjs';
 import { saveAs } from 'file-saver';
+import { ROUTES } from '../../constants/backend_route_constants';
 
 @Injectable({
   providedIn: 'root',
@@ -34,6 +35,8 @@ export class ElectronDummyService implements ElectronInterface {
   }
 
   getWSPort(): Promise<number> {
-    return Promise.resolve(0);
+    const url = ROUTES.BASE_URL;
+    const port = Number(url.match(/(?<=\:).+?(?=\/)/g)[0]);
+    return Promise.resolve(port);
   }
 }

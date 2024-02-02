@@ -5,15 +5,9 @@ import { BackendService } from './backendService/backend.service';
 import { ROUTES } from '../constants/backend_route_constants';
 import { ElectronService } from './electronService/electron.service';
 
-export function initApp(
-  initService: InitService,
-  initServiceAlternatePort: InitServiceAlternatePort
-) {
+export function initApp(initService: InitService) {
   return (): Promise<any> => {
-    const promise1 = initService.init();
-    const promise2 = initServiceAlternatePort.init();
-
-    return Promise.race([promise1, promise2]);
+    return initService.init();
   };
 }
 
@@ -21,24 +15,6 @@ export function initApp(
   providedIn: 'root',
 })
 export class InitService {
-  constructor(
-    private backendService: BackendService,
-    private backendInfoService: BackendInfoService
-  ) {}
-
-  init() {
-    return this.backendService
-      .getInfo()
-      .pipe(retryWhen((errors) => errors.pipe(delay(500), take(100)))) // wait for backend
-      .pipe(tap(() => this.backendInfoService.setRunning(true))) // set running status
-      .toPromise();
-  }
-}
-
-@Injectable({
-  providedIn: 'root',
-})
-export class InitServiceAlternatePort {
   constructor(
     private backendService: BackendService,
     private backendInfoService: BackendInfoService,
