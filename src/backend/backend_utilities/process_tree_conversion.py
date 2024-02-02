@@ -38,9 +38,11 @@ def process_tree_to_dict_rec(
             pt_frozen = True
     res = {
         "operator": __get_root_operator_string_for_frontend(pt),
-        "label": None
-        if __get_root_node_label(pt) is None
-        else str(__get_root_node_label(pt)),
+        "label": (
+            None
+            if __get_root_node_label(pt) is None
+            else str(__get_root_node_label(pt))
+        ),
         "id": id(pt),
         "children": [],
         "frozen": pt_frozen,
@@ -72,9 +74,11 @@ def process_tree_to_dict_rec(
                 count_weight_sum = sum(
                     list(
                         map(
-                            lambda conf: 0
-                            if conf["weighted_by_counts"] is None
-                            else conf["weighted_by_counts"]["weight"],
+                            lambda conf: (
+                                0
+                                if conf["weighted_by_counts"] is None
+                                else conf["weighted_by_counts"]["weight"]
+                            ),
                             child_conformance,
                         )
                     )
@@ -108,12 +112,14 @@ def process_tree_to_dict_rec(
                         "value": equal_weight_value,
                         "weight": equal_weight_sum,
                     },
-                    "weighted_by_counts": {
-                        "value": count_weight_value,
-                        "weight": count_weight_sum,
-                    }
-                    if count_weight_sum > 0
-                    else None,
+                    "weighted_by_counts": (
+                        {
+                            "value": count_weight_value,
+                            "weight": count_weight_sum,
+                        }
+                        if count_weight_sum > 0
+                        else None
+                    ),
                 }
         elif str(pt) in conformance:
             res["conformance"] = conformance[str(pt)]

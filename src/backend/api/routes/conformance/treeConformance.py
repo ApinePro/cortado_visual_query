@@ -118,15 +118,20 @@ def merge_conf_stats(conf_stats: List[dict], counts=None):
                     / sum(equal_weights),
                     "weight": sum(equal_weights),
                 },
-                "weighted_by_counts": {
-                    "value": sum(
-                        [value * weight for value, weight in zip(values, count_weights)]
-                    )
-                    / sum(count_weights),
-                    "weight": sum(count_weights),
-                }
-                if counts is not None
-                else None,
+                "weighted_by_counts": (
+                    {
+                        "value": sum(
+                            [
+                                value * weight
+                                for value, weight in zip(values, count_weights)
+                            ]
+                        )
+                        / sum(count_weights),
+                        "weight": sum(count_weights),
+                    }
+                    if counts is not None
+                    else None
+                ),
             }
         return merged_stats
     return None

@@ -86,6 +86,12 @@ args = parser.parse_args()
 if __name__ == "__main__":
     # print(DEFAULT_LP_SOLVER_VARIANT)
     freeze_support()
-    uvicorn.run("main:app", host="0.0.0.0", port=args.WEBSERVER_PORT, workers=1, reload=CORTADO_DEBUG)
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=args.WEBSERVER_PORT,
+        workers=1,
+        reload=CORTADO_DEBUG,
+    )
     # dev mode
     # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
