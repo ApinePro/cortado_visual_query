@@ -178,6 +178,5 @@ build-electron-app-linux:
 python-black-check:
   <<: *python-critical-check
   script:
-    - black --version
     - black --check .
 
