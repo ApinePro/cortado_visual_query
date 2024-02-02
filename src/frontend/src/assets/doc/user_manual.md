@@ -73,12 +73,12 @@ Beneath the listed variants, there are also statistic displayed for the whole ev
 ### Variant Information Explorer
 ![medium](./screenshots/variant_explorer/variant_info_explorer_detail.png) <br>
 
-By clicking the variant's count in Variant Explorer, a new Variant Information Explorer window opened in the stack of Variant Explorer. In Variant Information Explorer, all cases of the selected variant are listed, with their information including case ID, earliest and latest timestamp, and duration. The case list could be sorted by case ID (in alphabet order), timestamp, and duration.
+By clicking the variant's count in <em>Variant Explorer</em>, a new <em>Variant Information Explorer</em> window opens in the stack of Variant Explorer. In the window, all cases of the selected variant are listed along with their information including <em>case ID, earliest, latest timestamp,</em> and <em>duration</em>. All the columns can also be sorted.
 
 ### Case Information Explorer
 ![medium](./screenshots/variant_explorer/case_explorer_detail.png)<br>
 
-By clicking the case ID in Variant Information Explorer, a new Case Information Explorer window opened in the stack of Variant Explorer. In Case Information Explorer, the events of the selected case are listed in time order, with their information including starting timestamp, ending timestamp, duration, and resources of the event.
+By clicking the case ID in Variant Information Explorer, a new Case Information Explorer window opens in the stack of Variant Explorer. In Case Information Explorer, the events of the selected case are listed in time order, with their information including starting timestamp, ending timestamp, duration, and resources of the event.
 
 ### Variant Sorting
 
@@ -311,18 +311,18 @@ With the icons on the right, one can add the current selection to the variant ex
 
 The variant modeler allows users to manually create a variant with sequential and parallel patterns.
 
-How to create a new variant:
+How to model a new variant:
 
-1. Select the insertion strategy in the toolbar;
-2. Select a chevron (could be both single activity or an activity group);
-3. Click the activity button;
-4. Click `add new variant to log` button to add the user created variant to the variant list.
+1. Select the insertion strategy in the toolbar
+2. Select a chevron (could be both single activity or an activity group)
+3. Click the activity button
+4. Click `add new variant to log` button to add the user created variant to the variant list
 
 Other functions in the tool:
-1. Variant modeler allows the variant be displayed in 4 variant types: full, prefix, infix, and postfix.
+1. Variant modeler allows the variant be displayed in 4 variant types: <em>full</em>, prefix, infix, and postfix.
 2. View focus functions are also provided:
-    - focus selected: move the selected activity/group to the view center.
-    - move the variant center to the view center.
+    - <em>focus selected:</em> move the selected activity/group to the view center.
+    - <em>move to the start of the variant: </em>move the variant center to the view center.
 
 ## Variant Frequent Pattern Mining
 
@@ -403,15 +403,16 @@ The editor comprises primarily of <i>three sections</i>, all of which rely heavi
    Switching the toggle off, retains only the infixes *not* containing the activity.
 
 ## Variant Sequentialization (Tiebreaker)
-Tiebreaker is a sequentialization tool which provides a function to match source pattern in variants and replace them with the target pattern. In tiebreaker, there are two pattern editors to model the source pattern and target pattern, respectively. In addition to sequential and parallel pattern, the tiebreaker allows to create:<br>
+Tiebreaker is a sequentialization tool which provides a function to match source pattern in variants and replace them with the target pattern. In tiebreaker, there are two pattern editors to model the source pattern and target pattern, respectively.<br>
 
 ![medium](./screenshots/variant_sequentialization/tiebreaker.png)
 
-1. choice group, which could match any combination of any activities in the group;
+In addition to sequential and parallel pattern, the tiebreaker allows to create:<br>
+1. choice group, which could match any combination of any activities in the group
 
 ![medium](./screenshots/variant_sequentialization/choicegroup.png)
 
-1. fallthrough group;
+1. fallthrough group
 
 ![medium](./screenshots/variant_sequentialization/fallthroughgroup.png)
 
