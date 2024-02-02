@@ -77,7 +77,9 @@ export class HeaderBarComponent implements OnDestroy {
       const backendCall = !environment.electron
         ? this.backendService.uploadEventLog(fileList[0])
         : this.backendService.loadEventLogFromFilePath(fileList[0]['path']);
-      this.loadingOverlayService.showLoader('Loading Event-Log ...');
+      this.loadingOverlayService.showLoader(
+        'Importing event log (for large logs this can take up to several minutes)'
+      );
       backendCall.subscribe(() => {
         this.loadingOverlayService.hideLoader();
       });

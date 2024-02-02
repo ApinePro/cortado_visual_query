@@ -30,7 +30,7 @@
           backend is unavailable</i
         >
       </ng-template>
-      <a [ngbTooltip]="backendRunningTooltip" container="body">
+      <a [ngbTooltip]="backendRunningTooltip" triggers="hover" container="body">
         <i *ngIf="isRunning" class="text-success bi bi-circle-fill"></i>
         <i *ngIf="!isRunning" class="text-danger bi bi-circle-fill"></i>
       </a>
@@ -41,6 +41,7 @@
         class="cursor-pointer text-decoration-none"
         (click)="restartBackend()"
         ngbTooltip="restart backend"
+        triggers="hover"
         container="body"
       >
         <i class="bi bi-arrow-clockwise"></i> restart backend
@@ -57,6 +58,7 @@
         class="text-decoration-none"
         target="_blank"
         ngbTooltip="Check for updates"
+        triggers="hover"
         container="body"
         >version {{ version }}</a
       >

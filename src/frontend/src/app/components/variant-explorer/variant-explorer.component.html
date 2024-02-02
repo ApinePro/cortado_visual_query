@@ -28,6 +28,8 @@
     </ng-template>
     <i
       class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text cursor-help question-icon"
+      [ngbTooltip]="tooltip1"
+      triggers="hover"
       container="body"
       (click)="openDocumentation('Variant Explorer')"
     >
@@ -53,6 +55,7 @@
     </ng-template>
     <button
       [ngbTooltip]="toolTip2"
+      triggers="hover"
       container="body"
       class="button"
       (click)="updateAlignments()"
@@ -73,6 +76,7 @@
     <button
       class="button"
       ngbTooltip="add selected, non-fitting variant(s) to current process model"
+      triggers="hover"
       container="body"
       [disabled]="
         isNoVariantSelected() ||
@@ -108,6 +112,7 @@
     <button
       class="button"
       [ngbTooltip]="tooltip3"
+      triggers="hover"
       container="body"
       [disabled]="
         isNoVariantSelected() ||
@@ -136,6 +141,7 @@
         class="bi bi-exclamation-triangle text-warning"
         *ngIf="isInfixSelected()"
         [ngbTooltip]="infixSelectedTooltip"
+        triggers="hover"
         container="body"
       ></i>
     </button>
@@ -175,6 +181,7 @@
     <div
       class="btn-group align-baseline dropDownParent dropdown ms-auto"
       [ngbTooltip]="tooltip4"
+      triggers="hover"
       container="body"
     >
       <button
@@ -279,6 +286,7 @@
         class="button"
         (click)="variantService.unCollapseLoopsInVariants()"
         ngbTooltip="(un)collapse loops in variants"
+        triggers="hover"
         container="body"
       >
         <i
@@ -314,6 +322,7 @@
         class="button"
         (click)="unExpandAll()"
         ngbTooltip="(un)expand all variants"
+        triggers="hover"
         container="body"
       >
         <i
@@ -339,6 +348,7 @@
         *ngIf="!traceInfixSelectionMode"
         class="button"
         ngbTooltip="Enter trace infix selection mode"
+        triggers="hover"
         container="body"
         (click)="toggleTraceInfixSelectionMode()"
       >
@@ -349,6 +359,7 @@
         *ngIf="traceInfixSelectionMode"
         class="button"
         ngbTooltip="Exit trace infix selection mode"
+        triggers="hover"
         container="body"
         style="color: green"
         (click)="toggleTraceInfixSelectionMode()"
@@ -362,6 +373,7 @@
     <div
       class="dropdown"
       ngbTooltip="Select the time granularity"
+      triggers="hover"
       container="body"
     >
       <button
@@ -409,6 +421,7 @@
     <button
       class="button"
       ngbTooltip="export the view as an .svg"
+      triggers="hover"
       container="body"
       (click)="exportVariantSVG()"
     >
@@ -417,7 +430,12 @@
   -->
     <div class="vr"></div>
 
-    <div class="dropdown" ngbTooltip="Functions" container="body">
+    <div
+      class="dropdown"
+      ngbTooltip="Functions"
+      triggers="hover"
+      container="body"
+    >
       <button
         class="button dropdown-toggle"
         type="button"
@@ -636,6 +654,7 @@
                             : 'none'
                       }"
                       ngbTooltip="hide all model projections"
+                      triggers="hover"
                       container="body"
                       (click)="handleTreeConformanceClear()"
                     ></i>
@@ -649,6 +668,7 @@
                           : 'none'
                       }"
                       ngbTooltip="hide all model projections"
+                      triggers="hover"
                       container="body"
                       (click)="handleTreePerformanceClear()"
                     ></i>
@@ -709,6 +729,7 @@
                       <span
                         class="badge text-bg-primary ms-1 cursor-pointer"
                         [ngbTooltip]="filter.value.tooltip"
+                        triggers="hover"
                         container="body"
                         (click)="toggleQuery()"
                       >

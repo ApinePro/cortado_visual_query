@@ -528,6 +528,7 @@ export class BpmnDrawerDirective {
 
     const op = parent
       .append('rect')
+      .classed('BPMNOperatorNode', true)
       .attr('width', BPMN_Constant.BASE_HEIGHT_WIDTH)
       .attr('height', BPMN_Constant.BASE_HEIGHT_WIDTH)
       .attr('fill', color)
@@ -552,6 +553,7 @@ export class BpmnDrawerDirective {
     parent
       .append('text')
       .classed('user-select-none', true)
+      .classed('BPMNOperatorText', true)
       .attr(
         'transform',
         `translate(${BPMN_Constant.OPERATOR_DIAGONAL_LENGTH}, ${BPMN_Constant.OPERATOR_CENTER})`
@@ -763,6 +765,7 @@ export class BpmnDrawerDirective {
 
     parent
       .append('circle')
+      .classed('BPMNOperatorNode', true)
       .attr('r', BPMN_Constant.START_END_RADIUS)
       .attr('fill', BPMN_Constant.OPERATOR_COLOR)
       .attr('stroke', BPMN_Constant.STROKE_COLOR)
@@ -779,6 +782,7 @@ export class BpmnDrawerDirective {
 
     parent
       .append('circle')
+      .classed('BPMNOperatorNode', true)
       .attr('r', BPMN_Constant.START_END_RADIUS)
       .attr('fill', BPMN_Constant.OPERATOR_COLOR)
       .attr('stroke', BPMN_Constant.STROKE_COLOR)
@@ -787,6 +791,7 @@ export class BpmnDrawerDirective {
 
     parent
       .append('circle')
+      .classed('BPMNOperatorNode', true)
       .attr('r', BPMN_Constant.START_END_RADIUS - 2)
       .attr('fill', BPMN_Constant.OPERATOR_COLOR)
       .attr('stroke', BPMN_Constant.STROKE_COLOR)

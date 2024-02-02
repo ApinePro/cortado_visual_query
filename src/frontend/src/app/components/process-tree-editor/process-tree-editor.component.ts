@@ -286,8 +286,7 @@ export class ProcessTreeEditorComponent
   }
 
   private selectRootNodeFromID(id) {
-    const selectedRoot = this.mainSvgGroup.select('[id="' + id + '"]');
-    //const node = selectedRoot.data()[0];
+    const selectedRoot = this.mainSvgGroup.select(`[id="${id}"]`);
     const node = selectedRoot.data()[0];
     if (id && node) {
       this.setSelectedRootNode(node);
