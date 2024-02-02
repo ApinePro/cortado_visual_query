@@ -178,6 +178,6 @@ build-electron-app-linux:
 python-black-check:
   <<: *python-critical-check
   script:
-    - vlack --version
+    - black --version
     - black --check .
 
