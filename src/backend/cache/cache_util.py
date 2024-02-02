@@ -1,11 +1,9 @@
 import itertools
 from typing import Dict, List, Mapping, Tuple
-
 from cortado_core.utils.split_graph import Group
 from pm4py.objects.log.obj import EventLog, Trace
-
-from api.routes.variants.variants import VariantInformation
 from cache import cache
+from api.routes.variants.variants import VariantInformation
 
 
 def get_variant(variant: Tuple[Group, List[Trace], List, VariantInformation]) -> Group:

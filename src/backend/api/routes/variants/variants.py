@@ -8,8 +8,8 @@ from cortado_core.clustering.clusterer import Clusterer
 from cortado_core.clustering.variant_clusterer_adapter import calculate_clusters
 from cortado_core.models.infix_type import InfixType
 from cortado_core.utils.split_graph import ConcurrencyGroup, Group
-from fastapi import APIRouter
 from pm4py.objects.log.obj import Trace
+from fastapi import APIRouter
 
 import cache.cache as cache
 from api.routes.variants.models import (
