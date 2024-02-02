@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { blobToBase64 } from 'src/app/utils/util';
-import { ProjectService } from '../projectService/project.service';
 import { Subject } from 'rxjs';
 import { ElectronInterface } from './electron-interface';
 
