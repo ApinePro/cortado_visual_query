@@ -63,8 +63,7 @@ export class BpmnDrawerDirective {
         .attr(
           'transform',
           `translate(${-(
-            2 * BPMN_Constant.HORIZONTALSPACING +
-            BPMN_Constant.START_END_RADIUS
+            BPMN_Constant.HORIZONTALSPACING + BPMN_Constant.START_END_RADIUS
           )},${BPMN_Constant.BASE_HEIGHT_WIDTH / 2})`
         );
 
@@ -74,7 +73,7 @@ export class BpmnDrawerDirective {
         start,
         BPMN_Constant.START_END_RADIUS,
         0,
-        BPMN_Constant.START_END_RADIUS + 2 * BPMN_Constant.HORIZONTALSPACING,
+        BPMN_Constant.START_END_RADIUS + BPMN_Constant.HORIZONTALSPACING,
         0,
         false,
         model._pt.frozen
@@ -90,7 +89,7 @@ export class BpmnDrawerDirective {
           'transform',
           `translate(${
             model.width +
-            2 * BPMN_Constant.HORIZONTALSPACING +
+            BPMN_Constant.HORIZONTALSPACING +
             BPMN_Constant.START_END_RADIUS
           }, ${BPMN_Constant.BASE_HEIGHT_WIDTH / 2})`
         );
@@ -99,7 +98,7 @@ export class BpmnDrawerDirective {
 
       this.drawLine(
         end,
-        -(BPMN_Constant.START_END_RADIUS + 2 * BPMN_Constant.HORIZONTALSPACING),
+        -(BPMN_Constant.START_END_RADIUS + BPMN_Constant.HORIZONTALSPACING),
         0,
         -BPMN_Constant.START_END_RADIUS,
         0,
