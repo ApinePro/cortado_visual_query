@@ -135,8 +135,7 @@ export class BpmnDrawerDirective {
     this.drawOperatorNode(enter_operator, model);
 
     let offset_x =
-      BPMN_Constant.HORIZONTALSPACING +
-      2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
+      BPMN_Constant.HORIZONTALSPACING + BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
 
     let offset_y = 0;
 
@@ -177,6 +176,7 @@ export class BpmnDrawerDirective {
 
         this.drawBlock(block, g);
 
+        // draw line from entry block to member block
         this.drawLine(
           parallel_block,
           BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
@@ -187,12 +187,12 @@ export class BpmnDrawerDirective {
           model._pt.frozen
         );
 
+        // draw line from member block to leave block
         this.drawLine(
           parallel_block,
           offset_x + center + block.width,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-            model.core_width +
+          model.core_width +
             2 * BPMN_Constant.HORIZONTALSPACING +
             interpolate.y,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
@@ -207,8 +207,7 @@ export class BpmnDrawerDirective {
           block,
           BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-            model.core_width +
+          model.core_width +
             2 * BPMN_Constant.HORIZONTALSPACING +
             interpolate.y,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
@@ -237,9 +236,7 @@ export class BpmnDrawerDirective {
       .attr(
         'transform',
         `translate(${
-          model.core_width +
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-          2 * BPMN_Constant.HORIZONTALSPACING
+          model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING
         }, 0)`
       );
 
@@ -256,8 +253,7 @@ export class BpmnDrawerDirective {
     this.drawOperatorNode(enter_operator, model);
 
     let offset_x =
-      BPMN_Constant.HORIZONTALSPACING +
-      2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
+      BPMN_Constant.HORIZONTALSPACING + BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
 
     let offset_y = 0;
     let interpolate_along_diag;
@@ -296,6 +292,7 @@ export class BpmnDrawerDirective {
 
         this.drawBlock(block, g);
 
+        // draw line from entry block to member block
         this.drawLine(
           choiceblock,
           BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
@@ -306,26 +303,27 @@ export class BpmnDrawerDirective {
           model._pt.frozen
         );
 
+        // draw line from member block to leave block
         this.drawLine(
           choiceblock,
           offset_x + center + block.width,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-            model.core_width +
+          model.core_width +
             2 * BPMN_Constant.HORIZONTALSPACING +
             interpolate.y,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
           interpolate.y > 0,
           model._pt.frozen
         );
+
+        // Draw a skip-line in the tau case
       } else {
         this.drawSkipLine(
           choiceblock,
           block,
           BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-            model.core_width +
+          model.core_width +
             2 * BPMN_Constant.HORIZONTALSPACING +
             interpolate.y,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
@@ -354,9 +352,7 @@ export class BpmnDrawerDirective {
       .attr(
         'transform',
         `translate(${
-          model.core_width +
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-          2 * BPMN_Constant.HORIZONTALSPACING
+          model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING
         }, 0)`
       );
 
@@ -370,8 +366,7 @@ export class BpmnDrawerDirective {
     this.drawOperatorNode(enter_operator, model);
 
     let offset_x =
-      BPMN_Constant.HORIZONTALSPACING +
-      2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
+      BPMN_Constant.HORIZONTALSPACING + BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
 
     let offset_y = 0;
 
@@ -392,6 +387,7 @@ export class BpmnDrawerDirective {
       ) {
         this.drawBlock(do_block, g);
 
+        // Draw line from entry block to member block
         this.drawLine(
           loop_block,
           2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
@@ -402,26 +398,25 @@ export class BpmnDrawerDirective {
           model._pt.frozen
         );
 
+        // Draw line from member block to leave block
         this.drawLine(
           loop_block,
           offset_x + center + do_block.width,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-            model.core_width +
-            2 * BPMN_Constant.HORIZONTALSPACING,
+          model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
           false,
           model._pt.frozen
         );
+
+        // Draw a skip-line in the tau case
       } else {
         this.drawSkipLine(
           loop_block,
           do_block,
           2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-            model.core_width +
-            2 * BPMN_Constant.HORIZONTALSPACING,
+          model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
           false,
           model._pt.frozen
@@ -447,6 +442,7 @@ export class BpmnDrawerDirective {
 
           this.drawBlock(redo_block, g);
 
+          // Draw line from redo block to entry block
           this.drawLine(
             loop_block,
             offset_x + center,
@@ -458,9 +454,10 @@ export class BpmnDrawerDirective {
             model._pt.frozen
           );
 
+          // Draw line from redo block to leave block
           this.drawLine(
             loop_block,
-            3 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
+            BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
               model.core_width +
               2 * BPMN_Constant.HORIZONTALSPACING,
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 +
@@ -470,11 +467,13 @@ export class BpmnDrawerDirective {
             false,
             model._pt.frozen
           );
+
+          // Draw a skip-line in the tau case
         } else {
           this.drawSkipLine(
             loop_block,
             redo_block,
-            3 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
+            BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
               model.core_width +
               2 * BPMN_Constant.HORIZONTALSPACING,
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 +
@@ -505,9 +504,7 @@ export class BpmnDrawerDirective {
       .attr(
         'transform',
         `translate(${
-          model.core_width +
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-          2 * BPMN_Constant.HORIZONTALSPACING
+          model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING
         }, 0)`
       );
 
