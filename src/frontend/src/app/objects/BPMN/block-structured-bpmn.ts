@@ -180,9 +180,16 @@ export function convertPTtoBlockstructuredBPMN(
   }
 
   if (pt.operator) {
-    const members = pt.children.map((c) =>
+    let members = pt.children.map((c) =>
       convertPTtoBlockstructuredBPMN(c, blockWidthCache)
     );
+
+    if (
+      pt.operator == ProcessTreeOperator.choice ||
+      pt.operator == ProcessTreeOperator.parallelism
+    ) {
+      members.sort((m1, m2) => m1.width - m2.width);
+    }
 
     switch (pt.operator) {
       case ProcessTreeOperator.choice: {
