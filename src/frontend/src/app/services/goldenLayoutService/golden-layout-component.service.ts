@@ -1,9 +1,10 @@
 import {
-  ComponentFactoryResolver,
+  EnvironmentInjector,
   Injectable,
   Injector,
   StaticProvider,
   Type,
+  createComponent,
 } from '@angular/core';
 import {
   ComponentContainer,
@@ -28,7 +29,7 @@ export class GoldenLayoutComponentService {
   private _goldenLayoutHostComponent: GoldenLayoutHostComponent;
   private _goldenLayout: GoldenLayout;
 
-  constructor(private componentFactoryResolver: ComponentFactoryResolver) {}
+  constructor(private environmentInjector: EnvironmentInjector) {}
 
   splitViewIds = [];
 
@@ -84,11 +85,10 @@ export class GoldenLayoutComponentService {
       const injector = Injector.create({
         providers: [provider],
       });
-      const componentFactoryRef =
-        this.componentFactoryResolver.resolveComponentFactory<LayoutChangeDirective>(
-          componentType
-        );
-      return componentFactoryRef.create(injector);
+      return createComponent(componentType, {
+        environmentInjector: this.environmentInjector,
+        elementInjector: injector,
+      });
     }
   }
 

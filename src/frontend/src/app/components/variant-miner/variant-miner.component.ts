@@ -29,7 +29,7 @@ import { DropzoneConfig } from '../drop-zone/drop-zone.component';
 import * as d3 from 'd3';
 import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
-import { Options } from '@angular-slider/ngx-slider';
+import { Options } from 'ngx-slider-v2';
 import { animate, style, transition, trigger } from '@angular/animations';
 import {
   AlignmentType,
@@ -58,7 +58,7 @@ import {
 } from 'src/app/objects/Variants/variant_element';
 import { contextMenuCallback } from '../variant-explorer/functions/variant-drawer-callbacks';
 import { ImageExportService } from 'src/app/services/imageExportService/image-export-service';
-import { takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { VariantSorter } from 'src/app/objects/Variants/variant-sorter';
 import { ContextMenuItem } from '../variant-explorer/variant-explorer-context-menu/variant-explorer-context-menu.component';
@@ -362,7 +362,7 @@ export class VariantMinerComponent
 
     this.subscribeForConformanceCheckingResults();
 
-    const rel_sup = new UntypedFormControl(1000, {
+    const rel_sup = new UntypedFormControl(this.relSup, {
       updateOn: 'change',
     });
 
@@ -412,17 +412,46 @@ export class VariantMinerComponent
       ),
     });
 
-    rel_sup.valueChanges.subscribe((relSup) => {
-      const min_sup_update =
-        this.variantMinerConfigInput.value.frequent_mining_strat ===
-          FrequentMiningStrategy.TraceTransaction ||
-        this.variantMinerConfigInput.value.frequent_mining_strat ===
-          FrequentMiningStrategy.TraceOccurence
-          ? Math.round((relSup / 100) * this.totalTraces)
-          : Math.round((relSup / 100) * this.totalVariants);
+    rel_sup.valueChanges
+      .pipe(debounceTime(10), distinctUntilChanged())
+      .subscribe((relSup) => {
+        const min_sup_update =
+          this.variantMinerConfigInput.value.frequent_mining_strat ===
+            FrequentMiningStrategy.TraceTransaction ||
+          this.variantMinerConfigInput.value.frequent_mining_strat ===
+            FrequentMiningStrategy.TraceOccurence
+            ? Math.round((relSup / 100) * this.totalTraces)
+            : Math.round((relSup / 100) * this.totalVariants);
 
-      min_sup.setValue(min_sup_update);
-    });
+        min_sup.setValue(min_sup_update, { emitEvent: false, onlySelf: true });
+        this.relSup = relSup;
+      });
+
+    min_sup.valueChanges
+      .pipe(debounceTime(10), distinctUntilChanged())
+      .subscribe((minSup) => {
+        // event.target.value
+        const max =
+          this.variantMinerConfigInput.value.frequent_mining_strat ===
+            this.FrequentMiningStrategy.TraceTransaction ||
+          this.variantMinerConfigInput.value.frequent_mining_strat ===
+            this.FrequentMiningStrategy.TraceOccurence
+            ? this.totalTraces
+            : this.totalVariants;
+
+        if (minSup < 0) {
+          this.variantMinerConfigInput
+            .get('min_sup')
+            .patchValue(0, { emitEvent: false, onlySelf: true });
+        } else if (minSup > max) {
+          this.variantMinerConfigInput
+            .get('min_sup')
+            .patchValue(max, { emitEvent: false, onlySelf: true });
+        }
+
+        const minSupValue = this.variantMinerConfigInput.value.min_sup;
+        this.relSup = parseFloat(((minSupValue / max) * 100).toFixed(2));
+      });
 
     frequent_mining_strat.valueChanges.subscribe((strat) => {
       if (
@@ -463,26 +492,12 @@ export class VariantMinerComponent
         .reduce((a: number, b: number) => a + b);
       this.totalVariants = variants.length;
     });
+
+    this.variantMinerConfigInput.patchValue({ rel_sup: this.relSup });
   }
 
-  validateMinSupport(event) {
-    // event.target.value
-    const max =
-      this.variantMinerConfigInput.value.frequent_mining_strat ===
-        this.FrequentMiningStrategy.TraceTransaction ||
-      this.variantMinerConfigInput.value.frequent_mining_strat ===
-        this.FrequentMiningStrategy.TraceOccurence
-        ? this.totalTraces
-        : this.totalVariants;
-
-    if (event.target.value < 0) {
-      this.variantMinerConfigInput.get('min_sup').patchValue(0);
-    } else if (event.target.value > max) {
-      this.variantMinerConfigInput.get('min_sup').patchValue(max);
-    }
-
-    const minSupValue = this.variantMinerConfigInput.value.min_sup;
-    this.relSup = parseFloat(((minSupValue / max) * 100).toFixed(2));
+  relSupChanged() {
+    this.variantMinerConfigInput.patchValue({ rel_sup: this.relSup });
   }
 
   onSubmit() {

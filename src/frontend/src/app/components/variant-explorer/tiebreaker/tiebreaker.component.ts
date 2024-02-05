@@ -102,7 +102,7 @@ export class TiebreakerComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.sourceEditor.checkButtonCollapse();
       this.targetEditor.checkButtonCollapse();
-    }, 1000); //make sure the function to be after the rendering
+    }, 10); //make sure the function to be after the rendering
   }
 
   hideModal(): void {

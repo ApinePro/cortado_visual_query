@@ -33,7 +33,7 @@ class LpmMiningInput(BaseModel):
 
 
 class LpmStatisticsInput(BaseModel):
-    lpm: Any
+    lpm: Any = None
 
 
 @router.post("/lpmMining")

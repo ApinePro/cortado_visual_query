@@ -68,8 +68,8 @@ ipcMain.handle(
 function createMainApplicationWindow() {
   mainCortadoWin = new BrowserWindow({
     minHeight: 600,
-    minWidth: 1280,
-    width: 1280,
+    minWidth: 900,
+    width: 1000,
     height: 800,
     frame: true,
     webPreferences: {
