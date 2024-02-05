@@ -89,7 +89,7 @@ export class CaseExplorerComponent
     this.activityFields = [];
 
     this.backendService
-      .getCaseActivities(this.index, this.caseId)
+      .getCaseActivities(this.index - 1, this.caseId)
       .subscribe((caseActivities: Map<string, any>[]) => {
         this.caseActivities = caseActivities['statistics'];
         this.activityPropertyKeys = caseActivities['keys'];
