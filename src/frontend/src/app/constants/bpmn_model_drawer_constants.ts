@@ -1,7 +1,7 @@
 export class BPMN_Constant {
   public static EVENT_HEIGHT = 40;
   public static EVENT_WIDTH = 120;
-  public static HORIZONTALSPACING = 20;
+  public static HORIZONTALSPACING = 15;
   public static VERTICALSPACING = 15;
   public static START_END_RADIUS = 20;
 
