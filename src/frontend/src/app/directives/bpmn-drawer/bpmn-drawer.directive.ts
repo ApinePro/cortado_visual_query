@@ -75,7 +75,6 @@ export class BpmnDrawerDirective {
         0,
         BPMN_Constant.START_END_RADIUS + BPMN_Constant.HORIZONTALSPACING,
         0,
-        false,
         model._pt.frozen
       );
 
@@ -102,7 +101,6 @@ export class BpmnDrawerDirective {
         0,
         -BPMN_Constant.START_END_RADIUS,
         0,
-        false,
         model._pt.frozen
       );
     }
@@ -183,7 +181,6 @@ export class BpmnDrawerDirective {
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
           offset_x + center,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          false,
           model._pt.frozen
         );
 
@@ -196,7 +193,6 @@ export class BpmnDrawerDirective {
             2 * BPMN_Constant.HORIZONTALSPACING +
             interpolate.y,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
-          interpolate.y > 0,
           model._pt.frozen
         );
 
@@ -211,7 +207,6 @@ export class BpmnDrawerDirective {
             2 * BPMN_Constant.HORIZONTALSPACING +
             interpolate.y,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          false,
           model._pt.frozen
         );
       }
@@ -226,7 +221,6 @@ export class BpmnDrawerDirective {
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
         offset_x + BPMN_Constant.HORIZONTALSPACING,
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-        false,
         model._pt.frozen
       );
     }
@@ -299,7 +293,6 @@ export class BpmnDrawerDirective {
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
           offset_x + center,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          false,
           model._pt.frozen
         );
 
@@ -312,7 +305,6 @@ export class BpmnDrawerDirective {
             2 * BPMN_Constant.HORIZONTALSPACING +
             interpolate.y,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
-          interpolate.y > 0,
           model._pt.frozen
         );
 
@@ -327,7 +319,6 @@ export class BpmnDrawerDirective {
             2 * BPMN_Constant.HORIZONTALSPACING +
             interpolate.y,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          false,
           model._pt.frozen
         );
       }
@@ -342,7 +333,6 @@ export class BpmnDrawerDirective {
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
         offset_x + BPMN_Constant.HORIZONTALSPACING,
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-        false,
         model._pt.frozen
       );
     }
@@ -387,25 +377,23 @@ export class BpmnDrawerDirective {
       ) {
         this.drawBlock(do_block, g);
 
-        // Draw line from entry block to member block
+        // Draw line from do block to member block
         this.drawLine(
           loop_block,
           2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
           offset_x + center,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          false,
           model._pt.frozen
         );
 
-        // Draw line from member block to leave block
+        // Draw line from do block to leave block
         this.drawLine(
           loop_block,
           offset_x + center + do_block.width,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
           model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-          false,
           model._pt.frozen
         );
 
@@ -417,8 +405,7 @@ export class BpmnDrawerDirective {
           2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
           model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING,
-          BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          false,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
           model._pt.frozen
         );
       }
@@ -450,7 +437,6 @@ export class BpmnDrawerDirective {
             BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 +
               BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
-            true,
             model._pt.frozen
           );
 
@@ -462,9 +448,8 @@ export class BpmnDrawerDirective {
               2 * BPMN_Constant.HORIZONTALSPACING,
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 +
               BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
-            offset_x + center + redo_block.width + 6,
+            offset_x + center + redo_block.width,
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-            false,
             model._pt.frozen
           );
 
@@ -480,7 +465,6 @@ export class BpmnDrawerDirective {
               BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
             BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-            true,
             model._pt.frozen
           );
         }
@@ -494,7 +478,6 @@ export class BpmnDrawerDirective {
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
         offset_x + BPMN_Constant.HORIZONTALSPACING,
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-        false,
         model._pt.frozen
       );
     }
@@ -620,7 +603,6 @@ export class BpmnDrawerDirective {
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
           offset_x + BPMN_Constant.HORIZONTALSPACING,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-          false,
           model._pt.frozen
         );
         offset_x += BPMN_Constant.HORIZONTALSPACING;
@@ -628,20 +610,41 @@ export class BpmnDrawerDirective {
     });
   }
 
-  drawLine(selection, x1, y1, x2, y2, outBound = false, frozen = false) {
-    // Compute a right-angled-cornered Line
+  drawLine(
+    selection,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    frozen = false
+  ) {
+    const lineData: Array<[number, number]> = [[x1, y1]];
+    const d = BPMN_Constant.ARROW_LENGTH_WITHOUT_WINGS;
 
-    const lineData: Array<[number, number]> = outBound
-      ? [
-          [x1, y1],
-          [x2, y1],
-          [x2, y2 + 3],
-        ]
-      : [
-          [x1, y1],
-          [x1, y2],
-          [x2 - 3, y2],
-        ];
+    // forwards arrow
+    if (x2 > x1) {
+      // downwards
+      if (y2 >= y1) {
+        lineData.push([x1, y2]);
+        lineData.push([x2 - d, y2]);
+        // upwards
+      } else {
+        lineData.push([x2, y1]);
+        lineData.push([x2, y2 + d]);
+      }
+    }
+    // backwards arrow
+    else {
+      // downwards
+      if (y2 >= y1) {
+        lineData.push([x1, y2]);
+        lineData.push([x2 + d, y2]);
+        // upwards
+      } else {
+        lineData.push([x2, y1]);
+        lineData.push([x2, y2 + d]);
+      }
+    }
 
     const line = selection
       .append('path')
@@ -657,27 +660,31 @@ export class BpmnDrawerDirective {
   drawSkipLine(
     selection,
     model,
-    x1,
-    y1,
-    x2,
-    y2,
-    outBound = false,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
     frozen = false
   ) {
-    // Compute a right-angled-cornered Line
-    const lineData: Array<[number, number]> = outBound
-      ? [
-          [x1, y1],
-          [x1, y2],
-          [x2, y2],
-          [x2, y1 + 3],
-        ]
-      : [
-          [x1, y1],
-          [x1, y2],
-          [x2 - 3, y2],
-          [x2 - 3, y1],
-        ];
+    const lineData: Array<[number, number]> = [[x1, y1]];
+    const d = BPMN_Constant.ARROW_LENGTH_WITHOUT_WINGS;
+
+    // forwards arrow
+    if (x2 > x1) {
+      if (y1 == y2) {
+        lineData.push([x2 - d, y2]);
+      } else {
+        lineData.push([x1, y2]);
+        lineData.push([x2, y2]);
+        lineData.push([x2, y1 + d]);
+      }
+    }
+    // backwards arrow
+    else {
+      lineData.push([x1, y2]);
+      lineData.push([x2, y2]);
+      lineData.push([x2, y1 + d]);
+    }
 
     const line = selection
       .append('path')

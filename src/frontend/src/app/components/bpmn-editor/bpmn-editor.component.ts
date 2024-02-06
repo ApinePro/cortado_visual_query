@@ -187,47 +187,28 @@ export class BpmnEditorComponent
   };
 
   createArrowHeadMarker() {
-    d3.select(this.svgElem.nativeElement)
-      .append('svg:defs')
-      .append('svg:marker')
-      .attr('id', 'arrow-grey')
-      .attr('refX', 3)
-      .attr('refY', 3)
-      .attr('markerWidth', 10)
-      .attr('markerHeight', 10)
-      .attr('orient', 'auto')
-      .attr('markerUnits', 'strokeWidth')
-      .append('path')
-      .attr('d', 'M 0 0 6 3 0 6 1.5 3')
-      .attr('fill', BPMN_Constant.STROKE_COLOR);
+    const marker_colors = {
+      'arrow-grey': BPMN_Constant.STROKE_COLOR,
+      'arrow-red': 'red',
+      'arrow-frozen': '#425bbf',
+    };
 
-    d3.select(this.svgElem.nativeElement)
-      .append('svg:defs')
-      .append('svg:marker')
-      .attr('id', 'arrow-red')
-      .attr('refX', 3)
-      .attr('refY', 3)
-      .attr('markerWidth', 10)
-      .attr('markerHeight', 10)
-      .attr('orient', 'auto')
-      .attr('markerUnits', 'strokeWidth')
-      .append('path')
-      .attr('d', 'M 0 0 6 3 0 6 1.5 3')
-      .attr('fill', 'red');
-
-    d3.select(this.svgElem.nativeElement)
-      .append('svg:defs')
-      .append('svg:marker')
-      .attr('id', 'arrow-frozen')
-      .attr('refX', 3)
-      .attr('refY', 3)
-      .attr('markerWidth', 10)
-      .attr('markerHeight', 10)
-      .attr('orient', 'auto')
-      .attr('markerUnits', 'strokeWidth')
-      .append('path')
-      .attr('d', 'M 0 0 6 3 0 6 1.5 3')
-      .attr('fill', '#425bbf');
+    for (const [marker_id, fill_color] of Object.entries(marker_colors)) {
+      d3.select(this.svgElem.nativeElement)
+        .append('svg:defs')
+        .append('svg:marker')
+        .attr('id', marker_id)
+        .attr('viewBox', '-1 -2 4 4')
+        .attr('refX', 0)
+        .attr('refY', 0)
+        .attr('markerWidth', BPMN_Constant.ARROW_LENGTH)
+        .attr('markerHeight', '100%')
+        .attr('orient', 'auto')
+        .attr('markerUnits', 'userSpaceOnUse')
+        .append('polygon')
+        .attr('points', '-1,-2 3,0 -1,2 0,0')
+        .attr('fill', fill_color);
+    }
   }
 
   redraw(tree: ProcessTree) {
