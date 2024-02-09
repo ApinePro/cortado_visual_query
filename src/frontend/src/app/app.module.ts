@@ -35,14 +35,14 @@ import { ExpertModeComponent } from './components/process-tree-editor/expert-mod
 import { SettingsComponent } from './components/settings/settings.component';
 import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 import { TreeStringRendererComponent } from './components/tree-string-renderer/tree-string-renderer.component';
-import { VariantEditorComponent } from './components/variant-editor/variant-editor.component';
+import { VariantModelerComponent } from './components/variant-modeler/variant-modeler.component';
 import { VariantComponent } from './components/variant-explorer/variant/variant.component';
 import { VariantConformanceDialogComponent } from './components/variant-explorer/conformance-info/variant-conformance-dialog/variant-conformance-dialog.component';
 import { BpmnEditorComponent } from './components/bpmn-editor/bpmn-editor.component';
 import { GoldenLayoutDummyComponent } from './components/golden-layout-host/golden-layout-dummy/golden-layout-dummy.component';
 import { SubVariantComponent } from './components/variant-explorer/subvariant-explorer/subvariants/sub-variant/sub-variant.component';
 import { VariantInfoExplorerComponent } from './components/variant-explorer/variant-info-explorer/variant-info-explorer.component';
-import { ActivityButtonAreaComponent } from './components/variant-editor/activity-button-area/activity-button-area.component';
+import { ActivityButtonAreaComponent } from './components/variant-modeler/activity-button-area/activity-button-area.component';
 import { HeaderBarComponent } from './components/header-bar/header-bar.component';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { DialogModule } from './components/dialogs/dialog.module';
@@ -127,7 +127,7 @@ import { CaseExplorerComponent } from './components/variant-explorer/case-explor
     DropZoneDirective,
     VariantConformanceDialogComponent,
     TreeStringRendererComponent,
-    VariantEditorComponent,
+    VariantModelerComponent,
     VariantDrawerDirective,
     SyntaxHighlightedTextareaDirective,
     ActivityButtonAreaComponent,

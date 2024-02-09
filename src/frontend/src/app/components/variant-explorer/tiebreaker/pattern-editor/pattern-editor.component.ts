@@ -45,7 +45,7 @@ import { findPathToSelectedNode } from 'src/app/objects/Variants/utility_functio
 import { applyInverseStrokeToPoly } from 'src/app/utils/render-utils';
 import { Observable, of, Subject } from 'rxjs';
 import { first, takeUntil, tap } from 'rxjs/operators';
-import { VariantEditorComponent } from 'src/app/components/variant-editor/variant-editor.component';
+import { VariantModelerComponent } from 'src/app/components/variant-modeler/variant-modeler.component';
 import { parallel } from '@angular/cdk/testing';
 import { PreloadAllModules } from '@angular/router';
 import { element } from 'protractor';
