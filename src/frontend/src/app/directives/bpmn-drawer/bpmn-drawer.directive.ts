@@ -215,11 +215,13 @@ export class BpmnDrawerDirective {
     }
 
     if (model.members.length === 0) {
+      const interpolate = interpolate_along_diag.pop();
+
       this.drawLine(
         parallel_block,
-        2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
+        BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-        offset_x + BPMN_Constant.HORIZONTALSPACING,
+        model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING + interpolate.y,
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
         model._pt.frozen
       );
@@ -327,11 +329,13 @@ export class BpmnDrawerDirective {
     }
 
     if (model.members.length === 0) {
+      const interpolate = interpolate_along_diag.pop();
+
       this.drawLine(
         choiceblock,
-        2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
+        BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-        offset_x + BPMN_Constant.HORIZONTALSPACING,
+        model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING + interpolate.y,
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
         model._pt.frozen
       );
@@ -476,7 +480,7 @@ export class BpmnDrawerDirective {
         loop_block,
         2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-        offset_x + BPMN_Constant.HORIZONTALSPACING,
+        model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING,
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
         model._pt.frozen
       );
