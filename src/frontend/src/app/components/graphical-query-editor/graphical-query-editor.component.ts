@@ -1,7 +1,9 @@
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import { VariantFilterService } from './../../services/variantFilterService/variant-filter.service';
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
-
+import { PerformanceService } from 'src/app/services/performance.service';
+import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
+import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { BackendService } from './../../services/backendService/backend.service';
@@ -79,6 +81,8 @@ export class GraphicalQueryEditorComponent
   extends LayoutChangeDirective
   implements OnInit, AfterViewInit, OnDestroy
 {
+  selectedPerformanceIndicator: string;
+  selectedStatistic: string;
   constructor(
     @Inject(LayoutChangeDirective.GoldenLayoutContainerInjectionToken)
     private container: ComponentContainer,
@@ -95,9 +99,14 @@ export class GraphicalQueryEditorComponent
     private imageExportService: ImageExportService,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     private lpmService: LpmService,
+    private performanceService: PerformanceService,
+    private performanceColorScaleService: ModelPerformanceColorScaleService,
+    private modelViewModeService: ModelViewModeService,
     elRef: ElementRef,
     renderer: Renderer2,
     private deciamlPipe: DecimalPipe
+
+
   ) {
     super(elRef.nativeElement, renderer);
 
@@ -1067,6 +1076,8 @@ export class GraphicalQueryEditorComponent
       this.triggerRedraw();
     }
   }
+
+  // Tree Editor part
 }
 
 export namespace GraphicalQueryEditorComponent {
