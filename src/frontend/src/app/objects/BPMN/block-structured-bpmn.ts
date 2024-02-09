@@ -239,7 +239,12 @@ function compute_height_vertical_group(model: any): number {
 }
 
 function compute_width_vertical_group(model: any): number {
-  if (model.members.length > 0) {
+  if (model.members.length === 0)
+    model.width = 2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
+  else if (model.members.length === 1)
+    model.width =
+      2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + model.members[0].width;
+  else {
     const widths_after_interpolation = [...model.members.entries()].map(
       ([index, block]) =>
         block.width +
@@ -250,8 +255,6 @@ function compute_width_vertical_group(model: any): number {
     );
 
     model.width = Math.max(...widths_after_interpolation);
-  } else {
-    model.width = 0;
   }
 
   model.core_width = model.width;
