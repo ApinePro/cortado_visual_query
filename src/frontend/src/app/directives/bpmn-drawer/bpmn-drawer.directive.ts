@@ -103,6 +103,17 @@ export class BpmnDrawerDirective {
         0,
         model._pt.frozen
       );
+
+      // translate diagram to fit into positive x and positive y quadrant
+      this.mainGroup.attr(
+        'transform',
+        `translate(${
+          2 * BPMN_Constant.START_END_RADIUS + BPMN_Constant.HORIZONTALSPACING
+        }, ${
+          BPMN_Constant.OPERATOR_DIAGONAL_LENGTH -
+          BPMN_Constant.OPERATOR_NODE_WIDTH / 2
+        })`
+      );
     }
   }
 

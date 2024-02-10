@@ -474,23 +474,19 @@ export class BpmnEditorComponent
       .attr('data-bs-html', 'none')
       .attr('data-bs-template', 'none');
 
+    // Reset origin and add padding
     bpmn
       .select('#bpmn-zoom-group')
       .attr(
         'transform',
-        `translate(${
-          3 * BPMN_Constant.HORIZONTALSPACING +
-          2 * BPMN_Constant.START_END_RADIUS
-        }, ${2 * BPMN_Constant.VERTICALSPACING})`
+        `translate(${BPMN_Constant.PADDING}, ${BPMN_Constant.PADDING})`
       );
 
     // Export the BPMN
     this.imageExportService.export(
       'bpmn_diagram',
-      svgBBox.width +
-        5 * BPMN_Constant.HORIZONTALSPACING +
-        4 * BPMN_Constant.START_END_RADIUS,
-      svgBBox.height + 4 * BPMN_Constant.VERTICALSPACING,
+      svgBBox.width + 2 * BPMN_Constant.PADDING,
+      svgBBox.height + 2 * BPMN_Constant.PADDING,
       bpmn_copy
     );
   }

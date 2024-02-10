@@ -31,4 +31,6 @@ export class BPMN_Constant {
   public static OPERATOR_COLOR = '#404040';
   public static VISIBLE_ACTIVITIY_DEFAULT_COLOR = '#8f8f8f';
   public static INVISIBLE_ACTIVITIY_DEFAULT_COLOR = '#181818';
+
+  public static PADDING = 5;
 }
