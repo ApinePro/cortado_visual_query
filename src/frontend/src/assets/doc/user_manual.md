@@ -407,7 +407,11 @@ The editor comprises primarily of <i>three sections</i>, all of which rely heavi
    Switching the toggle off, retains only the infixes *not* containing the activity.
 
 ## Variant Sequentialization (Tiebreaker)
-<em>Tiebreaker</em> is a sequentialization tool which provides a function to match source pattern in variants and replace them with the target pattern. In <em>tiebreaker</em>, there are two <em>pattern editors</em> to model the source pattern and target pattern, respectively.<br>
+<em>Tiebreaker</em> is a sequentialization tool which provides a function to match source pattern in variants and replace them with the target pattern. It could be opened by clicking the icon <i class="bi bi-bar-chart-steps"></i> in <em>variant explorer</em>'s toolbar:
+
+![medium](./screenshots/variant_sequentialization/how_to_open.png)
+
+In <em>tiebreaker</em>, there are two <em>pattern editors</em> to model the source pattern and target pattern, respectively.<br>
 
 ![medium](./screenshots/variant_sequentialization/tiebreaker.png)
 
@@ -416,11 +420,19 @@ In addition to sequential and parallel pattern, the <em>tiebreaker</em> allows t
 
 ![medium](./screenshots/variant_sequentialization/choicegroup.png)
 
-1. <em>fallthrough group</em>
+It could be created by clicking the icon <i class="bi bi-slash"></i>:
+
+![medium](./screenshots/variant_sequentialization/create_choice_group.png)
+
+1. <em>fallthrough group</em>, which could model the case that activities in the group cannot be modeled by the combination of sequential/parallel relationship.
 
 ![medium](./screenshots/variant_sequentialization/fallthroughgroup.png)
 
-1. pattern with a <em>wildcard option</em> '..' to allow partial match, which represents "rest of the variant".
+It could be created by clicking the icon <i class="bi bi-arrow-down"></i>:
+
+![medium](./screenshots/variant_sequentialization/create_fallthrough_group.png)
+
+3. pattern with a <em>wildcard option</em> '..' to allow partial match, which represents "rest of the variant". <em>Wildcard</em> is listed beside the activity buttons.
 
 ![medium](./screenshots/variant_sequentialization/wildcard.png)
 
