@@ -33,4 +33,6 @@ export class BPMN_Constant {
   public static INVISIBLE_ACTIVITIY_DEFAULT_COLOR = '#181818';
 
   public static PADDING = 5;
+  public static MAX_ZOOM = 3;
+  public static MIN_ZOOM = 0.1;
 }
