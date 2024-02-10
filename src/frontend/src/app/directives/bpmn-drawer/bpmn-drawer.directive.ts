@@ -63,7 +63,9 @@ export class BpmnDrawerDirective {
         .attr(
           'transform',
           `translate(${-(
-            BPMN_Constant.HORIZONTALSPACING + BPMN_Constant.START_END_RADIUS
+            BPMN_Constant.HORIZONTALSPACING +
+            BPMN_Constant.START_END_RADIUS -
+            BPMN_Constant.STROKE_WIDTH
           )},${BPMN_Constant.BASE_HEIGHT_WIDTH / 2})`
         );
 
@@ -786,7 +788,7 @@ export class BpmnDrawerDirective {
       .attr('r', BPMN_Constant.START_END_RADIUS)
       .attr('fill', BPMN_Constant.OPERATOR_COLOR)
       .attr('stroke', BPMN_Constant.STROKE_COLOR)
-      .attr('stroke-width', 1)
+      .attr('stroke-width', BPMN_Constant.STROKE_WIDTH)
       .classed('frozen-node-operator', frozen);
 
     parent.on('click', (e: PointerEvent, data) => {
