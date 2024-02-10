@@ -520,6 +520,17 @@ export class BpmnDrawerDirective {
 
     color = BPMN_Constant.OPERATOR_COLOR;
 
+    const transforms = [
+      `translate(${
+        BPMN_Constant.OPERATOR_DIAGONAL_LENGTH - BPMN_Constant.OPERATOR_CENTER
+      }, 0)`,
+      //translate to origin to avoid transform-origin which is not widely supported
+      `translate(${BPMN_Constant.OPERATOR_CENTER}, ${BPMN_Constant.OPERATOR_CENTER})`,
+      'rotate(45)',
+      //translate back
+      `translate(-${BPMN_Constant.OPERATOR_CENTER}, -${BPMN_Constant.OPERATOR_CENTER})`,
+    ];
+
     const op = parent
       .append('rect')
       .attr('width', BPMN_Constant.BASE_HEIGHT_WIDTH)
@@ -527,16 +538,7 @@ export class BpmnDrawerDirective {
       .attr('fill', color)
       .attr('stroke', BPMN_Constant.STROKE_COLOR)
       .attr('stroke-width', BPMN_Constant.STROKE_WIDTH)
-      .attr(
-        'transform',
-        `translate(${
-          BPMN_Constant.OPERATOR_DIAGONAL_LENGTH - BPMN_Constant.OPERATOR_CENTER
-        },0), rotate(45)`
-      )
-      .attr(
-        'transform-origin',
-        `${BPMN_Constant.OPERATOR_CENTER} ${BPMN_Constant.OPERATOR_CENTER}`
-      )
+      .attr('transform', transforms.join(', '))
       .classed('frozen-node-operator', model._pt.frozen);
 
     parent.on('click', (e: PointerEvent, data) => {
