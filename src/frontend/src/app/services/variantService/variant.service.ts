@@ -227,7 +227,7 @@ export class VariantService {
       });
   }
 
-  public showArcDiagram(bids: string[], filterParams: FilterParams) {
+  public showArcDiagram(bids: number[], filterParams: FilterParams) {
     return this.backendService.showArcDiagram(bids, filterParams);
   }
 

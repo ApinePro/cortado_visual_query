@@ -1,3 +1,8 @@
 export class FilterParams {
-  minSize: number
+
+  constructor(
+    public maxLength: number,
+    public minLength: number,
+  ) { }
+
 }

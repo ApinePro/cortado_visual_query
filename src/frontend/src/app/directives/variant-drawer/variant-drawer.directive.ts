@@ -302,7 +302,7 @@ export class VariantDrawerDirective
           this.forEach((child) => {
             d3.select(child).classed(`bfs-group-${offset++}`, true);
           });
-        });
+        }); 
       }
 
     }
@@ -393,7 +393,8 @@ export class VariantDrawerDirective
       .classed(`dfs-group-${element.id}`, true);
 
     if (outerElement) {
-      svgElement.datum(element);
+      svgElement.datum(element)
+        .classed('dfs-group-0', true);
     }
 
     if (element instanceof ParallelGroup) {

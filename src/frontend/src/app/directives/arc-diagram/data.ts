@@ -33,12 +33,14 @@ class Pair {
   pattern: string[];
   length: number;
   matches: Set<number>;
+  activities: string[];
 
-  constructor(positions, pattern, matches) {
+  constructor(positions, pattern, matches, activities) {
     this.positions = positions; // starting positions in concurrency tree
     this.pattern = pattern; // activities in repetition
     this.matches = matches; // DFS ids of all matching tree nodes in the pair
     this.length = pattern.length; // number of activities in repetition
+    this.activities = activities; // list of activities in the pattern ( = leaf nodes, not a set )
   }
 }
 

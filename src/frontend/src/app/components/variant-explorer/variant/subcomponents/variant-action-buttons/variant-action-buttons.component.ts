@@ -15,7 +15,7 @@ export class VariantActionButtonsComponent {
   @Input()
   protected variantVisualisations: QueryList<VariantVisualisationComponent>
   @Output()
-  showArcDiagram = new EventEmitter<number>();
+  showArcDiagram = new EventEmitter<number[]>();
 
   constructor(private variantService: VariantService) {}
 
@@ -26,6 +26,6 @@ export class VariantActionButtonsComponent {
   }
 
   showArcDiagramBtnClicked() {
-    this.showArcDiagram.emit(this.variant.bid);
+    this.showArcDiagram.emit([this.variant.bid]);
   };
 }
