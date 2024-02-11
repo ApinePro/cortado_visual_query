@@ -964,7 +964,7 @@ export class VariantExplorerComponent
     return !unexpandedVariantsExist;
   }
 
-  unExpandAll(): void {
+  expandCollapseAll(): void {
     const shouldExpand = !this.areAllVariantsExpanded();
 
     this.variantDrawers.forEach((c) => {

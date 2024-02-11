@@ -113,7 +113,7 @@ export class VariantInfoExplorerComponent
     this.activityFields = [];
 
     this.backendService
-      .calculateCaseStatistics(this.index)
+      .calculateCaseStatistics(this.index - 1)
       .subscribe((caseStatistics: Map<string, number>[]) => {
         this.caseStatistics = caseStatistics['statistics'];
       });

@@ -555,7 +555,7 @@ export class ProcessTreeEditorComponent
 
   // END - Inserting node functionality
 
-  // Refactor to Directive with Variant Editor / BPMN Viewer
+  // Refactor to Directive with Variant Modeler / BPMN Viewer
   addZoomFunctionality(): void {
     const zooming = function (event) {
       this.mainSvgGroup.attr(
