@@ -66,12 +66,13 @@ class VariantMinerConfig(BaseModel):
 
 
 class FilterParams(BaseModel):
-    min_size: int
+    minLength: int
+    maxLength: int
 
 
 class RepetitionsMiningConfig(BaseModel):
-    bids: [int]
-    filter_params: FilterParams
+    bids: list[int]
+    filterParams: FilterParams
 
 
 freq_strat_mapping = {
@@ -217,9 +218,9 @@ def sub_pattern_to_ctree(pattern: SubPattern, parent=None):
     return t
 
 
-@router.post("/repetitionsMining/", response_model=DefaultDict[int, list])
+@router.post("/repetitionsMining/")
 def mineRepetitionPatterns(config: RepetitionsMiningConfig):
-    result = []
+    result = {}
     for bid in config.bids:
         v, ts, _, _ = cache.variants[bid]
 
@@ -232,7 +233,7 @@ def mineRepetitionPatterns(config: RepetitionsMiningConfig):
         print("pairs from k patterns: ")
         print(pairs_from_kpatterns)
         combined_pairs = pair_unions(pairs_from_kpatterns, single_act_pairs)
-        result.append(
+        result.update(
             {bid: sorted(combined_pairs, key=lambda x: x.positions.bfs[1] - x.positions.bfs[0], reverse=True)})
         # result = sorted(combined_pairs, key=lambda x: x.positions.bfs[1] - x.positions.bfs[0], reverse=True)
     return result
