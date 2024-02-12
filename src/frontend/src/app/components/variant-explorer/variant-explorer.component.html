@@ -588,7 +588,9 @@
           </button>
         </div>
         <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-          <app-arc-diagram-filter-form></app-arc-diagram-filter-form>
+          <app-arc-diagram-filter-form
+            (filterArcDiagrams)="filterArcDiagrams($event)"
+          ></app-arc-diagram-filter-form>
         </div>
       </div>
     </div>

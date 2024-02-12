@@ -17,7 +17,6 @@ import {InfixType} from 'src/app/objects/Variants/infix_selection';
 import {treeConformanceResult} from '../conformanceChecking/model';
 import {Variant} from 'src/app/objects/Variants/variant';
 import {ClusteringConfig} from 'src/app/objects/ClusteringConfig';
-import {FilterParams} from "../../components/variant-explorer/arc-diagram/filter/filter-params";
 
 @Injectable({
   providedIn: 'root',
@@ -627,12 +626,11 @@ export class BackendService {
     );
   }
 
-  public showArcDiagram(bids: number[], filterParams: FilterParams) {
+  public showArcDiagram(bids: number[]) {
     return this.httpClient.post(
       ROUTES.HTTP_BASE_URL + ROUTES.VARIANTMINING + 'repetitionsMining',
       {
         bids,
-        filterParams,
       }
     );
   }

@@ -19,6 +19,6 @@
       "ES2019.Array"
     ],
     "allowSyntheticDefaultImports": true,
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
   }
 }

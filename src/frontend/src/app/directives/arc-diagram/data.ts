@@ -4,8 +4,9 @@ class Arc {
   targetPos: number;
   matches: Set<number>;
   text: string;
+  activities: string[];
 
-  constructor(sourcePos, numberEle, targetPos, matches, text) {
+  constructor(sourcePos, numberEle, targetPos, matches, text, activities) {
     this.sourcePos = sourcePos;
     /** First starting position of the arc */
     this.numberEle = numberEle;
@@ -15,6 +16,7 @@ class Arc {
     this.matches = matches;
     /** DFS ids of all matching chevrons in the arc */
     this.text = text; /** String value of the arc */
+    this.activities = activities;
   }
 }
 

@@ -186,7 +186,7 @@ export class VariantExplorerComponent
   @ViewChildren(VariantVisualisationComponent)
   variantVisualisations: QueryList<VariantVisualisationComponent>;
 
-  public filterParams: FilterParams = { minLength: 1, maxLength: 20 };
+  filterParams: FilterParams;
 
   public visibleVariantsHeight = 1000;
 
@@ -1195,20 +1195,30 @@ export class VariantExplorerComponent
     const variantViz: VariantVisualisationComponent = this.variantVisualisations.find((vv: VariantVisualisationComponent) => vv.bid as unknown as string == bid);
     const arcs = variantViz.arcDiagram.parseInput(computedArcs);
     variantViz.arcsComputed = true;
+    variantViz.arcDiagram.setArcs(arcs);
     variantViz.arcDiagram.draw(
       arcs,
-      variantViz.variantDrawer
+      variantViz.variantDrawer,
     );
   }
   showArcDiagram(bids: number[]) {
     this.variantService
-      .showArcDiagram(bids, this.filterParams)
+      .showArcDiagram(bids)
       .pipe(takeUntil(this._destroy$))
       .subscribe((res: {[bid: number]: Pair[]}) => {
         for (let [bid, computedArcs] of Object.entries(res)) {
           this.drawArcDiagram(bid, computedArcs)
         }
       });
+  }
+
+  filterArcDiagrams(filterParams: FilterParams) {
+    this.variantVisualisations.forEach((variantViz)=>{
+      if(variantViz.arcsComputed) {
+        variantViz.arcDiagram.filterAndShowArcs(filterParams, variantViz.variantDrawer);
+      }
+    })
+    console.log(filterParams);
   }
 }
 

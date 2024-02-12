@@ -72,7 +72,7 @@ class FilterParams(BaseModel):
 
 class RepetitionsMiningConfig(BaseModel):
     bids: list[int]
-    filterParams: FilterParams
+    # filterParams: FilterParams
 
 
 freq_strat_mapping = {

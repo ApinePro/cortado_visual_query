@@ -144,7 +144,10 @@ import {LoadingOverlayComponent} from './components/loading-overlay/loading-over
 import {CaseExplorerComponent} from './components/variant-explorer/case-explorer/case-explorer.component';
 import {ArcDiagramDirective} from "./directives/arc-diagram/arc-diagram.directive";
 import {ArcDiagramFilterComponent} from './components/variant-explorer/arc-diagram/filter/filter.component';
-import { VariantVisualisationComponent } from './components/variant-explorer/variant/subcomponents/variant-visualisation/variant-visualisation.component';
+import {
+  VariantVisualisationComponent
+} from './components/variant-explorer/variant/subcomponents/variant-visualisation/variant-visualisation.component';
+import {NgMultiSelectDropDownModule} from "ng-multiselect-dropdown";
 
 @NgModule({
   declarations: [
@@ -241,6 +244,7 @@ import { VariantVisualisationComponent } from './components/variant-explorer/var
     DialogModule,
     NgxSliderModule,
     NgbModule,
+    NgMultiSelectDropDownModule,
   ],
   providers: [
     {

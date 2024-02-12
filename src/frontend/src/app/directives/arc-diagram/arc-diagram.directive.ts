@@ -5,6 +5,7 @@ import * as d3 from 'd3';
 import {IVariant} from "../../objects/Variants/variant_interface";
 import {VariantDrawerDirective} from "../variant-drawer/variant-drawer.directive";
 import {FilterConfig} from "./filter-config";
+import {FilterParams} from "../../components/variant-explorer/arc-diagram/filter/filter-params";
 
 @Directive({
   selector: '[appArcDiagram]',
@@ -17,6 +18,8 @@ export class ArcDiagramDirective {
   }
 
   svgHtmlElement: ElementRef;
+
+  arcs: Arc[];
 
   @Input()
   variant: IVariant;
@@ -38,6 +41,25 @@ export class ArcDiagramDirective {
     barRoundness: 4,
   }
 
+  public setArcs(arcs) {
+    this.arcs = arcs;
+  }
+
+  private onlyAllowedActivitiesIncluded(activities: string[], filterParams: FilterParams) {
+    let activitiesToInclude = Object.values(filterParams.activitiesDropdown.selectedItems).map((item)=>item.item_id);
+    return activities.filter(act => activitiesToInclude.indexOf(act) == -1).length == 0
+  }
+
+  public filterAndShowArcs(filterParams: FilterParams, variantDrawer: VariantDrawerDirective) {
+    let arcsToDraw = this.arcs.filter((arc)=>{
+      let patternSize = new Set(arc.activities).size;
+      return patternSize<=filterParams.sizeRange.high && patternSize>=filterParams.sizeRange.low
+        && arc.numberEle<=filterParams.lengthRange.high && arc.numberEle>=filterParams.lengthRange.low
+        && this.onlyAllowedActivitiesIncluded(arc.activities,filterParams);
+    });
+    this.draw(arcsToDraw, variantDrawer);
+  }
+
   /** Method to parse the input of the textfield or the file
    * @param pairs The array of pairs to be parsed and visualized as arcs
    * @return Struct of characters and essential matching pair arcs to draw
@@ -52,7 +74,8 @@ export class ArcDiagramDirective {
           pair.length,
           pair.positions.bfs[1],
           pair.matches,
-          JSON.stringify(pair.pattern)
+          JSON.stringify(pair.pattern),
+          pair.activities,
         )
       );
     }
@@ -61,14 +84,14 @@ export class ArcDiagramDirective {
 
   /** Draw the arc diagram
    */
-  public draw = (arcsFromApi: Arc[], variantDrawer: VariantDrawerDirective) => {
+  public draw = (arcsToDraw: Arc[], variantDrawer: VariantDrawerDirective) => {
     // clear the chart and redraw everything
     // $('#chart').empty();
     let arcs = [];
 
     //filter the data for LoD
-    for (let j = 0; j < arcsFromApi.length; j++) {
-      if (arcsFromApi[j].numberEle >= this.config.LoD) arcs.push(arcsFromApi[j]);
+    for (let j = 0; j < arcsToDraw.length; j++) {
+      if (arcsToDraw[j].numberEle >= this.config.LoD) arcs.push(arcsToDraw[j]);
     }
 
     this.config.width = this.variant.variant.width;
@@ -92,6 +115,9 @@ export class ArcDiagramDirective {
       .attr('width', this.config.width)
       .attr('height', height)
       .style('display', 'block');
+
+    chart.select('#arcGroup')
+      .selectAll("*").remove();
 
     //plot the arcs like defined in the arcs array of the parsed data
     const arcSvg = chart.select('#arcGroup');
