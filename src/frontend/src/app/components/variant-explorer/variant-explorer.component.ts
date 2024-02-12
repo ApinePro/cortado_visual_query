@@ -1042,7 +1042,7 @@ export class VariantExplorerComponent
   }
 
   toggleQueryInfo(event: Event): void {
-    this.openDocumentation('Variant Query Language');
+    this.openDocumentation('Variant Querying');
     // this.showQueryInfo = !this.showQueryInfo;
     event.stopPropagation();
   }
