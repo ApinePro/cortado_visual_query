@@ -322,6 +322,8 @@ How to model a new variant:
 3. Click the colorful activity buttons with label to insert corresponding activity into the variant
 4. Click `add new variant to log` button to add the user modeled variant to the variant list
 
+![medium](./screenshots/variant_modeler/model_a_variant.gif)
+
 Other functions in the tool:
 1. Variant modeler allows the variant be displayed in 4 variant types: <em>full</em>, <em>prefix</em>, <em>infix</em>, and <em>postfix</em>.
 2. View focus functions are also provided:
