@@ -418,7 +418,7 @@
     [@openCloseComponent]="queryActive ? 'openComponent' : 'closeComponent'"
   >
     <div class="query-header d-flex">
-      <div class="query-button me-auto" (click)="toggleQuery()">
+      <div class="query-button me-auto" (click)="toggleQueryFilterDialog()">
         <i
           [ngClass]="{
             'bi-arrows-angle-contract': queryActive,
@@ -614,18 +614,32 @@
                         (click)="removeFilter(filter.key)"
                       >
                         <span
-                          class="badge rounded-pill bg-danger badge-close-position cursor-pointer"
+                          class="badge rounded-pill bg-danger badge-close-position"
                           ><i class="bi bi-x-lg close-icon"></i>
                         </span>
                       </button>
                       <span
-                        class="badge text-bg-primary ms-1 cursor-pointer"
+                        class="badge text-bg-primary ms-1"
                         [ngbTooltip]="filter.value.tooltip"
                         triggers="hover"
                         container="body"
-                        (click)="toggleQuery()"
                       >
-                        <i class="bi bi-funnel-fill"> </i> {{ filter.key }}
+                        <i class="bi bi-funnel-fill"> </i>
+                        <div style="display: inline-flex">
+                          <div>{{ filter.key | titlecase }}</div>
+                          <div
+                            class="form-check form-switch"
+                            style="margin: -2px 0px -12px 8px"
+                          >
+                            <input
+                              class="form-check-input cursor-pointer"
+                              type="checkbox"
+                              role="switch"
+                              [(ngModel)]="filterToggle"
+                              (ngModelChange)="toggleAppliedQueryFilter()"
+                            />
+                          </div>
+                        </div>
                       </span>
                     </div>
                   </div>
