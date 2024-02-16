@@ -4,9 +4,11 @@ class Arc {
   targetPos: number;
   matches: Set<number>;
   text: string;
-  activities: string[];
+  activities: Set<string>;
+  size: number;
+  distanceBetweenPairs: number;
 
-  constructor(sourcePos, numberEle, targetPos, matches, text, activities) {
+  constructor(sourcePos, numberEle, targetPos, matches, text, activities, size) {
     this.sourcePos = sourcePos;
     /** First starting position of the arc */
     this.numberEle = numberEle;
@@ -17,6 +19,8 @@ class Arc {
     /** DFS ids of all matching chevrons in the arc */
     this.text = text; /** String value of the arc */
     this.activities = activities;
+    this.size = size;
+    this.distanceBetweenPairs = targetPos - sourcePos - numberEle - 1;
   }
 }
 
@@ -35,14 +39,16 @@ class Pair {
   pattern: string[];
   length: number;
   matches: Set<number>;
-  activities: string[];
+  activities: Set<string>;
+  size: number
 
-  constructor(positions, pattern, matches, activities) {
+  constructor(positions, pattern, matches, activities, size) {
     this.positions = positions; // starting positions in concurrency tree
     this.pattern = pattern; // activities in repetition
     this.matches = matches; // DFS ids of all matching tree nodes in the pair
     this.length = pattern.length; // number of activities in repetition
     this.activities = activities; // list of activities in the pattern ( = leaf nodes, not a set )
+    this.size = size;
   }
 }
 

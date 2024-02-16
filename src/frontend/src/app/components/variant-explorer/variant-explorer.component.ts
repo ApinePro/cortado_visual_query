@@ -77,6 +77,7 @@ import {
   VariantVisualisationComponent
 } from "./variant/subcomponents/variant-visualisation/variant-visualisation.component";
 import {FilterParams} from "./arc-diagram/filter/filter-params";
+import {MaxValues} from "./arc-diagram/filter/filter.component";
 
 @Component({
   selector: 'app-variant-explorer',
@@ -199,7 +200,11 @@ export class VariantExplorerComponent
   originalOrder = originalOrder;
 
   public arcs: { [id: number]: Arc[] } = {};
-
+  public arcsMaxValues: MaxValues = {
+    size: 1,
+    length: 1,
+    distance: 19,
+  }
   public showFilterMenu: boolean = false;
 
   deleteVariant = function () {
@@ -1205,8 +1210,12 @@ export class VariantExplorerComponent
     this.variantService
       .showArcDiagram(bids)
       .pipe(takeUntil(this._destroy$))
-      .subscribe((res: {[bid: number]: Pair[]}) => {
-        for (let [bid, computedArcs] of Object.entries(res)) {
+      .subscribe((res: {'pairs': {[bid: number]: Pair[]}, 'maximal_size': number, 'maximal_length': number}) => {
+        if(res['maximal_size'] > this.arcsMaxValues.size)
+          this.arcsMaxValues = { ...this.arcsMaxValues, size: res['maximal_size']}
+        if(res['maximal_length'] > this.arcsMaxValues.length)
+          this.arcsMaxValues = { ...this.arcsMaxValues, length: res['maximal_length']}
+        for (let [bid, computedArcs] of Object.entries(res['pairs'])) {
           this.drawArcDiagram(bid, computedArcs)
         }
       });

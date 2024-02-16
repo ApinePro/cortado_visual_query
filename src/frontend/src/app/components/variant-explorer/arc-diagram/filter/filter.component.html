@@ -20,16 +20,42 @@
     </div>
   </div>
   <div>
-    <label class="secondary-text">Include Activites:</label>
-    <ng-multiselect-dropdown
-      [placeholder]="'Select Activites'"
-      [settings]="model.activitiesDropdown.settings"
-      [data]="model.activitiesDropdown.dropdownList"
-      [(ngModel)]="model.activitiesDropdown.selectedItems"
-      name="activitiesToInclude"
-    >
-    </ng-multiselect-dropdown>
+    <label class="secondary-text">Minimum Distance:</label>
+    <div class="custom-slider">
+      <ngx-slider
+        [(value)]="model.distanceRange.low"
+        [options]="model.distanceRange.options"
+      ></ngx-slider>
+    </div>
   </div>
+    <div class="d-flex flex-row justify-content-between">
+      <label class="secondary-text">Include Activites: {{ model.activitiesDropdown.selectedItems.length }}</label>
+      <button class="reset-activities-btn" (click)="resetActivitiesSelection()"><i class="bi bi-arrow-counterclockwise btn-icon"></i></button>
+    </div>
+    <select class="form-select" multiple
+      size="4"
+      [(ngModel)]="model.activitiesDropdown.selectedItems"
+      name="selectedActivities"
+      data-actions-box="true"
+      data-select-all-text="Select all buttton name"
+      data-deselect-all-text="Deselect all button name">
+      <option *ngFor="let act of model.activitiesDropdown.dropdownList" selected="selected"
+          [value]="act"
+          [style]="{ 'background-color': colorMap.get(act),
+           'color': textColorForBackgroundColor(colorMap.get(act))}"
+      >
+        {{ act }}
+      </option>
+    </select>
+
+  <!--    <ng-multiselect-dropdown-->
+<!--      [placeholder]="'Select Activites'"-->
+<!--      [settings]="model.activitiesDropdown.settings"-->
+<!--      [data]="model.activitiesDropdown.dropdownList"-->
+<!--      [(ngModel)]="model.activitiesDropdown.selectedItems"-->
+<!--      name="activitiesToInclude"-->
+<!--    >-->
+<!--    </ng-multiselect-dropdown>-->
   <div class="py-3 flex-end">
     <button type="submit" class="button submit-button">
       Filter

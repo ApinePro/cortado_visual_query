@@ -1,10 +1,11 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FilterParams} from "./filter-params";
 import {Options} from "ngx-slider-v2";
 import {takeUntil} from "rxjs/operators";
 import {LogService} from "../../../../services/logService/log.service";
 import {Subject} from "rxjs";
-import {IDropdownSettings} from "ng-multiselect-dropdown";
+import {ColorMapService} from "../../../../services/colorMapService/color-map.service";
+import {textColorForBackgroundColor} from "../../../../utils/render-utils";
 
 // import { } from '@theme/angular/ng-multiselect-dropdown.theme.scss';
 
@@ -15,88 +16,109 @@ import {IDropdownSettings} from "ng-multiselect-dropdown";
 })
 export class ArcDiagramFilterComponent implements OnInit {
 
-  constructor(private logService: LogService) { }
+  constructor(private logService: LogService, private colorMapService: ColorMapService) { }
 
   activityNames: Set<string>;
+  colorMap: Map<string, string> = new Map<string, string>();
   @Output()
   filterArcDiagrams = new EventEmitter<FilterParams>();
+
+  @Input() set arcsMaxValues(values: MaxValues) {
+    for(const [type, value] of Object.entries(values)) {
+      this.setRangeFilters(type, value);
+    }
+  }
+
   private _destroy$ = new Subject();
 
-  sizeRange: RangeFilter = {
-    low: 1,
-    high: 20,
+  distance: SingleRangeFilter = {
+    low: 0,
     options: {
       step: 1,
-      floor: 1,
+      floor: 0,
       ceil: 20,
       showTicks: true,
     }
   }
 
-  lengthRange: RangeFilter = {
-    ...this.sizeRange,
+  sizeRange: MultiRangeFilter = {
+    ...this.distance,
     low: 1,
+    high: 2,
     options: {
-      ...this.sizeRange.options,
+      ...this.distance.options,
       floor: 1,
+      ceil: 2,
     }
   }
 
+  lengthRange: MultiRangeFilter =  {
+    ...this.sizeRange
+  }
+
   activitiesDropdown = {
-    settings: {
-      singleSelection: false,
-      idField: 'item_id',
-      textField: 'item_text',
-      selectAllText: 'Select All',
-      unSelectAllText: 'UnSelect All',
-      itemsShowLimit: 3,
-      allowSearchFilter: true
-    },
     selectedItems: [],
     dropdownList: [],
   }
 
-  model: FilterParams = new FilterParams(this.lengthRange, this.sizeRange, this.activitiesDropdown);
+  model: FilterParams = new FilterParams(this.lengthRange, this.sizeRange, this.distance, this.activitiesDropdown);
 
   ngOnInit() {
-    this.activitiesDropdown.settings = {
-      singleSelection: false,
-      idField: 'item_id',
-      textField: 'item_text',
-      selectAllText: 'Select All',
-      unSelectAllText: 'UnSelect All',
-      itemsShowLimit: 3,
-      allowSearchFilter: true,
-    }
-    this.model = new FilterParams(this.lengthRange, this.sizeRange, this.activitiesDropdown);
     this.logService.activitiesInEventLog$
       .pipe(takeUntil(this._destroy$))
       .subscribe((activities) => {
         this.activityNames = activities;
-        this.model.activitiesDropdown.dropdownList = Object.entries(this.activityNames).map(([act, value])=>{
-          return { item_id: act, item_text: act }
-        })
-        this.model.activitiesDropdown.selectedItems = this.model.activitiesDropdown.dropdownList;
+        Object.entries(this.activityNames).forEach(([activity,], idx) => {
+          this.model.activitiesDropdown.dropdownList[idx] = activity
+          this.model.activitiesDropdown.dropdownList = this.model.activitiesDropdown.dropdownList.sort()
+          this.model.activitiesDropdown.selectedItems = this.model.activitiesDropdown.dropdownList;
+        });
       });
+    this.colorMapService.colorMap$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((map) => {
+        this.colorMap = map;
+      });
+  }
+  createNewOptionsObject(rangeFilter: Options, value: number) {
+    const newOptions: Options = Object.assign({}, rangeFilter);
+    newOptions.ceil = value + 1;
+    return newOptions;
+  }
+
+  setRangeFilters(type: string, value: number) {
+    this.model[`${type}Range`].high = value + 1;
+    this.model[`${type}Range`].options = this.createNewOptionsObject(this.model[`${type}Range`].options, value);
   }
   onSubmit() {
     this.filterArcDiagrams.emit(this.model);
   }
+
+  resetActivitiesSelection() {
+    this.model.activitiesDropdown.selectedItems = [];
+  }
+
+  protected readonly textColorForBackgroundColor = textColorForBackgroundColor;
 }
 
-export class RangeFilter {
+export class MultiRangeFilter {
   low: number;
   high: number;
   options: Options;
 }
 
-class Option {
-  item_id: string;
-  item_text: string;
+export class SingleRangeFilter {
+  low: number;
+  options: Options;
 }
 
 export class ActivitiesDropdown {
-  settings: IDropdownSettings;
-  dropdownList: Option[];
-  selectedItems: Option[];
+  dropdownList: string[];
+  selectedItems: string[];
+}
+
+export class MaxValues {
+  size: number;
+  length: number;
+  distance: number;
 }

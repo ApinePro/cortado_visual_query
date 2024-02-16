@@ -221,6 +221,7 @@ def sub_pattern_to_ctree(pattern: SubPattern, parent=None):
 @router.post("/repetitionsMining/")
 def mineRepetitionPatterns(config: RepetitionsMiningConfig):
     result = {}
+    maximal_size, maximal_length = 1, 1
     for bid in config.bids:
         v, ts, _, _ = cache.variants[bid]
 
@@ -228,7 +229,7 @@ def mineRepetitionPatterns(config: RepetitionsMiningConfig):
 
         pairs_filtered, kpatterns_filtered, ks, single_act_pairs = generate_and_filter_patterns(treeBank)
 
-        pairs_from_kpatterns = filter_maximal_patterns(kpatterns_filtered, pairs_filtered, ks, treeBank[0])
+        pairs_from_kpatterns, maximal_size, maximal_length = filter_maximal_patterns(kpatterns_filtered, pairs_filtered, ks, treeBank[0])
 
         print("pairs from k patterns: ")
         print(pairs_from_kpatterns)
@@ -236,4 +237,4 @@ def mineRepetitionPatterns(config: RepetitionsMiningConfig):
         result.update(
             {bid: sorted(combined_pairs, key=lambda x: x.positions.bfs[1] - x.positions.bfs[0], reverse=True)})
         # result = sorted(combined_pairs, key=lambda x: x.positions.bfs[1] - x.positions.bfs[0], reverse=True)
-    return result
+    return {'pairs': result, 'maximal_size': maximal_size, 'maximal_length': maximal_length}

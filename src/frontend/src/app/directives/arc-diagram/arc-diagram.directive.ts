@@ -45,9 +45,12 @@ export class ArcDiagramDirective {
     this.arcs = arcs;
   }
 
-  private onlyAllowedActivitiesIncluded(activities: string[], filterParams: FilterParams) {
-    let activitiesToInclude = Object.values(filterParams.activitiesDropdown.selectedItems).map((item)=>item.item_id);
-    return activities.filter(act => activitiesToInclude.indexOf(act) == -1).length == 0
+  private containsDisallowedActivities(activities: Set<string>, filterParams: FilterParams) {
+    let activitiesToInclude = filterParams.activitiesDropdown.selectedItems;
+    for( let act of activities) {
+      if(!activitiesToInclude.includes(act)) return true;
+    }
+    return false;
   }
 
   public filterAndShowArcs(filterParams: FilterParams, variantDrawer: VariantDrawerDirective) {
@@ -55,7 +58,8 @@ export class ArcDiagramDirective {
       let patternSize = new Set(arc.activities).size;
       return patternSize<=filterParams.sizeRange.high && patternSize>=filterParams.sizeRange.low
         && arc.numberEle<=filterParams.lengthRange.high && arc.numberEle>=filterParams.lengthRange.low
-        && this.onlyAllowedActivitiesIncluded(arc.activities,filterParams);
+        && !this.containsDisallowedActivities(arc.activities, filterParams)
+        && arc.distanceBetweenPairs >= filterParams.distanceRange.low - 1;
     });
     this.draw(arcsToDraw, variantDrawer);
   }
@@ -76,6 +80,7 @@ export class ArcDiagramDirective {
           pair.matches,
           JSON.stringify(pair.pattern),
           pair.activities,
+          pair.size,
         )
       );
     }
@@ -87,7 +92,7 @@ export class ArcDiagramDirective {
   public draw = (arcsToDraw: Arc[], variantDrawer: VariantDrawerDirective) => {
     // clear the chart and redraw everything
     // $('#chart').empty();
-    let arcs = [];
+    let arcs: Arc[] = [];
 
     //filter the data for LoD
     for (let j = 0; j < arcsToDraw.length; j++) {
@@ -100,8 +105,8 @@ export class ArcDiagramDirective {
     let idx = 0;
     for (let i = arcs.length - 1; i >= 0; i--) {
       const arc = arcs[i];
-      if (!levelMap[arc.targetPos - arc.sourcePos - arc.numberEle - 1]) {
-        levelMap[arc.targetPos - arc.sourcePos - arc.numberEle - 1] = idx++;
+      if (!levelMap[arc.distanceBetweenPairs]) {
+        levelMap[arc.distanceBetweenPairs] = idx++;
       }
     }
 
