@@ -8,28 +8,26 @@ Cortado is a tool that allows for interactive process discovery enabling user to
 while leveraging insights extracted from the data as well as the domain knowledge.
 
 
-Cortado allows user to interact with its process discovery algorithm, in each increment, the user has the choice to either select process behavior to add to the model under construction or manually edit parts of the model. 
 
 #### Functionalities
-Cortado's functionalities are divided into the following broad categories:
 
-* Event data handling
+##### Event data handling
 
   Event data handling in Cortado includes exploring, filtering, preprocessing, querying, and visualization of event data. Different executions of the process are summarized by grouping them into process execution variants that are visualized within the [*Variant Explorer*](#variant-explorer).
   Cortado also provides [*Variant Querying*](#variant-querying) which includes a query language designed specifically for querying variants. Cortado also allows specifying time granularity which influences the ordering of activities within variants. Furthermore, Cortado allows manual extraction
   and mining of frequent patterns through [*Frequent Pattern Mining*](#variant-frequent-pattern-mining).
   
 
-* Incremental process discovery
+##### Incremental process discovery
   
   A subset of variants/variant fragments can be selected by the user to initially discover and then incrementally add to the process model under construction during [*Incremental Process Discovery*](#incremental-process-discovery).  
 
-* Conformance checking 
+##### Conformance checking 
 
   Cortado implements alignments, a state-of-the-art conformance checking technique that provides diagnostics on the mismatches between the observed (i.e., event data) and modeled process behavior (i.e., the process model). 
   The user can compare the process model with the event data at any time during incremental process discovery allowing them to make informed decisions on which variants to add further. It also provides an overview of the degree of observed behavior which is covered in the current process model.
 
-* Temporal performance analysis
+##### Temporal performance analysis
 
   Cortado features [*Temporal Performance Analysis*](#temporal-performance-analysis) allowing, for example, the identification of slow process stages or activities, i.e., bottlenecks within the process. Temporal performance statistics can allow user to know which behavior to add to the process model incrementally based on any performance requirements.  
 
@@ -115,14 +113,14 @@ In the Variant Explorer view, clustering settings can be accessed using <i class
 
 The Clustering Method dropdown allows for selection of the clustering method. The following clustering techniques are included:
 
-#### Agglomerative edit distance clustering:
+#### Agglomerative edit distance clustering
 
 - Using this technique, variants are represented as trees and their edit distances are pairwise compared and used as a distance measure between variants during clustering.
 - Having selected `Agglomerative edit distance clustering`, the second input field can be used to specify the `Max. Variant Edit Distance Within a Cluster`
 
-#### Label vector clustering:
+#### Label vector clustering
 
-- Using this technique, vectored labels of activities in variants are used for clustering. The ordering of the labels are ignored.
+- Using this technique, each variant is represented by a vector containing labels of the activites. The order of activities is ignored while forming these vectors. Distances between these vector representations are used for forming the variant clusters.
 - Having selected `Label vector clustering`, the second input field can be used to specify the `Number of Clusters`
 
 &nbsp;
@@ -655,6 +653,7 @@ After discovering or importing an initial process tree, trace(s) can be chosen f
 
 * An initial model can be discovered using the following steps:
   1. Select variant(s) in the `Variant Explorer`
+     * Infix, prefix and suffix can not be selected for the incremental process discovery.
   2. Press the <i class="bi bi-diagram-2-fill btn-icon"></i>`discover initial model` button
   3. The discovered process tree would be displayed in the `Process Tree Editor` as follows:
 
@@ -666,7 +665,6 @@ After discovering or importing an initial process tree, trace(s) can be chosen f
 * Variant(s) can be incrementally added to the process model using the following steps:
   1. Select variant(s) in the `Variant Explorer` that are not yet added to the process tree.
   2. Press the <i class="bi bi-plus-lg btn-icon"></i>`add variant(s) to model` button.
-     * Infix, prefix and suffix can not be selected for the incremental process discovery.
      * After selecting and adding to the model, the variant is in the language of the process tree and should not be un-selected.
      * All variants in the variant explorer can be selected for the incremental process discovery including:
        * Variants from the log.
@@ -743,4 +741,7 @@ The frontend is developed as a web application using web development languages i
 
 Additionally, Electron framework is used to produce cross-platform desktop applications.
 
+#### Cortado's public github repositors
+
+The public Cortado code repository on GitHub can be accessed using <a href="https://github.com/cortado-tool/cortado" target="_blank">this</a> link.
 
