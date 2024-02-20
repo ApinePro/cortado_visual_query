@@ -741,7 +741,7 @@ The frontend is developed as a web application using web development languages i
 
 Additionally, Electron framework is used to produce cross-platform desktop applications.
 
-#### Cortado's public github repositors
+#### Cortado's public repository
 
 The public Cortado code repository on GitHub can be accessed using <a href="https://github.com/cortado-tool/cortado" target="_blank">this</a> link.
 
