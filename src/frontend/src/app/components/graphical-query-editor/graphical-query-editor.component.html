@@ -246,16 +246,31 @@
       <span class="vl mx-2"></span>
       <div #ToolBar class="bg-dark btn-tool-bar">
         <span class="vl mx-2"></span>
-        <div class="btn-group round-corners" role="group">
-          <button
-            type="button"
-            class="button"
-            (click)="addCardinality()"
-            ngbTooltip="add cardinality"
-            container="body"
+        <div class="d-flex">
+          <div
+            class="d-flex flex-wrap justify-content-end align-self-start operator-buttons"
           >
-            Add defaut node
-          </button>
+            <button
+              *ngFor="let op of queryTreeOperators"
+              type="button"
+              (click)="insertOperatorNode(op)"
+              [ngbTooltip]="op"
+              container="body"
+              placement="bottom"
+              class="btn btn-sm node-btn"
+            >
+              {{ op }}
+            </button>
+            <div class="w-100 d-block d-xl-none"></div>
+            <button
+              type="button"
+              container="body"
+              placement="bottom"
+              class="btn btn-sm node-btn"
+            >
+              {{ "Default" }}
+            </button>
+          </div>
         </div>
       </div>
       <app-activity-button-area
