@@ -327,8 +327,6 @@ export class VariantMinerComponent
     return true;
   };
 
-  variantMinerOutOfFocus: boolean = false;
-
   ascending: boolean = false;
   minsup: number = 0;
 
@@ -347,19 +345,11 @@ export class VariantMinerComponent
   displayedVariantsPatterns: Array<SubvariantPattern> =
     new Array<SubvariantPattern>();
 
-  dropZoneConfig: any;
   variantMinerConfigInput: UntypedFormGroup;
 
   addLpmFeatures = environment.showLpms;
 
   ngOnInit(): void {
-    this.dropZoneConfig = new DropzoneConfig(
-      '.xes',
-      'false',
-      'false',
-      '<large> Import <strong>Event Log</strong> .xes file</large>'
-    );
-
     this.subscribeForConformanceCheckingResults();
 
     const rel_sup = new UntypedFormControl(this.relSup, {
@@ -850,10 +840,6 @@ export class VariantMinerComponent
     logicalZIndex: LogicalZIndex,
     defaultZIndex: string
   ): void {}
-
-  toggleBlur(event) {
-    this.variantMinerOutOfFocus = event;
-  }
 
   computeAlignments() {
     console.log('Requested Alignment!');

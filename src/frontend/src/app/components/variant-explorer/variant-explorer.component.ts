@@ -161,7 +161,6 @@ export class VariantExplorerComponent
   public VM = ViewMode;
 
   public svgRenderingInProgress: boolean = false;
-  public variantExplorerOutOfFocus: boolean = false;
 
   _goldenLayoutHostComponent: GoldenLayoutHostComponent;
   _goldenLayout: GoldenLayout;
@@ -170,7 +169,6 @@ export class VariantExplorerComponent
     ComponentItem
   >();
 
-  dropZoneConfig: DropzoneConfig;
   public isAscendingOrder: boolean = false;
   public sortingFeature: string = 'count';
   queryActive: boolean = false;
@@ -246,13 +244,6 @@ export class VariantExplorerComponent
   private _destroy$ = new Subject();
 
   ngOnInit(): void {
-    this.dropZoneConfig = new DropzoneConfig(
-      '.xes',
-      'false',
-      'false',
-      '<large> Import <strong>Event Log</strong> .xes file</large>'
-    );
-
     // initialize variables and initial variants
     this.init();
     // update variant explorer on log change
@@ -1042,10 +1033,6 @@ export class VariantExplorerComponent
   toggleQueryInfo(event: Event): void {
     this.showQueryInfo = !this.showQueryInfo;
     event.stopPropagation();
-  }
-
-  toggleBlur(event) {
-    this.variantExplorerOutOfFocus = event;
   }
 
   toggleQuery() {

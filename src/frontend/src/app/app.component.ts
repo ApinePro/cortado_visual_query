@@ -14,6 +14,7 @@ import { DropZoneDirective } from './directives/drop-zone/drop-zone.directive';
 import { GoldenLayoutComponentService } from './services/goldenLayoutService/golden-layout-component.service';
 import * as d3 from 'd3';
 import { EditorService } from './services/editorService/editor.service';
+import { DropzoneConfig } from './components/drop-zone/drop-zone.component';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -26,6 +27,9 @@ export class AppComponent implements AfterViewInit, OnDestroy, OnInit {
   private _goldenLayoutHostComponent: GoldenLayoutHostComponent;
   private _windowResizeListener = () => this.handleWindowResizeEvent();
 
+  dropZoneConfig: DropzoneConfig;
+  goldenLayoutHostOutOfFocus: boolean = false;
+
   constructor(
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     private monacoEditorService: EditorService,
@@ -34,6 +38,17 @@ export class AppComponent implements AfterViewInit, OnDestroy, OnInit {
 
   ngOnInit(): void {
     this.monacoEditorService.load();
+
+    this.dropZoneConfig = new DropzoneConfig(
+      '.xes .ptml',
+      'false',
+      'false',
+      '<large> Import <strong>Event Log</strong> (.xes) or <strong>Process Tree</strong> (.ptml) files</large>'
+    );
+  }
+
+  toggleBlur(event) {
+    this.goldenLayoutHostOutOfFocus = event;
   }
 
   _sideBarWidth: number = 30;
