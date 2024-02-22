@@ -52,4 +52,14 @@ class Pair {
   }
 }
 
-export {Arc, Pair};
+class Level {
+  distanceBetweenPairs: number // number of chevrons between them
+  fromBottom: number // which level the arcs are drawn on
+
+  constructor(distanceBetweenPairs: number, fromBottom: number) {
+    this.distanceBetweenPairs = distanceBetweenPairs
+    this.fromBottom = fromBottom
+  }
+}
+
+export {Arc, Pair, Level};

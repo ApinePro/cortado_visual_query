@@ -1,6 +1,6 @@
 import {Directive, ElementRef, Input} from "@angular/core";
 import {VariantService} from "../../services/variantService/variant.service";
-import {Arc, Pair} from "./data";
+import {Arc, Level, Pair} from "./data";
 import * as d3 from 'd3';
 import {IVariant} from "../../objects/Variants/variant_interface";
 import {VariantDrawerDirective} from "../variant-drawer/variant-drawer.directive";
@@ -46,9 +46,9 @@ export class ArcDiagramDirective {
   }
 
   private containsDisallowedActivities(activities: Set<string>, filterParams: FilterParams) {
-    let activitiesToInclude = filterParams.activitiesDropdown.selectedItems;
+    let activitiesToInclude = filterParams.activitiesSelection.selectedItems;
     for( let act of activities) {
-      if(!activitiesToInclude.includes(act)) return true;
+      if(!activitiesToInclude.has(act)) return true;
     }
     return false;
   }
@@ -70,21 +70,24 @@ export class ArcDiagramDirective {
    */
   public parseInput = (pairs: Pair[]) => {
     let arcs: Arc[] = [];
+    let maxDistance = -1;
     for (let i = 0; i < pairs.length; i++) {
       let pair = pairs[i];
-      arcs.push(
-        new Arc(
-          pair.positions.bfs[0],
-          pair.length,
-          pair.positions.bfs[1],
-          pair.matches,
-          JSON.stringify(pair.pattern),
-          pair.activities,
-          pair.size,
-        )
-      );
+      const arc = new Arc(
+        pair.positions.bfs[0],
+        pair.length,
+        pair.positions.bfs[1],
+        pair.matches,
+        JSON.stringify(pair.pattern),
+        pair.activities,
+        pair.size,
+      )
+      arcs.push(arc);
+      if(arc.distanceBetweenPairs > maxDistance) {
+        maxDistance = arc.distanceBetweenPairs;
+      }
     }
-    return arcs;
+    return { arcs, maxDistance };
   };
 
   /** Draw the arc diagram
@@ -101,14 +104,16 @@ export class ArcDiagramDirective {
 
     this.config.width = this.variant.variant.width;
 
-    const levelMap = {};
+    const levels: Level[] = [];
     let idx = 0;
     for (let i = arcs.length - 1; i >= 0; i--) {
       const arc = arcs[i];
-      if (!levelMap[arc.distanceBetweenPairs]) {
-        levelMap[arc.distanceBetweenPairs] = idx++;
+      if (!levels.some(lvl => lvl.distanceBetweenPairs === arc.distanceBetweenPairs)) {
+        levels.push(new Level(arc.distanceBetweenPairs, idx++));
       }
     }
+
+    console.log(levels);
 
     const height = this.config.baseHeight + this.config.step * (idx - 1)
 
@@ -147,8 +152,8 @@ export class ArcDiagramDirective {
           return parseFloat(startLeafCoords[1]);
         })
         .attr('y', function (d: Arc) {
-          const baseHeight = levelMap[d.targetPos - d.sourcePos - d.numberEle - 1];
-          return height - baseHeight * config.step - config.barHeight;
+          const level = levels.find(lvl=> lvl.distanceBetweenPairs === d.targetPos - d.sourcePos - d.numberEle - 1);
+          return height - level.fromBottom * config.step - config.barHeight;
         })
         .attr('width', function (d: Arc) {
           const width = variantEl
@@ -197,7 +202,7 @@ export class ArcDiagramDirective {
         .attr('d', function (d: Arc) {
           const path = d3.path();
 
-          const baseHeight = levelMap[d.targetPos - d.sourcePos - d.numberEle - 1];
+          const baseHeight = levels.find(lvl=> lvl.distanceBetweenPairs === d.targetPos - d.sourcePos - d.numberEle - 1)?.fromBottom;
           const levelHeight = height - baseHeight * config.step - config.barHeight;
 
           path.moveTo(scx, levelHeight);

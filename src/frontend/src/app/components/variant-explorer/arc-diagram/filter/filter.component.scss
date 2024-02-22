@@ -1,4 +1,10 @@
 :host ::ng-deep {
+
+  .form-group {
+    resize: both;
+    overflow: auto;
+  }
+
   .custom-slider .ngx-slider .ngx-slider-bar {
     background: #5b5b5b;
     height: 2px;
@@ -61,15 +67,22 @@
     resize: both;
   }
 
-  .reset-activities-btn {
-    background-color: rgb(var(--bs-accordion-active-bg));
-    font-size: 12px;
-    color: #ddd;
-    border: none;
+  .activities-selection-btn {
+    background: rgb(119 117 117);
+    border-radius: 3px;
+    opacity: 50%;
   }
 
   .reset-activities-btn:hover {
     filter: brightness(1.75);
+  }
+
+  .row {
+    gap: 5px;
+  }
+
+  .d-flex {
+    gap: 10px;
   }
 
 }

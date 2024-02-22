@@ -1,3 +1,10 @@
+import {VariantDrawerDirective} from "../directives/variant-drawer/variant-drawer.directive";
+import * as d3 from 'd3';
+import {Selection} from 'd3';
+import {PT_Constant} from '../constants/process_tree_drawer_constants';
+import {LeafNode, VariantElement} from '../objects/Variants/variant_element';
+import {Variant} from "../objects/Variants/variant";
+
 export function textColorForBackgroundColor(
   backgroundColorInHex: string,
   unselectedElementInTraceInfixSelectionMode: boolean = false
@@ -49,10 +56,6 @@ export function textColorForBackgroundColor(
   }
 }
 
-import { Selection } from 'd3';
-import { PT_Constant } from '../constants/process_tree_drawer_constants';
-import { LeafNode } from '../objects/Variants/variant_element';
-
 export function applyInverseStrokeToPoly(poly: Selection<any, any, any, any>) {
   const datum = poly.data()[0];
   if (datum) {
@@ -74,8 +77,6 @@ export function applyInverseStrokeToPoly(poly: Selection<any, any, any, any>) {
     }
   }
 }
-
-import * as d3 from 'd3';
 
 export function computeLeafNodeWidth(
   nodeActivityLabels: string[],
@@ -121,4 +122,19 @@ export function computeLeafNodeWidth(
   dummy_container.remove();
 
   return nodeWidthCache;
+}
+
+export function computeActivityColor (
+  self: VariantDrawerDirective,
+  element: VariantElement,
+  variant: Variant
+) {
+  let color;
+  color = this.colorMap.get(element.asLeafNode().activity[0]);
+
+  if (!color) {
+    color = '#d3d3d3'; // lightgrey
+  }
+
+  return color;
 }

@@ -5,9 +5,11 @@ import {takeUntil} from "rxjs/operators";
 import {LogService} from "../../../../services/logService/log.service";
 import {Subject} from "rxjs";
 import {ColorMapService} from "../../../../services/colorMapService/color-map.service";
-import {textColorForBackgroundColor} from "../../../../utils/render-utils";
+import {computeActivityColor, textColorForBackgroundColor} from "../../../../utils/render-utils";
+import {LeafNode} from "../../../../objects/Variants/variant_element";
 
-// import { } from '@theme/angular/ng-multiselect-dropdown.theme.scss';
+const SELECT_ALL_TEXT = 'Select All';
+const DESELECT_ALL_TEXT = 'Deselect All';
 
 @Component({
   selector: 'app-arc-diagram-filter-form',
@@ -18,8 +20,14 @@ export class ArcDiagramFilterComponent implements OnInit {
 
   constructor(private logService: LogService, private colorMapService: ColorMapService) { }
 
-  activityNames: Set<string>;
+  activityDummyVariants: Map<string, LeafNode> = new Map<string, LeafNode>();
+
   colorMap: Map<string, string> = new Map<string, string>();
+  computeActivityColor = computeActivityColor.bind(this);
+
+
+  activitiesSelectionBtnText: string = DESELECT_ALL_TEXT;
+
   @Output()
   filterArcDiagrams = new EventEmitter<FilterParams>();
 
@@ -31,12 +39,13 @@ export class ArcDiagramFilterComponent implements OnInit {
 
   private _destroy$ = new Subject();
 
-  distance: SingleRangeFilter = {
+  distance: MultiRangeFilter = {
     low: 0,
+    high: 2,
     options: {
       step: 1,
       floor: 0,
-      ceil: 20,
+      ceil: 2,
       showTicks: true,
     }
   }
@@ -44,11 +53,9 @@ export class ArcDiagramFilterComponent implements OnInit {
   sizeRange: MultiRangeFilter = {
     ...this.distance,
     low: 1,
-    high: 2,
     options: {
       ...this.distance.options,
       floor: 1,
-      ceil: 2,
     }
   }
 
@@ -56,23 +63,23 @@ export class ArcDiagramFilterComponent implements OnInit {
     ...this.sizeRange
   }
 
-  activitiesDropdown = {
-    selectedItems: [],
-    dropdownList: [],
+  activitiesSelection = {
+    selectedItems: new Set<string>(),
+    activitiesList: new Set<string>(),
   }
 
-  model: FilterParams = new FilterParams(this.lengthRange, this.sizeRange, this.distance, this.activitiesDropdown);
+  model: FilterParams = new FilterParams(this.lengthRange, this.sizeRange, this.distance, this.activitiesSelection);
 
   ngOnInit() {
     this.logService.activitiesInEventLog$
       .pipe(takeUntil(this._destroy$))
       .subscribe((activities) => {
-        this.activityNames = activities;
-        Object.entries(this.activityNames).forEach(([activity,], idx) => {
-          this.model.activitiesDropdown.dropdownList[idx] = activity
-          this.model.activitiesDropdown.dropdownList = this.model.activitiesDropdown.dropdownList.sort()
-          this.model.activitiesDropdown.selectedItems = this.model.activitiesDropdown.dropdownList;
+        // this.model.activitiesSelection.activitiesList = activities;
+        Object.entries(activities).forEach(([activity], idx: number) => {
+          this.model.activitiesSelection.activitiesList.add(activity);
+          this.setActivityDummyVariants(activity);
         });
+        this.model.activitiesSelection.selectedItems = new Set(this.model.activitiesSelection.activitiesList);
       });
     this.colorMapService.colorMap$
       .pipe(takeUntil(this._destroy$))
@@ -94,11 +101,32 @@ export class ArcDiagramFilterComponent implements OnInit {
     this.filterArcDiagrams.emit(this.model);
   }
 
-  resetActivitiesSelection() {
-    this.model.activitiesDropdown.selectedItems = [];
+  toggleActivitiesSelection() {
+    if(this.model.activitiesSelection.selectedItems.size > 0) {
+      this.model.activitiesSelection.selectedItems.clear();
+      this.activitiesSelectionBtnText = SELECT_ALL_TEXT;
+    } else {
+      this.model.activitiesSelection.selectedItems = new Set(this.model.activitiesSelection.activitiesList);
+      this.activitiesSelectionBtnText = DESELECT_ALL_TEXT;
+    }
+  }
+
+  setActivityDummyVariants(activity: string) {
+    const leaf = new LeafNode([activity]);
+    leaf.setExpanded(true);
+    this.activityDummyVariants.set(activity, leaf);
+  }
+
+  onChangeCheckbox(activity: string) {
+    if(this.model.activitiesSelection.selectedItems.has(activity)) {
+      this.model.activitiesSelection.selectedItems.delete(activity);
+    } else {
+      this.model.activitiesSelection.selectedItems.add(activity);
+    }
   }
 
   protected readonly textColorForBackgroundColor = textColorForBackgroundColor;
+  protected readonly Array = Array;
 }
 
 export class MultiRangeFilter {
@@ -112,9 +140,9 @@ export class SingleRangeFilter {
   options: Options;
 }
 
-export class ActivitiesDropdown {
-  dropdownList: string[];
-  selectedItems: string[];
+export class ActivitiesSelection {
+  activitiesList: Set<string>;
+  selectedItems: Set<string>;
 }
 
 export class MaxValues {

@@ -187,8 +187,6 @@ export class VariantExplorerComponent
   @ViewChildren(VariantVisualisationComponent)
   variantVisualisations: QueryList<VariantVisualisationComponent>;
 
-  filterParams: FilterParams;
-
   public visibleVariantsHeight = 1000;
 
   public deletedVariants: Variant[][] = [];
@@ -203,7 +201,7 @@ export class VariantExplorerComponent
   public arcsMaxValues: MaxValues = {
     size: 1,
     length: 1,
-    distance: 19,
+    distance: 1,
   }
   public showFilterMenu: boolean = false;
 
@@ -1198,7 +1196,10 @@ export class VariantExplorerComponent
 
   drawArcDiagram(bid: string, computedArcs: Pair[]) {
     const variantViz: VariantVisualisationComponent = this.variantVisualisations.find((vv: VariantVisualisationComponent) => vv.bid as unknown as string == bid);
-    const arcs = variantViz.arcDiagram.parseInput(computedArcs);
+    const  { arcs, maxDistance} = variantViz.arcDiagram.parseInput(computedArcs);
+    if(maxDistance>this.arcsMaxValues.distance) {
+      this.arcsMaxValues = { ...this.arcsMaxValues, distance: maxDistance }
+    }
     variantViz.arcsComputed = true;
     variantViz.arcDiagram.setArcs(arcs);
     variantViz.arcDiagram.draw(
