@@ -1,6 +1,7 @@
 $tooltip-max-width: 450px;
 
 /* Define our main import here */
+@import "./styles/fonts";
 @import "./@theme/theme";
 @import "~bootstrap-icons/font/bootstrap-icons.css";
 @import "../node_modules/bootstrap/scss/bootstrap";
