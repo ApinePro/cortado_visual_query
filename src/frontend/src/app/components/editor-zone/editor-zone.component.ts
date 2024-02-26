@@ -133,6 +133,11 @@ export class EditorZoneComponent
   }
 
   registerOnChangeCallback(fn: (val: string) => void) {
+    // Prevent the default context menu from appearing
+    this._editor.onContextMenu((e) => {
+      e.event.preventDefault();
+    });
+
     this._editor.onDidChangeModelContent((event) => {
       fn(this._editor.getValue());
     });

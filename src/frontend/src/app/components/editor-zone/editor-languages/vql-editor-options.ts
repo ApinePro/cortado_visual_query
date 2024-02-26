@@ -39,4 +39,5 @@ export const vqlEditorOptions: Monaco.editor.IStandaloneEditorConstructionOption
       horizontalScrollbarSize: 5,
     },
     dragAndDrop: true,
+    contextmenu: false,
   };
