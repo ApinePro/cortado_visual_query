@@ -238,7 +238,6 @@ export class VariantDrawerDirective
   }
 
   redraw(): void {
-    console.log("redraw, start!");
     this.svgSelection.selectAll('*').remove();
     if (this.variant.variant) {
       const height = this.variant.variant.recalculateHeight(

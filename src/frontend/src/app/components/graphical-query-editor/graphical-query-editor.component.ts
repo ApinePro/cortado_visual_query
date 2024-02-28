@@ -10,6 +10,10 @@ import { BackendService } from './../../services/backendService/backend.service'
 import { ProcessTreeDrawerDirective } from 'src/app/directives/process-tree-drawer/process-tree-drawer.directive';
 import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import { NodeInsertionStrategy } from 'src/app/objects/ProcessTree/utility-functions/process-tree-edit-tree';
+import { ViewMode } from 'src/app/objects/ViewMode';
+import { PT_Constant } from './../../constants/process_tree_drawer_constants';
+import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
+import { getPerformanceTable } from 'src/app/components/process-tree-editor/utils';
 import { GoldenLayout} from 'golden-layout';
 import {
   AfterViewInit,
@@ -177,6 +181,7 @@ export class GraphicalQueryEditorComponent
   savedPatterns: VariantElement[] = [];
 
   queryTreeOperators: QueryTreeOperator[];
+  
   @ViewChild(ProcessTreeDrawerDirective)
   processTreeDrawer: ProcessTreeDrawerDirective;
 
@@ -353,30 +358,6 @@ export class GraphicalQueryEditorComponent
         }
       });
       
-    this.initializeSvg();
-
-    this._goldenLayoutHostComponent =
-      this.goldenLayoutComponentService.goldenLayoutHostComponent;
-    this._goldenLayout = this.goldenLayoutComponentService.goldenLayout;
-
-    this.processTreeService.selectedRootNodeID$
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((id) => {
-        // Change the Selection
-        if (id) {
-          this.selectRootNodeFromID(id); //the last one failed
-          // Unselect all
-        } else {
-          this.clearDisplayedSelection();
-        }
-
-        this.selectedRootNodeId = id;
-      });
-
-      this._goldenLayoutHostComponent =
-      this.goldenLayoutComponentService.goldenLayoutHostComponent;
-    this._goldenLayout = this.goldenLayoutComponentService.goldenLayout;
-
     this.initializeSvg();
 
     this._goldenLayoutHostComponent =
@@ -956,29 +937,6 @@ export class GraphicalQueryEditorComponent
     }
   }
 
-  /*
-  handleFallthrough(variant: VariantElement, leaf: LeafNode, selectedElement) {
-    const children = variant.getElements();
-
-    if (children) {
-      const index = children.indexOf(selectedElement);
-      if (variant && variant === selectedElement) {
-        const newLeaf = new LeafNode(selectedElement.asLeafNode().activity.concat(leaf.asLeafNode().activity).sort());
-        this.newLeaf = newLeaf;
-        variant.setElements([newLeaf]);
-      }
-      if (index > -1) {
-        const newLeaf = new LeafNode(selectedElement.asLeafNode().activity.concat(leaf.asLeafNode().activity).sort());
-        this.newLeaf = newLeaf;
-        children.splice(index, 1, newLeaf);
-      } else {
-        for (const child of children) {
-          this.handleFallthrough(child, leaf, selectedElement);
-        }
-      }
-    }
-  }*/
-
   handleReplace(variant: VariantElement, leaf: LeafNode, selectedElement) {
     const children = variant.getElements();
 
@@ -1264,6 +1222,7 @@ export class GraphicalQueryEditorComponent
       this.triggerRedraw();
     }
   }
+
 
   // Tree Editor part
   redraw(tree) {
@@ -1670,26 +1629,28 @@ export class GraphicalQueryEditorComponent
   }
 
   initializeSvg(): void {
-    this.svg = d3.select('#d3-svg');
+    console.log("Ini svg");
+    this.svg = d3.select('#query-d3-svg');
     // add svg group for zooming
-    this.mainSvgGroup = this.svg.select('#zoomGroup');
-
+    this.mainSvgGroup = this.svg.select('#queryTreeZoomGroup');
+    console.log(this.mainSvgGroup);
     this.centerTree();
     this.addZoomFunctionality();
   }
 
+  /*
   toggleBPMNEditor() {
     this.goldenLayoutComponentService.createBPMNSplitViewWindow(
       ProcessTreeEditorComponent.componentName,
       BpmnEditorComponent.componentName
     );
-  }
+  }*/
 
   exportCurrentTree(svg: SVGGraphicsElement): void {
     // Copy the current tree
     const tree_copy = svg.cloneNode(true) as SVGGraphicsElement;
     const svgBBox = (
-      d3.select('#zoomGroup').node() as SVGGraphicsElement
+      d3.select('#queryTreeZoomGroup').node() as SVGGraphicsElement
     ).getBBox();
 
     // Strip all the classed information
