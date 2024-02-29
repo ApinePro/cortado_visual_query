@@ -2,6 +2,9 @@ import {
   ProcessTree,
   ProcessTreeOperator,
 } from 'src/app/objects/ProcessTree/ProcessTree';
+import {
+  QueryTree,
+} from 'src/app/objects/ProcessTree/QueryTree';
 
 export function delete_subtree(tree: ProcessTree, tree_to_delete: ProcessTree) {
   if (tree === tree_to_delete) {
@@ -34,6 +37,62 @@ export function createNewRandomNode(
 }
 
 export function insertNode(
+  selectedNode: ProcessTree,
+  newNode: ProcessTree,
+  strat: NodeInsertionStrategy,
+  operator: ProcessTreeOperator,
+  label: string
+) {
+  switch (strat) {
+    case NodeInsertionStrategy.BELOW: {
+      selectedNode.children.push(newNode);
+      newNode.parent = selectedNode;
+      break;
+    }
+
+    case NodeInsertionStrategy.ABOVE: {
+      newNode.children = [selectedNode];
+      selectedNode.parent = newNode;
+      break;
+    }
+
+    case NodeInsertionStrategy.LEFT: {
+      const idx: number = selectedNode.parent.children.indexOf(selectedNode);
+      selectedNode.parent.children.splice(idx, 0, newNode);
+      newNode.parent = selectedNode.parent;
+      break;
+    }
+
+    case NodeInsertionStrategy.RIGHT: {
+      const idx: number = selectedNode.parent.children.indexOf(selectedNode);
+      selectedNode.parent.children.splice(idx + 1, 0, newNode);
+      newNode.parent = selectedNode.parent;
+      break;
+    }
+
+    case NodeInsertionStrategy.CHANGE: {
+      if (operator) {
+        selectedNode.operator = operator;
+        selectedNode.label = null;
+      } else if (label) {
+        selectedNode.label = label;
+        selectedNode.children = [];
+        selectedNode.operator = null;
+      }
+      break;
+    }
+  }
+}
+
+export function createNewRandomQueryNode(
+  label: string,
+  operator: ProcessTreeOperator,
+  id: number = Math.floor(1000000000 + Math.random() * 900000000)
+): QueryTree {
+  return new QueryTree(label, operator, [], id, false, null, null, null, null);
+}
+
+export function insertQueryNode(
   selectedNode: ProcessTree,
   newNode: ProcessTree,
   strat: NodeInsertionStrategy,

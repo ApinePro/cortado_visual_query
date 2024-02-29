@@ -94,6 +94,8 @@ import { LoadingOverlayComponent } from './components/loading-overlay/loading-ov
 import { CaseExplorerComponent } from './components/variant-explorer/case-explorer/case-explorer.component';
 import { GraphicalQueryEditorComponent } from './components/graphical-query-editor/graphical-query-editor.component';
 import { CardinalityModalComponent } from './components/graphical-query-editor/cardinality-modal/cardinality-modal.component';
+import { QueryTreeDrawerDirective } from './directives/query-tree-drawer/query-tree-drawer.directive';
+import { QueryTreeLeafNodeComponent } from './components/query-tree-leaf-node/query-tree-leaf-node.component';
 
 @NgModule({
   declarations: [
@@ -176,6 +178,8 @@ import { CardinalityModalComponent } from './components/graphical-query-editor/c
     CaseExplorerComponent,
     GraphicalQueryEditorComponent,
     CardinalityModalComponent,
+    QueryTreeDrawerDirective,
+    QueryTreeLeafNodeComponent,
   ],
   imports: [
     BrowserModule,

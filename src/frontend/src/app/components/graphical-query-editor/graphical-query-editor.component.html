@@ -341,21 +341,12 @@
             >
               {{ op }}
             </button>
-            <div class="w-100 d-block d-xl-none"></div>
-            <button
-              type="button"
-              container="body"
-              placement="bottom"
-              class="btn btn-sm node-btn"
-            >
-              {{ "Default" }}
-            </button>
           </div>
         </div>
       </div>
       <app-activity-button-area
         [activityNames]="activityNames"
-        (activityButtonClick)="handleActivityButtonClick($event)"
+        (activityButtonClick)="editLeafNode($event)"
         [ngClass]="false ? 'button-area-disabled' : ''"
       >
       </app-activity-button-area>

@@ -4,7 +4,7 @@ import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/l
 import { PerformanceService } from 'src/app/services/performance.service';
 import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
 import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
-import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
+import { QueryTreeService } from 'src/app/services/queryTreeService/query-tree.service';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { BackendService } from './../../services/backendService/backend.service';
 import { ProcessTreeDrawerDirective } from 'src/app/directives/process-tree-drawer/process-tree-drawer.directive';
@@ -75,6 +75,7 @@ import {
   checkSyntax,
   ProcessTreeOperator,
 } from '../../objects/ProcessTree/ProcessTree';
+import { QueryTree } from 'src/app/objects/ProcessTree/QueryTree';
 @Component({
   selector: 'app-graphical-query-editor',
   templateUrl: './graphical-query-editor.component.html',
@@ -104,7 +105,7 @@ export class GraphicalQueryEditorComponent
     private sharedDataService: SharedDataService,
     private colorMapService: ColorMapService,
     private conformanceCheckingService: ConformanceCheckingService,
-    private processTreeService: ProcessTreeService,
+    private processTreeService: QueryTreeService,
     private lazyLoadingServiceService: LazyLoadingServiceService,
     private logService: LogService,
     private variantService: VariantService,
@@ -133,6 +134,7 @@ export class GraphicalQueryEditorComponent
     this.queryTreeOperators = [
       QueryTreeOperator.or,
       QueryTreeOperator.and,
+      QueryTreeOperator.default,
     ]
   }
 
@@ -492,20 +494,17 @@ export class GraphicalQueryEditorComponent
     }
   }
 
-  handleActivityButtonClick(event) {
+  handleActivityButtonClick(event, nodevariant) {
     if (this.selectedElement || this.emptyVariant) {
       const leaf = new LeafPattern([event.activityName]);
       this.newLeaf = leaf;
 
       if (this.emptyVariant) {
-        const variantGroup = new SequencePattern([leaf]); //until
-        variantGroup.setExpanded(true);
-        this.currentVariant = variantGroup;
+        console.log("Empty");
+        nodevariant.pattern = new SequencePattern([leaf]);
         this.emptyVariant = false;
         this.selectedElement = true;
-        console.log(variantGroup);
-        this.editor.centerContent(250);
-        console.log(variantGroup);
+        //this.editor.centerContent(250);
       } else {
         leaf.setExpanded(true);
         const selectedElement = this.variantEnrichedSelection
@@ -515,13 +514,13 @@ export class GraphicalQueryEditorComponent
           case this.insertionStrategy.infront:
             if (!this.multipleSelected) {
               this.handleInfrontInsert(
-                this.currentVariant,
+                nodevariant.pattern,
                 leaf,
                 selectedElement
               );
               const grandParent = this.findParent(
-                this.currentVariant,
-                this.findParent(this.currentVariant, leaf)
+                nodevariant.pattern,
+                this.findParent(nodevariant.pattern, leaf)
               );
               if (grandParent instanceof ParallelGroup) {
                 this.sortParallel(grandParent);
@@ -531,13 +530,13 @@ export class GraphicalQueryEditorComponent
           case this.insertionStrategy.behind:
             if (!this.multipleSelected) {
               this.handleBehindInsert(
-                this.currentVariant,
+                nodevariant.pattern,
                 leaf,
                 selectedElement
               );
               const grandParent = this.findParent(
-                this.currentVariant,
-                this.findParent(this.currentVariant, leaf)
+                nodevariant.pattern,
+                this.findParent(nodevariant.pattern, leaf)
               );
               if (grandParent instanceof ParallelGroup) {
                 this.sortParallel(grandParent);
@@ -547,22 +546,22 @@ export class GraphicalQueryEditorComponent
           case this.insertionStrategy.parallel:
             if (!this.multipleSelected) {
               this.handleParallelInsert(
-                this.currentVariant,
+                nodevariant.pattern,
                 leaf,
                 selectedElement
               );
             }
-            this.sortParallel(this.findParent(this.currentVariant, leaf));
+            this.sortParallel(this.findParent(nodevariant.pattern, leaf));
             break;
           case this.insertionStrategy.choice:
             if (!this.multipleSelected) {
-              this.handleChoice(this.currentVariant, leaf, selectedElement);
+              this.handleChoice(nodevariant.pattern, leaf, selectedElement);
             }
             break;
           case this.insertionStrategy.fallthrough:
             if (!this.multipleSelected) {
               this.handleFallthrough(
-                this.currentVariant,
+                nodevariant.pattern,
                 leaf,
                 selectedElement
               );
@@ -570,13 +569,14 @@ export class GraphicalQueryEditorComponent
             break;
           case this.insertionStrategy.replace:
             if (!this.multipleSelected) {
-              this.handleReplace(this.currentVariant, leaf, selectedElement);
+              this.handleReplace(nodevariant.pattern, leaf, selectedElement);
             }
             break;
         }
         this.triggerRedraw();
       }
-      this.cacheCurrentVariant();
+      console.log(nodevariant.pattern);
+      //this.cacheCurrentVariant();
     }
   }
 
@@ -1362,6 +1362,15 @@ export class GraphicalQueryEditorComponent
     this.searchText = undefined;
   }
 
+  editLeafNode(event) {
+    let selectedNode = this.selectedRootNode?.data;
+    console.log("Insert variant");
+    if (selectedNode instanceof QueryTree) {
+      this.handleActivityButtonClick(event, selectedNode as QueryTree);
+      console.log((selectedNode as QueryTree).pattern);
+    }
+  }
+
   // @REFRACTOR INTO PROCESSTREE SERVICE
   createNode(operator, label): d3.HierarchyNode<any> {
     // TODO make sure that IDs are unique!!!
@@ -1779,7 +1788,7 @@ export namespace GraphicalQueryEditorComponent {
   export const componentName = 'GraphicalQueryEditorComponent';
 }
 
-enum activityInsertionStrategy {
+export enum activityInsertionStrategy {
   infront = 'infront',
   behind = 'behind',
   parallel = 'parallel',
@@ -1791,4 +1800,5 @@ enum activityInsertionStrategy {
 export enum QueryTreeOperator {
   and = 'AND',
   or = 'OR',
+  default = 'X',
 }
