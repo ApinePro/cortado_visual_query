@@ -1,6 +1,7 @@
 $tooltip-max-width: 450px;
 
 /* Define our main import here */
+@import "./styles/fonts";
 @import "./@theme/theme";
 @import "~bootstrap-icons/font/bootstrap-icons.css";
 @import "../node_modules/bootstrap/scss/bootstrap";
@@ -24,6 +25,12 @@ $tooltip-max-width: 450px;
   --standard-font-size: 14px;
   --bs-dark-rgb: 52 58 64;
   --bs-bg-opacity: 100%;
+  --bs-font-sans-serif:  "Roboto", sans-serif;
+  --bs-font-monospace: "Roboto Mono", monospace;
+}
+
+.monaco-editor {
+  font-family: var(--bs-font-sans-serif) !important;
 }
 
 body {
@@ -530,4 +537,9 @@ svg *:focus {
   padding-left: 1em;
   width: 100%;
   text-align: right;
+}
+
+/* stylelint-disable-next-line selector-class-pattern */
+.lm_header .lm_tab {
+  font-family: var(--bs-font-sans-serif);
 }

@@ -16,6 +16,9 @@ export const vqlEditorOptions: Monaco.editor.IStandaloneEditorConstructionOption
     lineDecorationsWidth: 0,
     lineNumbersMinChars: 0,
     fontSize: 12,
+    fontFamily: getComputedStyle(document.documentElement)
+      .getPropertyValue('--bs-font-monospace')
+      .trim(),
     lineHeight: 16,
     fixedOverflowWidgets: true,
     overflowWidgetsDomNode: document.getElementById(
@@ -36,4 +39,5 @@ export const vqlEditorOptions: Monaco.editor.IStandaloneEditorConstructionOption
       horizontalScrollbarSize: 5,
     },
     dragAndDrop: true,
+    contextmenu: false,
   };
