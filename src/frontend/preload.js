@@ -1,4 +1,5 @@
-const { contextBridge, ipcRenderer } = require("electron");
+const contextBridge = require("electron").contextBridge;
+const ipcRenderer = require("electron").ipcRenderer;
 
 console.warn("Running Preload Script...");
 
@@ -17,6 +18,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.send("saveToUserFolder", fileName, fileExtension, base64File),
   readFromUserFolder: (fileName, fileExtension) =>
     ipcRenderer.invoke("readFromUserFolder", fileName, fileExtension),
+  getWSPort: () => ipcRenderer.invoke("getWSPort"),
   onSaveProject: (callback) => ipcRenderer.on("save-project", callback),
   onCheckUnsavedChanges: (callback) =>
     ipcRenderer.on("check-unsaved-changes", callback),
