@@ -133,6 +133,11 @@ export class EditorZoneComponent
   }
 
   registerOnChangeCallback(fn: (val: string) => void) {
+    // Prevent the default context menu from appearing
+    this._editor.onContextMenu((e) => {
+      e.event.preventDefault();
+    });
+
     this._editor.onDidChangeModelContent((event) => {
       fn(this._editor.getValue());
     });
@@ -160,6 +165,47 @@ export class EditorZoneComponent
 
     this._editor.onDidBlurEditorText(() => {
       this._onTouched();
+    });
+
+    // Add event listener for ending query with semicolon
+    this._editor.onDidChangeModelContent((event) => {
+      const model = this._editor.getModel();
+      if (!model) return;
+
+      // if query already has a semicolon do nothing
+      if (model.getLinesContent().join().includes(';')) return;
+
+      const lineCount = model.getLineCount();
+
+      // Traverse the lines in reverse order until we find the last non-empty line
+      let lastNonEmptyLineIndex: number;
+      for (
+        lastNonEmptyLineIndex = lineCount;
+        lastNonEmptyLineIndex >= 0;
+        lastNonEmptyLineIndex--
+      ) {
+        // do nothing if not a single line has content
+        if (lastNonEmptyLineIndex == 0) return;
+        if (model.getLineContent(lastNonEmptyLineIndex).trim().length > 0)
+          break;
+      }
+
+      const appendSemicolonEdit = {
+        range: new monaco.Range(
+          lastNonEmptyLineIndex,
+          model.getLineContent(lastNonEmptyLineIndex).length + 1,
+          lastNonEmptyLineIndex,
+          model.getLineContent(lastNonEmptyLineIndex).length + 1
+        ),
+        text: ';',
+      };
+
+      // Insert a semicolon at the end of the last line
+      this._editor.executeEdits(
+        '',
+        [appendSemicolonEdit],
+        [this._editor.getSelection()]
+      );
     });
   }
 

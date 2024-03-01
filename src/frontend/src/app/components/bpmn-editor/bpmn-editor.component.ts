@@ -124,7 +124,6 @@ export class BpmnEditorComponent
     this.createArrowHeadMarker();
 
     this.addZoomFunctionality();
-    this.centerContent();
 
     this.colorMapService.colorMap$
       .pipe(takeUntil(this._destroy$))
@@ -153,6 +152,7 @@ export class BpmnEditorComponent
       .subscribe((tree) => {
         this.currentTree = tree;
         this.redraw(tree);
+        this.reset_zoom(false);
       });
 
     this.processTreeService.selectedRootNodeID$
@@ -187,47 +187,28 @@ export class BpmnEditorComponent
   };
 
   createArrowHeadMarker() {
-    d3.select(this.svgElem.nativeElement)
-      .append('svg:defs')
-      .append('svg:marker')
-      .attr('id', 'arrow-grey')
-      .attr('refX', 3)
-      .attr('refY', 3)
-      .attr('markerWidth', 10)
-      .attr('markerHeight', 10)
-      .attr('orient', 'auto')
-      .attr('markerUnits', 'strokeWidth')
-      .append('path')
-      .attr('d', 'M 0 0 6 3 0 6 1.5 3')
-      .attr('fill', BPMN_Constant.STROKE_COLOR);
+    const marker_colors = {
+      'arrow-grey': BPMN_Constant.STROKE_COLOR,
+      'arrow-red': 'red',
+      'arrow-frozen': '#425bbf',
+    };
 
-    d3.select(this.svgElem.nativeElement)
-      .append('svg:defs')
-      .append('svg:marker')
-      .attr('id', 'arrow-red')
-      .attr('refX', 3)
-      .attr('refY', 3)
-      .attr('markerWidth', 10)
-      .attr('markerHeight', 10)
-      .attr('orient', 'auto')
-      .attr('markerUnits', 'strokeWidth')
-      .append('path')
-      .attr('d', 'M 0 0 6 3 0 6 1.5 3')
-      .attr('fill', 'red');
-
-    d3.select(this.svgElem.nativeElement)
-      .append('svg:defs')
-      .append('svg:marker')
-      .attr('id', 'arrow-frozen')
-      .attr('refX', 3)
-      .attr('refY', 3)
-      .attr('markerWidth', 10)
-      .attr('markerHeight', 10)
-      .attr('orient', 'auto')
-      .attr('markerUnits', 'strokeWidth')
-      .append('path')
-      .attr('d', 'M 0 0 6 3 0 6 1.5 3')
-      .attr('fill', '#425bbf');
+    for (const [marker_id, fill_color] of Object.entries(marker_colors)) {
+      d3.select(this.svgElem.nativeElement)
+        .append('svg:defs')
+        .append('svg:marker')
+        .attr('id', marker_id)
+        .attr('viewBox', '-1 -2 4 4')
+        .attr('refX', 0)
+        .attr('refY', 0)
+        .attr('markerWidth', BPMN_Constant.ARROW_LENGTH)
+        .attr('markerHeight', '100%')
+        .attr('orient', 'auto')
+        .attr('markerUnits', 'userSpaceOnUse')
+        .append('polygon')
+        .attr('points', '-1,-2 3,0 -1,2 0,0')
+        .attr('fill', fill_color);
+    }
   }
 
   redraw(tree: ProcessTree) {
@@ -434,25 +415,14 @@ export class BpmnEditorComponent
   }
 
   addZoomFunctionality(): void {
-    this.mainGroup.attr(
-      'transform',
-      `translate(${
-        3 * BPMN_Constant.HORIZONTALSPACING + 2 * BPMN_Constant.START_END_RADIUS
-      }, ${this.bpmnContainerElem.nativeElement.offsetHeight / 2})`
-    );
-
     const zooming = function (event) {
-      this.mainGroup.attr(
-        'transform',
-        event.transform.translate(
-          3 * BPMN_Constant.HORIZONTALSPACING +
-            2 * BPMN_Constant.START_END_RADIUS,
-          this.bpmnContainerElem.nativeElement.offsetHeight / 2
-        )
-      );
+      this.mainGroup.attr('transform', event.transform.translate(0, 0));
     }.bind(this);
 
-    this.zoom = d3.zoom().scaleExtent([0.1, 3]).on('zoom', zooming);
+    this.zoom = d3
+      .zoom()
+      .scaleExtent([BPMN_Constant.MIN_ZOOM, BPMN_Constant.MAX_ZOOM])
+      .on('zoom', zooming);
     d3.select(this.svgElem.nativeElement)
       .call(this.zoom)
       .on('dblclick.zoom', null);
@@ -461,21 +431,30 @@ export class BpmnEditorComponent
   reset_zoom(animation: boolean = true): void {
     const rTime = animation ? 250 : 0;
 
+    const bounds = this.mainGroup.node().getBBox();
+    const editorZone = <any>this.mainGroup.node().parentElement;
+    const svgWidth = editorZone.width.baseVal.value - 2 * BPMN_Constant.PADDING;
+    const svgHeight =
+      editorZone.height.baseVal.value - 2 * BPMN_Constant.PADDING;
+
+    // Calculate the scale to fit the content within the SVG
+    let scale = Math.min(svgWidth / bounds.width, svgHeight / bounds.height);
+    scale = Math.min(scale, BPMN_Constant.MAX_ZOOM);
+    scale = Math.max(scale, BPMN_Constant.MIN_ZOOM);
+
+    // Center SVG
+    const translateX = (svgWidth - bounds.width * scale) / 2;
+    const translateY = (svgHeight - bounds.height * scale) / 2;
+
     d3.select(this.svgElem.nativeElement)
       .transition()
       .duration(rTime)
       .ease(d3.easeExpInOut)
       .call(
         this.zoom.transform,
-        d3.zoomIdentity.translate(
-          3 * BPMN_Constant.HORIZONTALSPACING +
-            2 * BPMN_Constant.START_END_RADIUS,
-          0
-        )
+        d3.zoomIdentity.translate(translateX, translateY).scale(scale)
       );
   }
-
-  centerContent(): void {}
 
   exportBPMN(svg: SVGGraphicsElement): void {
     // Copy the current tree
@@ -493,14 +472,12 @@ export class BpmnEditorComponent
       .attr('data-bs-html', 'none')
       .attr('data-bs-template', 'none');
 
+    // Reset origin and add padding
     bpmn
       .select('#bpmn-zoom-group')
       .attr(
         'transform',
-        `translate(${
-          3 * BPMN_Constant.HORIZONTALSPACING +
-          2 * BPMN_Constant.START_END_RADIUS
-        }, ${2 * BPMN_Constant.VERTICALSPACING})`
+        `translate(${BPMN_Constant.PADDING}, ${BPMN_Constant.PADDING})`
       );
 
     // Change Cortado colors of BPMN Nodes to black and white
@@ -510,10 +487,8 @@ export class BpmnEditorComponent
     // Export the BPMN
     this.imageExportService.export(
       'bpmn_diagram',
-      svgBBox.width +
-        5 * BPMN_Constant.HORIZONTALSPACING +
-        4 * BPMN_Constant.START_END_RADIUS,
-      svgBBox.height + 4 * BPMN_Constant.VERTICALSPACING,
+      svgBBox.width + 2 * BPMN_Constant.PADDING,
+      svgBBox.height + 2 * BPMN_Constant.PADDING,
       bpmn_copy
     );
   }

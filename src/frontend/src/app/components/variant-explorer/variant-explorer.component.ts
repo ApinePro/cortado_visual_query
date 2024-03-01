@@ -283,7 +283,7 @@ export class VariantExplorerComponent
 
   @HostListener('window:keydown.control.q', ['$event'])
   onopenComponent(e) {
-    this.toggleQuery();
+    this.toggleQueryFilterDialog();
   }
 
   ngAfterViewInit() {
@@ -847,7 +847,7 @@ export class VariantExplorerComponent
   }
 
   getSelectedVariants(): Variant[] {
-    return this.displayed_variants.filter((v) => v.isSelected);
+    return this.variants.filter((v) => v.isSelected);
   }
 
   isAnyVariantOutdated(variants: Variant[]): boolean {
@@ -1055,8 +1055,22 @@ export class VariantExplorerComponent
     this.variantExplorerOutOfFocus = event;
   }
 
-  toggleQuery() {
+  toggleQueryFilterDialog() {
     this.queryActive = !this.queryActive;
+  }
+
+  filterToggle = true; // true by default (i.e. displayed activities are filtered)
+  toggleAppliedQueryFilter() {
+    // toggle the query filter...
+    if (this.filterToggle) {
+      this.variantFilterService.variantFilters = this.filterMap;
+    } else {
+      this.displayed_variants = this.variants;
+      this.variants.forEach((v) => (v.isDisplayed = true));
+    }
+
+    this.updateAllSubvariantWindows();
+    this.redraw_components();
   }
 
   sort(sortingFeature: string): void {
