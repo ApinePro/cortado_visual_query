@@ -1,8 +1,3 @@
-<app-drop-zone
-  [dropzoneConfig]="dropZoneConfig"
-  (fileOnHover)="toggleBlur($event)"
-></app-drop-zone>
-
 <app-performance-progress-bar> </app-performance-progress-bar>
 
 <app-variant-explorer-sidebar
@@ -13,7 +8,6 @@
   class="d-flex flex-column h-100 container-variant-explorer"
   #variantExplorerContainer
   [class.blur-out-of-focus]="
-    variantExplorerOutOfFocus ||
     variantPerformanceService.performanceUpdateIsInProgress
   "
 >
