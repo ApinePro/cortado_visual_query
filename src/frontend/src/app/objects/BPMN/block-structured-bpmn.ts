@@ -158,7 +158,7 @@ export class Event extends Block_Structured_BPMN {
 
   recalculateWidth(blockWidthCache: Map<string, number> = null) {
     if (this.eventName === ProcessTreeOperator.tau) {
-      this.width = BPMN_Constant.BASE_HEIGHT_WIDTH;
+      this.width = 0;
     } else {
       const width = blockWidthCache[this.eventName];
 
@@ -180,9 +180,16 @@ export function convertPTtoBlockstructuredBPMN(
   }
 
   if (pt.operator) {
-    const members = pt.children.map((c) =>
+    let members = pt.children.map((c) =>
       convertPTtoBlockstructuredBPMN(c, blockWidthCache)
     );
+
+    if (
+      pt.operator == ProcessTreeOperator.choice ||
+      pt.operator == ProcessTreeOperator.parallelism
+    ) {
+      members.sort((m1, m2) => m1.width - m2.width);
+    }
 
     switch (pt.operator) {
       case ProcessTreeOperator.choice: {
@@ -232,19 +239,29 @@ function compute_height_vertical_group(model: any): number {
 }
 
 function compute_width_vertical_group(model: any): number {
-  if (model.members.length > 0) {
-    model.width = Math.max(
-      ...model.members.map((block: Block_Structured_BPMN) => block.width)
+  if (model.members.length === 0)
+    model.width = 2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
+  else if (model.members.length === 1)
+    model.width =
+      2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + model.members[0].width;
+  else {
+    const widths_after_interpolation = [...model.members.entries()].map(
+      ([index, block]) =>
+        block.width +
+        2 *
+          (BPMN_Constant.OPERATOR_DIAGONAL_LENGTH /
+            (model.members.length - 1)) *
+          (model.members.length - 1 - index)
     );
-  } else {
-    model.width = 0;
+
+    model.width = Math.max(...widths_after_interpolation);
   }
 
   model.core_width = model.width;
 
   model.width += 2 * BPMN_Constant.HORIZONTALSPACING;
 
-  model.width += 4 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
+  model.width += 2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
 
   return model.width;
 }
