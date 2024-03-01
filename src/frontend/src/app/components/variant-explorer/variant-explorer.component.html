@@ -499,15 +499,13 @@
 
     <div class="vr"></div>
   </div>
-
   <div class="d-flex flex-row">
     <div class="variant-query-button flex-row px-2" role="button" (click)="showFilterMenu=!showFilterMenu">
       <i class="bi bi-funnel"></i>
       <span class="ms-2 user-select-none">Filter</span>
     </div>
     <div
-      *ngIf="!variantService.areVariantLoopsCollapsed && showFilterMenu"
-      [@fadeInOutComponent]="showFilterMenu ? 'fadeInComponent' : 'fadeOutComponent'"
+      [class.d-none]="variantService.areVariantLoopsCollapsed || !showFilterMenu"
       class="variant-query-button accordion d-flex flex-column"
       id="accordion"
     >
@@ -590,6 +588,7 @@
         <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
           <app-arc-diagram-filter-form
             (filterArcDiagrams)="filterArcDiagrams($event)"
+            (newActivitiesLoaded)="newActivitiesLoaded($event)"
             [arcsMaxValues]="arcsMaxValues"
           ></app-arc-diagram-filter-form>
         </div>
@@ -888,7 +887,7 @@
                     <app-variant-action-buttons
                       [variant]="variant"
                       [variantVisualisations]="variantVisualisations"
-                      (showArcDiagram)="showArcDiagram($event)"
+                      (showArcDiagram)="computeAndDrawArcDiagram($event)"
                     ></app-variant-action-buttons>
                   </ng-template>
 

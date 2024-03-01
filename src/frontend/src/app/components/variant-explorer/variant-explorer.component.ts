@@ -57,7 +57,7 @@ import {deserialize, ParallelGroup, SequenceGroup, VariantElement,} from 'src/ap
 import {exportVariantDrawer} from './functions/export-variant-explorer';
 import {fadeInOutComponent, openCloseComponent,} from 'src/app/animations/component-animations';
 import {collapsingText} from 'src/app/animations/text-animations';
-import {textColorForBackgroundColor} from 'src/app/utils/render-utils';
+import {setChevronIdsForArcDiagrams, textColorForBackgroundColor} from 'src/app/utils/render-utils';
 import {processTreesEqual} from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
 import {ViewMode} from 'src/app/objects/ViewMode';
 import {VariantViewModeService} from 'src/app/services/viewModeServices/variant-view-mode.service';
@@ -204,6 +204,7 @@ export class VariantExplorerComponent
     distance: 1,
   }
   public showFilterMenu: boolean = false;
+  public lastArcsActivitiesFilter = new Set<string>();
 
   deleteVariant = function () {
     const bids = this.variantService.variants
@@ -1194,7 +1195,7 @@ export class VariantExplorerComponent
     return `${selectedColorScale.performanceIndicator}\n(${selectedColorScale.statistic})`;
   }
 
-  drawArcDiagram(bid: string, computedArcs: Pair[]) {
+  setupVariantVisualisationForArcDiagrams(bid: string, computedArcs: Pair[]) {
     const variantViz: VariantVisualisationComponent = this.variantVisualisations.find((vv: VariantVisualisationComponent) => vv.bid as unknown as string == bid);
     const  { arcs, maxDistance} = variantViz.arcDiagram.parseInput(computedArcs);
     if(maxDistance>this.arcsMaxValues.distance) {
@@ -1202,35 +1203,68 @@ export class VariantExplorerComponent
     }
     variantViz.arcsComputed = true;
     variantViz.arcDiagram.setArcs(arcs);
-    variantViz.arcDiagram.draw(
-      arcs,
-      variantViz.variantDrawer,
-    );
+    return variantViz;
   }
-  showArcDiagram(bids: number[]) {
+  drawArcDiagram(variantViz: VariantVisualisationComponent, filterBeforeDrawing: boolean = false, filterParams?: FilterParams) {
+    if(filterBeforeDrawing) {
+      variantViz.arcDiagram.filterAndDrawArcs(
+        filterParams,
+        variantViz.variantDrawer
+      );
+    } else {
+      variantViz.arcDiagram.draw(
+        variantViz.variantDrawer
+      );
+    }
+  }
+  computeAndDrawArcDiagram(bids: number[], filterAfterComputation: boolean = false, filterParams?: FilterParams) {
     this.variantService
-      .showArcDiagram(bids)
+      .showArcDiagram(bids, filterParams)
       .pipe(takeUntil(this._destroy$))
-      .subscribe((res: {'pairs': {[bid: number]: Pair[]}, 'maximal_size': number, 'maximal_length': number}) => {
+      .subscribe((res: {'pairs': {[bid: number]: Pair[]}, 'maximal_size': number, 'maximal_length': number, 'variants': {[bid: number]: Variant} }) => {
         if(res['maximal_size'] > this.arcsMaxValues.size)
           this.arcsMaxValues = { ...this.arcsMaxValues, size: res['maximal_size']}
         if(res['maximal_length'] > this.arcsMaxValues.length)
           this.arcsMaxValues = { ...this.arcsMaxValues, length: res['maximal_length']}
+        setChevronIdsForArcDiagrams(res['variants'],
+          this.variantVisualisations
+          .filter(vv => bids.includes(vv.variantDrawer.variant.bid))
+          .map(vv => vv.variantDrawer));
         for (let [bid, computedArcs] of Object.entries(res['pairs'])) {
-          this.drawArcDiagram(bid, computedArcs)
+          this.drawArcDiagram(this.setupVariantVisualisationForArcDiagrams(bid, computedArcs), filterAfterComputation, filterParams);
         }
       });
   }
-
   filterArcDiagrams(filterParams: FilterParams) {
-    this.variantVisualisations.forEach((variantViz)=>{
-      if(variantViz.arcsComputed) {
-        variantViz.arcDiagram.filterAndShowArcs(filterParams, variantViz.variantDrawer);
-      }
-    })
-    console.log(filterParams);
+    const recomputeArcs = this.hasArcDiagramActivitiesSelectionChanged(filterParams);
+    const variantsWithArcsComputed = this.variantVisualisations.filter((variantViz)=>variantViz.arcsComputed)
+    if(recomputeArcs) {
+      const bids = variantsWithArcsComputed.map(variantViz => variantViz.bid);
+      this.computeAndDrawArcDiagram(bids, true, filterParams);
+    } else {
+      variantsWithArcsComputed.forEach(variantViz=>{
+          this.drawArcDiagram(variantViz, true, filterParams);
+        })
+    }
+    variantsWithArcsComputed.forEach(vz => vz.arcDiagram.filterAndDrawArcs(filterParams, vz.variantDrawer));
+    this.lastArcsActivitiesFilter = new Set(filterParams.activitiesSelection.selectedItems);
   }
+
+  hasArcDiagramActivitiesSelectionChanged(filterParams: FilterParams) {
+    return !this.eqSet(filterParams.activitiesSelection.selectedItems, this.lastArcsActivitiesFilter);
+  }
+
+  newActivitiesLoaded(newActivities: Set<string>) {
+    this.lastArcsActivitiesFilter = new Set(newActivities);
+  }
+
+  eqSet = (xs: Set<any>, ys: Set<any>) =>
+    xs.size === ys.size &&
+    [...xs].every((x) => ys.has(x));
+
 }
+
+
 
 export namespace VariantExplorerComponent {
   export const componentName = 'VariantExplorerComponent';

@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import DefaultDict
+from typing import DefaultDict, Mapping
 from cortado_core.eventually_follows_pattern_mining.algorithm import (
     generate_eventually_follows_patterns_from_groups,
 )
@@ -20,6 +20,7 @@ from cortado_core.utils.split_graph import (
     ParallelGroup,
     SequenceGroup,
     SkipGroup,
+    Group,
 )
 
 import cache.cache as cache
@@ -52,6 +53,8 @@ import numpy as np
 from cortado_core.variant_pattern_replications.repetition_pairs import generate_and_filter_patterns, \
     filter_maximal_patterns
 
+from endpoints.transform_event_log import remove_activitiy_from_group
+
 router = APIRouter(tags=["subvariantMining"], prefix="/subvariantMining")
 
 
@@ -66,13 +69,12 @@ class VariantMinerConfig(BaseModel):
 
 
 class FilterParams(BaseModel):
-    minLength: int
-    maxLength: int
+    activitiesToInclude: list[str] = []
 
 
 class RepetitionsMiningConfig(BaseModel):
     bids: list[int]
-    # filterParams: FilterParams
+    filters: FilterParams
 
 
 freq_strat_mapping = {
@@ -221,9 +223,23 @@ def sub_pattern_to_ctree(pattern: SubPattern, parent=None):
 @router.post("/repetitionsMining/")
 def mineRepetitionPatterns(config: RepetitionsMiningConfig):
     result = {}
+    variants: Mapping[int, Group] = {}
+
+    filter_activities = len(config.filters.activitiesToInclude) > 0 and len(config.filters.activitiesToInclude) != len(cache.parameters["activites"])
+    activities_to_exclude = []
+    if filter_activities:
+        activities_to_exclude = list(filter(lambda x: x not in config.filters.activitiesToInclude, cache.parameters["activites"]))
+
     maximal_size, maximal_length = 1, 1
     for bid in config.bids:
+
         v, ts, _, _ = cache.variants[bid]
+
+        if filter_activities:
+            v = remove_activitiy_from_group(v, activities_to_exclude)
+            v.assign_dfs_ids()
+
+        variants[bid] = v.serialize()
 
         treeBank = create_treebank_from_cv_variants({v: ts}, False)
 
@@ -237,4 +253,4 @@ def mineRepetitionPatterns(config: RepetitionsMiningConfig):
         result.update(
             {bid: sorted(combined_pairs, key=lambda x: x.positions.bfs[1] - x.positions.bfs[0], reverse=True)})
         # result = sorted(combined_pairs, key=lambda x: x.positions.bfs[1] - x.positions.bfs[0], reverse=True)
-    return {'pairs': result, 'maximal_size': maximal_size, 'maximal_length': maximal_length}
+    return {'pairs': result, 'maximal_size': maximal_size, 'maximal_length': maximal_length, 'variants': variants}

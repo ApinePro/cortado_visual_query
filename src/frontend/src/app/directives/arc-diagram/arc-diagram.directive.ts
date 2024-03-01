@@ -45,23 +45,24 @@ export class ArcDiagramDirective {
     this.arcs = arcs;
   }
 
-  private containsDisallowedActivities(activities: Set<string>, filterParams: FilterParams) {
-    let activitiesToInclude = filterParams.activitiesSelection.selectedItems;
-    for( let act of activities) {
-      if(!activitiesToInclude.has(act)) return true;
-    }
-    return false;
-  }
+  // private containsDisallowedActivities(activities: Set<string>, filterParams: FilterParams) {
+  //   let activitiesToInclude = filterParams.activitiesSelection.selectedItems;
+  //   for( let act of activities) {
+  //     if(!activitiesToInclude.has(act)) return true;
+  //   }
+  //   return false;
+  // }
 
-  public filterAndShowArcs(filterParams: FilterParams, variantDrawer: VariantDrawerDirective) {
+  public filterAndDrawArcs(filterParams: FilterParams, variantDrawer: VariantDrawerDirective) {
     let arcsToDraw = this.arcs.filter((arc)=>{
       let patternSize = new Set(arc.activities).size;
       return patternSize<=filterParams.sizeRange.high && patternSize>=filterParams.sizeRange.low
         && arc.numberEle<=filterParams.lengthRange.high && arc.numberEle>=filterParams.lengthRange.low
-        && !this.containsDisallowedActivities(arc.activities, filterParams)
+        // && !this.containsDisallowedActivities(arc.activities, filterParams)
+        && arc.distanceBetweenPairs <= filterParams.distanceRange.high - 1
         && arc.distanceBetweenPairs >= filterParams.distanceRange.low - 1;
     });
-    this.draw(arcsToDraw, variantDrawer);
+    this.draw(variantDrawer, arcsToDraw);
   }
 
   /** Method to parse the input of the textfield or the file
@@ -92,7 +93,10 @@ export class ArcDiagramDirective {
 
   /** Draw the arc diagram
    */
-  public draw = (arcsToDraw: Arc[], variantDrawer: VariantDrawerDirective) => {
+  public draw = (variantDrawer: VariantDrawerDirective, arcsToDraw?: Arc[]) => {
+    if(!arcsToDraw) {
+      arcsToDraw = this.arcs;
+    }
     // clear the chart and redraw everything
     // $('#chart').empty();
     let arcs: Arc[] = [];
