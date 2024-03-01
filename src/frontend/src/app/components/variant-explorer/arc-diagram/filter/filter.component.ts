@@ -30,6 +30,8 @@ export class ArcDiagramFilterComponent implements OnInit {
 
   @Output()
   filterArcDiagrams = new EventEmitter<FilterParams>();
+  @Output()
+  newActivitiesLoaded = new EventEmitter<Set<string>>();
 
   @Input() set arcsMaxValues(values: MaxValues) {
     for(const [type, value] of Object.entries(values)) {
@@ -39,36 +41,7 @@ export class ArcDiagramFilterComponent implements OnInit {
 
   private _destroy$ = new Subject();
 
-  distance: MultiRangeFilter = {
-    low: 0,
-    high: 2,
-    options: {
-      step: 1,
-      floor: 0,
-      ceil: 2,
-      showTicks: true,
-    }
-  }
-
-  sizeRange: MultiRangeFilter = {
-    ...this.distance,
-    low: 1,
-    options: {
-      ...this.distance.options,
-      floor: 1,
-    }
-  }
-
-  lengthRange: MultiRangeFilter =  {
-    ...this.sizeRange
-  }
-
-  activitiesSelection = {
-    selectedItems: new Set<string>(),
-    activitiesList: new Set<string>(),
-  }
-
-  model: FilterParams = new FilterParams(this.lengthRange, this.sizeRange, this.distance, this.activitiesSelection);
+  model: FilterParams = new FilterParams();
 
   ngOnInit() {
     this.logService.activitiesInEventLog$
@@ -80,6 +53,7 @@ export class ArcDiagramFilterComponent implements OnInit {
           this.setActivityDummyVariants(activity);
         });
         this.model.activitiesSelection.selectedItems = new Set(this.model.activitiesSelection.activitiesList);
+        this.newActivitiesLoaded.emit(this.model.activitiesSelection.selectedItems);
       });
     this.colorMapService.colorMap$
       .pipe(takeUntil(this._destroy$))
@@ -98,6 +72,7 @@ export class ArcDiagramFilterComponent implements OnInit {
     this.model[`${type}Range`].options = this.createNewOptionsObject(this.model[`${type}Range`].options, value);
   }
   onSubmit() {
+    const recomputeArcs = this.model.activitiesSelection.selectedItems
     this.filterArcDiagrams.emit(this.model);
   }
 

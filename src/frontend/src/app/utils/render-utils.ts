@@ -2,8 +2,15 @@ import {VariantDrawerDirective} from "../directives/variant-drawer/variant-drawe
 import * as d3 from 'd3';
 import {Selection} from 'd3';
 import {PT_Constant} from '../constants/process_tree_drawer_constants';
-import {LeafNode, VariantElement} from '../objects/Variants/variant_element';
+import {
+  deserialize,
+  GroupsWithChildElements,
+  LeafNode,
+  VariantElement,
+  WaitingTimeNode
+} from '../objects/Variants/variant_element';
 import {Variant} from "../objects/Variants/variant";
+import {ElementRef} from "@angular/core";
 
 export function textColorForBackgroundColor(
   backgroundColorInHex: string,
@@ -137,4 +144,52 @@ export function computeActivityColor (
   }
 
   return color;
+}
+
+export function setChevronIdsForArcDiagrams(variants: {[bid: number]: Variant}, drawerDirectives: VariantDrawerDirective[]) {
+  drawerDirectives.forEach(drawer => {
+    const variant = deserialize(variants[drawer.variant.bid]);
+    setDfsIds(variant, drawer.svgSelection, true);
+    setBfsIds(variant, drawer.svgHtmlElement);
+  })
+}
+
+const setDfsIds = (element: VariantElement,
+  svgElement: Selection<any, any, any, any>,
+  outerElement: boolean = false) => {
+  if(!outerElement) {
+    svgElement
+      .classed(`dfs-group-${element.id}`, true);
+  } else {
+    svgElement = svgElement.select('.variant-element-group')
+      .classed('dfs-group-0', true);
+  }
+
+  if(element instanceof LeafNode || element instanceof WaitingTimeNode) {
+    return;
+  } else {
+    (element as GroupsWithChildElements).elements
+      .forEach((child, index) => {
+        const svg = d3.select(svgElement.selectAll(`.dfs-group-${element.id} > .variant-element-group`).nodes()[index]);
+        setDfsIds(child, svg);
+      });
+  }
+}
+
+const setBfsIds = (element: VariantElement,
+                          svgElement: ElementRef<any>) => {
+  let outerElement = svgElement.nativeElement
+    .querySelector('.dfs-group-0')
+
+  if (outerElement) {
+    d3.select(
+      outerElement
+        .querySelectorAll(':scope > .variant-element-group')
+    ).each(function (d, i) {
+      let offset = 1;
+      this.forEach((child) => {
+        d3.select(child).classed(`bfs-group-${offset++}`, true);
+      });
+    });
+  }
 }

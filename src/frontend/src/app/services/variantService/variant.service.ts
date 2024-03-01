@@ -32,6 +32,7 @@ import {
   UserDefinedVariantAddition,
   VariantsDeletion,
 } from 'src/app/objects/LogModification';
+import {FilterParams} from "../../components/variant-explorer/arc-diagram/filter/filter-params";
 
 @Injectable({
   providedIn: 'root',
@@ -226,8 +227,8 @@ export class VariantService {
       });
   }
 
-  public showArcDiagram(bids: number[]) {
-    return this.backendService.showArcDiagram(bids);
+  public showArcDiagram(bids: number[], filterParams: FilterParams) {
+    return this.backendService.showArcDiagram(bids, filterParams);
   }
 
   public deleteVariant(bid: number): void {

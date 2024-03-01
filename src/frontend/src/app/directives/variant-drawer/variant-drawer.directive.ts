@@ -290,20 +290,20 @@ export class VariantDrawerDirective
 
       this.selection.emit(this.svgSelection);
 
-      let outerElement = this.svgHtmlElement.nativeElement
-        .querySelector('.dfs-group-0')
-
-      if (outerElement) {
-        d3.select(
-          outerElement
-            .querySelectorAll(':scope > .variant-element-group')
-        ).each(function (d, i) {
-          let offset = 1;
-          this.forEach((child) => {
-            d3.select(child).classed(`bfs-group-${offset++}`, true);
-          });
-        }); 
-      }
+      // let outerElement = this.svgHtmlElement.nativeElement
+      //   .querySelector('.dfs-group-0')
+      //
+      // if (outerElement) {
+      //   d3.select(
+      //     outerElement
+      //       .querySelectorAll(':scope > .variant-element-group')
+      //   ).each(function (d, i) {
+      //     let offset = 1;
+      //     this.forEach((child) => {
+      //       d3.select(child).classed(`bfs-group-${offset++}`, true);
+      //     });
+      //   });
+      // }
 
     }
   }
@@ -390,12 +390,12 @@ export class VariantDrawerDirective
     svgElement
       .datum(element)
       .classed('variant-element-group', true)
-      .classed(`dfs-group-${element.id}`, true);
+      // .classed(`dfs-group-${element.id}`, true);
 
-    if (outerElement) {
-      svgElement.datum(element)
-        .classed('dfs-group-0', true);
-    }
+    // if (outerElement) {
+    //   svgElement.datum(element)
+    //     .classed('dfs-group-0', true);
+    // }
 
     if (element instanceof ParallelGroup) {
       this.drawParallelGroup(element.asParallelGroup(), svgElement);

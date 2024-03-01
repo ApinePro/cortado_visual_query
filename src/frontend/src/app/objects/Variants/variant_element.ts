@@ -80,7 +80,7 @@ export abstract class VariantElement {
 
     return equals;
   }
-  
+
   public asSequenceGroup(): SequenceGroup {
     const self: unknown = this;
     return self as SequenceGroup;
@@ -1627,3 +1627,5 @@ export function injectWaitingTimeNodesVariant(variant: VariantElement) {
     }
   }
 }
+
+export type GroupsWithChildElements = ParallelGroup | ChoiceGroup | FallthroughGroup | SequenceGroup | LoopGroup | SkipGroup
