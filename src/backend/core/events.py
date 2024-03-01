@@ -1,12 +1,10 @@
 import logging
 import pickle
 from typing import Callable
-
 import cache.cache as cache
 from backend_utilities.multiprocessing.pool_factory import PoolFactory
-
-from endpoints import load_event_log
 from fastapi import FastAPI
+import sys
 
 logger = logging.getLogger("uvicorn")
 
@@ -17,8 +15,16 @@ def create_start_app_handler(
     async def start_app() -> None:
         logger.info("---------- Handling startup ----------")
         cache.pcache = {}
-        cache.variants = pickle.load(open("./resources/variants.p", "rb"))
-        cache.parameters = pickle.load(open("./resources/parameters.p", "rb"))
+
+        if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+            cache.variants = pickle.load(open("./_internal/resources/variants.p", "rb"))
+            cache.parameters = pickle.load(
+                open("./_internal/resources/parameters.p", "rb")
+            )
+        else:
+            cache.variants = pickle.load(open("./resources/variants.p", "rb"))
+            cache.parameters = pickle.load(open("./resources/parameters.p", "rb"))
+
         # create process pool
         PoolFactory.instance()
 
