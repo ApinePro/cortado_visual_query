@@ -69,14 +69,18 @@ When a model is present, conformance is available within the standard view. Clic
 Beneath the listed variants, there are also statistic displayed for the whole event log, i.e. how many traces/variants are fitting the model or selected.
 
 ### Variant Information Explorer
+![medium](./screenshots/variant_explorer/variant_info_explorer_open.png) <br>
+
+By clicking the variant's count in <em>Variant Explorer</em>, a new <em>Variant Information Explorer</em> window opens in the stack of <em>Variant Explorer</em>. In the window, all cases of the selected variant are listed along with their information including <em>case ID, earliest, latest timestamp,</em> and <em>duration</em>. The <em>duration</em> column only exists if the starting time exists in the log. All the columns can also be sorted.
+
 ![medium](./screenshots/variant_explorer/variant_info_explorer_detail.png) <br>
 
-By clicking the variant's count in Variant Explorer, a new Variant Information Explorer window opened in the stack of Variant Explorer. In Variant Information Explorer, all cases of the selected variant are listed, with their information including case ID, earliest and latest timestamp, and duration. The case list could be sorted by case ID (in alphabet order), timestamp, and duration.
-
 ### Case Information Explorer
-![medium](./screenshots/variant_explorer/case_explorer_detail.png)<br>
+![medium](./screenshots/variant_explorer/case_explorer_open.png)<br>
 
-By clicking the case ID in Variant Information Explorer, a new Case Information Explorer window opened in the stack of Variant Explorer. In Case Information Explorer, the events of the selected case are listed in time order, with their information including starting timestamp, ending timestamp, duration, and resources of the event.
+By clicking the <em>case ID</em> in <em>Variant Information Explorer</em>, a new <em>Case Information Explorer</em> window opens in the stack of <em>Variant Explorer</em>. In <em>Case Information Explorer</em>, the events of the selected case are listed in time order, with their information including <em>starting timestamp, ending timestamp, duration,</em> and <em>resources</em> of the event. <em>Resource</em> columns will be visible when resources are available in the log.
+
+![medium](./screenshots/variant_explorer/case_explorer_detail.png)<br>
 
 ### Variant Sorting
 
@@ -318,20 +322,22 @@ With the icons on the right, one can add the current selection to the variant ex
 ## Variant Modeler
 ![medium](./screenshots/variant_modeler/variant_modeler.png)
 
-The variant modeler allows users to manually create a variant with sequential and parallel patterns.
+The <em>variant modeler</em> allows users to manually model a variant with sequential and parallel patterns. It could be opened by: the head toolbar -> `Editors` -> <i class="bi bi-tools btn-icon"></i>`Open Variant Modeler`.
 
-How to create a new variant:
+How to model a new variant:
 
-1. Select the insertion strategy in the toolbar;
-2. Select a chevron (could be both single activity or an activity group);
-3. Click the activity button;
-4. Click `add new variant to log` button to add the user created variant to the variant list.
+1. Select the <em>insertion strategy</em> (where to insert the activity) in the toolbar
+2. Select a chevron in current variant (could be both single activity or an activity group). If no variant has been modeled, ignore this step
+3. Click the colorful activity buttons with label to insert corresponding activity into the variant
+4. Click `add new variant to log` button to add the user modeled variant to the variant list
+
+![medium](./screenshots/variant_modeler/model_a_variant.gif)
 
 Other functions in the tool:
-1. Variant modeler allows the variant be displayed in 4 variant types: full, prefix, infix, and postfix.
+1. Variant modeler allows the variant be displayed in 4 variant types: <em>full</em>, <em>prefix</em>, <em>infix</em>, and <em>postfix</em>.
 2. View focus functions are also provided:
-    - focus selected: move the selected activity/group to the view center.
-    - move the variant center to the view center.
+    - <i class="bi bi-eye-fill btn-icon"></i> <em>focus selected:</em> move the selected activity/group to the view center.
+    - <i class="bi bi-arrows-fullscreen btn-icon"></i> <em>move to the start of the variant: </em>move the variant center to the view center.
 
 ## Variant Frequent Pattern Mining
 
@@ -412,19 +418,32 @@ The editor comprises primarily of <i>three sections</i>, all of which rely heavi
    Switching the toggle off, retains only the infixes *not* containing the activity.
 
 ## Variant Sequentialization (Tiebreaker)
-Tiebreaker is a sequentialization tool which provides a function to match source pattern in variants and replace them with the target pattern. In tiebreaker, there are two pattern editors to model the source pattern and target pattern, respectively. In addition to sequential and parallel pattern, the tiebreaker allows to create:<br>
+<em>Tiebreaker</em> is a sequentialization tool which provides a function to match source pattern in variants and replace them with the target pattern. It could be opened by clicking the icon <i class="bi bi-bar-chart-steps"></i> in <em>variant explorer</em>'s toolbar:
+
+![medium](./screenshots/variant_sequentialization/how_to_open.png)
+
+In <em>tiebreaker</em>, there are two <em>pattern editors</em> to model the source pattern and target pattern, respectively.<br>
 
 ![medium](./screenshots/variant_sequentialization/tiebreaker.png)
 
-1. choice group, which could match any combination of any activities in the group;
+In addition to sequential and parallel pattern, the <em>tiebreaker</em> allows to model:<br>
+1. <em>choice group</em>, which could match any combination of any activities in the group
 
 ![medium](./screenshots/variant_sequentialization/choicegroup.png)
 
-1. fallthrough group;
+It could be created by clicking the icon <i class="bi bi-slash"></i>:
+
+![medium](./screenshots/variant_sequentialization/create_choice_group.png)
+
+1. <em>fallthrough group</em>, which could model the case that activities in the group cannot be modeled by the combination of sequential/parallel relationship.
 
 ![medium](./screenshots/variant_sequentialization/fallthroughgroup.png)
 
-1. pattern with a wildcard option '..' to allow partial match, which represents "rest of the variant".
+It could be created by clicking the icon <i class="bi bi-arrow-down"></i>:
+
+![medium](./screenshots/variant_sequentialization/create_fallthrough_group.png)
+
+3. pattern with a <em>wildcard option</em> '..' to allow partial match, which represents "rest of the variant". <em>Wildcard</em> is listed beside the activity buttons.
 
 ![medium](./screenshots/variant_sequentialization/wildcard.png)
 
@@ -433,7 +452,7 @@ Note：
 2. The invalid patterns are checked when editing.
 3. The activities in target pattern should be consistent with activities in the source pattern. Acitivities in target pattern editor are only enabled when they are already in the source pattern.
 
-Here are some examples to show how variants are transformed by the tiebreaker:
+Here are some examples to show how variants are transformed by the <em>tiebreaker</em>:
 
 (1)![xxxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_1.png)<br>
 
