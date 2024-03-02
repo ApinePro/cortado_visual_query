@@ -2,13 +2,7 @@ import {VariantDrawerDirective} from "../directives/variant-drawer/variant-drawe
 import * as d3 from 'd3';
 import {Selection} from 'd3';
 import {PT_Constant} from '../constants/process_tree_drawer_constants';
-import {
-  deserialize,
-  GroupsWithChildElements,
-  LeafNode,
-  VariantElement,
-  WaitingTimeNode
-} from '../objects/Variants/variant_element';
+import {GroupsWithChildElements, LeafNode, VariantElement, WaitingTimeNode} from '../objects/Variants/variant_element';
 import {Variant} from "../objects/Variants/variant";
 import {ElementRef} from "@angular/core";
 
@@ -146,12 +140,9 @@ export function computeActivityColor (
   return color;
 }
 
-export function setChevronIdsForArcDiagrams(variants: {[bid: number]: Variant}, drawerDirectives: VariantDrawerDirective[]) {
-  drawerDirectives.forEach(drawer => {
-    const variant = deserialize(variants[drawer.variant.bid]);
-    setDfsIds(variant, drawer.svgSelection, true);
-    setBfsIds(variant, drawer.svgHtmlElement);
-  })
+export function setChevronIdsForArcDiagrams(variant: VariantElement, drawer: VariantDrawerDirective) {
+  setDfsIds(variant, drawer.svgSelection, true);
+  setBfsIds(drawer.svgHtmlElement);
 }
 
 const setDfsIds = (element: VariantElement,
@@ -176,8 +167,7 @@ const setDfsIds = (element: VariantElement,
   }
 }
 
-const setBfsIds = (element: VariantElement,
-                          svgElement: ElementRef<any>) => {
+const setBfsIds = (svgElement: ElementRef<any>) => {
   let outerElement = svgElement.nativeElement
     .querySelector('.dfs-group-0')
 

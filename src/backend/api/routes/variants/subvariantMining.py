@@ -223,7 +223,6 @@ def sub_pattern_to_ctree(pattern: SubPattern, parent=None):
 @router.post("/repetitionsMining/")
 def mineRepetitionPatterns(config: RepetitionsMiningConfig):
     result = {}
-    variants: Mapping[int, Group] = {}
 
     filter_activities = len(config.filters.activitiesToInclude) > 0 and len(config.filters.activitiesToInclude) != len(cache.parameters["activites"])
     activities_to_exclude = []
@@ -234,12 +233,6 @@ def mineRepetitionPatterns(config: RepetitionsMiningConfig):
     for bid in config.bids:
 
         v, ts, _, _ = cache.variants[bid]
-
-        if filter_activities:
-            v = remove_activitiy_from_group(v, activities_to_exclude)
-            v.assign_dfs_ids()
-
-        variants[bid] = v.serialize()
 
         treeBank = create_treebank_from_cv_variants({v: ts}, False)
 
@@ -253,4 +246,4 @@ def mineRepetitionPatterns(config: RepetitionsMiningConfig):
         result.update(
             {bid: sorted(combined_pairs, key=lambda x: x.positions.bfs[1] - x.positions.bfs[0], reverse=True)})
         # result = sorted(combined_pairs, key=lambda x: x.positions.bfs[1] - x.positions.bfs[0], reverse=True)
-    return {'pairs': result, 'maximal_size': maximal_size, 'maximal_length': maximal_length, 'variants': variants}
+    return {'pairs': result, 'maximal_values': {'size': maximal_size, 'length': maximal_length}}

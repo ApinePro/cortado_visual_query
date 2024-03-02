@@ -5,7 +5,7 @@ import * as d3 from 'd3';
 import {IVariant} from "../../objects/Variants/variant_interface";
 import {VariantDrawerDirective} from "../variant-drawer/variant-drawer.directive";
 import {FilterConfig} from "./filter-config";
-import {FilterParams} from "../../components/variant-explorer/arc-diagram/filter/filter-params";
+import {setChevronIdsForArcDiagrams} from "../../utils/render-utils";
 
 @Directive({
   selector: '[appArcDiagram]',
@@ -41,10 +41,6 @@ export class ArcDiagramDirective {
     barRoundness: 4,
   }
 
-  public setArcs(arcs) {
-    this.arcs = arcs;
-  }
-
   // private containsDisallowedActivities(activities: Set<string>, filterParams: FilterParams) {
   //   let activitiesToInclude = filterParams.activitiesSelection.selectedItems;
   //   for( let act of activities) {
@@ -52,18 +48,6 @@ export class ArcDiagramDirective {
   //   }
   //   return false;
   // }
-
-  public filterAndDrawArcs(filterParams: FilterParams, variantDrawer: VariantDrawerDirective) {
-    let arcsToDraw = this.arcs.filter((arc)=>{
-      let patternSize = new Set(arc.activities).size;
-      return patternSize<=filterParams.sizeRange.high && patternSize>=filterParams.sizeRange.low
-        && arc.numberEle<=filterParams.lengthRange.high && arc.numberEle>=filterParams.lengthRange.low
-        // && !this.containsDisallowedActivities(arc.activities, filterParams)
-        && arc.distanceBetweenPairs <= filterParams.distanceRange.high - 1
-        && arc.distanceBetweenPairs >= filterParams.distanceRange.low - 1;
-    });
-    this.draw(variantDrawer, arcsToDraw);
-  }
 
   /** Method to parse the input of the textfield or the file
    * @param pairs The array of pairs to be parsed and visualized as arcs
@@ -94,7 +78,10 @@ export class ArcDiagramDirective {
   /** Draw the arc diagram
    */
   public draw = (variantDrawer: VariantDrawerDirective, arcsToDraw?: Arc[]) => {
-    if(!arcsToDraw) {
+
+    setChevronIdsForArcDiagrams(this.variant.variant, variantDrawer);
+
+    if (!arcsToDraw) {
       arcsToDraw = this.arcs;
     }
     // clear the chart and redraw everything
@@ -116,8 +103,6 @@ export class ArcDiagramDirective {
         levels.push(new Level(arc.distanceBetweenPairs, idx++));
       }
     }
-
-    console.log(levels);
 
     const height = this.config.baseHeight + this.config.step * (idx - 1)
 
@@ -156,7 +141,7 @@ export class ArcDiagramDirective {
           return parseFloat(startLeafCoords[1]);
         })
         .attr('y', function (d: Arc) {
-          const level = levels.find(lvl=> lvl.distanceBetweenPairs === d.targetPos - d.sourcePos - d.numberEle - 1);
+          const level = levels.find(lvl => lvl.distanceBetweenPairs === d.targetPos - d.sourcePos - d.numberEle - 1);
           return height - level.fromBottom * config.step - config.barHeight;
         })
         .attr('width', function (d: Arc) {
@@ -206,7 +191,7 @@ export class ArcDiagramDirective {
         .attr('d', function (d: Arc) {
           const path = d3.path();
 
-          const baseHeight = levels.find(lvl=> lvl.distanceBetweenPairs === d.targetPos - d.sourcePos - d.numberEle - 1)?.fromBottom;
+          const baseHeight = levels.find(lvl => lvl.distanceBetweenPairs === d.targetPos - d.sourcePos - d.numberEle - 1)?.fromBottom;
           const levelHeight = height - baseHeight * config.step - config.barHeight;
 
           path.moveTo(scx, levelHeight);
@@ -296,8 +281,5 @@ export class ArcDiagramDirective {
           }
         }
       });
-
   }
-
-
 }

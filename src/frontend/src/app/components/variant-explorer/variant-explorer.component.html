@@ -462,6 +462,13 @@
           </div>
         </ng-container>
         <div
+          class="dropdown-item"
+          (click)="showAllArcDiagrams()"
+        >
+          <i class="bi bi-rainbow"></i>
+          <span class="ms-3">Show all arc diagrams</span>
+        </div>
+        <div
           *ngIf="
             variantViewModeService.viewMode === VM.STANDARD &&
             !variantService.areVariantLoopsCollapsed &&
@@ -874,6 +881,7 @@
                       [variant]="variant"
                       [traceInfixSelectionMode]="traceInfixSelectionMode"
                       [colorMap]="colorMap"
+                      [arcsCache]="arcsCache"
                     ></app-variant-visualisation>
                     <ng-template #infixSelection>
                       <app-infix-selection-controlls

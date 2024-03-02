@@ -12,7 +12,8 @@
     appArcDiagram
     [variant]="variant"
     class="arc-diagram-chart"
-    style="display: none">
+    style="display: none"
+  >
     <g id="arcGroup"></g>
   </svg>
 
@@ -25,6 +26,7 @@
     [traceInfixSelectionMode]="traceInfixSelectionMode"
     [computeActivityColor]="computeActivityColor"
     [infixType]="variant.infixType"
+    (redrawArcsIfComputed)="drawArcs()"
     class="zoom-group-variant"
     style="display: inline-block"
   ></svg>

@@ -627,7 +627,7 @@ export class BackendService {
     );
   }
 
-  public showArcDiagram(bids: number[], filterParams: FilterParams = new FilterParams()) {
+  public showArcDiagram(bids: string[], filterParams: FilterParams = new FilterParams()) {
     return this.httpClient.post(
       ROUTES.HTTP_BASE_URL + ROUTES.VARIANTMINING + 'repetitionsMining',
       {
