@@ -670,7 +670,7 @@ export class BpmnDrawerDirective {
     const line = selection
       .append('path')
       .attr('d', d3.line()(lineData))
-      .attr('fill', 'None')
+      .attr('fill', 'none')
       .attr('stroke-width', '1')
       .attr('stroke', BPMN_Constant.STROKE_COLOR)
       .style('stroke-linejoin', 'round')
@@ -710,7 +710,7 @@ export class BpmnDrawerDirective {
     const line = selection
       .append('path')
       .attr('d', d3.line()(lineData))
-      .attr('fill', 'None')
+      .attr('fill', 'none')
       .attr('stroke-width', '1')
       .attr('stroke', BPMN_Constant.STROKE_COLOR)
       .style('stroke-linejoin', 'round')

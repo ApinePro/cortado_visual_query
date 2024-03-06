@@ -752,7 +752,7 @@ export class ProcessTreeEditorComponent
     this.imageExportService.export(
       'process_tree',
       svgBBox.width + 2 * PT_Constant.EXPORT_OFFSET,
-      svgBBox.height + PT_Constant.EXPORT_OFFSET,
+      svgBBox.height + 2 * PT_Constant.EXPORT_OFFSET,
       tree_copy
     );
   }
