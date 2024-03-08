@@ -1,22 +1,17 @@
-import { Injectable } from '@angular/core';
-import {
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpInterceptor,
-  HttpErrorResponse,
-} from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { map, catchError, finalize, tap } from 'rxjs/operators';
-import { BackgroundTaskInfoService } from '../services/backgroundTaskInfoService/background-task-info.service';
-import { BackendService } from '../services/backendService/backend.service';
-import { ErrorService } from '../services/errorService/error.service';
-import { BackendInfoService } from '../services/backendInfoService/backend-info.service';
-import { ROUTES } from '../constants/backend_route_constants';
+import {Injectable} from '@angular/core';
+import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest,} from '@angular/common/http';
+import {Observable, throwError} from 'rxjs';
+import {catchError, finalize} from 'rxjs/operators';
+import {BackgroundTaskInfoService} from '../services/backgroundTaskInfoService/background-task-info.service';
+import {BackendService} from '../services/backendService/backend.service';
+import {ErrorService} from '../services/errorService/error.service';
+import {BackendInfoService} from '../services/backendInfoService/backend-info.service';
+import {ROUTES} from '../constants/backend_route_constants';
 
 @Injectable()
 export class HttpRequestInterceptor implements HttpInterceptor {
   private excludedEndpointsForTaskCounter = ['info', 'log/reset Log Cache'];
+  private endpointsToCancelBeforeInterception = ['subvariant Mining/repetitions Mining']
 
   constructor(
     private backgroundTaskInfoService: BackgroundTaskInfoService,
@@ -32,6 +27,10 @@ export class HttpRequestInterceptor implements HttpInterceptor {
     const calledEndpoint = request.url
       .slice(ROUTES.HTTP_BASE_URL.length)
       .replace(/([a-z0-9])([A-Z])/g, '$1 $2');
+
+    if(this.shouldCancelEndpoints(calledEndpoint)) {
+      this.backendService.cancelOtherBgTasks.next();
+    }
 
     let id;
     if (!this.shouldIgnoreRequestForTaskCounter(calledEndpoint)) {
@@ -71,6 +70,13 @@ export class HttpRequestInterceptor implements HttpInterceptor {
 
   shouldIgnoreRequestForTaskCounter(endpoint: string): boolean {
     return this.excludedEndpointsForTaskCounter.includes(endpoint);
+  }
+
+  shouldCancelEndpoints(endpoint: string): boolean {
+    const activeRequestToBeCancelledExists = Array.from(this.backgroundTaskInfoService.activeRequests.values())?.find(
+      task => this.endpointsToCancelBeforeInterception.includes(task.Description)
+    ) !== undefined
+    return activeRequestToBeCancelledExists && !this.endpointsToCancelBeforeInterception.includes(endpoint);
   }
 
   setBackendRunningState(error: HttpErrorResponse): void {

@@ -16,6 +16,7 @@ export class VariantVisualisationComponent implements OnInit{
 
   public id: string;
   public bid: number;
+  public arcsRenderingInProgress: boolean = false;
 
   constructor(public variantViewModeService: VariantViewModeService) {
   }
@@ -23,6 +24,9 @@ export class VariantVisualisationComponent implements OnInit{
   ngOnInit() {
     this.id = this.variant.id;
     this.bid = this.variant.bid;
+    if(Object.keys(this.arcsCache).length != 0 && !(this.bid in this.arcsCache) && this.isShowingAllArcs) {
+      this.arcsRenderingInProgress = true;
+    }
   }
 
   // Define Callbacks
@@ -38,6 +42,8 @@ export class VariantVisualisationComponent implements OnInit{
   colorMap: Map<string, string>;
   @Input()
   arcsCache: { [bid: string]: Pair[]};
+  @Input()
+  isShowingAllArcs: boolean;
 
   @ViewChild(ArcDiagramDirective)
   arcDiagram: ArcDiagramDirective;
@@ -64,6 +70,7 @@ export class VariantVisualisationComponent implements OnInit{
       arcs = this.filterArcs(arcs, filterParams);
     }
     this.arcDiagram.draw(this.variantDrawer, arcs);
+    this.arcsRenderingInProgress = false;
   }
 
 }

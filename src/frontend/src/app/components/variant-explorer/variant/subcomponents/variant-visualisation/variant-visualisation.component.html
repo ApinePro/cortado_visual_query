@@ -7,6 +7,11 @@
                       }"
   style="white-space: nowrap"
 >
+  <div *ngIf="arcsRenderingInProgress" class="full-body-spinner">
+    <div class="svg-rendering-status">
+      <div class="spinner-border spinner-border-sm" role="status"></div>
+    </div>
+  </div>
   <svg
     #arcDiagram="arcDiagram"
     appArcDiagram

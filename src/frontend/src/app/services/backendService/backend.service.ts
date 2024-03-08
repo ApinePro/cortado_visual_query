@@ -24,6 +24,7 @@ import {FilterParams} from "../../components/variant-explorer/arc-diagram/filter
 })
 export class BackendService {
   public retryEventLogSelection = new Subject();
+  public cancelOtherBgTasks = new Subject();
 
   constructor(
     private httpClient: HttpClient,
@@ -627,7 +628,7 @@ export class BackendService {
     );
   }
 
-  public showArcDiagram(bids: string[], filterParams: FilterParams = new FilterParams()) {
+  public showArcDiagram(bids: string[] | number[], filterParams: FilterParams = new FilterParams()) {
     return this.httpClient.post(
       ROUTES.HTTP_BASE_URL + ROUTES.VARIANTMINING + 'repetitionsMining',
       {
@@ -666,5 +667,9 @@ export class BackendService {
         caseId: caseId,
       }
     );
+  }
+
+  get _cancelOtherBgTasks$(): Observable<any> {
+    return this.cancelOtherBgTasks.asObservable();
   }
 }

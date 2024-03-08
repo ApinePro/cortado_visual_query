@@ -38,11 +38,8 @@
   <div class="container">
     <div class="row justify-content-start">
       <div *ngFor="let act of Array.from(model.activitiesSelection.activitiesList)" class="col-md d-flex flex-row">
-        <app-variant-selection-button
-          [isSelected]="model.activitiesSelection.selectedItems.has(act)"
-          (selectionChanged)="onChangeCheckbox(act)"
-        >
-        </app-variant-selection-button>
+        <input class="form-check-input" type="checkbox" (change)="onChangeCheckbox(act)"
+               [value]="act" [checked]='model.activitiesSelection.selectedItems.has(act)' style="margin-right: 5px;">
         <svg
           appVariantDrawer
           [variant]="{ variant: activityDummyVariants.get(act) }"

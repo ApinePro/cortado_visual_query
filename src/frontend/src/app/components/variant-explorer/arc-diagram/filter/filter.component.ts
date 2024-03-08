@@ -46,8 +46,8 @@ export class ArcDiagramFilterComponent implements OnInit {
   ngOnInit() {
     this.logService.activitiesInEventLog$
       .pipe(takeUntil(this._destroy$))
-      .subscribe((activities) => {
-        // this.model.activitiesSelection.activitiesList = activities;
+      .subscribe((activities) =>
+        this.model.activitiesSelection.activitiesList = new Set();
         Object.entries(activities).forEach(([activity], idx: number) => {
           this.model.activitiesSelection.activitiesList.add(activity);
           this.setActivityDummyVariants(activity);

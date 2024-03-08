@@ -234,6 +234,10 @@ def mineRepetitionPatterns(config: RepetitionsMiningConfig):
 
         v, ts, _, _ = cache.variants[bid]
 
+        if filter_activities:
+            v = remove_activitiy_from_group(v, activities_to_exclude, replace_with_random=True)
+            v.assign_dfs_ids()
+
         treeBank = create_treebank_from_cv_variants({v: ts}, False)
 
         pairs_filtered, kpatterns_filtered, ks, single_act_pairs = generate_and_filter_patterns(treeBank)

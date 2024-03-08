@@ -24,8 +24,8 @@ import {
   LogicalZIndex,
   Stack,
 } from 'golden-layout';
-import {Subject} from 'rxjs';
-import {delay, filter, mergeMap, retryWhen, take, takeUntil, tap,} from 'rxjs/operators';
+import {from, merge, Subject} from 'rxjs';
+import {concatMap, delay, filter, mergeMap, retryWhen, take, takeUntil, tap,} from 'rxjs/operators';
 import {GoldenLayoutHostComponent} from 'src/app/components/golden-layout-host/golden-layout-host.component';
 import {LayoutChangeDirective} from 'src/app/directives/layout-change/layout-change.directive';
 import {VariantDrawerDirective} from 'src/app/directives/variant-drawer/variant-drawer.directive';
@@ -78,6 +78,7 @@ import {
 } from "./variant/subcomponents/variant-visualisation/variant-visualisation.component";
 import {FilterParams} from "./arc-diagram/filter/filter-params";
 import {MaxValues} from "./arc-diagram/filter/filter.component";
+import {BackgroundTaskInfoService} from "../../services/backgroundTaskInfoService/background-task-info.service";
 
 @Component({
   selector: 'app-variant-explorer',
@@ -111,7 +112,8 @@ export class VariantExplorerComponent
     public variantViewModeService: VariantViewModeService,
     private toastService: ToastService,
     private modalService: NgbModal,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private backgrounfInfoService: BackgroundTaskInfoService,
   ) {
     super(elRef.nativeElement, renderer);
     this.explorerElement = elRef;
@@ -200,6 +202,7 @@ export class VariantExplorerComponent
   public showFilterMenu: boolean = false;
   public lastArcsActivitiesFilter = new Set<string>();
   public arcsCache: { [bid: string]: Pair[]} = {};
+  public isShowingAllArcs: boolean = false;
 
   deleteVariant = function () {
     const bids = this.variantService.variants
@@ -1194,22 +1197,26 @@ export class VariantExplorerComponent
     return `${selectedColorScale.performanceIndicator}\n(${selectedColorScale.statistic})`;
   }
 
-  setupVariantVisualisationForArcDiagrams(bid: string, computedArcs: Pair[]) {
-    const variantViz: VariantVisualisationComponent = this.variantVisualisations.find((vv: VariantVisualisationComponent) => vv.bid == bid as unknown as number);
+  setupVariantVisualisationForArcDiagrams(variantViz: VariantVisualisationComponent, computedArcs: Pair[]) {
     const  { maxDistance} = variantViz.arcDiagram.parseInput(computedArcs);
     this.arcsMaxValues = { ...this.arcsMaxValues, distance: Math.max(maxDistance, this.arcsMaxValues.distance) }
     return variantViz;
   }
 
-  computeAndDrawArcDiagram(bids: string[], filterAfterComputation: boolean = false, filterParams?: FilterParams) {
+  async computeAndDrawArcDiagram(bids: string[] | number[], filterAfterComputation: boolean = false, filterParams?: FilterParams): Promise<void> {
+    const stopConditions$ = merge(this.backendService._cancelOtherBgTasks$, this._destroy$).pipe(tap());
     this.variantService
       .showArcDiagram(bids, filterParams)
-      .pipe(takeUntil(this._destroy$))
+      .pipe(takeUntil(stopConditions$))
       .subscribe((res: {'pairs': {[bid: string]: Pair[]}, 'maximal_values': { 'size' :number, 'length': number }}) => {
+        console.log('computeAndDrawArcDiagram subscribe returned')
         this.arcsMaxValues = { ...this.arcsMaxValues, size: Math.max(res['maximal_values']['size'], this.arcsMaxValues.size), length: Math.max(res['maximal_values']['length'], this.arcsMaxValues.length)}
         for (let [bid, pairs] of Object.entries(res['pairs'])) {
           this.arcsCache[bid] = pairs;
-          this.setupVariantVisualisationForArcDiagrams(bid, pairs).drawArcs(filterAfterComputation, filterParams);
+          const variantViz: VariantVisualisationComponent = this.variantVisualisations.find((vv: VariantVisualisationComponent) => vv.bid == bid as unknown as number);
+          if(variantViz) {
+            this.setupVariantVisualisationForArcDiagrams(variantViz, pairs).drawArcs(filterAfterComputation, filterParams);
+          }
         }
       });
   }
@@ -1239,7 +1246,16 @@ export class VariantExplorerComponent
     [...xs].every((x) => ys.has(x));
 
   showAllArcDiagrams() {
-    this.computeAndDrawArcDiagram(this.variants.map(v => v.bid as unknown as string));
+    this.isShowingAllArcs = true;
+
+    const paramsObs = from(Array(Math.ceil(this.variants.length / 30)).fill(0)
+      .map((_, idx) => this.variants.slice(30*idx, 30*(idx+1)).filter(v => !(v.bid in this.arcsCache) ).map(v => v.bid)))
+
+    paramsObs.pipe(
+      takeUntil(this._destroy$),
+      concatMap(param => this.computeAndDrawArcDiagram(param))
+    ).subscribe();
+
   }
 
 }
