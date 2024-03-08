@@ -1,5 +1,4 @@
 import {Directive, ElementRef, Input} from "@angular/core";
-import {VariantService} from "../../services/variantService/variant.service";
 import {Arc, Level, Pair} from "./data";
 import * as d3 from 'd3';
 import {IVariant} from "../../objects/Variants/variant_interface";
@@ -13,7 +12,7 @@ import {setChevronIdsForArcDiagrams} from "../../utils/render-utils";
 })
 export class ArcDiagramDirective {
 
-  constructor(elRef: ElementRef, private variantService: VariantService) {
+  constructor(elRef: ElementRef) {
     this.svgHtmlElement = elRef;
   }
 

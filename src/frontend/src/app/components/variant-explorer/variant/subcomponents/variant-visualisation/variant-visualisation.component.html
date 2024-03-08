@@ -16,8 +16,7 @@
     #arcDiagram="arcDiagram"
     appArcDiagram
     [variant]="variant"
-    class="arc-diagram-chart"
-    style="display: none"
+    [style.display]="hideArcs ? 'none' : 'block'"
   >
     <g id="arcGroup"></g>
   </svg>

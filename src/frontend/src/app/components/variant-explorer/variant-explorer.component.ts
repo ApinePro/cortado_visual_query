@@ -1198,6 +1198,7 @@ export class VariantExplorerComponent
   }
 
   setupVariantVisualisationForArcDiagrams(variantViz: VariantVisualisationComponent, computedArcs: Pair[]) {
+    variantViz.hideArcs = false;
     const  { maxDistance} = variantViz.arcDiagram.parseInput(computedArcs);
     this.arcsMaxValues = { ...this.arcsMaxValues, distance: Math.max(maxDistance, this.arcsMaxValues.distance) }
     return variantViz;
@@ -1209,7 +1210,6 @@ export class VariantExplorerComponent
       .showArcDiagram(bids, filterParams)
       .pipe(takeUntil(stopConditions$))
       .subscribe((res: {'pairs': {[bid: string]: Pair[]}, 'maximal_values': { 'size' :number, 'length': number }}) => {
-        console.log('computeAndDrawArcDiagram subscribe returned')
         this.arcsMaxValues = { ...this.arcsMaxValues, size: Math.max(res['maximal_values']['size'], this.arcsMaxValues.size), length: Math.max(res['maximal_values']['length'], this.arcsMaxValues.length)}
         for (let [bid, pairs] of Object.entries(res['pairs'])) {
           this.arcsCache[bid] = pairs;
@@ -1245,16 +1245,21 @@ export class VariantExplorerComponent
     xs.size === ys.size &&
     [...xs].every((x) => ys.has(x));
 
-  showAllArcDiagrams() {
-    this.isShowingAllArcs = true;
+  toggleArcsVisibility() {
+    this.isShowingAllArcs = !this.isShowingAllArcs;
 
-    const paramsObs = from(Array(Math.ceil(this.variants.length / 30)).fill(0)
-      .map((_, idx) => this.variants.slice(30*idx, 30*(idx+1)).filter(v => !(v.bid in this.arcsCache) ).map(v => v.bid)))
+    if(this.isShowingAllArcs) {
+      const paramsObs = from(Array(Math.ceil(this.variants.length / 30)).fill(0)
+        .map((_, idx) => this.variants.slice(30*idx, 30*(idx+1)).map(v => v.bid)))
 
-    paramsObs.pipe(
-      takeUntil(this._destroy$),
-      concatMap(param => this.computeAndDrawArcDiagram(param))
-    ).subscribe();
+      paramsObs.pipe(
+        takeUntil(this._destroy$),
+        concatMap(param => this.computeAndDrawArcDiagram(param))
+      ).subscribe();
+    } else {
+      this.variantVisualisations.forEach(vv => vv.hideArcs = true);
+    }
+
 
   }
 

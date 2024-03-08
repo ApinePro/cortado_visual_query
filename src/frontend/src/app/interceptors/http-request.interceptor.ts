@@ -76,7 +76,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
     const activeRequestToBeCancelledExists = Array.from(this.backgroundTaskInfoService.activeRequests.values())?.find(
       task => this.endpointsToCancelBeforeInterception.includes(task.Description)
     ) !== undefined
-    return activeRequestToBeCancelledExists && !this.endpointsToCancelBeforeInterception.includes(endpoint);
+    return activeRequestToBeCancelledExists && !this.endpointsToCancelBeforeInterception.includes(endpoint) && !this.shouldIgnoreRequestForTaskCounter(endpoint);
   }
 
   setBackendRunningState(error: HttpErrorResponse): void {

@@ -463,10 +463,11 @@
         </ng-container>
         <div
           class="dropdown-item"
-          (click)="showAllArcDiagrams()"
+          (click)="toggleArcsVisibility()"
         >
           <i class="bi bi-rainbow"></i>
-          <span class="ms-3">Show all arc diagrams</span>
+          <span class="ms-3" *ngIf="isShowingAllArcs">Hide all arc diagrams</span>
+          <span class="ms-3" *ngIf="!isShowingAllArcs">Show all arc diagrams</span>
         </div>
         <div
           *ngIf="

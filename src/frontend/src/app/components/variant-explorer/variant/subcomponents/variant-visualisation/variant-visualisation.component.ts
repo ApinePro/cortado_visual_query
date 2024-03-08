@@ -17,6 +17,7 @@ export class VariantVisualisationComponent implements OnInit{
   public id: string;
   public bid: number;
   public arcsRenderingInProgress: boolean = false;
+  public hideArcs: boolean = true;
 
   constructor(public variantViewModeService: VariantViewModeService) {
   }
