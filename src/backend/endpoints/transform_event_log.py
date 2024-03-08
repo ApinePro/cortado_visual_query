@@ -1,5 +1,6 @@
 import os.path
 import pickle
+import random
 import string
 from collections import Counter, defaultdict
 from typing import List, Mapping, Set, Tuple
@@ -431,12 +432,20 @@ def remove_activity_from_trace(trace, activityName):
     return trace
 
 
-def remove_activitiy_from_group(group, activity_names: list[str] | str):
+def random_activity(length=4):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for _ in range(length))
+
+
+def remove_activitiy_from_group(group, activity_names: list[str] | str, replace_with_random=False):
     if isinstance(group, LeafGroup):
         if isinstance(activity_names, str):
             activity_names = [activity_names]
 
-        group_minus = [act for act in group if act not in activity_names]
+        if replace_with_random:
+            group_minus = [random_activity() if act in activity_names else act for act in group]
+        else:
+            group_minus = [act for act in group if act not in activity_names]
 
         if len(group_minus) == 0:
             return None
@@ -445,7 +454,7 @@ def remove_activitiy_from_group(group, activity_names: list[str] | str):
 
     else:
         children = [
-            remove_activitiy_from_group(child, activity_names) for child in group
+            remove_activitiy_from_group(child, activity_names, replace_with_random) for child in group
         ]
         children = [child for child in children if child]
 
