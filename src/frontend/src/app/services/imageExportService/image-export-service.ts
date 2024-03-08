@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import { saveAs } from 'file-saver';
 import { ElectronService } from '../electronService/electron.service';
 import { HttpClient } from '@angular/common/http';
+import { optimize } from 'svgo/dist/svgo.browser.js';
 
 /***
 A service that recieves SVG elements from member components and provides conversion and saving functionality.
@@ -126,7 +127,9 @@ class SVG {
     this.mainSVG.attr('height', this.height);
     this.mainSVG.attr('width', this.width);
 
-    const file = new Blob([this.mainSVG.node().outerHTML], {
+    const blob = optimize(this.mainSVG.node().outerHTML).data;
+
+    const file = new Blob([blob], {
       type: 'image/svg+xml',
     });
     //filename = filename.endsWith('.svg') ? filename : filename + '.svg';
