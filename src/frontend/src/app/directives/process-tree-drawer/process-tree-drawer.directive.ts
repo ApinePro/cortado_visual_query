@@ -47,6 +47,7 @@ export class ProcessTreeDrawerDirective {
   onClickCallBack;
 
   redraw(tree: ProcessTree) {
+    console.log("qwfq");
     if (tree) {
       this.root = d3.hierarchy(tree, (d) => {
         // @ts-ignore
@@ -55,7 +56,7 @@ export class ProcessTreeDrawerDirective {
     } else {
       this.root = null;
     }
-
+    console.log("qwfq2");
     // synchronization between update of node width cache and process tree rendering
     setTimeout(() => this.update(this.root), 0);
   }

@@ -47,7 +47,7 @@ import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions
 import { LogService } from 'src/app/services/logService/log.service';
 import { VariantService } from 'src/app/services/variantService/variant.service';
 import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
-import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import { QueryTreeDrawerDirective } from 'src/app/directives/query-tree-drawer/query-tree-drawer.directive';
 import { InfixType, setParent } from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
 import {
@@ -150,11 +150,11 @@ export class GraphicalQueryEditorComponent
   @ViewChild(ZoomFieldComponent)
   editor: ZoomFieldComponent;
 
-  @ViewChild(VariantDrawerDirective)
-  variantDrawer: VariantDrawerDirective;
+  @ViewChild(QueryTreeDrawerDirective)
+  variantDrawer: QueryTreeDrawerDirective;
 
   activityNames: Array<String> = [];
-  public colorMap: Map<string, string>;
+  //public colorMap: Map<string, string>;
 
   currentVariant: VariantElement = null;
   cachedVariants: VariantElement[] = [null];
@@ -177,15 +177,16 @@ export class GraphicalQueryEditorComponent
   insertionStrategy = activityInsertionStrategy;
   selectedStrategy = this.insertionStrategy.behind;
 
-  variantEnrichedSelection: Selection<any, any, any, any>;
+  variantEnrichedSelection: Selection<any, any, any, any>; //selection of variant
   zoom: any;
 
   savedPatterns: VariantElement[] = [];
 
+  ///////////////////Tree Part
   queryTreeOperators: QueryTreeOperator[];
   
-  @ViewChild(ProcessTreeDrawerDirective)
-  processTreeDrawer: ProcessTreeDrawerDirective;
+  @ViewChild(QueryTreeDrawerDirective)
+  processTreeDrawer: QueryTreeDrawerDirective;
 
   currentlyDisplayedTreeInEditor;
   root: d3.HierarchyNode<any>;
@@ -346,12 +347,6 @@ export class GraphicalQueryEditorComponent
         this.activityNames.push("E");
       });
 
-    this.colorMapService.colorMap$
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((cMap) => {
-        this.colorMap = cMap;
-      });
-
       this.logService.loadedEventLog$
       .pipe(takeUntil(this._destroy$))
       .subscribe((newLog) => {
@@ -378,18 +373,20 @@ export class GraphicalQueryEditorComponent
         }
 
         this.selectedRootNodeId = id;
+        //add some?
       });
   }
   
   computeActivityColor = (
-    self: VariantDrawerDirective,
+    self: QueryTreeDrawerDirective,
     element: VariantElement,
     variant: Variant
   ) => {
     let color;
 
     if (element instanceof LeafNode) {
-      color = this.colorMap.get(element.asLeafNode().activity[0]);
+      
+      color = this.activityColorMap.get(element.asLeafNode().activity[0]);
 
       if (element.activity.length > 1) {
         color = '#d3d3d3'; // lightgray
@@ -432,7 +429,7 @@ export class GraphicalQueryEditorComponent
 
   
   triggerRedraw() {
-    setTimeout(() => this.variantDrawer.redraw(), 1);
+    setTimeout(() => this.variantDrawer.redraw(this.currentlyDisplayedTreeInEditor), 1);
   }
 
   //there is no nested parallel group in tiebreaker. The parallel could only contain leaf, choice and fallthrough
@@ -502,9 +499,12 @@ export class GraphicalQueryEditorComponent
       if (this.emptyVariant) {
         console.log("Empty");
         nodevariant.pattern = new SequencePattern([leaf]);
+        nodevariant.pattern.setExpanded(true);
         this.emptyVariant = false;
         this.selectedElement = true;
         //this.editor.centerContent(250);
+        console.log("aaaa");
+        console.log(this.selectedStrategy);
       } else {
         leaf.setExpanded(true);
         const selectedElement = this.variantEnrichedSelection
@@ -775,7 +775,10 @@ export class GraphicalQueryEditorComponent
 
   handleBehindInsert(variant: VariantElement, leaf: LeafNode, selectedElement) {
     const children = variant.getElements();
-
+    console.log("come behind");
+    console.log(variant);
+    console.log(leaf);
+    console.log(selectedElement);
     if (children) {
       const index = children.indexOf(selectedElement);
       if (variant && variant === selectedElement) {
@@ -1144,12 +1147,12 @@ export class GraphicalQueryEditorComponent
 
     const toogleSelect = function (svgSelection) {
       if (!this.multiSelect) {
-        d3.selectAll('#QueryPattern')
+        d3.selectAll('.node-variant-svg')
           .selectAll('.selected-polygon')
           .classed('selected-polygon', false)
           .attr('stroke', false);
 
-        d3.selectAll('#QueryPattern')
+        d3.selectAll('.node-variant-svg')
           .selectAll('.selected-variant-g')
           .classed('selected-variant-g', false);
 
@@ -1174,7 +1177,7 @@ export class GraphicalQueryEditorComponent
         // If one is selected reactivate insert
         if (
           d3
-            .selectAll('#QueryPattern')
+            .selectAll('.node-variant-svg')
             .selectAll('.selected-variant-g')
             .nodes().length == 1
         ) {
@@ -1198,6 +1201,8 @@ export class GraphicalQueryEditorComponent
       .classed('selected-polygon', true);
 
     this.variantEnrichedSelection = selection;
+    //this.selectedRootNodeId = null; //added newly
+    //this.selectedRootNode = null;
   }
 
   savePattern(){
@@ -1232,7 +1237,8 @@ export class GraphicalQueryEditorComponent
       this.performanceColorScaleService.selectedColorScale.performanceIndicator;
     this.performanceColorMap =
       this.performanceColorScaleService.getColorScale();
-
+    console.log("start redraw tree");
+    console.log(tree);
     this.processTreeDrawer.redraw(tree);
     setTimeout(() => this.selectRootNodeFromID(this.selectedRootNodeId), 0);
   }
@@ -1369,6 +1375,7 @@ export class GraphicalQueryEditorComponent
       this.handleActivityButtonClick(event, selectedNode as QueryTree);
       console.log((selectedNode as QueryTree).pattern);
     }
+    this.processTreeDrawer.redraw(this.currentlyDisplayedTreeInEditor);
   }
 
   // @REFRACTOR INTO PROCESSTREE SERVICE

@@ -359,14 +359,16 @@
           <g id="queryTreeZoomGroup">
             <g
               #d3svgDirective
-              appProcessTreeDrawer
+              appQueryTreeDrawer
               [onClickCallBack]="selectNodeCallBack"
               [computeNodeColor]="computeNodeColor"
               [computeTextColor]="computeTextColor"
+              [computeActivityColor]="computeActivityColor"
               [tooltipText]="tooltipContent"
               id="query-d3-svg-directive"
               width="100%"
               height="100%"
+              (selection)="handleRedraw($event)"
             ></g>
           </g>
         </svg>
