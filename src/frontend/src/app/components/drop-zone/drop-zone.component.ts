@@ -93,7 +93,9 @@ export class DropZoneComponent extends DropZoneDirective implements OnInit {
                 const backendCall = !environment.electron
                   ? this.backendService.uploadEventLog(file)
                   : this.backendService.loadEventLogFromFilePath(file['path']);
-                this.loadingOverlayService.showLoader('Importing event log (for large logs this can take up to several minutes)');
+                this.loadingOverlayService.showLoader(
+                  'Importing event log (for large logs this can take up to several minutes)'
+                );
                 backendCall.subscribe((_) => {
                   this.loadingOverlayService.hideLoader();
                 });
