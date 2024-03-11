@@ -11,13 +11,13 @@ from cortado_core.utils.split_graph import (
 from collections import defaultdict
 
 from cortado_core.subprocess_discovery.concurrency_trees.cTrees import cTreeOperator
-from cortado_core.tiebreaker.algorithm import apply_tiebreaker_on_variants
-from cortado_core.tiebreaker.pattern import (
-    parse_tiebreaker_pattern,
-    TiebreakerPattern,
+from cortado_core.sequentializer.algorithm import apply_sequentializer_on_variants
+from cortado_core.sequentializer.pattern import (
+    parse_sequentializer_pattern,
+    SequentializerPattern,
     WILDCARD_MATCH,
 )
-from cortado_core.tiebreaker.two_plus_two_free_check import get_wildcard_node
+from cortado_core.sequentializer.two_plus_two_free_check import get_wildcard_node
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
@@ -38,16 +38,16 @@ from cortado_core.subprocess_discovery.concurrency_trees.cTrees import (
     cTreeFromcGroup,
 )
 
-router = APIRouter(tags=["Tiebreaker"], prefix="/tiebreaker")
+router = APIRouter(tags=["Sequentializer"], prefix="/sequentializer")
 
 
-class TiebreakerPatterns(BaseModel):
+class SequentializerPatterns(BaseModel):
     sourcePattern: Any = None
     targetPattern: Any = None
 
 
 @router.post("/apply")
-def apply_tiebreaker(payload: TiebreakerPatterns):
+def apply_sequentializer(payload: SequentializerPatterns):
     source_pattern = parse_pattern_from_variant(
         Group.deserialize(payload.sourcePattern)
     )
@@ -80,7 +80,7 @@ def apply_tiebreaker(payload: TiebreakerPatterns):
 
     for infix_type, var in new_variants.items():  # var: dict, key(variant) value(trace)
 
-        new_variants = apply_tiebreaker_on_variants(var, source_pattern, target_pattern)
+        new_variants = apply_sequentializer_on_variants(var, source_pattern, target_pattern)
 
         res_vars, new_cache_variants = variants_to_variant_objects(
             new_variants,
@@ -126,7 +126,7 @@ def validate_string_pattern(pattern: str) -> bool:
 
 
 def validate_patterns(
-    source_pattern: TiebreakerPattern, target_pattern: TiebreakerPattern
+    source_pattern: SequentializerPattern, target_pattern: SequentializerPattern
 ):
     activities = cache.cache.parameters["activites"]
     source_activities = get_activities_in_pattern(source_pattern)
@@ -196,7 +196,7 @@ def validate_patterns(
             )
 
 
-def get_activities_in_pattern(pattern: TiebreakerPattern):
+def get_activities_in_pattern(pattern: SequentializerPattern):
     activities = set(pattern.labels)
 
     for child in pattern.children:
@@ -205,7 +205,7 @@ def get_activities_in_pattern(pattern: TiebreakerPattern):
     return activities
 
 
-def get_activity_nodes_in_pattern(pattern: TiebreakerPattern):
+def get_activity_nodes_in_pattern(pattern: SequentializerPattern):
     nodes = set()
 
     if len(pattern.labels) > 0:
@@ -245,7 +245,7 @@ def parse_pattern_from_variant_recursive(variant, parent):
         operator = WILDCARD_MATCH
 
     if operator is not None and operator != WILDCARD_MATCH:
-        node = TiebreakerPattern(operator=operator, parent=parent, children=None)
+        node = SequentializerPattern(operator=operator, parent=parent, children=None)
         if parent is not None:
             parent.children.append(node)
         if operator != cTreeOperator.Fallthrough:
@@ -257,7 +257,7 @@ def parse_pattern_from_variant_recursive(variant, parent):
             )
             parse_pattern_from_variant_recursive(fallthrough_leaf, node)
     elif operator is not None and operator == WILDCARD_MATCH:
-        node = TiebreakerPattern(operator=operator, parent=parent, children=None)
+        node = SequentializerPattern(operator=operator, parent=parent, children=None)
         if parent is not None:
             parent.children.append(node)
     else:
@@ -269,7 +269,7 @@ def parse_pattern_from_variant_recursive(variant, parent):
             labels = [activity for activity in variant]
             match_multiple = False
 
-        node = TiebreakerPattern(
+        node = SequentializerPattern(
             labels=labels, parent=parent, match_multiple=match_multiple
         )
         if parent is not None:

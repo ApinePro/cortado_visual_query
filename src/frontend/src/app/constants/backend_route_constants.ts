@@ -19,6 +19,6 @@ export class ROUTES {
   public static EXPORT = 'exporting/';
   public static IMPORT = 'importing/';
   public static VARIANTMINING = 'subvariantMining/';
-  public static SEQUENTIALIZER = 'tiebreaker/';
+  public static SEQUENTIALIZER = 'sequentializer/';
   public static LPMMINER = 'lpmMining/';
 }
