@@ -80,7 +80,9 @@ def apply_sequentializer(payload: SequentializerPatterns):
 
     for infix_type, var in new_variants.items():  # var: dict, key(variant) value(trace)
 
-        new_variants = apply_sequentializer_on_variants(var, source_pattern, target_pattern)
+        new_variants = apply_sequentializer_on_variants(
+            var, source_pattern, target_pattern
+        )
 
         res_vars, new_cache_variants = variants_to_variant_objects(
             new_variants,
