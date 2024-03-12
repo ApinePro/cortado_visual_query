@@ -75,8 +75,8 @@ import { UnavailableInfoComponent } from './components/unavailable-info/unavaila
 import { ConformanceTabComponent } from './components/conformance-tab/conformance-tab.component';
 import { ConformanceStatusIconComponent } from './components/variant-explorer/variant/subcomponents/variant-info/conformance-status-icon/conformance-status-icon.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { TiebreakerComponent } from './components/variant-explorer/tiebreaker/tiebreaker.component';
-import { PatternEditorComponent } from './components/variant-explorer/tiebreaker/pattern-editor/pattern-editor.component';
+import { VariantSequentializerComponent } from './components/variant-explorer/variant-sequentializer/variant-sequentializer.component';
+import { PatternEditorComponent } from './components/variant-explorer/variant-sequentializer/pattern-editor/pattern-editor.component';
 import { TreeConformanceButtonComponent } from './components/variant-explorer/variant/subcomponents/tree-buttons/tree-conformance-button/tree-conformance-button.component';
 import { DecimalPipe } from '@angular/common';
 import { VariantMinerActivitiesFIlterComponent } from './components/variant-miner/variant-miner-activities-filter/variant-miner-activities-filter.component';
@@ -161,7 +161,7 @@ import { QueryTreeLeafNodeComponent } from './components/query-tree-leaf-node/qu
     UnavailableInfoComponent,
     ConformanceTabComponent,
     ConformanceStatusIconComponent,
-    TiebreakerComponent,
+    VariantSequentializerComponent,
     PatternEditorComponent,
     TreeConformanceButtonComponent,
     VariantMinerActivitiesFIlterComponent,

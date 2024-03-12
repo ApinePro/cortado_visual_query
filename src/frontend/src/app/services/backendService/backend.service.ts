@@ -468,9 +468,9 @@ export class BackendService {
     );
   }
 
-  public applyTiebreaker(sourcePattern, targetPattern) {
+  public applyVariantSequentializer(sourcePattern, targetPattern) {
     this.httpClient
-      .post(ROUTES.HTTP_BASE_URL + ROUTES.TIEBREAKER + 'apply', {
+      .post(ROUTES.HTTP_BASE_URL + ROUTES.SEQUENTIALIZER + 'apply', {
         sourcePattern: sourcePattern,
         targetPattern: targetPattern,
       })

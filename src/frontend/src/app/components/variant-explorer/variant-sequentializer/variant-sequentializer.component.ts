@@ -44,11 +44,11 @@ import { PatternEditorComponent } from './pattern-editor/pattern-editor.componen
 declare var $;
 
 @Component({
-  selector: 'app-tiebreaker',
-  templateUrl: './tiebreaker.component.html',
-  styleUrls: ['./tiebreaker.component.css'],
+  selector: 'app-variant-sequentializer',
+  templateUrl: './variant-sequentializer.component.html',
+  styleUrls: ['./variant-sequentializer.component.css'],
 })
-export class TiebreakerComponent implements OnInit, OnDestroy {
+export class VariantSequentializerComponent implements OnInit, OnDestroy {
   activityNames: Array<String> = [];
 
   public colorMap: Map<string, string>;
@@ -83,7 +83,7 @@ export class TiebreakerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.variantService.showTiebreakerDialog
+    this.variantService.showVariantSequentializerDialog
       .pipe(takeUntil(this._destroy$))
       .subscribe((_) => {
         this.showModal();
@@ -95,7 +95,7 @@ export class TiebreakerComponent implements OnInit, OnDestroy {
   }
 
   showModal(): void {
-    $('#tiebreakerModalDialog').modal('show');
+    $('#variantSequentializerModalDialog').modal('show');
     this.redrawSignal = true;
     //this.logService.addActivityInEventLog('...');
     //this.colorMapService.createColorMap(Object.keys(this.logService.activitiesInEventLog));
@@ -106,7 +106,7 @@ export class TiebreakerComponent implements OnInit, OnDestroy {
   }
 
   hideModal(): void {
-    $('#tiebreakerModalDialog').modal('hide');
+    $('#variantSequentializerModalDialog').modal('hide');
   }
 
   activityExist(leaf: LeafNode, variant: VariantElement) {
@@ -182,7 +182,7 @@ export class TiebreakerComponent implements OnInit, OnDestroy {
         this.targetEditor.currentVariant
       )
     ) {
-      this.backendService.applyTiebreaker(
+      this.backendService.applyVariantSequentializer(
         this.sourceEditor.currentVariant.serialize(),
         this.targetEditor.currentVariant.serialize()
       );

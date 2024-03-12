@@ -1,4 +1,4 @@
-.tiebreaker-editor {
+.variant-sequentializer-editor {
   display: block;
   margin: 0;
   border-radius: 3px;
@@ -12,7 +12,7 @@
   background-color: rgb(var(--bs-dark-rgb) var(--bs-bg-opacity));
 }
 
-.tiebreaker-editor:focus {
+.variant-sequentializer-editor:focus {
   outline: none;
   box-shadow: none;
 }
@@ -33,6 +33,6 @@
   border-top-right-radius: 4px;
 }
 
-.tiebreaker-modal {
+.variant-sequentializer-modal {
   --bs-modal-width: 80%;
 }

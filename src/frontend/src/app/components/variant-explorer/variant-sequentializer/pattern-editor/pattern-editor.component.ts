@@ -250,7 +250,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
     setTimeout(() => this.variantDrawer.redraw(), 1);
   }
 
-  //there is no nested parallel group in tiebreaker. The parallel could only contain leaf, choice and fallthrough
+  //there is no nested parallel group in variant sequentializer. The parallel could only contain leaf, choice and fallthrough
   compareNode(node1, node2) {
     if (!(node1 instanceof LeafNode)) {
       return false;
