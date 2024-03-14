@@ -581,7 +581,6 @@ export class VariantEditorComponent
         }
       }
 
-      // weiran.yang added
       if (
         children.length === 1 &&
         variant instanceof SequenceGroup &&
