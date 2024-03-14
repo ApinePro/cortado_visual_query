@@ -1,9 +1,9 @@
-import { ZoomFieldComponent } from './../zoom-field/zoom-field.component';
-import { VariantService } from './../../services/variantService/variant.service';
+import { ZoomFieldComponent } from '../zoom-field/zoom-field.component';
+import { VariantService } from '../../services/variantService/variant.service';
 import { BackendService } from 'src/app/services/backendService/backend.service';
-import { VariantExplorerComponent } from './../variant-explorer/variant-explorer.component';
-import { GoldenLayoutComponentService } from './../../services/goldenLayoutService/golden-layout-component.service';
-import { ColorMapService } from './../../services/colorMapService/color-map.service';
+import { VariantExplorerComponent } from '../variant-explorer/variant-explorer.component';
+import { GoldenLayoutComponentService } from '../../services/goldenLayoutService/golden-layout-component.service';
+import { ColorMapService } from '../../services/colorMapService/color-map.service';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import {
@@ -40,12 +40,12 @@ import { Observable, of, Subject } from 'rxjs';
 import { first, takeUntil, tap } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-variant-editor',
-  templateUrl: './variant-editor.component.html',
-  styleUrls: ['./variant-editor.component.css'],
+  selector: 'app-variant-modeler',
+  templateUrl: './variant-modeler.component.html',
+  styleUrls: ['./variant-modeler.component.css'],
   animations: [fadeInText, collapsingText],
 })
-export class VariantEditorComponent
+export class VariantModelerComponent
   extends LayoutChangeDirective
   implements OnInit, OnDestroy
 {
@@ -53,7 +53,7 @@ export class VariantEditorComponent
 
   public colorMap: Map<string, string>;
 
-  variantEditorComponent = VariantEditorComponent;
+  VariantModelerComponent = VariantModelerComponent;
 
   @ViewChild('VariantMainGroup')
   variantElement: ElementRef;
@@ -940,7 +940,7 @@ export class VariantEditorComponent
     return of();
   }
 
-  applySortOnVariantEditor() {
+  applySortOnVariantModeler() {
     const variantExplorerRef =
       this.goldenLayoutComponentService.goldenLayout.findFirstComponentItemById(
         VariantExplorerComponent.componentName
@@ -952,14 +952,14 @@ export class VariantEditorComponent
   }
 
   sortVariant(variant) {
-    this.backendService.sortInVariantEditor(variant).subscribe((res) => {
+    this.backendService.sortInVariantModeler(variant).subscribe((res) => {
       this.currentVariant = deserialize(res['variants']);
     });
   }
 }
 
-export namespace VariantEditorComponent {
-  export const componentName = 'VariantEditorComponent';
+export namespace VariantModelerComponent {
+  export const componentName = 'VariantModelerComponent';
 }
 
 export enum activityInsertionStrategy {

@@ -58,6 +58,7 @@
               <i
                 class="bi bi-info-circle"
                 ngbTooltip="The conformance is the mean value of all sub-trees. Leaf nodes have the conformance value based on the fraction of alignments where the model and log move was aligned."
+                triggers="hover"
                 container="body"
               ></i>
             </td>
@@ -81,6 +82,7 @@
                 <i
                   class="bi bi-info-circle"
                   ngbTooltip="The conformance is the mean value of all sub-trees, where each sub-tree is weighted by the activity frequency within that tree. Leaf nodes have the conformance value based on the fraction of alignments where the model and log move was aligned."
+                  triggers="hover"
                   container="body"
                 ></i>
               </td>
@@ -99,6 +101,7 @@
                 <i
                   class="bi bi-info-circle"
                   ngbTooltip="The activity frequency is the number of times a model move occured within the alignments. Concurrency within the traces is treated by evaluating all sequential traces that can be created with the given concurrency. The values of sub-trees are the sum of its childs."
+                  triggers="hover"
                   container="body"
                 ></i>
               </td>
@@ -163,6 +166,7 @@
               variants. The method of aggregation for multiple selected variants
               can be selected from equal weights and weighted by the their log
               frequency."
+              triggers="hover"
               container="body"
             ></i>
           </h5>
@@ -203,6 +207,7 @@
               ngbTooltip="The Variant Conformance describes how often an 
               activity is properly aligned with the process model. Concurrent
               activties are sequentialized to get aggregate values."
+              triggers="hover"
               container="body"
             ></i>
           </h5>

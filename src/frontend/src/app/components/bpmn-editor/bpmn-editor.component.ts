@@ -503,6 +503,10 @@ export class BpmnEditorComponent
         }, ${2 * BPMN_Constant.VERTICALSPACING})`
       );
 
+    // Change Cortado colors of BPMN Nodes to black and white
+    bpmn.selectAll('.BPMNOperatorNode').attr('fill', 'white');
+    bpmn.selectAll('.BPMNOperatorText').attr('fill', 'black');
+
     // Export the BPMN
     this.imageExportService.export(
       'bpmn_diagram',

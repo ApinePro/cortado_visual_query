@@ -25,6 +25,7 @@
         *ngIf="sortAscending"
         class="btn-group align-baseline"
         [ngbTooltip]="tooltip1"
+        triggers="hover"
         container="body"
       >
         <button
@@ -51,6 +52,7 @@
         *ngIf="!sortAscending"
         class="btn-group align-baseline"
         [ngbTooltip]="tooltip2"
+        triggers="hover"
         container="body"
       >
         <button
@@ -73,6 +75,7 @@
       <button
         class="button"
         ngbTooltip="export the view as an .svg"
+        triggers="hover"
         container="body"
         (click)="exportSubvariantSVG()"
       >
@@ -171,6 +174,7 @@
                 <small
                   class="cursor-help"
                   [ngbTooltip]="tooltip3"
+                  triggers="hover"
                   container="body"
                 >
                   {{ subVariant.percentage }}%<br />

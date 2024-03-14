@@ -38,8 +38,8 @@ import { Observable, of, Subject } from 'rxjs';
 import { first, takeUntil, tap } from 'rxjs/operators';
 import {
   activityInsertionStrategy,
-  VariantEditorComponent,
-} from '../../variant-editor/variant-editor.component';
+  VariantModelerComponent,
+} from '../../variant-modeler/variant-modeler.component';
 import { PatternEditorComponent } from './pattern-editor/pattern-editor.component';
 declare var $;
 
