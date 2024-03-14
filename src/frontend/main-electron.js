@@ -138,6 +138,8 @@ app.whenReady().then(function () {
         backendProcess = startBackend();
       }
     );
+  } else {
+    createMainApplicationWindow();
   }
 });
 
