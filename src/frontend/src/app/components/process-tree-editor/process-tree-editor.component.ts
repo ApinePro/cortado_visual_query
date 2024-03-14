@@ -325,6 +325,13 @@ export class ProcessTreeEditorComponent
     return this.selectedRootNode && this.selectedRootNode.depth === 0;
   }
 
+  get shiftSubtreeUpDisabled(): boolean {
+    if (this.buttonManipulatingMultipleNodesDisabled()) return true;
+    // Disabled if there is no granparent of the selected node
+    if (!this.selectedRootNode.data.parent.parent) return true;
+    return false;
+  }
+
   get shiftSubtreeLeftDisabled(): boolean {
     if (this.buttonManipulatingMultipleNodesDisabled()) return true;
     const selectedNode = this.selectedRootNode.data;
@@ -353,14 +360,41 @@ export class ProcessTreeEditorComponent
     return !this.selectedRootNode || this.leafNodeSelected();
   }
 
-  // @REFRACTOR INTO PROCESSTREE SERVICE
+  shiftSubtreeUp(): void {
+    this.processTreeService.shiftSubtreeUp(this.selectedRootNode.data);
+  }
+
   shiftSubtreeToLeft(): void {
     this.processTreeService.shiftSubtreeToLeft(this.selectedRootNode.data);
   }
 
-  // @REFRACTOR INTO PROCESSTREE SERVICE
   shiftSubtreeToRight(): void {
     this.processTreeService.shiftSubtreeToRight(this.selectedRootNode.data);
+  }
+
+  get copyDisabled() {
+    return !this.selectedRootNode;
+  }
+
+  copySubtree(): void {
+    this.processTreeService.copySubtreeToBuffer(this.selectedRootNode.data);
+  }
+
+  cutSubtree(): void {
+    this.processTreeService.copySubtreeToBuffer(this.selectedRootNode.data);
+    this.processTreeService.deleteSelected(this.selectedRootNode.data);
+  }
+
+  get pasteDisabled() {
+    return (
+      !this.processTreeService.bufferedProcessTree ||
+      (!this.selectedRootNode && this.currentlyDisplayedTreeInEditor) ||
+      this.selectedRootNode?.data.label
+    );
+  }
+
+  pasteSubtree(): void {
+    this.processTreeService.pasteSubtreeFromBuffer(this.selectedRootNode?.data);
   }
 
   undo(): void {
@@ -378,7 +412,6 @@ export class ProcessTreeEditorComponent
     );
   }
 
-  // @REFRACTOR INTO PROCESSTREE SERVICE
   deleteSubtree(): void {
     this.processTreeService.deleteSelected(this.selectedRootNode.data);
   }
