@@ -30,10 +30,6 @@
     width : 100%;
   }
   
-  .button-text {
-    display: inline-block;
-  }
-  
   .filter-button{
     padding: 4px;
     color: whitesmoke;
@@ -127,3 +123,40 @@
     opacity: 0.5;
   }
   
+
+  :host {
+    position: absolute;
+    overflow: hidden;
+  }
+  
+  .strategy-selected{
+    background-color: #515a64;
+  }
+  
+  .round-corners{
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  
+  .button-area-disabled{
+    opacity: 0.5;
+    user-select: none;
+    pointer-events: none;
+  
+  }
+  
+  .button-text{
+    display : inline-block;
+  }
+  
+  .redundancy-warning{
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    color: var(--bs-warning);
+    background-color: rgb(0 0 0 / 100%);
+    padding: 6px 5px 2.5px;
+    font-size: small;
+    border-top-right-radius: 4px;
+  
+  }

@@ -1361,6 +1361,8 @@ export class GraphicalQueryEditorComponent
       operator,
       label
     );
+    //console.log("the whole tree");
+    //console.log(this.currentlyDisplayedTreeInEditor);
     this.afterInsertNode();
   }
 
