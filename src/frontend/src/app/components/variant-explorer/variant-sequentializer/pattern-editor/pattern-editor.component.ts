@@ -787,7 +787,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
     if (this.cacheIdx < this.cachedVariants.length - 1) {
       this.cachedVariants = this.cachedVariants.slice(0, this.cacheIdx + 1);
     }
-    
+
     if (this.currentVariant) {
       this.cachedVariants.push(this.currentVariant.copy());
     } else {
