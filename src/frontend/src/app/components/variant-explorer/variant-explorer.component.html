@@ -27,10 +27,11 @@
       incrementally adding new variants
     </ng-template>
     <i
-      class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text"
+      class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text cursor-help question-icon"
       [ngbTooltip]="tooltip1"
       triggers="hover"
       container="body"
+      (click)="openDocumentation('Variant Explorer')"
     >
     </i>
 
