@@ -16,7 +16,6 @@ import {
   ViewChild,
 } from '@angular/core';
 import * as d3 from 'd3';
-import {Selection} from 'd3';
 import {LogService} from 'src/app/services/logService/log.service';
 import {VariantDrawerDirective} from 'src/app/directives/variant-drawer/variant-drawer.directive';
 import {InfixType} from 'src/app/objects/Variants/infix_selection';
@@ -85,6 +84,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
   insertionStrategy = activityInsertionStrategy;
   selectedStrategy = this.insertionStrategy.behind;
 
+  // @ts-ignore
   variantEnrichedSelection: Selection<any, any, any, any>;
   zoom: any;
 
@@ -463,7 +463,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
       if (
         firstParent != secondParent ||
         firstParent.getElements().indexOf(selectedElements[i + 1]) !=
-        firstParent.getElements().indexOf(selectedElements[i]) + 1
+          firstParent.getElements().indexOf(selectedElements[i]) + 1
       ) {
         return false;
       }
@@ -955,6 +955,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
     this.triggerRedraw();
     this.newLeaf = null;
   }
+  // @ts-ignore
   handleRedraw(selection: Selection<any, any, any, any>) {
     selection.selectAll('g').on('click', function (event, d) {
       event.stopPropagation();

@@ -1,4 +1,4 @@
-import { Inject, Injectable, Optional } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { ProcessTreeService } from '../processTreeService/process-tree.service';
 import { ElectronService } from '../electronService/electron.service';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';

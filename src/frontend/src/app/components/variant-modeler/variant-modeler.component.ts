@@ -1,22 +1,31 @@
-import {ZoomFieldComponent} from '../zoom-field/zoom-field.component';
-import {VariantService} from '../../services/variantService/variant.service';
-import {BackendService} from 'src/app/services/backendService/backend.service';
-import {VariantExplorerComponent} from '../variant-explorer/variant-explorer.component';
-import {GoldenLayoutComponentService} from '../../services/goldenLayoutService/golden-layout-component.service';
-import {ColorMapService} from '../../services/colorMapService/color-map.service';
-import {ComponentContainer, LogicalZIndex} from 'golden-layout';
-import {SharedDataService} from 'src/app/services/sharedDataService/shared-data.service';
-import {Component, ElementRef, HostListener, Inject, OnDestroy, OnInit, Renderer2, ViewChild,} from '@angular/core';
+import { ZoomFieldComponent } from '../zoom-field/zoom-field.component';
+import { VariantService } from '../../services/variantService/variant.service';
+import { BackendService } from 'src/app/services/backendService/backend.service';
+import { VariantExplorerComponent } from '../variant-explorer/variant-explorer.component';
+import { GoldenLayoutComponentService } from '../../services/goldenLayoutService/golden-layout-component.service';
+import { ColorMapService } from '../../services/colorMapService/color-map.service';
+import { ComponentContainer, LogicalZIndex } from 'golden-layout';
+import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
+import {
+  Component,
+  ElementRef,
+  Inject,
+  OnInit,
+  Renderer2,
+  ViewChild,
+  HostListener,
+  OnDestroy,
+} from '@angular/core';
 
-import {cloneDeep} from 'lodash';
-import * as d3 from 'd3';
-import {Selection} from 'd3';
+import { cloneDeep } from 'lodash';
+import { select, Selection } from 'd3';
 import * as objectHash from 'object-hash';
-import {LogService} from 'src/app/services/logService/log.service';
-import {LayoutChangeDirective} from 'src/app/directives/layout-change/layout-change.directive';
-import {VariantDrawerDirective} from 'src/app/directives/variant-drawer/variant-drawer.directive';
-import {InfixType, setParent} from 'src/app/objects/Variants/infix_selection';
-import {FragmentStatistics, Variant} from 'src/app/objects/Variants/variant';
+import * as d3 from 'd3';
+import { LogService } from 'src/app/services/logService/log.service';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import { InfixType, setParent } from 'src/app/objects/Variants/infix_selection';
+import { FragmentStatistics, Variant } from 'src/app/objects/Variants/variant';
 import {
   deserialize,
   LeafNode,
@@ -24,25 +33,26 @@ import {
   SequenceGroup,
   VariantElement,
 } from 'src/app/objects/Variants/variant_element';
-import {collapsingText, fadeInText} from 'src/app/animations/text-animations';
-import {findPathToSelectedNode} from 'src/app/objects/Variants/utility_functions';
-import {Observable, of, Subject} from 'rxjs';
-import {takeUntil, tap} from 'rxjs/operators';
+import { collapsingText, fadeInText } from 'src/app/animations/text-animations';
+import { findPathToSelectedNode } from 'src/app/objects/Variants/utility_functions';
+import { applyInverseStrokeToPoly } from 'src/app/utils/render-utils';
+import { Observable, of, Subject } from 'rxjs';
+import { first, takeUntil, tap } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-variant-editor',
-  templateUrl: './variant-editor.component.html',
-  styleUrls: ['./variant-editor.component.css'],
+  selector: 'app-variant-modeler',
+  templateUrl: './variant-modeler.component.html',
+  styleUrls: ['./variant-modeler.component.css'],
   animations: [fadeInText, collapsingText],
 })
-export class VariantEditorComponent
+export class VariantModelerComponent
   extends LayoutChangeDirective
   implements OnInit, OnDestroy {
   activityNames: Array<String> = [];
 
   public colorMap: Map<string, string>;
 
-  variantEditorComponent = VariantEditorComponent;
+  VariantModelerComponent = VariantModelerComponent;
 
   @ViewChild('VariantMainGroup')
   variantElement: ElementRef;
@@ -139,14 +149,12 @@ export class VariantEditorComponent
     this.collapse = width < 1150;
   }
 
-  handleVisibilityChange(visibility: boolean): void {
-  }
+  handleVisibilityChange(visibility: boolean): void {}
 
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
     defaultZIndex: string
-  ): void {
-  }
+  ): void {}
 
   handleRedraw(selection: Selection<any, any, any, any>) {
     selection.selectAll('g').on('click', function (event, _) {
@@ -761,7 +769,7 @@ export class VariantEditorComponent
       if (
         firstParent != secondParent ||
         firstParent.getElements().indexOf(selectedElements[i + 1]) !=
-        firstParent.getElements().indexOf(selectedElements[i]) + 1
+          firstParent.getElements().indexOf(selectedElements[i]) + 1
       ) {
         return false;
       }
@@ -924,7 +932,7 @@ export class VariantEditorComponent
     return of();
   }
 
-  applySortOnVariantEditor() {
+  applySortOnVariantModeler() {
     const variantExplorerRef =
       this.goldenLayoutComponentService.goldenLayout.findFirstComponentItemById(
         VariantExplorerComponent.componentName
@@ -936,14 +944,14 @@ export class VariantEditorComponent
   }
 
   sortVariant(variant) {
-    this.backendService.sortInVariantEditor(variant).subscribe((res) => {
+    this.backendService.sortInVariantModeler(variant).subscribe((res) => {
       this.currentVariant = deserialize(res['variants']);
     });
   }
 }
 
-export namespace VariantEditorComponent {
-  export const componentName = 'VariantEditorComponent';
+export namespace VariantModelerComponent {
+  export const componentName = 'VariantModelerComponent';
 }
 
 export enum activityInsertionStrategy {

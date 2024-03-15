@@ -22,8 +22,6 @@ from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.util.xes_constants import DEFAULT_NAME_KEY
 from cortado_core.utils.cvariants import ACTIVITY_INSTANCE_KEY
 
-from api.routes.variants.variants import VariantInformation
-from endpoints.alignments import InfixType
 from endpoints.load_event_log import compute_log_stats, create_variant_object
 
 

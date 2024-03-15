@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { VariantEditorComponent } from './variant-editor.component';
+import { VariantModelerComponent } from './variant-modeler.component';
 
-describe('VariantEditorComponent', () => {
-  let component: VariantEditorComponent;
-  let fixture: ComponentFixture<VariantEditorComponent>;
+describe('VariantModelerComponent', () => {
+  let component: VariantModelerComponent;
+  let fixture: ComponentFixture<VariantModelerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [VariantEditorComponent],
+      declarations: [VariantModelerComponent],
     }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(VariantEditorComponent);
+    fixture = TestBed.createComponent(VariantModelerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

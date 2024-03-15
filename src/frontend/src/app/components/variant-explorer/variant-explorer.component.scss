@@ -292,3 +292,8 @@ thead {
   padding: 0;
   box-shadow: none;
 }
+
+.form-switch .form-check-input:checked {
+    background-color: #161693;
+  border-color: whitesmoke;
+}

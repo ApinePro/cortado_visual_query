@@ -9,7 +9,7 @@ import {TimeUnit} from 'src/app/objects/TimeUnit';
 import {mapVariants, mapVariantsList} from 'src/app/utils/util';
 import {LogService} from '../logService/log.service';
 import {ProcessTreeService} from './../processTreeService/process-tree.service';
-import {VariantElement,} from 'src/app/objects/Variants/variant_element';
+import {VariantElement} from 'src/app/objects/Variants/variant_element';
 import {ROUTES} from 'src/app/constants/backend_route_constants';
 import {MiningConfig} from 'src/app/objects/Variants/variant-miner-types';
 import {ElectronService} from '../electronService/electron.service';
@@ -640,7 +640,7 @@ export class BackendService {
     );
   }
 
-  public sortInVariantEditor(variant: VariantElement) {
+  public sortInVariantModeler(variant: VariantElement) {
     const variants = variant.serialize();
     return this.httpClient.post(
       ROUTES.BASE_URL + ROUTES.VARIANT + 'sortvariant',

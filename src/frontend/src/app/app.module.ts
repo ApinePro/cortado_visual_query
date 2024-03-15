@@ -45,7 +45,7 @@ import {ExpertModeComponent} from './components/process-tree-editor/expert-mode/
 import {SettingsComponent} from './components/settings/settings.component';
 import {DropZoneDirective} from './directives/drop-zone/drop-zone.directive';
 import {TreeStringRendererComponent} from './components/tree-string-renderer/tree-string-renderer.component';
-import {VariantEditorComponent} from './components/variant-editor/variant-editor.component';
+import {VariantModelerComponent} from './components/variant-modeler/variant-modeler.component';
 import {VariantComponent} from './components/variant-explorer/variant/variant.component';
 import {
   VariantConformanceDialogComponent
@@ -62,7 +62,7 @@ import {
 } from './components/variant-explorer/variant-info-explorer/variant-info-explorer.component';
 import {
   ActivityButtonAreaComponent
-} from './components/variant-editor/activity-button-area/activity-button-area.component';
+} from './components/variant-modeler/activity-button-area/activity-button-area.component';
 import {HeaderBarComponent} from './components/header-bar/header-bar.component';
 import {SweetAlert2Module} from '@sweetalert2/ngx-sweetalert2';
 import {DialogModule} from './components/dialogs/dialog.module';
@@ -107,9 +107,6 @@ import {EditorZoneComponent} from './components/editor-zone/editor-zone.componen
 import {FilterOptionsComponent} from './components/variant-miner/filter-options/filter-options.component';
 import {ResizeableTableHeaderComponent} from './components/resizeable-table-header/resizeable-table-header.component';
 import {ResizeColumnDirective} from './directives/resize-column.directive';
-import {
-  VariantActionButtonsComponent
-} from './components/variant-explorer/variant/subcomponents/variant-action-buttons/variant-action-buttons.component';
 import {ElectronService} from './services/electronService/electron.service';
 import {UnavailableInfoComponent} from './components/unavailable-info/unavailable-info.component';
 import {ConformanceTabComponent} from './components/conformance-tab/conformance-tab.component';
@@ -142,11 +139,14 @@ import {
 import {InfoBarComponent} from './components/activity-overview/info-bar/info-bar.component';
 import {LoadingOverlayComponent} from './components/loading-overlay/loading-overlay.component';
 import {CaseExplorerComponent} from './components/variant-explorer/case-explorer/case-explorer.component';
+import {
+  VariantActionButtonsComponent
+} from "./components/variant-explorer/variant/subcomponents/variant-action-buttons/variant-action-buttons.component";
 import {ArcDiagramDirective} from "./directives/arc-diagram/arc-diagram.directive";
-import {ArcDiagramFilterComponent} from './components/variant-explorer/arc-diagram/filter/filter.component';
+import {ArcDiagramFilterComponent} from "./components/variant-explorer/arc-diagram/filter/filter.component";
 import {
   VariantVisualisationComponent
-} from './components/variant-explorer/variant/subcomponents/variant-visualisation/variant-visualisation.component';
+} from "./components/variant-explorer/variant/subcomponents/variant-visualisation/variant-visualisation.component";
 
 @NgModule({
   declarations: [
@@ -182,7 +182,7 @@ import {
     DropZoneDirective,
     VariantConformanceDialogComponent,
     TreeStringRendererComponent,
-    VariantEditorComponent,
+    VariantModelerComponent,
     VariantDrawerDirective,
     SyntaxHighlightedTextareaDirective,
     ActivityButtonAreaComponent,
@@ -230,6 +230,7 @@ import {
     ArcDiagramDirective,
     ArcDiagramFilterComponent,
     VariantVisualisationComponent,
+    ConformanceTabComponent,
   ],
   imports: [
     BrowserModule,

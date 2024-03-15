@@ -3,6 +3,7 @@
     class="cursor-pointer btn btn-outline-dark btn-sm remove-variant-button me-2 ms-2"
     ngbTooltip="show arc diagram"
     (click)="showArcDiagramBtnClicked()"
+    triggers="hover"
     container="body"
   ><i class="bi bi-rainbow text-light"></i>
   </div>
@@ -10,6 +11,7 @@
     class="cursor-pointer btn btn-outline-dark btn-sm remove-variant-button me-2 ms-2"
     (click)="deleteVariant()"
     ngbTooltip="remove variant from event log"
+    triggers="hover"
     container="body"
   >
     <i class="bi bi-trash text-light"></i>

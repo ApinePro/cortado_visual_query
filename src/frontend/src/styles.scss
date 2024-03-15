@@ -1,6 +1,7 @@
 $tooltip-max-width: 450px;
 
 /* Define our main import here */
+@import "./styles/fonts";
 @import "./@theme/theme";
 @import "~bootstrap-icons/font/bootstrap-icons.css";
 @import "../node_modules/bootstrap/scss/bootstrap";
@@ -24,8 +25,14 @@ $tooltip-max-width: 450px;
   --standard-font-size: 14px;
   --bs-dark-rgb: 52 58 64;
   --bs-bg-opacity: 100%;
+  --bs-font-sans-serif:  "Roboto", sans-serif;
+  --bs-font-monospace: "Roboto Mono", monospace;
   --bs-accordion-btn-icon-transform: rotate(-180deg);
   --btn-hover-color: #515a64;
+}
+
+.monaco-editor {
+  font-family: var(--bs-font-sans-serif) !important;
 }
 
 body {
@@ -300,7 +307,6 @@ th {
 }
 
 .accordion-button {
-  // background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity)) !important;
   color: whitesmoke !important;
   display: flex;
   justify-content: space-between;
@@ -505,12 +511,10 @@ th {
 
 .remove-variant-button {
   display: none;
-  // background-color: var(--box-background-color);
 }
 
 tr:hover > td .remove-variant-button {
   display: inline !important;
-  // background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity)) !important;
 }
 
 tr:hover > .fixed-right {
@@ -543,4 +547,9 @@ svg *:focus {
 .accordion {
   --bs-accordion-btn-icon-transform: rotate(-180deg);
   --bs-accordion-active-bg: var(--btn-hover-color);
+}
+
+/* stylelint-disable-next-line selector-class-pattern */
+.lm_header .lm_tab {
+  font-family: var(--bs-font-sans-serif);
 }

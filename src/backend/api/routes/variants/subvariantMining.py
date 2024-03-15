@@ -1,5 +1,4 @@
 from collections import defaultdict
-from typing import DefaultDict, Mapping
 from cortado_core.eventually_follows_pattern_mining.algorithm import (
     generate_eventually_follows_patterns_from_groups,
 )
@@ -12,7 +11,7 @@ from cortado_core.eventually_follows_pattern_mining.obj import (
     SubPattern,
 )
 from cortado_core.eventually_follows_pattern_mining.util.pattern import flatten_patterns
-from cortado_core.variant_pattern_replications.repetition_pairs import create_pair, pair_unions
+from cortado_core.variant_pattern_replications.repetition_mining import create_pair, pair_unions
 from cortado_core.subprocess_discovery.concurrency_trees.cTrees import ConcurrencyTree
 from cortado_core.utils.split_graph import (
     LeafGroup,
@@ -23,7 +22,6 @@ from cortado_core.utils.split_graph import (
     Group,
 )
 
-import cache.cache as cache
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -50,7 +48,7 @@ from cortado_core.subprocess_discovery.subtree_mining.folding_label import fold_
 import cache.cache as cache
 import numpy as np
 
-from cortado_core.variant_pattern_replications.repetition_pairs import generate_and_filter_patterns, \
+from cortado_core.variant_pattern_replications.repetition_mining import generate_and_filter_patterns, \
     filter_maximal_patterns
 
 from endpoints.transform_event_log import remove_activitiy_from_group
@@ -238,16 +236,15 @@ def mineRepetitionPatterns(config: RepetitionsMiningConfig):
             v = remove_activitiy_from_group(v, activities_to_exclude, replace_with_random=True)
             v.assign_dfs_ids()
 
-        treeBank = create_treebank_from_cv_variants({v: ts}, False)
+        tree_bank = create_treebank_from_cv_variants({v: ts}, False)
 
-        pairs_filtered, kpatterns_filtered, ks, single_act_pairs = generate_and_filter_patterns(treeBank)
+        pairs_filtered, kpatterns_filtered, ks, single_act_pairs = generate_and_filter_patterns(tree_bank)
 
-        pairs_from_kpatterns, maximal_size, maximal_length = filter_maximal_patterns(kpatterns_filtered, pairs_filtered, ks, treeBank[0])
+        pairs_from_kpatterns, maximal_size, maximal_length = filter_maximal_patterns(kpatterns_filtered, pairs_filtered,
+                                                                                     ks, tree_bank[0])
 
-        print("pairs from k patterns: ")
-        print(pairs_from_kpatterns)
         combined_pairs = pair_unions(pairs_from_kpatterns, single_act_pairs)
         result.update(
             {bid: sorted(combined_pairs, key=lambda x: x.positions.bfs[1] - x.positions.bfs[0], reverse=True)})
-        # result = sorted(combined_pairs, key=lambda x: x.positions.bfs[1] - x.positions.bfs[0], reverse=True)
+
     return {'pairs': result, 'maximal_values': {'size': maximal_size, 'length': maximal_length}}

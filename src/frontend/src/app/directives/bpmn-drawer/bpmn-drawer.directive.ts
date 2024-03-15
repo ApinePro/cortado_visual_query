@@ -1,21 +1,22 @@
-import { Directive, ElementRef, Input, SimpleChanges } from '@angular/core';
-import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
+import {Directive, ElementRef, Input} from '@angular/core';
+import {ProcessTreeService} from 'src/app/services/processTreeService/process-tree.service';
 import * as d3 from 'd3';
 import {
   Block_Structured_BPMN,
   ChoiceBlock,
   convertPTtoBlockstructuredBPMN,
+  Event,
   LoopBlock,
   ParallelBlock,
   SequenceBlock,
-  Event,
 } from 'src/app/objects/BPMN/block-structured-bpmn';
-import { BPMN_Constant } from 'src/app/constants/bpmn_model_drawer_constants';
-import { ProcessTreeOperator } from 'src/app/objects/ProcessTree/ProcessTree';
-import { VariantService } from '../../services/variantService/variant.service';
-import { getBootstrapTooltipsAllowList } from '../../components/process-tree-editor/utils';
-import { ViewMode } from '../../objects/ViewMode';
-import { ModelViewModeService } from '../../services/viewModeServices/model-view-mode.service';
+import {BPMN_Constant} from 'src/app/constants/bpmn_model_drawer_constants';
+import {ProcessTreeOperator} from 'src/app/objects/ProcessTree/ProcessTree';
+import {VariantService} from '../../services/variantService/variant.service';
+import {getBootstrapTooltipsAllowList} from '../../components/process-tree-editor/utils';
+import {ViewMode} from '../../objects/ViewMode';
+import {ModelViewModeService} from '../../services/viewModeServices/model-view-mode.service';
+
 @Directive({
   selector: '[appBpmnDrawer]',
 })
@@ -63,8 +64,9 @@ export class BpmnDrawerDirective {
         .attr(
           'transform',
           `translate(${-(
-            2 * BPMN_Constant.HORIZONTALSPACING +
-            BPMN_Constant.START_END_RADIUS
+            BPMN_Constant.HORIZONTALSPACING +
+            BPMN_Constant.START_END_RADIUS -
+            BPMN_Constant.STROKE_WIDTH
           )},${BPMN_Constant.BASE_HEIGHT_WIDTH / 2})`
         );
 
@@ -74,9 +76,8 @@ export class BpmnDrawerDirective {
         start,
         BPMN_Constant.START_END_RADIUS,
         0,
-        BPMN_Constant.START_END_RADIUS + 2 * BPMN_Constant.HORIZONTALSPACING,
+        BPMN_Constant.START_END_RADIUS + BPMN_Constant.HORIZONTALSPACING,
         0,
-        false,
         model._pt.frozen
       );
 
@@ -90,7 +91,7 @@ export class BpmnDrawerDirective {
           'transform',
           `translate(${
             model.width +
-            2 * BPMN_Constant.HORIZONTALSPACING +
+            BPMN_Constant.HORIZONTALSPACING +
             BPMN_Constant.START_END_RADIUS
           }, ${BPMN_Constant.BASE_HEIGHT_WIDTH / 2})`
         );
@@ -99,12 +100,22 @@ export class BpmnDrawerDirective {
 
       this.drawLine(
         end,
-        -(BPMN_Constant.START_END_RADIUS + 2 * BPMN_Constant.HORIZONTALSPACING),
+        -(BPMN_Constant.START_END_RADIUS + BPMN_Constant.HORIZONTALSPACING),
         0,
         -BPMN_Constant.START_END_RADIUS,
         0,
-        false,
         model._pt.frozen
+      );
+
+      // translate diagram to fit into positive x and positive y quadrant
+      this.mainGroup.attr(
+        'transform',
+        `translate(${
+          2 * BPMN_Constant.START_END_RADIUS + BPMN_Constant.HORIZONTALSPACING
+        }, ${
+          BPMN_Constant.OPERATOR_DIAGONAL_LENGTH -
+          BPMN_Constant.OPERATOR_NODE_WIDTH / 2
+        })`
       );
     }
   }
@@ -136,8 +147,7 @@ export class BpmnDrawerDirective {
     this.drawOperatorNode(enter_operator, model);
 
     let offset_x =
-      BPMN_Constant.HORIZONTALSPACING +
-      2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
+      BPMN_Constant.HORIZONTALSPACING + BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
 
     let offset_y = 0;
 
@@ -150,7 +160,7 @@ export class BpmnDrawerDirective {
             BPMN_Constant.OPERATOR_DIAGONAL_LENGTH -
             (BPMN_Constant.OPERATOR_DIAGONAL_LENGTH /
               (model.members.length - 1)) *
-              i,
+            i,
           x:
             (BPMN_Constant.OPERATOR_DIAGONAL_LENGTH /
               (model.members.length - 1)) *
@@ -178,26 +188,25 @@ export class BpmnDrawerDirective {
 
         this.drawBlock(block, g);
 
+        // draw line from entry block to member block
         this.drawLine(
           parallel_block,
           BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
           offset_x + center,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          false,
           model._pt.frozen
         );
 
+        // draw line from member block to leave block
         this.drawLine(
           parallel_block,
           offset_x + center + block.width,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-            model.core_width +
-            2 * BPMN_Constant.HORIZONTALSPACING +
-            interpolate.y,
+          model.core_width +
+          2 * BPMN_Constant.HORIZONTALSPACING +
+          interpolate.y,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
-          interpolate.y > 0,
           model._pt.frozen
         );
 
@@ -208,12 +217,10 @@ export class BpmnDrawerDirective {
           block,
           BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-            model.core_width +
-            2 * BPMN_Constant.HORIZONTALSPACING +
-            interpolate.y,
+          model.core_width +
+          2 * BPMN_Constant.HORIZONTALSPACING +
+          interpolate.y,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          false,
           model._pt.frozen
         );
       }
@@ -222,13 +229,14 @@ export class BpmnDrawerDirective {
     }
 
     if (model.members.length === 0) {
+      const interpolate = interpolate_along_diag.pop();
+
       this.drawLine(
         parallel_block,
-        2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
+        BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-        offset_x + BPMN_Constant.HORIZONTALSPACING,
+        model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING + interpolate.y,
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-        false,
         model._pt.frozen
       );
     }
@@ -238,9 +246,7 @@ export class BpmnDrawerDirective {
       .attr(
         'transform',
         `translate(${
-          model.core_width +
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-          2 * BPMN_Constant.HORIZONTALSPACING
+          model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING
         }, 0)`
       );
 
@@ -257,8 +263,7 @@ export class BpmnDrawerDirective {
     this.drawOperatorNode(enter_operator, model);
 
     let offset_x =
-      BPMN_Constant.HORIZONTALSPACING +
-      2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
+      BPMN_Constant.HORIZONTALSPACING + BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
 
     let offset_y = 0;
     let interpolate_along_diag;
@@ -270,7 +275,7 @@ export class BpmnDrawerDirective {
             BPMN_Constant.OPERATOR_DIAGONAL_LENGTH -
             (BPMN_Constant.OPERATOR_DIAGONAL_LENGTH /
               (model.members.length - 1)) *
-              i,
+            i,
           x:
             (BPMN_Constant.OPERATOR_DIAGONAL_LENGTH /
               (model.members.length - 1)) *
@@ -297,40 +302,39 @@ export class BpmnDrawerDirective {
 
         this.drawBlock(block, g);
 
+        // draw line from entry block to member block
         this.drawLine(
           choiceblock,
           BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
           offset_x + center,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          false,
           model._pt.frozen
         );
 
+        // draw line from member block to leave block
         this.drawLine(
           choiceblock,
           offset_x + center + block.width,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-            model.core_width +
-            2 * BPMN_Constant.HORIZONTALSPACING +
-            interpolate.y,
+          model.core_width +
+          2 * BPMN_Constant.HORIZONTALSPACING +
+          interpolate.y,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
-          interpolate.y > 0,
           model._pt.frozen
         );
+
+        // Draw a skip-line in the tau case
       } else {
         this.drawSkipLine(
           choiceblock,
           block,
           BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-            model.core_width +
-            2 * BPMN_Constant.HORIZONTALSPACING +
-            interpolate.y,
+          model.core_width +
+          2 * BPMN_Constant.HORIZONTALSPACING +
+          interpolate.y,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          false,
           model._pt.frozen
         );
       }
@@ -339,13 +343,14 @@ export class BpmnDrawerDirective {
     }
 
     if (model.members.length === 0) {
+      const interpolate = interpolate_along_diag.pop();
+
       this.drawLine(
         choiceblock,
-        2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
+        BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-        offset_x + BPMN_Constant.HORIZONTALSPACING,
+        model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING + interpolate.y,
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-        false,
         model._pt.frozen
       );
     }
@@ -355,9 +360,7 @@ export class BpmnDrawerDirective {
       .attr(
         'transform',
         `translate(${
-          model.core_width +
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-          2 * BPMN_Constant.HORIZONTALSPACING
+          model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING
         }, 0)`
       );
 
@@ -371,8 +374,7 @@ export class BpmnDrawerDirective {
     this.drawOperatorNode(enter_operator, model);
 
     let offset_x =
-      BPMN_Constant.HORIZONTALSPACING +
-      2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
+      BPMN_Constant.HORIZONTALSPACING + BPMN_Constant.OPERATOR_DIAGONAL_LENGTH;
 
     let offset_y = 0;
 
@@ -393,38 +395,35 @@ export class BpmnDrawerDirective {
       ) {
         this.drawBlock(do_block, g);
 
+        // Draw line from do block to member block
         this.drawLine(
           loop_block,
           2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
           offset_x + center,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          false,
           model._pt.frozen
         );
 
+        // Draw line from do block to leave block
         this.drawLine(
           loop_block,
           offset_x + center + do_block.width,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-            model.core_width +
-            2 * BPMN_Constant.HORIZONTALSPACING,
+          model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-          false,
           model._pt.frozen
         );
+
+        // Draw a skip-line in the tau case
       } else {
         this.drawSkipLine(
           loop_block,
           do_block,
           2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-            model.core_width +
-            2 * BPMN_Constant.HORIZONTALSPACING,
-          BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-          false,
+          model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING,
+          BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
           model._pt.frozen
         );
       }
@@ -448,41 +447,42 @@ export class BpmnDrawerDirective {
 
           this.drawBlock(redo_block, g);
 
+          // Draw line from redo block to entry block
           this.drawLine(
             loop_block,
             offset_x + center,
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
             BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 +
-              BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
-            true,
+            BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
             model._pt.frozen
           );
 
+          // Draw line from redo block to leave block
           this.drawLine(
             loop_block,
-            3 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-              model.core_width +
-              2 * BPMN_Constant.HORIZONTALSPACING,
+            BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
+            model.core_width +
+            2 * BPMN_Constant.HORIZONTALSPACING,
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 +
-              BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
-            offset_x + center + redo_block.width + 6,
+            BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
+            offset_x + center + redo_block.width,
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-            false,
             model._pt.frozen
           );
+
+          // Draw a skip-line in the tau case
         } else {
           this.drawSkipLine(
             loop_block,
             redo_block,
-            3 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-              model.core_width +
-              2 * BPMN_Constant.HORIZONTALSPACING,
+            BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
+            model.core_width +
+            2 * BPMN_Constant.HORIZONTALSPACING,
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 +
-              BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
+            BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
             BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
-            true,
             model._pt.frozen
           );
         }
@@ -494,9 +494,8 @@ export class BpmnDrawerDirective {
         loop_block,
         2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-        offset_x + BPMN_Constant.HORIZONTALSPACING,
+        model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING,
         BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-        false,
         model._pt.frozen
       );
     }
@@ -506,9 +505,7 @@ export class BpmnDrawerDirective {
       .attr(
         'transform',
         `translate(${
-          model.core_width +
-          2 * BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-          2 * BPMN_Constant.HORIZONTALSPACING
+          model.core_width + 2 * BPMN_Constant.HORIZONTALSPACING
         }, 0)`
       );
 
@@ -526,23 +523,26 @@ export class BpmnDrawerDirective {
 
     color = BPMN_Constant.OPERATOR_COLOR;
 
+    const transforms = [
+      `translate(${
+        BPMN_Constant.OPERATOR_DIAGONAL_LENGTH - BPMN_Constant.OPERATOR_CENTER
+      }, 0)`,
+      //translate to origin to avoid transform-origin which is not widely supported
+      `translate(${BPMN_Constant.OPERATOR_CENTER}, ${BPMN_Constant.OPERATOR_CENTER})`,
+      'rotate(45)',
+      //translate back
+      `translate(-${BPMN_Constant.OPERATOR_CENTER}, -${BPMN_Constant.OPERATOR_CENTER})`,
+    ];
+
     const op = parent
       .append('rect')
+      .classed('BPMNOperatorNode', true)
       .attr('width', BPMN_Constant.BASE_HEIGHT_WIDTH)
       .attr('height', BPMN_Constant.BASE_HEIGHT_WIDTH)
       .attr('fill', color)
       .attr('stroke', BPMN_Constant.STROKE_COLOR)
       .attr('stroke-width', BPMN_Constant.STROKE_WIDTH)
-      .attr(
-        'transform',
-        `translate(${
-          BPMN_Constant.OPERATOR_DIAGONAL_LENGTH - BPMN_Constant.OPERATOR_CENTER
-        },0), rotate(45)`
-      )
-      .attr(
-        'transform-origin',
-        `${BPMN_Constant.OPERATOR_CENTER} ${BPMN_Constant.OPERATOR_CENTER}`
-      )
+      .attr('transform', transforms.join(', '))
       .classed('frozen-node-operator', model._pt.frozen);
 
     parent.on('click', (e: PointerEvent, data) => {
@@ -552,6 +552,7 @@ export class BpmnDrawerDirective {
     parent
       .append('text')
       .classed('user-select-none', true)
+      .classed('BPMNOperatorText', true)
       .attr(
         'transform',
         `translate(${BPMN_Constant.OPERATOR_DIAGONAL_LENGTH}, ${BPMN_Constant.OPERATOR_CENTER})`
@@ -624,7 +625,6 @@ export class BpmnDrawerDirective {
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
           offset_x + BPMN_Constant.HORIZONTALSPACING,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2,
-          false,
           model._pt.frozen
         );
         offset_x += BPMN_Constant.HORIZONTALSPACING;
@@ -632,25 +632,46 @@ export class BpmnDrawerDirective {
     });
   }
 
-  drawLine(selection, x1, y1, x2, y2, outBound = false, frozen = false) {
-    // Compute a right-angled-cornered Line
+  drawLine(
+    selection,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    frozen = false
+  ) {
+    const lineData: Array<[number, number]> = [[x1, y1]];
+    const d = BPMN_Constant.ARROW_LENGTH_WITHOUT_WINGS;
 
-    const lineData: Array<[number, number]> = outBound
-      ? [
-          [x1, y1],
-          [x2, y1],
-          [x2, y2 + 3],
-        ]
-      : [
-          [x1, y1],
-          [x1, y2],
-          [x2 - 3, y2],
-        ];
+    // forwards arrow
+    if (x2 > x1) {
+      // downwards
+      if (y2 >= y1) {
+        lineData.push([x1, y2]);
+        lineData.push([x2 - d, y2]);
+        // upwards
+      } else {
+        lineData.push([x2, y1]);
+        lineData.push([x2, y2 + d]);
+      }
+    }
+    // backwards arrow
+    else {
+      // downwards
+      if (y2 >= y1) {
+        lineData.push([x1, y2]);
+        lineData.push([x2 + d, y2]);
+        // upwards
+      } else {
+        lineData.push([x2, y1]);
+        lineData.push([x2, y2 + d]);
+      }
+    }
 
     const line = selection
       .append('path')
       .attr('d', d3.line()(lineData))
-      .attr('fill', 'None')
+      .attr('fill', 'none')
       .attr('stroke-width', '1')
       .attr('stroke', BPMN_Constant.STROKE_COLOR)
       .style('stroke-linejoin', 'round')
@@ -661,32 +682,36 @@ export class BpmnDrawerDirective {
   drawSkipLine(
     selection,
     model,
-    x1,
-    y1,
-    x2,
-    y2,
-    outBound = false,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
     frozen = false
   ) {
-    // Compute a right-angled-cornered Line
-    const lineData: Array<[number, number]> = outBound
-      ? [
-          [x1, y1],
-          [x1, y2],
-          [x2, y2],
-          [x2, y1 + 3],
-        ]
-      : [
-          [x1, y1],
-          [x1, y2],
-          [x2 - 3, y2],
-          [x2 - 3, y1],
-        ];
+    const lineData: Array<[number, number]> = [[x1, y1]];
+    const d = BPMN_Constant.ARROW_LENGTH_WITHOUT_WINGS;
+
+    // forwards arrow
+    if (x2 > x1) {
+      if (y1 == y2) {
+        lineData.push([x2 - d, y2]);
+      } else {
+        lineData.push([x1, y2]);
+        lineData.push([x2, y2]);
+        lineData.push([x2, y1 + d]);
+      }
+    }
+    // backwards arrow
+    else {
+      lineData.push([x1, y2]);
+      lineData.push([x2, y2]);
+      lineData.push([x2, y1 + d]);
+    }
 
     const line = selection
       .append('path')
       .attr('d', d3.line()(lineData))
-      .attr('fill', 'None')
+      .attr('fill', 'none')
       .attr('stroke-width', '1')
       .attr('stroke', BPMN_Constant.STROKE_COLOR)
       .style('stroke-linejoin', 'round')
@@ -763,10 +788,11 @@ export class BpmnDrawerDirective {
 
     parent
       .append('circle')
+      .classed('BPMNOperatorNode', true)
       .attr('r', BPMN_Constant.START_END_RADIUS)
       .attr('fill', BPMN_Constant.OPERATOR_COLOR)
       .attr('stroke', BPMN_Constant.STROKE_COLOR)
-      .attr('stroke-width', 1)
+      .attr('stroke-width', BPMN_Constant.STROKE_WIDTH)
       .classed('frozen-node-operator', frozen);
 
     parent.on('click', (e: PointerEvent, data) => {
@@ -779,6 +805,7 @@ export class BpmnDrawerDirective {
 
     parent
       .append('circle')
+      .classed('BPMNOperatorNode', true)
       .attr('r', BPMN_Constant.START_END_RADIUS)
       .attr('fill', BPMN_Constant.OPERATOR_COLOR)
       .attr('stroke', BPMN_Constant.STROKE_COLOR)
@@ -787,6 +814,7 @@ export class BpmnDrawerDirective {
 
     parent
       .append('circle')
+      .classed('BPMNOperatorNode', true)
       .attr('r', BPMN_Constant.START_END_RADIUS - 2)
       .attr('fill', BPMN_Constant.OPERATOR_COLOR)
       .attr('stroke', BPMN_Constant.STROKE_COLOR)

@@ -15,6 +15,7 @@ from api.routes.api import router as api_router
 from core.events import create_start_app_handler, create_stop_app_handler
 from error_handlers import http_exception_handler, validation_exception_handler
 from middleware.http_middleware import http_middleware
+import argparse
 
 CORTADO_DEBUG = os.getenv("CORTADO_DEBUG", "0") == "1"
 
@@ -73,9 +74,24 @@ def get_all_urls():
     return url_list
 
 
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--WEBSERVER_PORT",
+    default="40000",
+    type=int,
+    help="Specify the webserver port, defaults to  40000",
+)
+args = parser.parse_args()
+
 if __name__ == "__main__":
     # print(DEFAULT_LP_SOLVER_VARIANT)
     freeze_support()
-    uvicorn.run("main:app", host="0.0.0.0", port=41211, workers=1, reload=CORTADO_DEBUG)
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=args.WEBSERVER_PORT,
+        workers=1,
+        reload=CORTADO_DEBUG,
+    )
     # dev mode
     # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
