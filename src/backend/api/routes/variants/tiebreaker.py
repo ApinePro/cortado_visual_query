@@ -78,7 +78,9 @@ def apply_tiebreaker(payload: TiebreakerPatterns):
 
     for infix_type, var in new_variants.items():  # var: dict, key(variant) value(trace)
 
-        new_variants = apply_sequentializer_on_variants(var, source_pattern, target_pattern)
+        new_variants = apply_sequentializer_on_variants(
+            var, source_pattern, target_pattern
+        )
 
         res_vars, new_cache_variants = variants_to_variant_objects(
             new_variants,
@@ -158,14 +160,14 @@ def validate_patterns(
             raise HTTPException(
                 status_code=400,
                 detail=f"Node with labels {source_labeled_node} is present in source pattern, "
-                       f"but not in target pattern",
+                f"but not in target pattern",
             )
 
     if len(target_labeled_nodes) > 0:
         raise HTTPException(
             status_code=400,
             detail=f"Node with labels {target_labeled_nodes[0]} is present in target pattern, "
-                   f"but not in source pattern",
+            f"but not in source pattern",
         )
 
     source_wc_node = get_wildcard_node(source_pattern)

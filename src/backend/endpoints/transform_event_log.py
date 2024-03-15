@@ -432,16 +432,20 @@ def remove_activity_from_trace(trace, activityName):
 
 def random_activity(length=4):
     letters = string.ascii_lowercase
-    return ''.join(random.choice(letters) for _ in range(length))
+    return "".join(random.choice(letters) for _ in range(length))
 
 
-def remove_activitiy_from_group(group, activity_names: list[str] | str, replace_with_random=False):
+def remove_activitiy_from_group(
+    group, activity_names: list[str] | str, replace_with_random=False
+):
     if isinstance(group, LeafGroup):
         if isinstance(activity_names, str):
             activity_names = [activity_names]
 
         if replace_with_random:
-            group_minus = [random_activity() if act in activity_names else act for act in group]
+            group_minus = [
+                random_activity() if act in activity_names else act for act in group
+            ]
         else:
             group_minus = [act for act in group if act not in activity_names]
 
@@ -452,7 +456,8 @@ def remove_activitiy_from_group(group, activity_names: list[str] | str, replace_
 
     else:
         children = [
-            remove_activitiy_from_group(child, activity_names, replace_with_random) for child in group
+            remove_activitiy_from_group(child, activity_names, replace_with_random)
+            for child in group
         ]
         children = [child for child in children if child]
 

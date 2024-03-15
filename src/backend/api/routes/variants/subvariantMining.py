@@ -11,7 +11,10 @@ from cortado_core.eventually_follows_pattern_mining.obj import (
     SubPattern,
 )
 from cortado_core.eventually_follows_pattern_mining.util.pattern import flatten_patterns
-from cortado_core.variant_pattern_replications.repetition_mining import create_pair, pair_unions
+from cortado_core.variant_pattern_replications.repetition_mining import (
+    create_pair,
+    pair_unions,
+)
 from cortado_core.subprocess_discovery.concurrency_trees.cTrees import ConcurrencyTree
 from cortado_core.utils.split_graph import (
     LeafGroup,
@@ -48,8 +51,10 @@ from cortado_core.subprocess_discovery.subtree_mining.folding_label import fold_
 import cache.cache as cache
 import numpy as np
 
-from cortado_core.variant_pattern_replications.repetition_mining import generate_and_filter_patterns, \
-    filter_maximal_patterns
+from cortado_core.variant_pattern_replications.repetition_mining import (
+    generate_and_filter_patterns,
+    filter_maximal_patterns,
+)
 
 from endpoints.transform_event_log import remove_activitiy_from_group
 
@@ -92,10 +97,12 @@ def postProcessFrequentTrees(k_patterns: defaultdict[any, set]):
 
         df = df[df.valid]
 
-        df['bids'] = df.obj.apply(lambda x: set(x.rmo.keys()))
+        df["bids"] = df.obj.apply(lambda x: set(x.rmo.keys()))
 
         df.obj = df.obj.apply(
-            lambda x: replace_loops_by_loop_group(x.to_concurrency_group()).serialize(include_performance=False)
+            lambda x: replace_loops_by_loop_group(x.to_concurrency_group()).serialize(
+                include_performance=False
+            )
         )
         df = df.replace({np.nan: None})
 
@@ -155,7 +162,7 @@ def mineFrequentSubtrees(config: VariantMinerConfig):
         )
 
     print()
-    print('Post-Processing...')
+    print("Post-Processing...")
     return postProcessFrequentTrees(k_patterns)
 
 
@@ -222,10 +229,17 @@ def sub_pattern_to_ctree(pattern: SubPattern, parent=None):
 def mineRepetitionPatterns(config: RepetitionsMiningConfig):
     result = {}
 
-    filter_activities = len(config.filters.activitiesToInclude) > 0 and len(config.filters.activitiesToInclude) != len(cache.parameters["activites"])
+    filter_activities = len(config.filters.activitiesToInclude) > 0 and len(
+        config.filters.activitiesToInclude
+    ) != len(cache.parameters["activites"])
     activities_to_exclude = []
     if filter_activities:
-        activities_to_exclude = list(filter(lambda x: x not in config.filters.activitiesToInclude, cache.parameters["activites"]))
+        activities_to_exclude = list(
+            filter(
+                lambda x: x not in config.filters.activitiesToInclude,
+                cache.parameters["activites"],
+            )
+        )
 
     maximal_size, maximal_length = 1, 1
     for bid in config.bids:
@@ -233,18 +247,33 @@ def mineRepetitionPatterns(config: RepetitionsMiningConfig):
         v, ts, _, _ = cache.variants[bid]
 
         if filter_activities:
-            v = remove_activitiy_from_group(v, activities_to_exclude, replace_with_random=True)
+            v = remove_activitiy_from_group(
+                v, activities_to_exclude, replace_with_random=True
+            )
             v.assign_dfs_ids()
 
         tree_bank = create_treebank_from_cv_variants({v: ts}, False)
 
-        pairs_filtered, kpatterns_filtered, ks, single_act_pairs = generate_and_filter_patterns(tree_bank)
+        pairs_filtered, kpatterns_filtered, ks, single_act_pairs = (
+            generate_and_filter_patterns(tree_bank)
+        )
 
-        pairs_from_kpatterns, maximal_size, maximal_length = filter_maximal_patterns(kpatterns_filtered, pairs_filtered,
-                                                                                     ks, tree_bank[0])
+        pairs_from_kpatterns, maximal_size, maximal_length = filter_maximal_patterns(
+            kpatterns_filtered, pairs_filtered, ks, tree_bank[0]
+        )
 
         combined_pairs = pair_unions(pairs_from_kpatterns, single_act_pairs)
         result.update(
-            {bid: sorted(combined_pairs, key=lambda x: x.positions.bfs[1] - x.positions.bfs[0], reverse=True)})
+            {
+                bid: sorted(
+                    combined_pairs,
+                    key=lambda x: x.positions.bfs[1] - x.positions.bfs[0],
+                    reverse=True,
+                )
+            }
+        )
 
-    return {'pairs': result, 'maximal_values': {'size': maximal_size, 'length': maximal_length}}
+    return {
+        "pairs": result,
+        "maximal_values": {"size": maximal_size, "length": maximal_length},
+    }
