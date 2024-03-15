@@ -10,7 +10,6 @@ from cortado_core.utils.split_graph import (
 )
 from collections import defaultdict
 
-from cortado_core.subprocess_discovery.concurrency_trees.cTrees import cTreeOperator
 from cortado_core.sequentializer.algorithm import apply_sequentializer_on_variants
 from cortado_core.sequentializer.pattern import (
     parse_sequentializer_pattern,
@@ -27,7 +26,6 @@ from api.routes.variants.variants import VariantInformation
 # from endpoints.alignments import InfixType
 from cortado_core.models.infix_type import InfixType
 from endpoints.load_event_log import (
-    create_variant_object,
     compute_log_stats,
     variants_to_variant_objects,
 )
@@ -159,13 +157,15 @@ def validate_patterns(
         except ValueError:
             raise HTTPException(
                 status_code=400,
-                detail=f"Node with labels {source_labeled_node} is present in source pattern, but not in target pattern",
+                detail=f"Node with labels {source_labeled_node} is present in source pattern, "
+                       f"but not in target pattern",
             )
 
     if len(target_labeled_nodes) > 0:
         raise HTTPException(
             status_code=400,
-            detail=f"Node with labels {target_labeled_nodes[0]} is present in target pattern, but not in source pattern",
+            detail=f"Node with labels {target_labeled_nodes[0]} is present in target pattern, "
+                   f"but not in source pattern",
         )
 
     source_wc_node = get_wildcard_node(source_pattern)
@@ -230,7 +230,6 @@ def parse_pattern_from_variant(variant):
 
 def parse_pattern_from_variant_recursive(variant, parent):
     operator = None
-    node = None
     if isinstance(variant, SequenceGroup):
         operator = cTreeOperator.Sequential
     elif isinstance(variant, ParallelGroup):
@@ -261,7 +260,6 @@ def parse_pattern_from_variant_recursive(variant, parent):
         if parent is not None:
             parent.children.append(node)
     else:
-        labels = []
         if isinstance(variant, ChoiceGroup):
             labels = [[activity for activity in leaf][0] for leaf in variant]
             match_multiple = True
