@@ -76,18 +76,18 @@ def get_merged_performances(pt: CortadoProcessTree):
 
     merged_performances = {
         str(t): {
-            "service_time": stats(merged_service_times[t])
-            if t in merged_service_times
-            else None,
-            "cycle_time": stats(merged_cycle_times[t])
-            if t in merged_cycle_times
-            else None,
-            "waiting_time": stats(merged_waiting_times[t])
-            if t in merged_waiting_times
-            else None,
-            "idle_time": stats(merged_idle_times[t])
-            if t in merged_idle_times
-            else None,
+            "service_time": (
+                stats(merged_service_times[t]) if t in merged_service_times else None
+            ),
+            "cycle_time": (
+                stats(merged_cycle_times[t]) if t in merged_cycle_times else None
+            ),
+            "waiting_time": (
+                stats(merged_waiting_times[t]) if t in merged_waiting_times else None
+            ),
+            "idle_time": (
+                stats(merged_idle_times[t]) if t in merged_idle_times else None
+            ),
         }
         for t in tree_nodes
     }
@@ -153,18 +153,26 @@ async def calculate_variant_performance(d: InputCalculatePerformance):
 
         perf_stats = {
             str(t): {
-                "service_time": stats(service_times_aggregated[t])
-                if t in service_times_aggregated
-                else None,
-                "cycle_time": stats(cycle_times_aggregated[t])
-                if t in cycle_times_aggregated
-                else None,
-                "waiting_time": stats(waiting_times_aggregated[t])
-                if t in waiting_times_aggregated
-                else None,
-                "idle_time": stats(idle_times_aggregated[t])
-                if t in idle_times_aggregated
-                else None,
+                "service_time": (
+                    stats(service_times_aggregated[t])
+                    if t in service_times_aggregated
+                    else None
+                ),
+                "cycle_time": (
+                    stats(cycle_times_aggregated[t])
+                    if t in cycle_times_aggregated
+                    else None
+                ),
+                "waiting_time": (
+                    stats(waiting_times_aggregated[t])
+                    if t in waiting_times_aggregated
+                    else None
+                ),
+                "idle_time": (
+                    stats(idle_times_aggregated[t])
+                    if t in idle_times_aggregated
+                    else None
+                ),
             }
             for t in tree_nodes
         }

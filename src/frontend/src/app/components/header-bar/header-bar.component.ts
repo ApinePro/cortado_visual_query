@@ -14,6 +14,7 @@ import { takeUntil } from 'rxjs/operators';
 import { Modal } from 'bootstrap';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { LoadingOverlayService } from 'src/app/services/loadingOverlayService/loading-overlay.service';
+import { DocumentationService } from '../documentation/documentation.service';
 import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
 import { ViewMode } from 'src/app/objects/ViewMode';
 
@@ -45,7 +46,8 @@ export class HeaderBarComponent implements OnDestroy {
     private modalService: NgbModal,
     private loadingOverlayService: LoadingOverlayService,
     private _elRef: ElementRef<HTMLElement>,
-    private goldenLayoutComponentService: GoldenLayoutComponentService
+    private goldenLayoutComponentService: GoldenLayoutComponentService,
+    public documentationService: DocumentationService
   ) {
     this.backendService.retryEventLogSelection
       .pipe(takeUntil(this._destroy$))
@@ -118,6 +120,10 @@ export class HeaderBarComponent implements OnDestroy {
 
   showSettingsDialog(): void {
     this.showSettingsEvent.next();
+  }
+
+  showDocumentationDialog(): void {
+    this.documentationService.showDocumentationDialog();
   }
 
   /* Handle Electron Window Behavior via IPC messages

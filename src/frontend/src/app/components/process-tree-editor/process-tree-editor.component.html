@@ -1,13 +1,4 @@
-<app-drop-zone
-  [dropzoneConfig]="dropZoneConfig"
-  (fileOnHover)="toggleBlur($event)"
->
-</app-drop-zone>
-
-<div
-  class="main-process-tree-editor h-100 d-flex flex-column"
-  [class.blur-out-of-focus]="processEditorOutOfFocus"
->
+<div class="main-process-tree-editor h-100 d-flex flex-column">
   <div class="bg-dark btn-tool-bar">
     <div class="btn-group round-corners" role="group">
       <button

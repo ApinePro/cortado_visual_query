@@ -54,22 +54,11 @@ export class ActivityOverviewComponent
   sortKey: string = 'activityName';
   ascending: boolean = false;
 
-  activityOverviewOutOfFocus: boolean = false;
-
-  dropZoneConfig: DropzoneConfig;
-
   resetAvailable: boolean = false;
 
   private _destroy$ = new Subject();
 
   ngOnInit(): void {
-    this.dropZoneConfig = new DropzoneConfig(
-      '.xes',
-      'false',
-      'false',
-      '<large> Import <strong>Event Log</strong> .xes file</large>'
-    );
-
     this.activityFields = [];
 
     // Handle change of loaded log
@@ -146,10 +135,6 @@ export class ActivityOverviewComponent
         )
       );
     }
-  }
-
-  toggleBlur(event) {
-    this.activityOverviewOutOfFocus = event;
   }
 
   handleResponsiveChange(

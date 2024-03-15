@@ -138,10 +138,6 @@ export class ProcessTreeEditorComponent
 
   activityColorMap: Map<string, string>;
   performanceColorMap: Map<number, any>;
-
-  processEditorOutOfFocus: boolean = false;
-
-  dropZoneConfig: DropzoneConfig;
   editorOpen: boolean = false;
   _goldenLayoutHostComponent: GoldenLayoutHostComponent;
   _goldenLayout: GoldenLayout;
@@ -163,13 +159,6 @@ export class ProcessTreeEditorComponent
   readonly processTreeOriginY = 30;
 
   ngOnInit(): void {
-    this.dropZoneConfig = new DropzoneConfig(
-      '.ptml',
-      'false',
-      'false',
-      '<large> Import <strong>Process Tree</strong> .ptml file</large>'
-    );
-
     this.processTreeService.treeCacheIndex$
       .pipe(takeUntil(this._destroy$))
       .subscribe((idx) => {
@@ -752,13 +741,9 @@ export class ProcessTreeEditorComponent
     this.imageExportService.export(
       'process_tree',
       svgBBox.width + 2 * PT_Constant.EXPORT_OFFSET,
-      svgBBox.height + PT_Constant.EXPORT_OFFSET,
+      svgBBox.height + 2 * PT_Constant.EXPORT_OFFSET,
       tree_copy
     );
-  }
-
-  toggleBlur(event) {
-    this.processEditorOutOfFocus = event;
   }
 
   checkNodeInsertionStrategy(rootNode: ProcessTree) {

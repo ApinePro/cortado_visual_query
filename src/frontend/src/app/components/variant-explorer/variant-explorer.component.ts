@@ -98,6 +98,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ClusteringSettingsDialogComponent } from './clustering-settings-dialog/clustering-settings-dialog.component';
 import _ from 'lodash';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
+import { DocumentationService } from '../documentation/documentation.service';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
 
@@ -133,7 +134,8 @@ export class VariantExplorerComponent
     public variantViewModeService: VariantViewModeService,
     private toastService: ToastService,
     private modalService: NgbModal,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private documentationService: DocumentationService
   ) {
     super(elRef.nativeElement, renderer);
     this.explorerElement = elRef;
@@ -246,13 +248,6 @@ export class VariantExplorerComponent
   private _destroy$ = new Subject();
 
   ngOnInit(): void {
-    this.dropZoneConfig = new DropzoneConfig(
-      '.xes',
-      'false',
-      'false',
-      '<large> Import <strong>Event Log</strong> .xes file</large>'
-    );
-
     // initialize variables and initial variants
     this.init();
     // update variant explorer on log change
@@ -281,7 +276,7 @@ export class VariantExplorerComponent
 
   @HostListener('window:keydown.control.q', ['$event'])
   onopenComponent(e) {
-    this.toggleQuery();
+    this.toggleQueryFilterDialog();
   }
 
   ngAfterViewInit() {
@@ -845,7 +840,7 @@ export class VariantExplorerComponent
   }
 
   getSelectedVariants(): Variant[] {
-    return this.displayed_variants.filter((v) => v.isSelected);
+    return this.variants.filter((v) => v.isSelected);
   }
 
   isAnyVariantOutdated(variants: Variant[]): boolean {
@@ -1040,16 +1035,35 @@ export class VariantExplorerComponent
   }
 
   toggleQueryInfo(event: Event): void {
-    this.showQueryInfo = !this.showQueryInfo;
+    this.openDocumentation('Variant Querying');
+    // this.showQueryInfo = !this.showQueryInfo;
     event.stopPropagation();
+  }
+
+  openDocumentation(heading: string) {
+    this.documentationService.showDocumentationDialog(heading);
   }
 
   toggleBlur(event) {
     this.variantExplorerOutOfFocus = event;
   }
 
-  toggleQuery() {
+  toggleQueryFilterDialog() {
     this.queryActive = !this.queryActive;
+  }
+
+  filterToggle = true; // true by default (i.e. displayed activities are filtered)
+  toggleAppliedQueryFilter() {
+    // toggle the query filter...
+    if (this.filterToggle) {
+      this.variantFilterService.variantFilters = this.filterMap;
+    } else {
+      this.displayed_variants = this.variants;
+      this.variants.forEach((v) => (v.isDisplayed = true));
+    }
+
+    this.updateAllSubvariantWindows();
+    this.redraw_components();
   }
 
   sort(sortingFeature: string): void {
