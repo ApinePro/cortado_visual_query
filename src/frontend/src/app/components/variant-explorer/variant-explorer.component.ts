@@ -248,13 +248,6 @@ export class VariantExplorerComponent
   private _destroy$ = new Subject();
 
   ngOnInit(): void {
-    this.dropZoneConfig = new DropzoneConfig(
-      '.xes',
-      'false',
-      'false',
-      '<large> Import <strong>Event Log</strong> .xes file</large>'
-    );
-
     // initialize variables and initial variants
     this.init();
     // update variant explorer on log change
