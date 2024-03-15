@@ -94,7 +94,6 @@ def postProcessFrequentTrees(k_patterns: defaultdict[any, set]):
     df = dataframe_from_k_patterns(k_patterns)
 
     if not df.empty:
-
         df = df[df.valid]
 
         df["bids"] = df.obj.apply(lambda x: set(x.rmo.keys()))
@@ -243,7 +242,6 @@ def mineRepetitionPatterns(config: RepetitionsMiningConfig):
 
     maximal_size, maximal_length = 1, 1
     for bid in config.bids:
-
         v, ts, _, _ = cache.variants[bid]
 
         if filter_activities:
@@ -254,9 +252,12 @@ def mineRepetitionPatterns(config: RepetitionsMiningConfig):
 
         tree_bank = create_treebank_from_cv_variants({v: ts}, False)
 
-        pairs_filtered, kpatterns_filtered, ks, single_act_pairs = (
-            generate_and_filter_patterns(tree_bank)
-        )
+        (
+            pairs_filtered,
+            kpatterns_filtered,
+            ks,
+            single_act_pairs,
+        ) = generate_and_filter_patterns(tree_bank)
 
         pairs_from_kpatterns, maximal_size, maximal_length = filter_maximal_patterns(
             kpatterns_filtered, pairs_filtered, ks, tree_bank[0]
