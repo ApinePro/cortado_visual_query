@@ -1,5 +1,4 @@
 :host ::ng-deep {
-
   .form-group {
     resize: both;
     overflow: auto;
@@ -24,7 +23,7 @@
     border-top-right-radius: 3px;
   }
 
-  .custom-slider .ngx-slider .ngx-slider-pointer:after {
+  .custom-slider .ngx-slider .ngx-slider-pointer::after {
     display: none;
   }
 
@@ -71,7 +70,7 @@
     border-style: solid;
     border-width: thin;
     border-radius: 3px;
-    opacity: 50%;
+    opacity: 0.5;
   }
 
   .reset-activities-btn:hover {
