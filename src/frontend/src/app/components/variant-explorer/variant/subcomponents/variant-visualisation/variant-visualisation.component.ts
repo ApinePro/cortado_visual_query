@@ -65,7 +65,6 @@ export class VariantVisualisationComponent implements OnInit {
         patternSize >= filterParams.sizeRange.low &&
         arc.numberEle <= filterParams.lengthRange.high &&
         arc.numberEle >= filterParams.lengthRange.low &&
-        // && !this.containsDisallowedActivities(arc.activities, filterParams)
         arc.distanceBetweenPairs <= filterParams.distanceRange.high - 1 &&
         arc.distanceBetweenPairs >= filterParams.distanceRange.low - 1
       );

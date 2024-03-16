@@ -5,10 +5,7 @@ import { takeUntil } from 'rxjs/operators';
 import { LogService } from '../../../../services/logService/log.service';
 import { Subject } from 'rxjs';
 import { ColorMapService } from '../../../../services/colorMapService/color-map.service';
-import {
-  computeActivityColor,
-  textColorForBackgroundColor,
-} from '../../../../utils/render-utils';
+import { computeActivityColor } from '../../../../utils/render-utils';
 import { LeafNode } from '../../../../objects/Variants/variant_element';
 
 const SELECT_ALL_TEXT = 'Select All';
@@ -83,7 +80,6 @@ export class ArcDiagramFilterComponent implements OnInit {
     );
   }
   onSubmit() {
-    const recomputeArcs = this.model.activitiesSelection.selectedItems;
     this.filterArcDiagrams.emit(this.model);
   }
 
@@ -112,19 +108,12 @@ export class ArcDiagramFilterComponent implements OnInit {
       this.model.activitiesSelection.selectedItems.add(activity);
     }
   }
-
-  protected readonly textColorForBackgroundColor = textColorForBackgroundColor;
   protected readonly Array = Array;
 }
 
 export class MultiRangeFilter {
   low: number;
   high: number;
-  options: Options;
-}
-
-export class SingleRangeFilter {
-  low: number;
   options: Options;
 }
 
