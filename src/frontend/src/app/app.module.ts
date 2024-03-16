@@ -1,7 +1,11 @@
 import { DropZoneComponent } from './components/drop-zone/drop-zone.component';
 import { BrowserModule } from '@angular/platform-browser';
-import { APP_INITIALIZER, NgModule } from '@angular/core';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { APP_INITIALIZER, NgModule, SecurityContext } from '@angular/core';
+import {
+  HttpClientModule,
+  HTTP_INTERCEPTORS,
+  HttpClient,
+} from '@angular/common/http';
 
 import { TableSortingPipe } from './pipes/table-sorting/table-sorting.pipe';
 import { AppComponent } from './app.component';
@@ -90,6 +94,10 @@ import { electronServiceFactory } from './dependency-factories';
 import { ProcessTreeToolboxComponent } from './components/process-tree-editor/process-tree-toolbox/process-tree-toolbox.component';
 import { InfoBarComponent } from './components/activity-overview/info-bar/info-bar.component';
 import { LoadingOverlayComponent } from './components/loading-overlay/loading-overlay.component';
+import { DocumentationComponent } from './components/documentation/documentation.component';
+import { MarkdownModule } from 'ngx-markdown';
+import { StripHtmlPipe } from './components/documentation/strip-html.pipe';
+import { RouterLink } from '@angular/router';
 import { CaseExplorerComponent } from './components/variant-explorer/case-explorer/case-explorer.component';
 import { VariantActionButtonsComponent } from './components/variant-explorer/variant/subcomponents/variant-action-buttons/variant-action-buttons.component';
 import { ArcDiagramDirective } from './directives/arc-diagram/arc-diagram.directive';
@@ -174,11 +182,12 @@ import { VariantVisualisationComponent } from './components/variant-explorer/var
     ProcessTreeToolboxComponent,
     InfoBarComponent,
     LoadingOverlayComponent,
+    DocumentationComponent,
+    StripHtmlPipe,
     CaseExplorerComponent,
     ArcDiagramDirective,
     ArcDiagramFilterComponent,
     VariantVisualisationComponent,
-    ConformanceTabComponent,
   ],
   imports: [
     BrowserModule,
@@ -192,6 +201,11 @@ import { VariantVisualisationComponent } from './components/variant-explorer/var
     DialogModule,
     NgxSliderModule,
     NgbModule,
+    MarkdownModule.forRoot({
+      loader: HttpClient,
+      sanitize: SecurityContext.NONE,
+    }),
+    RouterLink,
   ],
   providers: [
     {

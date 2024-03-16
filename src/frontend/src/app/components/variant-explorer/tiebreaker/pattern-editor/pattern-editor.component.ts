@@ -84,6 +84,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
   insertionStrategy = activityInsertionStrategy;
   selectedStrategy = this.insertionStrategy.behind;
 
+  // @ts-ignore
   variantEnrichedSelection: Selection<any, any, any, any>;
   zoom: any;
 
@@ -955,6 +956,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
     this.newLeaf = null;
   }
 
+  // @ts-ignore
   handleRedraw(selection: Selection<any, any, any, any>) {
     selection.selectAll('g').on('click', function (event, d) {
       event.stopPropagation();

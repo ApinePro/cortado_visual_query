@@ -430,9 +430,10 @@ def remove_activity_from_trace(trace, activityName):
     return trace
 
 
-def random_activity(length=4):
+def random_activity(curr_name: str, length=4):
     letters = string.ascii_lowercase
-    return "".join(random.choice(letters) for _ in range(length))
+    # joining with the current name to retain the order of acts
+    return curr_name + "".join(random.choice(letters) for _ in range(length))
 
 
 def remove_activitiy_from_group(
@@ -444,7 +445,7 @@ def remove_activitiy_from_group(
 
         if replace_with_random:
             group_minus = [
-                random_activity() if act in activity_names else act for act in group
+                random_activity(act) if act in activity_names else act for act in group
             ]
         else:
             group_minus = [act for act in group if act not in activity_names]
@@ -475,7 +476,7 @@ def remove_activitiy_from_group(
 
         if len(children) > 1:
             if isinstance(group, ParallelGroup):
-                return ParallelGroup(sorted(children))
+                return ParallelGroup(children if replace_with_random else sorted(children)) # to retain the order of acts
 
             else:
                 return SequenceGroup(children)

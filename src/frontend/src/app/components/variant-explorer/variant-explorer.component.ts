@@ -91,6 +91,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ClusteringSettingsDialogComponent } from './clustering-settings-dialog/clustering-settings-dialog.component';
 import _ from 'lodash';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
+import { DocumentationService } from '../documentation/documentation.service';
 import * as d3 from 'd3';
 import { Arc, Pair } from '../../directives/arc-diagram/data';
 import { VariantVisualisationComponent } from './variant/subcomponents/variant-visualisation/variant-visualisation.component';
@@ -130,7 +131,8 @@ export class VariantExplorerComponent
     public variantViewModeService: VariantViewModeService,
     private toastService: ToastService,
     private modalService: NgbModal,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private documentationService: DocumentationService
   ) {
     super(elRef.nativeElement, renderer);
     this.explorerElement = elRef;
@@ -249,13 +251,6 @@ export class VariantExplorerComponent
   private _destroy$ = new Subject();
 
   ngOnInit(): void {
-    this.dropZoneConfig = new DropzoneConfig(
-      '.xes',
-      'false',
-      'false',
-      '<large> Import <strong>Event Log</strong> .xes file</large>'
-    );
-
     // initialize variables and initial variants
     this.init();
     // update variant explorer on log change
@@ -1051,8 +1046,13 @@ export class VariantExplorerComponent
   }
 
   toggleQueryInfo(event: Event): void {
-    this.showQueryInfo = !this.showQueryInfo;
+    this.openDocumentation('Variant Querying');
+    // this.showQueryInfo = !this.showQueryInfo;
     event.stopPropagation();
+  }
+
+  openDocumentation(heading: string) {
+    this.documentationService.showDocumentationDialog(heading);
   }
 
   toggleBlur(event) {

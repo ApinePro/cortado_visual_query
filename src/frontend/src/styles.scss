@@ -544,6 +544,28 @@ svg *:focus {
   text-align: right;
 }
 
+code,
+pre {
+	background-color: #d5d5d5;
+  color: rgb(56 75 211);
+	border-radius: 3px;
+	margin: 0 2px;
+	padding: 0 5px;
+	white-space: pre;
+	}
+
+pre code {
+	border: none;
+	margin: 0;
+	padding: 0;
+	white-space: pre;
+}
+
+.markdown-table {
+  border: 1px solid rgb(255 255 255 / 68%);
+  padding: 3px;
+}
+
 .accordion {
   --bs-accordion-btn-icon-transform: rotate(-180deg);
   --bs-accordion-active-bg: var(--btn-hover-color);

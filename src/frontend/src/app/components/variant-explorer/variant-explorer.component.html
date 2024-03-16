@@ -1,9 +1,4 @@
-<app-drop-zone
-  [dropzoneConfig]="dropZoneConfig"
-  (fileOnHover)="toggleBlur($event)"
-></app-drop-zone>
-
-<app-performance-progress-bar></app-performance-progress-bar>
+<app-performance-progress-bar> </app-performance-progress-bar>
 
 <app-variant-explorer-sidebar
   [sidebarHeight]="sidebarHeight"
@@ -13,7 +8,6 @@
   class="d-flex flex-column h-100 container-variant-explorer"
   #variantExplorerContainer
   [class.blur-out-of-focus]="
-    variantExplorerOutOfFocus ||
     variantPerformanceService.performanceUpdateIsInProgress
   "
 >
@@ -21,16 +15,17 @@
     <ng-template #tooltip1>
       Selected (marked with <i class="bi bi-check2-circle"></i>)
       <b>non-fitting</b> variants will be added to the process model
-      <hr/>
+      <hr />
       Selected (marked with <i class="bi bi-check2-circle"></i>)
       <b>fitting</b> variants will remain in the process tree's language when
       incrementally adding new variants
     </ng-template>
     <i
-      class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text"
+      class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text cursor-help question-icon"
       [ngbTooltip]="tooltip1"
       triggers="hover"
       container="body"
+      (click)="openDocumentation('Variant Explorer')"
     >
     </i>
 
@@ -38,19 +33,19 @@
 
     <ng-template #toolTip2>
       calculate conformance checking statistics
-      <br/><i class="bi bi-question-square text-secondary"> unknown</i>
-      <br/><i class="bi bi-hourglass-split text-secondary">
-      being calculated</i
-    >
-      <br/><i class="bi bi-check-square text-success"> variant fits model</i>
-      <br/><i class="bi bi-x-square text-danger">
-      variant does not fit model</i
-    >
-      <br/><i class="bi bi-check-square text-warning"></i>
+      <br /><i class="bi bi-question-square text-secondary"> unknown</i>
+      <br /><i class="bi bi-hourglass-split text-secondary">
+        being calculated</i
+      >
+      <br /><i class="bi bi-check-square text-success"> variant fits model</i>
+      <br /><i class="bi bi-x-square text-danger">
+        variant does not fit model</i
+      >
+      <br /><i class="bi bi-check-square text-warning"></i>
       <i class="bi bi-x-square text-warning">
         outdated results (model has changed)</i
       >
-      <br/><i class="bi bi-hourglass-bottom text-warning"> timeout</i>
+      <br /><i class="bi bi-hourglass-bottom text-warning"> timeout</i>
     </ng-template>
     <button
       [ngbTooltip]="toolTip2"
@@ -103,10 +98,10 @@
 
     <ng-template #tooltip3>
       discover an initial model from the selected variants using the standard
-      <em>Inductive Miner</em> algorithm<br/><b
-    ><i class="bi bi-exclamation-triangle text-warning"></i> overwrites the
-      existing model</b
-    >
+      <em>Inductive Miner</em> algorithm<br /><b
+        ><i class="bi bi-exclamation-triangle text-warning"></i> overwrites the
+        existing model</b
+      >
     </ng-template>
     <button
       class="button"
@@ -133,7 +128,7 @@
         discover initial model
       </div>
       <ng-template #infixSelectedTooltip>
-        Initial model discovery is not supported for infixes! <br/>
+        Initial model discovery is not supported for infixes! <br />
         First deselect all infixes.
       </ng-template>
       <i
@@ -150,19 +145,19 @@
     <div class="vr"></div>
     <ng-template #tooltip4>
       sort variants by one of the following attributes:
-      <br/><i class="bi bi-chevron-double-right">
-      total number of activities</i
-    >
-      <br/><i class="bi bi-check-square"> conformace</i> <br/><i
-      class="bi bi-123"
-    >
-      frequency</i
-    >
-      <br/><i class="bi bi-three-dots"> maximal trace length</i> <br/><i
-      class="bi bi-person-circle"
-    >
-      user created</i
-    >
+      <br /><i class="bi bi-chevron-double-right">
+        total number of activities</i
+      >
+      <br /><i class="bi bi-check-square"> conformace</i> <br /><i
+        class="bi bi-123"
+      >
+        frequency</i
+      >
+      <br /><i class="bi bi-three-dots"> maximal trace length</i> <br /><i
+        class="bi bi-person-circle"
+      >
+        user created</i
+      >
     </ng-template>
     <div
       class="btn-group align-baseline dropDownParent dropdown ms-auto"
