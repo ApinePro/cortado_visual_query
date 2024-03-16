@@ -39,7 +39,7 @@
     <div class="row justify-content-start">
       <div *ngFor="let act of Array.from(model.activitiesSelection.activitiesList)" class="col-md d-flex flex-row">
         <input class="form-check-input" type="checkbox" (change)="onChangeCheckbox(act)"
-               [value]="act" [checked]='model.activitiesSelection.selectedItems.has(act)' style="margin-right: 5px;">
+               [value]="act" [checked]="model.activitiesSelection.selectedItems.has(act)" style="margin-right: 5px;" />
         <svg
           appVariantDrawer
           [variant]="{ variant: activityDummyVariants.get(act) }"
