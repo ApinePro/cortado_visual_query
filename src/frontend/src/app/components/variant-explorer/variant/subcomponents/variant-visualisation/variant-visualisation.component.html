@@ -12,11 +12,12 @@
       <div class="spinner-border spinner-border-sm" role="status"></div>
     </div>
   </div>
+
   <svg
     #arcDiagram="arcDiagram"
     appArcDiagram
     [variant]="variant"
-    [style.display]="hideArcs ? 'none' : 'block'"
+    [style.display]="arcsViewMode==ArcsViewMode.SHOW_ALL ? 'block' : 'none'"
   >
     <g id="arcGroup"></g>
   </svg>
@@ -30,7 +31,7 @@
     [traceInfixSelectionMode]="traceInfixSelectionMode"
     [computeActivityColor]="computeActivityColor"
     [infixType]="variant.infixType"
-    (redrawArcsIfComputed)="drawArcs()"
+    (redrawArcsIfComputed)="arcsViewMode !== ArcsViewMode.HIDE_ALL && drawArcs()"
     class="zoom-group-variant"
     style="display: inline-block"
   ></svg>

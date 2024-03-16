@@ -241,8 +241,13 @@ def mineRepetitionPatterns(config: RepetitionsMiningConfig):
         )
 
     maximal_size, maximal_length = 1, 1
+
     for bid in config.bids:
-        v, ts, _, _ = cache.variants[bid]
+
+        if bid in cache.variants:
+            v, ts, _, _ = cache.variants[bid]
+        else:
+            continue
 
         if filter_activities:
             v = remove_activitiy_from_group(

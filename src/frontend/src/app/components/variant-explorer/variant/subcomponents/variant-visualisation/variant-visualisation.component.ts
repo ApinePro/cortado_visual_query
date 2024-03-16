@@ -6,6 +6,7 @@ import {ArcDiagramDirective} from "../../../../../directives/arc-diagram/arc-dia
 import {VariantDrawerDirective} from "../../../../../directives/variant-drawer/variant-drawer.directive";
 import {Arc, Pair} from "../../../../../directives/arc-diagram/data";
 import {FilterParams} from "../../../arc-diagram/filter/filter-params";
+import {ArcsViewMode} from "../../../arc-diagram/arcs-view-mode";
 
 @Component({
   selector: 'app-variant-visualisation',
@@ -17,7 +18,6 @@ export class VariantVisualisationComponent implements OnInit{
   public id: string;
   public bid: number;
   public arcsRenderingInProgress: boolean = false;
-  public hideArcs: boolean = true;
 
   constructor(public variantViewModeService: VariantViewModeService) {
   }
@@ -25,7 +25,7 @@ export class VariantVisualisationComponent implements OnInit{
   ngOnInit() {
     this.id = this.variant.id;
     this.bid = this.variant.bid;
-    if(Object.keys(this.arcsCache).length != 0 && !(this.bid in this.arcsCache) && this.isShowingAllArcs) {
+    if(Object.keys(this.arcsCache).length != 0 && !(this.bid in this.arcsCache) && this.arcsViewMode == ArcsViewMode.SHOW_ALL) {
       this.arcsRenderingInProgress = true;
     }
   }
@@ -44,7 +44,7 @@ export class VariantVisualisationComponent implements OnInit{
   @Input()
   arcsCache: { [bid: string]: Pair[]};
   @Input()
-  isShowingAllArcs: boolean;
+  arcsViewMode: ArcsViewMode;
 
   @ViewChild(ArcDiagramDirective)
   arcDiagram: ArcDiagramDirective;
@@ -74,4 +74,5 @@ export class VariantVisualisationComponent implements OnInit{
     this.arcsRenderingInProgress = false;
   }
 
+  protected readonly ArcsViewMode = ArcsViewMode;
 }

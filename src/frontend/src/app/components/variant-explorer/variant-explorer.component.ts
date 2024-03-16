@@ -1,4 +1,4 @@
-import {VariantFilter, VariantFilterService,} from './../../services/variantFilterService/variant-filter.service';
+import {VariantFilter, VariantFilterService,} from '../../services/variantFilterService/variant-filter.service';
 
 import {
   AfterViewInit,
@@ -79,6 +79,7 @@ import {
 import {FilterParams} from "./arc-diagram/filter/filter-params";
 import {MaxValues} from "./arc-diagram/filter/filter.component";
 import {BackgroundTaskInfoService} from "../../services/backgroundTaskInfoService/background-task-info.service";
+import {ArcsViewMode} from "./arc-diagram/arcs-view-mode";
 
 @Component({
   selector: 'app-variant-explorer',
@@ -103,7 +104,7 @@ export class VariantExplorerComponent
     private container: ComponentContainer,
     public processTreeService: ProcessTreeService,
     elRef: ElementRef,
-    renderer: Renderer2,
+    private renderer: Renderer2,
     public performanceService: PerformanceService,
     private performanceColorService: ModelPerformanceColorScaleService,
     public variantPerformanceService: VariantPerformanceService,
@@ -202,7 +203,8 @@ export class VariantExplorerComponent
   public showFilterMenu: boolean = false;
   public lastArcsActivitiesFilter = new Set<string>();
   public arcsCache: { [bid: string]: Pair[]} = {};
-  public isShowingAllArcs: boolean = false;
+  public arcsViewMode: ArcsViewMode = ArcsViewMode.INITIAL;
+
 
   deleteVariant = function () {
     const bids = this.variantService.variants
@@ -432,7 +434,8 @@ export class VariantExplorerComponent
     if (this.variantVisualisations) {
       for (let component of this.variantVisualisations) {
         component.variantDrawer.redraw();
-        if(component.bid in this.arcsCache) {
+        if(component.bid in this.arcsCache
+          && this.arcsViewMode !== ArcsViewMode.HIDE_ALL) {
           component.drawArcs();
         }
       }
@@ -1212,7 +1215,6 @@ export class VariantExplorerComponent
   }
 
   setupVariantVisualisationForArcDiagrams(variantViz: VariantVisualisationComponent, computedArcs: Pair[]) {
-    variantViz.hideArcs = false;
     const  { maxDistance} = variantViz.arcDiagram.parseInput(computedArcs);
     this.arcsMaxValues = { ...this.arcsMaxValues, distance: Math.max(maxDistance, this.arcsMaxValues.distance) }
     return variantViz;
@@ -1220,6 +1222,9 @@ export class VariantExplorerComponent
 
   async computeAndDrawArcDiagram(bids: string[] | number[], filterAfterComputation: boolean = false, filterParams?: FilterParams): Promise<void> {
     const stopConditions$ = merge(this.backendService._cancelOtherBgTasks$, this._destroy$).pipe(tap());
+    if (this.arcsViewMode != ArcsViewMode.SHOW_ALL) {
+      this.arcsViewMode = ArcsViewMode.SHOW_SOME;
+    }
     this.variantService
       .showArcDiagram(bids, filterParams)
       .pipe(takeUntil(stopConditions$))
@@ -1260,9 +1265,12 @@ export class VariantExplorerComponent
     [...xs].every((x) => ys.has(x));
 
   toggleArcsVisibility() {
-    this.isShowingAllArcs = !this.isShowingAllArcs;
-
-    if(this.isShowingAllArcs) {
+    if(this.arcsViewMode == ArcsViewMode.SHOW_ALL || this.arcsViewMode == ArcsViewMode.SHOW_SOME) {
+      this.arcsViewMode = ArcsViewMode.HIDE_ALL;
+      this.variantVisualisations.forEach(vv =>
+        this.renderer.setStyle(vv.arcDiagram.svgHtmlElement.nativeElement, 'display', 'none'));
+    } else if(this.arcsViewMode == ArcsViewMode.HIDE_ALL || this.arcsViewMode == ArcsViewMode.INITIAL) {
+      this.arcsViewMode = ArcsViewMode.SHOW_ALL;
       const paramsObs = from(Array(Math.ceil(this.variants.length / 30)).fill(0)
         .map((_, idx) => this.variants.slice(30*idx, 30*(idx+1)).map(v => v.bid)))
 
@@ -1271,12 +1279,11 @@ export class VariantExplorerComponent
         concatMap(param => this.computeAndDrawArcDiagram(param))
       ).subscribe();
     } else {
-      this.variantVisualisations.forEach(vv => vv.hideArcs = true);
+      console.error('mode not recognised');
     }
-
-
   }
 
+  protected readonly ArcsViewMode = ArcsViewMode;
 }
 
 

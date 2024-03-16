@@ -378,8 +378,8 @@
           (click)="toggleArcsVisibility()"
         >
           <i class="bi bi-rainbow"></i>
-          <span class="ms-3" *ngIf="isShowingAllArcs">Hide all arc diagrams</span>
-          <span class="ms-3" *ngIf="!isShowingAllArcs">Show all arc diagrams</span>
+          <span class="ms-3" *ngIf="arcsViewMode === ArcsViewMode.SHOW_ALL || arcsViewMode === ArcsViewMode.SHOW_SOME">Hide all arc diagrams</span>
+          <span class="ms-3" *ngIf="arcsViewMode === ArcsViewMode.INITIAL || arcsViewMode === ArcsViewMode.HIDE_ALL">Show all arc diagrams</span>
         </div>
         <div
           *ngIf="
@@ -798,7 +798,7 @@
                       [traceInfixSelectionMode]="traceInfixSelectionMode"
                       [colorMap]="colorMap"
                       [arcsCache]="arcsCache"
-                      [isShowingAllArcs]="isShowingAllArcs"
+                      [arcsViewMode]="arcsViewMode"
                     ></app-variant-visualisation>
                     <ng-template #infixSelection>
                       <app-infix-selection-controlls
