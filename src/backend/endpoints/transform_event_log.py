@@ -476,7 +476,9 @@ def remove_activitiy_from_group(
 
         if len(children) > 1:
             if isinstance(group, ParallelGroup):
-                return ParallelGroup(children if replace_with_random else sorted(children)) # to retain the order of acts
+                return ParallelGroup(
+                    children if replace_with_random else sorted(children)
+                )  # to retain the order of acts
 
             else:
                 return SequenceGroup(children)
