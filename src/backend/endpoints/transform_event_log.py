@@ -570,8 +570,6 @@ def remove_activities(
         activityName, fallthrough, new_variants, update_res_variants
     )
 
-    update = set(cache.variants.keys()).difference(no_update)
-
     for _, v in new_variants.items():
         v[0].assign_dfs_ids()
 

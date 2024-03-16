@@ -226,12 +226,15 @@ def sub_pattern_to_ctree(pattern: SubPattern, parent=None):
 
 @router.post("/repetitionsMining/")
 def mineRepetitionPatterns(config: RepetitionsMiningConfig):
+
     result = {}
 
     filter_activities = len(config.filters.activitiesToInclude) > 0 and len(
         config.filters.activitiesToInclude
     ) != len(cache.parameters["activites"])
+
     activities_to_exclude = []
+
     if filter_activities:
         activities_to_exclude = list(
             filter(
@@ -269,6 +272,7 @@ def mineRepetitionPatterns(config: RepetitionsMiningConfig):
         )
 
         combined_pairs = pair_unions(pairs_from_kpatterns, single_act_pairs)
+
         result.update(
             {
                 bid: sorted(
