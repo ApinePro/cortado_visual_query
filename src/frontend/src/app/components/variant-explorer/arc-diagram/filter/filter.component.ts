@@ -1,12 +1,15 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {FilterParams} from "./filter-params";
-import {Options} from "ngx-slider-v2";
-import {takeUntil} from "rxjs/operators";
-import {LogService} from "../../../../services/logService/log.service";
-import {Subject} from "rxjs";
-import {ColorMapService} from "../../../../services/colorMapService/color-map.service";
-import {computeActivityColor, textColorForBackgroundColor} from "../../../../utils/render-utils";
-import {LeafNode} from "../../../../objects/Variants/variant_element";
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FilterParams } from './filter-params';
+import { Options } from 'ngx-slider-v2';
+import { takeUntil } from 'rxjs/operators';
+import { LogService } from '../../../../services/logService/log.service';
+import { Subject } from 'rxjs';
+import { ColorMapService } from '../../../../services/colorMapService/color-map.service';
+import {
+  computeActivityColor,
+  textColorForBackgroundColor,
+} from '../../../../utils/render-utils';
+import { LeafNode } from '../../../../objects/Variants/variant_element';
 
 const SELECT_ALL_TEXT = 'Select All';
 const DESELECT_ALL_TEXT = 'Deselect All';
@@ -14,17 +17,18 @@ const DESELECT_ALL_TEXT = 'Deselect All';
 @Component({
   selector: 'app-arc-diagram-filter-form',
   templateUrl: './filter.component.html',
-  styleUrls: ['./filter.component.scss']
+  styleUrls: ['./filter.component.scss'],
 })
 export class ArcDiagramFilterComponent implements OnInit {
-
-  constructor(private logService: LogService, private colorMapService: ColorMapService) { }
+  constructor(
+    private logService: LogService,
+    private colorMapService: ColorMapService
+  ) {}
 
   activityDummyVariants: Map<string, LeafNode> = new Map<string, LeafNode>();
 
   colorMap: Map<string, string> = new Map<string, string>();
   computeActivityColor = computeActivityColor.bind(this);
-
 
   activitiesSelectionBtnText: string = DESELECT_ALL_TEXT;
 
@@ -34,7 +38,7 @@ export class ArcDiagramFilterComponent implements OnInit {
   newActivitiesLoaded = new EventEmitter<Set<string>>();
 
   @Input() set arcsMaxValues(values: MaxValues) {
-    for(const [type, value] of Object.entries(values)) {
+    for (const [type, value] of Object.entries(values)) {
       this.setRangeFilters(type, value);
     }
   }
@@ -52,8 +56,12 @@ export class ArcDiagramFilterComponent implements OnInit {
           this.model.activitiesSelection.activitiesList.add(activity);
           this.setActivityDummyVariants(activity);
         });
-        this.model.activitiesSelection.selectedItems = new Set(this.model.activitiesSelection.activitiesList);
-        this.newActivitiesLoaded.emit(this.model.activitiesSelection.selectedItems);
+        this.model.activitiesSelection.selectedItems = new Set(
+          this.model.activitiesSelection.activitiesList
+        );
+        this.newActivitiesLoaded.emit(
+          this.model.activitiesSelection.selectedItems
+        );
       });
     this.colorMapService.colorMap$
       .pipe(takeUntil(this._destroy$))
@@ -69,19 +77,24 @@ export class ArcDiagramFilterComponent implements OnInit {
 
   setRangeFilters(type: string, value: number) {
     this.model[`${type}Range`].high = value + 1;
-    this.model[`${type}Range`].options = this.createNewOptionsObject(this.model[`${type}Range`].options, value);
+    this.model[`${type}Range`].options = this.createNewOptionsObject(
+      this.model[`${type}Range`].options,
+      value
+    );
   }
   onSubmit() {
-    const recomputeArcs = this.model.activitiesSelection.selectedItems
+    const recomputeArcs = this.model.activitiesSelection.selectedItems;
     this.filterArcDiagrams.emit(this.model);
   }
 
   toggleActivitiesSelection() {
-    if(this.model.activitiesSelection.selectedItems.size > 0) {
+    if (this.model.activitiesSelection.selectedItems.size > 0) {
       this.model.activitiesSelection.selectedItems.clear();
       this.activitiesSelectionBtnText = SELECT_ALL_TEXT;
     } else {
-      this.model.activitiesSelection.selectedItems = new Set(this.model.activitiesSelection.activitiesList);
+      this.model.activitiesSelection.selectedItems = new Set(
+        this.model.activitiesSelection.activitiesList
+      );
       this.activitiesSelectionBtnText = DESELECT_ALL_TEXT;
     }
   }
@@ -93,7 +106,7 @@ export class ArcDiagramFilterComponent implements OnInit {
   }
 
   onChangeCheckbox(activity: string) {
-    if(this.model.activitiesSelection.selectedItems.has(activity)) {
+    if (this.model.activitiesSelection.selectedItems.has(activity)) {
       this.model.activitiesSelection.selectedItems.delete(activity);
     } else {
       this.model.activitiesSelection.selectedItems.add(activity);

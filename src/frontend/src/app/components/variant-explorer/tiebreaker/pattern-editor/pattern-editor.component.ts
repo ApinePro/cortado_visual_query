@@ -1,7 +1,7 @@
-import {ZoomFieldComponent} from 'src/app/components/zoom-field/zoom-field.component';
-import {VariantService} from 'src/app/services/variantService/variant.service';
-import {BackendService} from 'src/app/services/backendService/backend.service';
-import {ColorMapService} from 'src/app/services/colorMapService/color-map.service';
+import { ZoomFieldComponent } from 'src/app/components/zoom-field/zoom-field.component';
+import { VariantService } from 'src/app/services/variantService/variant.service';
+import { BackendService } from 'src/app/services/backendService/backend.service';
+import { ColorMapService } from 'src/app/services/colorMapService/color-map.service';
 import {
   Component,
   ElementRef,
@@ -16,10 +16,10 @@ import {
   ViewChild,
 } from '@angular/core';
 import * as d3 from 'd3';
-import {LogService} from 'src/app/services/logService/log.service';
-import {VariantDrawerDirective} from 'src/app/directives/variant-drawer/variant-drawer.directive';
-import {InfixType} from 'src/app/objects/Variants/infix_selection';
-import {Variant} from 'src/app/objects/Variants/variant';
+import { LogService } from 'src/app/services/logService/log.service';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import { InfixType } from 'src/app/objects/Variants/infix_selection';
+import { Variant } from 'src/app/objects/Variants/variant';
 import {
   ChoiceGroup,
   FallthroughGroup,
@@ -28,10 +28,10 @@ import {
   SequenceGroup,
   VariantElement,
 } from 'src/app/objects/Variants/variant_element';
-import {collapsingText} from 'src/app/animations/text-animations';
-import {findPathToSelectedNode} from 'src/app/objects/Variants/utility_functions';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import { collapsingText } from 'src/app/animations/text-animations';
+import { findPathToSelectedNode } from 'src/app/objects/Variants/utility_functions';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 declare var $;
 

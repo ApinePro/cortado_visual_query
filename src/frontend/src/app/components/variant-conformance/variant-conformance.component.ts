@@ -1,14 +1,22 @@
-import {AfterViewInit, Component, ElementRef, Inject, OnDestroy, Renderer2, ViewChild,} from '@angular/core';
-import {ComponentContainer, LogicalZIndex} from 'golden-layout';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
-import {LayoutChangeDirective} from 'src/app/directives/layout-change/layout-change.directive';
-import {ViewMode} from 'src/app/objects/ViewMode';
-import {ConformanceCheckingService} from 'src/app/services/conformanceChecking/conformance-checking.service';
-import {ProcessTreeService} from 'src/app/services/processTreeService/process-tree.service';
-import {ModelViewModeService} from 'src/app/services/viewModeServices/model-view-mode.service';
-import {VariantViewModeService} from 'src/app/services/viewModeServices/variant-view-mode.service';
-import {ColorMapValue} from '../performance/color-map/color-map.component';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Inject,
+  OnDestroy,
+  Renderer2,
+  ViewChild,
+} from '@angular/core';
+import { ComponentContainer, LogicalZIndex } from 'golden-layout';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { ViewMode } from 'src/app/objects/ViewMode';
+import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
+import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
+import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
+import { ColorMapValue } from '../performance/color-map/color-map.component';
 
 @Component({
   selector: 'app-conformance-tab',

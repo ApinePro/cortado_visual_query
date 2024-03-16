@@ -8,7 +8,15 @@ class Arc {
   size: number;
   distanceBetweenPairs: number;
 
-  constructor(sourcePos, numberEle, targetPos, matches, text, activities, size) {
+  constructor(
+    sourcePos,
+    numberEle,
+    targetPos,
+    matches,
+    text,
+    activities,
+    size
+  ) {
     this.sourcePos = sourcePos;
     /** First starting position of the arc */
     this.numberEle = numberEle;
@@ -40,7 +48,7 @@ class Pair {
   length: number;
   matches: Set<number>;
   activities: Set<string>;
-  size: number
+  size: number;
 
   constructor(positions, pattern, matches, activities, size) {
     this.positions = positions; // starting positions in concurrency tree
@@ -53,13 +61,13 @@ class Pair {
 }
 
 class Level {
-  distanceBetweenPairs: number // number of chevrons between them
-  fromBottom: number // which level the arcs are drawn on
+  distanceBetweenPairs: number; // number of chevrons between them
+  fromBottom: number; // which level the arcs are drawn on
 
   constructor(distanceBetweenPairs: number, fromBottom: number) {
-    this.distanceBetweenPairs = distanceBetweenPairs
-    this.fromBottom = fromBottom
+    this.distanceBetweenPairs = distanceBetweenPairs;
+    this.fromBottom = fromBottom;
   }
 }
 
-export {Arc, Pair, Level};
+export { Arc, Pair, Level };

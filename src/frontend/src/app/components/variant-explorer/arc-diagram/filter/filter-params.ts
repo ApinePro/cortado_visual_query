@@ -1,4 +1,4 @@
-import {ActivitiesSelection, MultiRangeFilter} from "./filter.component";
+import { ActivitiesSelection, MultiRangeFilter } from './filter.component';
 
 export class FilterParams {
   lengthRange: MultiRangeFilter;
@@ -14,24 +14,24 @@ export class FilterParams {
         floor: 0,
         ceil: 2,
         showTicks: true,
-      }
-    }
+      },
+    };
     this.sizeRange = {
       ...this.distanceRange,
       low: 1,
       options: {
         ...this.distanceRange.options,
         floor: 1,
-      }
-    }
+      },
+    };
 
-    this.lengthRange =  {
-      ...this.sizeRange
-    }
+    this.lengthRange = {
+      ...this.sizeRange,
+    };
 
     this.activitiesSelection = {
       selectedItems: new Set<string>(),
       activitiesList: new Set<string>(),
-    }
+    };
   }
 }

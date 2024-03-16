@@ -47,7 +47,8 @@ import { first, takeUntil, tap } from 'rxjs/operators';
 })
 export class VariantModelerComponent
   extends LayoutChangeDirective
-  implements OnInit, OnDestroy {
+  implements OnInit, OnDestroy
+{
   activityNames: Array<String> = [];
 
   public colorMap: Map<string, string>;
@@ -890,29 +891,25 @@ export class VariantModelerComponent
       this.addStatistics(newVariant).subscribe();
 
       if (newVariant.infixType === InfixType.NOT_AN_INFIX) {
-        this.variantService
-          .addUserDefinedVariant(newVariant)
-          .subscribe(() => {
-            if (this.variantService.clusteringConfig) {
-              // trigger new clustering
-              this.variantService.clusteringConfig =
-                this.variantService.clusteringConfig;
-            } else {
-              this.variantService.variants = this.variantService.variants;
-            }
-          });
+        this.variantService.addUserDefinedVariant(newVariant).subscribe(() => {
+          if (this.variantService.clusteringConfig) {
+            // trigger new clustering
+            this.variantService.clusteringConfig =
+              this.variantService.clusteringConfig;
+          } else {
+            this.variantService.variants = this.variantService.variants;
+          }
+        });
       } else {
-        this.variantService
-          .addInfixToBackend(newVariant)
-          .subscribe(() => {
-            if (this.variantService.clusteringConfig) {
-              // trigger new clustering
-              this.variantService.clusteringConfig =
-                this.variantService.clusteringConfig;
-            } else {
-              this.variantService.variants = this.variantService.variants;
-            }
-          });
+        this.variantService.addInfixToBackend(newVariant).subscribe(() => {
+          if (this.variantService.clusteringConfig) {
+            // trigger new clustering
+            this.variantService.clusteringConfig =
+              this.variantService.clusteringConfig;
+          } else {
+            this.variantService.variants = this.variantService.variants;
+          }
+        });
       }
     } else {
       this.redundancyWarning = true;

@@ -1,5 +1,5 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {ConformanceTabComponent} from "./variant-conformance.component";
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ConformanceTabComponent } from './variant-conformance.component';
 
 describe('VariantConformanceComponent', () => {
   let component: ConformanceTabComponent;

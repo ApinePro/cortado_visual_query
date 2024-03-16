@@ -1,4 +1,7 @@
-import {VariantFilter, VariantFilterService,} from '../../services/variantFilterService/variant-filter.service';
+import {
+  VariantFilter,
+  VariantFilterService,
+} from '../../services/variantFilterService/variant-filter.service';
 
 import {
   AfterViewInit,
@@ -24,62 +27,76 @@ import {
   LogicalZIndex,
   Stack,
 } from 'golden-layout';
-import {from, merge, Subject} from 'rxjs';
-import {concatMap, delay, filter, mergeMap, retryWhen, take, takeUntil, tap,} from 'rxjs/operators';
-import {GoldenLayoutHostComponent} from 'src/app/components/golden-layout-host/golden-layout-host.component';
-import {LayoutChangeDirective} from 'src/app/directives/layout-change/layout-change.directive';
-import {VariantDrawerDirective} from 'src/app/directives/variant-drawer/variant-drawer.directive';
+import { from, merge, Subject } from 'rxjs';
+import {
+  concatMap,
+  delay,
+  filter,
+  mergeMap,
+  retryWhen,
+  take,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
+import { GoldenLayoutHostComponent } from 'src/app/components/golden-layout-host/golden-layout-host.component';
+import { LayoutChangeDirective } from 'src/app/directives/layout-change/layout-change.directive';
+import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/variant-drawer.directive';
 
-import {TimeUnit} from 'src/app/objects/TimeUnit';
-import {HumanizeDurationPipe} from 'src/app/pipes/humanize-duration.pipe';
+import { TimeUnit } from 'src/app/objects/TimeUnit';
+import { HumanizeDurationPipe } from 'src/app/pipes/humanize-duration.pipe';
 import {
   AlignmentType,
   ConformanceCheckingService,
 } from 'src/app/services/conformanceChecking/conformance-checking.service';
-import {GoldenLayoutComponentService} from 'src/app/services/goldenLayoutService/golden-layout-component.service';
-import {LogService, LogStats} from 'src/app/services/logService/log.service';
-import {ModelPerformanceColorScaleService} from 'src/app/services/performance-color-scale.service';
-import {PerformanceService} from 'src/app/services/performance.service';
-import {PolygonDrawingService} from 'src/app/services/polygon-drawing.service';
-import {ProcessTreeService} from 'src/app/services/processTreeService/process-tree.service';
-import {VariantPerformanceService} from 'src/app/services/variant-performance.service';
-import {VariantService} from 'src/app/services/variantService/variant.service';
-import {originalOrder} from 'src/app/utils/util';
-import {BackendService} from '../../services/backendService/backend.service';
-import {ColorMapService} from '../../services/colorMapService/color-map.service';
-import {ImageExportService} from '../../services/imageExportService/image-export-service';
-import {SharedDataService} from '../../services/sharedDataService/shared-data.service';
-import {DropzoneConfig} from '../drop-zone/drop-zone.component';
-import {SubvariantExplorerComponent} from './subvariant-explorer/subvariant-explorer.component';
-import {VariantInfoExplorerComponent} from './variant-info-explorer/variant-info-explorer.component';
-import {Variant} from 'src/app/objects/Variants/variant';
-import {deserialize, ParallelGroup, SequenceGroup, VariantElement,} from 'src/app/objects/Variants/variant_element';
-import {exportVariantDrawer} from './functions/export-variant-explorer';
-import {fadeInOutComponent, openCloseComponent,} from 'src/app/animations/component-animations';
-import {collapsingText} from 'src/app/animations/text-animations';
-import {textColorForBackgroundColor} from 'src/app/utils/render-utils';
-import {processTreesEqual} from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
-import {ViewMode} from 'src/app/objects/ViewMode';
-import {VariantViewModeService} from 'src/app/services/viewModeServices/variant-view-mode.service';
-import {EditorOptions} from './variant-query/variant-query.component';
-import {ContextMenuItem} from './variant-explorer-context-menu/variant-explorer-context-menu.component';
-import {ToastService} from 'src/app/services/toast/toast.service';
-import {ProcessTree} from 'src/app/objects/ProcessTree/ProcessTree';
-import {IVariant} from 'src/app/objects/Variants/variant_interface';
-import {LoopCollapsedVariant} from 'src/app/objects/Variants/loop_collapsed_variant';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {ClusteringSettingsDialogComponent} from './clustering-settings-dialog/clustering-settings-dialog.component';
-import _ from 'lodash';
-import {InfixType} from 'src/app/objects/Variants/infix_selection';
-import * as d3 from 'd3';
-import {Arc, Pair} from "../../directives/arc-diagram/data";
+import { GoldenLayoutComponentService } from 'src/app/services/goldenLayoutService/golden-layout-component.service';
+import { LogService, LogStats } from 'src/app/services/logService/log.service';
+import { ModelPerformanceColorScaleService } from 'src/app/services/performance-color-scale.service';
+import { PerformanceService } from 'src/app/services/performance.service';
+import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
+import { VariantPerformanceService } from 'src/app/services/variant-performance.service';
+import { VariantService } from 'src/app/services/variantService/variant.service';
+import { originalOrder } from 'src/app/utils/util';
+import { BackendService } from '../../services/backendService/backend.service';
+import { ColorMapService } from '../../services/colorMapService/color-map.service';
+import { ImageExportService } from '../../services/imageExportService/image-export-service';
+import { SharedDataService } from '../../services/sharedDataService/shared-data.service';
+import { DropzoneConfig } from '../drop-zone/drop-zone.component';
+import { SubvariantExplorerComponent } from './subvariant-explorer/subvariant-explorer.component';
+import { VariantInfoExplorerComponent } from './variant-info-explorer/variant-info-explorer.component';
+import { Variant } from 'src/app/objects/Variants/variant';
 import {
-  VariantVisualisationComponent
-} from "./variant/subcomponents/variant-visualisation/variant-visualisation.component";
-import {FilterParams} from "./arc-diagram/filter/filter-params";
-import {MaxValues} from "./arc-diagram/filter/filter.component";
-import {BackgroundTaskInfoService} from "../../services/backgroundTaskInfoService/background-task-info.service";
-import {ArcsViewMode} from "./arc-diagram/arcs-view-mode";
+  deserialize,
+  ParallelGroup,
+  SequenceGroup,
+  VariantElement,
+} from 'src/app/objects/Variants/variant_element';
+import { exportVariantDrawer } from './functions/export-variant-explorer';
+import {
+  fadeInOutComponent,
+  openCloseComponent,
+} from 'src/app/animations/component-animations';
+import { collapsingText } from 'src/app/animations/text-animations';
+import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
+import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
+import { ViewMode } from 'src/app/objects/ViewMode';
+import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
+import { EditorOptions } from './variant-query/variant-query.component';
+import { ContextMenuItem } from './variant-explorer-context-menu/variant-explorer-context-menu.component';
+import { ToastService } from 'src/app/services/toast/toast.service';
+import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
+import { IVariant } from 'src/app/objects/Variants/variant_interface';
+import { LoopCollapsedVariant } from 'src/app/objects/Variants/loop_collapsed_variant';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ClusteringSettingsDialogComponent } from './clustering-settings-dialog/clustering-settings-dialog.component';
+import _ from 'lodash';
+import { InfixType } from 'src/app/objects/Variants/infix_selection';
+import * as d3 from 'd3';
+import { Arc, Pair } from '../../directives/arc-diagram/data';
+import { VariantVisualisationComponent } from './variant/subcomponents/variant-visualisation/variant-visualisation.component';
+import { FilterParams } from './arc-diagram/filter/filter-params';
+import { MaxValues } from './arc-diagram/filter/filter.component';
+import { ArcsViewMode } from './arc-diagram/arcs-view-mode';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -113,8 +130,7 @@ export class VariantExplorerComponent
     public variantViewModeService: VariantViewModeService,
     private toastService: ToastService,
     private modalService: NgbModal,
-    private changeDetectorRef: ChangeDetectorRef,
-    private backgrounfInfoService: BackgroundTaskInfoService,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     super(elRef.nativeElement, renderer);
     this.explorerElement = elRef;
@@ -199,12 +215,11 @@ export class VariantExplorerComponent
     size: 1,
     length: 1,
     distance: 1,
-  }
+  };
   public showFilterMenu: boolean = false;
   public lastArcsActivitiesFilter = new Set<string>();
-  public arcsCache: { [bid: string]: Pair[]} = {};
+  public arcsCache: { [bid: string]: Pair[] } = {};
   public arcsViewMode: ArcsViewMode = ArcsViewMode.INITIAL;
-
 
   deleteVariant = function () {
     const bids = this.variantService.variants
@@ -434,8 +449,10 @@ export class VariantExplorerComponent
     if (this.variantVisualisations) {
       for (let component of this.variantVisualisations) {
         component.variantDrawer.redraw();
-        if(component.bid in this.arcsCache
-          && this.arcsViewMode !== ArcsViewMode.HIDE_ALL) {
+        if (
+          component.bid in this.arcsCache &&
+          this.arcsViewMode !== ArcsViewMode.HIDE_ALL
+        ) {
           component.drawArcs();
         }
       }
@@ -472,8 +489,7 @@ export class VariantExplorerComponent
           this.updateAlignmentStatistics();
           this.variantVisualisations
             .find((vv) => vv.id == res.id)
-            ?.variantDrawer
-            ?.redraw();
+            ?.variantDrawer?.redraw();
         },
         (_) => {
           this.variants.forEach((v) => {
@@ -1214,46 +1230,91 @@ export class VariantExplorerComponent
     return `${selectedColorScale.performanceIndicator}\n(${selectedColorScale.statistic})`;
   }
 
-  setupVariantVisualisationForArcDiagrams(variantViz: VariantVisualisationComponent, computedArcs: Pair[]) {
-    const  { maxDistance} = variantViz.arcDiagram.parseInput(computedArcs);
-    this.arcsMaxValues = { ...this.arcsMaxValues, distance: Math.max(maxDistance, this.arcsMaxValues.distance) }
+  setupVariantVisualisationForArcDiagrams(
+    variantViz: VariantVisualisationComponent,
+    computedArcs: Pair[]
+  ) {
+    const { maxDistance } = variantViz.arcDiagram.parseInput(computedArcs);
+    this.arcsMaxValues = {
+      ...this.arcsMaxValues,
+      distance: Math.max(maxDistance, this.arcsMaxValues.distance),
+    };
     return variantViz;
   }
 
-  async computeAndDrawArcDiagram(bids: string[] | number[], filterAfterComputation: boolean = false, filterParams?: FilterParams): Promise<void> {
-    const stopConditions$ = merge(this.backendService._cancelOtherBgTasks$, this._destroy$).pipe(tap());
+  async computeAndDrawArcDiagram(
+    bids: string[] | number[],
+    filterAfterComputation: boolean = false,
+    filterParams?: FilterParams
+  ): Promise<void> {
+    const stopConditions$ = merge(
+      this.backendService._cancelOtherBgTasks$,
+      this._destroy$
+    ).pipe(tap());
     if (this.arcsViewMode != ArcsViewMode.SHOW_ALL) {
       this.arcsViewMode = ArcsViewMode.SHOW_SOME;
     }
     this.variantService
       .showArcDiagram(bids, filterParams)
       .pipe(takeUntil(stopConditions$))
-      .subscribe((res: {'pairs': {[bid: string]: Pair[]}, 'maximal_values': { 'size' :number, 'length': number }}) => {
-        this.arcsMaxValues = { ...this.arcsMaxValues, size: Math.max(res['maximal_values']['size'], this.arcsMaxValues.size), length: Math.max(res['maximal_values']['length'], this.arcsMaxValues.length)}
-        for (let [bid, pairs] of Object.entries(res['pairs'])) {
-          this.arcsCache[bid] = pairs;
-          const variantViz: VariantVisualisationComponent = this.variantVisualisations.find((vv: VariantVisualisationComponent) => vv.bid == bid as unknown as number);
-          if(variantViz) {
-            this.setupVariantVisualisationForArcDiagrams(variantViz, pairs).drawArcs(filterAfterComputation, filterParams);
+      .subscribe(
+        (res: {
+          pairs: { [bid: string]: Pair[] };
+          maximal_values: { size: number; length: number };
+        }) => {
+          this.arcsMaxValues = {
+            ...this.arcsMaxValues,
+            size: Math.max(
+              res['maximal_values']['size'],
+              this.arcsMaxValues.size
+            ),
+            length: Math.max(
+              res['maximal_values']['length'],
+              this.arcsMaxValues.length
+            ),
+          };
+          for (let [bid, pairs] of Object.entries(res['pairs'])) {
+            this.arcsCache[bid] = pairs;
+            const variantViz: VariantVisualisationComponent =
+              this.variantVisualisations.find(
+                (vv: VariantVisualisationComponent) =>
+                  vv.bid == (bid as unknown as number)
+              );
+            if (variantViz) {
+              this.setupVariantVisualisationForArcDiagrams(
+                variantViz,
+                pairs
+              ).drawArcs(filterAfterComputation, filterParams);
+            }
           }
         }
-      });
+      );
   }
 
   filterArcDiagrams(filterParams: FilterParams) {
-    const recomputeArcs = this.hasArcDiagramActivitiesSelectionChanged(filterParams);
-    if(recomputeArcs) {
-      this.computeAndDrawArcDiagram(Object.keys(this.arcsCache), true, filterParams);
+    const recomputeArcs =
+      this.hasArcDiagramActivitiesSelectionChanged(filterParams);
+    if (recomputeArcs) {
+      this.computeAndDrawArcDiagram(
+        Object.keys(this.arcsCache),
+        true,
+        filterParams
+      );
     } else {
-      this.variantVisualisations.forEach(variantViz=> {
+      this.variantVisualisations.forEach((variantViz) => {
         variantViz.drawArcs(true, filterParams);
       });
     }
-    this.lastArcsActivitiesFilter = new Set(filterParams.activitiesSelection.selectedItems);
+    this.lastArcsActivitiesFilter = new Set(
+      filterParams.activitiesSelection.selectedItems
+    );
   }
 
   hasArcDiagramActivitiesSelectionChanged(filterParams: FilterParams) {
-    return !this.eqSet(filterParams.activitiesSelection.selectedItems, this.lastArcsActivitiesFilter);
+    return !this.eqSet(
+      filterParams.activitiesSelection.selectedItems,
+      this.lastArcsActivitiesFilter
+    );
   }
 
   newActivitiesLoaded(newActivities: Set<string>) {
@@ -1261,32 +1322,42 @@ export class VariantExplorerComponent
   }
 
   eqSet = (xs: Set<any>, ys: Set<any>) =>
-    xs.size === ys.size &&
-    [...xs].every((x) => ys.has(x));
+    xs.size === ys.size && [...xs].every((x) => ys.has(x));
 
   toggleArcsVisibility() {
-    if(this.arcsViewMode == ArcsViewMode.SHOW_ALL || this.arcsViewMode == ArcsViewMode.SHOW_SOME) {
+    if (
+      this.arcsViewMode == ArcsViewMode.SHOW_ALL ||
+      this.arcsViewMode == ArcsViewMode.SHOW_SOME
+    ) {
       this.arcsViewMode = ArcsViewMode.HIDE_ALL;
-      this.variantVisualisations.forEach(vv =>
-        this.renderer.setStyle(vv.arcDiagram.svgHtmlElement.nativeElement, 'display', 'none'));
-    } else if(this.arcsViewMode == ArcsViewMode.HIDE_ALL || this.arcsViewMode == ArcsViewMode.INITIAL) {
-      this.arcsViewMode = ArcsViewMode.SHOW_ALL;
-      const paramsObs = from(Array(Math.ceil(this.variants.length / 30)).fill(0)
-        .map((_, idx) => this.variants.slice(30*idx, 30*(idx+1)).map(v => v.bid)))
-
-      paramsObs.pipe(
-        takeUntil(this._destroy$),
-        concatMap(param => this.computeAndDrawArcDiagram(param))
-      ).subscribe();
+      this.variantVisualisations.forEach((vv) =>
+        this.renderer.setStyle(
+          vv.arcDiagram.svgHtmlElement.nativeElement,
+          'display',
+          'none'
+        )
+      );
     } else {
-      console.error('mode not recognised');
+      this.arcsViewMode = ArcsViewMode.SHOW_ALL;
+      const paramsObs = from(
+        Array(Math.ceil(this.variants.length / 30))
+          .fill(0)
+          .map((_, idx) =>
+            this.variants.slice(30 * idx, 30 * (idx + 1)).map((v) => v.bid)
+          )
+      );
+
+      paramsObs
+        .pipe(
+          takeUntil(this._destroy$),
+          concatMap((param) => this.computeAndDrawArcDiagram(param))
+        )
+        .subscribe();
     }
   }
 
   protected readonly ArcsViewMode = ArcsViewMode;
 }
-
-
 
 export namespace VariantExplorerComponent {
   export const componentName = 'VariantExplorerComponent';

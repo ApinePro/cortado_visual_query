@@ -1,4 +1,4 @@
-import {VARIANT_Constants} from './../../constants/variant_element_drawer_constants';
+import { VARIANT_Constants } from './../../constants/variant_element_drawer_constants';
 
 import {
   AfterViewInit,
@@ -12,9 +12,9 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import * as d3 from 'd3';
-import {Selection} from 'd3';
-import {PolygonGeneratorService} from 'src/app/services/polygon-generator.service';
-import {SharedDataService} from 'src/app/services/sharedDataService/shared-data.service';
+import { Selection } from 'd3';
+import { PolygonGeneratorService } from 'src/app/services/polygon-generator.service';
+import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import {
   getLowestSelectionActionableElement,
   InfixType,
@@ -32,21 +32,22 @@ import {
   VariantElement,
   WaitingTimeNode,
 } from 'src/app/objects/Variants/variant_element';
-import {textColorForBackgroundColor} from 'src/app/utils/render-utils';
-import {ViewMode} from 'src/app/objects/ViewMode';
-import {VariantViewModeService} from 'src/app/services/viewModeServices/variant-view-mode.service';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
-import {IVariant} from 'src/app/objects/Variants/variant_interface';
-import {ConformanceCheckingService} from 'src/app/services/conformanceChecking/conformance-checking.service';
-import {VariantService} from '../../services/variantService/variant.service';
+import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
+import { ViewMode } from 'src/app/objects/ViewMode';
+import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { IVariant } from 'src/app/objects/Variants/variant_interface';
+import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
+import { VariantService } from '../../services/variantService/variant.service';
 
 @Directive({
   selector: '[appVariantDrawer]',
   exportAs: 'variantDrawer',
 })
 export class VariantDrawerDirective
-  implements AfterViewInit, OnChanges, OnDestroy {
+  implements AfterViewInit, OnChanges, OnDestroy
+{
   setExpanded(expanded: boolean) {
     this.variant.variant.setExpanded(expanded);
     this.variant.alignment?.setExpanded(expanded);
@@ -121,8 +122,7 @@ export class VariantDrawerDirective
   private _destroy$ = new Subject();
 
   ngAfterViewInit(): void {
-    this.svgSelection = d3.select(
-      this.svgHtmlElement.nativeElement);
+    this.svgSelection = d3.select(this.svgHtmlElement.nativeElement);
 
     //Pattern injection
     const defs = this.svgSelection.append('defs');
@@ -212,7 +212,6 @@ export class VariantDrawerDirective
       });
 
     this.redrawArcsIfComputed.emit();
-
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -245,11 +244,11 @@ export class VariantDrawerDirective
     if (this.variant.variant) {
       const height = this.variant.variant.recalculateHeight(
         !this.keepStandardView &&
-        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
       );
       const width = this.variant.variant.recalculateWidth(
         !this.keepStandardView &&
-        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
       );
 
       if (
@@ -264,7 +263,7 @@ export class VariantDrawerDirective
       const svg_container = d3.select(this.svgHtmlElement.nativeElement);
       this.variant.variant.updateWidth(
         !this.keepStandardView &&
-        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
       );
 
       const [svg, width_offset] = this.handleInfix(
@@ -376,9 +375,7 @@ export class VariantDrawerDirective
     svgElement: Selection<any, any, any, any>,
     outerElement: boolean = false
   ): void {
-    svgElement
-      .datum(element)
-      .classed('variant-element-group', true)
+    svgElement.datum(element).classed('variant-element-group', true);
 
     if (element instanceof ParallelGroup) {
       this.drawParallelGroup(element.asParallelGroup(), svgElement);
@@ -455,7 +452,7 @@ export class VariantDrawerDirective
       y =
         height / 2 -
         ((leafNode.activity.length - 1) / 2) *
-        (VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y);
+          (VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y);
     }
 
     parent
@@ -577,7 +574,7 @@ export class VariantDrawerDirective
 
       const childWidth = child.getWidth(
         !this.keepStandardView &&
-        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
       );
       const childHeight = child.getHeight();
       const yOffset = height / 2 - childHeight / 2;
@@ -733,8 +730,8 @@ export class VariantDrawerDirective
       .attr(
         'font-size',
         (VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
-        element.elements.length +
-        VARIANT_Constants.MARGIN_Y
+          element.elements.length +
+          VARIANT_Constants.MARGIN_Y
       )
       .attr('font-weight', 300)
       .attr('fill', textcolor)
@@ -745,12 +742,12 @@ export class VariantDrawerDirective
       .attr(
         'x',
         element.getHeadLength() +
-        0.5 *
-        (((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
-            element.elements.length +
-            VARIANT_Constants.MARGIN_Y) /
-          2.8) +
-        0.5 * VARIANT_Constants.MARGIN_X
+          0.5 *
+            (((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
+              element.elements.length +
+              VARIANT_Constants.MARGIN_Y) /
+              2.8) +
+          0.5 * VARIANT_Constants.MARGIN_X
       )
       .attr('y', v_height / 2)
       .classed(
@@ -775,7 +772,7 @@ export class VariantDrawerDirective
         ((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
           element.elements.length +
           VARIANT_Constants.MARGIN_Y) /
-        2.8;
+          2.8;
       const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
       this.draw(child, g, false);
       y += height + VARIANT_Constants.MARGIN_Y;
@@ -786,13 +783,13 @@ export class VariantDrawerDirective
       .attr(
         'x',
         element.getWidth() -
-        element.getHeadLength() -
-        0.5 * VARIANT_Constants.MARGIN_X -
-        0.5 *
-        (((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
-            element.elements.length +
-            VARIANT_Constants.MARGIN_Y) /
-          2.8)
+          element.getHeadLength() -
+          0.5 * VARIANT_Constants.MARGIN_X -
+          0.5 *
+            (((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
+              element.elements.length +
+              VARIANT_Constants.MARGIN_Y) /
+              2.8)
       )
       .attr('y', v_height / 2)
       .classed(
@@ -963,7 +960,7 @@ export class VariantDrawerDirective
       y =
         height / 2 -
         ((element.activity.length - 1) / 2) *
-        (VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y);
+          (VARIANT_Constants.FONT_SIZE + VARIANT_Constants.MARGIN_Y);
     }
 
     let truncated = false;
@@ -1105,7 +1102,7 @@ export class VariantDrawerDirective
     element.elements.forEach((child, idx) => {
       const childWidth = child.getWidth(
         !this.keepStandardView &&
-        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
+          this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
       );
       const childHeight = child.getHeight();
       const yOffset = height / 2 - childHeight / 2;
@@ -1208,14 +1205,14 @@ export class VariantDrawerDirective
     d3.selectAll('.variant-polygon').classed(
       'cursor-pointer',
       !this.keepStandardView &&
-      this.variantViewModeService.viewMode === ViewMode.PERFORMANCE &&
-      this.addCursorPointer
+        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE &&
+        this.addCursorPointer
     );
     d3.selectAll('.activity-text').classed(
       'cursor-pointer',
       !this.keepStandardView &&
-      this.variantViewModeService.viewMode === ViewMode.PERFORMANCE &&
-      this.addCursorPointer
+        this.variantViewModeService.viewMode === ViewMode.PERFORMANCE &&
+        this.addCursorPointer
     );
   }
 

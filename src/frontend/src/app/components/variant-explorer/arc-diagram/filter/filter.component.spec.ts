@@ -1,5 +1,5 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {ArcDiagramFilterComponent} from "./filter.component";
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ArcDiagramFilterComponent } from './filter.component';
 
 describe('ArcDiagramFilterComponent', () => {
   let component: ArcDiagramFilterComponent;
@@ -7,7 +7,7 @@ describe('ArcDiagramFilterComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ArcDiagramFilterComponent]
+      declarations: [ArcDiagramFilterComponent],
     });
     fixture = TestBed.createComponent(ArcDiagramFilterComponent);
     component = fixture.componentInstance;

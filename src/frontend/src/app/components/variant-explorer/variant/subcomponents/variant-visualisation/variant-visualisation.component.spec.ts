@@ -8,7 +8,7 @@ describe('VariantVisualisationComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [VariantVisualisationComponent]
+      declarations: [VariantVisualisationComponent],
     });
     fixture = TestBed.createComponent(VariantVisualisationComponent);
     component = fixture.componentInstance;

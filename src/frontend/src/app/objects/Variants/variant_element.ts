@@ -1,5 +1,10 @@
-import {VARIANT_Constants} from 'src/app/constants/variant_element_drawer_constants';
-import {isElementWithActivity, SelectableState, setParent, updateSelectionAttributesForGroup,} from './infix_selection';
+import { VARIANT_Constants } from 'src/app/constants/variant_element_drawer_constants';
+import {
+  isElementWithActivity,
+  SelectableState,
+  setParent,
+  updateSelectionAttributesForGroup,
+} from './infix_selection';
 
 export class PerformanceStats {
   public min: number;
@@ -335,7 +340,11 @@ export class SequenceGroup extends VariantElement {
     );
   }
 
-  constructor(public elements: VariantElement[], performance: any = undefined, public id: number = undefined) {
+  constructor(
+    public elements: VariantElement[],
+    performance: any = undefined,
+    public id: number = undefined
+  ) {
     super(performance);
   }
 
@@ -520,7 +529,11 @@ export class ParallelGroup extends VariantElement {
     }
   }
 
-  constructor(public elements: VariantElement[], performance: any = undefined, public id: number = undefined) {
+  constructor(
+    public elements: VariantElement[],
+    performance: any = undefined,
+    public id: number = undefined
+  ) {
     super(performance);
   }
 
@@ -922,7 +935,7 @@ export class ChoiceGroup extends VariantElement {
           ((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
             this.elements.length +
             VARIANT_Constants.MARGIN_Y)) /
-        2.8;
+          2.8;
     }
 
     for (let el of this.elements) {
@@ -954,7 +967,7 @@ export class ChoiceGroup extends VariantElement {
         ((VARIANT_Constants.LEAF_HEIGHT + VARIANT_Constants.MARGIN_Y) *
           this.elements.length +
           VARIANT_Constants.MARGIN_Y)) /
-      2.8;
+        2.8;
     return this.width;
   }
 
@@ -1291,8 +1304,7 @@ export class LeafNode extends VariantElement {
     return this.width;
   }
 
-  public updateWidth() {
-  }
+  public updateWidth() {}
 
   public recalculateHeight(): number {
     this.height = VARIANT_Constants.LEAF_HEIGHT;
@@ -1316,7 +1328,7 @@ export class LeafNode extends VariantElement {
   }
 
   public serialize(l = 1) {
-    return {leaf: this.activity};
+    return { leaf: this.activity };
   }
 
   public updateSelectionAttributes(): void {
@@ -1333,8 +1345,7 @@ export class WaitingTimeNode extends VariantElement {
     return new Set<string>();
   }
 
-  public renameActivity(activityName: string, newActivityName: string) {
-  }
+  public renameActivity(activityName: string, newActivityName: string) {}
 
   public deleteActivity(activityName: string): [VariantElement[], boolean] {
     return [null, false];
@@ -1345,7 +1356,7 @@ export class WaitingTimeNode extends VariantElement {
   }
 
   constructor(waitingTime: PerformanceStats) {
-    super({wait_time: waitingTime});
+    super({ wait_time: waitingTime });
   }
 
   public getHeight(): number {
@@ -1361,8 +1372,7 @@ export class WaitingTimeNode extends VariantElement {
     return this.width;
   }
 
-  public updateWidth() {
-  }
+  public updateWidth() {}
 
   public recalculateHeight(): number {
     this.height = VARIANT_Constants.LEAF_HEIGHT;
@@ -1444,8 +1454,7 @@ export class InvisibleSequenceGroup extends SequenceGroup {
 }
 
 export class StartGroup extends VariantElement {
-  public updateSelectionAttributes(): void {
-  }
+  public updateSelectionAttributes(): void {}
 
   public getActivities(): Set<string> {
     return new Set<string>();
@@ -1459,11 +1468,9 @@ export class StartGroup extends VariantElement {
     return [[this], false];
   }
 
-  public renameActivity(activityName: string, newActivityName: string): void {
-  }
+  public renameActivity(activityName: string, newActivityName: string): void {}
 
-  public calculateSelectableElements(): void {
-  }
+  public calculateSelectableElements(): void {}
 
   public getHeight(): number {
     return VARIANT_Constants.LEAF_HEIGHT;
@@ -1481,17 +1488,15 @@ export class StartGroup extends VariantElement {
     return VARIANT_Constants.LEAF_HEIGHT;
   }
 
-  public updateWidth(includeWaiting: any) {
-  }
+  public updateWidth(includeWaiting: any) {}
 
   public serialize(l = 1): Object {
-    return {start: true};
+    return { start: true };
   }
 }
 
 export class EndGroup extends VariantElement {
-  public updateSelectionAttributes(): void {
-  }
+  public updateSelectionAttributes(): void {}
 
   public getActivities(): Set<string> {
     return new Set<string>();
@@ -1505,11 +1510,9 @@ export class EndGroup extends VariantElement {
     return [[this], false];
   }
 
-  public renameActivity(activityName: string, newActivityName: string): void {
-  }
+  public renameActivity(activityName: string, newActivityName: string): void {}
 
-  public calculateSelectableElements(): void {
-  }
+  public calculateSelectableElements(): void {}
 
   public getHeight(): number {
     return VARIANT_Constants.LEAF_HEIGHT;
@@ -1527,11 +1530,10 @@ export class EndGroup extends VariantElement {
     return VARIANT_Constants.LEAF_HEIGHT;
   }
 
-  public updateWidth(includeWaiting: any) {
-  }
+  public updateWidth(includeWaiting: any) {}
 
   public serialize(l = 1): Object {
-    return {end: true};
+    return { end: true };
   }
 }
 
@@ -1628,4 +1630,10 @@ export function injectWaitingTimeNodesVariant(variant: VariantElement) {
   }
 }
 
-export type GroupsWithChildElements = ParallelGroup | ChoiceGroup | FallthroughGroup | SequenceGroup | LoopGroup | SkipGroup
+export type GroupsWithChildElements =
+  | ParallelGroup
+  | ChoiceGroup
+  | FallthroughGroup
+  | SequenceGroup
+  | LoopGroup
+  | SkipGroup;

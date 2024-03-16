@@ -1,5 +1,5 @@
-import {Directive, ElementRef, Input} from '@angular/core';
-import {ProcessTreeService} from 'src/app/services/processTreeService/process-tree.service';
+import { Directive, ElementRef, Input } from '@angular/core';
+import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import * as d3 from 'd3';
 import {
   Block_Structured_BPMN,
@@ -10,12 +10,12 @@ import {
   ParallelBlock,
   SequenceBlock,
 } from 'src/app/objects/BPMN/block-structured-bpmn';
-import {BPMN_Constant} from 'src/app/constants/bpmn_model_drawer_constants';
-import {ProcessTreeOperator} from 'src/app/objects/ProcessTree/ProcessTree';
-import {VariantService} from '../../services/variantService/variant.service';
-import {getBootstrapTooltipsAllowList} from '../../components/process-tree-editor/utils';
-import {ViewMode} from '../../objects/ViewMode';
-import {ModelViewModeService} from '../../services/viewModeServices/model-view-mode.service';
+import { BPMN_Constant } from 'src/app/constants/bpmn_model_drawer_constants';
+import { ProcessTreeOperator } from 'src/app/objects/ProcessTree/ProcessTree';
+import { VariantService } from '../../services/variantService/variant.service';
+import { getBootstrapTooltipsAllowList } from '../../components/process-tree-editor/utils';
+import { ViewMode } from '../../objects/ViewMode';
+import { ModelViewModeService } from '../../services/viewModeServices/model-view-mode.service';
 
 @Directive({
   selector: '[appBpmnDrawer]',
@@ -160,7 +160,7 @@ export class BpmnDrawerDirective {
             BPMN_Constant.OPERATOR_DIAGONAL_LENGTH -
             (BPMN_Constant.OPERATOR_DIAGONAL_LENGTH /
               (model.members.length - 1)) *
-            i,
+              i,
           x:
             (BPMN_Constant.OPERATOR_DIAGONAL_LENGTH /
               (model.members.length - 1)) *
@@ -204,8 +204,8 @@ export class BpmnDrawerDirective {
           offset_x + center + block.width,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
           model.core_width +
-          2 * BPMN_Constant.HORIZONTALSPACING +
-          interpolate.y,
+            2 * BPMN_Constant.HORIZONTALSPACING +
+            interpolate.y,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
           model._pt.frozen
         );
@@ -218,8 +218,8 @@ export class BpmnDrawerDirective {
           BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
           model.core_width +
-          2 * BPMN_Constant.HORIZONTALSPACING +
-          interpolate.y,
+            2 * BPMN_Constant.HORIZONTALSPACING +
+            interpolate.y,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
           model._pt.frozen
         );
@@ -275,7 +275,7 @@ export class BpmnDrawerDirective {
             BPMN_Constant.OPERATOR_DIAGONAL_LENGTH -
             (BPMN_Constant.OPERATOR_DIAGONAL_LENGTH /
               (model.members.length - 1)) *
-            i,
+              i,
           x:
             (BPMN_Constant.OPERATOR_DIAGONAL_LENGTH /
               (model.members.length - 1)) *
@@ -318,8 +318,8 @@ export class BpmnDrawerDirective {
           offset_x + center + block.width,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
           model.core_width +
-          2 * BPMN_Constant.HORIZONTALSPACING +
-          interpolate.y,
+            2 * BPMN_Constant.HORIZONTALSPACING +
+            interpolate.y,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
           model._pt.frozen
         );
@@ -332,8 +332,8 @@ export class BpmnDrawerDirective {
           BPMN_Constant.OPERATOR_DIAGONAL_LENGTH + interpolate.x,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + interpolate.y,
           model.core_width +
-          2 * BPMN_Constant.HORIZONTALSPACING +
-          interpolate.y,
+            2 * BPMN_Constant.HORIZONTALSPACING +
+            interpolate.y,
           BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
           model._pt.frozen
         );
@@ -454,7 +454,7 @@ export class BpmnDrawerDirective {
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
             BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 +
-            BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
+              BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
             model._pt.frozen
           );
 
@@ -462,10 +462,10 @@ export class BpmnDrawerDirective {
           this.drawLine(
             loop_block,
             BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-            model.core_width +
-            2 * BPMN_Constant.HORIZONTALSPACING,
+              model.core_width +
+              2 * BPMN_Constant.HORIZONTALSPACING,
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 +
-            BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
+              BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
             offset_x + center + redo_block.width,
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
             model._pt.frozen
@@ -477,10 +477,10 @@ export class BpmnDrawerDirective {
             loop_block,
             redo_block,
             BPMN_Constant.OPERATOR_DIAGONAL_LENGTH +
-            model.core_width +
-            2 * BPMN_Constant.HORIZONTALSPACING,
+              model.core_width +
+              2 * BPMN_Constant.HORIZONTALSPACING,
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 +
-            BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
+              BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
             BPMN_Constant.OPERATOR_DIAGONAL_LENGTH,
             BPMN_Constant.BASE_HEIGHT_WIDTH / 2 + offset_y,
             model._pt.frozen
