@@ -1206,8 +1206,8 @@ export class VariantExplorerComponent
     return count;
   }
 
-  showTiebreakerDialog() {
-    this.variantService.showTiebreakerDialog.next();
+  showVariantSequentializerDialog() {
+    this.variantService.showVariantSequentializerDialog.next();
   }
 
   handleTreeConformanceClear() {

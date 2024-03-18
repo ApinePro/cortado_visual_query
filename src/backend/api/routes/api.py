@@ -17,7 +17,7 @@ from api.routes.variants import (
     variants,
     queryVariant,
     subvariantMining,
-    tiebreaker,
+    sequentializer,
     lpmMiner,
 )
 
@@ -39,5 +39,5 @@ router.include_router(treeString.router)
 router.include_router(variants.router)
 router.include_router(queryVariant.router)
 router.include_router(subvariantMining.router)
-router.include_router(tiebreaker.router)
+router.include_router(sequentializer.router)
 router.include_router(lpmMiner.router)

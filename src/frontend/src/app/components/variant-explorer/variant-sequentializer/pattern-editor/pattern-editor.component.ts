@@ -231,7 +231,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
     setTimeout(() => this.variantDrawer.redraw(), 1);
   }
 
-  //there is no nested parallel group in tiebreaker. The parallel could only contain leaf, choice and fallthrough
+  //there is no nested parallel group in variant sequentializer. The parallel could only contain leaf, choice and fallthrough
   compareNode(node1, node2) {
     if (!(node1 instanceof LeafNode)) {
       return false;
@@ -787,7 +787,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
     if (this.cacheIdx < this.cachedVariants.length - 1) {
       this.cachedVariants = this.cachedVariants.slice(0, this.cacheIdx + 1);
     }
-    // Weiran edited
+
     if (this.currentVariant) {
       this.cachedVariants.push(this.currentVariant.copy());
     } else {
