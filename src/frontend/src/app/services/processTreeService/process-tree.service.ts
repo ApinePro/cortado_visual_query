@@ -483,7 +483,7 @@ export class ProcessTreeService {
 
   pasteSubtreeFromBuffer(parentNode: ProcessTree) {
     if (this.processTreeBuffer) {
-      const copiedTree = this.bufferedProcessTree.copy();
+      const copiedTree = this.bufferedProcessTree.copy(true, true);
       if (parentNode) {
         if (parentNode.label)
           throw new Error('Cannot insert children below activities.');
