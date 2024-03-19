@@ -286,8 +286,7 @@ export class ProcessTreeEditorComponent
   }
 
   private selectRootNodeFromID(id) {
-    const selectedRoot = this.mainSvgGroup.select('[id="' + id + '"]');
-    //const node = selectedRoot.data()[0];
+    const selectedRoot = this.mainSvgGroup.select(`[id="${id}"]`);
     const node = selectedRoot.data()[0];
     if (id && node) {
       this.setSelectedRootNode(node);
@@ -556,7 +555,7 @@ export class ProcessTreeEditorComponent
 
   // END - Inserting node functionality
 
-  // Refactor to Directive with Variant Editor / BPMN Viewer
+  // Refactor to Directive with Variant Modeler / BPMN Viewer
   addZoomFunctionality(): void {
     const zooming = function (event) {
       this.mainSvgGroup.attr(

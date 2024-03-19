@@ -443,7 +443,7 @@ export class VariantService {
     );
   }
 
-  public unCollapseLoopsInVariants() {
+  public expandCollapseLoopsInVariants() {
     if (this.areVariantLoopsCollapsed) {
       this.collapsedVariants = null;
     } else {

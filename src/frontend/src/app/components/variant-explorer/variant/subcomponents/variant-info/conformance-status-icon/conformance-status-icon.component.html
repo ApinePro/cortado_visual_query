@@ -6,6 +6,7 @@
     class="bi bi-hourglass-bottom font-large text-warning"
     *ngIf="variant.isTimeouted"
     ngbTooltip="(re)calculate conformance statistics"
+    triggers="hover"
     container="body"
   ></i>
 
@@ -18,6 +19,7 @@
     class="bi bi-check-square font-large text-warning"
     *ngIf="variant.deviations === 0 && variant.isConformanceOutdated"
     ngbTooltip="(re)calculate conformance statistics"
+    triggers="hover"
     container="body"
   >
   </i>
@@ -31,6 +33,7 @@
     class="bi bi-x-square font-large text-warning"
     *ngIf="variant.deviations > 0 && variant.isConformanceOutdated"
     ngbTooltip="(re)calculate conformance statistics"
+    triggers="hover"
     container="body"
   >
   </i>
@@ -40,6 +43,7 @@
     class="bi bi-question-square text-secondary align-middle font-large"
     *ngIf="variant.deviations === undefined && !variant.isTimeouted"
     ngbTooltip="(re)calculate conformance statistics"
+    triggers="hover"
     container="body"
   >
   </i>

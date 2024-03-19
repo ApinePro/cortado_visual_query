@@ -5,6 +5,7 @@
       (click)="deleteSelected()"
       [disabled]="!this.selectedRootID"
       ngbTooltip="remove selected node(s)"
+      triggers="hover"
       container="body"
     >
       <i class="bi bi-trash btn-icon"></i>
@@ -17,6 +18,7 @@
       (click)="undo()"
       [disabled]="!(treeCacheLength - 1 > 0 && treeCacheIndex !== 0)"
       ngbTooltip="undo"
+      triggers="hover"
       container="body"
     >
       <i class="bi bi-arrow-counterclockwise btn-icon"></i>
@@ -33,6 +35,7 @@
       (click)="redo()"
       [disabled]="!(treeCacheIndex < treeCacheLength - 1)"
       ngbTooltip="redo"
+      triggers="hover"
       container="body"
     >
       <i class="bi bi-arrow-clockwise btn-icon"></i>
@@ -48,6 +51,7 @@
       (click)="clearSelection()"
       [disabled]="!selectedRootID"
       ngbTooltip="clear selection"
+      triggers="hover"
       container="body"
     >
       <i
@@ -68,6 +72,7 @@
       (click)="freezeSubtree()"
       [disabled]="buttonFreezeSubtreeDisabled()"
       [ngbTooltip]="freezeTooltip"
+      triggers="hover"
       container="body"
     >
       <i
@@ -82,6 +87,7 @@
     <button
       class="button ms-auto"
       ngbTooltip="reset view"
+      triggers="hover"
       container="body"
       (click)="reset_zoom(true)"
     >
@@ -91,6 +97,7 @@
     <button
       class="button"
       ngbTooltip="export the model as an .svg"
+      triggers="hover"
       container="body"
       (click)="exportBPMN(bpmn)"
     >

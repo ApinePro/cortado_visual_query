@@ -29,6 +29,7 @@
     <i
       class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text"
       [ngbTooltip]="tooltip1"
+      triggers="hover"
       container="body"
     >
     </i>
@@ -53,6 +54,7 @@
     </ng-template>
     <button
       [ngbTooltip]="toolTip2"
+      triggers="hover"
       container="body"
       class="button"
       (click)="updateAlignments()"
@@ -73,6 +75,7 @@
     <button
       class="button"
       ngbTooltip="add selected, non-fitting variant(s) to current process model"
+      triggers="hover"
       container="body"
       [disabled]="
         isNoVariantSelected() ||
@@ -108,6 +111,7 @@
     <button
       class="button"
       [ngbTooltip]="tooltip3"
+      triggers="hover"
       container="body"
       [disabled]="
         isNoVariantSelected() ||
@@ -136,24 +140,12 @@
         class="bi bi-exclamation-triangle text-warning"
         *ngIf="isInfixSelected()"
         [ngbTooltip]="infixSelectedTooltip"
+        triggers="hover"
         container="body"
       ></i>
     </button>
 
     <div class="vr"></div>
-
-    <!--
-    <div class="vr"></div>
-
-    <button
-      class="button"
-      data-bs-toggle="tooltip"
-      title="Restore last deleted variants"
-      [disabled]="noDeletedVariants()"
-      (click)="restoreLastDeletedVariants()"
-    >
-      <i class="bi bi-arrow-counterclockwise"></i>
-    </button> -->
 
     <div class="vr"></div>
     <ng-template #tooltip4>
@@ -175,6 +167,7 @@
     <div
       class="btn-group align-baseline dropDownParent dropdown ms-auto"
       [ngbTooltip]="tooltip4"
+      triggers="hover"
       container="body"
     >
       <button
@@ -272,96 +265,13 @@
         </div>
       </div>
     </div>
-    <!--
-    <ng-container *ngIf="variantViewModeService.viewMode === VM.STANDARD">
-      <div class="vr"></div>
-      <button
-        class="button"
-        (click)="variantService.unCollapseLoopsInVariants()"
-        ngbTooltip="(un)collapse loops in variants"
-        container="body"
-      >
-        <i
-          *ngIf="variantService.areVariantLoopsCollapsed"
-          class="bi bi-arrow-repeat btn-icon cursor-pointer text-success"
-        ></i>
-        <i
-          *ngIf="!variantService.areVariantLoopsCollapsed"
-          class="bi bi-arrow-repeat btn-icon cursor-pointer"
-        ></i>
-      </button>
-    </ng-container>
-  -->
 
-    <ng-container *ngIf="variantViewModeService.viewMode === VM.STANDARD">
-      <div class="vr"></div>
-      <button
-        class="button"
-        (click)="showVariantSequentializerDialog()"
-        data-bs-toggle="tooltip"
-        data-bs-placement="top"
-        data-bs-html="true"
-        title="Variant Sequentializer"
-      >
-        <i class="bi bi-bar-chart-steps btn-icon cursor-pointer"></i>
-      </button>
-    </ng-container>
-
-    <!--
-    <ng-container *ngIf="variantViewModeService.viewMode !== VM.PERFORMANCE">
-      <div class="vr"></div>
-      <button
-        class="button"
-        (click)="unExpandAll()"
-        ngbTooltip="(un)expand all variants"
-        container="body"
-      >
-        <i
-          *ngIf="areAllVariantsExpanded()"
-          class="bi bi-arrows-collapse btn-icon cursor-pointer rotate-90"
-        ></i>
-        <i
-          *ngIf="!areAllVariantsExpanded()"
-          class="bi bi-arrows-expand btn-icon cursor-pointer rotate-90"
-        ></i>
-      </button>
-    </ng-container>
-
-    <div class="vr"></div>
-
-    <div
-      *ngIf="
-        variantViewModeService.viewMode === VM.STANDARD &&
-        !variantService.areVariantLoopsCollapsed
-      "
-    >
-      <button
-        *ngIf="!traceInfixSelectionMode"
-        class="button"
-        ngbTooltip="Enter trace infix selection mode"
-        container="body"
-        (click)="toggleTraceInfixSelectionMode()"
-      >
-        <i class="bi bi-ui-checks-grid"></i>
-      </button>
-
-      <button
-        *ngIf="traceInfixSelectionMode"
-        class="button"
-        ngbTooltip="Exit trace infix selection mode"
-        container="body"
-        style="color: green"
-        (click)="toggleTraceInfixSelectionMode()"
-      >
-        <i class="bi bi-ui-checks-grid"></i>
-      </button>
-    </div>
-  -->
     <div class="vr"></div>
 
     <div
       class="dropdown"
       ngbTooltip="Select the time granularity"
+      triggers="hover"
       container="body"
     >
       <button
@@ -390,34 +300,15 @@
         </li>
       </ul>
     </div>
-    <!--
+
     <div class="vr"></div>
 
-    <button
-      class="button"
-      [ngClass]="{ 'button-blue': variantService.clusteringConfig }"
-      ngbTooltip="Variant clustering settings"
+    <div
+      class="dropdown"
+      ngbTooltip="Functions"
       triggers="hover"
       container="body"
-      (click)="openClusteringSettingsDialog()"
     >
-      <i class="bi bi-grid-1x2"></i>
-    </button>
-
-    <div class="vr"></div>
-
-    <button
-      class="button"
-      ngbTooltip="export the view as an .svg"
-      container="body"
-      (click)="exportVariantSVG()"
-    >
-      <i class="bi bi-save"></i>
-    </button>
-  -->
-    <div class="vr"></div>
-
-    <div class="dropdown" ngbTooltip="Functions" container="body">
       <button
         class="button dropdown-toggle"
         type="button"
@@ -425,7 +316,7 @@
         data-bs-toggle="dropdown"
         aria-expanded="false"
       >
-        <i class="bi bi-tools btn-icon"></i>
+        <i class="bi bi-list btn-icon"></i>
       </button>
       <div
         class="dropdown-menu custom-dropdown"
@@ -434,33 +325,52 @@
       >
         <ng-container *ngIf="variantViewModeService.viewMode === VM.STANDARD">
           <div
+            *ngIf="variantService.areVariantLoopsCollapsed"
             class="dropdown-item"
-            (click)="variantService.unCollapseLoopsInVariants()"
+            (click)="variantService.expandCollapseLoopsInVariants()"
           >
             <i
-              *ngIf="variantService.areVariantLoopsCollapsed"
               class="bi bi-arrow-repeat btn-icon cursor-pointer text-success"
             ></i>
-            <i
-              *ngIf="!variantService.areVariantLoopsCollapsed"
-              class="bi bi-arrow-repeat btn-icon cursor-pointer"
-            ></i>
-            <span class="ms-3">(un)collapse loops in variants</span>
+            <span class="ms-3">Expand loops in variants</span>
+          </div>
+          <div
+            *ngIf="!variantService.areVariantLoopsCollapsed"
+            class="dropdown-item"
+            (click)="variantService.expandCollapseLoopsInVariants()"
+          >
+            <i class="bi bi-arrow-repeat btn-icon cursor-pointer"></i>
+            <span class="ms-3">Collapse loops in variants</span>
           </div>
         </ng-container>
         <ng-container
           *ngIf="variantViewModeService.viewMode !== VM.PERFORMANCE"
         >
-          <div class="dropdown-item" (click)="unExpandAll()">
+          <div
+            *ngIf="areAllVariantsExpanded()"
+            class="dropdown-item"
+            (click)="expandCollapseAll()"
+          >
             <i
-              *ngIf="areAllVariantsExpanded()"
               class="bi bi-arrows-collapse btn-icon cursor-pointer rotate-90"
             ></i>
+            <span class="ms-3">Collapse all variants</span>
+          </div>
+          <div
+            *ngIf="!areAllVariantsExpanded()"
+            class="dropdown-item"
+            (click)="expandCollapseAll()"
+          >
             <i
-              *ngIf="!areAllVariantsExpanded()"
               class="bi bi-arrows-expand btn-icon cursor-pointer rotate-90"
             ></i>
-            <span class="ms-3">(Un)expand all variants</span>
+            <span class="ms-3">Expand all variants</span>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="variantViewModeService.viewMode === VM.STANDARD">
+          <div class="dropdown-item" (click)="showTiebreakerDialog()">
+            <i class="bi bi-bar-chart-steps btn-icon cursor-pointer"></i>
+            <span class="ms-3">Variant sequentializer (Tiebreaker)</span>
           </div>
         </ng-container>
         <div
@@ -473,7 +383,7 @@
           (click)="toggleTraceInfixSelectionMode()"
         >
           <i class="bi bi-ui-checks-grid"></i>
-          <span class="ms-3">Exit trace infix selection mode</span>
+          <span class="ms-3">Trace fragment selection mode</span>
         </div>
         <div
           *ngIf="
@@ -486,11 +396,11 @@
           (click)="toggleTraceInfixSelectionMode()"
         >
           <i class="bi bi-ui-checks-grid"></i>
-          <span class="ms-3">Exit trace infix selection mode</span>
+          <span class="ms-3">Exit trace fragment selection mode</span>
         </div>
         <div class="dropdown-item" (click)="openClusteringSettingsDialog()">
           <i class="bi bi-grid-1x2"></i>
-          <span class="ms-3">Variant clustering settings</span>
+          <span class="ms-3">Variant clustering</span>
         </div>
         <div class="dropdown-item" (click)="exportVariantSVG()">
           <i class="bi bi-save"></i>
@@ -636,6 +546,7 @@
                             : 'none'
                       }"
                       ngbTooltip="hide all model projections"
+                      triggers="hover"
                       container="body"
                       (click)="handleTreeConformanceClear()"
                     ></i>
@@ -649,6 +560,7 @@
                           : 'none'
                       }"
                       ngbTooltip="hide all model projections"
+                      triggers="hover"
                       container="body"
                       (click)="handleTreePerformanceClear()"
                     ></i>
@@ -709,6 +621,7 @@
                       <span
                         class="badge text-bg-primary ms-1 cursor-pointer"
                         [ngbTooltip]="filter.value.tooltip"
+                        triggers="hover"
                         container="body"
                         (click)="toggleQuery()"
                       >

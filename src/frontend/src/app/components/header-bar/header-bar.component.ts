@@ -1,5 +1,5 @@
 import { VariantMinerComponent } from './../variant-miner/variant-miner.component';
-import { VariantEditorComponent } from './../variant-editor/variant-editor.component';
+import { VariantModelerComponent } from './../variant-modeler/variant-modeler.component';
 import { GraphicalQueryEditorComponent } from '../graphical-query-editor/graphical-query-editor.component';
 import { ProcessTreeEditorComponent } from './../process-tree-editor/process-tree-editor.component';
 import { BpmnEditorComponent } from './../bpmn-editor/bpmn-editor.component';
@@ -229,8 +229,8 @@ export class HeaderBarComponent implements OnDestroy {
     );
   }
 
-  openVariantEditor() {
-    const componentID = VariantEditorComponent.componentName;
+  openVariantModeler() {
+    const componentID = VariantModelerComponent.componentName;
 
     const LocationSelectors: LayoutManager.LocationSelector[] = [
       {
@@ -242,14 +242,14 @@ export class HeaderBarComponent implements OnDestroy {
     const itemConfig: ComponentItemConfig = {
       id: componentID,
       type: 'component',
-      title: 'Variant Editor',
+      title: 'Variant Modeler',
       isClosable: true,
       reorderEnabled: true,
       header: {
         show: Side.left,
       },
       componentType: componentID,
-      componentState: { cssParentClass: 'variant-editor-stack' },
+      componentState: { cssParentClass: 'variant-modeler-stack' },
     };
 
     this.goldenLayoutComponentService.openWindow(
