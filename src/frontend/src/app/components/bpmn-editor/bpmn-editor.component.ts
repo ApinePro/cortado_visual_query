@@ -439,7 +439,7 @@ export class BpmnEditorComponent
 
     // Calculate the scale to fit the content within the SVG
     let scale = Math.min(svgWidth / bounds.width, svgHeight / bounds.height);
-    scale = Math.min(scale, BPMN_Constant.MAX_ZOOM);
+    scale = Math.min(scale, BPMN_Constant.DEFAULT_ZOOM);
     scale = Math.max(scale, BPMN_Constant.MIN_ZOOM);
 
     // Center SVG
