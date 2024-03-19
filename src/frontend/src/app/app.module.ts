@@ -101,6 +101,7 @@ import { MarkdownModule } from 'ngx-markdown';
 import { StripHtmlPipe } from './components/documentation/strip-html.pipe';
 import { RouterLink } from '@angular/router';
 import { CaseExplorerComponent } from './components/variant-explorer/case-explorer/case-explorer.component';
+import { ProcessTreeEditorContextMenuComponent } from './components/process-tree-editor/process-tree-editor-context-menu/process-tree-editor-context-menu.component';
 
 @NgModule({
   declarations: [
@@ -183,6 +184,7 @@ import { CaseExplorerComponent } from './components/variant-explorer/case-explor
     DocumentationComponent,
     StripHtmlPipe,
     CaseExplorerComponent,
+    ProcessTreeEditorContextMenuComponent,
   ],
   imports: [
     BrowserModule,
