@@ -503,8 +503,8 @@ export class GraphicalQueryEditorComponent
         this.emptyVariant = false;
         this.selectedElement = true;
         //this.editor.centerContent(250);
-        console.log("aaaa");
-        console.log(this.selectedStrategy);
+        //console.log("aaaa");
+        //console.log(this.selectedStrategy);
       } else {
         leaf.setExpanded(true);
         const selectedElement = this.variantEnrichedSelection
@@ -775,10 +775,10 @@ export class GraphicalQueryEditorComponent
 
   handleBehindInsert(variant: VariantElement, leaf: LeafNode, selectedElement) {
     const children = variant.getElements();
-    console.log("come behind");
-    console.log(variant);
-    console.log(leaf);
-    console.log(selectedElement);
+    //console.log("come behind");
+    //console.log(variant);
+    //console.log(leaf);
+    //console.log(selectedElement);
     if (children) {
       const index = children.indexOf(selectedElement);
       if (variant && variant === selectedElement) {
@@ -1207,8 +1207,8 @@ export class GraphicalQueryEditorComponent
 
   savePattern(){
     this.savedPatterns.push(this.currentVariant.copy());
-    console.log(this.currentVariant);
-    console.log(this.savedPatterns);
+    //console.log(this.currentVariant);
+    //console.log(this.savedPatterns);
   }
 
   openCardinality(){

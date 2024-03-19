@@ -145,6 +145,7 @@ export class QueryTreeDrawerDirective {
   svgSelection!: Selection<any, any, any, any>;
 
   redraw(tree: ProcessTree) {
+    console.log(tree);
     if (tree) {
       this.root = d3.hierarchy(tree, (d) => {
         // @ts-ignore
@@ -200,7 +201,7 @@ export class QueryTreeDrawerDirective {
       this.variantService.activityTooltipReference = $(e.target);
       this.variantService.activityTooltipReference.tooltip('show');
     });
-
+    
     // add nodes
     this.nodeEnter
       .append('rect')
@@ -248,12 +249,14 @@ export class QueryTreeDrawerDirective {
         return '';
       })
       .attr('x', function (d: any) {
-        return d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2;
+        console.log("x");
+        console.log(d);
+        return d.y;
       })
       .attr('y', function (d: any) {
-        return d.y;
+        return d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2;
       });
-
+      
     // add node text
     this.nodeEnter
       .append('text')
@@ -270,13 +273,14 @@ export class QueryTreeDrawerDirective {
         return PT_Constant.VISIBLE_FONT_SIZE;
       })
       .attr('x', function (d: any) {
-        return d.x;
+        return d.y + PT_Constant.BASE_HEIGHT_WIDTH / 2 + 3;
       })
       .attr('y', function (d: any) {
-        return d.y + PT_Constant.BASE_HEIGHT_WIDTH / 2 + 3;
+        return d.x;
       }).text((d: any) => {
         if (d.data.pattern) {
-          this.variantRedraw(d.data.id, d.data.pattern, d.x, d.y);
+          this.variantRedraw(d.data.id, d.data.pattern, d.y, d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2);
+          //this.translateNextSiblings()
           return '';
         } else {
         if (d.data.operator) {
@@ -361,16 +365,21 @@ export class QueryTreeDrawerDirective {
       .merge(edges)
       // .transition()
       .attr('x1', function (d: any) {
-        return d.source.x;
-      })
-      .attr('y1', function (d: any) {
         return d.source.y + PT_Constant.BASE_HEIGHT_WIDTH;
       })
+      .attr('y1', function (d: any) {
+        return d.source.x;
+      })
       .attr('x2', function (d: any) {
-        return d.target.x;
+        return d.target.y;
       })
       .attr('y2', function (d: any) {
-        return d.target.y;
+        if(d.target.data.pattern){
+          return d.target.x + (d.target.data.pattern.getHeight() - PT_Constant.BASE_HEIGHT_WIDTH) / 2;
+        }
+        else{
+          return d.target.x;
+        }
       })
       .attr('stroke', PT_Constant.STROKE_COLOR)
       .classed('frozen-edge', (d) => {
