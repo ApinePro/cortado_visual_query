@@ -16,6 +16,7 @@ import { StrFilterPipe } from './pipes/str-filter/str-filter.pipe';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { ColorPickerModule } from 'ngx-color-picker';
+import { ContextMenuModule } from '@perfectmemory/ngx-contextmenu';
 
 import { VariantExplorerComponent } from './components/variant-explorer/variant-explorer.component';
 import { ActivityOverviewComponent } from './components/activity-overview/activity-overview.component';
@@ -200,6 +201,7 @@ import { CaseExplorerComponent } from './components/variant-explorer/case-explor
       sanitize: SecurityContext.NONE,
     }),
     RouterLink,
+    ContextMenuModule,
   ],
   providers: [
     {
