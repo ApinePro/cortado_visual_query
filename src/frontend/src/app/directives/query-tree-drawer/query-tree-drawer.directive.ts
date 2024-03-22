@@ -249,8 +249,8 @@ export class QueryTreeDrawerDirective {
         return '';
       })
       .attr('x', function (d: any) {
-        console.log("x");
-        console.log(d);
+        //console.log("x");
+        //console.log(d);
         return d.y;
       })
       .attr('y', function (d: any) {
@@ -272,15 +272,12 @@ export class QueryTreeDrawerDirective {
         }
         return PT_Constant.VISIBLE_FONT_SIZE;
       })
-      .attr('x', function (d: any) {
-        return d.y + PT_Constant.BASE_HEIGHT_WIDTH / 2 + 3;
-      })
-      .attr('y', function (d: any) {
-        return d.x;
-      }).text((d: any) => {
+      .text((d: any) => {
         if (d.data.pattern) {
           this.variantRedraw(d.data.id, d.data.pattern, d.y, d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2);
-          //this.translateNextSiblings()
+          if(d.parent){
+            this.translateNextSiblings(d);
+          }
           return '';
         } else {
         if (d.data.operator) {
@@ -294,7 +291,19 @@ export class QueryTreeDrawerDirective {
             return d.data.label.substring(0, 20) + '...';
           }
         }
-      }});
+      }})
+      .attr('x', function (d: any) {
+        return d.y + PT_Constant.BASE_HEIGHT_WIDTH / 2 + 3;
+      })
+
+      this.nodeEnter
+      .selectAll('text')
+      .attr('x', function (d: any) {
+        return d.y + PT_Constant.BASE_HEIGHT_WIDTH / 2 + 3;
+      })
+      .attr('y', function (d: any) {
+        return d.x;
+      });
 
 
     //this.svgSelection = this.nodeEnter;
@@ -304,7 +313,8 @@ export class QueryTreeDrawerDirective {
     //const drawnPattern = this.nodeEnter.select('.node').data()[0].data.pattern;
     //console.log("draw this pattern:");
     //console.log(drawnPattern);
-    
+
+    //update the width, height and siblings positions
     this.nodeEnter
     .selectAll('rect')
     .attr('width', (d) => {
@@ -323,6 +333,14 @@ export class QueryTreeDrawerDirective {
           return PT_Constant.BASE_HEIGHT_WIDTH;
         }
         })
+      .attr('x', function (d: any) {
+        //console.log("x");
+        //console.log(d);
+        return d.y;
+      })
+      .attr('y', function (d: any) {
+        return d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2;
+      });
 
     // resize leaf nodes if text is too long
     this.nodeEnter
@@ -347,6 +365,18 @@ export class QueryTreeDrawerDirective {
 
     // remove nodes
     node.exit().transition().duration(50).remove();
+  }
+
+  translateNextSiblings(node){
+    const siblings = node.parent.children;
+    console.log("siblings");
+    console.log(siblings);
+    const nodeIndex = siblings.indexOf(node);
+    let i = siblings.length - 1;
+    while(i > nodeIndex) {
+      siblings[i].x = siblings[i].x + node.data.pattern.getHeight() - PT_Constant.BASE_HEIGHT_WIDTH;
+      i -= 1;
+    }
   }
 
   drawEdges(root) {

@@ -258,10 +258,9 @@
                   ? 'strategy-selected'
                   : ''
               "
-              ngbTooltip="insert new node above the selected one"
               container="body"
             >
-              <i class="bi bi-chevron-up"></i>
+              <i class="bi bi-chevron-left"></i>
             </button>
 
             <button
@@ -274,10 +273,9 @@
                   ? 'strategy-selected'
                   : ''
               "
-              ngbTooltip="insert new node below the selected one"
               container="body"
             >
-              <i class="bi bi-chevron-down"></i>
+              <i class="bi bi-chevron-right"></i>
             </button>
 
             <button
@@ -290,10 +288,9 @@
                   ? 'strategy-selected'
                   : ''
               "
-              ngbTooltip="insert new node left to the selected one"
               container="body"
             >
-              <i class="bi bi-chevron-left"></i>
+              <i class="bi bi-chevron-up"></i>
             </button>
 
             <button
@@ -306,10 +303,9 @@
                   ? 'strategy-selected'
                   : ''
               "
-              ngbTooltip="insert new node right to the selected one"
               container="body"
             >
-              <i class="bi bi-chevron-right"></i>
+              <i class="bi bi-chevron-down"></i>
             </button>
 
             <button
@@ -335,6 +331,15 @@
               type="button"
               (click)="insertNewNode(op, null)"
               [ngbTooltip]="op"
+              [ngClass]="
+                op === 'X' &&
+                selectedRootNode &&
+                (nodeInsertionStrategy === NodeInsertionStrategy.ABOVE ||
+                  (selectedRootNode.data.operator === 'X' &&
+                    nodeInsertionStrategy === NodeInsertionStrategy.BELOW))
+                  ? 'button-area-disabled'
+                  : ''
+              "
               container="body"
               placement="bottom"
               class="btn btn-sm node-btn"
@@ -347,7 +352,12 @@
       <app-activity-button-area
         [activityNames]="activityNames"
         (activityButtonClick)="editLeafNode($event)"
-        [ngClass]="false ? 'button-area-disabled' : ''"
+        [ngClass]="
+          selectedRootNode?.data.operator === 'AND' ||
+          selectedRootNode?.data.operator === 'OR'
+            ? 'button-area-disabled'
+            : ''
+        "
       >
       </app-activity-button-area>
       <div

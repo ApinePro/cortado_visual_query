@@ -221,7 +221,8 @@ export class GraphicalQueryEditorComponent
   nodeEnter;
 
   readonly NodeInsertionStrategy = NodeInsertionStrategy;
-  nodeInsertionStrategy: NodeInsertionStrategy = NodeInsertionStrategy.ABOVE;
+  //nodeInsertionStrategy: NodeInsertionStrategy = NodeInsertionStrategy.ABOVE;
+  nodeInsertionStrategy: NodeInsertionStrategy = NodeInsertionStrategy.BELOW;
   lastNodeInsertionStrategy: NodeInsertionStrategy;
 
   selectedRootNodeId: number;
