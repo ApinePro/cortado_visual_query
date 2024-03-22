@@ -83,8 +83,13 @@ export class ProcessTree {
     return tree;
   }
 
-  public copy(parentRelation: boolean = true): ProcessTree {
-    const children = this.children.map((child) => child.copy(parentRelation));
+  public copy(
+    parentRelation: boolean = true,
+    newId: boolean = false
+  ): ProcessTree {
+    const children = this.children.map((child) =>
+      child.copy(parentRelation, newId)
+    );
 
     const parent = parentRelation ? this.parent : null;
 
@@ -92,7 +97,7 @@ export class ProcessTree {
       this.label,
       this.operator,
       children,
-      this.id,
+      newId ? Math.floor(1000000000 + Math.random() * 900000000) : this.id,
       this.frozen,
       this.performance,
       this.conformance,
