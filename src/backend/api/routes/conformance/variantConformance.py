@@ -112,62 +112,16 @@ def project_alignments_on_cvariant(mapping, variant):
         return {"leaf": [(str(act), mapping[act.full]) for act in variant["leaf"]]}
 
 
-def get_alignment_callback(idx: str, alignType, websocket: WebSocket):
-    def callback(result):
-        data = {
-            "id": idx,
-            "isTimeout": False,
-            "cost": 0,
-            "type": alignType,
-            "deviation": False,
-        }
-        for key, value in result.items():
-            data[key] = value
+def alignment_preprocess_result(data, id: str, alignType):
 
-        try:
-            if websocket.application_state == WebSocketState.CONNECTED:
-                asyncio.run(websocket.send_json(data))
-        except:
-            print("Error while sending conformance result")
+    result = {
+        "id": id,
+        "isTimeout": False,
+        "cost": 0,
+        "type": alignType,
+        "deviation": False,
+    }
+    for key, value in data.items():
+        result[key] = value
 
-    return callback
-
-
-@router.websocket("/conformancews")
-async def websocket_endpoint(websocket: WebSocket):
-    config_repository = ConfigurationRepositoryFactory.get_config_repository()
-    configuration = config_repository.get_configuration()
-
-    try:
-        pool = PoolFactory.instance().get_pool()
-        await websocket.accept()
-        while True:
-            data = await websocket.receive_json()
-
-            if "isCancellationRequested" in data:
-                await websocket.close(1000)
-                PoolFactory.instance().restart_pool()
-                return
-
-            try:
-                timeout = configuration.timeout_cvariant_alignment_computation
-                if data["timeout"] != 0:
-                    timeout = data["timeout"]
-                pool.apply_async(
-                    calculate_alignment_intern_with_timeout,
-                    (
-                        data["pt"],
-                        data["variant"],
-                        InfixType(data["infixType"]),
-                        timeout,
-                    ),
-                    callback=get_alignment_callback(
-                        data["id"], data["alignType"], websocket
-                    ),
-                )
-            except Exception as e:
-                if websocket.application_state == WebSocketState.CONNECTED:
-                    await websocket.send_json({"error": str(e)})
-    except WebSocketDisconnect as d:
-        print(d)
-        print("websocket disconnected")
+    return result

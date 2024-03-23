@@ -1,8 +1,8 @@
 """Import routes here
 """
-
 from fastapi import APIRouter
 
+from api.routes.websocket import main as websocket
 from api.routes.configuration import configuration
 from api.routes.conformance import variantConformance, treeConformance
 from api.routes.input_output import exporting, importing
@@ -41,3 +41,4 @@ router.include_router(queryVariant.router)
 router.include_router(subvariantMining.router)
 router.include_router(tiebreaker.router)
 router.include_router(lpmMiner.router)
+router.include_router(websocket.router)

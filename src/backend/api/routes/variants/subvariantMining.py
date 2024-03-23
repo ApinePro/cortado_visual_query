@@ -1,3 +1,4 @@
+import asyncio
 from collections import defaultdict
 from cortado_core.eventually_follows_pattern_mining.algorithm import (
     generate_eventually_follows_patterns_from_groups,
@@ -47,6 +48,7 @@ from cortado_core.subprocess_discovery.subtree_mining.blanket_mining.cm_grow imp
     cm_min_sub_mining,
 )
 from cortado_core.subprocess_discovery.subtree_mining.folding_label import fold_loops
+from starlette.websockets import WebSocket, WebSocketDisconnect, WebSocketState
 
 import cache.cache as cache
 import numpy as np
@@ -56,6 +58,8 @@ from cortado_core.variant_pattern_replications.repetition_mining import (
     filter_maximal_patterns,
 )
 
+from backend_utilities.configuration.repository import ConfigurationRepositoryFactory
+from backend_utilities.multiprocessing.pool_factory import PoolFactory
 from endpoints.transform_event_log import remove_activitiy_from_group
 
 router = APIRouter(tags=["subvariantMining"], prefix="/subvariantMining")
@@ -224,14 +228,22 @@ def sub_pattern_to_ctree(pattern: SubPattern, parent=None):
     return t
 
 
-@router.post("/repetitionsMining/")
-def mineRepetitionPatterns(config: RepetitionsMiningConfig):
+def repetition_mining_preprocess_result(data):
+    result = {}
+    for key, value in data.items():
+        if key == 'pairs':
+            result[key] = {k: [p.tojson() for p in v] for k, v in value.items()}
+        else:
+            result[key] = value
+    return result
 
+
+def mine_repetition_patterns_with_timeout(config: RepetitionsMiningConfig, cached_variants, cached_activities, timeout: int):
     result = {}
 
     filter_activities = len(config.filters.activitiesToInclude) > 0 and len(
         config.filters.activitiesToInclude
-    ) != len(cache.parameters["activites"])
+    ) != len(cached_activities)
 
     activities_to_exclude = []
 
@@ -239,7 +251,7 @@ def mineRepetitionPatterns(config: RepetitionsMiningConfig):
         activities_to_exclude = list(
             filter(
                 lambda x: x not in config.filters.activitiesToInclude,
-                cache.parameters["activites"],
+                cached_activities,
             )
         )
 
@@ -247,8 +259,8 @@ def mineRepetitionPatterns(config: RepetitionsMiningConfig):
 
     for bid in config.bids:
 
-        if bid in cache.variants:
-            v, ts, _, _ = cache.variants[bid]
+        if bid in cached_variants:
+            v, ts, _, _ = cached_variants[bid]
         else:
             continue
 

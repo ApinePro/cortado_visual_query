@@ -1,33 +1,21 @@
 import { Injectable } from '@angular/core';
-import {
-  BehaviorSubject,
-  Observable,
-  partition,
-  Subject,
-  Subscription,
-} from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
+import { WebSocketSubject } from 'rxjs/webSocket';
 import { BackgroundTaskInfoService } from '../backgroundTaskInfoService/background-task-info.service';
 import { ConformanceCheckingResult, treeConformanceResult } from './model';
-import Swal from 'sweetalert2';
 import { ProcessTree } from 'src/app/objects/ProcessTree/ProcessTree';
 import { VariantService } from '../variantService/variant.service';
 import { InfixType } from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
 import { ColorMap } from 'src/app/objects/ColorMap';
 import * as d3 from 'd3';
-import {
-  COLORS_BLUE,
-  COLORS_PURPLE,
-  COLORS_RED_GREEN,
-} from 'src/app/objects/Colors';
-import { ROUTES } from 'src/app/constants/backend_route_constants';
+import { COLORS_BLUE, COLORS_PURPLE } from 'src/app/objects/Colors';
 import { ProcessTreeService } from '../processTreeService/process-tree.service';
 import { BackendService } from '../backendService/backend.service';
 import { processTreesEqual } from 'src/app/objects/ProcessTree/utility-functions/process-tree-integrity-check';
 import { ModelViewModeService } from '../viewModeServices/model-view-mode.service';
 import { ViewMode } from 'src/app/objects/ViewMode';
+import { WebsocketService } from '../websocket/websocket.service';
 
 @Injectable({
   providedIn: 'root',
@@ -38,7 +26,8 @@ export class ConformanceCheckingService {
     private variantService: VariantService,
     private processTreeService: ProcessTreeService,
     private backendService: BackendService,
-    private modelViewModeService: ModelViewModeService
+    private modelViewModeService: ModelViewModeService,
+    private websocketService: WebsocketService
   ) {
     this.processTreeService.currentDisplayedProcessTree$.subscribe((pt) => {
       if (!processTreesEqual(pt, this.usedProcessTreeForTreeConformance)) {
@@ -113,40 +102,10 @@ export class ConformanceCheckingService {
   public calculationInProgress = new Set<Variant>();
 
   public connect(): boolean {
-    if (!this.socket || this.socket.closed) {
-      this.socket = webSocket(
-        ROUTES.WS_HTTP_BASE_URL + ROUTES.VARIANT_CONFORMANCE + 'conformancews'
-      );
-      const results = this.socket.pipe(
-        catchError((error) => {
-          this.runningRequests.forEach((r: number) =>
-            this.infoService.removeRequest(r)
-          );
-          this.runningRequests = [];
-          this.socket = null;
-
-          throw error;
-        }),
-        tap((_) => {
-          this.infoService.removeRequest(this.runningRequests.pop());
-        }),
-        map((result) => {
-          if ('error' in result) {
-            Swal.fire({
-              title: 'Error occurred',
-              html:
-                '<b>Error message: </b><br>' +
-                '<code>' +
-                'Calculating conformance statistics failed' +
-                '</code>',
-              icon: 'error',
-              showCloseButton: false,
-              showConfirmButton: false,
-              showCancelButton: true,
-              cancelButtonText: 'close',
-            });
-            return result;
-          }
+    const [returned, $satisfiedObservable, $nonSatisfiedObservable] =
+      this.websocketService.connect(
+        this.varResults,
+        (result) => {
           return new ConformanceCheckingResult(
             result['id'],
             result['type'],
@@ -156,16 +115,15 @@ export class ConformanceCheckingService {
             result['alignment'],
             result['pt']
           );
-        })
-      );
-      [this.varResults, this.patternResults] = partition(
-        results,
-        (ccr: ConformanceCheckingResult) => ccr.type === 1 || 'error' in ccr
+        },
+        this.patternResults
       );
 
+    if (returned) {
+      this.varResults = $satisfiedObservable;
+      this.patternResults = $nonSatisfiedObservable;
       return true;
     }
-
     return false;
   }
 
@@ -182,7 +140,8 @@ export class ConformanceCheckingService {
       this.cancelConformanceCheckingRequests()
     );
     this.runningRequests.push(rid);
-    this.socket.next({
+    this.websocketService.socket.next({
+      name: 'conformance',
       id: id,
       infixType: infixType,
       alignType: alignType,
@@ -195,7 +154,7 @@ export class ConformanceCheckingService {
   }
 
   private cancelConformanceCheckingRequests(): void {
-    this.socket.next({ isCancellationRequested: true });
+    this.websocketService.socket.next({ isCancellationRequested: true });
     this.runningRequests.forEach((r: number) =>
       this.infoService.removeRequest(r)
     );
@@ -203,7 +162,7 @@ export class ConformanceCheckingService {
     this.variantService.variants.forEach((v) => {
       v.calculationInProgress = false;
     });
-    this.socket.unsubscribe();
+    this.websocketService.socket.unsubscribe();
   }
 
   public showConformanceTimeoutDialog(variant: Variant, callbackFunc) {

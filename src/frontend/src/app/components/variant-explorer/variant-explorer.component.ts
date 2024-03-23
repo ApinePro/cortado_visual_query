@@ -27,7 +27,7 @@ import {
   LogicalZIndex,
   Stack,
 } from 'golden-layout';
-import { from, merge, Subject } from 'rxjs';
+import { from, Subject } from 'rxjs';
 import {
   concatMap,
   delay,
@@ -98,6 +98,8 @@ import { VariantVisualisationComponent } from './variant/subcomponents/variant-v
 import { FilterParams } from './arc-diagram/filter/filter-params';
 import { MaxValues } from './arc-diagram/filter/filter.component';
 import { ArcsViewMode } from './arc-diagram/arcs-view-mode';
+import { ArcDiagramService } from '../../services/arcDiagramService/arc-diagram.service';
+import { ArcDiagramComputationResult } from '../../services/arcDiagramService/model';
 
 @Component({
   selector: 'app-variant-explorer',
@@ -127,6 +129,7 @@ export class VariantExplorerComponent
     private performanceColorService: ModelPerformanceColorScaleService,
     public variantPerformanceService: VariantPerformanceService,
     public conformanceCheckingService: ConformanceCheckingService,
+    public arcDiagramService: ArcDiagramService,
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     public variantViewModeService: VariantViewModeService,
     private toastService: ToastService,
@@ -261,7 +264,9 @@ export class VariantExplorerComponent
     this.listenForCorrectSyntax();
     this.listenForProcessTreeChange();
     this.conformanceCheckingService.connect();
+    this.arcDiagramService.connect();
     this.subscribeForConformanceCheckingResults();
+    this.subscribeForArcDiagramsComputationsResults();
     this.listenForLogGranularityChange();
     this.listenForLogStatChange();
     this.listenForViewModeChange();
@@ -1242,53 +1247,48 @@ export class VariantExplorerComponent
     return variantViz;
   }
 
-  async computeAndDrawArcDiagram(
-    bids: string[] | number[],
-    filterAfterComputation: boolean = false,
-    filterParams?: FilterParams
-  ): Promise<void> {
-    const stopConditions$ = merge(
-      this.backendService._cancelOtherBgTasks$,
-      this._destroy$
-    ).pipe(tap());
-    if (this.arcsViewMode != ArcsViewMode.SHOW_ALL) {
-      this.arcsViewMode = ArcsViewMode.SHOW_SOME;
-    }
-    this.variantService
-      .showArcDiagram(bids, filterParams)
-      .pipe(takeUntil(stopConditions$))
-      .subscribe(
-        (res: {
-          pairs: { [bid: string]: Pair[] };
-          maximal_values: { size: number; length: number };
-        }) => {
-          this.arcsMaxValues = {
-            ...this.arcsMaxValues,
-            size: Math.max(
-              res['maximal_values']['size'],
-              this.arcsMaxValues.size
-            ),
-            length: Math.max(
-              res['maximal_values']['length'],
-              this.arcsMaxValues.length
-            ),
-          };
-          for (let [bid, pairs] of Object.entries(res['pairs'])) {
-            this.arcsCache[bid] = pairs;
-            const variantViz: VariantVisualisationComponent =
-              this.variantVisualisations.find(
-                (vv: VariantVisualisationComponent) =>
-                  vv.bid == (bid as unknown as number)
-              );
-            if (variantViz) {
-              this.setupVariantVisualisationForArcDiagrams(
-                variantViz,
-                pairs
-              ).drawArcs(filterAfterComputation, filterParams);
-            }
+  subscribeForArcDiagramsComputationsResults() {
+    this.arcDiagramService.arcDiagramsResult
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((res: ArcDiagramComputationResult) => {
+        this.arcsMaxValues = {
+          ...this.arcsMaxValues,
+          size: Math.max(res.maximal_values.size, this.arcsMaxValues.size),
+          length: Math.max(
+            res.maximal_values.length,
+            this.arcsMaxValues.length
+          ),
+        };
+        for (let [bid, pairs] of Object.entries(res['pairs'])) {
+          this.arcsCache[bid] = pairs;
+          const variantViz: VariantVisualisationComponent =
+            this.variantVisualisations.find(
+              (vv: VariantVisualisationComponent) =>
+                vv.bid == (bid as unknown as number)
+            );
+          if (variantViz) {
+            this.setupVariantVisualisationForArcDiagrams(
+              variantViz,
+              pairs
+            ).drawArcs(res.filterAfterComputation, res.filterParams);
           }
         }
-      );
+      });
+  }
+
+  computeAndDrawArcDiagram(
+    bids: string[] | number[],
+    filterAfterComputation: boolean = true,
+    filterParams?: FilterParams
+  ) {
+    let resubscribe = this.arcDiagramService.computeArcDiagrams(
+      bids,
+      filterParams,
+      filterAfterComputation
+    );
+    if (resubscribe) {
+      this.subscribeForArcDiagramsComputationsResults();
+    }
   }
 
   filterArcDiagrams(filterParams: FilterParams) {
@@ -1339,6 +1339,7 @@ export class VariantExplorerComponent
       );
     } else {
       this.arcsViewMode = ArcsViewMode.SHOW_ALL;
+
       const paramsObs = from(
         Array(Math.ceil(this.variants.length / 30))
           .fill(0)
@@ -1350,7 +1351,7 @@ export class VariantExplorerComponent
       paramsObs
         .pipe(
           takeUntil(this._destroy$),
-          concatMap((param) => this.computeAndDrawArcDiagram(param))
+          concatMap(async (param) => this.computeAndDrawArcDiagram(param))
         )
         .subscribe();
     }
