@@ -97,4 +97,22 @@ export class ProcessTreeEditorContextMenuComponent {
     if (!action.value) return;
     this.processTreeService.shiftSubtreeToRight(action.value);
   }
+
+  onMakeOptional(action: ContextMenuAction<ProcessTree>) {
+    if (!action.value) return;
+    this.processTreeService.makeSubtreeOptional(action.value);
+  }
+
+  makeOptionalDisabled(pt: ProcessTree) {
+    return !pt;
+  }
+
+  onMakeRepeatable(action: ContextMenuAction<ProcessTree>) {
+    if (!action.value) return;
+    this.processTreeService.makeSubtreeRepeatable(action.value);
+  }
+
+  makeRepeatableDisabled(pt: ProcessTree) {
+    return !pt;
+  }
 }

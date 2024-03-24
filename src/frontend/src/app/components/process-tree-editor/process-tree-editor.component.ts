@@ -835,6 +835,28 @@ export class ProcessTreeEditorComponent
   }
 
   hideAllTooltips() {}
+
+  get allQuickActionsDisabled() {
+    return this.makeOptionalDisabled && this.makeRepeatableDisabled;
+  }
+
+  onMakeOptional() {
+    if (!this.selectedRootNode) return;
+    this.processTreeService.makeSubtreeOptional(this.selectedRootNode.data);
+  }
+
+  get makeOptionalDisabled() {
+    return !this.selectedRootNode;
+  }
+
+  onMakeRepeatable() {
+    if (!this.selectedRootNode) return;
+    this.processTreeService.makeSubtreeRepeatable(this.selectedRootNode.data);
+  }
+
+  get makeRepeatableDisabled() {
+    return !this.selectedRootNode;
+  }
 }
 
 // TODO should be solved differently

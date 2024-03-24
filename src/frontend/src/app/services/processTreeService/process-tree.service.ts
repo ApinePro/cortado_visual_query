@@ -498,4 +498,40 @@ export class ProcessTreeService {
       );
     }
   }
+
+  makeSubtreeOptional(processTree: ProcessTree) {
+    const choice = createNewRandomNode(null, ProcessTreeOperator.choice);
+    const tau = createNewRandomNode(ProcessTreeOperator.tau, null);
+
+    const siblings = processTree.parent.children;
+    const idxInParentChildList = siblings.indexOf(processTree);
+
+    siblings.splice(idxInParentChildList, 1, choice);
+    choice.parent = processTree.parent;
+    choice.children = [tau, processTree];
+    processTree.parent = choice;
+    tau.parent = choice;
+
+    this.set_currentDisplayedProcessTree_with_Cache(
+      this.currentDisplayedProcessTree
+    );
+  }
+
+  makeSubtreeRepeatable(processTree: ProcessTree) {
+    const loop = createNewRandomNode(null, ProcessTreeOperator.loop);
+    const tau = createNewRandomNode(ProcessTreeOperator.tau, null);
+
+    const siblings = processTree.parent.children;
+    const idxInParentChildList = siblings.indexOf(processTree);
+
+    siblings.splice(idxInParentChildList, 1, loop);
+    loop.parent = processTree.parent;
+    loop.children = [processTree, tau];
+    processTree.parent = loop;
+    tau.parent = loop;
+
+    this.set_currentDisplayedProcessTree_with_Cache(
+      this.currentDisplayedProcessTree
+    );
+  }
 }
