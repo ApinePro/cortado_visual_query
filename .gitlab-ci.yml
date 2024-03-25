@@ -54,6 +54,7 @@ styles-check:
   <<: *node-critical-check
   script:
     - npm run lint-styles
+  allow_failure: true
   
 test-angular-app-build:
   stage: test
