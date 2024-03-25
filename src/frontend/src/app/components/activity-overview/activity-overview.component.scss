@@ -24,8 +24,7 @@
 }
 
 .table-container {
-  overflow-y: auto;
-  overflow-x: auto;
+  overflow: auto auto;
   background-color: var(--box-background-color);
 }
 
@@ -100,8 +99,7 @@ tbody tr {
 
 .activtiy-name-cell{
   display: flex;
-  justify-content: flex-end;
-  align-content: center;
+  place-content: center flex-end;
   align-items: center;
 }
 

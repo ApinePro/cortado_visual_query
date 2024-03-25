@@ -32,8 +32,7 @@
   background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity));
   border-top-left-radius: 5px;
   display: flex;
-  align-content: flex-end;
-  justify-content: flex-start;
+  place-content: flex-end flex-start;
   align-items: stretch;
   flex-direction: column;
   border-bottom: black solid 1px;
@@ -156,9 +155,8 @@
   flex-flow: row wrap;
   gap: 5px;
   max-width: 50%;
-  justify-content: center;
+  place-content: flex-start center;
   align-items: flex-start;
-  align-content: flex-start;
   height: 100%;
   align-self: baseline;
 }
