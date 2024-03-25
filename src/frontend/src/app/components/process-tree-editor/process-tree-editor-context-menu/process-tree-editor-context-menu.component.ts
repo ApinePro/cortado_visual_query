@@ -13,7 +13,9 @@ export class ProcessTreeEditorContextMenuComponent {
   @ViewChild('contextMenu', { static: true })
   public contextMenu?: ContextMenuComponent<any>;
 
-  constructor(private processTreeService: ProcessTreeService) {}
+  constructor(private processTreeService: ProcessTreeService) {
+    this.pasteDisabled = this.pasteDisabled.bind(this);
+  }
 
   copyDisabled(pt: ProcessTree) {
     return !pt;
@@ -34,9 +36,8 @@ export class ProcessTreeEditorContextMenuComponent {
     this.processTreeService.deleteSelected(action.value);
   }
 
-  get pasteDisabled() {
-    //pt: ProcessTree) {
-    return !this.processTreeService.bufferedProcessTree;
+  pasteDisabled(pt: ProcessTree) {
+    return !this.processTreeService.bufferedProcessTree || !pt || !!pt?.label;
   }
 
   onPaste(action: ContextMenuAction<ProcessTree>) {
