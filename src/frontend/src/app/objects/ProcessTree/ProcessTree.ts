@@ -91,9 +91,7 @@ export class ProcessTree {
       child.copy(parentRelation, newId)
     );
 
-    const parent = parentRelation ? this.parent : null;
-
-    return new ProcessTree(
+    const treeCopy = new ProcessTree(
       this.label,
       this.operator,
       children,
@@ -101,8 +99,14 @@ export class ProcessTree {
       this.frozen,
       this.performance,
       this.conformance,
-      parent
+      null
     );
+
+    if (parentRelation)
+      treeCopy.children.forEach((child) => {
+        child.parent = treeCopy;
+      });
+    return treeCopy;
   }
 
   toString() {
