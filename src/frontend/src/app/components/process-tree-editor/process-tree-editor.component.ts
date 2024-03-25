@@ -215,6 +215,7 @@ export class ProcessTreeEditorComponent
     this.processTreeService.currentDisplayedProcessTree$
       .pipe(takeUntil(this._destroy$))
       .subscribe((res) => {
+        const centerTree = !this.currentlyDisplayedTreeInEditor && !!res;
         // If the tree was loaded via the process tree import or Drag&Drop that does not contain the current activities
         this.currentlyDisplayedTreeInEditor = res;
 
@@ -225,6 +226,7 @@ export class ProcessTreeEditorComponent
           this.processTreeService.correctTreeSyntax =
             this.processTreeSyntaxInfo.correctSyntax;
           this.redraw(res);
+          if (centerTree) this.centerTree();
         } else if (res === null && this.mainSvgGroup) {
           this.processTreeDrawer.redraw(null);
           this.selectedRootNode = null;
