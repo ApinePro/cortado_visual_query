@@ -94,7 +94,10 @@ backend-system-test:
   image: python:$PYTHON_VERSION
   script:
     - cd src/backend
-    - timeout --preserve-status 60 python main.py # Start main.py and stop after 60 seconds
+    - python main.py &  # Start the FastAPI server in the background
+    - sleep 30  # Wait for the server to start
+    - curl -I localhost:40000/info  # Check if the server responds
+    - pkill -f "python main.py"  # Stop the FastAPI server
 
 build-backend-linux:
   stage: build-backend
