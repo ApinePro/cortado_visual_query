@@ -1,6 +1,6 @@
 {
   "name": "Cortado",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "author": "Daniel Schuster",
   "main": "main-electron.js",
   "description": "An Interactive Tool for Data-Driven Process Discovery and Modeling",
