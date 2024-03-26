@@ -128,16 +128,14 @@
   font-size: small;
   display: flex;
   flex-direction: column;
-  align-content: space-around;
-  justify-content: flex-end;
+  place-content: space-around flex-end;
   margin-top: 5px;
 }
 
 
 .variant-header{
   display: flex;
-  align-content: flex-start !important;
-  justify-content: flex-start !important;
+  place-content: flex-start flex-start !important;
   align-items: flex-start !important;
 }
 
@@ -280,8 +278,7 @@
   display: flex;
   flex-flow: row nowrap;
   align-items: baseline;
-  align-content: flex-end;
-  justify-content: left;
+  place-content: flex-end left;
   padding: 0 10px;
 }
 
@@ -325,8 +322,7 @@
   border-radius: 0.25rem;
   padding: 5px 10px 30px;
   background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity));
-  overflow-y: scroll;
-  overflow-x: auto;
+  overflow: auto scroll;
   width: 35.5vw;
   margin-right: 40px !important;
 }
@@ -386,8 +382,7 @@
 .mine-config-form{
   display: flex;
   flex-flow: column nowrap;
-  justify-content: space-around;
-  align-content: space-around;
+  place-content: space-around space-around;
   height: fit-content;
   width: fit-content;
   align-items: flex-start;
@@ -410,13 +405,11 @@
   padding: 20px;
   display: flex;
   flex-flow: column nowrap;
-  align-content: center;
+  place-content: center space-between;
   align-items: flex-start;
   color: whitesmoke;
   border-right: black 0.5px solid;
-  overflow-y: scroll;
-  overflow-x: visible;
-  justify-content: space-between;
+  overflow: visible scroll;
 }
 
 .variant-miner-container{

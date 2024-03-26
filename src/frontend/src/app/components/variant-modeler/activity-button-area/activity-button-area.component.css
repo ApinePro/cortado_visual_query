@@ -2,12 +2,10 @@
   color: var(--text-secondary);
   width: 100%;
   max-height: fit-content;
-  overflow-x: auto;
-  overflow-y: auto;
-  justify-content: center;
+  overflow: auto auto;
+  place-content: baseline center;
   flex-flow: row wrap;
   align-items: center;
-  align-content: baseline;
   display: flex;
   row-gap: 1px;
   padding-top: 10px;

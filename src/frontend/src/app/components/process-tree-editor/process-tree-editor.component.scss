@@ -50,9 +50,8 @@
 
 .dropdown-node-insert {
   font-size: small;
-  overflow-x: auto;
+  overflow: auto scroll;
   user-select: none;
-  overflow-y: scroll;
 
 }
 
