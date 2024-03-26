@@ -1,4 +1,11 @@
 <context-menu #contextMenu menuClass="custom-style">
+  <ng-template contextMenuItem [subMenu]="quickActionMenu">
+    <div>
+      <i class="bi bi-magic"></i>
+      Quick actions
+    </div>
+  </ng-template>
+
   <ng-template contextMenuItem [subMenu]="shiftSubMenu">
     <div>
       <i class="bi bi-arrows-move"></i>
@@ -103,6 +110,29 @@
     <div>
       <i class="bi bi-chevron-double-right"></i>
       Right
+    </div>
+  </ng-template>
+</context-menu>
+
+<context-menu #quickActionMenu>
+  <ng-template
+    contextMenuItem
+    (execute)="onMakeOptional($event)"
+    [disabled]="makeOptionalDisabled"
+  >
+    <div>
+      <i class="bi bi-alt"></i>
+      Make subtree optional
+    </div>
+  </ng-template>
+  <ng-template
+    contextMenuItem
+    (execute)="onMakeRepeatable($event)"
+    [disabled]="makeRepeatableDisabled"
+  >
+    <div>
+      <i class="bi bi-repeat"></i>
+      Make subtree repeatable
     </div>
   </ng-template>
 </context-menu>

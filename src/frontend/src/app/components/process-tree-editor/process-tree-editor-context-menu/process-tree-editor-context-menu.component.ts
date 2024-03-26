@@ -13,7 +13,9 @@ export class ProcessTreeEditorContextMenuComponent {
   @ViewChild('contextMenu', { static: true })
   public contextMenu?: ContextMenuComponent<any>;
 
-  constructor(private processTreeService: ProcessTreeService) {}
+  constructor(private processTreeService: ProcessTreeService) {
+    this.pasteDisabled = this.pasteDisabled.bind(this);
+  }
 
   copyDisabled(pt: ProcessTree) {
     return !pt;
@@ -34,9 +36,8 @@ export class ProcessTreeEditorContextMenuComponent {
     this.processTreeService.deleteSelected(action.value);
   }
 
-  get pasteDisabled() {
-    //pt: ProcessTree) {
-    return !this.processTreeService.bufferedProcessTree;
+  pasteDisabled(pt: ProcessTree) {
+    return !this.processTreeService.bufferedProcessTree || !pt || !!pt?.label;
   }
 
   onPaste(action: ContextMenuAction<ProcessTree>) {
@@ -95,5 +96,23 @@ export class ProcessTreeEditorContextMenuComponent {
   onShiftRight(action: ContextMenuAction<ProcessTree>) {
     if (!action.value) return;
     this.processTreeService.shiftSubtreeToRight(action.value);
+  }
+
+  onMakeOptional(action: ContextMenuAction<ProcessTree>) {
+    if (!action.value) return;
+    this.processTreeService.makeSubtreeOptional(action.value);
+  }
+
+  makeOptionalDisabled(pt: ProcessTree) {
+    return !pt;
+  }
+
+  onMakeRepeatable(action: ContextMenuAction<ProcessTree>) {
+    if (!action.value) return;
+    this.processTreeService.makeSubtreeRepeatable(action.value);
+  }
+
+  makeRepeatableDisabled(pt: ProcessTree) {
+    return !pt;
   }
 }
