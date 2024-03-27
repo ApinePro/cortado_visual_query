@@ -27,6 +27,10 @@ const isDevelopment = process.env.NODE_ENV === "development";
 let mainCortadoWin;
 let backendProcess;
 
+let closeAttempts = 0;
+let lastCloseAttempt = 0;
+const closeAttemptThresholdInMs = 3000;
+
 WS_PORT = 40000;
 const portfinder = require("portfinder");
 
@@ -100,11 +104,16 @@ function createMainApplicationWindow() {
   });
 
   mainCortadoWin.on("close", async (e) => {
-    e.preventDefault();
-
-    // ask projectService for unsaved Changes
-    // response on "unsaved-changes"
-    mainCortadoWin.webContents.send("check-unsaved-changes");
+    const now = Date.now();
+    if (now - lastCloseAttempt > closeAttemptThresholdInMs) closeAttempts = 0;
+    if (closeAttempts < 2) {
+      e.preventDefault(); // Prevents default close behavior
+      // ask projectService for unsaved Changes
+      // response on "unsaved-changes"
+      mainCortadoWin.webContents.send("check-unsaved-changes");
+      closeAttempts++;
+      lastCloseAttempt = now;
+    }
   });
 
   // prevent external links from being opened in an electron window
