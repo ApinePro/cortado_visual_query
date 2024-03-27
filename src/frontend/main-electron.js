@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog, ipcMain } = require("electron");
+const { app, BrowserWindow, dialog, ipcMain, shell } = require("electron");
 var fs = require("fs");
 const {
   showSaveDialog,
@@ -117,9 +117,9 @@ function createMainApplicationWindow() {
   });
 
   // prevent external links from being opened in an electron window
-  mainCortadoWin.webContents.on("new-window", function (e, url) {
-    e.preventDefault();
-    require("electron").shell.openExternal(url);
+  mainCortadoWin.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: "deny" };
   });
 }
 

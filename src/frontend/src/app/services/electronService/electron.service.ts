@@ -7,17 +7,17 @@ import { ElectronInterface } from './electron-interface';
 export class ElectronService implements ElectronInterface {
   private electronApi = (<any>window).electronAPI;
 
-  public checkUnsavedChanges$ = new Subject<any>();
-  public saveProject$ = new Subject<any>();
+  public checkUnsavedChanges$ = new Subject<void>();
+  public saveProject$ = new Subject<void>();
 
   constructor() {
-    this.electronApi?.onCheckUnsavedChanges((event, value) =>
-      this.checkUnsavedChanges$.next(event.sender)
-    );
+    this.electronApi?.onCheckUnsavedChanges(() => {
+      this.checkUnsavedChanges$.next();
+    });
 
-    this.electronApi?.onSaveProject((event, value) =>
-      this.saveProject$.next(event.sender)
-    );
+    this.electronApi?.onSaveProject(() => {
+      this.saveProject$.next();
+    });
   }
 
   public async showSaveDialog(
@@ -56,5 +56,13 @@ export class ElectronService implements ElectronInterface {
 
   public async getWSPort(): Promise<number> {
     return this.electronApi.getWSPort();
+  }
+
+  public unsavedChangesStatus(unsavedChanges: boolean) {
+    this.electronApi.unsavedChanges(unsavedChanges);
+  }
+
+  public quit(): void {
+    this.electronApi.quit();
   }
 }

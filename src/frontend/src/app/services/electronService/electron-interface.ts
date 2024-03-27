@@ -21,4 +21,8 @@ export interface ElectronInterface {
   readFromUserFolder(fileName: string, fileExtension: string): Promise<string>;
 
   getWSPort(): Promise<number>;
+
+  unsavedChangesStatus(unsavedChanges: boolean): void;
+
+  quit(): void;
 }
