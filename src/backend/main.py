@@ -75,6 +75,8 @@ def get_all_urls():
 
 
 if __name__ == "__main__":
+    # IMPORTANT: No other code between the `if __name__ == '__main__'` and freeze_support()
+    freeze_support()
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--WEBSERVER_PORT",
@@ -85,7 +87,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # print(DEFAULT_LP_SOLVER_VARIANT)
-    freeze_support()
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
