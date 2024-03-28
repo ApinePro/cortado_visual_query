@@ -1,19 +1,18 @@
 import { Injectable } from '@angular/core';
 import { BackgroundTaskInfoService } from '../backgroundTaskInfoService/background-task-info.service';
-import { WebSocketSubject } from 'rxjs/webSocket';
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { ArcDiagramComputationResult } from './model';
 import { Observable } from 'rxjs';
 import { FilterParams } from '../../components/variant-explorer/arc-diagram/filter/filter-params';
-import { WebsocketService } from '../websocket/websocket.service';
+import { ROUTES } from '../../constants/backend_route_constants';
+import { catchError, map, tap } from 'rxjs/operators';
+import Swal from 'sweetalert2';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ArcDiagramService {
-  constructor(
-    private infoService: BackgroundTaskInfoService,
-    private websocketService: WebsocketService
-  ) {}
+  constructor(private infoService: BackgroundTaskInfoService) {}
 
   private socket: WebSocketSubject<any>;
   private runningRequests: number[] = [];
@@ -24,19 +23,52 @@ export class ArcDiagramService {
   public filterAfterComputation: boolean;
 
   public connect(): boolean {
-    const [returned, $satisfiedObservable, $nonSatisfiedObservable] =
-      this.websocketService.connect(this.arcDiagramsResult, (result) => {
-        return new ArcDiagramComputationResult(
-          result['pairs'],
-          result['maximal_values'],
-          this.filterParams,
-          this.filterAfterComputation
-        );
-      });
-    if (returned) {
-      this.arcDiagramsResult = $satisfiedObservable;
+    if (!this.socket || this.socket.closed) {
+      this.socket = webSocket(
+        ROUTES.WS_HTTP_BASE_URL + ROUTES.REPETITIONS_MINING
+      );
+      this.arcDiagramsResult = this.socket.pipe(
+        catchError((error) => {
+          this.runningRequests.forEach((r: number) =>
+            this.infoService.removeRequest(r)
+          );
+          this.runningRequests = [];
+          this.socket = null;
+
+          throw error;
+        }),
+        tap((_) => {
+          this.infoService.removeRequest(this.runningRequests.pop());
+        }),
+        map((result) => {
+          if ('error' in result) {
+            Swal.fire({
+              title: 'Error occurred',
+              html:
+                '<b>Error message: </b><br>' +
+                '<code>' +
+                'Calculating arc diagrams failed' +
+                '</code>',
+              icon: 'error',
+              showCloseButton: false,
+              showConfirmButton: false,
+              showCancelButton: true,
+              cancelButtonText: 'close',
+            });
+            return result;
+          }
+          return new ArcDiagramComputationResult(
+            result['pairs'],
+            result['maximal_values'],
+            this.filterParams,
+            this.filterAfterComputation
+          );
+        })
+      );
+
       return true;
     }
+
     return false;
   }
 
@@ -52,7 +84,7 @@ export class ArcDiagramService {
       this.cancelArcDiagramComputationRequests()
     );
     this.runningRequests.push(rid);
-    this.websocketService.socket.next({
+    this.socket.next({
       name: 'repetition_mining',
       bids,
       filters: {
@@ -66,11 +98,11 @@ export class ArcDiagramService {
   }
 
   private cancelArcDiagramComputationRequests(): void {
-    this.websocketService.socket.next({ isCancellationRequested: true });
+    this.socket.next({ isCancellationRequested: true });
     this.runningRequests.forEach((r: number) =>
       this.infoService.removeRequest(r)
     );
     this.runningRequests = [];
-    this.websocketService.socket.unsubscribe();
+    this.socket.unsubscribe();
   }
 }

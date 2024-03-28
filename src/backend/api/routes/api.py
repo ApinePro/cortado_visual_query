@@ -2,9 +2,9 @@
 """
 from fastapi import APIRouter
 
-from api.routes.websocket import main as websocket
+from api.websocket import main as websocket
 from api.routes.configuration import configuration
-from api.routes.conformance import variantConformance, treeConformance
+from api.routes.conformance import treeConformance
 from api.routes.input_output import exporting, importing
 from api.routes.log import log, modifyLog
 from api.routes.performance import (
@@ -20,6 +20,7 @@ from api.routes.variants import (
     sequentializer,
     lpmMiner,
 )
+from api.websocket import main
 
 router = APIRouter()
 router.include_router(log.router)
@@ -28,7 +29,7 @@ router.include_router(exporting.router)
 router.include_router(importing.router)
 router.include_router(configuration.router)
 
-router.include_router(variantConformance.router)
+router.include_router(main.router)
 router.include_router(treeConformance.router)
 router.include_router(treePerformance.router)
 router.include_router(subvariantPerformance.router)

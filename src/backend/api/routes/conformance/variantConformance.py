@@ -6,7 +6,6 @@ from cortado_core.utils.process_tree import LabelWithIndex
 from starlette.websockets import WebSocketState
 
 from backend_utilities.configuration.repository import ConfigurationRepositoryFactory
-from backend_utilities.multiprocessing.pool_factory import PoolFactory
 from backend_utilities.timeout.helper_functions import (
     TimeoutException,
     execute_with_timeout,
@@ -14,9 +13,7 @@ from backend_utilities.timeout.helper_functions import (
 from backend_utilities.process_tree_conversion import dict_to_process_tree
 from endpoints.alignments import InfixType
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-
-router = APIRouter(tags=["variantConformance"], prefix="/variantConformance")
+from fastapi import WebSocket
 
 
 def calculate_alignment_intern_with_timeout(
@@ -112,16 +109,22 @@ def project_alignments_on_cvariant(mapping, variant):
         return {"leaf": [(str(act), mapping[act.full]) for act in variant["leaf"]]}
 
 
-def alignment_preprocess_result(data, id: str, alignType):
+def get_alignment_callback(idx: str, alignType, websocket: WebSocket):
+    def callback(result):
+        data = {
+            "id": idx,
+            "isTimeout": False,
+            "cost": 0,
+            "type": alignType,
+            "deviation": False,
+        }
+        for key, value in result.items():
+            data[key] = value
 
-    result = {
-        "id": id,
-        "isTimeout": False,
-        "cost": 0,
-        "type": alignType,
-        "deviation": False,
-    }
-    for key, value in data.items():
-        result[key] = value
+        try:
+            if websocket.application_state == WebSocketState.CONNECTED:
+                asyncio.run(websocket.send_json(data))
+        except:
+            print("Error while sending conformance result")
 
-    return result
+    return callback

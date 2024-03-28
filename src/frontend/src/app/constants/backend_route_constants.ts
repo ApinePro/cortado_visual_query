@@ -13,7 +13,7 @@ export class ROUTES {
   public static VARIANT_PERFORMANCE = 'variantPerformance/';
   public static SUBVARIANT_PERFORMANCE = 'subvariantPerformance/';
   public static TREE_CONFORMANCE = 'treeConformance/';
-  public static VARIANT_CONFORMANCE = 'variantConformance/';
+  public static VARIANT_CONFORMANCE = 'ws/conformance';
   public static QUERY = 'variantQuery/';
   public static CONFIG = 'config/';
   public static EXPORT = 'exporting/';
@@ -21,4 +21,5 @@ export class ROUTES {
   public static VARIANTMINING = 'subvariantMining/';
   public static SEQUENTIALIZER = 'sequentializer/';
   public static LPMMINER = 'lpmMining/';
+  public static REPETITIONS_MINING = 'ws/repetitionsMining';
 }

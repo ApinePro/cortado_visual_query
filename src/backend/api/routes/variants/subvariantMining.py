@@ -228,11 +228,11 @@ def sub_pattern_to_ctree(pattern: SubPattern, parent=None):
     return t
 
 
-def repetition_mining_preprocess_result(data):
+def serialize_result(data):
     result = {}
     for key, value in data.items():
         if key == 'pairs':
-            result[key] = {k: [p.tojson() for p in v] for k, v in value.items()}
+            result[key] = {k: [p.serialize() for p in v] for k, v in value.items()}
         else:
             result[key] = value
     return result
@@ -299,3 +299,20 @@ def mine_repetition_patterns_with_timeout(config: RepetitionsMiningConfig, cache
         "pairs": result,
         "maximal_values": {"size": maximal_size, "length": maximal_length},
     }
+
+
+def get_repetition_mining_callback(websocket: WebSocket):
+
+    def send_response(data):
+
+        result = serialize_result(data)
+
+        try:
+
+            if websocket.application_state == WebSocketState.CONNECTED:
+                asyncio.run(websocket.send_json(result))
+
+        except Exception as e:
+            print("Error while sending arc diagrams computation result: ", e)
+
+    return send_response
