@@ -1,11 +1,7 @@
 # Introduction
 
-In process mining, process discovery is a key discipline that deals with data driven generation of insights into operational processes. 
-Given event data, process discovery algorithms learn process models that describe the execution of various activities in the process. 
-These discovered process models are important artifacts and are used in various process mining techniques. 
-Most conventional process discovery techniques act as a black-box and do not support user involvement apart from initial parameter tuning. These techniques often result in process models having poor quality.
-Cortado is a tool that allows for interactive process discovery enabling user to gradually learn process models while having complete control during the increments. This allows for learning process models incrementally
-while leveraging insights extracted from the data as well as the domain knowledge.
+Process discovery is a critical discipline in process mining that deals with the data-driven generation of insights into operational processes. Given event data, process discovery algorithms learn process models that describe the execution of various activities in the process. These discovered process models are essential artifacts and are used in multiple process mining techniques. Most conventional process discovery techniques act as a black box and do not support user involvement apart from initial parameter tuning. These techniques often result in process models having poor quality. Cortado is a tool that allows for interactive process discovery, enabling users to gradually learn process models while having complete control during the increments. 
+
 
 
 
@@ -14,7 +10,7 @@ while leveraging insights extracted from the data as well as the domain knowledg
 ##### Event data handling
 
   Event data handling in Cortado includes exploring, filtering, preprocessing, querying, and visualization of event data. Different executions of the process are summarized by grouping them into process execution variants that are visualized within the [*Variant Explorer*](#variant-explorer).
-  Cortado also provides [*Variant Querying*](#variant-querying) which includes a query language designed specifically for querying variants. Cortado also allows specifying time granularity which influences the ordering of activities within variants. Furthermore, Cortado allows manual extraction
+  Cortado also provides [*Variant Querying*](#variant-querying) which includes a query language designed specifically for querying variants. Cortado also allows for the specification of time granularityfix typo in docs which influences the ordering of activities within variants. Furthermore, Cortado allows manual extraction
   and mining of frequent patterns through [*Frequent Pattern Mining*](#variant-frequent-pattern-mining).
   
 
