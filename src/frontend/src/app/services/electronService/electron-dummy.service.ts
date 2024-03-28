@@ -39,4 +39,12 @@ export class ElectronDummyService implements ElectronInterface {
     const port = Number(url.match(/(?<=\:).+?(?=\/)/g)[0]);
     return Promise.resolve(port);
   }
+
+  unsavedChangesStatus(unsavedChanges: boolean): void {
+    throw new Error('Method not implemented.');
+  }
+
+  quit(): void {
+    throw new Error('Method not implemented.');
+  }
 }
