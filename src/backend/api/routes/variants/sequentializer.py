@@ -10,6 +10,7 @@ from cortado_core.utils.split_graph import (
 )
 from collections import defaultdict
 
+from cortado_core.subprocess_discovery.concurrency_trees.cTrees import cTreeOperator
 from cortado_core.sequentializer.algorithm import apply_sequentializer_on_variants
 from cortado_core.sequentializer.pattern import (
     parse_sequentializer_pattern,
@@ -26,6 +27,7 @@ from api.routes.variants.variants import VariantInformation
 # from endpoints.alignments import InfixType
 from cortado_core.models.infix_type import InfixType
 from endpoints.load_event_log import (
+    create_variant_object,
     compute_log_stats,
     variants_to_variant_objects,
 )
@@ -36,16 +38,16 @@ from cortado_core.subprocess_discovery.concurrency_trees.cTrees import (
     cTreeFromcGroup,
 )
 
-router = APIRouter(tags=["Tiebreaker"], prefix="/tiebreaker")
+router = APIRouter(tags=["Sequentializer"], prefix="/sequentializer")
 
 
-class TiebreakerPatterns(BaseModel):
+class SequentializerPatterns(BaseModel):
     sourcePattern: Any = None
     targetPattern: Any = None
 
 
 @router.post("/apply")
-def apply_tiebreaker(payload: TiebreakerPatterns):
+def apply_sequentializer(payload: SequentializerPatterns):
     source_pattern = parse_pattern_from_variant(
         Group.deserialize(payload.sourcePattern)
     )
@@ -126,7 +128,7 @@ def validate_string_pattern(pattern: str) -> bool:
 
 
 def validate_patterns(
-    source_pattern: TiebreakerPatterns, target_pattern: TiebreakerPatterns
+    source_pattern: SequentializerPattern, target_pattern: SequentializerPattern
 ):
     activities = cache.cache.parameters["activites"]
     source_activities = get_activities_in_pattern(source_pattern)
@@ -159,15 +161,13 @@ def validate_patterns(
         except ValueError:
             raise HTTPException(
                 status_code=400,
-                detail=f"Node with labels {source_labeled_node} is present in source pattern, "
-                f"but not in target pattern",
+                detail=f"Node with labels {source_labeled_node} is present in source pattern, but not in target pattern",
             )
 
     if len(target_labeled_nodes) > 0:
         raise HTTPException(
             status_code=400,
-            detail=f"Node with labels {target_labeled_nodes[0]} is present in target pattern, "
-            f"but not in source pattern",
+            detail=f"Node with labels {target_labeled_nodes[0]} is present in target pattern, but not in source pattern",
         )
 
     source_wc_node = get_wildcard_node(source_pattern)
@@ -198,7 +198,7 @@ def validate_patterns(
             )
 
 
-def get_activities_in_pattern(pattern: TiebreakerPatterns):
+def get_activities_in_pattern(pattern: SequentializerPattern):
     activities = set(pattern.labels)
 
     for child in pattern.children:
@@ -207,7 +207,7 @@ def get_activities_in_pattern(pattern: TiebreakerPatterns):
     return activities
 
 
-def get_activity_nodes_in_pattern(pattern: TiebreakerPatterns):
+def get_activity_nodes_in_pattern(pattern: SequentializerPattern):
     nodes = set()
 
     if len(pattern.labels) > 0:
@@ -232,6 +232,7 @@ def parse_pattern_from_variant(variant):
 
 def parse_pattern_from_variant_recursive(variant, parent):
     operator = None
+    node = None
     if isinstance(variant, SequenceGroup):
         operator = cTreeOperator.Sequential
     elif isinstance(variant, ParallelGroup):
@@ -246,7 +247,7 @@ def parse_pattern_from_variant_recursive(variant, parent):
         operator = WILDCARD_MATCH
 
     if operator is not None and operator != WILDCARD_MATCH:
-        node = TiebreakerPatterns(operator=operator, parent=parent, children=None)
+        node = SequentializerPattern(operator=operator, parent=parent, children=None)
         if parent is not None:
             parent.children.append(node)
         if operator != cTreeOperator.Fallthrough:
@@ -258,10 +259,11 @@ def parse_pattern_from_variant_recursive(variant, parent):
             )
             parse_pattern_from_variant_recursive(fallthrough_leaf, node)
     elif operator is not None and operator == WILDCARD_MATCH:
-        node = TiebreakerPatterns(operator=operator, parent=parent, children=None)
+        node = SequentializerPattern(operator=operator, parent=parent, children=None)
         if parent is not None:
             parent.children.append(node)
     else:
+        labels = []
         if isinstance(variant, ChoiceGroup):
             labels = [[activity for activity in leaf][0] for leaf in variant]
             match_multiple = True
@@ -269,7 +271,7 @@ def parse_pattern_from_variant_recursive(variant, parent):
             labels = [activity for activity in variant]
             match_multiple = False
 
-        node = TiebreakerPatterns(
+        node = SequentializerPattern(
             labels=labels, parent=parent, match_multiple=match_multiple
         )
         if parent is not None:

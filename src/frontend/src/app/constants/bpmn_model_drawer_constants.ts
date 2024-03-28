@@ -35,4 +35,5 @@ export class BPMN_Constant {
   public static PADDING = 5;
   public static MAX_ZOOM = 3;
   public static MIN_ZOOM = 0.1;
+  public static DEFAULT_ZOOM = 1;
 }

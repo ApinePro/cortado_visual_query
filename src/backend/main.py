@@ -74,18 +74,19 @@ def get_all_urls():
     return url_list
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    "--WEBSERVER_PORT",
-    default="40000",
-    type=int,
-    help="Specify the webserver port, defaults to  40000",
-)
-args = parser.parse_args()
-
 if __name__ == "__main__":
-    # print(DEFAULT_LP_SOLVER_VARIANT)
+    # IMPORTANT: No other code between the `if __name__ == '__main__'` and freeze_support()
     freeze_support()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--WEBSERVER_PORT",
+        default="40000",
+        type=int,
+        help="Specify the webserver port, defaults to  40000",
+    )
+    args = parser.parse_args()
+
+    # print(DEFAULT_LP_SOLVER_VARIANT)
     uvicorn.run(
         "main:app",
         host="0.0.0.0",

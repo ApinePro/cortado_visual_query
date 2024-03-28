@@ -1,5 +1,4 @@
-const contextBridge = require("electron").contextBridge;
-const ipcRenderer = require("electron").ipcRenderer;
+const { contextBridge, ipcRenderer } = require("electron");
 
 console.warn("Running Preload Script...");
 
@@ -22,6 +21,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
   onSaveProject: (callback) => ipcRenderer.on("save-project", callback),
   onCheckUnsavedChanges: (callback) =>
     ipcRenderer.on("check-unsaved-changes", callback),
+  unsavedChanges: (unsavedChanges) =>
+    ipcRenderer.send("unsaved-changes", unsavedChanges),
+  quit: () => ipcRenderer.send("quit", value),
 });
 
 document.onreadystatechange = function () {

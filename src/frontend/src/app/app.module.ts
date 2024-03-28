@@ -16,6 +16,7 @@ import { StrFilterPipe } from './pipes/str-filter/str-filter.pipe';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { ColorPickerModule } from 'ngx-color-picker';
+import { ContextMenuModule } from '@perfectmemory/ngx-contextmenu';
 
 import { VariantExplorerComponent } from './components/variant-explorer/variant-explorer.component';
 import { ActivityOverviewComponent } from './components/activity-overview/activity-overview.component';
@@ -78,8 +79,8 @@ import { UnavailableInfoComponent } from './components/unavailable-info/unavaila
 import { ConformanceTabComponent } from './components/conformance-tab/conformance-tab.component';
 import { ConformanceStatusIconComponent } from './components/variant-explorer/variant/subcomponents/variant-info/conformance-status-icon/conformance-status-icon.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { TiebreakerComponent } from './components/variant-explorer/tiebreaker/tiebreaker.component';
-import { PatternEditorComponent } from './components/variant-explorer/tiebreaker/pattern-editor/pattern-editor.component';
+import { VariantSequentializerComponent } from './components/variant-explorer/variant-sequentializer/variant-sequentializer.component';
+import { PatternEditorComponent } from './components/variant-explorer/variant-sequentializer/pattern-editor/pattern-editor.component';
 import { TreeConformanceButtonComponent } from './components/variant-explorer/variant/subcomponents/tree-buttons/tree-conformance-button/tree-conformance-button.component';
 import { DecimalPipe } from '@angular/common';
 import { VariantMinerActivitiesFIlterComponent } from './components/variant-miner/variant-miner-activities-filter/variant-miner-activities-filter.component';
@@ -99,6 +100,7 @@ import { MarkdownModule } from 'ngx-markdown';
 import { StripHtmlPipe } from './components/documentation/strip-html.pipe';
 import { RouterLink } from '@angular/router';
 import { CaseExplorerComponent } from './components/variant-explorer/case-explorer/case-explorer.component';
+import { ProcessTreeEditorContextMenuComponent } from './components/process-tree-editor/process-tree-editor-context-menu/process-tree-editor-context-menu.component';
 import { VariantActionButtonsComponent } from './components/variant-explorer/variant/subcomponents/variant-action-buttons/variant-action-buttons.component';
 import { ArcDiagramDirective } from './directives/arc-diagram/arc-diagram.directive';
 import { ArcDiagramFilterComponent } from './components/variant-explorer/arc-diagram/filter/filter.component';
@@ -168,7 +170,7 @@ import { VariantVisualisationComponent } from './components/variant-explorer/var
     UnavailableInfoComponent,
     ConformanceTabComponent,
     ConformanceStatusIconComponent,
-    TiebreakerComponent,
+    VariantSequentializerComponent,
     PatternEditorComponent,
     TreeConformanceButtonComponent,
     VariantMinerActivitiesFIlterComponent,
@@ -185,6 +187,7 @@ import { VariantVisualisationComponent } from './components/variant-explorer/var
     DocumentationComponent,
     StripHtmlPipe,
     CaseExplorerComponent,
+    ProcessTreeEditorContextMenuComponent,
     ArcDiagramDirective,
     ArcDiagramFilterComponent,
     VariantVisualisationComponent,
@@ -206,6 +209,7 @@ import { VariantVisualisationComponent } from './components/variant-explorer/var
       sanitize: SecurityContext.NONE,
     }),
     RouterLink,
+    ContextMenuModule,
   ],
   providers: [
     {

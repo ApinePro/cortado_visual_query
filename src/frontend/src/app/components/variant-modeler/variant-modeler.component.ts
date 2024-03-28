@@ -571,7 +571,6 @@ export class VariantModelerComponent
         }
       }
 
-      // weiran.yang added
       if (
         children.length === 1 &&
         variant instanceof SequenceGroup &&
@@ -649,7 +648,7 @@ export class VariantModelerComponent
     if (this.cacheIdx < this.cachedVariants.length - 1) {
       this.cachedVariants = this.cachedVariants.slice(0, this.cacheIdx + 1);
     }
-    // Weiran edited
+
     if (this.currentVariant) {
       this.cachedVariants.push(this.currentVariant.copy());
     } else {
