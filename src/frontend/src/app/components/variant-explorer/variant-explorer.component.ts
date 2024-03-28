@@ -272,10 +272,15 @@ export class VariantExplorerComponent
     this.listenForViewModeChange();
     this.listenForLoopCollapsedVariantsChange();
 
-    const explorerElement = this.variantExplorerDiv.nativeElement;
-    d3.select(this.explorerElement.nativeElement)
-      .select('.dropdown-menu')
-      .style('max-height', explorerElement.offsetHeight.toString() + 'px');
+    const resizeObserver = new ResizeObserver((entries) => {
+      if (entries.length === 1) {
+        const newHeight = entries[0].contentRect.height;
+        d3.select(this.explorerElement.nativeElement)
+          .select('.dropdown-menu')
+          .style('max-height', newHeight.toString() + 'px');
+      }
+    });
+    resizeObserver.observe(this.variantExplorerDiv.nativeElement);
   }
 
   ngOnDestroy(): void {
