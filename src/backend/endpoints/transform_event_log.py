@@ -1,5 +1,7 @@
 import os.path
 import pickle
+import random
+import string
 from collections import Counter, defaultdict
 from typing import List, Mapping, Set, Tuple
 
@@ -20,8 +22,6 @@ from pm4py.objects.log.obj import EventLog, Trace
 from pm4py.util.xes_constants import DEFAULT_NAME_KEY
 from cortado_core.utils.cvariants import ACTIVITY_INSTANCE_KEY
 
-from api.routes.variants.variants import VariantInformation
-from endpoints.alignments import InfixType
 from endpoints.load_event_log import compute_log_stats, create_variant_object
 
 
@@ -430,20 +430,35 @@ def remove_activity_from_trace(trace, activityName):
     return trace
 
 
-def remove_activitiy_from_group(group, activity_name):
+def random_activity(curr_name: str, length=4):
+    letters = string.ascii_lowercase
+    # joining with the current name to retain the order of acts
+    return curr_name + "".join(random.choice(letters) for _ in range(length))
+
+
+def remove_activitiy_from_group(
+    group, activity_names: list[str] | str, replace_with_random=False
+):
     if isinstance(group, LeafGroup):
-        lst = group[:]
-        if activity_name in group and len(group) == 1:
+        if isinstance(activity_names, str):
+            activity_names = [activity_names]
+
+        if replace_with_random:
+            group_minus = [
+                random_activity(act) if act in activity_names else act for act in group
+            ]
+        else:
+            group_minus = [act for act in group if act not in activity_names]
+
+        if len(group_minus) == 0:
             return None
 
-        elif activity_name in group and len(group) > 1:
-            lst.remove(activity_name)
-
-        return LeafGroup(lst)
+        return LeafGroup(group_minus)
 
     else:
         children = [
-            remove_activitiy_from_group(child, activity_name) for child in group
+            remove_activitiy_from_group(child, activity_names, replace_with_random)
+            for child in group
         ]
         children = [child for child in children if child]
 
@@ -461,7 +476,9 @@ def remove_activitiy_from_group(group, activity_name):
 
         if len(children) > 1:
             if isinstance(group, ParallelGroup):
-                return ParallelGroup(sorted(children))
+                return ParallelGroup(
+                    children if replace_with_random else sorted(children)
+                )  # to retain the order of acts
 
             else:
                 return SequenceGroup(children)
@@ -555,6 +572,9 @@ def remove_activities(
     new_variants, new_res_variants, update_res_variants = handle_fallthrough(
         activityName, fallthrough, new_variants, update_res_variants
     )
+
+    for _, v in new_variants.items():
+        v[0].assign_dfs_ids()
 
     start_activities, end_activities, _ = compute_log_stats(new_variants)
 

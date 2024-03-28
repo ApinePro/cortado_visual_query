@@ -116,6 +116,9 @@ def variants_to_variant_objects(
     ):
         info: VariantInformation = info_generator(ts)
         v.infix_type = info.infix_type
+
+        v.assign_dfs_ids()
+
         variant, sub_vars = create_variant_object(
             time_granularity, total_traces, bid, v, ts, info
         )
