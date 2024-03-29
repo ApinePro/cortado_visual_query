@@ -1,6 +1,5 @@
 import {
   Component,
-  ElementRef,
   Inject,
   Input,
   NgZone,
@@ -32,8 +31,7 @@ export class DocumentationComponent implements OnInit, OnDestroy {
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
-    private zone: NgZone,
-    private elementRef: ElementRef<HTMLElement>
+    private zone: NgZone
   ) {}
 
   ngOnInit() {
@@ -89,9 +87,9 @@ export class DocumentationComponent implements OnInit, OnDestroy {
     }, 1200);
   }
 
-  navToSection(elementId) {
-    document.querySelector('#' + elementId).scrollIntoView();
-    // this.blink(elementId);
+  navToSection(element) {
+    element.scrollIntoView();
+    return false;
   }
 
   navToSectionByHeading(heading: string) {
