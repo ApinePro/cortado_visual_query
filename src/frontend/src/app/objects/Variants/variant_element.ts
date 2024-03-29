@@ -61,7 +61,8 @@ export abstract class VariantElement {
       (this instanceof ParallelGroup &&
         variantElement instanceof ParallelGroup) ||
       (this instanceof ChoiceGroup && variantElement instanceof ChoiceGroup) ||
-      (this instanceof FallthroughGroup && variantElement instanceof FallthroughGroup) ||
+      (this instanceof FallthroughGroup &&
+        variantElement instanceof FallthroughGroup) ||
       (this instanceof LoopGroup && variantElement instanceof LoopGroup) ||
       (this instanceof SkipGroup && variantElement instanceof SkipGroup) ||
       (this instanceof LeafNode && variantElement instanceof LeafNode) ||
@@ -1547,7 +1548,6 @@ export class LeafPattern extends LeafNode implements QueryPattern {
     this.cardiOperator = CardinalityOperator.equal;
     this.eventually = false;
   }
-
 
   public cardinality: number;
   public cardiOperator: CardinalityOperator;

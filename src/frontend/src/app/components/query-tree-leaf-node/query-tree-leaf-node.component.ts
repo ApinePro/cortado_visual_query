@@ -15,7 +15,7 @@ import { InfixType } from '../../objects/Variants/infix_selection';
 @Component({
   selector: 'app-query-tree-leaf-node',
   templateUrl: './query-tree-leaf-node.component.html',
-  styleUrls: ['./query-tree-leaf-node.component.css']
+  styleUrls: ['./query-tree-leaf-node.component.css'],
 })
 export class QueryTreeLeafNodeComponent {
   @Input()

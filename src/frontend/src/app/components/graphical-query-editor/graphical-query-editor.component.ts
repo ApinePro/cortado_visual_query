@@ -14,7 +14,7 @@ import { ViewMode } from 'src/app/objects/ViewMode';
 import { PT_Constant } from './../../constants/process_tree_drawer_constants';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { getPerformanceTable } from 'src/app/components/process-tree-editor/utils';
-import { GoldenLayout} from 'golden-layout';
+import { GoldenLayout } from 'golden-layout';
 import {
   AfterViewInit,
   Component,
@@ -129,13 +129,13 @@ export class GraphicalQueryEditorComponent
       this.activityNames.push(activity);
       this.activityNames.sort();
     }
-    this.activityNames.unshift("S");
-    this.activityNames.push("E");
+    this.activityNames.unshift('S');
+    this.activityNames.push('E');
     this.queryTreeOperators = [
       QueryTreeOperator.or,
       QueryTreeOperator.and,
       QueryTreeOperator.default,
-    ]
+    ];
   }
 
   @ViewChild('d3svg') svgElem: ElementRef;
@@ -184,7 +184,7 @@ export class GraphicalQueryEditorComponent
 
   ///////////////////Tree Part
   queryTreeOperators: QueryTreeOperator[];
-  
+
   @ViewChild(QueryTreeDrawerDirective)
   processTreeDrawer: QueryTreeDrawerDirective;
 
@@ -263,76 +263,76 @@ export class GraphicalQueryEditorComponent
 
   ngOnInit(): void {
     this.processTreeService.treeCacheIndex$
-    .pipe(takeUntil(this._destroy$))
-    .subscribe((idx) => {
-      this.treeCacheIndex = idx;
-    });
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((idx) => {
+        this.treeCacheIndex = idx;
+      });
 
-  this.processTreeService.treeCacheLength$
-    .pipe(takeUntil(this._destroy$))
-    .subscribe((len) => {
-      this.treeCacheLength = len;
-    });
+    this.processTreeService.treeCacheLength$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((len) => {
+        this.treeCacheLength = len;
+      });
 
-  this.modelViewModeService.viewMode$
-    .pipe(takeUntil(this._destroy$))
-    .subscribe((viewMode) => {
-      if (this.currentlyDisplayedTreeInEditor) {
-        this.redraw(this.currentlyDisplayedTreeInEditor);
-      }
-    });
+    this.modelViewModeService.viewMode$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((viewMode) => {
+        if (this.currentlyDisplayedTreeInEditor) {
+          this.redraw(this.currentlyDisplayedTreeInEditor);
+        }
+      });
 
-  this.conformanceCheckingService.isConformanceWeighted$
-    .pipe(takeUntil(this._destroy$))
-    .subscribe((_) => {
-      if (this.currentlyDisplayedTreeInEditor) {
-        this.redraw(this.currentlyDisplayedTreeInEditor);
-      }
-    });
+    this.conformanceCheckingService.isConformanceWeighted$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((_) => {
+        if (this.currentlyDisplayedTreeInEditor) {
+          this.redraw(this.currentlyDisplayedTreeInEditor);
+        }
+      });
 
-  this.colorMapService.colorMap$
-    .pipe(takeUntil(this._destroy$))
-    .subscribe((colorMap) => {
-      this.activityColorMap = colorMap;
+    this.colorMapService.colorMap$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        this.activityColorMap = colorMap;
 
-      if (this.currentlyDisplayedTreeInEditor) {
-        this.redraw(this.currentlyDisplayedTreeInEditor);
-      }
-    });
+        if (this.currentlyDisplayedTreeInEditor) {
+          this.redraw(this.currentlyDisplayedTreeInEditor);
+        }
+      });
 
-  this.performanceColorScaleService.currentColorScale
-    .pipe(takeUntil(this._destroy$))
-    .subscribe((colorMap) => {
-      if (colorMap && colorMap != this.performanceColorMap) {
-        this.performanceColorMap = colorMap;
-        this.redraw(this.currentlyDisplayedTreeInEditor);
-      }
-    });
+    this.performanceColorScaleService.currentColorScale
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        if (colorMap && colorMap != this.performanceColorMap) {
+          this.performanceColorMap = colorMap;
+          this.redraw(this.currentlyDisplayedTreeInEditor);
+        }
+      });
 
-  this.logService.activitiesInEventLog$
-    .pipe(takeUntil(this._destroy$))
-    .subscribe((activties) => {
-      this.activitiesOccurringInLog = Object.keys(activties);
-    });
+    this.logService.activitiesInEventLog$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((activties) => {
+        this.activitiesOccurringInLog = Object.keys(activties);
+      });
 
-  this.processTreeService.currentDisplayedProcessTree$
-    .pipe(takeUntil(this._destroy$))
-    .subscribe((res) => {
-      // If the tree was loaded via the process tree import or Drag&Drop that does not contain the current activities
-      this.currentlyDisplayedTreeInEditor = res;
+    this.processTreeService.currentDisplayedProcessTree$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((res) => {
+        // If the tree was loaded via the process tree import or Drag&Drop that does not contain the current activities
+        this.currentlyDisplayedTreeInEditor = res;
 
-      if (res) {
-        console.warn('update tree triggered by service');
+        if (res) {
+          console.warn('update tree triggered by service');
 
-        this.processTreeSyntaxInfo = checkSyntax(res);
-        this.processTreeService.correctTreeSyntax =
-          this.processTreeSyntaxInfo.correctSyntax;
-        this.redraw(res);
-      } else if (res === null && this.mainSvgGroup) {
-        this.processTreeDrawer.redraw(null);
-        this.selectedRootNode = null;
-      }
-    });
+          this.processTreeSyntaxInfo = checkSyntax(res);
+          this.processTreeService.correctTreeSyntax =
+            this.processTreeSyntaxInfo.correctSyntax;
+          this.redraw(res);
+        } else if (res === null && this.mainSvgGroup) {
+          this.processTreeDrawer.redraw(null);
+          this.selectedRootNode = null;
+        }
+      });
   }
 
   ngAfterViewInit(): void {
@@ -344,18 +344,18 @@ export class GraphicalQueryEditorComponent
           this.activityNames.push(activity);
           this.activityNames.sort();
         }
-        this.activityNames.unshift("S");
-        this.activityNames.push("E");
+        this.activityNames.unshift('S');
+        this.activityNames.push('E');
       });
 
-      this.logService.loadedEventLog$
+    this.logService.loadedEventLog$
       .pipe(takeUntil(this._destroy$))
       .subscribe((newLog) => {
         if (newLog) {
           this.emptyVariant = true;
         }
       });
-      
+
     this.initializeSvg();
 
     this._goldenLayoutHostComponent =
@@ -377,7 +377,7 @@ export class GraphicalQueryEditorComponent
         //add some?
       });
   }
-  
+
   computeActivityColor = (
     self: QueryTreeDrawerDirective,
     element: VariantElement,
@@ -386,7 +386,6 @@ export class GraphicalQueryEditorComponent
     let color;
 
     if (element instanceof LeafNode) {
-      
       color = this.activityColorMap.get(element.asLeafNode().activity[0]);
 
       if (element.activity.length > 1) {
@@ -428,9 +427,11 @@ export class GraphicalQueryEditorComponent
     return [-translateX, 0];
   };
 
-  
   triggerRedraw() {
-    setTimeout(() => this.variantDrawer.redraw(this.currentlyDisplayedTreeInEditor), 1);
+    setTimeout(
+      () => this.variantDrawer.redraw(this.currentlyDisplayedTreeInEditor),
+      1
+    );
   }
 
   //there is no nested parallel group in tiebreaker. The parallel could only contain leaf, choice and fallthrough
@@ -498,7 +499,7 @@ export class GraphicalQueryEditorComponent
       this.newLeaf = leaf;
 
       if (this.emptyVariant) {
-        console.log("Empty");
+        console.log('Empty');
         nodevariant.pattern = new SequencePattern([leaf]);
         nodevariant.pattern.setExpanded(true);
         this.emptyVariant = false;
@@ -1206,29 +1207,28 @@ export class GraphicalQueryEditorComponent
     //this.selectedRootNode = null;
   }
 
-  savePattern(){
+  savePattern() {
     this.savedPatterns.push(this.currentVariant.copy());
     //console.log(this.currentVariant);
     //console.log(this.savedPatterns);
   }
 
-  openCardinality(){
-    console.log("start!");
+  openCardinality() {
+    console.log('start!');
     this.variantService.showCardinalityDialog.next();
   }
 
-  addCardinality(){
+  addCardinality() {
     this.currentVariant.asSequencePattern().cardinality += 1;
     this.triggerRedraw();
   }
 
-  reduceCardinality(){
-    if (this.currentVariant.asSequencePattern().cardinality > 0){
+  reduceCardinality() {
+    if (this.currentVariant.asSequencePattern().cardinality > 0) {
       this.currentVariant.asSequencePattern().cardinality -= 1;
       this.triggerRedraw();
     }
   }
-
 
   // Tree Editor part
   redraw(tree) {
@@ -1238,12 +1238,11 @@ export class GraphicalQueryEditorComponent
       this.performanceColorScaleService.selectedColorScale.performanceIndicator;
     this.performanceColorMap =
       this.performanceColorScaleService.getColorScale();
-    console.log("start redraw tree");
+    console.log('start redraw tree');
     console.log(tree);
     this.processTreeDrawer.redraw(tree);
     setTimeout(() => this.selectRootNodeFromID(this.selectedRootNodeId), 0);
   }
-
 
   private selectRootNodeFromID(id) {
     const selectedRoot = this.mainSvgGroup.select('[id="' + id + '"]');
@@ -1373,7 +1372,7 @@ export class GraphicalQueryEditorComponent
 
   editLeafNode(event) {
     let selectedNode = this.selectedRootNode?.data;
-    console.log("Insert variant");
+    console.log('Insert variant');
     if (selectedNode instanceof QueryTree) {
       this.handleActivityButtonClick(event, selectedNode as QueryTree);
       console.log((selectedNode as QueryTree).pattern);
@@ -1648,7 +1647,7 @@ export class GraphicalQueryEditorComponent
   }
 
   initializeSvg(): void {
-    console.log("Ini svg");
+    console.log('Ini svg');
     this.svg = d3.select('#query-d3-svg');
     // add svg group for zooming
     this.mainSvgGroup = this.svg.select('#queryTreeZoomGroup');

@@ -8,7 +8,7 @@ describe('QueryTreeLeafNodeComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [QueryTreeLeafNodeComponent]
+      declarations: [QueryTreeLeafNodeComponent],
     });
     fixture = TestBed.createComponent(QueryTreeLeafNodeComponent);
     component = fixture.componentInstance;

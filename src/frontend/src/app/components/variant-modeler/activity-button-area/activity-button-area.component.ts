@@ -102,7 +102,7 @@ export class ActivityButtonAreaComponent
 
   onActivityButtonClick(elem: SVGElement, activity: any) {
     this.activityButtonClick.emit({ svg: elem, activityName: activity });
-    console.log("done");
+    console.log('done');
   }
 
   computeActivityColor = (

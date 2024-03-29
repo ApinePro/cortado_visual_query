@@ -15,8 +15,8 @@ export class ColorMapService {
     const colorMap: Map<string, string> = new Map();
 
     const ctivities: string[] = ['a', 'b', 'c', 'd', 'e'];
-    if(!activities.includes('a'))
-    {activities = activities.concat(ctivities);
+    if (!activities.includes('a')) {
+      activities = activities.concat(ctivities);
     }
 
     activities.sort();
@@ -24,7 +24,7 @@ export class ColorMapService {
       colorMap.set(a, this.get_color(i));
     });
     this._colorMap.next(colorMap);
-    console.log("doneaaa");
+    console.log('doneaaa');
     console.log(colorMap);
   }
 

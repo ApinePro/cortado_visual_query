@@ -20,8 +20,7 @@
     color : var(--text-secondary);
     width: 100%;
     height: 100%;
-    overflow-x: hidden;
-    overflow-y: hidden;
+    overflow: hidden hidden;
     flex-direction: column;
   }
 

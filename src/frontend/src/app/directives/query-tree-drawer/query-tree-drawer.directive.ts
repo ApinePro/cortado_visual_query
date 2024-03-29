@@ -1,6 +1,13 @@
 import { PT_Constant } from './../../constants/process_tree_drawer_constants';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
-import { Directive, ElementRef, Input, createComponent, ViewContainerRef, ComponentFactoryResolver} from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  Input,
+  createComponent,
+  ViewContainerRef,
+  ComponentFactoryResolver,
+} from '@angular/core';
 import {
   ProcessTree,
   ProcessTreeOperator,
@@ -27,7 +34,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { AfterViewInit} from '@angular/core';
+import { AfterViewInit } from '@angular/core';
 import { Selection } from 'd3';
 import { PolygonGeneratorService } from 'src/app/services/polygon-generator.service';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
@@ -76,7 +83,7 @@ export class QueryTreeDrawerDirective {
     private polygonService: PolygonGeneratorService,
     private sharedDataService: SharedDataService, //edited
     private variantViewModeService: VariantViewModeService,
-    private conformanceCheckingService: ConformanceCheckingService,
+    private conformanceCheckingService: ConformanceCheckingService
   ) {
     this.mainSvgGroup = d3.select(elRef.nativeElement);
     this.svgHtmlElement = elRef;
@@ -201,7 +208,7 @@ export class QueryTreeDrawerDirective {
       this.variantService.activityTooltipReference = $(e.target);
       this.variantService.activityTooltipReference.tooltip('show');
     });
-    
+
     // add nodes
     this.nodeEnter
       .append('rect')
@@ -256,7 +263,7 @@ export class QueryTreeDrawerDirective {
       .attr('y', function (d: any) {
         return d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2;
       });
-      
+
     // add node text
     this.nodeEnter
       .append('text')
@@ -274,29 +281,35 @@ export class QueryTreeDrawerDirective {
       })
       .text((d: any) => {
         if (d.data.pattern) {
-          this.variantRedraw(d.data.id, d.data.pattern, d.y, d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2);
-          if(d.parent){
+          this.variantRedraw(
+            d.data.id,
+            d.data.pattern,
+            d.y,
+            d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2
+          );
+          if (d.parent) {
             this.translateNextSiblings(d);
           }
           return '';
         } else {
-        if (d.data.operator) {
-          return d.data.operator;
-        }
-        if (d.data.label) {
-          // shorten text if it is too long
-          if (d.data.label.length <= 20) {
-            return d.data.label;
-          } else {
-            return d.data.label.substring(0, 20) + '...';
+          if (d.data.operator) {
+            return d.data.operator;
+          }
+          if (d.data.label) {
+            // shorten text if it is too long
+            if (d.data.label.length <= 20) {
+              return d.data.label;
+            } else {
+              return d.data.label.substring(0, 20) + '...';
+            }
           }
         }
-      }})
+      })
       .attr('x', function (d: any) {
         return d.y + PT_Constant.BASE_HEIGHT_WIDTH / 2 + 3;
-      })
+      });
 
-      this.nodeEnter
+    this.nodeEnter
       .selectAll('text')
       .attr('x', function (d: any) {
         return d.y + PT_Constant.BASE_HEIGHT_WIDTH / 2 + 3;
@@ -304,7 +317,6 @@ export class QueryTreeDrawerDirective {
       .attr('y', function (d: any) {
         return d.x;
       });
-
 
     //this.svgSelection = this.nodeEnter;
     this.svgSelection = this.mainSvgGroup;
@@ -316,23 +328,21 @@ export class QueryTreeDrawerDirective {
 
     //update the width, height and siblings positions
     this.nodeEnter
-    .selectAll('rect')
-    .attr('width', (d) => {
-      if(d.data.pattern) {
-        return d.data.pattern.getWidth();
-      }
-      else{
-        return PT_Constant.BASE_HEIGHT_WIDTH;
-      }
-      })
-      .attr('height', (d) => {
-        if(d.data.pattern) {
-          return d.data.pattern.getHeight();
-        }
-        else{
+      .selectAll('rect')
+      .attr('width', (d) => {
+        if (d.data.pattern) {
+          return d.data.pattern.getWidth();
+        } else {
           return PT_Constant.BASE_HEIGHT_WIDTH;
         }
-        })
+      })
+      .attr('height', (d) => {
+        if (d.data.pattern) {
+          return d.data.pattern.getHeight();
+        } else {
+          return PT_Constant.BASE_HEIGHT_WIDTH;
+        }
+      })
       .attr('x', function (d: any) {
         //console.log("x");
         //console.log(d);
@@ -367,14 +377,17 @@ export class QueryTreeDrawerDirective {
     node.exit().transition().duration(50).remove();
   }
 
-  translateNextSiblings(node){
+  translateNextSiblings(node) {
     const siblings = node.parent.children;
-    console.log("siblings");
+    console.log('siblings');
     console.log(siblings);
     const nodeIndex = siblings.indexOf(node);
     let i = siblings.length - 1;
-    while(i > nodeIndex) {
-      siblings[i].x = siblings[i].x + node.data.pattern.getHeight() - PT_Constant.BASE_HEIGHT_WIDTH;
+    while (i > nodeIndex) {
+      siblings[i].x =
+        siblings[i].x +
+        node.data.pattern.getHeight() -
+        PT_Constant.BASE_HEIGHT_WIDTH;
       i -= 1;
     }
   }
@@ -404,10 +417,14 @@ export class QueryTreeDrawerDirective {
         return d.target.y;
       })
       .attr('y2', function (d: any) {
-        if(d.target.data.pattern){
-          return d.target.x + (d.target.data.pattern.getHeight() - PT_Constant.BASE_HEIGHT_WIDTH) / 2;
-        }
-        else{
+        if (d.target.data.pattern) {
+          return (
+            d.target.x +
+            (d.target.data.pattern.getHeight() -
+              PT_Constant.BASE_HEIGHT_WIDTH) /
+              2
+          );
+        } else {
           return d.target.x;
         }
       })
@@ -419,7 +436,7 @@ export class QueryTreeDrawerDirective {
 
   update(root): void {
     this.mainSvgGroup.selectAll('g').remove();
-    console.log("updated");
+    console.log('updated');
     if (root) {
       // add node groups that contain a rectangle and text
       this.calculateTreeLayout(root);
@@ -490,17 +507,22 @@ export class QueryTreeDrawerDirective {
 
   loadComponent(pattern) {
     this.viewContainerRef.clear();
-    const componentRef = this.viewContainerRef.createComponent(QueryTreeLeafNodeComponent);
+    const componentRef = this.viewContainerRef.createComponent(
+      QueryTreeLeafNodeComponent
+    );
     componentRef.instance.currentVariant = pattern;
     componentRef.instance.color = this.colorMap;
     componentRef.instance.infixType = InfixType.NOT_AN_INFIX;
   }
-  
+
   //Variant drawer part
   variantRedraw(id, variant, x, y): void {
-    console.log("variant redraw");
+    console.log('variant redraw');
     console.log(variant);
-    this.mainSvgGroup.select(`[id='${id}']`).selectAll('node-variant-svg').remove();
+    this.mainSvgGroup
+      .select(`[id='${id}']`)
+      .selectAll('node-variant-svg')
+      .remove();
     if (variant) {
       const height = variant.recalculateHeight(
         !this.keepStandardView &&
@@ -519,11 +541,12 @@ export class QueryTreeDrawerDirective {
         const height = variant.alignment.recalculateHeight(false);
         const width = variant.alignment.recalculateWidth(false);
       }
-      
-      const svg_container = this.mainSvgGroup.select(`[id='${id}']`).classed('node-variant-svg', true).append('g').attr(
-        'transform',
-        `translate(${x}, ${y})`
-      );
+
+      const svg_container = this.mainSvgGroup
+        .select(`[id='${id}']`)
+        .classed('node-variant-svg', true)
+        .append('g')
+        .attr('transform', `translate(${x}, ${y})`);
       console.log(svg_container);
 
       //for parallel group-like chevrons
@@ -531,18 +554,18 @@ export class QueryTreeDrawerDirective {
         !this.keepStandardView &&
           this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
       );
-      
+
       const [svg, width_offset] = this.handleInfix(
         this.infixType,
         height,
         width,
         svg_container
       );
-      
+
       svg_container
         .attr('width', width + width_offset)
         .attr('height', height + 2 * VARIANT_Constants.SELECTION_STROKE_WIDTH);
-      
+
       /*
       if (
         !this.keepStandardView &&
@@ -552,7 +575,7 @@ export class QueryTreeDrawerDirective {
         this.draw(variant.alignment, svg, true, variant);
       else this.draw(variant, svg, true, variant);*/
       //this.draw(variant, svg, true, variant); ???
-      
+
       this.draw(variant, svg_container, true, variant);
 
       if (
@@ -567,7 +590,12 @@ export class QueryTreeDrawerDirective {
     }
   }
 
-  private handleInfix(infixType, height: number, width: number, parentSvg=null): [any, number] {
+  private handleInfix(
+    infixType,
+    height: number,
+    width: number,
+    parentSvg = null
+  ): [any, number] {
     let width_offset = 0;
 
     const PREFIX_OFFSET = 35;
@@ -648,20 +676,29 @@ export class QueryTreeDrawerDirective {
     outerElement: boolean = false,
     nodeVariant
   ): void {
-    console.log("come here");
+    console.log('come here');
     //console.log(svgElement);
     svgElement.datum(element).classed('variant-element-group', true);
 
-    if (outerElement) { //what is outerelement here?
+    if (outerElement) {
+      //what is outerelement here?
       svgElement.datum(element);
     }
 
     if (element instanceof ParallelGroup) {
-      this.drawParallelGroup(element.asParallelGroup(), svgElement, nodeVariant);
+      this.drawParallelGroup(
+        element.asParallelGroup(),
+        svgElement,
+        nodeVariant
+      );
     } else if (element instanceof ChoiceGroup) {
       this.drawChoiceGroup(element.asChoiceGroup(), svgElement, nodeVariant);
     } else if (element instanceof FallthroughGroup) {
-      this.drawFallthroughGroup(element.asFallthroughGroup(), svgElement, nodeVariant);
+      this.drawFallthroughGroup(
+        element.asFallthroughGroup(),
+        svgElement,
+        nodeVariant
+      );
     } else if (element instanceof SequenceGroup) {
       this.drawSequenceGroup(
         element.asSequenceGroup(),
@@ -1324,6 +1361,4 @@ export class QueryTreeDrawerDirective {
       .selectAll('polygon')
       .classed('selected-polygon', (d) => group === d);
   }
-
-
 }

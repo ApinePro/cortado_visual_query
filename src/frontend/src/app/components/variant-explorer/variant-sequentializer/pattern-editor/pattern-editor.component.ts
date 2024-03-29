@@ -181,7 +181,7 @@ export class PatternEditorComponent implements OnInit, OnDestroy, OnChanges {
           this.activityNames.push(activity);
           this.activityNames.sort();
         }*/
-        const ctivities = ['a', 'b', 'c', 'd', 'e']
+        const ctivities = ['a', 'b', 'c', 'd', 'e'];
 
         for (const activity of ctivities) {
           this.activityNames.push(activity);

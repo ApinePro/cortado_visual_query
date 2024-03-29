@@ -7,9 +7,7 @@ import {
   ProcessTree,
   ProcessTreeOperator,
 } from 'src/app/objects/ProcessTree/ProcessTree';
-import {
-  QueryTree
-} from 'src/app/objects/ProcessTree/QueryTree';
+import { QueryTree } from 'src/app/objects/ProcessTree/QueryTree';
 import {
   markNodeAsFrozen,
   markNodeAsNonFrozen,
@@ -458,6 +456,5 @@ export class QueryTreeService {
     selectedNode: ProcessTree,
     strat: activityInsertionStrategy,
     label: string
-  ) {
-  }
+  ) {}
 }

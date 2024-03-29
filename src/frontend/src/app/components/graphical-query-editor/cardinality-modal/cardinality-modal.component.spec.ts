@@ -8,9 +8,8 @@ describe('CardinalityModalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CardinalityModalComponent ]
-    })
-    .compileComponents();
+      declarations: [CardinalityModalComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CardinalityModalComponent);
     component = fixture.componentInstance;

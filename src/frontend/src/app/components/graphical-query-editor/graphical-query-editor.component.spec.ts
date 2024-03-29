@@ -8,9 +8,8 @@ describe('GraphicalQueryEditorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ GraphicalQueryEditorComponent ]
-    })
-    .compileComponents();
+      declarations: [GraphicalQueryEditorComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(GraphicalQueryEditorComponent);
     component = fixture.componentInstance;

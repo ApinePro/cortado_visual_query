@@ -2,9 +2,7 @@ import {
   ProcessTree,
   ProcessTreeOperator,
 } from 'src/app/objects/ProcessTree/ProcessTree';
-import {
-  QueryTree,
-} from 'src/app/objects/ProcessTree/QueryTree';
+import { QueryTree } from 'src/app/objects/ProcessTree/QueryTree';
 
 export function delete_subtree(tree: ProcessTree, tree_to_delete: ProcessTree) {
   if (tree === tree_to_delete) {

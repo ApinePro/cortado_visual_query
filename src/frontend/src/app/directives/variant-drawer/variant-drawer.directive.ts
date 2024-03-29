@@ -948,27 +948,25 @@ export class VariantDrawerDirective
         element.elements[0].getHeadLength();
     }
 
-    
     //added
     const cardinalityText = parent
-    .append('text')
-    .attr('x', width / 2)
-    .attr('y', -VARIANT_Constants.FONT_SIZE)
-    .classed('user-select-none', true)
-    .attr('text-anchor', 'middle')
-    .attr('dominant-baseline', 'middle')
-    .attr('font-size', VARIANT_Constants.FONT_SIZE)
-    .attr('fill', 'white')
-    .classed('activity-text', true);
+      .append('text')
+      .attr('x', width / 2)
+      .attr('y', -VARIANT_Constants.FONT_SIZE)
+      .classed('user-select-none', true)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr('font-size', VARIANT_Constants.FONT_SIZE)
+      .attr('fill', 'white')
+      .classed('activity-text', true);
 
     const tspan = cardinalityText
-        .append('tspan')
-        .classed(
-          'cursor-pointer',
-          (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
-        )
-        .text(element.cardiOperator + ' ' + element.cardinality);
-      
+      .append('tspan')
+      .classed(
+        'cursor-pointer',
+        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+      )
+      .text(element.cardiOperator + ' ' + element.cardinality);
 
     for (const child of element.elements) {
       if (
