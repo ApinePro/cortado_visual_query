@@ -6,12 +6,14 @@ import {
   ProcessTreeOperator,
 } from 'src/app/objects/ProcessTree/ProcessTree';
 import { flextree } from 'd3-flextree';
+import { ContextMenuService } from '@perfectmemory/ngx-contextmenu';
 
 import * as d3 from 'd3';
 import { ModelViewModeService } from 'src/app/services/viewModeServices/model-view-mode.service';
 import { ViewMode } from 'src/app/objects/ViewMode';
 import { VariantService } from '../../services/variantService/variant.service';
 import { getBootstrapTooltipsAllowList } from '../../components/process-tree-editor/utils';
+import { ProcessTreeEditorContextMenuComponent } from 'src/app/components/process-tree-editor/process-tree-editor-context-menu/process-tree-editor-context-menu.component';
 
 @Directive({
   selector: '[appProcessTreeDrawer]',
@@ -29,10 +31,14 @@ export class ProcessTreeDrawerDirective {
     elRef: ElementRef,
     private processTreeService: ProcessTreeService,
     private modelViewModeService: ModelViewModeService,
-    private variantService: VariantService
+    private variantService: VariantService,
+    private contextMenuService: ContextMenuService<any>
   ) {
     this.mainSvgGroup = d3.select(elRef.nativeElement);
   }
+
+  @Input()
+  contextMenuComponent: ProcessTreeEditorContextMenuComponent;
 
   @Input()
   computeNodeColor;
@@ -102,6 +108,16 @@ export class ProcessTreeDrawerDirective {
       // @ts-ignore
       this.variantService.activityTooltipReference = $(e.target);
       this.variantService.activityTooltipReference.tooltip('show');
+    });
+
+    this.nodeEnter.on('contextmenu', (e: PointerEvent, data) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.contextMenuService.show(this.contextMenuComponent?.contextMenu, {
+        value: data.data,
+        x: e.x,
+        y: e.y,
+      });
     });
 
     // add nodes

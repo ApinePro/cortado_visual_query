@@ -9,6 +9,7 @@ from endpoints.load_event_log import calculate_event_log_properties
 from fastapi import APIRouter
 from pm4py.objects.log.obj import EventLog
 from pydantic import BaseModel, Field
+import sys
 
 router = APIRouter(tags=["Log"], prefix="/log")
 
@@ -33,5 +34,10 @@ async def get_event_log():
 
 @router.get("/resetLogCache")
 async def reset_log_cache():
-    cache.variants = pickle.load(open("./resources/variants.p", "rb"))
-    cache.parameters = pickle.load(open("./resources/parameters.p", "rb"))
+
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        cache.variants = pickle.load(open("./_internal/resources/variants.p", "rb"))
+        cache.parameters = pickle.load(open("./_internal/resources/parameters.p", "rb"))
+    else:
+        cache.variants = pickle.load(open("./resources/variants.p", "rb"))
+        cache.parameters = pickle.load(open("./resources/parameters.p", "rb"))

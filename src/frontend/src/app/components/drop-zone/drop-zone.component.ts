@@ -6,6 +6,7 @@ import {
   OnInit,
   Output,
   EventEmitter,
+  NgZone,
 } from '@angular/core';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { NgxFileDropEntry, FileSystemFileEntry } from 'ngx-file-drop';
@@ -34,7 +35,8 @@ export class DropZoneComponent extends DropZoneDirective implements OnInit {
   constructor(
     private sanitizer: DomSanitizer,
     private backendService: BackendService,
-    private loadingOverlayService: LoadingOverlayService
+    private loadingOverlayService: LoadingOverlayService,
+    private ngZone: NgZone
   ) {
     super();
   }
@@ -90,14 +92,20 @@ export class DropZoneComponent extends DropZoneDirective implements OnInit {
           fileEntry.file((file: File) => {
             switch (fileEnding) {
               case '.xes':
-                const backendCall = !environment.electron
-                  ? this.backendService.uploadEventLog(file)
-                  : this.backendService.loadEventLogFromFilePath(file['path']);
-                this.loadingOverlayService.showLoader(
-                  'Importing event log (for large logs this can take up to several minutes)'
-                );
-                backendCall.subscribe((_) => {
-                  this.loadingOverlayService.hideLoader();
+                this.ngZone.run(() => {
+                  this.loadingOverlayService.showLoader(
+                    'Importing event log (for large logs this can take up to several minutes)'
+                  );
+
+                  const backendCall = !environment.electron
+                    ? this.backendService.uploadEventLog(file)
+                    : this.backendService.loadEventLogFromFilePath(
+                        file['path']
+                      );
+
+                  backendCall.subscribe((_) => {
+                    this.loadingOverlayService.hideLoader();
+                  });
                 });
                 break;
 

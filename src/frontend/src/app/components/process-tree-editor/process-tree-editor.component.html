@@ -1,13 +1,4 @@
-<app-drop-zone
-  [dropzoneConfig]="dropZoneConfig"
-  (fileOnHover)="toggleBlur($event)"
->
-</app-drop-zone>
-
-<div
-  class="main-process-tree-editor h-100 d-flex flex-column"
-  [class.blur-out-of-focus]="processEditorOutOfFocus"
->
+<div class="main-process-tree-editor h-100 d-flex flex-column">
   <div class="bg-dark btn-tool-bar">
     <div class="btn-group round-corners" role="group">
       <button
@@ -131,14 +122,14 @@
     <div class="vr"></div>
 
     <button
-      class="button text-warning"
-      (click)="deleteSubtree()"
-      [disabled]="!selectedRootNode"
-      ngbTooltip="remove selected node(s)"
+      class="button"
+      (click)="shiftSubtreeUp()"
+      [disabled]="shiftSubtreeUpDisabled"
+      ngbTooltip="shift selected node(s) up"
       triggers="hover"
       container="body"
     >
-      <i class="bi bi-trash btn-icon"></i>
+      <i class="bi bi-chevron-double-up btn-icon"></i>
     </button>
 
     <button
@@ -172,6 +163,93 @@
       container="body"
     >
       <i class="bi bi-diagram-2"></i>
+    </button>
+
+    <div
+      class="dropdown"
+      ngbTooltip="Quick Actions"
+      triggers="hover"
+      container="body"
+    >
+      <button
+        class="button dropdown-toggle"
+        type="button"
+        id="quickActionDropdown"
+        [disabled]="allQuickActionsDisabled"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        <i class="bi bi-magic btn-icon"></i>
+      </button>
+      <div
+        class="dropdown-menu custom-dropdown"
+        aria-labelledby="quickActionDropdown"
+        id="quickActionDropdownMenu"
+      >
+        <div
+          class="dropdown-item"
+          (click)="onMakeOptional()"
+          [ngClass]="makeOptionalDisabled ? 'disabled' : ''"
+        >
+          <i class="bi bi-alt"></i>
+          <span class="ms-3">Make subtree optional</span>
+        </div>
+        <div
+          class="dropdown-item"
+          (click)="onMakeRepeatable()"
+          [ngClass]="makeRepeatableDisabled ? 'disabled' : ''"
+        >
+          <i class="bi bi-repeat"></i>
+          <span class="ms-3">Make subtree repeatable</span>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="vr"></div>
+
+    <button
+      class="button"
+      (click)="copySubtree()"
+      [disabled]="copyDisabled"
+      ngbTooltip="copy selected subtree"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-copy btn-icon"></i>
+    </button>
+
+    <button
+      class="button"
+      (click)="cutSubtree()"
+      [disabled]="copyDisabled"
+      ngbTooltip="cut selected subtree"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-scissors btn-icon"></i>
+    </button>
+
+    <button
+      class="button"
+      (click)="pasteSubtree()"
+      [disabled]="pasteDisabled"
+      ngbTooltip="paste subtree below selected node"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-clipboard2-fill btn-icon"></i>
+    </button>
+
+    <button
+      class="button text-warning"
+      (click)="deleteSubtree()"
+      [disabled]="!selectedRootNode"
+      ngbTooltip="remove selected node(s)"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-trash btn-icon"></i>
     </button>
 
     <div class="vr"></div>
@@ -286,11 +364,15 @@
     </div>
 
     <app-expert-mode> </app-expert-mode>
+    <app-process-tree-editor-context-menu
+      #contextMenuComponent
+    ></app-process-tree-editor-context-menu>
     <svg #d3svg id="d3-svg" width="100%" height="100%">
       <g id="zoomGroup">
         <g
           #d3svgDirective
           appProcessTreeDrawer
+          [contextMenuComponent]="contextMenuComponent"
           [onClickCallBack]="selectNodeCallBack"
           [computeNodeColor]="computeNodeColor"
           [computeTextColor]="computeTextColor"

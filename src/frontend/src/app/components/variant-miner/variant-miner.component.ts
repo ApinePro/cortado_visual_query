@@ -1,7 +1,6 @@
 import { PolygonDrawingService } from 'src/app/services/polygon-drawing.service';
 import { VariantFilterService } from './../../services/variantFilterService/variant-filter.service';
 import { LazyLoadingServiceService } from 'src/app/services/lazyLoadingService/lazy-loading.service';
-
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { BackendService } from './../../services/backendService/backend.service';
@@ -106,7 +105,7 @@ export class VariantMinerComponent
     private goldenLayoutComponentService: GoldenLayoutComponentService,
     private lpmService: LpmService,
     elRef: ElementRef,
-    renderer: Renderer2,
+    private renderer: Renderer2,
     private deciamlPipe: DecimalPipe
   ) {
     super(elRef.nativeElement, renderer);
@@ -127,6 +126,7 @@ export class VariantMinerComponent
   variantMinerDiv: ElementRef<HTMLDivElement>;
 
   @ViewChild('dropdownButton') dropdownButton: ElementRef;
+  @ViewChild('activitiesFilter') activitiesFilter;
 
   FrequentMiningStrategy = FrequentMiningStrategy;
   FrequentMiningAlgorithm = FrequentMiningAlgorithm;
@@ -327,8 +327,6 @@ export class VariantMinerComponent
     return true;
   };
 
-  variantMinerOutOfFocus: boolean = false;
-
   ascending: boolean = false;
   minsup: number = 0;
 
@@ -347,19 +345,11 @@ export class VariantMinerComponent
   displayedVariantsPatterns: Array<SubvariantPattern> =
     new Array<SubvariantPattern>();
 
-  dropZoneConfig: any;
   variantMinerConfigInput: UntypedFormGroup;
 
   addLpmFeatures = environment.showLpms;
 
   ngOnInit(): void {
-    this.dropZoneConfig = new DropzoneConfig(
-      '.xes',
-      'false',
-      'false',
-      '<large> Import <strong>Event Log</strong> .xes file</large>'
-    );
-
     this.subscribeForConformanceCheckingResults();
 
     const rel_sup = new UntypedFormControl(this.relSup, {
@@ -579,6 +569,19 @@ export class VariantMinerComponent
   };
 
   ngAfterViewInit(): void {
+    this.renderer.listen('window', 'click', (e) => {
+      if (
+        e.target !== this.dropdownButton.nativeElement &&
+        e.target.parentElement !== this.dropdownButton.nativeElement &&
+        this.activitiesFilter &&
+        !this.activitiesFilter.nativeElement.contains(e.target)
+      ) {
+        if (this.filterDropDownOpen) {
+          this.dropdownButton.nativeElement.click();
+        }
+      }
+    });
+
     this.logService.activitiesInEventLog$
       .pipe(takeUntil(this._destroy$))
       .subscribe((activities) => {
@@ -850,10 +853,6 @@ export class VariantMinerComponent
     logicalZIndex: LogicalZIndex,
     defaultZIndex: string
   ): void {}
-
-  toggleBlur(event) {
-    this.variantMinerOutOfFocus = event;
-  }
 
   computeAlignments() {
     console.log('Requested Alignment!');

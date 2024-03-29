@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { blobToBase64 } from 'src/app/utils/util';
-import { ProjectService } from '../projectService/project.service';
 import { Subject } from 'rxjs';
 import { ElectronInterface } from './electron-interface';
 
@@ -53,5 +52,9 @@ export class ElectronService implements ElectronInterface {
     fileExtension: string
   ): Promise<string> {
     return this.electronApi.readFromUserFolder(fileName, fileExtension);
+  }
+
+  public async getWSPort(): Promise<number> {
+    return this.electronApi.getWSPort();
   }
 }

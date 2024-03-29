@@ -138,10 +138,6 @@ export class ProcessTreeEditorComponent
 
   activityColorMap: Map<string, string>;
   performanceColorMap: Map<number, any>;
-
-  processEditorOutOfFocus: boolean = false;
-
-  dropZoneConfig: DropzoneConfig;
   editorOpen: boolean = false;
   _goldenLayoutHostComponent: GoldenLayoutHostComponent;
   _goldenLayout: GoldenLayout;
@@ -163,13 +159,6 @@ export class ProcessTreeEditorComponent
   readonly processTreeOriginY = 30;
 
   ngOnInit(): void {
-    this.dropZoneConfig = new DropzoneConfig(
-      '.ptml',
-      'false',
-      'false',
-      '<large> Import <strong>Process Tree</strong> .ptml file</large>'
-    );
-
     this.processTreeService.treeCacheIndex$
       .pipe(takeUntil(this._destroy$))
       .subscribe((idx) => {
@@ -226,6 +215,7 @@ export class ProcessTreeEditorComponent
     this.processTreeService.currentDisplayedProcessTree$
       .pipe(takeUntil(this._destroy$))
       .subscribe((res) => {
+        const centerTree = !this.currentlyDisplayedTreeInEditor && !!res;
         // If the tree was loaded via the process tree import or Drag&Drop that does not contain the current activities
         this.currentlyDisplayedTreeInEditor = res;
 
@@ -236,6 +226,7 @@ export class ProcessTreeEditorComponent
           this.processTreeService.correctTreeSyntax =
             this.processTreeSyntaxInfo.correctSyntax;
           this.redraw(res);
+          if (centerTree) this.centerTree();
         } else if (res === null && this.mainSvgGroup) {
           this.processTreeDrawer.redraw(null);
           this.selectedRootNode = null;
@@ -336,6 +327,13 @@ export class ProcessTreeEditorComponent
     return this.selectedRootNode && this.selectedRootNode.depth === 0;
   }
 
+  get shiftSubtreeUpDisabled(): boolean {
+    if (this.buttonManipulatingMultipleNodesDisabled()) return true;
+    // Disabled if there is no granparent of the selected node
+    if (!this.selectedRootNode.data.parent.parent) return true;
+    return false;
+  }
+
   get shiftSubtreeLeftDisabled(): boolean {
     if (this.buttonManipulatingMultipleNodesDisabled()) return true;
     const selectedNode = this.selectedRootNode.data;
@@ -364,14 +362,41 @@ export class ProcessTreeEditorComponent
     return !this.selectedRootNode || this.leafNodeSelected();
   }
 
-  // @REFRACTOR INTO PROCESSTREE SERVICE
+  shiftSubtreeUp(): void {
+    this.processTreeService.shiftSubtreeUp(this.selectedRootNode.data);
+  }
+
   shiftSubtreeToLeft(): void {
     this.processTreeService.shiftSubtreeToLeft(this.selectedRootNode.data);
   }
 
-  // @REFRACTOR INTO PROCESSTREE SERVICE
   shiftSubtreeToRight(): void {
     this.processTreeService.shiftSubtreeToRight(this.selectedRootNode.data);
+  }
+
+  get copyDisabled() {
+    return !this.selectedRootNode;
+  }
+
+  copySubtree(): void {
+    this.processTreeService.copySubtreeToBuffer(this.selectedRootNode.data);
+  }
+
+  cutSubtree(): void {
+    this.processTreeService.copySubtreeToBuffer(this.selectedRootNode.data);
+    this.processTreeService.deleteSelected(this.selectedRootNode.data);
+  }
+
+  get pasteDisabled() {
+    return (
+      !this.processTreeService.bufferedProcessTree ||
+      (!this.selectedRootNode && this.currentlyDisplayedTreeInEditor) ||
+      this.selectedRootNode?.data.label
+    );
+  }
+
+  pasteSubtree(): void {
+    this.processTreeService.pasteSubtreeFromBuffer(this.selectedRootNode?.data);
   }
 
   undo(): void {
@@ -389,7 +414,6 @@ export class ProcessTreeEditorComponent
     );
   }
 
-  // @REFRACTOR INTO PROCESSTREE SERVICE
   deleteSubtree(): void {
     this.processTreeService.deleteSelected(this.selectedRootNode.data);
   }
@@ -752,13 +776,9 @@ export class ProcessTreeEditorComponent
     this.imageExportService.export(
       'process_tree',
       svgBBox.width + 2 * PT_Constant.EXPORT_OFFSET,
-      svgBBox.height + PT_Constant.EXPORT_OFFSET,
+      svgBBox.height + 2 * PT_Constant.EXPORT_OFFSET,
       tree_copy
     );
-  }
-
-  toggleBlur(event) {
-    this.processEditorOutOfFocus = event;
   }
 
   checkNodeInsertionStrategy(rootNode: ProcessTree) {
@@ -817,6 +837,28 @@ export class ProcessTreeEditorComponent
   }
 
   hideAllTooltips() {}
+
+  get allQuickActionsDisabled() {
+    return this.makeOptionalDisabled && this.makeRepeatableDisabled;
+  }
+
+  onMakeOptional() {
+    if (!this.selectedRootNode) return;
+    this.processTreeService.makeSubtreeOptional(this.selectedRootNode.data);
+  }
+
+  get makeOptionalDisabled() {
+    return !this.selectedRootNode;
+  }
+
+  onMakeRepeatable() {
+    if (!this.selectedRootNode) return;
+    this.processTreeService.makeSubtreeRepeatable(this.selectedRootNode.data);
+  }
+
+  get makeRepeatableDisabled() {
+    return !this.selectedRootNode;
+  }
 }
 
 // TODO should be solved differently

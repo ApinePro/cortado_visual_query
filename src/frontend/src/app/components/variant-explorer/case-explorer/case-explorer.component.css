@@ -80,8 +80,7 @@
 }
 
 .table-container {
-  overflow-y: auto;
-  overflow-x: auto;
+  overflow: auto auto;
   background-color: var(--box-background-color);
 }
 

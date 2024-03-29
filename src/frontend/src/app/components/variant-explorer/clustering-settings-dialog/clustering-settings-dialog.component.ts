@@ -7,6 +7,7 @@ import {
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ClusteringAlgorithm } from 'src/app/objects/ClusteringAlgorithm';
 import { VariantService } from 'src/app/services/variantService/variant.service';
+import { DocumentationService } from '../../documentation/documentation.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,7 +29,8 @@ export class ClusteringSettingsDialogComponent implements OnInit {
 
   constructor(
     public modal: NgbActiveModal,
-    private variantService: VariantService
+    private variantService: VariantService,
+    private documentationService: DocumentationService
   ) {}
 
   ngOnInit(): void {
@@ -85,5 +87,10 @@ export class ClusteringSettingsDialogComponent implements OnInit {
   onReset() {
     this.variantService.clusteringConfig = null;
     this.modal.dismiss('reset');
+  }
+
+  openDocumentation(heading: string) {
+    this.documentationService.showDocumentationDialog(heading);
+    this.modal.dismiss('cancel click');
   }
 }

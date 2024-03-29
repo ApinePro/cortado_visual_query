@@ -270,6 +270,12 @@
     </ul>
   </div>
 
+  <div class="dropdown">
+    <button class="button header-button" (click)="showDocumentationDialog()">
+      Documentation
+    </button>
+  </div>
+
   <input
     #fileUploadEventLog
     type="file"
@@ -303,6 +309,11 @@
 </div>
 
 <app-settings [showSettings]="showSettingsEvent.asObservable()"></app-settings>
+<app-documentation
+  [showDocumentation]="
+    documentationService.showDocumentationEvent.asObservable()
+  "
+></app-documentation>
 
 <ng-template let-modal #eventLogSelectionRetryModal>
   <div class="modal-header h-line-modal-bottom">

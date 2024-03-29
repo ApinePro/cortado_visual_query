@@ -136,6 +136,12 @@ export class ProcessTreeService {
     new Set<string>()
   );
 
+  private processTreeBuffer = new BehaviorSubject<ProcessTree>(null);
+
+  get bufferedProcessTree() {
+    return this.processTreeBuffer.getValue();
+  }
+
   public deleteActivityFromProcessTreeActivities(activityName: string): any {
     if (this.activitiesInCurrentTree) {
       this.activitiesInCurrentTree.delete(activityName);
@@ -374,6 +380,27 @@ export class ProcessTreeService {
     this.selectedRootNodeID = null;
   }
 
+  shiftSubtreeUp(tree: ProcessTree): void {
+    if (tree.parent && tree.parent.parent) {
+      const siblings = tree.parent.children;
+      const idxInParentChildList = siblings.indexOf(tree);
+
+      const parentSiblings = tree.parent.parent.children;
+      const parentIdxInItsSiblingsList = parentSiblings.indexOf(tree.parent);
+
+      // Remove tree as child from old parent
+      siblings.splice(idxInParentChildList, 1);
+
+      // Add tree as sibling to old parent
+      tree.parent = tree.parent.parent;
+      parentSiblings.splice(parentIdxInItsSiblingsList + 1, 0, tree);
+
+      this.set_currentDisplayedProcessTree_with_Cache(
+        this.currentDisplayedProcessTree
+      );
+    }
+  }
+
   shiftSubtreeToLeft(tree: ProcessTree): void {
     if (tree.parent) {
       const siblings = tree.parent.children;
@@ -448,5 +475,63 @@ export class ProcessTreeService {
       this.currentDisplayedProcessTree = newNode;
       this.selectedRootNodeID = newNode.id;
     }
+  }
+
+  copySubtreeToBuffer(processTree: ProcessTree) {
+    this.processTreeBuffer.next(processTree.copy());
+  }
+
+  pasteSubtreeFromBuffer(parentNode: ProcessTree) {
+    if (this.processTreeBuffer) {
+      const copiedTree = this.bufferedProcessTree.copy(true, true);
+      if (parentNode) {
+        if (parentNode.label)
+          throw new Error('Cannot insert children below activities.');
+
+        copiedTree.parent = parentNode;
+        parentNode.children.push(copiedTree);
+      } else {
+        this.currentDisplayedProcessTree = copiedTree;
+      }
+      this.set_currentDisplayedProcessTree_with_Cache(
+        this.currentDisplayedProcessTree
+      );
+    }
+  }
+
+  makeSubtreeOptional(processTree: ProcessTree) {
+    const choice = createNewRandomNode(null, ProcessTreeOperator.choice);
+    const tau = createNewRandomNode(ProcessTreeOperator.tau, null);
+
+    const siblings = processTree.parent.children;
+    const idxInParentChildList = siblings.indexOf(processTree);
+
+    siblings.splice(idxInParentChildList, 1, choice);
+    choice.parent = processTree.parent;
+    choice.children = [tau, processTree];
+    processTree.parent = choice;
+    tau.parent = choice;
+
+    this.set_currentDisplayedProcessTree_with_Cache(
+      this.currentDisplayedProcessTree
+    );
+  }
+
+  makeSubtreeRepeatable(processTree: ProcessTree) {
+    const loop = createNewRandomNode(null, ProcessTreeOperator.loop);
+    const tau = createNewRandomNode(ProcessTreeOperator.tau, null);
+
+    const siblings = processTree.parent.children;
+    const idxInParentChildList = siblings.indexOf(processTree);
+
+    siblings.splice(idxInParentChildList, 1, loop);
+    loop.parent = processTree.parent;
+    loop.children = [processTree, tau];
+    processTree.parent = loop;
+    tau.parent = loop;
+
+    this.set_currentDisplayedProcessTree_with_Cache(
+      this.currentDisplayedProcessTree
+    );
   }
 }

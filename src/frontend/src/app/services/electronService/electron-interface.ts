@@ -19,4 +19,6 @@ export interface ElectronInterface {
   ): Promise<undefined>;
 
   readFromUserFolder(fileName: string, fileExtension: string): Promise<string>;
+
+  getWSPort(): Promise<number>;
 }

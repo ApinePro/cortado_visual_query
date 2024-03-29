@@ -16,7 +16,6 @@
   transform: rotate(180deg);
   font-size: 12px;
   margin-right: 5px;
-  font-family: Arial, sans-serif;
   color: #ddd;
   background: var(--box-background-color);
   border-top-left-radius: 0.25rem;
