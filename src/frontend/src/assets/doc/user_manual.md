@@ -32,7 +32,7 @@ Process discovery is a critical discipline in process mining that deals with the
 
 The following figure contains a simplified overview of Cortado’s functionality:
 
-![large](screenshots%2Fintroduction%2Foverview.png)
+<img class="large" src="./assets/doc/screenshots/introduction/overview.png">
 
 #### Contact information
 Contact information can be found at the <a href="https://cortado.fit.fraunhofer.de/#contact" target="_blank">Cortado webpage</a>.
@@ -43,7 +43,9 @@ Contact information can be found at the <a href="https://cortado.fit.fraunhofer.
 
 In the Variant Explorer, users can get a comprehensive list of all variants present in the loaded event log. Unlike classical sequential variants found in other process mining tools, the Variant Explorer captures additional parallel behavior. The explorer also lists [*Variant Fragments*](#variant-fragments). 
 
-![large](screenshots/variant_explorer/standard-view.png)
+<img class="large" src="./assets/doc/screenshots/variant_explorer/standard-view.png">
+
+&nbsp;
 
 🔴 There are different views on the variants, including:
 
@@ -65,18 +67,18 @@ When a model is present, conformance is available within the standard view. Clic
 Beneath the listed variants, there are also statistic displayed for the whole event log, i.e. how many traces/variants are fitting the model or selected.
 
 ### Variant Information Explorer
-![medium](./screenshots/variant_explorer/variant_info_explorer_open.png) <br>
+<img class="medium" src="./assets/doc/screenshots/variant_explorer/variant_info_explorer_open.png"> <br>
 
 By clicking the variant's count in <em>Variant Explorer</em>, a new <em>Variant Information Explorer</em> window opens in the stack of <em>Variant Explorer</em>. In the window, all cases of the selected variant are listed along with their information including <em>case ID, earliest, latest timestamp,</em> and <em>duration</em>. The <em>duration</em> column only exists if the starting time exists in the log. All the columns can also be sorted.
 
-![medium](./screenshots/variant_explorer/variant_info_explorer_detail.png) <br>
+<img class="medium" src="./assets/doc/screenshots/variant_explorer/variant_info_explorer_detail.png"> <br>
 
 ### Case Information Explorer
-![medium](./screenshots/variant_explorer/case_explorer_open.png)<br>
+<img class="medium" src="./assets/doc/screenshots/variant_explorer/case_explorer_open.png"><br>
 
 By clicking the <em>case ID</em> in <em>Variant Information Explorer</em>, a new <em>Case Information Explorer</em> window opens in the stack of <em>Variant Explorer</em>. In <em>Case Information Explorer</em>, the events of the selected case are listed in time order, with their information including <em>starting timestamp, ending timestamp, duration,</em> and <em>resources</em> of the event. <em>Resource</em> columns will be visible when resources are available in the log.
 
-![medium](./screenshots/variant_explorer/case_explorer_detail.png)<br>
+<img class="medium" src="./assets/doc/screenshots/variant_explorer/case_explorer_detail.png"><br>
 
 ### Variant Sorting
 
@@ -106,7 +108,7 @@ Variant clustering can be used for listing the variants grouped into clusters in
 
 In the Variant Explorer view, clustering settings can be accessed using <i class="bi bi-grid-1x2 btn-icon"></i>`Variant clustering settings` option in the <i class="bi bi-tools btn-icon"></i>`Functions` dropdown menu.
 
-|![small](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustering_dialog.png)|
+| <img class="small" src="./assets/doc/screenshots/variant_handling/variant_clustering/clustering_dialog.png"> |
 -
 
 ### Clustering Methods
@@ -137,7 +139,7 @@ After applying clustering, variants are grouped in their respective clusters as 
 - Using <i class="bi bi-sort-alpha-down btn-icon"></i>, each cluster can be individually sorted. Note that using the global sorting of Variant Explorer view overrides the sorting of individual clusters.
 - Each cluster information bar shows the number of variants and the number traces in that cluster.
 
-|![small](screenshots%2Fvariant_handling%2Fvariant_clustering%2Fclustered_variant_explorer.png)|
+|<img class="small" src="./assets/doc/screenshots/variant_handling/variant_clustering/clustered_variant_explorer.png">|
 -
 
 ## Variant Querying
@@ -277,16 +279,16 @@ is a start activity.
 
 Variant fragments or trace fragments are portions of the trace variants which are sequentially complete, meaning that no activity is skipped in a sequence.
 
-For example,  
-![xsmall](screenshots%2Fvariant_fragments%2Fsequentially-complete-fragment.png)
+For example,
+<img class="xsmall" src="./assets/doc/screenshots/variant_fragments/sequentially-complete-fragment.png">
 
 is a sequentially complete fragment of the full trace variant 
 
-![xlarge](screenshots%2Fvariant_fragments%2Ffull-trace-variant.png),  
+<img class="xlarge" src="./assets/doc/screenshots/variant_fragments/full-trace-variant.png">,
 
 while   
 
-![xsmall](screenshots%2Fvariant_fragments%2Fsequentially-incomplete-fragment.png)
+<img class="xsmall" src="./assets/doc/screenshots/variant_fragments/sequentially-incomplete-fragment.png">
 
 is not.
 
@@ -295,10 +297,10 @@ Based on which of the activities they contain, trace fragments can be categorise
 
 * **Infix** fragments contain none of the start or end activities and hence they are preceded *and* succeeded by dots. The fragments above are examples of the same
 
-* **Suffix** fragments contain only an end activity.  
-  ![xsmall](screenshots%2Fvariant_fragments%2Fsuffix.png)
-* **Prefix** fragments contain only an end activity.  
-  ![xsmall](screenshots%2Fvariant_fragments%2Fprefix.png)
+* **Suffix** fragments contain only an end activity.
+  <img class="xsmall" src="./assets/doc/screenshots/variant_fragments/suffix.png">
+* **Prefix** fragments contain only an end activity.
+  <img class="xsmall" src="./assets/doc/screenshots/variant_fragments/prefix.png">
 
 Trace fragments are used and can frequently be seen in [*Incremental Discovery*](#incremental-process-discovery), [*Tiebreaker*](#variant-sequentialization-tiebreaker) and [*Frequent Pattern Mining*](#variant-frequent-pattern-mining), pool of which can either be -
 
@@ -312,11 +314,13 @@ Trace fragments are used and can frequently be seen in [*Incremental Discovery*]
 One way to select infixes (and add them to the pool) is through the `trace infix selection mode`. To enable it in the variant explorer, simply click on (<i class="bi bi-ui-checks-grid btn-icon">Exit trace infix selection mode</i>) option in the (<i class="bi bi-tools btn-icon">Functions</i>) menu.
 With the icons on the right, one can add the current selection to the variant explorer, reset selection or select the whole variant.
 
-|![medium](screenshots%2Fvariant_fragments%2Finfix-selection-mode.png)|
--  
+|<img class="medium" src="./assets/doc/screenshots/variant_fragments/infix-selection-mode.png">|
+- 
+
 
 ## Variant Modeler
-![medium](./screenshots/variant_modeler/variant_modeler.png)
+<img class="medium" src="./assets/doc/screenshots/variant_modeler/variant_modeler.png">
+
 
 The <em>variant modeler</em> allows users to manually model a variant with sequential and parallel patterns. It could be opened by: the head toolbar -> `Editors` -> <i class="bi bi-tools btn-icon"></i>`Open Variant Modeler`.
 
@@ -327,7 +331,7 @@ How to model a new variant:
 3. Click the colorful activity buttons with label to insert corresponding activity into the variant
 4. Click `add new variant to log` button to add the user modeled variant to the variant list
 
-![medium](./screenshots/variant_modeler/model_a_variant.gif)
+<img class="medium" src="./assets/doc/screenshots/variant_modeler/model_a_variant.gif">
 
 Other functions in the tool:
 1. Variant modeler allows the variant be displayed in 4 variant types: <em>full</em>, <em>prefix</em>, <em>infix</em>, and <em>postfix</em>.
@@ -342,8 +346,9 @@ Under the hood, concurrency variants are modelled as labeled, rooted, ordered tr
 
 To open the `Variant Miner Editor`, go to `Editors` &rarr; (<i class="bi bi-minecart btn-icon"><b>Open</b> Variant Miner</i>).
 
-|![medium](screenshots%2Ffrequent_pattern_mining%2Feditor.png)|
--  
+|<img class="medium" src="./assets/doc/screenshots/frequent_pattern_mining/editor.png">|
+- 
+
 
 <br/>
 The editor comprises primarily of <i>three sections</i>, all of which rely heavily upon the tree representation of variants -  
@@ -394,7 +399,7 @@ The editor comprises primarily of <i>three sections</i>, all of which rely heavi
         <tr>
             <td>Fold loops</td>
             <td>Loop Threshold</td>
-            <td>when specified as `n`, folds all `n` or more consecutive occurrences of an activity into a one single loop before mining<br><img src="screenshots/frequent_pattern_mining/fold-loops.png" alt="fold-loops" style="width: 50%"/></td>
+            <td>when specified as `n`, folds all `n` or more consecutive occurrences of an activity into a one single loop before mining<br><img src="./assets/doc/screenshots/frequent_pattern_mining/fold-loops.png" alt="fold-loops" class="xsmall"/></td>
         </tr>
     </tbody>
   </table>
@@ -416,32 +421,32 @@ The editor comprises primarily of <i>three sections</i>, all of which rely heavi
 ## Variant Sequentialization (Tiebreaker)
 <em>Tiebreaker</em> is a sequentialization tool which provides a function to match source pattern in variants and replace them with the target pattern. It could be opened by clicking the icon <i class="bi bi-bar-chart-steps"></i> in <em>variant explorer</em>'s toolbar:
 
-![medium](./screenshots/variant_sequentialization/how_to_open.png)
+<img class="medium" src="./assets/doc/screenshots/variant_sequentialization/how_to_open.png">
 
 In <em>tiebreaker</em>, there are two <em>pattern editors</em> to model the source pattern and target pattern, respectively.<br>
 
-![medium](./screenshots/variant_sequentialization/tiebreaker.png)
+<img class="medium" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker.png">
 
 In addition to sequential and parallel pattern, the <em>tiebreaker</em> allows to model:<br>
 1. <em>choice group</em>, which could match any combination of any activities in the group
 
-![medium](./screenshots/variant_sequentialization/choicegroup.png)
+<img class="medium" src="./assets/doc/screenshots/variant_sequentialization/choicegroup.png">
 
 It could be created by clicking the icon <i class="bi bi-slash"></i>:
 
-![medium](./screenshots/variant_sequentialization/create_choice_group.png)
+<img class="medium" src="./assets/doc/screenshots/variant_sequentialization/create_choice_group.png">
 
 1. <em>fallthrough group</em>, which could model the case that activities in the group cannot be modeled by the combination of sequential/parallel relationship.
 
-![medium](./screenshots/variant_sequentialization/fallthroughgroup.png)
+<img class="medium" src="./assets/doc/screenshots/variant_sequentialization/fallthroughgroup.png">
 
 It could be created by clicking the icon <i class="bi bi-arrow-down"></i>:
 
-![medium](./screenshots/variant_sequentialization/create_fallthrough_group.png)
+<img class="medium" src="./assets/doc/screenshots/variant_sequentialization/create_fallthrough_group.png">
 
 3. pattern with a <em>wildcard option</em> '..' to allow partial match, which represents "rest of the variant". <em>Wildcard</em> is listed beside the activity buttons.
 
-![medium](./screenshots/variant_sequentialization/wildcard.png)
+<img class="medium" src="./assets/doc/screenshots/variant_sequentialization/wildcard.png">
 
 Note：
 1. in source pattern, only parallel variants are allowed.
@@ -450,15 +455,15 @@ Note：
 
 Here are some examples to show how variants are transformed by the <em>tiebreaker</em>:
 
-(1)![xxxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_1.png)<br>
+(1) <img class="xxxsmall" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_1.png"> <br>
 
-(2)![xxxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_2.png)<br>
+(2) <img class="xxxsmall" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_2.png"> <br>
 
-(3)![xxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_3.png)<br>
+(3) <img class="xxxsmall" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_3.png"> <br>
 
-(4)![xxxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_4.png)<br>
+(4) <img class="xxxsmall" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_4.png"> <br>
 
-(5)![xxxsmall](./screenshots/variant_sequentialization/tiebreaker_examples_5.png)<br>
+(5) <img class="xxxsmall" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_5.png"> <br>
 
 <br>
 
@@ -468,54 +473,54 @@ Here are some examples to show how variants are transformed by the <em>tiebreake
   </tr>
 
   <tr>
-    <td rowspan="5" style="text-align: center;"><img class="xxxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_2.png"></td>
-    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_2.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td>
     <td>(1) No match</td>
   </tr>
-  <tr><td>(2) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
+  <tr><td>(2) <img class="xxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
   <tr><td>(3) No match</td></tr>
   <tr><td>(4) No match</td></tr>
   <tr><td>(5) No match</td></tr>
 
   <tr>
-    <td rowspan="5" style="text-align: center;"><img class="xxxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_7.png"></td>
-    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_8.png"></td>
-    <td>(1) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_9.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_7.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_8.png"></td>
+    <td>(1) <img class="xxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_9.png"></td>
   </tr>
-  <tr><td>(2) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
+  <tr><td>(2) <img class="xxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
   <tr><td>(3) No match</td></tr>
-  <tr><td>(4) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_10.png"></td></tr>
-  <tr><td>(5) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_9.png"></td></tr>
+  <tr><td>(4) <img class="xxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_10.png"></td></tr>
+  <tr><td>(5) <img class="xxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_9.png"></td></tr>
   
   <tr>
-    <td rowspan="5" style="text-align: center;"><img class="xxxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_7.png"></td>
-    <td rowspan="5" style="text-align: center;"><img class="xsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_11.png"></td>
-    <td>(1) <img class="xsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_12.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_7.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_11.png"></td>
+    <td>(1) <img class="xsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_12.png"></td>
   </tr>
-  <tr><td>(2) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
-  <tr><td>(3) <img class="xsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_13.png"></td></tr>
-  <tr><td>(4) <img class="xsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_14.png"></td></tr>
-  <tr><td>(5) <img class="xsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_12.png"></td></tr>
+  <tr><td>(2) <img class="xxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
+  <tr><td>(3) <img class="xsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_13.png"></td></tr>
+  <tr><td>(4) <img class="xsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_14.png"></td></tr>
+  <tr><td>(5) <img class="xsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_12.png"></td></tr>
   
   <tr>
-    <td rowspan="5" style="text-align: center;"><img class="xsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_15.png"></td>
-    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_16.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_15.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_16.png"></td>
     <td>(1) No match</td>
   </tr>
-  <tr><td>(2) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
+  <tr><td>(2) <img class="xxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
   <tr><td>(3) No match</td></tr>
-  <tr><td>(4) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_17.png"></td></tr>
+  <tr><td>(4) <img class="xxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_17.png"></td></tr>
   <tr><td>(5) No match</td></tr>
 
   <tr>
-    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_18.png"></td>
-    <td rowspan="5" style="text-align: center;"><img class="xxxmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_19.png"></td>
-    <td>(1) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_20.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_18.png"></td>
+    <td rowspan="5" style="text-align: center;"><img class="xxxmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_19.png"></td>
+    <td>(1) <img class="xxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_20.png"></td>
   </tr>
-  <tr><td>(2) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
-  <tr><td>(3) <img class="xsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_21.png"></td></tr>
-  <tr><td>(4) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_17.png"></td></tr>
-  <tr><td>(5) <img class="xxsmall-img" src="/assets/doc/./screenshots/variant_sequentialization/tiebreaker_examples_20.png"></td></tr>
+  <tr><td>(2) <img class="xxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_6.png"></td></tr>
+  <tr><td>(3) <img class="xsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_21.png"></td></tr>
+  <tr><td>(4) <img class="xxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_17.png"></td></tr>
+  <tr><td>(5) <img class="xxsmall-img" src="./assets/doc/screenshots/variant_sequentialization/tiebreaker_examples_20.png"></td></tr>
 </table>
 
 # Process Discovery
@@ -536,14 +541,14 @@ A tree node (either activity or operator) can be selected for updates by clickin
 
 A selected node is highlighted with a red border as follows:
 
-|![medium](screenshots%2Fprocess_discovery%2Fselecting_nodes_for_updates.gif)|
+|<img class="medium" src="./assets/doc/screenshots/process_discovery/selecting_nodes_for_updates.gif">|
 -
 
 #### Inserting Nodes
 
 New nodes available for insertion in the tree are available in the process tree toolbox. The toolbox can be revealed using the <i class="btn-icon bi bi-chevron-bar-down"></i> button at the top of the editor.
 
-|![xlarge](screenshots%2Fprocess_discovery%2Fproc_tree_toolbox.png)|
+|<img class="xlarge" src="./assets/doc/screenshots/process_discovery/proc_tree_toolbox.png">|
 -
 
 ##### Inserting nodes along operators
@@ -557,7 +562,7 @@ After selecting an operator node, the following choices are available:
 
 Having selected the following operator and **insert new node below** option, adding an activity from the list of available activities in the toolbox adds it under the selected operator follows:
 
-|![medium](screenshots%2Fprocess_discovery%2Finsert_node_below.gif)|
+|<img class="medium" src="./assets/doc/screenshots/process_discovery/insert_node_below.gif">|
 -
 
 Similarly, adding an operator adds that operator **below** the selected operator. It works similarly for adding activities or operators **above**, to the **left** or to the **right**.
@@ -571,7 +576,7 @@ After selecting an activity, the following choices are available:
 
 Having selected the following activity and **insert new node right to the selected one** option, adding an activity from the list of available activities in the toolbox adds it to the right of the selected activity as follows:
 
-|![medium](screenshots%2Fprocess_discovery%2Finsert_node_right.gif)|
+|<img class="medium" src="./assets/doc/screenshots/process_discovery/insert_node_right.gif">|
 -
 
 Similarly, adding an operator adds that operator **to the right** the selected activity. It works similarly for adding activities or operators **to the left**.
@@ -582,7 +587,7 @@ The `replace the currently selected node` (<i class="bi bi-arrow-repeat"></i>) o
 
 Having selected an activity and **replace the currently selected node** option, choosing another activity from the toolbox replaces the selected activity as follows:
 
-|![medium](screenshots%2Fprocess_discovery%2Freplace_node.gif)|
+|<img class="medium" src="./assets/doc/screenshots/process_discovery/replace_node.gif">|
 -
 
 Similarly, choosing an operator node from the toolbox **replaces** the selected activity with the selected operator. It works similarly for **replacing** selected operators with either operators or activities form the list of available operators and activities in the toolbox.
@@ -593,7 +598,7 @@ Selecting an operator node or an activity and clicking the <i class="bi bi-trash
 
 Having selected an operator node and removing it results as follows:
 
-|![medium](screenshots%2Fprocess_discovery%2Fremove_node.gif)|
+|<img class="medium" src="./assets/doc/screenshots/process_discovery/remove_node.gif">|
 -
 
 #### Shifting Nodes
@@ -603,15 +608,14 @@ The shift to right or to the left is with respect to the sibling node(s) of the 
 
 Having selected the following operator node and clicking the <i class="bi bi-chevron-double-left btn-icon"></i>`shift selected node(s) to left` button **shifts** the operator node to the left as follows:
 
-|![medium](screenshots%2Fprocess_discovery%2Fshift_pt_node.gif)|
+|<img class="medium" src="./assets/doc/screenshots/process_discovery/shift_pt_node.gif">|
 -
-
 
 #### Applying Reduction Rules
 
 Selecting an operator node and clicking the <i class="bi bi-diagram-2"></i> button applies **reduction rules** to remove redundant and unnecessary nodes from that subtree as follows:
 
-|![medium](screenshots%2Fprocess_discovery%2Freduction_rules.gif)|
+|<img class="medium" src="./assets/doc/screenshots/process_discovery/reduction_rules.gif">|
 -
 
 #### (Un)Freezing Subtrees
@@ -620,7 +624,7 @@ Freezing a subtree prevents that subtree from being updated during the increment
 
 Selecting an operator node and clicking the <i class="bi bi-snow btn-icon"></i>`(un)freeze subtrees` button **freezes** the subtree under that operator node. The frozen subtree is highlighted blue as seen below:
 
-|![medium](screenshots%2Fprocess_discovery%2Ffreeze_node.gif)|
+|<img class="medium" src="./assets/doc/screenshots/process_discovery/freeze_node.gif">|
 -
 
 Similarly, selecting root operator node of an already frozen subtree and clicking the <i class="bi bi-snow btn-icon"></i>`(un)freeze subtrees` button unfreezes that subtree. After unfreezing, that subtree may be updated diring the incremental discovery process and its presence is no longer ensured.
@@ -647,7 +651,7 @@ A node can be selected for updates by clicking on it.
 
 A selected node is highlighted through a red border as follows:
 
-|![medium](screenshots%2Fprocess_discovery%2Fselect_node_bpmn.gif)|
+|<img class="medium" src="./assets/doc/screenshots/process_discovery/select_node_bpmn.gif">|
 -
 
 #### Removing Nodes
@@ -656,7 +660,7 @@ Selecting a node and clicking the <i class="bi bi-trash btn-icon"></i>`remove se
 
 Having selected a node and removing it results as follows:
 
-|![medium](screenshots%2Fprocess_discovery%2Fremove_bpmn_node.gif)|
+|<img class="medium" src="./assets/doc/screenshots/process_discovery/remove_bpmn_node.gif">|
 -
 
 #### Exporting the Model
@@ -683,7 +687,7 @@ After discovering or importing an initial process tree, trace(s) can be chosen f
   2. Press the <i class="bi bi-diagram-2-fill btn-icon"></i>`discover initial model` button
   3. The discovered process tree would be displayed in the `Process Tree Editor` as follows:
 
-|![large](screenshots%2Fprocess_discovery%2Fdiscover_initial_model.gif)|
+|<img class="large" src="./assets/doc/screenshots/process_discovery/discover_initial_model.gif">|
 -
 
 ### Incrementally Adding Variants
@@ -697,8 +701,8 @@ After discovering or importing an initial process tree, trace(s) can be chosen f
        * Variant fragments.
        * Variants from the `Variant Modeler`.
   3. The modified process tree (which the selecting traces fit to) would be displayed in the `Process Tree Editor` as follows:
-  
-|![large](screenshots%2Fprocess_discovery%2Fincremental_trace_addition.gif)|
+
+|<img class="large" src="./assets/doc/screenshots/process_discovery/incremental_trace_addition.gif">|
 -
 
 # Temporal Performance Analysis
@@ -706,25 +710,27 @@ After discovering or importing an initial process tree, trace(s) can be chosen f
 ## Model-independent performance analysis
 When opening the Performance View from the side bar, the performance of each variant is calculated, which may take a while depending on the size of the event log. 
 
-![large](screenshots/variant_explorer/performance-view.png)
+<img class="large" src="./assets/doc/screenshots/variant_explorer/performance-view.png">
 
 In this view the variants are no longer uniquely colored to be differentiated but based on their service times. Additionally, there are now nodes displayed in-between activites to show the waiting times. These are colored using a separate color scale to show their waiting times. 
 
 Both color maps can be seen in a sub-tab from the `Variant Performance` tab.
 
-![large](screenshots/temporal_performance_analysis/variant-performance_color-map.png)
+<img class="large" src="./assets/doc/screenshots/temporal_performance_analysis/variant-performance_color-map.png">
 
 Here, the used statistic for the color maps can be changed. By default, they show the mean values of all instances for each variant. Other statisics are their minimum, maximum or standard deviation. Upon change the color map will be immediatley be updated.
 
 To get further insight into the performance of certain parts of a variant, let it be single activites, waiting nodes or parallel sections, one can simply click on them in the Variant Explorer and inspect their service or waiting times in the `Selection` sub-tab of the `Variant Performance` tab.
 
-![large](screenshots/temporal_performance_analysis/variant-performance_selection.png)
+<img class="large" src="./assets/doc/screenshots/temporal_performance_analysis/variant-performance_selection.png">
 
 
 ## Model-based performance analysis 
 For understanding the performance of a process model, one can project the performance of selected variants onto the model from the Performance View. 
 
-![large](screenshots/temporal_performance_analysis/model-performance_projection.png)
+<img class="large" src="./assets/doc/screenshots/temporal_performance_analysis/model-performance_projection.png">
+
+&nbsp;
 
 🔴 When there is a model present, there will be two additional columns in the Variant Explorer, namely `Model Projection` and by default `service time (mean)`.
 
@@ -741,7 +747,9 @@ The other column shows in the default setting the mean service overall model per
 
 In the `Color Map` subtab, adjustments can be made to how the model is colored and the statistics are aggregated.
 
-![large](screenshots/temporal_performance_analysis/model-performance_color-map.png)
+<img class="large" src="./assets/doc/screenshots/temporal_performance_analysis/model-performance_color-map.png">
+
+&nbsp;
 
 One can choose which of the four performance times will be used for the projection as well between the statistical measure (mean, min, max, stdev). 
 
@@ -753,7 +761,7 @@ Cortado is an end-user process mining tool offered as a standalone desktop appli
 
 The following figure illustrates the main architecture of Cortado:
 
-![xlarge](screenshots%2Fsoftware_architecture%2Farchitecture.png)
+<img class="xlarge" src="./assets/doc/screenshots/software_architecture/architecture.png">
 
 
 #### Backend
