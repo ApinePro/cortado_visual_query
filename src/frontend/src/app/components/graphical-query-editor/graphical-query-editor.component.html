@@ -25,6 +25,15 @@
           <button
             type="button"
             class="button"
+            (click)="openPatternList()"
+            ngbTooltip="save pattern to list"
+            container="body"
+          >
+            Open Pattern List
+          </button>
+          <button
+            type="button"
+            class="button"
             (click)="openCardinality()"
             ngbTooltip="type cardinality counts"
             container="body"
@@ -345,6 +354,15 @@
               class="btn btn-sm node-btn"
             >
               {{ op }}
+            </button>
+            <button
+              type="button"
+              (click)="negateNode()"
+              container="body"
+              placement="bottom"
+              class="btn btn-sm node-btn"
+            >
+              NOT
             </button>
           </div>
         </div>

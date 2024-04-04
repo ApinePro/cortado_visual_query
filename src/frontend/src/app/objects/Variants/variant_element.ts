@@ -128,6 +128,19 @@ export abstract class VariantElement {
     return self as ParallelPattern;
   }
 
+  public asPattern(): any {
+    const self: unknown = this;
+    if(self instanceof LeafPattern){
+      return self as LeafPattern;
+    } 
+    else if(self instanceof ParallelPattern){
+      return self as ParallelPattern;
+    }
+    else if(self instanceof SequencePattern){
+      return self as SequencePattern;
+    }
+  }
+
   public asSequencePattern(): SequencePattern {
     const self: unknown = this;
     return self as SequencePattern;
@@ -1535,6 +1548,7 @@ interface QueryPattern {
   cardinality: number;
   cardiOperator: CardinalityOperator;
   eventually: boolean;
+  cardiDirect: CardinalityDirection;
 }
 
 export class LeafPattern extends LeafNode implements QueryPattern {
@@ -1547,11 +1561,13 @@ export class LeafPattern extends LeafNode implements QueryPattern {
     this.cardinality = 0;
     this.cardiOperator = CardinalityOperator.equal;
     this.eventually = false;
+    this.cardiDirect = CardinalityDirection.vertical;
   }
 
   public cardinality: number;
   public cardiOperator: CardinalityOperator;
   public eventually: boolean;
+  public cardiDirect: CardinalityDirection;
 }
 
 export class SequencePattern extends SequenceGroup implements QueryPattern {
@@ -1560,10 +1576,20 @@ export class SequencePattern extends SequenceGroup implements QueryPattern {
     this.cardinality = 0;
     this.cardiOperator = CardinalityOperator.equal;
     this.eventually = false;
+    this.cardiDirect = CardinalityDirection.vertical;
   }
   public cardinality: number;
   public cardiOperator: CardinalityOperator;
   public eventually: boolean;
+  public cardiDirect: CardinalityDirection;
+
+  public recalculateHeight(): number {
+    return super.recalculateHeight() + VARIANT_Constants.CARDI_MARGIN_Y
+  }
+
+  public recalculateWidth(): number {
+    return super.recalculateWidth() + VARIANT_Constants.CARDI_MARGIN_X
+  }
 }
 
 export class ParallelPattern extends ParallelGroup implements QueryPattern {
@@ -1572,10 +1598,12 @@ export class ParallelPattern extends ParallelGroup implements QueryPattern {
     this.cardinality = 0;
     this.cardiOperator = CardinalityOperator.equal;
     this.eventually = false;
+    this.cardiDirect = CardinalityDirection.vertical;
   }
   public cardinality: number;
   public cardiOperator: CardinalityOperator;
   public eventually: boolean;
+  public cardiDirect: CardinalityDirection;
 }
 
 export function deserialize(obj: any): VariantElement {
@@ -1668,8 +1696,13 @@ export function injectWaitingTimeNodesVariant(variant: VariantElement) {
   }
 }
 
-enum CardinalityOperator {
+export enum CardinalityOperator {
   lessequal = '≤',
   equal = '=',
   moreequal = '≥',
+}
+
+export enum CardinalityDirection {
+  horizontal = 0,
+  vertical = 1,
 }

@@ -51,6 +51,7 @@ import {
   SkipGroup,
   ParallelPattern,
   SequencePattern,
+  CardinalityOperator,
 } from 'src/app/objects/Variants/variant_element';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
@@ -248,6 +249,9 @@ export class QueryTreeDrawerDirective {
           d.data.label === ProcessTreeOperator.tau && d.data.frozen === true
         );
       })
+      .classed('negation', (d: any) => {
+        return d.data.negation === true;
+      })
       .attr('width', PT_Constant.BASE_HEIGHT_WIDTH)
       .attr('height', PT_Constant.BASE_HEIGHT_WIDTH)
       .attr('font-size', (d: any) => {
@@ -316,7 +320,7 @@ export class QueryTreeDrawerDirective {
       })
       .attr('y', function (d: any) {
         return d.x;
-      });
+      })
 
     //this.svgSelection = this.nodeEnter;
     this.svgSelection = this.mainSvgGroup;
@@ -351,6 +355,18 @@ export class QueryTreeDrawerDirective {
       .attr('y', function (d: any) {
         return d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2;
       });
+
+    this.nodeEnter
+      .selectAll('.negation')
+      .append('line')
+      .attr('x1', 0)
+      .attr('y1', 0)
+      .attr('x2', function (d: any) {
+        return d.data.pattern.getWidth();})
+      .attr('y2', function (d: any) {
+        return d.data.pattern.getHeight();})
+      .attr('stroke', 'red')
+      .attr('stroke-width', 2);
 
     // resize leaf nodes if text is too long
     this.nodeEnter
@@ -436,7 +452,7 @@ export class QueryTreeDrawerDirective {
 
   update(root): void {
     this.mainSvgGroup.selectAll('g').remove();
-    console.log('updated');
+    console.log('updating tree');
     if (root) {
       // add node groups that contain a rectangle and text
       this.calculateTreeLayout(root);
@@ -670,6 +686,25 @@ export class QueryTreeDrawerDirective {
     return [variant_svg, width_offset];
   }
 
+  fadeColor(color: string) {
+    if (color.startsWith('#')) {
+      color = color.substring(1);
+    }
+    let num = parseInt(color, 16);
+
+    let r = (num >> 16) + 30;
+    let g = ((num >> 8) & 0xFF) + 30;
+    let b = (num & 0xFF) + 30;
+  
+    r = Math.min(Math.max(r, 0), 255);
+    g = Math.min(Math.max(g, 0), 255);
+    b = Math.min(Math.max(b, 0), 255);
+  
+    let newColor = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+  
+    return newColor;
+  }
+
   draw(
     element: VariantElement,
     svgElement: Selection<any, any, any, any>,
@@ -729,6 +764,19 @@ export class QueryTreeDrawerDirective {
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
 
+    if(element.asPattern().cardinality > 1){
+      parent.append('rect')
+      .attr('width', width + VARIANT_Constants.CARDI_MARGIN_X * 2)
+      .attr('height', height + VARIANT_Constants.CARDI_MARGIN_Y * 2)
+      .attr('rx', 10)
+      .attr('ry', 10)
+      .attr('fill', 'none')
+      .attr('stroke', 'rgba(255, 255, 255, 0.5)')
+      .attr('stroke-width', 2)
+      .attr('transform', 'translate(-VARIANT_Constants.CARDI_MARGIN_X , -VARIANT_Constants.CARDI_MARGIN_Y)')
+      .attr('stroke-dasharray', '5,5');
+    }
+
     let polygon = this.createPolygon(
       parent,
       polygonPoints,
@@ -779,6 +827,29 @@ export class QueryTreeDrawerDirective {
         element.getMarginX() -
         element.elements[0].getHeadLength();
     }
+    
+    if(element.asPattern().cardiOperator != CardinalityOperator.equal ||
+    (element.asPattern().cardiOperator != CardinalityOperator.equal && element.asPattern().cardinality > 1)){
+      const cardinalityText = parent
+      .append('text')
+      .attr('x', width / 2)
+      .attr('y', -VARIANT_Constants.FONT_SIZE)
+      .classed('user-select-none', true)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr('font-size', VARIANT_Constants.FONT_SIZE)
+      .attr('fill', 'white')
+      .classed('activity-text', true);
+
+    const tspan = cardinalityText
+      .append('tspan')
+      .classed(
+        'cursor-pointer',
+        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+      )
+      .text(element.asPattern().cardiOperator + ' ' + element.asPattern().cardinality);
+    }
+    
 
     for (const child of element.elements) {
       if (
@@ -828,6 +899,19 @@ export class QueryTreeDrawerDirective {
     let actionable =
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
+    
+    if(element.asPattern().cardinality > 1){
+        parent.append('rect')
+        .attr('width', width + VARIANT_Constants.CARDI_MARGIN_X * 2)
+        .attr('height', height + VARIANT_Constants.CARDI_MARGIN_Y * 2)
+        .attr('rx', 10)
+        .attr('ry', 10)
+        .attr('fill', 'none')
+        .attr('stroke', 'rgba(255, 255, 255, 0.5)')
+        .attr('stroke-width', 2)
+        .attr('transform', 'translate(-VARIANT_Constants.CARDI_MARGIN_X, -VARIANT_Constants.CARDI_MARGIN_Y)')
+        .attr('stroke-dasharray', '5,5');
+      }
 
     const color = 'lightgrey';
     let polygon = this.createPolygon(
@@ -857,6 +941,28 @@ export class QueryTreeDrawerDirective {
         this.onRightMouseClickCbFc(this, element, nodeVariant, e);
         e.stopPropagation();
       });
+    }
+
+    if(element.asPattern().cardiOperator != CardinalityOperator.equal ||
+    (element.asPattern().cardiOperator != CardinalityOperator.equal && element.asPattern().cardinality > 1)){
+      const cardinalityText = parent
+      .append('text')
+      .attr('x', width / 2)
+      .attr('y', -VARIANT_Constants.FONT_SIZE)
+      .classed('user-select-none', true)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr('font-size', VARIANT_Constants.FONT_SIZE)
+      .attr('fill', 'white')
+      .classed('activity-text', true);
+
+    const tspan = cardinalityText
+      .append('tspan')
+      .classed(
+        'cursor-pointer',
+        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+      )
+      .text(element.asPattern().cardiOperator + ' ' + element.asPattern().cardinality);
     }
 
     let y = VARIANT_Constants.MARGIN_Y;
@@ -896,6 +1002,19 @@ export class QueryTreeDrawerDirective {
     let actionable =
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
+    
+    if(element.asPattern().cardinality > 1){
+        parent.append('rect')
+        .attr('width', width + 30)
+        .attr('height', height + 20)
+        .attr('rx', 10)
+        .attr('ry', 10)
+        .attr('fill', 'none')
+        .attr('stroke', 'rgba(255, 255, 255, 0.5)')
+        .attr('stroke-width', 2)
+        .attr('transform', 'translate(-15, -10)')
+        .attr('stroke-dasharray', '5,5');
+      }
 
     const color = 'lightgrey';
     let polygon = this.createPolygon(
@@ -1036,6 +1155,19 @@ export class QueryTreeDrawerDirective {
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
 
+    if(element.asPattern().cardinality > 1){
+        parent.append('rect')
+        .attr('width', width + 30)
+        .attr('height', height + 20)
+        .attr('rx', 10)
+        .attr('ry', 10)
+        .attr('fill', 'none')
+        .attr('stroke', 'rgba(255, 255, 255, 0.5)')
+        .attr('stroke-width', 2)
+        .attr('transform', 'translate(-15, -10)')
+        .attr('stroke-dasharray', '5,5');
+      }
+
     const color = 'lightgrey';
     let polygon = this.createFallthroughPolygon(
       parent,
@@ -1146,6 +1278,13 @@ export class QueryTreeDrawerDirective {
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
 
+    
+    if(element.asLeafPattern().cardinality > 0){
+      console.log("draw leaf cardi");
+      const lightColor = this.fadeColor(color)
+      let stackPolygon = this.createPolygon(parent, polygonPoints, lightColor, actionable);
+      stackPolygon.attr('transform', `translate(-10, -10)`);
+    }
     let polygon = this.createPolygon(parent, polygonPoints, color, actionable);
 
     if (this.traceInfixSelectionMode) {
@@ -1167,7 +1306,29 @@ export class QueryTreeDrawerDirective {
       .attr('font-size', VARIANT_Constants.FONT_SIZE)
       .attr('fill', textcolor)
       .classed('activity-text', true);
+    
+    if(element.asPattern().cardiOperator != CardinalityOperator.equal ||
+    (element.asPattern().cardiOperator != CardinalityOperator.equal && element.asPattern().cardinality > 1)){
+      const cardinalityText = parent
+      .append('text')
+      .attr('x', width / 2)
+      .attr('y', -VARIANT_Constants.FONT_SIZE)
+      .classed('user-select-none', true)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr('font-size', VARIANT_Constants.FONT_SIZE)
+      .attr('fill', 'white')
+      .classed('activity-text', true);
 
+    const tspan = cardinalityText
+      .append('tspan')
+      .classed(
+        'cursor-pointer',
+        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+      )
+      .text(element.asPattern().cardiOperator + ' ' + element.asPattern().cardinality);
+    }
+    
     let y = height / 2;
     if (element.activity.length > 1) {
       y =

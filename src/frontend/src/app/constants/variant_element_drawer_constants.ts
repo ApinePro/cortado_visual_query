@@ -21,4 +21,7 @@ export class VARIANT_Constants {
   public static SKIP_MARGIN = 10;
   public static CHOICE_BRACKET_FONT_SIZE = 10;
   public static CHAR_LENGTH = 7.5;
+
+  public static CARDI_MARGIN_X = 15;
+  public static CARDI_MARGIN_Y = 15;
 }

@@ -26,6 +26,7 @@ import {
   Renderer2,
   ViewChild,
   ViewChildren,
+  HostListener,
 } from '@angular/core';
 import {
   ComponentContainer,
@@ -60,6 +61,7 @@ import {
   deserialize,
   SequencePattern,
   LeafPattern,
+  ParallelPattern,
 } from 'src/app/objects/Variants/variant_element';
 import { ImageExportService } from 'src/app/services/imageExportService/image-export-service';
 import { takeUntil } from 'rxjs/operators';
@@ -76,6 +78,7 @@ import {
   ProcessTreeOperator,
 } from '../../objects/ProcessTree/ProcessTree';
 import { QueryTree } from 'src/app/objects/ProcessTree/QueryTree';
+import { log } from 'console';
 @Component({
   selector: 'app-graphical-query-editor',
   templateUrl: './graphical-query-editor.component.html',
@@ -552,6 +555,15 @@ export class GraphicalQueryEditorComponent
                 leaf,
                 selectedElement
               );
+            } else {
+              const selectedElements = this.variantEnrichedSelection
+                .selectAll('.selected-variant-g')
+                .data();
+              this.handleMultiParallelInsert(
+                this.currentVariant,
+                leaf,
+                selectedElements
+              );
             }
             this.sortParallel(this.findParent(nodevariant.pattern, leaf));
             break;
@@ -579,6 +591,34 @@ export class GraphicalQueryEditorComponent
       }
       console.log(nodevariant.pattern);
       //this.cacheCurrentVariant();
+    }
+  }
+
+  handleMultiParallelInsert(
+    variant: VariantElement,
+    leaf: LeafNode,
+    selectedElement
+  ) {
+    const parent = this.findParent(variant, selectedElement[0]);
+    const grandParent = this.findParent(variant, parent); // if parent is root, grandParent is null
+    const children = parent.getElements();
+    if (
+      children.length === selectedElement.length &&
+      grandParent &&
+      grandParent instanceof ParallelGroup
+    ) {
+      const parentSiblings = grandParent.getElements();
+      parentSiblings.splice(0, 0, leaf);
+      grandParent.setElements(parentSiblings);
+    } else {
+      const index = children.indexOf(selectedElement[0]);
+      const newParent = new ParallelGroup([
+        leaf,
+        new SequenceGroup(selectedElement),
+      ]);
+      children.splice(index, selectedElement.length);
+      children.splice(index, 0, newParent);
+      parent.setElements(children);
     }
   }
 
@@ -960,6 +1000,16 @@ export class GraphicalQueryEditorComponent
     }
   }
 
+  @HostListener('window:keydown.control', ['$event'])
+  onMultiSelectStart(e) {
+    this.multiSelect = true;
+  }
+
+  @HostListener('window:keyup.control', ['$event'])
+  onMultiSelectStop(e) {
+    this.multiSelect = false;
+  }
+
   cacheCurrentVariant() {
     if (this.cacheIdx < this.cachedVariants.length - 1) {
       this.cachedVariants = this.cachedVariants.slice(0, this.cacheIdx + 1);
@@ -1153,6 +1203,10 @@ export class GraphicalQueryEditorComponent
           .selectAll('.selected-polygon')
           .classed('selected-polygon', false)
           .attr('stroke', false);
+        
+        d3.select('.node-variant-svg')
+          .selectAll('.chevron-group')
+          .style('fill-opacity', 0.5);
 
         d3.selectAll('.node-variant-svg')
           .selectAll('.selected-variant-g')
@@ -1207,10 +1261,34 @@ export class GraphicalQueryEditorComponent
     //this.selectedRootNode = null;
   }
 
+  insertOuterPattern(
+    parent: VariantElement,
+    selectedElement) {
+      //if they have the same parent?
+    //const children = variant.getElements();
+    const parentChildren = parent.getElements();
+    let index = parentChildren.length;
+    for(let elem of selectedElement){
+      if(selectedElement.indexOf(elem) < index)
+      {
+        index = selectedElement.indexOf(elem);
+      }
+    }
+    parentChildren.splice(
+      index,
+      selectedElement.length,
+      new SequencePattern(selectedElement)
+    );
+    parent.setElements(parentChildren);
+  }
+
+
   savePattern() {
-    this.savedPatterns.push(this.currentVariant.copy());
-    //console.log(this.currentVariant);
-    //console.log(this.savedPatterns);
+    this.savedPatterns.push((this.selectedRootNode?.data as QueryTree).pattern.copy());
+  }
+
+  openPatternList(){
+
   }
 
   openCardinality() {
@@ -1219,13 +1297,36 @@ export class GraphicalQueryEditorComponent
   }
 
   addCardinality() {
-    this.currentVariant.asSequencePattern().cardinality += 1;
+    console.log("Now adding cardinality");
+    const selectedElement = this.variantEnrichedSelection
+          .selectAll('.selected-variant-g')
+          .data();
+    if(selectedElement.length > 1){
+      let parent = this.findParent((this.selectedRootNode?.data as QueryTree).pattern, selectedElement[0]);
+      console.log(parent);
+      if(parent.indexOf(selectedElement[0]) < 0) {
+        this.insertOuterPattern(parent, selectedElement);
+        parent = this.findParent((this.selectedRootNode?.data as QueryTree).pattern, selectedElement[0]);
+      }
+      parent.asPattern().cardinality += 1;
+    }
+    else if (selectedElement[0] instanceof LeafPattern){
+      (selectedElement[0] as any).asPattern().cardinality += 1;
+    }
+    else if ((selectedElement[0] as any).getElements().length > 1){
+      (selectedElement[0] as any).asPattern().cardinality += 1;
+    }
+    else{
+      (selectedElement[0] as any).getElements()[0].asPattern().cardinality += 1;
+    }
+    console.log((this.selectedRootNode?.data as QueryTree).pattern);
+    console.log("Added cardinality");
     this.triggerRedraw();
   }
 
   reduceCardinality() {
-    if (this.currentVariant.asSequencePattern().cardinality > 0) {
-      this.currentVariant.asSequencePattern().cardinality -= 1;
+    if (this.currentVariant.asPattern().cardinality > 0) {
+      this.currentVariant.asPattern().cardinality -= 1;
       this.triggerRedraw();
     }
   }
@@ -1442,6 +1543,11 @@ export class GraphicalQueryEditorComponent
           : null;
     }
   };
+
+  negateNode(){
+    (this.selectedRootNode?.data as QueryTree).negation = !(this.selectedRootNode?.data as QueryTree).negation;
+    this.redraw(this.currentlyDisplayedTreeInEditor);
+  }
 
   tooltipContent = (d: d3.HierarchyNode<ProcessTree>) => {
     let returnTempValue = d.data.label || d.data.operator;

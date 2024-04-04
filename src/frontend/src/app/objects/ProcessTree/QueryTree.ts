@@ -9,9 +9,11 @@ import { VariantElement } from '../Variants/variant_element';
 export class QueryTree extends ProcessTree {
   public pattern: VariantElement;
   public isLeaf: boolean = false;
+  public negation: boolean = false;
   constructor(
     label: string,
     operator: ProcessTreeOperator,
+    negation: boolean,
     children: ProcessTree[],
     id: number,
     frozen: boolean,
@@ -31,5 +33,6 @@ export class QueryTree extends ProcessTree {
       parent
     );
     this.pattern = pattern;
+    this.negation = negation;
   }
 }
