@@ -15,7 +15,8 @@ const executablePath = app.getPath("exe");
 const downloadFolder = app.getPath("downloads");
 const backendWorkDir = path.join(
   path.dirname(executablePath),
-  "..",
+  process.platform === "darwin" ? ".." : "", // electron-builder puts the executable in `MacOS/` folder,
+  // so must move one level up to find `cortado-backend`
   "cortado-backend"
 );
 const backendExecutablePath = path.join(
