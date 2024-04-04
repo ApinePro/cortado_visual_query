@@ -15,6 +15,7 @@ const executablePath = app.getPath("exe");
 const downloadFolder = app.getPath("downloads");
 const backendWorkDir = path.join(
   path.dirname(executablePath),
+  "..",
   "cortado-backend"
 );
 const backendExecutablePath = path.join(
