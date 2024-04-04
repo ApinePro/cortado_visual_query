@@ -420,6 +420,7 @@ export class SequenceGroup extends VariantElement {
   }
 
   public recalculateHeight(): number {
+    //console.log("recal ori seq");
     this.elements.forEach((el) => (el.height = undefined));
     this.height = Math.max(
       ...this.elements.map((el: VariantElement) => el.getHeight())
@@ -430,6 +431,7 @@ export class SequenceGroup extends VariantElement {
   }
 
   public recalculateWidth(includeWaiting = false): number {
+    //console.log("recal ori seq");;
     this.elements.forEach((el) => (el.width = undefined));
     this.width = this.elements
       .filter((el) => !(el instanceof WaitingTimeNode) || includeWaiting)
@@ -1558,7 +1560,7 @@ export class LeafPattern extends LeafNode implements QueryPattern {
     public conformance: number[] = undefined
   ) {
     super(performance);
-    this.cardinality = 0;
+    this.cardinality = 1;
     this.cardiOperator = CardinalityOperator.equal;
     this.eventually = false;
     this.cardiDirect = CardinalityDirection.vertical;
@@ -1568,12 +1570,13 @@ export class LeafPattern extends LeafNode implements QueryPattern {
   public cardiOperator: CardinalityOperator;
   public eventually: boolean;
   public cardiDirect: CardinalityDirection;
+
 }
 
 export class SequencePattern extends SequenceGroup implements QueryPattern {
   constructor(public elements: VariantElement[], performance: any = undefined) {
     super(performance);
-    this.cardinality = 0;
+    this.cardinality = 1;
     this.cardiOperator = CardinalityOperator.equal;
     this.eventually = false;
     this.cardiDirect = CardinalityDirection.vertical;
@@ -1583,19 +1586,57 @@ export class SequencePattern extends SequenceGroup implements QueryPattern {
   public eventually: boolean;
   public cardiDirect: CardinalityDirection;
 
-  public recalculateHeight(): number {
-    return super.recalculateHeight() + VARIANT_Constants.CARDI_MARGIN_Y
+  public getHeight(): number {
+    if (this.height) {
+      return this.height;
+    }
+    return this.recalculateHeight();
   }
 
-  public recalculateWidth(): number {
-    return super.recalculateWidth() + VARIANT_Constants.CARDI_MARGIN_X
+  public getWidth(includeWaiting = false): number {
+    if (this.width) {
+      return this.width;
+    }
+    return this.recalculateWidth(includeWaiting);
+  }
+
+  public recalculateHeight(): number {
+    this.elements.forEach((el) => (el.height = undefined));
+    this.height = Math.max(
+      ...this.elements.map((el: VariantElement) => el.getHeight())
+    );
+    if (!(this.parent instanceof SkipGroup))
+      this.height += this.getMarginY() * 2;
+
+    if(this.cardinality > 1){
+        this.height += 2 * VARIANT_Constants.CARDI_MARGIN_Y;
+      }
+    return this.height;
+  }
+
+  public recalculateWidth(includeWaiting = false): number {
+    this.elements.forEach((el) => (el.width = undefined));
+    this.width = this.elements
+      .filter((el) => !(el instanceof WaitingTimeNode) || includeWaiting)
+      .map((el: VariantElement) => el.getWidth(includeWaiting))
+      .reduce((a: number, b: number) => a + b);
+    if (!(this.parent instanceof SkipGroup))
+      this.width +=
+        2 * this.getMarginX() +
+        this.getHeadLength() -
+        this.elements[0].getHeadLength();
+
+    if(this.cardinality > 1){
+      this.width += 2 * VARIANT_Constants.CARDI_MARGIN_X;
+    }
+    return this.width;
   }
 }
 
 export class ParallelPattern extends ParallelGroup implements QueryPattern {
   constructor(public elements: VariantElement[], performance: any = undefined) {
     super(performance);
-    this.cardinality = 0;
+    this.cardinality = 1;
     this.cardiOperator = CardinalityOperator.equal;
     this.eventually = false;
     this.cardiDirect = CardinalityDirection.vertical;
@@ -1604,6 +1645,51 @@ export class ParallelPattern extends ParallelGroup implements QueryPattern {
   public cardiOperator: CardinalityOperator;
   public eventually: boolean;
   public cardiDirect: CardinalityDirection;
+
+  public getHeight(): number {
+    if (this.height) {
+      return this.height;
+    }
+    return this.recalculateHeight();
+  }
+
+  public getWidth(includeWaiting = false): number {
+    if (this.width) {
+      return this.width;
+    }
+    return this.recalculateWidth(includeWaiting);
+  }
+
+  public recalculateHeight(): number {
+    this.elements.forEach((el) => (el.height = undefined));
+    this.height =
+      this.elements
+        .map((el: VariantElement) => el.getHeight() + this.getMarginY())
+        .reduce((a: number, b: number) => a + b) + VARIANT_Constants.MARGIN_Y;
+    
+    if(this.cardinality > 1){
+      this.height += 2 * VARIANT_Constants.CARDI_MARGIN_Y;
+    }
+    return this.height;
+  }
+
+  public recalculateWidth(includeWaiting = false): number {
+    this.elements.forEach((el) => (el.width = undefined));
+    const headLength = this.getHeadLength();
+    this.width =
+      Math.max(
+        ...this.elements
+          .filter((el) => !(el instanceof WaitingTimeNode) || includeWaiting)
+          .map((el: VariantElement) => el.getWidth(includeWaiting))
+      ) +
+      VARIANT_Constants.MARGIN_X +
+      2 * headLength;
+
+    if(this.cardinality > 1){
+        this.width += 2 * VARIANT_Constants.CARDI_MARGIN_X;
+      }
+    return this.width;
+  }
 }
 
 export function deserialize(obj: any): VariantElement {

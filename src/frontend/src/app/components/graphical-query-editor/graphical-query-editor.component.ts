@@ -502,7 +502,6 @@ export class GraphicalQueryEditorComponent
       this.newLeaf = leaf;
 
       if (this.emptyVariant) {
-        console.log('Empty');
         nodevariant.pattern = new SequencePattern([leaf]);
         nodevariant.pattern.setExpanded(true);
         this.emptyVariant = false;
@@ -589,7 +588,7 @@ export class GraphicalQueryEditorComponent
         }
         this.triggerRedraw();
       }
-      console.log(nodevariant.pattern);
+      //console.log(nodevariant.pattern);
       //this.cacheCurrentVariant();
     }
   }
@@ -1303,8 +1302,23 @@ export class GraphicalQueryEditorComponent
           .data();
     if(selectedElement.length > 1){
       let parent = this.findParent((this.selectedRootNode?.data as QueryTree).pattern, selectedElement[0]);
-      console.log(parent);
-      if(parent.indexOf(selectedElement[0]) < 0) {
+      const parentChildren = parent.getElements();
+      let selectionIndex = 0;
+      
+      while(parentChildren.indexOf(selectedElement[selectionIndex]) > 0
+      || selectionIndex < selectedElement.length){
+        selectionIndex += 1;
+      }
+      /*
+      console.log(selectedElement);
+      console.log(parentChildren);
+      console.log(parentChildren.indexOf(selectedElement[0]));
+      console.log(selectionIndex);
+      console.log(selectedElement.length);
+
+      console.log(selectionIndex);*/
+      if(selectionIndex != selectedElement.length) {
+        console.log("create outer");
         this.insertOuterPattern(parent, selectedElement);
         parent = this.findParent((this.selectedRootNode?.data as QueryTree).pattern, selectedElement[0]);
       }
@@ -1339,9 +1353,10 @@ export class GraphicalQueryEditorComponent
       this.performanceColorScaleService.selectedColorScale.performanceIndicator;
     this.performanceColorMap =
       this.performanceColorScaleService.getColorScale();
-    console.log('start redraw tree');
-    console.log(tree);
+    //console.log('start redraw tree');
+    //console.log(tree);
     this.processTreeDrawer.redraw(tree);
+    console.log("draw finished");
     setTimeout(() => this.selectRootNodeFromID(this.selectedRootNodeId), 0);
   }
 
@@ -1473,10 +1488,10 @@ export class GraphicalQueryEditorComponent
 
   editLeafNode(event) {
     let selectedNode = this.selectedRootNode?.data;
-    console.log('Insert variant');
+    //console.log('Insert variant');
     if (selectedNode instanceof QueryTree) {
       this.handleActivityButtonClick(event, selectedNode as QueryTree);
-      console.log((selectedNode as QueryTree).pattern);
+      //console.log((selectedNode as QueryTree).pattern);
     }
     this.processTreeDrawer.redraw(this.currentlyDisplayedTreeInEditor);
   }
@@ -1757,7 +1772,7 @@ export class GraphicalQueryEditorComponent
     this.svg = d3.select('#query-d3-svg');
     // add svg group for zooming
     this.mainSvgGroup = this.svg.select('#queryTreeZoomGroup');
-    console.log(this.mainSvgGroup);
+    //console.log(this.mainSvgGroup);
     this.centerTree();
     this.addZoomFunctionality();
   }

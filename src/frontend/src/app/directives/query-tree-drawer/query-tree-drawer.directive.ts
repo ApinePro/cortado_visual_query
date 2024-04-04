@@ -52,6 +52,7 @@ import {
   ParallelPattern,
   SequencePattern,
   CardinalityOperator,
+  CardinalityDirection,
 } from 'src/app/objects/Variants/variant_element';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { VariantViewModeService } from 'src/app/services/viewModeServices/variant-view-mode.service';
@@ -260,8 +261,6 @@ export class QueryTreeDrawerDirective {
         return '';
       })
       .attr('x', function (d: any) {
-        //console.log("x");
-        //console.log(d);
         return d.y;
       })
       .attr('y', function (d: any) {
@@ -311,60 +310,62 @@ export class QueryTreeDrawerDirective {
       })
       .attr('x', function (d: any) {
         return d.y + PT_Constant.BASE_HEIGHT_WIDTH / 2 + 3;
-      });
-
-    this.nodeEnter
-      .selectAll('text')
-      .attr('x', function (d: any) {
-        return d.y + PT_Constant.BASE_HEIGHT_WIDTH / 2 + 3;
       })
       .attr('y', function (d: any) {
         return d.x;
-      })
+      });
 
     //this.svgSelection = this.nodeEnter;
     this.svgSelection = this.mainSvgGroup;
-    //console.log(this.nodeEnter);
-    //console.log("start draw node's variant");
-    //const drawnPattern = this.nodeEnter.select('.node').data()[0].data.pattern;
-    //console.log("draw this pattern:");
-    //console.log(drawnPattern);
 
     //update the width, height and siblings positions
-    this.nodeEnter
-      .selectAll('rect')
-      .attr('width', (d) => {
+    d3.selectAll('.node')
+      .attr('width', (d: any) => {
         if (d.data.pattern) {
-          return d.data.pattern.getWidth();
+          return d.data.pattern.getWidth() + 2 * VARIANT_Constants.MARGIN_X;
         } else {
           return PT_Constant.BASE_HEIGHT_WIDTH;
         }
       })
-      .attr('height', (d) => {
+      .attr('height', (d: any) => {
         if (d.data.pattern) {
-          return d.data.pattern.getHeight();
+          return d.data.pattern.getHeight() + 2 * VARIANT_Constants.MARGIN_Y;
         } else {
           return PT_Constant.BASE_HEIGHT_WIDTH;
         }
       })
       .attr('x', function (d: any) {
-        //console.log("x");
-        //console.log(d);
         return d.y;
       })
       .attr('y', function (d: any) {
         return d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2;
       });
 
+    console.log("start negation");
     this.nodeEnter
-      .selectAll('.negation')
+      .merge(node)
+      .filter(d => d.data.negation === true)
       .append('line')
       .attr('x1', 0)
       .attr('y1', 0)
       .attr('x2', function (d: any) {
-        return d.data.pattern.getWidth();})
+        console.log(d);
+        if (d.data.pattern){
+          console.log(d.data.pattern);
+          return d.data.pattern.getWidth();
+        }
+        else{
+          return PT_Constant.BASE_HEIGHT_WIDTH;;
+        }
+       })
       .attr('y2', function (d: any) {
-        return d.data.pattern.getHeight();})
+        if (d.data.pattern){
+          console.log(d.data.pattern);
+          return d.data.pattern.getHeight();
+        }
+        else {
+          return PT_Constant.BASE_HEIGHT_WIDTH;
+        }})
       .attr('stroke', 'red')
       .attr('stroke-width', 2);
 
@@ -752,8 +753,15 @@ export class QueryTreeDrawerDirective {
     outerElement: boolean,
     nodeVariant //largest variant??
   ): void {
-    const width = element.getWidth();
-    const height = element.getHeight();
+    const width = element.asPattern().getWidth();
+    const height = element.asPattern().getHeight();
+    if(element instanceof SequencePattern){
+      console.log("drawSequencePattern");
+      console.log(width);
+      console.log(height);
+    }
+
+
 
     const polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
@@ -766,14 +774,15 @@ export class QueryTreeDrawerDirective {
 
     if(element.asPattern().cardinality > 1){
       parent.append('rect')
-      .attr('width', width + VARIANT_Constants.CARDI_MARGIN_X * 2)
-      .attr('height', height + VARIANT_Constants.CARDI_MARGIN_Y * 2)
+      .classed('cardinality-region', true)
+      .attr('width', width)
+      .attr('height', height)
       .attr('rx', 10)
       .attr('ry', 10)
       .attr('fill', 'none')
       .attr('stroke', 'rgba(255, 255, 255, 0.5)')
       .attr('stroke-width', 2)
-      .attr('transform', 'translate(-VARIANT_Constants.CARDI_MARGIN_X , -VARIANT_Constants.CARDI_MARGIN_Y)')
+      .attr('transform', `translate(${-VARIANT_Constants.CARDI_MARGIN_X} , ${-VARIANT_Constants.CARDI_MARGIN_Y})`)
       .attr('stroke-dasharray', '5,5');
     }
 
@@ -829,11 +838,13 @@ export class QueryTreeDrawerDirective {
     }
     
     if(element.asPattern().cardiOperator != CardinalityOperator.equal ||
-    (element.asPattern().cardiOperator != CardinalityOperator.equal && element.asPattern().cardinality > 1)){
+    (element.asPattern().cardiOperator === CardinalityOperator.equal && element.asPattern().cardinality > 1)){
       const cardinalityText = parent
       .append('text')
-      .attr('x', width / 2)
-      .attr('y', -VARIANT_Constants.FONT_SIZE)
+      .attr('x', element.asPattern().cardiDirect ==
+      CardinalityDirection.vertical ? width / 2 : width)
+      .attr('y', element.asPattern().cardiDirect ==
+      CardinalityDirection.vertical ? VARIANT_Constants.CARDI_MARGIN_Y : 0)
       .classed('user-select-none', true)
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
@@ -909,7 +920,7 @@ export class QueryTreeDrawerDirective {
         .attr('fill', 'none')
         .attr('stroke', 'rgba(255, 255, 255, 0.5)')
         .attr('stroke-width', 2)
-        .attr('transform', 'translate(-VARIANT_Constants.CARDI_MARGIN_X, -VARIANT_Constants.CARDI_MARGIN_Y)')
+        .attr('transform', `translate(${-VARIANT_Constants.CARDI_MARGIN_X}, ${-VARIANT_Constants.CARDI_MARGIN_Y})`)
         .attr('stroke-dasharray', '5,5');
       }
 
@@ -1279,7 +1290,7 @@ export class QueryTreeDrawerDirective {
       laElement.infixSelectableState !== SelectableState.None;
 
     
-    if(element.asLeafPattern().cardinality > 0){
+    if(element.asLeafPattern().cardinality > 1){
       console.log("draw leaf cardi");
       const lightColor = this.fadeColor(color)
       let stackPolygon = this.createPolygon(parent, polygonPoints, lightColor, actionable);
