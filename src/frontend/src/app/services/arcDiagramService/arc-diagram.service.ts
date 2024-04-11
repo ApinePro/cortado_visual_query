@@ -19,9 +19,6 @@ export class ArcDiagramService {
 
   public arcDiagramsResult: Observable<ArcDiagramComputationResult>;
 
-  public filterParams: FilterParams;
-  public filterAfterComputation: boolean;
-
   public connect(): boolean {
     if (!this.socket || this.socket.closed) {
       this.socket = webSocket(
@@ -59,9 +56,7 @@ export class ArcDiagramService {
           }
           return new ArcDiagramComputationResult(
             result['pairs'],
-            result['maximal_values'],
-            this.filterParams,
-            this.filterAfterComputation
+            result['maximal_values']
           );
         })
       );
@@ -74,11 +69,8 @@ export class ArcDiagramService {
 
   public computeArcDiagrams(
     bids: string[] | number[],
-    filterParams: FilterParams,
-    filterAfterComputation: boolean
+    filterParams: FilterParams
   ): boolean {
-    this.filterParams = filterParams;
-    this.filterAfterComputation = filterAfterComputation;
     const resubscribe = this.connect();
     const rid = this.infoService.setRequest('repetitions mining', () =>
       this.cancelArcDiagramComputationRequests()

@@ -30,7 +30,7 @@ class WebSocketService:
 
                 data = await self.websocket.receive_json()
 
-                print(f'received data from ws {self.name}')
+                print(f'received data from ws `{self.name}`')
 
                 if "isCancellationRequested" in data:
                     await self.websocket.close(1000)

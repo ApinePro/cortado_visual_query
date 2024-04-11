@@ -225,6 +225,7 @@ export class VariantExplorerComponent
   public lastArcsActivitiesFilter = new Set<string>();
   public arcsCache: { [bid: string]: Pair[] } = {};
   public arcsViewMode: ArcsViewMode = ArcsViewMode.INITIAL;
+  public filterParams: FilterParams = new FilterParams();
 
   deleteVariant = function () {
     const bids = this.variantService.variants
@@ -454,12 +455,6 @@ export class VariantExplorerComponent
     if (this.variantVisualisations) {
       for (let component of this.variantVisualisations) {
         component.variantDrawer.redraw();
-        if (
-          component.bid in this.arcsCache &&
-          this.arcsViewMode !== ArcsViewMode.HIDE_ALL
-        ) {
-          component.drawArcs();
-        }
       }
     }
   }
@@ -1249,6 +1244,10 @@ export class VariantExplorerComponent
       ...this.arcsMaxValues,
       distance: Math.max(maxDistance, this.arcsMaxValues.distance),
     };
+    this.filterParams.distanceRange.high = this.arcsMaxValues.distance;
+    this.filterParams.lengthRange.high = this.arcsMaxValues.length;
+    this.filterParams.sizeRange.high = this.arcsMaxValues.size;
+
     return variantViz;
   }
 
@@ -1275,21 +1274,16 @@ export class VariantExplorerComponent
             this.setupVariantVisualisationForArcDiagrams(
               variantViz,
               pairs
-            ).drawArcs(res.filterAfterComputation, res.filterParams);
+            ).drawArcs(this.filterParams);
           }
         }
       });
   }
 
-  computeAndDrawArcDiagram(
-    bids: string[] | number[],
-    filterAfterComputation: boolean = true,
-    filterParams?: FilterParams
-  ) {
+  computeAndDrawArcDiagram(bids: string[] | number[]) {
     let resubscribe = this.arcDiagramService.computeArcDiagrams(
       bids,
-      filterParams,
-      filterAfterComputation
+      this.filterParams
     );
     if (resubscribe) {
       this.subscribeForArcDiagramsComputationsResults();
@@ -1297,37 +1291,16 @@ export class VariantExplorerComponent
   }
 
   filterArcDiagrams(filterParams: FilterParams) {
-    const recomputeArcs =
-      this.hasArcDiagramActivitiesSelectionChanged(filterParams);
-    if (recomputeArcs) {
-      this.computeAndDrawArcDiagram(
-        Object.keys(this.arcsCache),
-        true,
-        filterParams
-      );
-    } else {
-      this.variantVisualisations.forEach((variantViz) => {
-        variantViz.drawArcs(true, filterParams);
-      });
-    }
+    this.filterParams = _.cloneDeep(filterParams);
+    this.computeAndDrawArcDiagram(Object.keys(this.arcsCache));
     this.lastArcsActivitiesFilter = new Set(
       filterParams.activitiesSelection.selectedItems
-    );
-  }
-
-  hasArcDiagramActivitiesSelectionChanged(filterParams: FilterParams) {
-    return !this.eqSet(
-      filterParams.activitiesSelection.selectedItems,
-      this.lastArcsActivitiesFilter
     );
   }
 
   newActivitiesLoaded(newActivities: Set<string>) {
     this.lastArcsActivitiesFilter = new Set(newActivities);
   }
-
-  eqSet = (xs: Set<any>, ys: Set<any>) =>
-    xs.size === ys.size && [...xs].every((x) => ys.has(x));
 
   toggleArcsVisibility() {
     if (

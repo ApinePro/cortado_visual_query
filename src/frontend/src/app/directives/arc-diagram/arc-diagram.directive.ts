@@ -140,7 +140,7 @@ export class ArcDiagramDirective {
           const level = levels.find(
             (lvl) =>
               lvl.distanceBetweenPairs ===
-              d.targetPos - d.sourcePos - d.numberEle - 1
+              d.targetPos - d.sourcePos - d.numberEle
           );
           return height - level.fromBottom * config.step - config.barHeight;
         })
@@ -194,7 +194,7 @@ export class ArcDiagramDirective {
             const baseHeight = levels.find(
               (lvl) =>
                 lvl.distanceBetweenPairs ===
-                d.targetPos - d.sourcePos - d.numberEle - 1
+                d.targetPos - d.sourcePos - d.numberEle
             )?.fromBottom;
             const levelHeight =
               height - baseHeight * config.step - config.barHeight;

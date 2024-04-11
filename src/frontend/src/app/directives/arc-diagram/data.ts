@@ -28,7 +28,7 @@ class Arc {
     this.text = text; /** String value of the arc */
     this.activities = activities;
     this.size = size;
-    this.distanceBetweenPairs = targetPos - sourcePos - numberEle - 1;
+    this.distanceBetweenPairs = targetPos - sourcePos - numberEle;
   }
 }
 

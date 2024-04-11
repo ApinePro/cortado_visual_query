@@ -34,6 +34,14 @@ export class VariantVisualisationComponent implements OnInit {
     ) {
       this.arcsRenderingInProgress = true;
     }
+
+    if (
+      this.bid in this.arcsCache &&
+      this.arcsViewMode !== ArcsViewMode.HIDE_ALL &&
+      this.arcDiagram
+    ) {
+      this.drawArcs();
+    }
   }
 
   // Define Callbacks
@@ -51,6 +59,8 @@ export class VariantVisualisationComponent implements OnInit {
   arcsCache: { [bid: string]: Pair[] };
   @Input()
   arcsViewMode: ArcsViewMode;
+  @Input()
+  filterParams: FilterParams;
 
   @ViewChild(ArcDiagramDirective)
   arcDiagram: ArcDiagramDirective;
@@ -65,20 +75,21 @@ export class VariantVisualisationComponent implements OnInit {
         patternSize >= filterParams.sizeRange.low &&
         arc.numberEle <= filterParams.lengthRange.high &&
         arc.numberEle >= filterParams.lengthRange.low &&
-        arc.distanceBetweenPairs <= filterParams.distanceRange.high - 1 &&
-        arc.distanceBetweenPairs >= filterParams.distanceRange.low - 1
+        arc.distanceBetweenPairs <= filterParams.distanceRange.high &&
+        arc.distanceBetweenPairs >= filterParams.distanceRange.low
       );
     });
   }
 
-  drawArcs(filterBeforeDrawing: boolean = false, filterParams?: FilterParams) {
+  drawArcs(filterParams?: FilterParams) {
     if (!(this.bid in this.arcsCache)) {
       return;
     }
     let { arcs } = this.arcDiagram.parseInput(this.arcsCache[this.bid]);
-    if (filterBeforeDrawing && filterParams) {
-      arcs = this.filterArcs(arcs, filterParams);
+    if (!filterParams) {
+      filterParams = this.filterParams;
     }
+    arcs = this.filterArcs(arcs, filterParams);
     this.arcDiagram.draw(this.variantDrawer, arcs);
     this.arcsRenderingInProgress = false;
   }
