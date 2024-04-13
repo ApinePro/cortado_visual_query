@@ -524,6 +524,15 @@ tr:hover > .fixed-right {
   user-select: none;
 }
 
+.general-dropdown {
+  background-color: var(--box-background-color);
+  color: var(--bs-white);
+}
+
+.dropdown-item:hover:enabled {
+  background-color: #4d4e50;
+}
+
 /* stylelint-disable-next-line selector-class-pattern */
 .lm_header .lm_tabdropdown_list .lm_tab .lm_title {
   width: 112px !important;
