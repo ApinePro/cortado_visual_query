@@ -160,7 +160,7 @@
       >
     </ng-template>
     <div
-      class="btn-group align-baseline dropDownParent dropdown ms-auto"
+      class="btn-group align-baseline dropdown ms-auto"
       [ngbTooltip]="tooltip4"
       triggers="hover"
       container="body"
@@ -175,88 +175,106 @@
         <i class="bi bi-sort-alpha-down btn-icon"></i>
       </button>
       <div
-        class="dropdown-menu custom-dropdown"
+        class="dropdown-menu custom-dropdown general-dropdown"
         id="sortDropdownMenu"
         aria-labelledby="sortDropdown"
       >
         <div class="fst-italic fw-bold ps-2 text-center">Sort</div>
-        <div class="fst-italic ps-2 text-primary">Order</div>
-        <div
-          class="dropdown-item"
-          (click)="onSortOrderChanged(true)"
-          [ngClass]="isAscendingOrder ? 'selected-dropdown-item' : ''"
-        >
-          <i class="bi bi-sort-down-alt btn-icon"></i>
-          <span class="ms-3">ascending</span>
+        <div class="fst-italic ps-2 text-dropdown">Order</div>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="onSortOrderChanged(true)"
+            [ngClass]="isAscendingOrder ? 'selected-dropdown-item' : ''"
+          >
+            <i class="bi bi-sort-down-alt btn-icon"></i>
+            <span class="ms-3">ascending</span>
+          </button>
         </div>
-        <div
-          class="dropdown-item"
-          (click)="onSortOrderChanged(false)"
-          [ngClass]="!isAscendingOrder ? 'selected-dropdown-item' : ''"
-        >
-          <i class="bi bi-sort-down btn-icon"></i>
-          <span class="ms-3">descending</span>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="onSortOrderChanged(false)"
+            [ngClass]="!isAscendingOrder ? 'selected-dropdown-item' : ''"
+          >
+            <i class="bi bi-sort-down btn-icon"></i>
+            <span class="ms-3">descending</span>
+          </button>
         </div>
-        <div class="fst-italic ps-2 text-primary">Feature</div>
-        <div
-          class="dropdown-item"
-          (click)="sort('number_of_activities')"
-          [ngClass]="
-            sortingFeature === 'number_of_activities'
-              ? 'selected-dropdown-item'
-              : ''
-          "
-        >
-          <i class="bi bi-chevron-double-right btn-icon"></i>
-          <span class="ms-3">activities</span>
+        <div class="fst-italic ps-2 text-dropdown">Feature</div>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="sort('number_of_activities')"
+            [ngClass]="
+              sortingFeature === 'number_of_activities'
+                ? 'selected-dropdown-item'
+                : ''
+            "
+          >
+            <i class="bi bi-chevron-double-right btn-icon"></i>
+            <span class="ms-3">activities</span>
+          </button>
         </div>
-        <div
-          class="dropdown-item"
-          (click)="sort('conformance')"
-          [ngClass]="
-            sortingFeature === 'conformance' ? 'selected-dropdown-item' : ''
-          "
-        >
-          <i class="bi bi-check-square btn-icon"></i>
-          <span class="ms-3">conformance</span>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="sort('conformance')"
+            [ngClass]="
+              sortingFeature === 'conformance' ? 'selected-dropdown-item' : ''
+            "
+          >
+            <i class="bi bi-check-square btn-icon"></i>
+            <span class="ms-3">conformance</span>
+          </button>
         </div>
-        <div
-          class="dropdown-item"
-          (click)="sort('count')"
-          [ngClass]="sortingFeature === 'count' ? 'selected-dropdown-item' : ''"
-        >
-          <i class="bi bi-123 btn-icon"></i>
-          <span class="ms-3">frequency</span>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="sort('count')"
+            [ngClass]="
+              sortingFeature === 'count' ? 'selected-dropdown-item' : ''
+            "
+          >
+            <i class="bi bi-123 btn-icon"></i>
+            <span class="ms-3">frequency</span>
+          </button>
         </div>
-        <div
-          class="dropdown-item"
-          (click)="sort('length')"
-          [ngClass]="
-            sortingFeature === 'length' ? 'selected-dropdown-item' : ''
-          "
-        >
-          <i class="bi bi-three-dots btn-icon"></i>
-          <span class="ms-3">length</span>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="sort('length')"
+            [ngClass]="
+              sortingFeature === 'length' ? 'selected-dropdown-item' : ''
+            "
+          >
+            <i class="bi bi-three-dots btn-icon"></i>
+            <span class="ms-3">length</span>
+          </button>
         </div>
-        <div
-          class="dropdown-item"
-          (click)="sort('sub_variants')"
-          [ngClass]="
-            sortingFeature === 'sub_variants' ? 'selected-dropdown-item' : ''
-          "
-        >
-          <i class="bi bi-bar-chart-steps"></i>
-          <span class="ms-3">sub-variants</span>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="sort('sub_variants')"
+            [ngClass]="
+              sortingFeature === 'sub_variants' ? 'selected-dropdown-item' : ''
+            "
+          >
+            <i class="bi bi-bar-chart-steps"></i>
+            <span class="ms-3">sub-variants</span>
+          </button>
         </div>
-        <div
-          class="dropdown-item"
-          (click)="sort('userDefined')"
-          [ngClass]="
-            sortingFeature === 'userDefined' ? 'selected-dropdown-item' : ''
-          "
-        >
-          <i class="bi bi-person-circle"></i>
-          <span class="ms-3">user created</span>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="sort('userDefined')"
+            [ngClass]="
+              sortingFeature === 'userDefined' ? 'selected-dropdown-item' : ''
+            "
+          >
+            <i class="bi bi-person-circle"></i>
+            <span class="ms-3">user created</span>
+          </button>
         </div>
       </div>
     </div>
@@ -279,7 +297,7 @@
         <i class="bi bi-clock btn-icon"></i>
       </button>
       <ul
-        class="dropdown-menu custom-dropdown"
+        class="dropdown-menu custom-dropdown general-dropdown"
         aria-labelledby="granularityDropdown"
       >
         <li *ngFor="let unit of timeUnit | keyvalue : originalOrder">
@@ -314,96 +332,115 @@
         <i class="bi bi-list btn-icon"></i>
       </button>
       <div
-        class="dropdown-menu custom-dropdown"
+        class="dropdown-menu custom-dropdown general-dropdown"
         id="sortDropdownMenu"
         aria-labelledby="sortDropdown"
       >
         <ng-container *ngIf="variantViewModeService.viewMode === VM.STANDARD">
-          <div
-            *ngIf="variantService.areVariantLoopsCollapsed"
-            class="dropdown-item"
-            style="color: green"
-            (click)="variantService.expandCollapseLoopsInVariants()"
-          >
-            <i
-              class="bi bi-arrow-repeat btn-icon cursor-pointer text-success"
-            ></i>
-            <span class="ms-3">Expand loops in variants</span>
+          <div>
+            <button
+              *ngIf="variantService.areVariantLoopsCollapsed"
+              class="dropdown-item"
+              style="color: green"
+              (click)="variantService.expandCollapseLoopsInVariants()"
+            >
+              <i
+                class="bi bi-arrow-repeat btn-icon cursor-pointer text-success"
+              ></i>
+              <span class="ms-3">Expand loops in variants</span>
+            </button>
           </div>
-          <div
-            *ngIf="!variantService.areVariantLoopsCollapsed"
-            class="dropdown-item"
-            (click)="variantService.expandCollapseLoopsInVariants()"
-          >
-            <i class="bi bi-arrow-repeat btn-icon cursor-pointer"></i>
-            <span class="ms-3">Collapse loops in variants</span>
+          <div>
+            <button
+              *ngIf="!variantService.areVariantLoopsCollapsed"
+              class="dropdown-item"
+              (click)="variantService.expandCollapseLoopsInVariants()"
+            >
+              <i class="bi bi-arrow-repeat btn-icon cursor-pointer"></i>
+              <span class="ms-3">Collapse loops in variants</span>
+            </button>
           </div>
         </ng-container>
         <ng-container
           *ngIf="variantViewModeService.viewMode !== VM.PERFORMANCE"
         >
-          <div
-            *ngIf="areAllVariantsExpanded()"
-            class="dropdown-item"
-            (click)="expandCollapseAll()"
-          >
-            <i
-              class="bi bi-arrows-collapse btn-icon cursor-pointer rotate-90"
-            ></i>
-            <span class="ms-3">Collapse all variants</span>
+          <div>
+            <button
+              *ngIf="areAllVariantsExpanded()"
+              class="dropdown-item"
+              (click)="expandCollapseAll()"
+            >
+              <i
+                class="bi bi-arrows-collapse btn-icon cursor-pointer rotate-90"
+              ></i>
+              <span class="ms-3">Collapse all variants</span>
+            </button>
           </div>
-          <div
-            *ngIf="!areAllVariantsExpanded()"
-            class="dropdown-item"
-            (click)="expandCollapseAll()"
-          >
-            <i
-              class="bi bi-arrows-expand btn-icon cursor-pointer rotate-90"
-            ></i>
-            <span class="ms-3">Expand all variants</span>
+          <div>
+            <button
+              *ngIf="!areAllVariantsExpanded()"
+              class="dropdown-item"
+              (click)="expandCollapseAll()"
+            >
+              <i
+                class="bi bi-arrows-expand btn-icon cursor-pointer rotate-90"
+              ></i>
+              <span class="ms-3">Expand all variants</span>
+            </button>
           </div>
         </ng-container>
         <ng-container *ngIf="variantViewModeService.viewMode === VM.STANDARD">
-          <div
-            class="dropdown-item"
-            (click)="showVariantSequentializerDialog()"
-          >
-            <i class="bi bi-bar-chart-steps btn-icon cursor-pointer"></i>
-            <span class="ms-3">Variant sequentializer</span>
+          <div>
+            <button
+              class="dropdown-item"
+              (click)="showVariantSequentializerDialog()"
+            >
+              <i class="bi bi-bar-chart-steps btn-icon cursor-pointer"></i>
+              <span class="ms-3">Variant sequentializer</span>
+            </button>
           </div>
         </ng-container>
-        <div
-          *ngIf="
-            variantViewModeService.viewMode === VM.STANDARD &&
-            !variantService.areVariantLoopsCollapsed &&
-            !traceInfixSelectionMode
-          "
-          class="dropdown-item"
-          (click)="toggleTraceInfixSelectionMode()"
-        >
-          <i class="bi bi-ui-checks-grid"></i>
-          <span class="ms-3">Trace fragment selection mode</span>
+        <div>
+          <button
+            *ngIf="
+              variantViewModeService.viewMode === VM.STANDARD &&
+              !traceInfixSelectionMode
+            "
+            class="dropdown-item"
+            (click)="toggleTraceInfixSelectionMode()"
+          >
+            <i class="bi bi-ui-checks-grid"></i>
+            <span class="ms-3">Trace fragment selection mode</span>
+          </button>
         </div>
-        <div
-          *ngIf="
-            variantViewModeService.viewMode === VM.STANDARD &&
-            !variantService.areVariantLoopsCollapsed &&
-            traceInfixSelectionMode
-          "
-          class="dropdown-item"
-          style="color: green"
-          (click)="toggleTraceInfixSelectionMode()"
-        >
-          <i class="bi bi-ui-checks-grid"></i>
-          <span class="ms-3">Exit trace fragment selection mode</span>
+        <div>
+          <button
+            *ngIf="
+              variantViewModeService.viewMode === VM.STANDARD &&
+              traceInfixSelectionMode
+            "
+            class="dropdown-item"
+            style="color: green"
+            (click)="toggleTraceInfixSelectionMode()"
+          >
+            <i class="bi bi-ui-checks-grid"></i>
+            <span class="ms-3">Exit trace fragment selection mode</span>
+          </button>
         </div>
-        <div class="dropdown-item" (click)="openClusteringSettingsDialog()">
-          <i class="bi bi-grid-1x2"></i>
-          <span class="ms-3">Variant clustering</span>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="openClusteringSettingsDialog()"
+          >
+            <i class="bi bi-grid-1x2"></i>
+            <span class="ms-3">Variant clustering</span>
+          </button>
         </div>
-        <div class="dropdown-item" (click)="exportVariantSVG()">
-          <i class="bi bi-save"></i>
-          <span class="ms-3">Export the view as an .svg</span>
+        <div>
+          <button class="dropdown-item" (click)="exportVariantSVG()">
+            <i class="bi bi-save"></i>
+            <span class="ms-3">Export the view as an .svg</span>
+          </button>
         </div>
       </div>
     </div>
