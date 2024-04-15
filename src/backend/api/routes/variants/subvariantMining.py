@@ -231,14 +231,16 @@ def sub_pattern_to_ctree(pattern: SubPattern, parent=None):
 def serialize_result(data):
     result = {}
     for key, value in data.items():
-        if key == 'pairs':
+        if key == "pairs":
             result[key] = {k: [p.serialize() for p in v] for k, v in value.items()}
         else:
             result[key] = value
     return result
 
 
-def mine_repetition_patterns_with_timeout(config: RepetitionsMiningConfig, cached_variants, cached_activities, timeout: int):
+def mine_repetition_patterns_with_timeout(
+    config: RepetitionsMiningConfig, cached_variants, cached_activities, timeout: int
+):
     result = {}
 
     filter_activities = len(config.filters.activitiesToInclude) > 0 and len(
@@ -258,7 +260,6 @@ def mine_repetition_patterns_with_timeout(config: RepetitionsMiningConfig, cache
     maximal_size, maximal_length = 1, 1
 
     for bid in config.bids:
-
         if bid in cached_variants:
             v, ts, _, _ = cached_variants[bid]
         else:
@@ -302,13 +303,10 @@ def mine_repetition_patterns_with_timeout(config: RepetitionsMiningConfig, cache
 
 
 def get_repetition_mining_callback(websocket: WebSocket):
-
     def send_response(data):
-
         result = serialize_result(data)
 
         try:
-
             if websocket.application_state == WebSocketState.CONNECTED:
                 asyncio.run(websocket.send_json(result))
 

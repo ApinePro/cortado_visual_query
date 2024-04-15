@@ -34,7 +34,6 @@ async def get_event_log():
 
 @router.get("/resetLogCache")
 async def reset_log_cache():
-
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
         cache.variants = pickle.load(open("./_internal/resources/variants.p", "rb"))
         cache.parameters = pickle.load(open("./_internal/resources/parameters.p", "rb"))
