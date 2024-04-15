@@ -21,11 +21,12 @@
     },
     "mac": {
       "target": "dmg",
-      "icon": "src/assets/icons/mac/icon.icns",
+      "icon": "src/assets/icons/png/",
       "executableName": "cortado",
       "extraFiles": [
         "cortado-backend/**"
-      ]
+      ],
+      "identity": null
     },
     "afterAllArtifactBuild": "build-hooks/afterAllArtifactBuild.js"
   },
