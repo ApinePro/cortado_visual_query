@@ -217,7 +217,6 @@ ul.scrollspy-nav > .second::before {
 
 img[alt="xxxsmall"] { width: calc(8vw); }
 img[alt="xxsmall"] { width: calc(13vw); }
-
 img[alt="xsmall"] { width: calc(20vw); }
 img[alt="small"] { width: calc(30vw); }
 img[alt="medium"] { width: calc(40vw); }
@@ -225,6 +224,14 @@ img[alt="large"] { width: calc(50vw); }
 img[alt="xlarge"] { width: calc(60vw); }
 img[alt="xxlarge"] { width: calc(70vw); }
 
+.xxxsmall { width: calc(8vw); }
+.xxsmall { width: calc(13vw); }
+.xsmall { width: calc(20vw); }
+.small { width: calc(30vw); }
+.medium { width: calc(40vw); }
+.large { width: calc(50vw); }
+.xlarge { width: calc(60vw); }
+.xxlarge { width: calc(70vw); }
 
 .xxxsmall-img { width: calc(8vw); }
 .xxsmall-img { width: calc(13vw); }

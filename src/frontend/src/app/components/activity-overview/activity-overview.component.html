@@ -201,7 +201,7 @@
                 class="color-picker-div"
                 [style.color]="activityField.color"
                 [cpPosition]="'auto'"
-                [(colorPicker)]="color"
+                [(colorPicker)]="activityField.color"
                 [cpOutputFormat]="'hex'"
                 [cpUseRootViewContainer]="true"
                 [cpCloseClickOutside]="false"
@@ -211,7 +211,9 @@
                 [cpCancelButtonClass]="'button cp-button'"
                 [cpOKButton]="true"
                 [cpOKButtonClass]="'button cp-button'"
-                (colorPickerSelect)="changeActivityColor(activityField, color)"
+                (colorPickerSelect)="
+                  changeActivityColor(activityField, activityField.color)
+                "
               >
                 &nbsp;&nbsp;&nbsp;&nbsp;
               </div>

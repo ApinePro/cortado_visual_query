@@ -211,12 +211,16 @@
 
 .dropdown-menu {
   border-radius: 0;
-  background-color: lightgray;
   overflow-y: auto;
+  color: lightgray;
 }
 
 .selected-dropdown-item {
-  background-color: var(--bs-blue);
+  background-color: #66686b;
+  color: lightgray;
+}
+
+.dropdown-item {
   color: var(--bs-white);
 }
 
@@ -296,4 +300,8 @@ thead {
 .form-switch .form-check-input:checked {
     background-color: #161693;
   border-color: whitesmoke;
+}
+
+.text-dropdown {
+  color: var(--bs-white);
 }
