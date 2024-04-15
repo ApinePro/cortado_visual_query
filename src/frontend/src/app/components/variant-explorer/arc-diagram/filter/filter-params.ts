@@ -8,7 +8,7 @@ export class FilterParams {
   constructor() {
     this.distanceRange = {
       low: 0,
-      high: 2,
+      high: 20,
       options: {
         step: 1,
         floor: 0,

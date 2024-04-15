@@ -1244,9 +1244,18 @@ export class VariantExplorerComponent
       ...this.arcsMaxValues,
       distance: Math.max(maxDistance, this.arcsMaxValues.distance),
     };
-    this.filterParams.distanceRange.high = this.arcsMaxValues.distance;
-    this.filterParams.lengthRange.high = this.arcsMaxValues.length;
-    this.filterParams.sizeRange.high = this.arcsMaxValues.size;
+    this.filterParams.distanceRange.high = Math.max(
+      this.filterParams.distanceRange.high,
+      this.arcsMaxValues.distance
+    );
+    this.filterParams.lengthRange.high = Math.max(
+      this.filterParams.lengthRange.high,
+      this.arcsMaxValues.length
+    );
+    this.filterParams.sizeRange.high = Math.max(
+      this.filterParams.sizeRange.high,
+      this.arcsMaxValues.size
+    );
 
     return variantViz;
   }
