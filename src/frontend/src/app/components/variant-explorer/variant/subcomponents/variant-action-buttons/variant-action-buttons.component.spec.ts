@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { VariantDeleteButtonComponent } from './variant-delete-button.component';
+import { VariantActionButtonsComponent } from './variant-action-buttons.component';
 
 describe('VariantDeleteButtonComponent', () => {
-  let component: VariantDeleteButtonComponent;
-  let fixture: ComponentFixture<VariantDeleteButtonComponent>;
+  let component: VariantActionButtonsComponent;
+  let fixture: ComponentFixture<VariantActionButtonsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [VariantDeleteButtonComponent],
+      declarations: [VariantActionButtonsComponent],
     }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(VariantDeleteButtonComponent);
+    fixture = TestBed.createComponent(VariantActionButtonsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

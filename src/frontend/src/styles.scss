@@ -29,6 +29,8 @@ $tooltip-max-width: 450px;
   --bs-bg-opacity: 100%;
   --bs-font-sans-serif:  "Roboto", sans-serif;
   --bs-font-monospace: "Roboto Mono", monospace;
+  --bs-accordion-btn-icon-transform: rotate(-180deg);
+  --btn-hover-color: #515a64;
 }
 
 .monaco-editor {
@@ -93,7 +95,7 @@ body {
 }
 
 .button:hover:enabled {
-  background-color: #515a64;
+  background-color: var(--btn-hover-color);
 }
 
 .btn-tool-bar {
@@ -119,6 +121,12 @@ hr {
   color: var(--text-secondary);
   font-size: var(--standard-font-size);
 }
+
+.primary-text {
+  color: var(--text-primary);
+  font-size: var(--standard-font-size);
+}
+
 
 .secondary-text-color {
   color: var(--text-secondary);
@@ -301,7 +309,6 @@ th {
 }
 
 .accordion-button {
-  background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity)) !important;
   color: whitesmoke !important;
   display: flex;
   justify-content: space-between;
@@ -320,7 +327,7 @@ th {
 .accordion-item {
   border-left: none;
   border-right: none;
-  background-color: unset;
+  background-color: var(--box-background-color);
   border-bottom-right-radius: unset;
   border-bottom-left-radius: unset;
 
@@ -506,12 +513,10 @@ th {
 
 .remove-variant-button {
   display: none;
-  background-color: var(--box-background-color);
 }
 
 tr:hover > td .remove-variant-button {
   display: inline !important;
-  background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity)) !important;
 }
 
 tr:hover > .fixed-right {
@@ -570,6 +575,11 @@ pre code {
 .markdown-table {
   border: 1px solid rgb(255 255 255 / 68%);
   padding: 3px;
+}
+
+.accordion {
+  --bs-accordion-btn-icon-transform: rotate(-180deg);
+  --bs-accordion-active-bg: var(--btn-hover-color);
 }
 
 /* stylelint-disable-next-line selector-class-pattern */

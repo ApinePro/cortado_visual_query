@@ -40,7 +40,11 @@
   border-top: black solid 1px;
   z-index: 2;
   max-width: 500px;
-  max-height: 350px;
+
+  // max-height: 650px;
+  color: var(--text-secondary);
+  width: auto !important;
+  height: auto !important;
 }
 
 .query-bar-drop {
@@ -62,7 +66,9 @@
 
 .query-app-container {
   width: 100%;
-  height: 100%;
+
+  // height: 100%;
+  // min-height: 100px;
   background-color: var(--box-background-color);
 }
 
@@ -128,7 +134,7 @@
 .badge-close-position {
   transform: translate(-50%, -35%) scale(0.6);
   left: 100%;
-  top: 0%;
+  top: 0;
   position: relative;
 }
 
@@ -224,7 +230,7 @@
 }
 
 .query-info-button {
-  background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity));
+  background-color: rgb(var(--bs-accordion-active-bg));
   font-size: 12px;
   color: #ddd;
   border: none;

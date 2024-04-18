@@ -141,6 +141,7 @@ def create_variant_object(
     info: VariantInformation,
 ):
     sub_variants = create_subvariants(ts, time_granularity)
+    # v.assign_dfs_ids()
 
     # Default value of clusterId in a variant = -1
     variant = {

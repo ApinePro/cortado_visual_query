@@ -1,6 +1,6 @@
 import { SharedDataService } from 'src/app/services/sharedDataService/shared-data.service';
 import { HttpClient } from '@angular/common/http';
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { catchError, map, mergeMap, take, tap, toArray } from 'rxjs/operators';
 import { Configuration } from 'src/app/components/settings/model';
@@ -23,6 +23,7 @@ import { ClusteringConfig } from 'src/app/objects/ClusteringConfig';
 })
 export class BackendService {
   public retryEventLogSelection = new Subject();
+  public cancelOtherBgTasks = new Subject();
 
   constructor(
     private httpClient: HttpClient,
@@ -653,5 +654,9 @@ export class BackendService {
         caseId: caseId,
       }
     );
+  }
+
+  get _cancelOtherBgTasks$(): Observable<any> {
+    return this.cancelOtherBgTasks.asObservable();
   }
 }

@@ -97,8 +97,9 @@ textarea:focus{
   align-items: flex-start;
   width: 100%;
   place-content: flex-start flex-start;
-  position: absolute;
-  bottom: 0;
+
+  // position: absolute;
+  // bottom: 0;
 }
 
 .dropdown-menu {

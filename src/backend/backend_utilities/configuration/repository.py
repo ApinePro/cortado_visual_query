@@ -35,6 +35,9 @@ class Configuration:
             number_of_sequentializations_per_variant
         )
 
+    def __getitem__(self, key):
+        return self[key]
+
 
 class ConfigurationRepository(abc.ABC):
     @abc.abstractmethod
