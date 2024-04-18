@@ -62,7 +62,9 @@ import {
   SequencePattern,
   LeafPattern,
   ParallelPattern,
+  CardinalityDirection,
 } from 'src/app/objects/Variants/variant_element';
+import { collapsingText, fadeInText } from 'src/app/animations/text-animations';
 import { ImageExportService } from 'src/app/services/imageExportService/image-export-service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
@@ -84,6 +86,7 @@ import { log } from 'console';
   templateUrl: './graphical-query-editor.component.html',
   styleUrls: ['./graphical-query-editor.component.css'],
   animations: [
+    ,fadeInText, collapsingText,
     trigger('collapse', [
       transition(':enter', [
         style({ opacity: '0', width: '0px', overflow: 'hidden' }),
@@ -179,6 +182,10 @@ export class GraphicalQueryEditorComponent
 
   insertionStrategy = activityInsertionStrategy;
   selectedStrategy = this.insertionStrategy.behind;
+
+  cardinalityDirection = CardinalityDirection;
+  cardiDirect = this.cardinalityDirection.vertical;
+  
 
   variantEnrichedSelection: Selection<any, any, any, any>; //selection of variant
   zoom: any;
@@ -1323,16 +1330,16 @@ export class GraphicalQueryEditorComponent
         this.insertOuterPattern(parent, selectedElement);
         parent = this.findParent((this.selectedRootNode?.data as QueryTree).pattern, selectedElement[0]);
       }
-      parent.asPattern().cardinality += 1;
+      parent.asPattern().verticalCardi += 1;
     }
     else if (selectedElement[0] instanceof LeafPattern){
-      (selectedElement[0] as any).asPattern().cardinality += 1;
+      (selectedElement[0] as any).asPattern().verticalCardi += 1;
     }
     else if ((selectedElement[0] as any).getElements().length > 1){
-      (selectedElement[0] as any).asPattern().cardinality += 1;
+      (selectedElement[0] as any).asPattern().verticalCardi += 1;
     }
     else{
-      (selectedElement[0] as any).getElements()[0].asPattern().cardinality += 1;
+      (selectedElement[0] as any).getElements()[0].asPattern().verticalCardi += 1;
     }
     console.log((this.selectedRootNode?.data as QueryTree).pattern);
     console.log("Added cardinality");
@@ -1340,8 +1347,8 @@ export class GraphicalQueryEditorComponent
   }
 
   reduceCardinality() {
-    if (this.currentVariant.asPattern().cardinality > 0) {
-      this.currentVariant.asPattern().cardinality -= 1;
+    if (this.currentVariant.asPattern().verticalCardi > 0) {
+      this.currentVariant.asPattern().verticalCardi -= 1;
       this.triggerRedraw();
     }
   }

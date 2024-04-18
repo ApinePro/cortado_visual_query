@@ -1547,10 +1547,11 @@ export class EndGroup extends VariantElement {
 }
 
 interface QueryPattern {
-  cardinality: number;
-  cardiOperator: CardinalityOperator;
+  verticalCardi: number;
+  horizontalCardi: number;
+  verticalCardiOp: CardinalityOperator;
+  horizontalCardiOp: CardinalityOperator;
   eventually: boolean;
-  cardiDirect: CardinalityDirection;
 }
 
 export class LeafPattern extends LeafNode implements QueryPattern {
@@ -1560,31 +1561,35 @@ export class LeafPattern extends LeafNode implements QueryPattern {
     public conformance: number[] = undefined
   ) {
     super(performance);
-    this.cardinality = 1;
-    this.cardiOperator = CardinalityOperator.equal;
+    this.verticalCardi = 1;
+    this.horizontalCardi = 1;
+    this.verticalCardiOp = CardinalityOperator.equal;
+    this.horizontalCardiOp = CardinalityOperator.equal;
     this.eventually = false;
-    this.cardiDirect = CardinalityDirection.vertical;
   }
 
-  public cardinality: number;
-  public cardiOperator: CardinalityOperator;
+  public verticalCardi: number;
+  public horizontalCardi: number;
+  public verticalCardiOp: CardinalityOperator;
+  public horizontalCardiOp: CardinalityOperator;
   public eventually: boolean;
-  public cardiDirect: CardinalityDirection;
 
 }
 
 export class SequencePattern extends SequenceGroup implements QueryPattern {
   constructor(public elements: VariantElement[], performance: any = undefined) {
     super(performance);
-    this.cardinality = 1;
-    this.cardiOperator = CardinalityOperator.equal;
+    this.verticalCardi = 1;
+    this.horizontalCardi = 1;
+    this.verticalCardiOp = CardinalityOperator.equal;
+    this.horizontalCardiOp = CardinalityOperator.equal;
     this.eventually = false;
-    this.cardiDirect = CardinalityDirection.vertical;
   }
-  public cardinality: number;
-  public cardiOperator: CardinalityOperator;
+  public verticalCardi: number;
+  public horizontalCardi: number;
+  public verticalCardiOp: CardinalityOperator;
+  public horizontalCardiOp: CardinalityOperator;
   public eventually: boolean;
-  public cardiDirect: CardinalityDirection;
 
   public getHeight(): number {
     if (this.height) {
@@ -1608,7 +1613,7 @@ export class SequencePattern extends SequenceGroup implements QueryPattern {
     if (!(this.parent instanceof SkipGroup))
       this.height += this.getMarginY() * 2;
 
-    if(this.cardinality > 1){
+    if(this.verticalCardi > 1 || this.horizontalCardi > 1){
         this.height += 2 * VARIANT_Constants.CARDI_MARGIN_Y;
       }
     return this.height;
@@ -1626,7 +1631,7 @@ export class SequencePattern extends SequenceGroup implements QueryPattern {
         this.getHeadLength() -
         this.elements[0].getHeadLength();
 
-    if(this.cardinality > 1){
+    if(this.verticalCardi > 1 || this.horizontalCardi > 1){
       this.width += 2 * VARIANT_Constants.CARDI_MARGIN_X;
     }
     return this.width;
@@ -1636,15 +1641,17 @@ export class SequencePattern extends SequenceGroup implements QueryPattern {
 export class ParallelPattern extends ParallelGroup implements QueryPattern {
   constructor(public elements: VariantElement[], performance: any = undefined) {
     super(performance);
-    this.cardinality = 1;
-    this.cardiOperator = CardinalityOperator.equal;
+    this.verticalCardi = 1;
+    this.horizontalCardi = 1;
+    this.verticalCardiOp = CardinalityOperator.equal;
+    this.horizontalCardiOp = CardinalityOperator.equal;
     this.eventually = false;
-    this.cardiDirect = CardinalityDirection.vertical;
   }
-  public cardinality: number;
-  public cardiOperator: CardinalityOperator;
+  public verticalCardi: number;
+  public horizontalCardi: number;
+  public verticalCardiOp: CardinalityOperator;
+  public horizontalCardiOp: CardinalityOperator;
   public eventually: boolean;
-  public cardiDirect: CardinalityDirection;
 
   public getHeight(): number {
     if (this.height) {
@@ -1667,7 +1674,7 @@ export class ParallelPattern extends ParallelGroup implements QueryPattern {
         .map((el: VariantElement) => el.getHeight() + this.getMarginY())
         .reduce((a: number, b: number) => a + b) + VARIANT_Constants.MARGIN_Y;
     
-    if(this.cardinality > 1){
+    if(this.verticalCardi > 1 || this.horizontalCardi > 1){
       this.height += 2 * VARIANT_Constants.CARDI_MARGIN_Y;
     }
     return this.height;
@@ -1685,7 +1692,7 @@ export class ParallelPattern extends ParallelGroup implements QueryPattern {
       VARIANT_Constants.MARGIN_X +
       2 * headLength;
 
-    if(this.cardinality > 1){
+    if(this.verticalCardi > 1 || this.horizontalCardi > 1){
         this.width += 2 * VARIANT_Constants.CARDI_MARGIN_X;
       }
     return this.width;

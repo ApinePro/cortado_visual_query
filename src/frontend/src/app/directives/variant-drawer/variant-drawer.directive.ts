@@ -559,7 +559,6 @@ export class VariantDrawerDirective
         .select(this.svgHtmlElement.nativeElement)
         .classed('in-variant-modeler') ||
       d3.select(this.svgHtmlElement.nativeElement).classed('pattern-variant');
-
     if (
       (!outerElement ||
         inEditor ||

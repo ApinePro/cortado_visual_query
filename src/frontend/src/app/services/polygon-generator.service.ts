@@ -37,6 +37,7 @@ export class PolygonGeneratorService {
     return str;
   }
 
+  /*
   getSquarePolygonPoints(width: number, height: number): string {
     let key = `${width},${height}`;
     if (this.cache.has(key)) {
@@ -63,5 +64,5 @@ export class PolygonGeneratorService {
     this.cache.set(key, str);
 
     return str;
-  }
+  }*/
 }
