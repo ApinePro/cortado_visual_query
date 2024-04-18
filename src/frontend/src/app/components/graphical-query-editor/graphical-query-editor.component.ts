@@ -492,23 +492,24 @@ export class GraphicalQueryEditorComponent
       return variant;
     } else {
       if (variant instanceof ParallelGroup) {
-        return new ParallelGroup(children);
+        return new ParallelPattern(children);
       } else if (variant instanceof ChoiceGroup) {
         return new ChoiceGroup(children);
       } else if (variant instanceof FallthroughGroup) {
         return new FallthroughGroup(children);
       } else {
-        return new SequenceGroup(children);
+        return new SequencePattern(children);
       }
     }
   }
 
   handleActivityButtonClick(event, nodevariant) {
-    if (this.selectedElement || this.emptyVariant) {
+    if (this.selectedElement || this.emptyVariant || !nodevariant.pattern) {
       const leaf = new LeafPattern([event.activityName]);
       this.newLeaf = leaf;
 
-      if (this.emptyVariant) {
+
+      if (this.emptyVariant || !nodevariant.pattern) {
         nodevariant.pattern = new SequencePattern([leaf]);
         nodevariant.pattern.setExpanded(true);
         this.emptyVariant = false;
@@ -618,9 +619,9 @@ export class GraphicalQueryEditorComponent
       grandParent.setElements(parentSiblings);
     } else {
       const index = children.indexOf(selectedElement[0]);
-      const newParent = new ParallelGroup([
+      const newParent = new ParallelPattern([
         leaf,
-        new SequenceGroup(selectedElement),
+        new SequencePattern(selectedElement),
       ]);
       children.splice(index, selectedElement.length);
       children.splice(index, 0, newParent);
@@ -639,7 +640,7 @@ export class GraphicalQueryEditorComponent
       const index = children.indexOf(selectedElement);
       if (variant && variant === selectedElement) {
         variant.setElements([
-          new ParallelGroup([leaf, this.reconstructVariant(variant)]),
+          new ParallelPattern([leaf, this.reconstructVariant(variant)]),
         ]);
       } else if (index > -1) {
         // Handle parent ParallelGroup
@@ -655,7 +656,7 @@ export class GraphicalQueryEditorComponent
             children.splice(
               index,
               1,
-              new ParallelGroup([leaf, selectedElement])
+              new ParallelPattern([leaf, selectedElement])
             );
           }
         }
@@ -839,7 +840,7 @@ export class GraphicalQueryEditorComponent
             children.splice(
               index,
               1,
-              new SequenceGroup([selectedElement, leaf])
+              new SequencePattern([selectedElement, leaf])
             );
           } else {
             // Inserting behind a ParallelGroup inside a ParallelGroup
@@ -847,7 +848,7 @@ export class GraphicalQueryEditorComponent
               children.splice(
                 children.indexOf(selectedElement),
                 1,
-                new SequenceGroup([selectedElement, leaf])
+                new SequencePattern([selectedElement, leaf])
               );
 
               // Inserting behind a SequeneGroup inside a ParallelGroup
@@ -889,7 +890,7 @@ export class GraphicalQueryEditorComponent
             children.splice(
               index,
               1,
-              new SequenceGroup([leaf, selectedElement])
+              new SequencePattern([leaf, selectedElement])
             );
           } else {
             // Inserting infront a ParallelGroup inside a ParallelGroup
@@ -897,7 +898,7 @@ export class GraphicalQueryEditorComponent
               children.splice(
                 children.indexOf(selectedElement),
                 1,
-                new SequenceGroup([leaf, selectedElement])
+                new SequencePattern([leaf, selectedElement])
               );
 
               // Inserting infront a SequeneGroup inside a ParallelGroup
@@ -1396,6 +1397,9 @@ export class GraphicalQueryEditorComponent
       this.selectSubtreeFromRoot(selectedRoot.node(), node);
 
       this.checkNodeInsertionStrategy(this.selectedRootNode.data);
+      //added
+      this.currentVariant = node.data.pattern;
+      this.emptyVariant = (node.data.pattern == null);
     }
   }
 
@@ -1515,8 +1519,11 @@ export class GraphicalQueryEditorComponent
 
   editLeafNode(event) {
     let selectedNode = this.selectedRootNode?.data;
-    //console.log('Insert variant');
+    console.log('Insert variant');
+    console.log(selectedNode);
     if (selectedNode instanceof QueryTree) {
+      console.log('start insert');
+      console.log('start insert');
       this.handleActivityButtonClick(event, selectedNode as QueryTree);
       //console.log((selectedNode as QueryTree).pattern);
     }
@@ -1731,11 +1738,15 @@ export class GraphicalQueryEditorComponent
 
   private selectSubtreeFromRoot = function (svgGroup, d) {
     // Unselect All Edges and Rect
-    this.mainSvgGroup.selectAll('rect').each((d) => {
+    this.mainSvgGroup.selectAll('rect')
+    .filter((d: any) => {return d.data})
+    .each((d) => {
       d.data.selected = false;
     });
 
-    this.mainSvgGroup.selectAll('rect').classed('selected-node', false);
+    this.mainSvgGroup.selectAll('rect')
+    .filter((d: any) => {return d.data})
+    .classed('selected-node', false);
     this.mainSvgGroup.selectAll('line').classed('selected-edge', false);
 
     // Select the node, if it isn't selected yet

@@ -62,7 +62,6 @@ export class ProcessTreeDrawerDirective {
     } else {
       this.root = null;
     }
-    console.log('qwfq2');
     // synchronization between update of node width cache and process tree rendering
     setTimeout(() => this.update(this.root), 0);
   }

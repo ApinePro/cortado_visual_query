@@ -898,6 +898,7 @@ export class QueryTreeDrawerDirective {
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
     
+    console.log(element);
       //add cardinality dashed box
     if(element.asPattern().verticalCardi > 1 || element.asPattern().horizontalCardi > 1){
         parent.append('rect')
