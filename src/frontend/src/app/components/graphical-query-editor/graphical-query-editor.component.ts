@@ -1304,7 +1304,6 @@ export class GraphicalQueryEditorComponent
   }
 
   addCardinality() {
-    console.log("Now adding cardinality");
     const selectedElement = this.variantEnrichedSelection
           .selectAll('.selected-variant-g')
           .data();
@@ -1330,16 +1329,36 @@ export class GraphicalQueryEditorComponent
         this.insertOuterPattern(parent, selectedElement);
         parent = this.findParent((this.selectedRootNode?.data as QueryTree).pattern, selectedElement[0]);
       }
-      parent.asPattern().verticalCardi += 1;
+      if(this.cardiDirect == this.cardinalityDirection.vertical){
+        parent.asPattern().verticalCardi += 1;
+      }
+      else{
+        parent.asPattern().horizontalCardi += 1;
+      }
     }
     else if (selectedElement[0] instanceof LeafPattern){
-      (selectedElement[0] as any).asPattern().verticalCardi += 1;
+      if(this.cardiDirect == this.cardinalityDirection.vertical){
+        (selectedElement[0] as any).asPattern().verticalCardi += 1;
+      }
+      else{
+        (selectedElement[0] as any).asPattern().horizontalCardi += 1;
+      }
     }
     else if ((selectedElement[0] as any).getElements().length > 1){
-      (selectedElement[0] as any).asPattern().verticalCardi += 1;
+      if(this.cardiDirect == this.cardinalityDirection.vertical){
+        (selectedElement[0] as any).asPattern().verticalCardi += 1;
+      }
+      else{
+        (selectedElement[0] as any).asPattern().horizontalCardi += 1;
+      }
     }
     else{
-      (selectedElement[0] as any).getElements()[0].asPattern().verticalCardi += 1;
+      if(this.cardiDirect == this.cardinalityDirection.vertical){
+        (selectedElement[0] as any).getElements()[0].asPattern().verticalCardi += 1;
+      }
+      else{
+        (selectedElement[0] as any).getElements()[0].asPattern().horizontalCardi += 1;
+      }
     }
     console.log((this.selectedRootNode?.data as QueryTree).pattern);
     console.log("Added cardinality");
