@@ -19,10 +19,13 @@ const backendWorkDir = path.join(
   // so must move one level up to find `cortado-backend`
   "cortado-backend"
 );
-const backendExecutablePath = path.join(
+const rawBackendExecutablePath = path.join(
   backendWorkDir,
   process.platform === "win32" ? "cortado-backend.exe" : "cortado-backend"
 );
+
+const backendExecutablePath = `"${rawBackendExecutablePath}"`
+
 const lastAcceptedVersionKey = "lastAcceptedVersion";
 const isDevelopment = process.env.NODE_ENV === "development";
 
