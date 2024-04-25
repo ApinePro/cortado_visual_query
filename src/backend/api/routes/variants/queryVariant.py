@@ -28,11 +28,16 @@ def variant_query(query: variantQuery):
 
 @router.post("/graphical-variant-query")
 def graphical_variant_query(graphical_query: graphicalVariantQuery):
+    res = []
     print(graphical_query)
-    res = deserialize_query(graphical_query)
+    #print(cache.variants.items())
+    query = deserialize_query(graphical_query)
     for bid, (variant, _, _, info) in cache.variants.items():
-        pass
-    return "Apine!"
+        if check_node(query ,variant):
+            res.append(bid)
+        #print("")
+        print(check_node(query ,variant))
+    return {res: res}
 
 def deserialize_query(graphical_query):
     query_tree = {}
@@ -46,12 +51,59 @@ def deserialize_query(graphical_query):
 
 #c.deserialize this
 
-def variant_query(query: variantQuery):
-    res = evaluate_query_against_variant_graphs(
-        query, cache.variants, cache.parameters["activites"]
-    )
+def check_node(node, variant):
+    result = True
+    if node["operator"] == 'AND':
+        for child in node["children"]: 
+            result = result & check_node(child)
+    if node["operator"] == 'OR':
+        for child in node["children"]: 
+            result = result | check_node(child)
+    if node["operator"] == 'X':
+        check_pattern(node["pattern"], variant)
+    if node["negation"] == True:
+        return not result
+    else:
+        return result
 
-    for bid in res["ids"]:
-        print(cache.variants[bid][0])
+def check_pattern(pattern, variant):
+    while len(pattern) != 0:
+        p_head = head_pattern(pattern)
+        v_head = head_variant(variant)
+        if not fit(p_head, v_head):
+            return False
+        else:
+            pattern = cut_head(pattern)
+            variant = cut_head(variant)
 
-    return res
+def head_pattern(pattern):
+    if "follows" in pattern:
+        if "follows" in pattern["follows"][1]:
+            return head_pattern(pattern["follows"][1])
+        else:
+            return pattern["follows"][1]
+    else:
+        return pattern
+    
+def head_variant(variant):
+    if "follows" in variant:
+        if "follows" in variant["follows"][1]:
+            return head_variant(variant["follows"][1])
+        else:
+            return variant["follows"][1]
+    else:
+        return variant
+    
+def fit(p_head, v_head):
+    return True
+
+def cut_head(variant):
+    if "follows" in variant:
+        if "follows" in variant["follows"][1]:
+            variant["follows"][1] = cut_head(variant["follows"][1])
+            return variant
+        else:
+            variant.pop(0)
+            return variant
+    else:
+        return variant.pop(0)
