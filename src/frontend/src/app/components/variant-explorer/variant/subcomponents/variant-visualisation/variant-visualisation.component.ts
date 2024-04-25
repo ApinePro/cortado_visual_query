@@ -1,4 +1,10 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  Input,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import {
   activityColor,
   clickCallback,
@@ -11,18 +17,28 @@ import { VariantDrawerDirective } from '../../../../../directives/variant-drawer
 import { Arc, Pair } from '../../../../../directives/arc-diagram/data';
 import { FilterParams } from '../../../arc-diagram/filter/filter-params';
 import { ArcsViewMode } from '../../../arc-diagram/arcs-view-mode';
+import { VariantPerformanceService } from '../../../../../services/variant-performance.service';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { ConformanceCheckingService } from '../../../../../services/conformanceChecking/conformance-checking.service';
 
 @Component({
   selector: 'app-variant-visualisation',
   templateUrl: './variant-visualisation.component.html',
   styleUrls: ['./variant-visualisation.component.css'],
 })
-export class VariantVisualisationComponent implements OnInit {
+export class VariantVisualisationComponent implements OnInit, AfterViewInit {
   public id: string;
   public bid: number;
   public arcsRenderingInProgress: boolean = false;
 
-  constructor(public variantViewModeService: VariantViewModeService) {}
+  private _destroy$ = new Subject();
+
+  constructor(
+    public variantViewModeService: VariantViewModeService,
+    public variantPerformanceService: VariantPerformanceService,
+    public conformanceCheckingService: ConformanceCheckingService
+  ) {}
 
   ngOnInit() {
     this.id = this.variant.id;
@@ -44,10 +60,31 @@ export class VariantVisualisationComponent implements OnInit {
     }
   }
 
+  ngAfterViewInit() {
+    this.variantPerformanceService.serviceTimeColorMap
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        if (colorMap !== undefined) {
+          this.serviceTimeColorMap = colorMap;
+        }
+      });
+
+    this.variantPerformanceService.waitingTimeColorMap
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        if (colorMap !== undefined) {
+          this.waitingTimeColorMap = colorMap;
+        }
+      });
+  }
+
   // Define Callbacks
   variantClickCallBack = clickCallback.bind(this);
   openContextCallback = contextMenuCallback.bind(this);
   computeActivityColor = activityColor.bind(this);
+
+  serviceTimeColorMap: any;
+  waitingTimeColorMap: any;
 
   @Input()
   traceInfixSelectionMode: boolean;
