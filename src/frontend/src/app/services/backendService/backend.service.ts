@@ -654,4 +654,17 @@ export class BackendService {
       }
     );
   }
+
+  public applyGraphicalQuery(queryTree) {
+    this.httpClient
+      .post(ROUTES.HTTP_BASE_URL + ROUTES.QUERY + 'graphical-variant-query', {
+        queryTree: queryTree,
+        //queryTree: "apine",
+      })
+      .subscribe((res) => {
+        //this.logService.processEventLog(res);
+        //console.log("res");
+        console.log(res);
+      });
+  }
 }

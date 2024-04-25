@@ -33,6 +33,6 @@
   border-top-right-radius: 4px;
 }
 
-.variant-sequentializer-modal {
+.variant--modal {
   --bs-modal-width: 80%;
 }

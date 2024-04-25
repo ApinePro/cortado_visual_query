@@ -1574,6 +1574,15 @@ export class LeafPattern extends LeafNode implements QueryPattern {
   public horizontalCardiOp: CardinalityOperator;
   public eventually: boolean;
 
+  public serialize(l = 1) {
+    return {
+      leaf: this.activity,
+      verticalCardi: this.verticalCardi,
+      horizontalCardi: this.horizontalCardi,
+      verticalCardiOp: this.verticalCardiOp,
+      horizontalCardiOp: this.horizontalCardiOp,
+     };
+  }
 }
 
 export class SequencePattern extends SequenceGroup implements QueryPattern {
@@ -1636,6 +1645,19 @@ export class SequencePattern extends SequenceGroup implements QueryPattern {
     }
     return this.width;
   }
+
+  public serialize(l = 1): any {
+    return {
+      follows: this.elements
+        .map((e) => e.serialize(l))
+        .flat()
+        .filter((e) => e !== null),
+      verticalCardi: this.verticalCardi,
+      horizontalCardi: this.horizontalCardi,
+      verticalCardiOp: this.verticalCardiOp,
+      horizontalCardiOp: this.horizontalCardiOp,
+    };
+  }
 }
 
 export class ParallelPattern extends ParallelGroup implements QueryPattern {
@@ -1696,6 +1718,19 @@ export class ParallelPattern extends ParallelGroup implements QueryPattern {
         this.width += 2 * VARIANT_Constants.CARDI_MARGIN_X;
       }
     return this.width;
+  }
+
+  public serialize(l = 1) {
+    return {
+      parallel: this.elements
+        .map((e) => e.serialize(l))
+        .flat()
+        .filter((e) => e !== null),
+      verticalCardi: this.verticalCardi,
+      horizontalCardi: this.horizontalCardi,
+      verticalCardiOp: this.verticalCardiOp,
+      horizontalCardiOp: this.horizontalCardiOp,
+    };
   }
 }
 

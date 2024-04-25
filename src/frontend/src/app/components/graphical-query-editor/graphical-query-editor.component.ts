@@ -1950,6 +1950,32 @@ export class GraphicalQueryEditorComponent
   }
 
   hideAllTooltips() {}
+
+
+  // Apply query tree
+  serializeNode(node) {
+    if(node.pattern){
+      return {
+        pattern: node.pattern.serialize(),
+        operator: node.operator,
+        negation: node.negation,
+        children: node.children ? node.children.map(child => this.serializeNode(child)) : []
+      };
+    }
+    else{
+      return {
+        operator: node.operator,
+        negation: node.negation,
+        children: node.children && node.children.length > 0 ? node.children.map(child => this.serializeNode(child)) : []
+      };
+    }
+  }
+
+  queryApply(): void {
+      console.log(this.serializeNode(this.currentlyDisplayedTreeInEditor));
+      const serializedTree = this.serializeNode(this.currentlyDisplayedTreeInEditor);
+      this.backendService.applyGraphicalQuery(serializedTree);
+  }
 }
 
 export namespace GraphicalQueryEditorComponent {
