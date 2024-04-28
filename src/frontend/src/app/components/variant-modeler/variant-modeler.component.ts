@@ -27,11 +27,11 @@ import { VariantDrawerDirective } from 'src/app/directives/variant-drawer/varian
 import { InfixType, setParent } from 'src/app/objects/Variants/infix_selection';
 import { FragmentStatistics, Variant } from 'src/app/objects/Variants/variant';
 import {
-  VariantElement,
-  LeafNode,
-  SequenceGroup,
-  ParallelGroup,
   deserialize,
+  LeafNode,
+  ParallelGroup,
+  SequenceGroup,
+  VariantElement,
 } from 'src/app/objects/Variants/variant_element';
 import { collapsingText, fadeInText } from 'src/app/animations/text-animations';
 import { findPathToSelectedNode } from 'src/app/objects/Variants/utility_functions';
@@ -147,21 +147,18 @@ export class VariantModelerComponent
     width: number,
     height: number
   ): void {
-    if (width < 1150) {
-      this.collapse = true;
-    } else {
-      this.collapse = false;
-    }
+    this.collapse = width < 1150;
   }
 
   handleVisibilityChange(visibility: boolean): void {}
+
   handleZIndexChange(
     logicalZIndex: LogicalZIndex,
     defaultZIndex: string
   ): void {}
 
   handleRedraw(selection: Selection<any, any, any, any>) {
-    selection.selectAll('g').on('click', function (event, d) {
+    selection.selectAll('g').on('click', function (event, _) {
       event.stopPropagation();
       const select = d3.select(this as SVGElement);
       toogleSelect(select);
@@ -219,11 +216,6 @@ export class VariantModelerComponent
     if (!(selection.selectAll('.selected-variant-g').nodes().length > 0)) {
       this.selectedElement = false;
     }
-
-    const poly = selection
-      .selectAll('.selected-variant-g')
-      .select('polygon')
-      .classed('selected-polygon', true);
 
     this.variantEnrichedSelection = selection;
   }
@@ -317,8 +309,7 @@ export class VariantModelerComponent
   copyVariant(variant: VariantElement) {
     const children = variant.getElements();
     if (variant instanceof LeafNode) {
-      const newLeaf = new LeafNode([variant.asLeafNode().activity[0]]);
-      return newLeaf;
+      return new LeafNode([variant.asLeafNode().activity[0]]);
     } else {
       const newChildren = [];
       for (const child of children) {
@@ -512,12 +503,12 @@ export class VariantModelerComponent
   }
 
   @HostListener('window:keydown.control', ['$event'])
-  onMultiSelectStart(e) {
+  onMultiSelectStart() {
     this.multiSelect = true;
   }
 
   @HostListener('window:keyup.control', ['$event'])
-  onMultiSelectStop(e) {
+  onMultiSelectStop() {
     this.multiSelect = false;
   }
 
@@ -551,8 +542,7 @@ export class VariantModelerComponent
 
   computeActivityColor = (
     self: VariantDrawerDirective,
-    element: VariantElement,
-    variant: Variant
+    element: VariantElement
   ) => {
     let color;
     color = this.colorMap.get(element.asLeafNode().activity[0]);
@@ -684,6 +674,7 @@ export class VariantModelerComponent
       return node1.asLeafNode().activity[0] > node2.asLeafNode().activity[0];
     }
   }
+
   /*
   sortParallel(variant) {
     let children = variant.getElements();
@@ -706,6 +697,7 @@ export class VariantModelerComponent
     }
     return children;
   }
+
   findParent(parent, node) {
     const children = parent.getElements();
     if (!children) {
@@ -898,29 +890,25 @@ export class VariantModelerComponent
       this.addStatistics(newVariant).subscribe();
 
       if (newVariant.infixType === InfixType.NOT_AN_INFIX) {
-        this.variantService
-          .addUserDefinedVariant(newVariant)
-          .subscribe((response) => {
-            if (this.variantService.clusteringConfig) {
-              // trigger new clustering
-              this.variantService.clusteringConfig =
-                this.variantService.clusteringConfig;
-            } else {
-              this.variantService.variants = this.variantService.variants;
-            }
-          });
+        this.variantService.addUserDefinedVariant(newVariant).subscribe(() => {
+          if (this.variantService.clusteringConfig) {
+            // trigger new clustering
+            this.variantService.clusteringConfig =
+              this.variantService.clusteringConfig;
+          } else {
+            this.variantService.variants = this.variantService.variants;
+          }
+        });
       } else {
-        this.variantService
-          .addInfixToBackend(newVariant)
-          .subscribe((response) => {
-            if (this.variantService.clusteringConfig) {
-              // trigger new clustering
-              this.variantService.clusteringConfig =
-                this.variantService.clusteringConfig;
-            } else {
-              this.variantService.variants = this.variantService.variants;
-            }
-          });
+        this.variantService.addInfixToBackend(newVariant).subscribe(() => {
+          if (this.variantService.clusteringConfig) {
+            // trigger new clustering
+            this.variantService.clusteringConfig =
+              this.variantService.clusteringConfig;
+          } else {
+            this.variantService.variants = this.variantService.variants;
+          }
+        });
       }
     } else {
       this.redundancyWarning = true;

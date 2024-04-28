@@ -85,16 +85,16 @@ export class ProjectService {
           );
         });
 
-      this.electronService.checkUnsavedChanges$.subscribe((sender) => {
+      this.electronService.checkUnsavedChanges$.subscribe(() => {
         // save already to default project on checking for changes
         this.saveProject(false);
 
-        sender.send('unsaved-changes', this.unsavedChanges);
+        this.electronService.unsavedChangesStatus(this.unsavedChanges);
       });
 
-      this.electronService.saveProject$.subscribe((sender) =>
+      this.electronService.saveProject$.subscribe(() =>
         this.saveProject().then((filePath) => {
-          if (filePath) sender.send('quit');
+          if (filePath) this.electronService.quit();
         })
       );
     } catch (error) {

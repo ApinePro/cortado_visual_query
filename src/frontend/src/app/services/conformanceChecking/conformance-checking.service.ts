@@ -17,11 +17,7 @@ import { InfixType } from 'src/app/objects/Variants/infix_selection';
 import { Variant } from 'src/app/objects/Variants/variant';
 import { ColorMap } from 'src/app/objects/ColorMap';
 import * as d3 from 'd3';
-import {
-  COLORS_BLUE,
-  COLORS_PURPLE,
-  COLORS_RED_GREEN,
-} from 'src/app/objects/Colors';
+import { COLORS_BLUE, COLORS_PURPLE } from 'src/app/objects/Colors';
 import { ROUTES } from 'src/app/constants/backend_route_constants';
 import { ProcessTreeService } from '../processTreeService/process-tree.service';
 import { BackendService } from '../backendService/backend.service';
@@ -115,7 +111,7 @@ export class ConformanceCheckingService {
   public connect(): boolean {
     if (!this.socket || this.socket.closed) {
       this.socket = webSocket(
-        ROUTES.WS_HTTP_BASE_URL + ROUTES.VARIANT_CONFORMANCE + 'conformancews'
+        ROUTES.WS_HTTP_BASE_URL + ROUTES.VARIANT_CONFORMANCE
       );
       const results = this.socket.pipe(
         catchError((error) => {

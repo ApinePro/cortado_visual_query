@@ -116,6 +116,9 @@ def variants_to_variant_objects(
     ):
         info: VariantInformation = info_generator(ts)
         v.infix_type = info.infix_type
+
+        v.assign_dfs_ids()
+
         variant, sub_vars = create_variant_object(
             time_granularity, total_traces, bid, v, ts, info
         )
@@ -138,6 +141,7 @@ def create_variant_object(
     info: VariantInformation,
 ):
     sub_variants = create_subvariants(ts, time_granularity)
+    # v.assign_dfs_ids()
 
     # Default value of clusterId in a variant = -1
     variant = {

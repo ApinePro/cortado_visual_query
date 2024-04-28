@@ -1,3 +1,16 @@
+import { VariantDrawerDirective } from '../directives/variant-drawer/variant-drawer.directive';
+import * as d3 from 'd3';
+import { Selection } from 'd3';
+import { PT_Constant } from '../constants/process_tree_drawer_constants';
+import {
+  GroupsWithChildElements,
+  LeafNode,
+  VariantElement,
+  WaitingTimeNode,
+} from '../objects/Variants/variant_element';
+import { Variant } from '../objects/Variants/variant';
+import { ElementRef } from '@angular/core';
+
 export function textColorForBackgroundColor(
   backgroundColorInHex: string,
   unselectedElementInTraceInfixSelectionMode: boolean = false
@@ -49,10 +62,6 @@ export function textColorForBackgroundColor(
   }
 }
 
-import { Selection } from 'd3';
-import { PT_Constant } from '../constants/process_tree_drawer_constants';
-import { LeafNode } from '../objects/Variants/variant_element';
-
 export function applyInverseStrokeToPoly(poly: Selection<any, any, any, any>) {
   const datum = poly.data()[0];
   if (datum) {
@@ -74,8 +83,6 @@ export function applyInverseStrokeToPoly(poly: Selection<any, any, any, any>) {
     }
   }
 }
-
-import * as d3 from 'd3';
 
 export function computeLeafNodeWidth(
   nodeActivityLabels: string[],
@@ -122,3 +129,68 @@ export function computeLeafNodeWidth(
 
   return nodeWidthCache;
 }
+
+export function computeActivityColor(
+  self: VariantDrawerDirective,
+  element: VariantElement,
+  variant: Variant
+) {
+  let color;
+  color = this.colorMap.get(element.asLeafNode().activity[0]);
+
+  if (!color) {
+    color = '#d3d3d3'; // lightgrey
+  }
+
+  return color;
+}
+
+export function setChevronIdsForArcDiagrams(
+  variant: VariantElement,
+  drawer: VariantDrawerDirective
+) {
+  setDfsIds(variant, drawer.svgSelection, true);
+  setBfsIds(drawer.svgHtmlElement);
+}
+
+const setDfsIds = (
+  element: VariantElement,
+  svgElement: Selection<any, any, any, any>,
+  outerElement: boolean = false
+) => {
+  if (!outerElement) {
+    svgElement.classed(`dfs-group-${element.id}`, true);
+  } else {
+    svgElement = svgElement
+      .select('.variant-element-group')
+      .classed('dfs-group-0', true);
+  }
+
+  if (element instanceof LeafNode || element instanceof WaitingTimeNode) {
+    return;
+  } else {
+    (element as GroupsWithChildElements).elements.forEach((child, index) => {
+      const svg = d3.select(
+        svgElement
+          .selectAll(`.dfs-group-${element.id} > .variant-element-group`)
+          .nodes()[index]
+      );
+      setDfsIds(child, svg);
+    });
+  }
+};
+
+const setBfsIds = (svgElement: ElementRef<any>) => {
+  let outerElement = svgElement.nativeElement.querySelector('.dfs-group-0');
+
+  if (outerElement) {
+    d3.select(
+      outerElement.querySelectorAll(':scope > .variant-element-group')
+    ).each(function (d, i) {
+      let offset = 1;
+      this.forEach((child) => {
+        d3.select(child).classed(`bfs-group-${offset++}`, true);
+      });
+    });
+  }
+};

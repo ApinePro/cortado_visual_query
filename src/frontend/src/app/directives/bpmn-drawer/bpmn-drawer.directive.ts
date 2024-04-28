@@ -1,14 +1,14 @@
-import { Directive, ElementRef, Input, SimpleChanges } from '@angular/core';
+import { Directive, ElementRef, Input } from '@angular/core';
 import { ProcessTreeService } from 'src/app/services/processTreeService/process-tree.service';
 import * as d3 from 'd3';
 import {
   Block_Structured_BPMN,
   ChoiceBlock,
   convertPTtoBlockstructuredBPMN,
+  Event,
   LoopBlock,
   ParallelBlock,
   SequenceBlock,
-  Event,
 } from 'src/app/objects/BPMN/block-structured-bpmn';
 import { BPMN_Constant } from 'src/app/constants/bpmn_model_drawer_constants';
 import { ProcessTreeOperator } from 'src/app/objects/ProcessTree/ProcessTree';
@@ -16,6 +16,7 @@ import { VariantService } from '../../services/variantService/variant.service';
 import { getBootstrapTooltipsAllowList } from '../../components/process-tree-editor/utils';
 import { ViewMode } from '../../objects/ViewMode';
 import { ModelViewModeService } from '../../services/viewModeServices/model-view-mode.service';
+
 @Directive({
   selector: '[appBpmnDrawer]',
 })

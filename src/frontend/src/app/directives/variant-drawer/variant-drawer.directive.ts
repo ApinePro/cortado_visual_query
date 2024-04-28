@@ -1,15 +1,16 @@
 import { VARIANT_Constants } from './../../constants/variant_element_drawer_constants';
 
 import {
+  AfterViewInit,
   Directive,
+  ElementRef,
   EventEmitter,
+  Input,
   OnChanges,
   OnDestroy,
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { AfterViewInit, ElementRef } from '@angular/core';
-import { Input } from '@angular/core';
 import * as d3 from 'd3';
 import { Selection } from 'd3';
 import { PolygonGeneratorService } from 'src/app/services/polygon-generator.service';
@@ -20,18 +21,18 @@ import {
   SelectableState,
 } from 'src/app/objects/Variants/infix_selection';
 import {
-  VariantElement,
-  SequenceGroup,
-  ParallelGroup,
   ChoiceGroup,
   FallthroughGroup,
-  LeafNode,
-  WaitingTimeNode,
   InvisibleSequenceGroup,
+  LeafNode,
   LoopGroup,
+  ParallelGroup,
+  SequenceGroup,
   SkipGroup,
   ParallelPattern,
   SequencePattern,
+  VariantElement,
+  WaitingTimeNode,
 } from 'src/app/objects/Variants/variant_element';
 import { textColorForBackgroundColor } from 'src/app/utils/render-utils';
 import { ViewMode } from 'src/app/objects/ViewMode';
@@ -39,7 +40,6 @@ import { VariantViewModeService } from 'src/app/services/viewModeServices/varian
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { IVariant } from 'src/app/objects/Variants/variant_interface';
-import { threadId } from 'worker_threads';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
 import { VariantService } from '../../services/variantService/variant.service';
 
@@ -57,7 +57,7 @@ export class VariantDrawerDirective
   }
 
   constructor(
-    elRef: ElementRef,
+    elRef: ElementRef<HTMLElement>,
     private polygonService: PolygonGeneratorService,
     private sharedDataService: SharedDataService, //edited
     private variantViewModeService: VariantViewModeService,
@@ -116,6 +116,8 @@ export class VariantDrawerDirective
 
   @Output()
   selection = new EventEmitter<Selection<any, any, any, any>>();
+
+  @Output() redrawArcsIfComputed = new EventEmitter();
 
   svgSelection!: Selection<any, any, any, any>;
 
@@ -210,6 +212,8 @@ export class VariantDrawerDirective
         this.redraw();
         this.setInspectVariant();
       });
+
+    this.redrawArcsIfComputed.emit();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -259,7 +263,6 @@ export class VariantDrawerDirective
       }
 
       const svg_container = d3.select(this.svgHtmlElement.nativeElement);
-      //for parallel group-like chevrons
       this.variant.variant.updateWidth(
         !this.keepStandardView &&
           this.variantViewModeService.viewMode === ViewMode.PERFORMANCE
@@ -274,6 +277,7 @@ export class VariantDrawerDirective
       svg_container
         .attr('width', width + width_offset)
         .attr('height', height + 2 * VARIANT_Constants.SELECTION_STROKE_WIDTH);
+
       if (
         !this.keepStandardView &&
         this.variantViewModeService.viewMode === ViewMode.CONFORMANCE &&
@@ -374,7 +378,6 @@ export class VariantDrawerDirective
     outerElement: boolean = false
   ): void {
     svgElement.datum(element).classed('variant-element-group', true);
-
     if (outerElement) {
       svgElement.datum(element);
     }
@@ -1106,7 +1109,13 @@ export class VariantDrawerDirective
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
 
-    let polygon = this.createPolygon(parent, polygonPoints, color, actionable);
+    let polygon = this.createPolygon(
+      parent,
+      polygonPoints,
+      color,
+      actionable,
+      false
+    );
 
     if (this.traceInfixSelectionMode) {
       this.addInfixSelectionAttributes(element, polygon, true);

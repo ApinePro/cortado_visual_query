@@ -7,7 +7,6 @@ import {
   Renderer2,
   ViewChild,
 } from '@angular/core';
-import { Tab } from 'bootstrap';
 import { ComponentContainer, LogicalZIndex } from 'golden-layout';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -47,7 +46,7 @@ export class ConformanceTabComponent
   ) {
     super(elRef.nativeElement, renderer);
 
-    const colorMap = this.conformanceCheckingService.conformanceColorMap;
+    const colorMap = this.conformanceCheckingService.variantConformanceColorMap;
     const min = colorMap.domain()[0];
     const max = colorMap.domain()[colorMap.domain().length - 1];
     const increment = (max - min) / (colorMap.range().length - 2);

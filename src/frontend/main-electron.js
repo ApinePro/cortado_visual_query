@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog, ipcMain } = require("electron");
+const { app, BrowserWindow, dialog, ipcMain, shell } = require("electron");
 var fs = require("fs");
 const {
   showSaveDialog,
@@ -15,17 +15,26 @@ const executablePath = app.getPath("exe");
 const downloadFolder = app.getPath("downloads");
 const backendWorkDir = path.join(
   path.dirname(executablePath),
+  process.platform === "darwin" ? ".." : "", // electron-builder puts the executable in `MacOS/` folder,
+  // so must move one level up to find `cortado-backend`
   "cortado-backend"
 );
-const backendExecutablePath = path.join(
+const rawBackendExecutablePath = path.join(
   backendWorkDir,
   process.platform === "win32" ? "cortado-backend.exe" : "cortado-backend"
 );
+
+const backendExecutablePath = `"${rawBackendExecutablePath}"`;
+
 const lastAcceptedVersionKey = "lastAcceptedVersion";
 const isDevelopment = process.env.NODE_ENV === "development";
 
 let mainCortadoWin;
 let backendProcess;
+
+let closeAttempts = 0;
+let lastCloseAttempt = 0;
+const closeAttemptThresholdInMs = 3000;
 
 WS_PORT = 40000;
 const portfinder = require("portfinder");
@@ -100,17 +109,22 @@ function createMainApplicationWindow() {
   });
 
   mainCortadoWin.on("close", async (e) => {
-    e.preventDefault();
-
-    // ask projectService for unsaved Changes
-    // response on "unsaved-changes"
-    mainCortadoWin.webContents.send("check-unsaved-changes");
+    const now = Date.now();
+    if (now - lastCloseAttempt > closeAttemptThresholdInMs) closeAttempts = 0;
+    if (closeAttempts < 2) {
+      e.preventDefault(); // Prevents default close behavior
+      // ask projectService for unsaved Changes
+      // response on "unsaved-changes"
+      mainCortadoWin.webContents.send("check-unsaved-changes");
+      closeAttempts++;
+      lastCloseAttempt = now;
+    }
   });
 
   // prevent external links from being opened in an electron window
-  mainCortadoWin.webContents.on("new-window", function (e, url) {
-    e.preventDefault();
-    require("electron").shell.openExternal(url);
+  mainCortadoWin.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: "deny" };
   });
 }
 

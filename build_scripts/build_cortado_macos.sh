@@ -5,7 +5,8 @@ pip3 install -r requirements.txt
 pip3 uninstall -y cvxopt
 pip3 uninstall -y pm4pycvxopt
 python3 -O -m PyInstaller --noconfirm --clean cortado-backend-macos.spec
-cp -r ./dist/cortado-backend ./../frontend/cortado-backend
+mkdir ./../frontend/cortado-backend
+cp -r ./dist/cortado-backend/. ./../frontend/cortado-backend
 
 cd ./../frontend
 npm install

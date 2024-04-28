@@ -74,7 +74,6 @@ import { EditorZoneComponent } from './components/editor-zone/editor-zone.compon
 import { FilterOptionsComponent } from './components/variant-miner/filter-options/filter-options.component';
 import { ResizeableTableHeaderComponent } from './components/resizeable-table-header/resizeable-table-header.component';
 import { ResizeColumnDirective } from './directives/resize-column.directive';
-import { VariantDeleteButtonComponent } from './components/variant-explorer/variant/subcomponents/variant-delete-button/variant-delete-button.component';
 import { ElectronService } from './services/electronService/electron.service';
 import { UnavailableInfoComponent } from './components/unavailable-info/unavailable-info.component';
 import { ConformanceTabComponent } from './components/conformance-tab/conformance-tab.component';
@@ -106,6 +105,10 @@ import { CardinalityModalComponent } from './components/graphical-query-editor/c
 import { QueryTreeDrawerDirective } from './directives/query-tree-drawer/query-tree-drawer.directive';
 import { QueryTreeLeafNodeComponent } from './components/query-tree-leaf-node/query-tree-leaf-node.component';
 import { ProcessTreeEditorContextMenuComponent } from './components/process-tree-editor/process-tree-editor-context-menu/process-tree-editor-context-menu.component';
+import { VariantActionButtonsComponent } from './components/variant-explorer/variant/subcomponents/variant-action-buttons/variant-action-buttons.component';
+import { ArcDiagramDirective } from './directives/arc-diagram/arc-diagram.directive';
+import { ArcDiagramFilterComponent } from './components/variant-explorer/arc-diagram/filter/filter.component';
+import { VariantVisualisationComponent } from './components/variant-explorer/variant/subcomponents/variant-visualisation/variant-visualisation.component';
 
 @NgModule({
   declarations: [
@@ -167,7 +170,7 @@ import { ProcessTreeEditorContextMenuComponent } from './components/process-tree
     FilterOptionsComponent,
     ResizeableTableHeaderComponent,
     ResizeColumnDirective,
-    VariantDeleteButtonComponent,
+    VariantActionButtonsComponent,
     UnavailableInfoComponent,
     ConformanceTabComponent,
     ConformanceStatusIconComponent,
@@ -193,6 +196,9 @@ import { ProcessTreeEditorContextMenuComponent } from './components/process-tree
     QueryTreeDrawerDirective,
     QueryTreeLeafNodeComponent,
     ProcessTreeEditorContextMenuComponent,
+    ArcDiagramDirective,
+    ArcDiagramFilterComponent,
+    VariantVisualisationComponent,
   ],
   imports: [
     BrowserModule,

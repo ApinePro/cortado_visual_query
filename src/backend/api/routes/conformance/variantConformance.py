@@ -6,7 +6,6 @@ from cortado_core.utils.process_tree import LabelWithIndex
 from starlette.websockets import WebSocketState
 
 from backend_utilities.configuration.repository import ConfigurationRepositoryFactory
-from backend_utilities.multiprocessing.pool_factory import PoolFactory
 from backend_utilities.timeout.helper_functions import (
     TimeoutException,
     execute_with_timeout,
@@ -14,9 +13,7 @@ from backend_utilities.timeout.helper_functions import (
 from backend_utilities.process_tree_conversion import dict_to_process_tree
 from endpoints.alignments import InfixType
 from endpoints.alignments import calculate_alignment as calculate_alignment_endpoint
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-
-router = APIRouter(tags=["variantConformance"], prefix="/variantConformance")
+from fastapi import WebSocket
 
 
 def calculate_alignment_intern_with_timeout(
@@ -131,43 +128,3 @@ def get_alignment_callback(idx: str, alignType, websocket: WebSocket):
             print("Error while sending conformance result")
 
     return callback
-
-
-@router.websocket("/conformancews")
-async def websocket_endpoint(websocket: WebSocket):
-    config_repository = ConfigurationRepositoryFactory.get_config_repository()
-    configuration = config_repository.get_configuration()
-
-    try:
-        pool = PoolFactory.instance().get_pool()
-        await websocket.accept()
-        while True:
-            data = await websocket.receive_json()
-
-            if "isCancellationRequested" in data:
-                await websocket.close(1000)
-                PoolFactory.instance().restart_pool()
-                return
-
-            try:
-                timeout = configuration.timeout_cvariant_alignment_computation
-                if data["timeout"] != 0:
-                    timeout = data["timeout"]
-                pool.apply_async(
-                    calculate_alignment_intern_with_timeout,
-                    (
-                        data["pt"],
-                        data["variant"],
-                        InfixType(data["infixType"]),
-                        timeout,
-                    ),
-                    callback=get_alignment_callback(
-                        data["id"], data["alignType"], websocket
-                    ),
-                )
-            except Exception as e:
-                if websocket.application_state == WebSocketState.CONNECTED:
-                    await websocket.send_json({"error": str(e)})
-    except WebSocketDisconnect as d:
-        print(d)
-        print("websocket disconnected")

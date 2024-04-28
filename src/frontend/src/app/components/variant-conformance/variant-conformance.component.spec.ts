@@ -1,19 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { VariantConformanceComponent } from './variant-conformance.component';
+import { ConformanceTabComponent } from './variant-conformance.component';
 
 describe('VariantConformanceComponent', () => {
-  let component: VariantConformanceComponent;
-  let fixture: ComponentFixture<VariantConformanceComponent>;
+  let component: ConformanceTabComponent;
+  let fixture: ComponentFixture<ConformanceTabComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [VariantConformanceComponent],
+      declarations: [ConformanceTabComponent],
     }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(VariantConformanceComponent);
+    fixture = TestBed.createComponent(ConformanceTabComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

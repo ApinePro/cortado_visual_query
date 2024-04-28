@@ -1,8 +1,8 @@
 import { VARIANT_Constants } from 'src/app/constants/variant_element_drawer_constants';
 import {
-  setParent,
   isElementWithActivity,
   SelectableState,
+  setParent,
   updateSelectionAttributesForGroup,
 } from './infix_selection';
 import { equal } from 'assert';
@@ -43,6 +43,8 @@ export abstract class VariantElement {
   public inspectionMode = false;
 
   public parent;
+
+  public id;
 
   constructor(performance: any = undefined) {
     this.serviceTime = performance?.service_time;
@@ -206,9 +208,11 @@ export abstract class VariantElement {
   }
 
   public abstract getHeight(): number;
+
   public abstract getWidth(includeWaiting): number;
 
   public abstract recalculateWidth(includeWaiting): number;
+
   public abstract recalculateHeight(includeWaiting): number;
 
   public abstract updateWidth(includeWaiting);
@@ -216,6 +220,7 @@ export abstract class VariantElement {
   public abstract serialize(l?): Object;
 
   public abstract updateSelectionAttributes(): void;
+
   public abstract getActivities(): Set<string>;
 
   public updateConformance(confValue: number): void {
@@ -286,9 +291,11 @@ export abstract class VariantElement {
   }
 
   public abstract asString(): string;
+
   public abstract deleteActivity(
     activityName: string
   ): [VariantElement[], boolean];
+
   public abstract renameActivity(
     activityName: string,
     newActivityName: string
@@ -365,7 +372,11 @@ export class SequenceGroup extends VariantElement {
     );
   }
 
-  constructor(public elements: VariantElement[], performance: any = undefined) {
+  constructor(
+    public elements: VariantElement[],
+    performance: any = undefined,
+    public id: number = undefined
+  ) {
     super(performance);
   }
 
@@ -552,7 +563,11 @@ export class ParallelGroup extends VariantElement {
     }
   }
 
-  constructor(public elements: VariantElement[], performance: any = undefined) {
+  constructor(
+    public elements: VariantElement[],
+    performance: any = undefined,
+    public id: number = undefined
+  ) {
     super(performance);
   }
 
@@ -1253,12 +1268,14 @@ export class LeafNode extends VariantElement {
   constructor(
     public activity: string[],
     performance: any = undefined,
-    public conformance: number[] = undefined
+    public conformance: number[] = undefined,
+    public id: number = undefined
   ) {
     super(performance);
   }
 
   public textLength = 10;
+
   public getActivities(): Set<string> {
     return new Set<string>(this.activity);
   }
@@ -1476,13 +1493,17 @@ export class StartGroup extends VariantElement {
   public getActivities(): Set<string> {
     return new Set<string>();
   }
+
   public asString(): string {
     return 'END';
   }
+
   public deleteActivity(activityName: string): [VariantElement[], boolean] {
     return [[this], false];
   }
+
   public renameActivity(activityName: string, newActivityName: string): void {}
+
   public calculateSelectableElements(): void {}
 
   public getHeight(): number {
@@ -1514,12 +1535,15 @@ export class EndGroup extends VariantElement {
   public getActivities(): Set<string> {
     return new Set<string>();
   }
+
   public asString(): string {
     return 'START';
   }
+
   public deleteActivity(activityName: string): [VariantElement[], boolean] {
     return [[this], false];
   }
+
   public renameActivity(activityName: string, newActivityName: string): void {}
 
   public calculateSelectableElements(): void {}
@@ -1539,6 +1563,7 @@ export class EndGroup extends VariantElement {
   public recalculateHeight(includeWaiting: any): number {
     return VARIANT_Constants.LEAF_HEIGHT;
   }
+
   public updateWidth(includeWaiting: any) {}
 
   public serialize(l = 1): Object {
@@ -1738,12 +1763,14 @@ export function deserialize(obj: any): VariantElement {
   if ('follows' in obj) {
     return new SequenceGroup(
       obj.follows.map((e: any) => deserialize(e)).filter((e) => e),
-      obj.performance
+      obj.performance,
+      obj.id
     );
   } else if ('parallel' in obj) {
     return new ParallelGroup(
       obj.parallel.map((e: any) => deserialize(e)).filter((e) => e),
-      obj.performance
+      obj.performance,
+      obj.id
     );
   } else if ('choice' in obj) {
     return new ChoiceGroup(
@@ -1763,7 +1790,8 @@ export function deserialize(obj: any): VariantElement {
       obj.performance,
       obj.leaf.map((el) => {
         return typeof el === 'string' ? undefined : el[1];
-      })
+      }),
+      obj.id
     );
   } else if ('loop' in obj) {
     return new LoopGroup(
@@ -1823,6 +1851,26 @@ export function injectWaitingTimeNodesVariant(variant: VariantElement) {
     }
   }
 }
+
+export enum CardinalityOperator {
+  lessequal = '≤',
+  equal = '=',
+  moreequal = '≥',
+}
+
+export enum CardinalityDirection {
+  horizontal = 0,
+  vertical = 1,
+}
+
+export type GroupsWithChildElements =
+  | ParallelGroup
+  | ChoiceGroup
+  | FallthroughGroup
+  | SequenceGroup
+  | LoopGroup
+  | SkipGroup;
+  
 
 export enum CardinalityOperator {
   lessequal = '≤',
