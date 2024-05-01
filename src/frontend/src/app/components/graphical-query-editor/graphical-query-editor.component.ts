@@ -63,6 +63,7 @@ import {
   LeafPattern,
   ParallelPattern,
   CardinalityDirection,
+  CardinalityOperator,
 } from 'src/app/objects/Variants/variant_element';
 import { collapsingText, fadeInText } from 'src/app/animations/text-animations';
 import { ImageExportService } from 'src/app/services/imageExportService/image-export-service';
@@ -1205,6 +1206,7 @@ export class GraphicalQueryEditorComponent
     selection.selectAll('g').on('click', function (event, d) {
       event.stopPropagation();
       const select = d3.select(this as SVGElement);
+      console.log(select);
       toogleSelect(select);
     });
 
@@ -1280,18 +1282,23 @@ export class GraphicalQueryEditorComponent
     //const children = variant.getElements();
     const parentChildren = parent.getElements();
     let index = parentChildren.length;
+    /*
     for(let elem of selectedElement){
       if(selectedElement.indexOf(elem) < index)
       {
         index = selectedElement.indexOf(elem);
       }
-    }
+    }*/
+    index = parentChildren.indexOf(selectedElement[0]);
     parentChildren.splice(
       index,
       selectedElement.length,
       new SequencePattern(selectedElement)
     );
     parent.setElements(parentChildren);
+    console.log("insert outer");
+    console.log(parent);
+    return parent.getElements()[index];
   }
 
 
@@ -1308,40 +1315,59 @@ export class GraphicalQueryEditorComponent
     this.variantService.showCardinalityDialog.next();
   }
 
+  changeCardinalityOp(op) {
+    const selectedElement = this.variantEnrichedSelection
+          .selectAll('.selected-variant-g')
+          .data();
+    if (op == "less"){
+      (selectedElement[0] as any).asPattern().verticalCardiOp = CardinalityOperator.lessequal;
+      (selectedElement[0] as any).asPattern().horizontalCardiOp = CardinalityOperator.lessequal;
+    }
+    else if (op == "equal"){
+      (selectedElement[0] as any).asPattern().verticalCardiOp = CardinalityOperator.equal;
+      (selectedElement[0] as any).asPattern().horizontalCardiOp = CardinalityOperator.equal;
+    }
+    else if (op == "more"){
+      (selectedElement[0] as any).asPattern().verticalCardiOp = CardinalityOperator.moreequal;
+      (selectedElement[0] as any).asPattern().horizontalCardiOp = CardinalityOperator.moreequal;
+    }
+    this.triggerRedraw();
+  }
+
   addCardinality() {
     const selectedElement = this.variantEnrichedSelection
           .selectAll('.selected-variant-g')
           .data();
+    console.log(selectedElement);
     if(selectedElement.length > 1){
       let parent = this.findParent((this.selectedRootNode?.data as QueryTree).pattern, selectedElement[0]);
       const parentChildren = parent.getElements();
       let selectionIndex = 0;
-      
-      while(parentChildren.indexOf(selectedElement[selectionIndex]) > 0
-      || selectionIndex < selectedElement.length){
+      let firstSelectIdx = 0;
+      let lastSelectIdx = 0;
+      while(selectionIndex < selectedElement.length && parentChildren.indexOf(selectedElement[selectionIndex]) > -1){ // ALSO NEED DETERMINE SAME PARENT!!!!!!!!!!!!!!!!!!!!!!!!
+        if (selectionIndex == 0){
+          firstSelectIdx = parentChildren.indexOf(selectedElement[selectionIndex]);
+        }
+        lastSelectIdx = parentChildren.indexOf(selectedElement[selectionIndex])
         selectionIndex += 1;
       }
-      /*
-      console.log(selectedElement);
-      console.log(parentChildren);
-      console.log(parentChildren.indexOf(selectedElement[0]));
-      console.log(selectionIndex);
-      console.log(selectedElement.length);
 
-      console.log(selectionIndex);*/
-      if(selectionIndex != selectedElement.length) {
-        console.log("create outer");
-        this.insertOuterPattern(parent, selectedElement);
-        parent = this.findParent((this.selectedRootNode?.data as QueryTree).pattern, selectedElement[0]);
-      }
-      if(this.cardiDirect == this.cardinalityDirection.vertical){
-        parent.asPattern().verticalCardi += 1;
-      }
-      else{
-        parent.asPattern().horizontalCardi += 1;
+      if(lastSelectIdx - firstSelectIdx + 1 == selectedElement.length){ //Only allow adjecent groups when doing multiple selection --> how about in parallel group??
+        if(parentChildren.length != selectedElement.length) {
+          console.log("create outer");
+          console.log(selectedElement);
+          parent = this.insertOuterPattern(parent, selectedElement);
+        }
+        if(this.cardiDirect == this.cardinalityDirection.vertical){
+          parent.asPattern().verticalCardi += 1;
+        }
+        else{
+          parent.asPattern().horizontalCardi += 1;
+        }
       }
     }
-    else if (selectedElement[0] instanceof LeafPattern){
+    else if (selectedElement[0] instanceof LeafPattern){ // Single selection, leaf
       if(this.cardiDirect == this.cardinalityDirection.vertical){
         (selectedElement[0] as any).asPattern().verticalCardi += 1;
       }
@@ -1349,7 +1375,7 @@ export class GraphicalQueryEditorComponent
         (selectedElement[0] as any).asPattern().horizontalCardi += 1;
       }
     }
-    else if ((selectedElement[0] as any).getElements().length > 1){
+    else if ((selectedElement[0] as any).getElements().length > 1){ // Single selection, for seq and para
       if(this.cardiDirect == this.cardinalityDirection.vertical){
         (selectedElement[0] as any).asPattern().verticalCardi += 1;
       }
@@ -1358,7 +1384,7 @@ export class GraphicalQueryEditorComponent
       }
     }
     else{
-      if(this.cardiDirect == this.cardinalityDirection.vertical){
+      if(this.cardiDirect == this.cardinalityDirection.vertical){ // ?
         (selectedElement[0] as any).getElements()[0].asPattern().verticalCardi += 1;
       }
       else{
@@ -1371,9 +1397,43 @@ export class GraphicalQueryEditorComponent
   }
 
   reduceCardinality() {
-    if (this.currentVariant.asPattern().verticalCardi > 0) {
-      this.currentVariant.asPattern().verticalCardi -= 1;
-      this.triggerRedraw();
+    const selectedElement = this.variantEnrichedSelection
+          .selectAll('.selected-variant-g')
+          .data();
+    if(selectedElement.length == 1){ //Only allow single reduce now
+      if(this.cardiDirect == this.cardinalityDirection.vertical){
+        if ((selectedElement[0] as any).asPattern().verticalCardi > 0) {
+          (selectedElement[0] as any).asPattern().verticalCardi -= 1;
+        }
+      }
+      else if(this.cardiDirect == this.cardinalityDirection.horizontal)
+      {
+        if ((selectedElement[0] as any).asPattern().horizontalCardi > 0) {
+        (selectedElement[0] as any).asPattern().horizontalCardi -= 1;
+        }
+      }
+    }
+    this.triggerRedraw();
+  }
+
+  canSwitchCardinality(op){
+    if(!this.variantEnrichedSelection){
+      return false;
+    }
+    const selectedElement = this.variantEnrichedSelection
+          .selectAll('.selected-variant-g')
+          .data();
+    if (selectedElement.length > 1 || ((selectedElement[0] as any).asPattern().horizontalCardi == 0 && (selectedElement[0] as any).asPattern().verticalCardi == 0)){
+      return false;
+    }
+    if(op == "less"){
+      return (selectedElement[0] as any).asPattern().horizontalCardiOp != CardinalityOperator.lessequal || (selectedElement[0] as any).asPattern().verticalCardiOp != CardinalityOperator.lessequal;
+    }
+    if(op == "equal"){
+      return (selectedElement[0] as any).asPattern().horizontalCardiOp != CardinalityOperator.equal || (selectedElement[0] as any).asPattern().verticalCardiOp != CardinalityOperator.equal;
+    }
+    if(op == "more"){
+      return (selectedElement[0] as any).asPattern().horizontalCardiOp != CardinalityOperator.moreequal || (selectedElement[0] as any).asPattern().verticalCardiOp != CardinalityOperator.moreequal;
     }
   }
 

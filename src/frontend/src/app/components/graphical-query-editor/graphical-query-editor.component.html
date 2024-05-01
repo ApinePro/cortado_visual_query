@@ -87,6 +87,43 @@
           >
             <i class="bi bi-arrows"></i>
           </button>
+
+          <button
+            type="button"
+            class="button"
+            (click)="changeCardinalityOp('less')"
+            [ngClass]="
+              !canSwitchCardinality('less') ? 'button-area-disabled' : ''
+            "
+            ngbTooltip="Add cardinality in horizontal direction"
+            container="body"
+          >
+            <i>≤</i>
+          </button>
+          <button
+            type="button"
+            class="button"
+            (click)="changeCardinalityOp('equal')"
+            [ngClass]="
+              !canSwitchCardinality('equal') ? 'button-area-disabled' : ''
+            "
+            ngbTooltip="Add cardinality in horizontal direction"
+            container="body"
+          >
+            <i>=</i>
+          </button>
+          <button
+            type="button"
+            class="button"
+            (click)="changeCardinalityOp('more')"
+            [ngClass]="
+              !canSwitchCardinality('more') ? 'button-area-disabled' : ''
+            "
+            ngbTooltip="Add cardinality in horizontal direction"
+            container="body"
+          >
+            <i>≥</i>
+          </button>
         </div>
       </div>
       <div #ToolBar class="bg-dark btn-tool-bar">
