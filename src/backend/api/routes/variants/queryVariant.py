@@ -44,7 +44,7 @@ def graphical_variant_query(graphical_query: graphicalVariantQuery):
         #    res.append(bid + 1)
         #print("")
         count += 1
-        if count >= 7 and count <= 11:
+        if count >= 7 and count <= 20:
             print("ID:", bid + 1,"\n")
             if check_node(query, variant):
                 variant_list.append(bid + 1)
@@ -117,11 +117,10 @@ def pattern_match_variant(pattern, variant):
     v_body = cut_head(variant)
 
     if "leaf" in p_head and p_head["leaf"][0] == '...':
-        #print("... MATCH!")
         any_head = {"leaf": ["??"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='} #?? for any group. ? is for any activity
         pattern_with_any = add_head(pattern, any_head)
         return pattern_match_variant(p_body, variant) or pattern_match_variant(pattern_with_any, variant)
-    elif check_have_cardi(p_head) and p_head["horizontalCardi"] > 0:
+    elif check_have_cardi(p_head) and p_head["horizontalCardi"] > 0: # resolve horizontal
         pattern = add_head_cardinality(pattern, -1)
         
         if p_head["horizontalCardiOp"] == '<':
@@ -145,8 +144,8 @@ def pattern_match_variant(pattern, variant):
         else:   
             pattern = add_head(pattern, p_head)
         # I think no else case
-
         return pattern_match_variant(pattern, variant)
+
     else:
         # p_head: para, leaf (may have vertical...)
         return match_head(p_head, v_head) and pattern_match_variant(p_body, v_body)
@@ -203,14 +202,58 @@ def match_head(p_head, v_head):
         return compare_leaf(p_head, v_head)
     return False
 
-def compare_para(p_head, v_head):
-    return True
+def compare_para(p_head, v_head): # No cardinality now
+    p_dic = {"leafs": {}}
+    v_dic = {"leafs": {}}
+    for element in p_head["parallel"]:
+        if "leaf" in element:
+            if element["leaf"][0] == "...": # Match EVERYTHING
+                return True
+            if element["leaf"][0] not in p_dic["leafs"]:
+                p_dic[element["leaf"][0]] = 1
+            else:
+                p_dic[element["leaf"][0]] += 1
+        if "follows" in element:
+            p_dic["sequence"] = element["follows"]
+
+    for element in v_head["parallel"]:
+        if "leaf" in element:
+            if element["leaf"][0] not in v_dic["leafs"]:
+                v_dic[element["leaf"][0]] = 1
+            else:
+                v_dic[element["leaf"][0]] += 1
+        if "follows" in element:
+            v_dic["sequence"] = element["follows"]
+    
+    if ("sequence" in p_dic and "sequence" not in v_dic) or ("sequence" not in p_dic and "sequence" in v_dic):
+        return False
+    elif "sequence" not in p_dic and "sequence" not in v_dic:
+        return compare_parallel_dics(p_dic["leafs"], v_dic["leafs"])
+    else:
+        return pattern_match_variant(p_dic["sequence"], v_dic["sequence"]) and compare_parallel_dics(p_dic["leafs"], v_dic["leafs"])
+
+def compare_parallel_dics(p_dic, v_dic):
+    for v_key in v_dic.keys():
+        if v_key not in p_dic:
+            p_dic[v_key] = -1
+        else:
+            p_dic[v_key] -= 1
+    diff_count = 0
+    for v_key in v_dic.keys():
+        if v_key != "?" and v_dic[v_key] > 0:
+            return False
+        else:
+            diff_count += v_dic[v_key]
+    return diff_count == 0    
 
 def compare_leaf(p_head, v_head):
     if p_head["leaf"][0] == "?" or p_head["leaf"][0] == v_head["leaf"][0]:
         return True
     else:
         return False
+    
+def compare_leaf_para(p_head, v_head):
+    pass
 
 def find_head(variant):
     if "follows" in variant:
