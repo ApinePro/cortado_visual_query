@@ -341,25 +341,30 @@ export class QueryTreeDrawerDirective {
         return d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2;
       });
 
-
     this.nodeEnter
-      .filter((d: any) => {console.log(d); return d.data.negation == true})
+      .filter((d: any) => {
+        console.log(d);
+        return d.data.negation == true;
+      })
       .append('path')
       .attr('d', function (d: any) {
-        let length, width = 0;
-        if (d.data.pattern){
+        let length,
+          width = 0;
+        if (d.data.pattern) {
           //console.log(d.data.pattern);
-          width =  d.data.pattern.getWidth() + 2 * VARIANT_Constants.MARGIN_X;
+          width = d.data.pattern.getWidth() + 2 * VARIANT_Constants.MARGIN_X;
           length = d.data.pattern.getHeight() + 2 * VARIANT_Constants.MARGIN_Y;
-        }
-        else{
+        } else {
           width = PT_Constant.BASE_HEIGHT_WIDTH;
-          length =  PT_Constant.BASE_HEIGHT_WIDTH;
+          length = PT_Constant.BASE_HEIGHT_WIDTH;
         }
         let baseWid = d.y;
-        let baseLen = d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2
+        let baseLen = d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2;
 
-        return d3.line()([[baseWid, baseLen], [baseWid + width, baseLen + length]])
+        return d3.line()([
+          [baseWid, baseLen],
+          [baseWid + width, baseLen + length],
+        ]);
       })
       .attr('fill', 'red')
       .attr('stroke-width', '3')
@@ -559,7 +564,12 @@ export class QueryTreeDrawerDirective {
         .select(`[id='${id}']`)
         .classed('node-variant-svg', true)
         .append('g')
-        .attr('transform', `translate(${x + VARIANT_Constants.MARGIN_X}, ${y + VARIANT_Constants.MARGIN_Y})`);
+        .attr(
+          'transform',
+          `translate(${x + VARIANT_Constants.MARGIN_X}, ${
+            y + VARIANT_Constants.MARGIN_Y
+          })`
+        );
       //console.log(svg_container);
 
       //for parallel group-like chevrons
@@ -577,7 +587,7 @@ export class QueryTreeDrawerDirective {
 
       svg_container
         .attr('width', width + width_offset)
-        .attr('height', height + 2 * VARIANT_Constants.SELECTION_STROKE_WIDTH)
+        .attr('height', height + 2 * VARIANT_Constants.SELECTION_STROKE_WIDTH);
 
       /*
       if (
@@ -690,15 +700,16 @@ export class QueryTreeDrawerDirective {
     let num = parseInt(color, 16);
 
     let r = (num >> 16) + 30;
-    let g = ((num >> 8) & 0xFF) + 30;
-    let b = (num & 0xFF) + 30;
-  
+    let g = ((num >> 8) & 0xff) + 30;
+    let b = (num & 0xff) + 30;
+
     r = Math.min(Math.max(r, 0), 255);
     g = Math.min(Math.max(g, 0), 255);
     b = Math.min(Math.max(b, 0), 255);
-  
-    let newColor = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-  
+
+    let newColor =
+      '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+
     return newColor;
   }
 
@@ -760,19 +771,22 @@ export class QueryTreeDrawerDirective {
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
 
-    
-    if(element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0){
-      parent.append('rect')
-      .classed('cardinality-region', true)
-      .attr('width', width)
-      .attr('height', height)
-      .attr('rx', 10)
-      .attr('ry', 10)
-      .attr('fill', 'none')
-      .attr('stroke', 'rgba(255, 255, 255, 0.5)')
-      .attr('stroke-width', 2)
-      .attr('stroke-dasharray', '5,5')
-      .classed('cursor-pointer', true);
+    if (
+      element.asPattern().verticalCardi > 0 ||
+      element.asPattern().horizontalCardi > 0
+    ) {
+      parent
+        .append('rect')
+        .classed('cardinality-region', true)
+        .attr('width', width)
+        .attr('height', height)
+        .attr('rx', 10)
+        .attr('ry', 10)
+        .attr('fill', 'none')
+        .attr('stroke', 'rgba(255, 255, 255, 0.5)')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5,5')
+        .classed('cursor-pointer', true);
     }
 
     let polygon = this.createPolygon(
@@ -783,7 +797,10 @@ export class QueryTreeDrawerDirective {
       true
     );
 
-    if(element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0){
+    if (
+      element.asPattern().verticalCardi > 0 ||
+      element.asPattern().horizontalCardi > 0
+    ) {
       polygon.style('fill', 'transparent');
     }
 
@@ -809,40 +826,67 @@ export class QueryTreeDrawerDirective {
       }
     }
 
-    
     let xOffset = VARIANT_Constants.MARGIN_X; //edited
-    
-    if(element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0) {
-      xOffset = xOffset + VARIANT_Constants.MARGIN_X + VARIANT_Constants.CARDI_MARGIN_X;
+
+    if (
+      element.asPattern().verticalCardi > 0 ||
+      element.asPattern().horizontalCardi > 0
+    ) {
+      xOffset =
+        xOffset + VARIANT_Constants.MARGIN_X + VARIANT_Constants.CARDI_MARGIN_X;
     }
 
-    if (!outerElement){
-    xOffset +=
-      element.getHeadLength() +
-      element.getMarginX() -
-      element.elements[0].getHeadLength();
+    if (!outerElement) {
+      xOffset +=
+        element.getHeadLength() +
+        element.getMarginX() -
+        element.elements[0].getHeadLength();
     }
-    
-    if(element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0){
+
+    if (
+      element.asPattern().verticalCardi > 0 ||
+      element.asPattern().horizontalCardi > 0
+    ) {
       const cardinalityText = parent
-      .append('text')
-      .attr('x', element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0 ? width / 2 : width)
-      .attr('y', element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0 ? (VARIANT_Constants.MARGIN_Y + VARIANT_Constants.CARDI_MARGIN_Y) / 2 : 0)
-      .classed('user-select-none', true)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr('font-size', VARIANT_Constants.FONT_SIZE)
-      .attr('fill', 'white')
-      .classed('activity-text', true);
+        .append('text')
+        .attr(
+          'x',
+          element.asPattern().verticalCardi > 0 ||
+            element.asPattern().horizontalCardi > 0
+            ? width / 2
+            : width
+        )
+        .attr(
+          'y',
+          element.asPattern().verticalCardi > 0 ||
+            element.asPattern().horizontalCardi > 0
+            ? (VARIANT_Constants.MARGIN_Y + VARIANT_Constants.CARDI_MARGIN_Y) /
+                2
+            : 0
+        )
+        .classed('user-select-none', true)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'middle')
+        .attr('font-size', VARIANT_Constants.FONT_SIZE)
+        .attr('fill', 'white')
+        .classed('activity-text', true);
 
-
-    const tspan = cardinalityText
-      .append('tspan')
-      .classed(
-        'cursor-pointer',
-        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
-      )
-      .text('⇕ ' + element.asPattern().verticalCardiOp + ' ' + element.asPattern().verticalCardi + ',  ⇔ ' + element.asPattern().verticalCardiOp + ' ' + element.asPattern().horizontalCardi);
+      const tspan = cardinalityText
+        .append('tspan')
+        .classed(
+          'cursor-pointer',
+          (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+        )
+        .text(
+          '⇕ ' +
+            element.asPattern().verticalCardiOp +
+            ' ' +
+            element.asPattern().verticalCardi +
+            ',  ⇔ ' +
+            element.asPattern().verticalCardiOp +
+            ' ' +
+            element.asPattern().horizontalCardi
+        );
     }
 
     for (const child of element.elements) {
@@ -893,11 +937,15 @@ export class QueryTreeDrawerDirective {
     let actionable =
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
-    
+
     //console.log(element);
-      //add cardinality dashed box
-    if(element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0){
-        parent.append('rect')
+    //add cardinality dashed box
+    if (
+      element.asPattern().verticalCardi > 0 ||
+      element.asPattern().horizontalCardi > 0
+    ) {
+      parent
+        .append('rect')
         .attr('width', width)
         .attr('height', height)
         .attr('rx', 10)
@@ -907,7 +955,7 @@ export class QueryTreeDrawerDirective {
         .attr('stroke-width', 2)
         .attr('stroke-dasharray', '5,5')
         .classed('cursor-pointer', true);
-      }
+    }
 
     const color = 'lightgrey';
     let polygon = this.createPolygon(
@@ -918,7 +966,10 @@ export class QueryTreeDrawerDirective {
       true
     );
 
-    if(element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0){
+    if (
+      element.asPattern().verticalCardi > 0 ||
+      element.asPattern().horizontalCardi > 0
+    ) {
       polygon.style('fill', 'transparent');
     }
 
@@ -944,29 +995,50 @@ export class QueryTreeDrawerDirective {
     }
 
     //.attr('y', -VARIANT_Constants.FONT_SIZE)
-    if(element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0){
+    if (
+      element.asPattern().verticalCardi > 0 ||
+      element.asPattern().horizontalCardi > 0
+    ) {
       const cardinalityText = parent
-      .append('text')
-      .attr('x', width / 2)
-      .attr('y', element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0 ? VARIANT_Constants.CARDI_MARGIN_Y - (VARIANT_Constants.FONT_SIZE) / 2 : -VARIANT_Constants.FONT_SIZE)
-      .classed('user-select-none', true)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr('font-size', VARIANT_Constants.FONT_SIZE)
-      .attr('fill', 'white')
-      .classed('activity-text', true);
+        .append('text')
+        .attr('x', width / 2)
+        .attr(
+          'y',
+          element.asPattern().verticalCardi > 0 ||
+            element.asPattern().horizontalCardi > 0
+            ? VARIANT_Constants.CARDI_MARGIN_Y - VARIANT_Constants.FONT_SIZE / 2
+            : -VARIANT_Constants.FONT_SIZE
+        )
+        .classed('user-select-none', true)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'middle')
+        .attr('font-size', VARIANT_Constants.FONT_SIZE)
+        .attr('fill', 'white')
+        .classed('activity-text', true);
 
-    const tspan = cardinalityText
-      .append('tspan')
-      .classed(
-        'cursor-pointer',
-        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
-      )
-      .text('⇕ ' + element.asPattern().verticalCardiOp + ' ' + element.asPattern().verticalCardi + ',  ⇔ ' + element.asPattern().verticalCardiOp + ' ' + element.asPattern().horizontalCardi);
+      const tspan = cardinalityText
+        .append('tspan')
+        .classed(
+          'cursor-pointer',
+          (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+        )
+        .text(
+          '⇕ ' +
+            element.asPattern().verticalCardiOp +
+            ' ' +
+            element.asPattern().verticalCardi +
+            ',  ⇔ ' +
+            element.asPattern().verticalCardiOp +
+            ' ' +
+            element.asPattern().horizontalCardi
+        );
     }
 
     let y = VARIANT_Constants.MARGIN_Y;
-    if(element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0){
+    if (
+      element.asPattern().verticalCardi > 0 ||
+      element.asPattern().horizontalCardi > 0
+    ) {
       y += VARIANT_Constants.CARDI_MARGIN_Y;
     }
 
@@ -1005,9 +1077,10 @@ export class QueryTreeDrawerDirective {
     let actionable =
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
-    
-    if(element.asPattern().verticalCardi > 0){
-        parent.append('rect')
+
+    if (element.asPattern().verticalCardi > 0) {
+      parent
+        .append('rect')
         .attr('width', width + 30)
         .attr('height', height + 20)
         .attr('rx', 10)
@@ -1018,7 +1091,7 @@ export class QueryTreeDrawerDirective {
         .attr('transform', 'translate(-15, -10)')
         .attr('stroke-dasharray', '5,5')
         .classed('cursor-pointer', true);
-      }
+    }
 
     const color = 'lightgrey';
     let polygon = this.createPolygon(
@@ -1159,8 +1232,9 @@ export class QueryTreeDrawerDirective {
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
 
-    if(element.asPattern().verticalCardi > 0){
-        parent.append('rect')
+    if (element.asPattern().verticalCardi > 0) {
+      parent
+        .append('rect')
         .attr('width', width + 30)
         .attr('height', height + 20)
         .attr('rx', 10)
@@ -1171,7 +1245,7 @@ export class QueryTreeDrawerDirective {
         .attr('transform', 'translate(-15, -10)')
         .attr('stroke-dasharray', '5,5')
         .classed('cursor-pointer', true);
-      }
+    }
 
     const color = 'lightgrey';
     let polygon = this.createFallthroughPolygon(
@@ -1283,11 +1357,18 @@ export class QueryTreeDrawerDirective {
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
 
-    
-    if(element.asLeafPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0){
+    if (
+      element.asLeafPattern().verticalCardi > 0 ||
+      element.asPattern().horizontalCardi > 0
+    ) {
       //console.log("draw leaf cardi");
-      const lightColor = this.fadeColor(color)
-      let stackPolygon = this.createPolygon(parent, polygonPoints, lightColor, actionable);
+      const lightColor = this.fadeColor(color);
+      let stackPolygon = this.createPolygon(
+        parent,
+        polygonPoints,
+        lightColor,
+        actionable
+      );
       stackPolygon.attr('transform', `translate(-10, -10)`);
     }
     let polygon = this.createPolygon(parent, polygonPoints, color, actionable);
@@ -1311,28 +1392,40 @@ export class QueryTreeDrawerDirective {
       .attr('font-size', VARIANT_Constants.FONT_SIZE)
       .attr('fill', textcolor)
       .classed('activity-text', true);
-    
-    if(element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0){
-      const cardinalityText = parent
-      .append('text')
-      .attr('x', width / 2)
-      .attr('y', -VARIANT_Constants.FONT_SIZE)
-      .classed('user-select-none', true)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr('font-size', VARIANT_Constants.FONT_SIZE)
-      .attr('fill', 'white')
-      .classed('activity-text', true);
 
-    const tspan = cardinalityText
-      .append('tspan')
-      .classed(
-        'cursor-pointer',
-        (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
-      )
-      .text('⇕ ' + element.asPattern().verticalCardiOp + ' ' + element.asPattern().verticalCardi + ',  ⇔ ' + element.asPattern().verticalCardiOp + ' ' + element.asPattern().horizontalCardi);
+    if (
+      element.asPattern().verticalCardi > 0 ||
+      element.asPattern().horizontalCardi > 0
+    ) {
+      const cardinalityText = parent
+        .append('text')
+        .attr('x', width / 2)
+        .attr('y', -VARIANT_Constants.FONT_SIZE)
+        .classed('user-select-none', true)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'middle')
+        .attr('font-size', VARIANT_Constants.FONT_SIZE)
+        .attr('fill', 'white')
+        .classed('activity-text', true);
+
+      const tspan = cardinalityText
+        .append('tspan')
+        .classed(
+          'cursor-pointer',
+          (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
+        )
+        .text(
+          '⇕ ' +
+            element.asPattern().verticalCardiOp +
+            ' ' +
+            element.asPattern().verticalCardi +
+            ',  ⇔ ' +
+            element.asPattern().verticalCardiOp +
+            ' ' +
+            element.asPattern().horizontalCardi
+        );
     }
-    
+
     let y = height / 2;
     if (element.activity.length > 1) {
       y =

@@ -132,13 +132,11 @@ export abstract class VariantElement {
 
   public asPattern(): any {
     const self: unknown = this;
-    if(self instanceof LeafPattern){
+    if (self instanceof LeafPattern) {
       return self as LeafPattern;
-    } 
-    else if(self instanceof ParallelPattern){
+    } else if (self instanceof ParallelPattern) {
       return self as ParallelPattern;
-    }
-    else if(self instanceof SequencePattern){
+    } else if (self instanceof SequencePattern) {
       return self as SequencePattern;
     }
   }
@@ -1606,14 +1604,14 @@ export class LeafPattern extends LeafNode implements QueryPattern {
       horizontalCardi: this.horizontalCardi,
       verticalCardiOp: this.verticalCardiOp,
       horizontalCardiOp: this.horizontalCardiOp,
-     };
+    };
   }
 
   public getHeight(): number {
     this.height =
       this.activity.length *
       (VARIANT_Constants.FONT_SIZE + 2 * VARIANT_Constants.MARGIN_Y);
-      /* How to handle the leaf stack height and width?
+    /* How to handle the leaf stack height and width?
     if(this.verticalCardi > 0 || this.horizontalCardi > 0){
         this.height += 10;
       }*/
@@ -1686,9 +1684,9 @@ export class SequencePattern extends SequenceGroup implements QueryPattern {
     if (!(this.parent instanceof SkipGroup))
       this.height += this.getMarginY() * 2;
 
-    if(this.verticalCardi > 0 || this.horizontalCardi > 0){
-        this.height += 2 * VARIANT_Constants.CARDI_MARGIN_Y;
-      }
+    if (this.verticalCardi > 0 || this.horizontalCardi > 0) {
+      this.height += 2 * VARIANT_Constants.CARDI_MARGIN_Y;
+    }
     return this.height;
   }
 
@@ -1704,7 +1702,7 @@ export class SequencePattern extends SequenceGroup implements QueryPattern {
         this.getHeadLength() -
         this.elements[0].getHeadLength();
 
-    if(this.verticalCardi > 0 || this.horizontalCardi > 0){
+    if (this.verticalCardi > 0 || this.horizontalCardi > 0) {
       this.width += 2 * VARIANT_Constants.CARDI_MARGIN_X;
     }
     return this.width;
@@ -1759,8 +1757,8 @@ export class ParallelPattern extends ParallelGroup implements QueryPattern {
       this.elements
         .map((el: VariantElement) => el.getHeight() + this.getMarginY())
         .reduce((a: number, b: number) => a + b) + VARIANT_Constants.MARGIN_Y;
-    
-    if(this.verticalCardi > 0 || this.horizontalCardi > 0){
+
+    if (this.verticalCardi > 0 || this.horizontalCardi > 0) {
       this.height += 2 * VARIANT_Constants.CARDI_MARGIN_Y;
     }
     return this.height;
@@ -1778,9 +1776,9 @@ export class ParallelPattern extends ParallelGroup implements QueryPattern {
       VARIANT_Constants.MARGIN_X +
       2 * headLength;
 
-    if(this.verticalCardi > 0 || this.horizontalCardi > 0){
-        this.width += 2 * VARIANT_Constants.CARDI_MARGIN_X;
-      }
+    if (this.verticalCardi > 0 || this.horizontalCardi > 0) {
+      this.width += 2 * VARIANT_Constants.CARDI_MARGIN_X;
+    }
     return this.width;
   }
 

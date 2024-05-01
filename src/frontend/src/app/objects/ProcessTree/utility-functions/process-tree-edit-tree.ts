@@ -86,7 +86,18 @@ export function createNewRandomQueryNode(
   operator: ProcessTreeOperator,
   id: number = Math.floor(1000000000 + Math.random() * 900000000)
 ): QueryTree {
-  return new QueryTree(label, operator, false, [], id, false, null, null, null, null);
+  return new QueryTree(
+    label,
+    operator,
+    false,
+    [],
+    id,
+    false,
+    null,
+    null,
+    null,
+    null
+  );
 }
 
 export function insertQueryNode(

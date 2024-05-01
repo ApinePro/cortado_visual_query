@@ -87,7 +87,9 @@ import { log } from 'console';
   templateUrl: './graphical-query-editor.component.html',
   styleUrls: ['./graphical-query-editor.component.css'],
   animations: [
-    ,fadeInText, collapsingText,
+    ,
+    fadeInText,
+    collapsingText,
     trigger('collapse', [
       transition(':enter', [
         style({ opacity: '0', width: '0px', overflow: 'hidden' }),
@@ -188,7 +190,6 @@ export class GraphicalQueryEditorComponent
 
   cardinalityDirection = CardinalityDirection;
   cardiDirect = this.cardinalityDirection.vertical;
-  
 
   variantEnrichedSelection: Selection<any, any, any, any>; //selection of variant
   zoom: any;
@@ -512,7 +513,6 @@ export class GraphicalQueryEditorComponent
     if (this.selectedElement || this.emptyVariant || !nodevariant.pattern) {
       const leaf = new LeafPattern([event.activityName]);
       this.newLeaf = leaf;
-
 
       if (this.emptyVariant || !nodevariant.pattern) {
         nodevariant.pattern = new SequencePattern([leaf]);
@@ -1216,7 +1216,7 @@ export class GraphicalQueryEditorComponent
           .selectAll('.selected-polygon')
           .classed('selected-polygon', false)
           .attr('stroke', false);
-        
+
         d3.select('.node-variant-svg')
           .selectAll('.chevron-group')
           .style('fill-opacity', 0.5);
@@ -1275,10 +1275,8 @@ export class GraphicalQueryEditorComponent
     //this.selectedRootNode = null;
   }
 
-  insertOuterPattern(
-    parent: VariantElement,
-    selectedElement) {
-      //if they have the same parent?
+  insertOuterPattern(parent: VariantElement, selectedElement) {
+    //if they have the same parent?
     //const children = variant.getElements();
     const parentChildren = parent.getElements();
     let index = parentChildren.length;
@@ -1296,19 +1294,18 @@ export class GraphicalQueryEditorComponent
       new SequencePattern(selectedElement)
     );
     parent.setElements(parentChildren);
-    console.log("insert outer");
+    console.log('insert outer');
     console.log(parent);
     return parent.getElements()[index];
   }
 
-
   savePattern() {
-    this.savedPatterns.push((this.selectedRootNode?.data as QueryTree).pattern.copy());
+    this.savedPatterns.push(
+      (this.selectedRootNode?.data as QueryTree).pattern.copy()
+    );
   }
 
-  openPatternList(){
-
-  }
+  openPatternList() {}
 
   openCardinality() {
     console.log('start!');
@@ -1317,123 +1314,155 @@ export class GraphicalQueryEditorComponent
 
   changeCardinalityOp(op) {
     const selectedElement = this.variantEnrichedSelection
-          .selectAll('.selected-variant-g')
-          .data();
-    if (op == "less"){
-      (selectedElement[0] as any).asPattern().verticalCardiOp = CardinalityOperator.lessequal;
-      (selectedElement[0] as any).asPattern().horizontalCardiOp = CardinalityOperator.lessequal;
-    }
-    else if (op == "equal"){
-      (selectedElement[0] as any).asPattern().verticalCardiOp = CardinalityOperator.equal;
-      (selectedElement[0] as any).asPattern().horizontalCardiOp = CardinalityOperator.equal;
-    }
-    else if (op == "more"){
-      (selectedElement[0] as any).asPattern().verticalCardiOp = CardinalityOperator.moreequal;
-      (selectedElement[0] as any).asPattern().horizontalCardiOp = CardinalityOperator.moreequal;
+      .selectAll('.selected-variant-g')
+      .data();
+    if (op == 'less') {
+      (selectedElement[0] as any).asPattern().verticalCardiOp =
+        CardinalityOperator.lessequal;
+      (selectedElement[0] as any).asPattern().horizontalCardiOp =
+        CardinalityOperator.lessequal;
+    } else if (op == 'equal') {
+      (selectedElement[0] as any).asPattern().verticalCardiOp =
+        CardinalityOperator.equal;
+      (selectedElement[0] as any).asPattern().horizontalCardiOp =
+        CardinalityOperator.equal;
+    } else if (op == 'more') {
+      (selectedElement[0] as any).asPattern().verticalCardiOp =
+        CardinalityOperator.moreequal;
+      (selectedElement[0] as any).asPattern().horizontalCardiOp =
+        CardinalityOperator.moreequal;
     }
     this.triggerRedraw();
   }
 
   addCardinality() {
     const selectedElement = this.variantEnrichedSelection
-          .selectAll('.selected-variant-g')
-          .data();
+      .selectAll('.selected-variant-g')
+      .data();
     console.log(selectedElement);
-    if(selectedElement.length > 1){
-      let parent = this.findParent((this.selectedRootNode?.data as QueryTree).pattern, selectedElement[0]);
+    if (selectedElement.length > 1) {
+      let parent = this.findParent(
+        (this.selectedRootNode?.data as QueryTree).pattern,
+        selectedElement[0]
+      );
       const parentChildren = parent.getElements();
       let selectionIndex = 0;
       let firstSelectIdx = 0;
       let lastSelectIdx = 0;
-      while(selectionIndex < selectedElement.length && parentChildren.indexOf(selectedElement[selectionIndex]) > -1){ // ALSO NEED DETERMINE SAME PARENT!!!!!!!!!!!!!!!!!!!!!!!!
-        if (selectionIndex == 0){
-          firstSelectIdx = parentChildren.indexOf(selectedElement[selectionIndex]);
+      while (
+        selectionIndex < selectedElement.length &&
+        parentChildren.indexOf(selectedElement[selectionIndex]) > -1
+      ) {
+        // ALSO NEED DETERMINE SAME PARENT!!!!!!!!!!!!!!!!!!!!!!!!
+        if (selectionIndex == 0) {
+          firstSelectIdx = parentChildren.indexOf(
+            selectedElement[selectionIndex]
+          );
         }
-        lastSelectIdx = parentChildren.indexOf(selectedElement[selectionIndex])
+        lastSelectIdx = parentChildren.indexOf(selectedElement[selectionIndex]);
         selectionIndex += 1;
       }
 
-      if(lastSelectIdx - firstSelectIdx + 1 == selectedElement.length){ //Only allow adjecent groups when doing multiple selection --> how about in parallel group??
-        if(parentChildren.length != selectedElement.length) {
-          console.log("create outer");
+      if (lastSelectIdx - firstSelectIdx + 1 == selectedElement.length) {
+        //Only allow adjecent groups when doing multiple selection --> how about in parallel group??
+        if (parentChildren.length != selectedElement.length) {
+          console.log('create outer');
           console.log(selectedElement);
           parent = this.insertOuterPattern(parent, selectedElement);
         }
-        if(this.cardiDirect == this.cardinalityDirection.vertical){
+        if (this.cardiDirect == this.cardinalityDirection.vertical) {
           parent.asPattern().verticalCardi += 1;
-        }
-        else{
+        } else {
           parent.asPattern().horizontalCardi += 1;
         }
       }
-    }
-    else if (selectedElement[0] instanceof LeafPattern){ // Single selection, leaf
-      if(this.cardiDirect == this.cardinalityDirection.vertical){
+    } else if (selectedElement[0] instanceof LeafPattern) {
+      // Single selection, leaf
+      if (this.cardiDirect == this.cardinalityDirection.vertical) {
         (selectedElement[0] as any).asPattern().verticalCardi += 1;
-      }
-      else{
+      } else {
         (selectedElement[0] as any).asPattern().horizontalCardi += 1;
       }
-    }
-    else if ((selectedElement[0] as any).getElements().length > 1){ // Single selection, for seq and para
-      if(this.cardiDirect == this.cardinalityDirection.vertical){
+    } else if ((selectedElement[0] as any).getElements().length > 1) {
+      // Single selection, for seq and para
+      if (this.cardiDirect == this.cardinalityDirection.vertical) {
         (selectedElement[0] as any).asPattern().verticalCardi += 1;
-      }
-      else{
+      } else {
         (selectedElement[0] as any).asPattern().horizontalCardi += 1;
       }
-    }
-    else{
-      if(this.cardiDirect == this.cardinalityDirection.vertical){ // ?
-        (selectedElement[0] as any).getElements()[0].asPattern().verticalCardi += 1;
-      }
-      else{
-        (selectedElement[0] as any).getElements()[0].asPattern().horizontalCardi += 1;
+    } else {
+      if (this.cardiDirect == this.cardinalityDirection.vertical) {
+        // ?
+        (selectedElement[0] as any)
+          .getElements()[0]
+          .asPattern().verticalCardi += 1;
+      } else {
+        (selectedElement[0] as any)
+          .getElements()[0]
+          .asPattern().horizontalCardi += 1;
       }
     }
     console.log((this.selectedRootNode?.data as QueryTree).pattern);
-    console.log("Added cardinality");
+    console.log('Added cardinality');
     this.triggerRedraw();
   }
 
   reduceCardinality() {
     const selectedElement = this.variantEnrichedSelection
-          .selectAll('.selected-variant-g')
-          .data();
-    if(selectedElement.length == 1){ //Only allow single reduce now
-      if(this.cardiDirect == this.cardinalityDirection.vertical){
+      .selectAll('.selected-variant-g')
+      .data();
+    if (selectedElement.length == 1) {
+      //Only allow single reduce now
+      if (this.cardiDirect == this.cardinalityDirection.vertical) {
         if ((selectedElement[0] as any).asPattern().verticalCardi > 0) {
           (selectedElement[0] as any).asPattern().verticalCardi -= 1;
         }
-      }
-      else if(this.cardiDirect == this.cardinalityDirection.horizontal)
-      {
+      } else if (this.cardiDirect == this.cardinalityDirection.horizontal) {
         if ((selectedElement[0] as any).asPattern().horizontalCardi > 0) {
-        (selectedElement[0] as any).asPattern().horizontalCardi -= 1;
+          (selectedElement[0] as any).asPattern().horizontalCardi -= 1;
         }
       }
     }
     this.triggerRedraw();
   }
 
-  canSwitchCardinality(op){
-    if(!this.variantEnrichedSelection){
+  canSwitchCardinality(op) {
+    if (!this.variantEnrichedSelection) {
       return false;
     }
     const selectedElement = this.variantEnrichedSelection
-          .selectAll('.selected-variant-g')
-          .data();
-    if (selectedElement.length > 1 || ((selectedElement[0] as any).asPattern().horizontalCardi == 0 && (selectedElement[0] as any).asPattern().verticalCardi == 0)){
+      .selectAll('.selected-variant-g')
+      .data();
+    if (
+      selectedElement.length > 1 ||
+      ((selectedElement[0] as any).asPattern().horizontalCardi == 0 &&
+        (selectedElement[0] as any).asPattern().verticalCardi == 0)
+    ) {
       return false;
     }
-    if(op == "less"){
-      return (selectedElement[0] as any).asPattern().horizontalCardiOp != CardinalityOperator.lessequal || (selectedElement[0] as any).asPattern().verticalCardiOp != CardinalityOperator.lessequal;
+    if (op == 'less') {
+      return (
+        (selectedElement[0] as any).asPattern().horizontalCardiOp !=
+          CardinalityOperator.lessequal ||
+        (selectedElement[0] as any).asPattern().verticalCardiOp !=
+          CardinalityOperator.lessequal
+      );
     }
-    if(op == "equal"){
-      return (selectedElement[0] as any).asPattern().horizontalCardiOp != CardinalityOperator.equal || (selectedElement[0] as any).asPattern().verticalCardiOp != CardinalityOperator.equal;
+    if (op == 'equal') {
+      return (
+        (selectedElement[0] as any).asPattern().horizontalCardiOp !=
+          CardinalityOperator.equal ||
+        (selectedElement[0] as any).asPattern().verticalCardiOp !=
+          CardinalityOperator.equal
+      );
     }
-    if(op == "more"){
-      return (selectedElement[0] as any).asPattern().horizontalCardiOp != CardinalityOperator.moreequal || (selectedElement[0] as any).asPattern().verticalCardiOp != CardinalityOperator.moreequal;
+    if (op == 'more') {
+      return (
+        (selectedElement[0] as any).asPattern().horizontalCardiOp !=
+          CardinalityOperator.moreequal ||
+        (selectedElement[0] as any).asPattern().verticalCardiOp !=
+          CardinalityOperator.moreequal
+      );
     }
   }
 
@@ -1448,7 +1477,7 @@ export class GraphicalQueryEditorComponent
     //console.log('start redraw tree');
     //console.log(tree);
     this.processTreeDrawer.redraw(tree);
-    console.log("draw finished");
+    console.log('draw finished');
     setTimeout(() => this.selectRootNodeFromID(this.selectedRootNodeId), 0);
   }
 
@@ -1463,7 +1492,7 @@ export class GraphicalQueryEditorComponent
       this.checkNodeInsertionStrategy(this.selectedRootNode.data);
       //added
       this.currentVariant = node.data.pattern;
-      this.emptyVariant = (node.data.pattern == null);
+      this.emptyVariant = node.data.pattern == null;
     }
   }
 
@@ -1657,8 +1686,10 @@ export class GraphicalQueryEditorComponent
     }
   };
 
-  negateNode(){
-    (this.selectedRootNode?.data as QueryTree).negation = !(this.selectedRootNode?.data as QueryTree).negation;
+  negateNode() {
+    (this.selectedRootNode?.data as QueryTree).negation = !(
+      this.selectedRootNode?.data as QueryTree
+    ).negation;
     this.redraw(this.currentlyDisplayedTreeInEditor);
   }
 
@@ -1802,15 +1833,21 @@ export class GraphicalQueryEditorComponent
 
   private selectSubtreeFromRoot = function (svgGroup, d) {
     // Unselect All Edges and Rect
-    this.mainSvgGroup.selectAll('rect')
-    .filter((d: any) => {return d.data})
-    .each((d) => {
-      d.data.selected = false;
-    });
+    this.mainSvgGroup
+      .selectAll('rect')
+      .filter((d: any) => {
+        return d.data;
+      })
+      .each((d) => {
+        d.data.selected = false;
+      });
 
-    this.mainSvgGroup.selectAll('rect')
-    .filter((d: any) => {return d.data})
-    .classed('selected-node', false);
+    this.mainSvgGroup
+      .selectAll('rect')
+      .filter((d: any) => {
+        return d.data;
+      })
+      .classed('selected-node', false);
     this.mainSvgGroup.selectAll('line').classed('selected-edge', false);
 
     // Select the node, if it isn't selected yet
@@ -2015,30 +2052,35 @@ export class GraphicalQueryEditorComponent
 
   hideAllTooltips() {}
 
-
   // Apply query tree
   serializeNode(node) {
-    if(node.pattern){
+    if (node.pattern) {
       return {
         pattern: node.pattern.serialize(),
         operator: node.operator,
         negation: node.negation,
-        children: node.children ? node.children.map(child => this.serializeNode(child)) : []
+        children: node.children
+          ? node.children.map((child) => this.serializeNode(child))
+          : [],
       };
-    }
-    else{
+    } else {
       return {
         operator: node.operator,
         negation: node.negation,
-        children: node.children && node.children.length > 0 ? node.children.map(child => this.serializeNode(child)) : []
+        children:
+          node.children && node.children.length > 0
+            ? node.children.map((child) => this.serializeNode(child))
+            : [],
       };
     }
   }
 
   queryApply(): void {
-      console.log(this.serializeNode(this.currentlyDisplayedTreeInEditor));
-      const serializedTree = this.serializeNode(this.currentlyDisplayedTreeInEditor);
-      this.backendService.applyGraphicalQuery(serializedTree);
+    console.log(this.serializeNode(this.currentlyDisplayedTreeInEditor));
+    const serializedTree = this.serializeNode(
+      this.currentlyDisplayedTreeInEditor
+    );
+    this.backendService.applyGraphicalQuery(serializedTree);
   }
 }
 
