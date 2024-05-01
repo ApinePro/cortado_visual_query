@@ -1586,8 +1586,8 @@ export class LeafPattern extends LeafNode implements QueryPattern {
     public conformance: number[] = undefined
   ) {
     super(performance);
-    this.verticalCardi = 1;
-    this.horizontalCardi = 1;
+    this.verticalCardi = 0;
+    this.horizontalCardi = 0;
     this.verticalCardiOp = CardinalityOperator.equal;
     this.horizontalCardiOp = CardinalityOperator.equal;
     this.eventually = false;
@@ -1613,8 +1613,8 @@ export class LeafPattern extends LeafNode implements QueryPattern {
 export class SequencePattern extends SequenceGroup implements QueryPattern {
   constructor(public elements: VariantElement[], performance: any = undefined) {
     super(performance);
-    this.verticalCardi = 1;
-    this.horizontalCardi = 1;
+    this.verticalCardi = 0;
+    this.horizontalCardi = 0;
     this.verticalCardiOp = CardinalityOperator.equal;
     this.horizontalCardiOp = CardinalityOperator.equal;
     this.eventually = false;
@@ -1688,8 +1688,8 @@ export class SequencePattern extends SequenceGroup implements QueryPattern {
 export class ParallelPattern extends ParallelGroup implements QueryPattern {
   constructor(public elements: VariantElement[], performance: any = undefined) {
     super(performance);
-    this.verticalCardi = 1;
-    this.horizontalCardi = 1;
+    this.verticalCardi = 0;
+    this.horizontalCardi = 0;
     this.verticalCardiOp = CardinalityOperator.equal;
     this.horizontalCardiOp = CardinalityOperator.equal;
     this.eventually = false;
@@ -1870,15 +1870,3 @@ export type GroupsWithChildElements =
   | SequenceGroup
   | LoopGroup
   | SkipGroup;
-  
-
-export enum CardinalityOperator {
-  lessequal = '≤',
-  equal = '=',
-  moreequal = '≥',
-}
-
-export enum CardinalityDirection {
-  horizontal = 0,
-  vertical = 1,
-}

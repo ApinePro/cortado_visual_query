@@ -154,7 +154,7 @@ export class QueryTreeDrawerDirective {
   svgSelection!: Selection<any, any, any, any>;
 
   redraw(tree: ProcessTree) {
-    console.log(tree);
+    //console.log(tree);
     if (tree) {
       this.root = d3.hierarchy(tree, (d) => {
         // @ts-ignore
@@ -341,7 +341,6 @@ export class QueryTreeDrawerDirective {
         return d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2;
       });
 
-    console.log("start negation");
 
     this.nodeEnter
       .filter((d: any) => {console.log(d); return d.data.negation == true})
@@ -349,7 +348,7 @@ export class QueryTreeDrawerDirective {
       .attr('d', function (d: any) {
         let length, width = 0;
         if (d.data.pattern){
-          console.log(d.data.pattern);
+          //console.log(d.data.pattern);
           width =  d.data.pattern.getWidth() + 2 * VARIANT_Constants.MARGIN_X;
           length = d.data.pattern.getHeight() + 2 * VARIANT_Constants.MARGIN_Y;
         }
@@ -393,8 +392,8 @@ export class QueryTreeDrawerDirective {
 
   translateNextSiblings(node) {
     const siblings = node.parent.children;
-    console.log('siblings');
-    console.log(siblings);
+    //console.log('siblings');
+    //console.log(siblings);
     const nodeIndex = siblings.indexOf(node);
     let i = siblings.length - 1;
     while (i > nodeIndex) {
@@ -450,7 +449,7 @@ export class QueryTreeDrawerDirective {
 
   update(root): void {
     this.mainSvgGroup.selectAll('g').remove();
-    console.log('updating tree');
+    //console.log('updating tree');
     if (root) {
       // add node groups that contain a rectangle and text
       this.calculateTreeLayout(root);
@@ -531,8 +530,8 @@ export class QueryTreeDrawerDirective {
 
   //Variant drawer part
   variantRedraw(id, variant, x, y): void {
-    console.log('variant redraw');
-    console.log(variant);
+    //console.log('variant redraw');
+    //console.log(variant);
     this.mainSvgGroup
       .select(`[id='${id}']`)
       .selectAll('node-variant-svg')
@@ -561,7 +560,7 @@ export class QueryTreeDrawerDirective {
         .classed('node-variant-svg', true)
         .append('g')
         .attr('transform', `translate(${x + VARIANT_Constants.MARGIN_X}, ${y + VARIANT_Constants.MARGIN_Y})`);
-      console.log(svg_container);
+      //console.log(svg_container);
 
       //for parallel group-like chevrons
       variant.updateWidth(
@@ -616,7 +615,7 @@ export class QueryTreeDrawerDirective {
     const POSTFIX_OFFSET = 25;
 
     const svg = parentSvg;
-    console.log(svg);
+    //console.log(svg);
     const variant_svg = svg
       .append('g')
       .attr('width', width)
@@ -709,7 +708,6 @@ export class QueryTreeDrawerDirective {
     outerElement: boolean,
     nodeVariant
   ): void {
-    console.log('come here');
     //console.log(svgElement);
     svgElement.datum(element).classed('variant-element-group', true);
 
@@ -752,13 +750,6 @@ export class QueryTreeDrawerDirective {
   ): void {
     const width = element.asPattern().getWidth();
     const height = element.asPattern().getHeight();
-    if(element instanceof SequencePattern){
-      console.log("drawSequencePattern");
-      //console.log(width);
-      //console.log(height);
-    }
-
-
 
     const polygonPoints = this.polygonService.getPolygonPoints(width, height);
 
@@ -770,7 +761,7 @@ export class QueryTreeDrawerDirective {
       laElement.infixSelectableState !== SelectableState.None;
 
     
-    if(element.asPattern().verticalCardi > 1 || element.asPattern().horizontalCardi > 1){
+    if(element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0){
       parent.append('rect')
       .classed('cardinality-region', true)
       .attr('width', width)
@@ -815,7 +806,7 @@ export class QueryTreeDrawerDirective {
 
     
     let xOffset = VARIANT_Constants.MARGIN_X; //edited
-    if(element.asPattern().verticalCardi > 1 || element.asPattern().horizontalCardi > 1) {
+    if(element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0) {
       xOffset = xOffset + VARIANT_Constants.MARGIN_X + VARIANT_Constants.CARDI_MARGIN_X;
     }
 
@@ -827,11 +818,11 @@ export class QueryTreeDrawerDirective {
     }
     
     if(element.asPattern().verticalCardiOp != CardinalityOperator.equal ||
-    (element.asPattern().verticalCardiOp === CardinalityOperator.equal && (element.asPattern().verticalCardi > 1 || element.asPattern().horizontalCardi > 1))){
+    (element.asPattern().verticalCardiOp === CardinalityOperator.equal && (element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0))){
       const cardinalityText = parent
       .append('text')
-      .attr('x', element.asPattern().verticalCardi > 1 || element.asPattern().horizontalCardi > 1 ? width / 2 : width)
-      .attr('y', element.asPattern().verticalCardi > 1 || element.asPattern().horizontalCardi > 1 ? (VARIANT_Constants.MARGIN_Y + VARIANT_Constants.CARDI_MARGIN_Y) / 2 : 0)
+      .attr('x', element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0 ? width / 2 : width)
+      .attr('y', element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0 ? (VARIANT_Constants.MARGIN_Y + VARIANT_Constants.CARDI_MARGIN_Y) / 2 : 0)
       .classed('user-select-none', true)
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
@@ -898,9 +889,9 @@ export class QueryTreeDrawerDirective {
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
     
-    console.log(element);
+    //console.log(element);
       //add cardinality dashed box
-    if(element.asPattern().verticalCardi > 1 || element.asPattern().horizontalCardi > 1){
+    if(element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0){
         parent.append('rect')
         .attr('width', width)
         .attr('height', height)
@@ -943,7 +934,7 @@ export class QueryTreeDrawerDirective {
     }
 
     if(element.asPattern().verticalCardiOp != CardinalityOperator.equal ||
-    (element.asPattern().verticalCardiOp != CardinalityOperator.equal && (element.asPattern().verticalCardi > 1 || element.asPattern().horizontalCardi > 1))){
+    (element.asPattern().verticalCardiOp != CardinalityOperator.equal && (element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0))){
       const cardinalityText = parent
       .append('text')
       .attr('x', width / 2)
@@ -1002,7 +993,7 @@ export class QueryTreeDrawerDirective {
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
     
-    if(element.asPattern().verticalCardi > 1){
+    if(element.asPattern().verticalCardi > 0){
         parent.append('rect')
         .attr('width', width + 30)
         .attr('height', height + 20)
@@ -1154,7 +1145,7 @@ export class QueryTreeDrawerDirective {
       laElement.parent !== null &&
       laElement.infixSelectableState !== SelectableState.None;
 
-    if(element.asPattern().verticalCardi > 1){
+    if(element.asPattern().verticalCardi > 0){
         parent.append('rect')
         .attr('width', width + 30)
         .attr('height', height + 20)
@@ -1278,8 +1269,8 @@ export class QueryTreeDrawerDirective {
       laElement.infixSelectableState !== SelectableState.None;
 
     
-    if(element.asLeafPattern().verticalCardi > 1 || element.asPattern().horizontalCardi > 1){
-      console.log("draw leaf cardi");
+    if(element.asLeafPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0){
+      //console.log("draw leaf cardi");
       const lightColor = this.fadeColor(color)
       let stackPolygon = this.createPolygon(parent, polygonPoints, lightColor, actionable);
       stackPolygon.attr('transform', `translate(-10, -10)`);
@@ -1307,7 +1298,7 @@ export class QueryTreeDrawerDirective {
       .classed('activity-text', true);
     
     if(element.asPattern().verticalCardiOp != CardinalityOperator.equal ||
-    (element.asPattern().verticalCardiOp != CardinalityOperator.equal && (element.asPattern().verticalCardi > 1 || element.asPattern().horizontalCardi > 1))){
+    (element.asPattern().verticalCardiOp != CardinalityOperator.equal && (element.asPattern().verticalCardi > 0 || element.asPattern().horizontalCardi > 0))){
       const cardinalityText = parent
       .append('text')
       .attr('x', width / 2)
