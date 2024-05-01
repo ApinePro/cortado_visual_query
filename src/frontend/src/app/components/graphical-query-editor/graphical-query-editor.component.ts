@@ -136,6 +136,8 @@ export class GraphicalQueryEditorComponent
       this.activityNames.sort();
     }
     this.activityNames.unshift('S');
+    this.activityNames.unshift('?');
+    this.activityNames.unshift('...');
     this.activityNames.push('E');
     this.queryTreeOperators = [
       QueryTreeOperator.or,
@@ -355,6 +357,8 @@ export class GraphicalQueryEditorComponent
           this.activityNames.sort();
         }
         this.activityNames.unshift('S');
+        this.activityNames.unshift('?');
+        this.activityNames.unshift('...');
         this.activityNames.push('E');
       });
 
