@@ -407,13 +407,7 @@
               (click)="insertNewNode(op, null)"
               [ngbTooltip]="op"
               [ngClass]="
-                op === 'X' &&
-                selectedRootNode &&
-                (nodeInsertionStrategy === NodeInsertionStrategy.ABOVE ||
-                  (selectedRootNode.data.operator === 'X' &&
-                    nodeInsertionStrategy === NodeInsertionStrategy.BELOW))
-                  ? 'button-area-disabled'
-                  : ''
+                checkNodeButtonDisabled(op) ? 'button-area-disabled' : ''
               "
               container="body"
               placement="bottom"

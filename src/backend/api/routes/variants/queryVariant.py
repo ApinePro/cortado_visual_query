@@ -5,6 +5,15 @@ from pydantic import BaseModel
 from typing import Any
 import copy
 
+from cortado_core.models.infix_type import InfixType
+from endpoints.load_event_log import (
+    create_variant_object,
+    compute_log_stats,
+    variants_to_variant_objects,
+)
+from collections import defaultdict
+from api.routes.variants.variants import VariantInformation
+
 router = APIRouter(tags=["variantQuery"], prefix="/variantQuery")
 
 
@@ -29,7 +38,10 @@ def variant_query(query: variantQuery):
 
 
 
+def generate_variant_info(infix_type, traces):
+    user_defined = len(traces) == 0
 
+    return VariantInformation(infix_type=infix_type, is_user_defined=user_defined)
 
 @router.post("/graphical-variant-query")
 def graphical_variant_query(graphical_query: graphicalVariantQuery):
@@ -37,32 +49,73 @@ def graphical_variant_query(graphical_query: graphicalVariantQuery):
     print(graphical_query)
     #print(cache.variants.items())
     query = deserialize_query(graphical_query)
-    variant_list = []
+    variant_list = defaultdict(list)
     count = 0
+
+    variants = cache.variants
+    new_variants = {
+        InfixType.NOT_AN_INFIX: defaultdict(list),
+    }
+
+    n_traces = 0
+    for _, (variant, traces, _, info) in variants.items():
+        count += 1
+        if check_node(query, variant):
+            new_variants[info.infix_type][variant] += traces
+            variant_list[variant] += traces
+            n_traces += len(traces)
+
+    cache_variants = dict()
+    cache_max_bid = 0
+    res_variants = []
+
+    for infix_type, var in new_variants.items():  # var: dict, key(variant) value(trace)
+
+        res_vars, new_cache_variants = variants_to_variant_objects(
+            variant_list,
+            cache.parameters["cur_time_granularity"],
+            n_traces,
+            lambda ts: generate_variant_info(infix_type, ts),
+        )
+        res_variants += res_vars
+
+        for bid, variant in new_cache_variants.items():
+            cache_variants[bid + cache_max_bid] = variant
+
+        cache_max_bid = max(cache_variants.keys())
+
+    cache.variants = cache_variants
+    start_activities, end_activities, nActivities = compute_log_stats(
+        cache.variants
+    )
+
+    cache.parameters["activites"] = set(nActivities.keys())
+    '''
     for bid, (variant, _, _, info) in cache.variants.items():
         #if check_node(query, variant):
         #    res.append(bid + 1)
         #print("")
         count += 1
-        if count >= 7 and count <= 20:
-            print("ID:", bid + 1,"\n")
+        if count >= 11 and count <= 11:
+            print("ID:", count,"\n")
             if check_node(query, variant):
-                variant_list.append(bid + 1)
+                variant_list.append(count)
             print("########################################################################################################")
-    
     '''
+    
     res = {
         "startActivities": start_activities,
         "endActivities": end_activities,
         "activities": nActivities,
         "variants": res_variants,
-        "performanceInfoAvailable": cache.cache.parameters["lifecycle_available"],
-        "timeGranularity": cache.cache.parameters["cur_time_granularity"],
+        "performanceInfoAvailable": cache.parameters["lifecycle_available"],
+        "timeGranularity": cache.parameters["cur_time_granularity"],
     }
-    '''
+    
     print("Variant list:")
     print(variant_list)
-    return {"res": variant_list}
+    #return {"res": variant_list}
+    return res
 
 def deserialize_query(graphical_query):
     query_tree = {}
@@ -78,12 +131,13 @@ def check_node(node, variant):
     result = True
     if node["operator"] == 'AND':
         for child in node["children"]: 
-            result = result & check_node(child)
+            result = result & check_node(child, variant)
     if node["operator"] == 'OR':
         for child in node["children"]: 
-            result = result | check_node(child)
+            result = result | check_node(child, variant)
     if node["operator"] == 'X':
-        print(variant)
+        #print("Original Variant:")
+        #print(variant)
         result = pattern_match_variant(copy.deepcopy(node["pattern"]), variant.serialize())
     if node["negation"] == True:
         return not result
@@ -97,33 +151,50 @@ def pattern_match_variant(pattern, variant):
     print(pattern, '\n')
     print("Variant is:")
     print(variant, '\n')
-    print("##########################################################################\n")
 
     if len(pattern) == 0 and len(variant) == 0: # check for []
         return True
     elif len(pattern) == 0 and len(variant) != 0:
         return False
-    elif len(pattern) != 0 and len(variant) == 0: #what?
-        return False
     
     if "follows" in pattern and len(pattern["follows"]) == 1 and not check_have_cardi(pattern):
         pattern = pattern["follows"][0]
+
+    # len(pattern) != 0
+    if len(variant) == 0:
+        if "leaf" in pattern and pattern["leaf"][0] == '...':
+            return True
+        else:
+            return False
+    
     if "follows" in variant and len(variant["follows"]) == 1:
         variant = variant["follows"][0]
 
     p_head = find_head(pattern) #seq with cardi, leaf, para
     v_head = find_head(variant)
+    print("p_head is:")
+    print(p_head, '\n')
+    print("v_head is:")
+    print(v_head, '\n')
     p_body = cut_head(pattern)
     v_body = cut_head(variant)
+    print("p_body is:")
+    print(p_body, '\n')
+    print("v_body is:")
+    print(v_body, '\n')
 
     if "leaf" in p_head and p_head["leaf"][0] == '...':
         any_head = {"leaf": ["??"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='} #?? for any group. ? is for any activity
         pattern_with_any = add_head(pattern, any_head)
+        print("##########################################################################\n")
         return pattern_match_variant(p_body, variant) or pattern_match_variant(pattern_with_any, variant)
     elif check_have_cardi(p_head) and p_head["horizontalCardi"] > 0: # resolve horizontal
         pattern = add_head_cardinality(pattern, -1)
-        
-        if p_head["horizontalCardiOp"] == '<':
+        p_head = find_head(pattern)
+        #print("PHEAD AFTER REDUCE")
+        #print(p_head)
+        print("##########################################################################\n")
+        if p_head["horizontalCardiOp"] == '≤':
             if p_head["horizontalCardi"] == 0:
                 pattern = replace_head(pattern, p_head) # Remove the cardinality characteristics of the head
             else:   
@@ -133,9 +204,9 @@ def pattern_match_variant(pattern, variant):
                 return result
             if not result: # Another chance: should it match at least once here? Now 0 head is allowed
                 return pattern_match_variant(p_body, variant)
-        if p_head["horizontalCardiOp"] == '=' and p_head["horizontalCardi"] == 0: # 1->0, done
+        elif p_head["horizontalCardiOp"] == '=' and p_head["horizontalCardi"] == 0: # 1->0, done
             pattern = replace_head(pattern, p_head)
-        if p_head["horizontalCardiOp"] == '>' and p_head["horizontalCardi"] == 0:
+        elif p_head["horizontalCardiOp"] == '≥' and p_head["horizontalCardi"] == 0:
             new_pattern = replace_head(pattern, p_head)
             pattern = add_head_cardinality(pattern, 1)
             pattern = add_head(pattern, p_head)
@@ -148,6 +219,7 @@ def pattern_match_variant(pattern, variant):
 
     else:
         # p_head: para, leaf (may have vertical...)
+        print("HEAD IS PARA OR LEAF")
         return match_head(p_head, v_head) and pattern_match_variant(p_body, v_body)
 
 def add_head_cardinality(pattern, num):
@@ -156,6 +228,7 @@ def add_head_cardinality(pattern, num):
         pattern["horizontalCardi"] += num
     else:
         pattern["follows"][0]["horizontalCardi"] += num
+    #print(pattern)
     return pattern
 
 def add_head(pattern, head):
@@ -214,7 +287,7 @@ def compare_para(p_head, v_head): # No cardinality now
             else:
                 p_dic[element["leaf"][0]] += 1
         if "follows" in element:
-            p_dic["sequence"] = element["follows"]
+            p_dic["sequence"] = element
 
     for element in v_head["parallel"]:
         if "leaf" in element:
@@ -223,7 +296,7 @@ def compare_para(p_head, v_head): # No cardinality now
             else:
                 v_dic[element["leaf"][0]] += 1
         if "follows" in element:
-            v_dic["sequence"] = element["follows"]
+            v_dic["sequence"] = element
     
     if ("sequence" in p_dic and "sequence" not in v_dic) or ("sequence" not in p_dic and "sequence" in v_dic):
         return False
@@ -262,7 +335,7 @@ def find_head(variant):
         return copy.deepcopy(variant) # case: only parallel or leaf.
 
 def cut_head(variant):
-    print(variant)
+    #print(variant)
     variant = copy.deepcopy(variant)
     if "follows" in variant:
         variant["follows"].pop(0)
@@ -282,6 +355,8 @@ def check_cardi_direction(pattern):
         return "error"
     
 def check_have_cardi(pattern):
+    print("Check this: \n")
+    print(pattern)
     if pattern["verticalCardi"] > 0 or pattern["horizontalCardi"] > 0:
         return True
     else:

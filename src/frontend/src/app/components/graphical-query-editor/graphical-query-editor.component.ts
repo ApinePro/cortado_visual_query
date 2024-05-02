@@ -189,7 +189,7 @@ export class GraphicalQueryEditorComponent
   selectedStrategy = this.insertionStrategy.behind;
 
   cardinalityDirection = CardinalityDirection;
-  cardiDirect = this.cardinalityDirection.vertical;
+  cardiDirect = this.cardinalityDirection.horizontal;
 
   variantEnrichedSelection: Selection<any, any, any, any>; //selection of variant
   zoom: any;
@@ -1206,7 +1206,7 @@ export class GraphicalQueryEditorComponent
     selection.selectAll('g').on('click', function (event, d) {
       event.stopPropagation();
       const select = d3.select(this as SVGElement);
-      console.log(select);
+      //console.log(select);
       toogleSelect(select);
     });
 
@@ -1215,6 +1215,12 @@ export class GraphicalQueryEditorComponent
         d3.selectAll('.node-variant-svg')
           .selectAll('.selected-polygon')
           .classed('selected-polygon', false)
+          .attr('stroke', false);
+        
+        // Add new. Don't know the last line... 
+        d3.selectAll('.node-variant-svg')
+          .selectAll('.selected-dashbox')
+          .classed('selected-dashbox', false)
           .attr('stroke', false);
 
         d3.select('.node-variant-svg')
@@ -1226,10 +1232,23 @@ export class GraphicalQueryEditorComponent
           .classed('selected-variant-g', false);
 
         svgSelection.classed('selected-variant-g', true);
-
+        
+        //console.log(svgSelection);
         //const poly = svgSelection.select('polygon');
         const poly = svgSelection.selectAll('polygon');
         poly.classed('selected-polygon', true);
+
+        
+        // Add new.
+        const rect = svgSelection.selectAll('rect');
+        //console.log(svgSelection);
+        //console.log(rect);
+        //console.log(rect.data().length);
+        if(rect.data().length != 0){
+          poly.classed('selected-polygon', false);
+          rect.classed('selected-dashbox', true);
+        }
+        
 
         this.multipleSelected = false;
       } else {
@@ -1316,21 +1335,29 @@ export class GraphicalQueryEditorComponent
     const selectedElement = this.variantEnrichedSelection
       .selectAll('.selected-variant-g')
       .data();
-    if (op == 'less') {
-      (selectedElement[0] as any).asPattern().verticalCardiOp =
-        CardinalityOperator.lessequal;
-      (selectedElement[0] as any).asPattern().horizontalCardiOp =
-        CardinalityOperator.lessequal;
-    } else if (op == 'equal') {
-      (selectedElement[0] as any).asPattern().verticalCardiOp =
-        CardinalityOperator.equal;
-      (selectedElement[0] as any).asPattern().horizontalCardiOp =
-        CardinalityOperator.equal;
-    } else if (op == 'more') {
-      (selectedElement[0] as any).asPattern().verticalCardiOp =
-        CardinalityOperator.moreequal;
-      (selectedElement[0] as any).asPattern().horizontalCardiOp =
-        CardinalityOperator.moreequal;
+    if((selectedElement[0] as any).asPattern().verticalCardi > 0){
+      if (op == 'less') {
+        (selectedElement[0] as any).asPattern().verticalCardiOp =
+          CardinalityOperator.lessequal;
+      } else if (op == 'equal') {
+        (selectedElement[0] as any).asPattern().verticalCardiOp =
+          CardinalityOperator.equal;
+      } else if (op == 'more') {
+        (selectedElement[0] as any).asPattern().verticalCardiOp =
+          CardinalityOperator.moreequal;
+      }
+    }
+    else if((selectedElement[0] as any).asPattern().horizontalCardi > 0){
+      if (op == 'less') {
+        (selectedElement[0] as any).asPattern().horizontalCardiOp =
+          CardinalityOperator.lessequal;
+      } else if (op == 'equal') {
+        (selectedElement[0] as any).asPattern().horizontalCardiOp =
+          CardinalityOperator.equal;
+      } else if (op == 'more') {
+        (selectedElement[0] as any).asPattern().horizontalCardiOp =
+          CardinalityOperator.moreequal;
+      }
     }
     this.triggerRedraw();
   }
@@ -1339,7 +1366,7 @@ export class GraphicalQueryEditorComponent
     const selectedElement = this.variantEnrichedSelection
       .selectAll('.selected-variant-g')
       .data();
-    console.log(selectedElement);
+    //console.log(selectedElement);
     if (selectedElement.length > 1) {
       let parent = this.findParent(
         (this.selectedRootNode?.data as QueryTree).pattern,
@@ -1385,6 +1412,7 @@ export class GraphicalQueryEditorComponent
       }
     } else if ((selectedElement[0] as any).getElements().length > 1) {
       // Single selection, for seq and para
+      console.log("Single selection, for seq and para")
       if (this.cardiDirect == this.cardinalityDirection.vertical) {
         (selectedElement[0] as any).asPattern().verticalCardi += 1;
       } else {
@@ -1392,7 +1420,8 @@ export class GraphicalQueryEditorComponent
       }
     } else {
       if (this.cardiDirect == this.cardinalityDirection.vertical) {
-        // ?
+        // single selection for???
+        console.log("Else?");
         (selectedElement[0] as any)
           .getElements()[0]
           .asPattern().verticalCardi += 1;
@@ -1413,6 +1442,7 @@ export class GraphicalQueryEditorComponent
       .data();
     if (selectedElement.length == 1) {
       //Only allow single reduce now
+      const parent = this.findParent((this.selectedRootNode?.data as QueryTree).pattern, selectedElement[0]);
       if (this.cardiDirect == this.cardinalityDirection.vertical) {
         if ((selectedElement[0] as any).asPattern().verticalCardi > 0) {
           (selectedElement[0] as any).asPattern().verticalCardi -= 1;
@@ -1421,6 +1451,16 @@ export class GraphicalQueryEditorComponent
         if ((selectedElement[0] as any).asPattern().horizontalCardi > 0) {
           (selectedElement[0] as any).asPattern().horizontalCardi -= 1;
         }
+      }
+      // delete outer
+      if (parent && (selectedElement[0] instanceof SequenceGroup) && ((selectedElement[0] as any).asPattern().horizontalCardi == 0) && ((selectedElement[0] as any).asPattern().verticalCardi == 0)){
+        const parentChildren = parent.getElements();
+        const index = parentChildren.indexOf(selectedElement[0]);
+        parentChildren.splice(index, 1);
+        for (const elem of selectedElement[0].getElements().reverse()) {
+          parentChildren.splice(index, 0, elem);
+        }
+        parent.setElements(parentChildren);
       }
     }
     this.triggerRedraw();
@@ -1594,6 +1634,11 @@ export class GraphicalQueryEditorComponent
     this.processTreeService.deleteSelected(this.selectedRootNode.data);
   }
 
+  checkNodeButtonDisabled(op){
+    return this.selectedRootNode && op === 'X' && (this.nodeInsertionStrategy === NodeInsertionStrategy.ABOVE ||
+              ((this.selectedRootNode.data?.operator) as any === 'X' && this.nodeInsertionStrategy === NodeInsertionStrategy.BELOW));
+  }
+
   insertNewNode(operator, label) {
     this.processTreeService.insertNewNode(
       this.selectedRootNode?.data,
@@ -1612,11 +1657,10 @@ export class GraphicalQueryEditorComponent
 
   editLeafNode(event) {
     let selectedNode = this.selectedRootNode?.data;
-    console.log('Insert variant');
-    console.log(selectedNode);
+    //console.log('Insert variant');
+    //console.log(selectedNode);
     if (selectedNode instanceof QueryTree) {
-      console.log('start insert');
-      console.log('start insert');
+      //console.log('start insert');
       this.handleActivityButtonClick(event, selectedNode as QueryTree);
       //console.log((selectedNode as QueryTree).pattern);
     }
@@ -2001,7 +2045,7 @@ export class GraphicalQueryEditorComponent
     // Disable insertions above on non-root nodes
     this.disabledInsertPositions.above = rootNode.parent != null;
     // Disable insertions below non-operator nodes, i.e. activities
-    this.disabledInsertPositions.below = rootNode.operator == null;
+    this.disabledInsertPositions.below = rootNode.operator == null || (rootNode.operator as any) == 'X';
     // Disable insertions left/right of root node
     if (rootNode.parent == null) this.disabledInsertPositions.leftRight = true;
     // Disable insertions left/right of child from loop node that already has 2 childs

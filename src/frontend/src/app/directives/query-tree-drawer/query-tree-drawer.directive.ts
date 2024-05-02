@@ -343,7 +343,7 @@ export class QueryTreeDrawerDirective {
 
     this.nodeEnter
       .filter((d: any) => {
-        console.log(d);
+        //console.log(d);
         return d.data.negation == true;
       })
       .append('path')
@@ -783,9 +783,9 @@ export class QueryTreeDrawerDirective {
         .attr('rx', 10)
         .attr('ry', 10)
         .attr('fill', 'none')
-        .attr('stroke', 'rgba(255, 255, 255, 0.5)')
         .attr('stroke-width', 2)
         .attr('stroke-dasharray', '5,5')
+        .classed('dashbox', true)
         .classed('cursor-pointer', true);
     }
 
@@ -876,17 +876,19 @@ export class QueryTreeDrawerDirective {
         .classed(
           'cursor-pointer',
           (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
-        )
-        .text(
-          '⇕ ' +
-            element.asPattern().verticalCardiOp +
-            ' ' +
-            element.asPattern().verticalCardi +
-            ',  ⇔ ' +
-            element.asPattern().verticalCardiOp +
-            ' ' +
-            element.asPattern().horizontalCardi
         );
+      if(element.asPattern().verticalCardi > 0){
+        tspan.text('⇕ ' +
+        element.asPattern().verticalCardiOp +
+        ' ' +
+        element.asPattern().verticalCardi)
+      }
+      else {
+        tspan.text('⇔ ' +
+        element.asPattern().horizontalCardiOp +
+        ' ' +
+        element.asPattern().horizontalCardi)
+      }
     }
 
     for (const child of element.elements) {
@@ -951,9 +953,8 @@ export class QueryTreeDrawerDirective {
         .attr('rx', 10)
         .attr('ry', 10)
         .attr('fill', 'none')
-        .attr('stroke', 'rgba(255, 255, 255, 0.5)')
-        .attr('stroke-width', 2)
         .attr('stroke-dasharray', '5,5')
+        .classed('dashbox', true)
         .classed('cursor-pointer', true);
     }
 
@@ -1021,17 +1022,19 @@ export class QueryTreeDrawerDirective {
         .classed(
           'cursor-pointer',
           (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
-        )
-        .text(
-          '⇕ ' +
-            element.asPattern().verticalCardiOp +
-            ' ' +
-            element.asPattern().verticalCardi +
-            ',  ⇔ ' +
-            element.asPattern().verticalCardiOp +
-            ' ' +
-            element.asPattern().horizontalCardi
         );
+      if(element.asPattern().verticalCardi > 0){
+        tspan.text('⇕ ' +
+        element.asPattern().verticalCardiOp +
+        ' ' +
+        element.asPattern().verticalCardi)
+      }
+      else {
+        tspan.text('⇔ ' +
+        element.asPattern().horizontalCardiOp +
+        ' ' +
+        element.asPattern().horizontalCardi)
+      }
     }
 
     let y = VARIANT_Constants.MARGIN_Y;
@@ -1086,10 +1089,9 @@ export class QueryTreeDrawerDirective {
         .attr('rx', 10)
         .attr('ry', 10)
         .attr('fill', 'none')
-        .attr('stroke', 'rgba(255, 255, 255, 0.5)')
-        .attr('stroke-width', 2)
         .attr('transform', 'translate(-15, -10)')
         .attr('stroke-dasharray', '5,5')
+        .classed('dashbox', true)
         .classed('cursor-pointer', true);
     }
 
@@ -1240,10 +1242,9 @@ export class QueryTreeDrawerDirective {
         .attr('rx', 10)
         .attr('ry', 10)
         .attr('fill', 'none')
-        .attr('stroke', 'rgba(255, 255, 255, 0.5)')
-        .attr('stroke-width', 2)
         .attr('transform', 'translate(-15, -10)')
         .attr('stroke-dasharray', '5,5')
+        .classed('dashbox', true)
         .classed('cursor-pointer', true);
     }
 
@@ -1413,17 +1414,19 @@ export class QueryTreeDrawerDirective {
         .classed(
           'cursor-pointer',
           (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
-        )
-        .text(
-          '⇕ ' +
-            element.asPattern().verticalCardiOp +
-            ' ' +
-            element.asPattern().verticalCardi +
-            ',  ⇔ ' +
-            element.asPattern().verticalCardiOp +
-            ' ' +
-            element.asPattern().horizontalCardi
         );
+        if(element.asPattern().verticalCardi > 0){
+          tspan.text('⇕ ' +
+          element.asPattern().verticalCardiOp +
+          ' ' +
+          element.asPattern().verticalCardi)
+        }
+        else {
+          tspan.text('⇔ ' +
+          element.asPattern().horizontalCardiOp +
+          ' ' +
+          element.asPattern().horizontalCardi)
+        }
     }
 
     let y = height / 2;

@@ -662,10 +662,9 @@ export class BackendService {
         queryTree: queryTree,
         //queryTree: "apine",
       })
+      .pipe(mapVariants())
       .subscribe((res) => {
-        //this.logService.processEventLog(res);
-        //console.log("res");
-        console.log(res);
+        this.logService.processEventLog(res);
       });
   }
 

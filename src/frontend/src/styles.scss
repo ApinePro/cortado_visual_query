@@ -420,6 +420,14 @@ th {
   stroke-dasharray: 2;
 }
 
+.selected-dashbox {
+  stroke: whitesmoke !important;
+}
+
+.dashbox {
+  stroke: rgba(255, 255, 255, 0.5);
+}
+
 .selected-bpmn-operator {
   outline: dashed 1px red;
   outline-offset: 5px;

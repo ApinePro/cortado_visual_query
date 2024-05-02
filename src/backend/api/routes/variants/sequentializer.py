@@ -61,9 +61,6 @@ def apply_sequentializer(payload: SequentializerPatterns):
 
     new_variants = {
         InfixType.NOT_AN_INFIX: defaultdict(list),
-        InfixType.PROPER_INFIX: defaultdict(list),
-        InfixType.PREFIX: defaultdict(list),
-        InfixType.POSTFIX: defaultdict(list),
     }
 
     n_traces = 0
@@ -79,22 +76,23 @@ def apply_sequentializer(payload: SequentializerPatterns):
     res_variants = []
 
     for infix_type, var in new_variants.items():  # var: dict, key(variant) value(trace)
-        new_variants = apply_sequentializer_on_variants(
-            var, source_pattern, target_pattern
-        )
+        if infix_type == InfixType.NOT_AN_INFIX:
+            new_variants = apply_sequentializer_on_variants(
+                var, source_pattern, target_pattern
+            )
 
-        res_vars, new_cache_variants = variants_to_variant_objects(
-            new_variants,
-            cache.cache.parameters["cur_time_granularity"],
-            n_traces,
-            lambda ts: generate_variant_info(infix_type, ts),
-        )
-        res_variants += res_vars
+            res_vars, new_cache_variants = variants_to_variant_objects(
+                new_variants,
+                cache.cache.parameters["cur_time_granularity"],
+                n_traces,
+                lambda ts: generate_variant_info(infix_type, ts),
+            )
+            res_variants += res_vars
 
-        for bid, variant in new_cache_variants.items():
-            cache_variants[bid + cache_max_bid] = variant
+            for bid, variant in new_cache_variants.items():
+                cache_variants[bid + cache_max_bid] = variant
 
-        cache_max_bid = max(cache_variants.keys())
+            cache_max_bid = max(cache_variants.keys())
 
     cache.cache.variants = cache_variants
 
