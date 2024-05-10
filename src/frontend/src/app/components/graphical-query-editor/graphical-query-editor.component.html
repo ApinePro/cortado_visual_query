@@ -324,6 +324,16 @@
         <div class="d-flex">
           <div class="btn-group round-corners" role="group">
             <button
+              class="button text-warning"
+              (click)="deleteSubtree()"
+              [disabled]="!selectedRootNode"
+              ngbTooltip="remove selected node(s)"
+              triggers="hover"
+              container="body"
+            >
+              <i class="bi bi-trash btn-icon"></i>
+            </button>
+            <button
               type="button"
               class="button"
               [disabled]="disabledInsertPositions.above"

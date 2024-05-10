@@ -30,9 +30,10 @@ def variant_query(query: variantQuery):
         query, cache.variants, cache.parameters["activites"]
     )
 
+    '''
     for bid in res["ids"]:
         print(cache.variants[bid][0])
-
+    '''
     return res
 
 
@@ -51,6 +52,23 @@ def graphical_variant_query(graphical_query: graphicalVariantQuery):
     query = deserialize_query(graphical_query)
     variant_list = defaultdict(list)
     count = 0
+
+    '''
+    variant_list = []
+    for bid, (variant, _, _, info) in cache.variants.items():
+        #if check_node(query, variant):
+        #    res.append(bid + 1)
+        #print("")
+        count += 1
+        if count >= 3 and count <= 3:
+            print("ID:", count,"\n")
+            if check_node(query, variant):
+                variant_list.append(count)
+            print("########################################################################################################")
+    print("Variant list:")
+    print(variant_list)
+    variant_list = defaultdict(list)
+    '''
 
     variants = cache.variants
     new_variants = {
@@ -90,18 +108,6 @@ def graphical_variant_query(graphical_query: graphicalVariantQuery):
     )
 
     cache.parameters["activites"] = set(nActivities.keys())
-    '''
-    for bid, (variant, _, _, info) in cache.variants.items():
-        #if check_node(query, variant):
-        #    res.append(bid + 1)
-        #print("")
-        count += 1
-        if count >= 11 and count <= 11:
-            print("ID:", count,"\n")
-            if check_node(query, variant):
-                variant_list.append(count)
-            print("########################################################################################################")
-    '''
     
     res = {
         "startActivities": start_activities,
@@ -112,8 +118,7 @@ def graphical_variant_query(graphical_query: graphicalVariantQuery):
         "timeGranularity": cache.parameters["cur_time_granularity"],
     }
     
-    print("Variant list:")
-    print(variant_list)
+
     #return {"res": variant_list}
     return res
 
@@ -138,7 +143,8 @@ def check_node(node, variant):
     if node["operator"] == 'X':
         #print("Original Variant:")
         #print(variant)
-        result = pattern_match_variant(copy.deepcopy(node["pattern"]), variant.serialize())
+        pattern = add_start_end_wildcard(node["pattern"])
+        result = pattern_match_variant(pattern, variant.serialize())
     if node["negation"] == True:
         return not result
     else:
@@ -216,6 +222,9 @@ def pattern_match_variant(pattern, variant):
             pattern = add_head(pattern, p_head)
         # I think no else case
         return pattern_match_variant(pattern, variant)
+    
+    elif check_have_cardi(p_head) and p_head["verticalCardi"] > 0: # resolve vertical
+        pass
 
     else:
         # p_head: para, leaf (may have vertical...)
@@ -283,10 +292,33 @@ def compare_para(p_head, v_head): # No cardinality now
             if element["leaf"][0] == "...": # Match EVERYTHING
                 return True
             if element["leaf"][0] not in p_dic["leafs"]:
-                p_dic[element["leaf"][0]] = 1
+                p_dic[element["leaf"][0]] = (element["verticalCardi"], element["verticalCardi"]) #(min, max)
+                if element["verticalCardiOp"] == "≤":
+                    p_dic[element["leaf"][0]][0] = -1
+                if element["verticalCardiOp"] == "≥":
+                    p_dic[element["leaf"][0]][1] = -1
             else:
-                p_dic[element["leaf"][0]] += 1
-        if "follows" in element:
+                if element["verticalCardiOp"] == "≤" and p_dic[element["leaf"][0]][1] > element["verticalCardi"]:
+                    p_dic[element["leaf"][0]][1] = element["verticalCardi"]
+                elif element["verticalCardiOp"] == "≥" and p_dic[element["leaf"][0]][0] < element["verticalCardi"]:
+                    p_dic[element["leaf"][0]][0] = element["verticalCardi"]
+                elif element["verticalCardiOp"] == "=":
+                    if element["verticalCardi"] == 0:
+                        if p_dic[element["leaf"][0]][0] == -1 and p_dic[element["leaf"][0]][1] > 0:
+                            p_dic[element["leaf"][0]][0] == 1
+                            p_dic[element["leaf"][0]][1] += 1
+                        else:
+                            p_dic[element["leaf"][0]][0] += 1
+                        if p_dic[element["leaf"][0]][1] == -1 and p_dic[element["leaf"][0]][0] > 0:
+                            p_dic[element["leaf"][0]][0] += 1
+                        if p_dic[element["leaf"][0]][0] > 0 and p_dic[element["leaf"][0]][1] > 0:
+                            p_dic[element["leaf"][0]][0] += 1
+                            p_dic[element["leaf"][0]][1] += 1
+                    elif p_dic[element["leaf"][0]][1] > element["verticalCardi"]:
+                        p_dic[element["leaf"][0]][1] = element["verticalCardi"]
+                    elif p_dic[element["leaf"][0]][0] < element["verticalCardi"]:
+                        p_dic[element["leaf"][0]][0] = element["verticalCardi"]
+        if "follows" in element: # How about ["...", "?"]
             p_dic["sequence"] = element
 
     for element in v_head["parallel"]:
@@ -306,18 +338,32 @@ def compare_para(p_head, v_head): # No cardinality now
         return pattern_match_variant(p_dic["sequence"], v_dic["sequence"]) and compare_parallel_dics(p_dic["leafs"], v_dic["leafs"])
 
 def compare_parallel_dics(p_dic, v_dic):
-    for v_key in v_dic.keys():
-        if v_key not in p_dic:
-            p_dic[v_key] = -1
-        else:
-            p_dic[v_key] -= 1
+    print("P_DIC")
+    print(p_dic)
+    print("V_DIC")
+    print(v_dic)
+    for p_key in p_dic.keys():
+        if p_dic[v_key][0] > p_dic[v_key][1]:
+            return False
     diff_count = 0
     for v_key in v_dic.keys():
-        if v_key != "?" and v_dic[v_key] > 0:
-            return False
+        if v_key not in p_dic:
+            diff_count = v_dic[v_key]
         else:
-            diff_count += v_dic[v_key]
-    return diff_count == 0    
+            if v_dic[v_key] < p_dic[v_key][0]:
+                return False
+            elif v_dic[v_key] > p_dic[v_key][1]:
+                diff_count += (v_dic[v_key] - p_dic[v_key][1])
+            del p_dic[v_key]
+    
+    for p_key in p_dic.keys():
+        if p_key != "?" and not(p_dic[p_key][0] == -1 and p_dic[p_key][1] > 0):
+            return False
+        elif p_key == "?":
+            if diff_count >= p_dic["?"][0] and diff_count <= p_dic["?"][1]:
+                return True
+            else:
+                return False  
 
 def compare_leaf(p_head, v_head):
     if p_head["leaf"][0] == "?" or p_head["leaf"][0] == v_head["leaf"][0]:
@@ -355,9 +401,23 @@ def check_cardi_direction(pattern):
         return "error"
     
 def check_have_cardi(pattern):
-    print("Check this: \n")
-    print(pattern)
+    #print("Check this: \n")
+    #print(pattern)
     if pattern["verticalCardi"] > 0 or pattern["horizontalCardi"] > 0:
         return True
     else:
         return False
+
+def add_start_end_wildcard(pattern):
+    pattern = copy.deepcopy(pattern)
+    if not ("leaf" in pattern["follows"][0] and pattern["follows"][0]["leaf"][0] == "S"):
+        head = {"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+        pattern["follows"].insert(0, head)
+    else:
+        pattern["follows"].pop(0)
+    if not ("leaf" in pattern["follows"][-1] and pattern["follows"][-1]["leaf"][0] == "E"):
+        tail = {"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+        pattern["follows"].insert(-1, tail)
+    else:
+        pattern["follows"].pop(-1) #any error if nothing after pop?
+    return pattern

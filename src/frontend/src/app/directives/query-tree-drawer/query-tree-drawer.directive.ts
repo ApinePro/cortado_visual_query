@@ -606,7 +606,9 @@ export class QueryTreeDrawerDirective {
         (this.keepStandardView ||
           this.variantViewModeService.viewMode !== ViewMode.PERFORMANCE)
       ) {
-        this.svgSelection.select('polygon').style('fill', 'transparent');
+        this.mainSvgGroup
+      .select(`[id='${id}']`)
+      .select('polygon').style('fill', 'transparent');
       }
 
       this.selection.emit(this.svgSelection);

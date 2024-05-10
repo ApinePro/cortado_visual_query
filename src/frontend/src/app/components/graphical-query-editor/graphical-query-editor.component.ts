@@ -510,6 +510,10 @@ export class GraphicalQueryEditorComponent
   }
 
   handleActivityButtonClick(event, nodevariant) {
+    console.log(this.selectedElement);
+    console.log(this.emptyVariant);
+    console.log(nodevariant.pattern);
+    console.log(this.currentVariant)
     if (this.selectedElement || this.emptyVariant || !nodevariant.pattern) {
       const leaf = new LeafPattern([event.activityName]);
       this.newLeaf = leaf;
@@ -527,6 +531,8 @@ export class GraphicalQueryEditorComponent
         const selectedElement = this.variantEnrichedSelection
           .selectAll('.selected-variant-g')
           .data()[0];
+          console.log("Selected element:");
+        console.log(selectedElement);
         switch (this.selectedStrategy) {
           case this.insertionStrategy.infront:
             if (!this.multipleSelected) {
@@ -1283,6 +1289,9 @@ export class GraphicalQueryEditorComponent
     if (!(selection.selectAll('.selected-variant-g').nodes().length > 0)) {
       this.selectedElement = false;
     }
+    else {
+      this.selectedElement = true;
+    }
 
     const poly = selection
       .selectAll('.selected-variant-g')
@@ -1533,6 +1542,9 @@ export class GraphicalQueryEditorComponent
       //added
       this.currentVariant = node.data.pattern;
       this.emptyVariant = node.data.pattern == null;
+      //this.selectedElement = null; //clear selection?
+      //this.multiSelect = false;
+      //this.multipleSelected = false;
     }
   }
 
