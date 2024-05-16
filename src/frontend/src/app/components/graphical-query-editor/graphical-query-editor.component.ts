@@ -1240,8 +1240,8 @@ export class GraphicalQueryEditorComponent
         svgSelection.classed('selected-variant-g', true);
         
         //console.log(svgSelection);
-        //const poly = svgSelection.select('polygon');
-        const poly = svgSelection.selectAll('polygon');
+        const poly = svgSelection.select('polygon');
+        //const poly = svgSelection.selectAll('polygon'); really?
         poly.classed('selected-polygon', true);
 
         
