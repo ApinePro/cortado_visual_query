@@ -4,208 +4,12 @@
       <div class="d-flex">
         <div class="editor-toolbox d-flex flex-column">
           <div #ToolBar class="bg-dark btn-tool-bar">
-            <span class="vl mx-2"></span>
             <div class="d-flex">
               <div class="btn-group round-corners" role="group">
                 <button
                   type="button"
                   class="button"
-                  (click)="selectedStrategy = insertionStrategy.infront"
-                  [ngClass]="
-                    selectedStrategy === insertionStrategy.infront
-                      ? 'strategy-selected'
-                      : ''
-                  "
-                  ngbTooltip="insert new activities infront the selected activtiy"
-                  container="body"
-                >
-                  <i class="bi bi-arrow-bar-left"></i>
-                </button>
-
-                <button
-                  type="button"
-                  class="button"
-                  (click)="selectedStrategy = insertionStrategy.behind"
-                  [ngClass]="
-                    selectedStrategy === insertionStrategy.behind
-                      ? 'strategy-selected'
-                      : ''
-                  "
-                  ngbTooltip="insert new activities behind of the selected activtiy"
-                  container="body"
-                >
-                  <i class="bi bi-arrow-bar-right"></i>
-                </button>
-
-                <button
-                  type="button"
-                  class="button"
-                  (click)="selectedStrategy = insertionStrategy.parallel"
-                  [ngClass]="
-                    selectedStrategy === insertionStrategy.parallel
-                      ? 'strategy-selected'
-                      : ''
-                  "
-                  ngbTooltip="insert new activities parallel of the selected activtiy"
-                  container="body"
-                >
-                  <i class="bi bi-arrows-expand"></i>
-                </button>
-
-                <button
-                  type="button"
-                  class="button"
-                  (click)="selectedStrategy = insertionStrategy.choice"
-                  [ngClass]="
-                    selectedStrategy === insertionStrategy.choice
-                      ? 'strategy-selected'
-                      : ''
-                  "
-                  ngbTooltip="add an activity as an alternative candidate to the currently selected activity"
-                  container="body"
-                >
-                  <i class="bi bi-slash"></i>
-                </button>
-
-                <button
-                  type="button"
-                  class="button"
-                  (click)="selectedStrategy = insertionStrategy.fallthrough"
-                  [ngClass]="
-                    selectedStrategy === insertionStrategy.fallthrough
-                      ? 'strategy-selected'
-                      : ''
-                  "
-                  ngbTooltip="create fallthrough using an activity"
-                  container="body"
-                >
-                  <i class="bi bi-arrow-down"></i>
-                </button>
-
-                <button
-                  type="button"
-                  class="button"
-                  (click)="selectedStrategy = insertionStrategy.replace"
-                  [ngClass]="
-                    selectedStrategy === insertionStrategy.replace
-                      ? 'strategy-selected'
-                      : ''
-                  "
-                  ngbTooltip="replace the currently selected activity"
-                  container="body"
-                >
-                  <i class="bi bi-arrow-repeat"></i>
-                </button>
-
-                <button
-                  type="button"
-                  class="button"
-                  (click)="selectedStrategy = insertionStrategy.replace"
-                  ngbTooltip="switch pattern to eventual mode"
-                  container="body"
-                >
-                  <i class="bi bi-chevron-double-right"></i>
-                </button>
-              </div>
-            </div>
-
-            <span class="vl mx-2"></span>
-
-            <button
-              class="button btn-fixed-width"
-              (click)="undo()"
-              [disabled]="!(cachedTrees.length - 1 > 0 && cacheIdx !== 0)"
-              ngbTooltip="undo"
-              container="body"
-            >
-              <i class="bi bi-arrow-counterclockwise btn-icon"></i>
-              <span
-                class="text-secondary"
-                *ngIf="cachedTrees.length - 1 > 0 && cacheIdx !== 0"
-              >
-                ({{ cacheIdx }})
-              </span>
-            </button>
-
-            <button
-              class="button btn-fixed-width"
-              (click)="redo()"
-              [disabled]="!(cacheIdx < cachedTrees.length - 1)"
-              ngbTooltip="redo"
-              container="body"
-            >
-              <i class="bi bi-arrow-clockwise btn-icon"></i>
-              <span
-                class="text-secondary"
-                *ngIf="cacheIdx < cachedTrees.length - 1"
-              >
-                ({{ cachedTrees.length - 1 - cacheIdx }})
-              </span>
-            </button>
-
-            <span class="vl mx-2"></span>
-
-            <button
-              class="button"
-              (click)="removeSelection()"
-              [disabled]="!selectedElement"
-              ngbTooltip="remove current selection"
-              container="body"
-            >
-              <i class="bi bi-dash-square-dotted"></i>
-            </button>
-
-            <span class="vl mx-2"></span>
-
-            <button
-              class="button"
-              (click)="onDeleteSelected()"
-              ngbTooltip="remove the currently selected activity"
-              container="body"
-              [disabled]="emptyVariant || !selectedElement"
-            >
-              <i
-                class="bi bi-trash"
-                [ngClass]="{
-                  'text-warning': !emptyVariant
-                }"
-              ></i>
-
-              <div @collapseText class="button-text px-1" *ngIf="!collapse">
-                remove selected chevron(s)
-              </div>
-            </button>
-
-            <span class="vl mx-2"></span>
-
-            <button
-              class="button"
-              (click)="onDeleteVariant()"
-              ngbTooltip="remove the current variant"
-              container="body"
-              [disabled]="emptyVariant"
-            >
-              <i
-                class="bi bi-x-octagon"
-                [ngClass]="{
-                  'text-danger': !emptyVariant
-                }"
-              ></i>
-              <div @collapseText class="button-text px-1" *ngIf="!collapse">
-                remove current variant
-              </div>
-            </button>
-          </div>
-        </div>
-
-        <div class="editor-toolbox d-flex flex-column">
-          <div #ToolBar class="bg-dark btn-tool-bar">
-            <div class="d-flex">
-              <div class="btn-group round-corners" role="group">
-                <button
-                  type="button"
-                  class="button"
-                  (click)="savePattern()"
+                  (click)="openGroupNameEditor()"
                   ngbTooltip="group the activities"
                   container="body"
                 >
@@ -232,7 +36,7 @@
                 <button
                   type="button"
                   class="button"
-                  (click)="openCardinality()"
+                  (click)="openCardinalityEditor()"
                   ngbTooltip="type cardinality counts"
                   container="body"
                 >
@@ -453,10 +257,205 @@
             </div>
           </div>
         </div>
+        <div class="editor-toolbox d-flex flex-column">
+          <div #ToolBar class="bg-dark btn-tool-bar">
+            <span class="vl mx-2"></span>
+            <div class="d-flex">
+              <div class="btn-group round-corners" role="group">
+                <button
+                  type="button"
+                  class="button"
+                  (click)="selectedStrategy = insertionStrategy.infront"
+                  [ngClass]="
+                    selectedStrategy === insertionStrategy.infront
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  ngbTooltip="insert new activities infront the selected activtiy"
+                  container="body"
+                >
+                  <i class="bi bi-arrow-bar-left"></i>
+                </button>
+
+                <button
+                  type="button"
+                  class="button"
+                  (click)="selectedStrategy = insertionStrategy.behind"
+                  [ngClass]="
+                    selectedStrategy === insertionStrategy.behind
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  ngbTooltip="insert new activities behind of the selected activtiy"
+                  container="body"
+                >
+                  <i class="bi bi-arrow-bar-right"></i>
+                </button>
+
+                <button
+                  type="button"
+                  class="button"
+                  (click)="selectedStrategy = insertionStrategy.parallel"
+                  [ngClass]="
+                    selectedStrategy === insertionStrategy.parallel
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  ngbTooltip="insert new activities parallel of the selected activtiy"
+                  container="body"
+                >
+                  <i class="bi bi-arrows-expand"></i>
+                </button>
+
+                <button
+                  type="button"
+                  class="button"
+                  (click)="selectedStrategy = insertionStrategy.choice"
+                  [ngClass]="
+                    selectedStrategy === insertionStrategy.choice
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  ngbTooltip="add an activity as an alternative candidate to the currently selected activity"
+                  container="body"
+                >
+                  <i class="bi bi-slash"></i>
+                </button>
+
+                <button
+                  type="button"
+                  class="button"
+                  (click)="selectedStrategy = insertionStrategy.fallthrough"
+                  [ngClass]="
+                    selectedStrategy === insertionStrategy.fallthrough
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  ngbTooltip="create fallthrough using an activity"
+                  container="body"
+                >
+                  <i class="bi bi-arrow-down"></i>
+                </button>
+
+                <button
+                  type="button"
+                  class="button"
+                  (click)="selectedStrategy = insertionStrategy.replace"
+                  [ngClass]="
+                    selectedStrategy === insertionStrategy.replace
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  ngbTooltip="replace the currently selected activity"
+                  container="body"
+                >
+                  <i class="bi bi-arrow-repeat"></i>
+                </button>
+
+                <button
+                  type="button"
+                  class="button"
+                  (click)="selectedStrategy = insertionStrategy.replace"
+                  ngbTooltip="switch pattern to eventual mode"
+                  container="body"
+                >
+                  <i class="bi bi-chevron-double-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <span class="vl mx-2"></span>
+
+            <button
+              class="button btn-fixed-width"
+              (click)="undo()"
+              [disabled]="!(cachedTrees.length - 1 > 0 && cacheIdx !== 0)"
+              ngbTooltip="undo"
+              container="body"
+            >
+              <i class="bi bi-arrow-counterclockwise btn-icon"></i>
+              <span
+                class="text-secondary"
+                *ngIf="cachedTrees.length - 1 > 0 && cacheIdx !== 0"
+              >
+                ({{ cacheIdx }})
+              </span>
+            </button>
+
+            <button
+              class="button btn-fixed-width"
+              (click)="redo()"
+              [disabled]="!(cacheIdx < cachedTrees.length - 1)"
+              ngbTooltip="redo"
+              container="body"
+            >
+              <i class="bi bi-arrow-clockwise btn-icon"></i>
+              <span
+                class="text-secondary"
+                *ngIf="cacheIdx < cachedTrees.length - 1"
+              >
+                ({{ cachedTrees.length - 1 - cacheIdx }})
+              </span>
+            </button>
+
+            <span class="vl mx-2"></span>
+
+            <button
+              class="button"
+              (click)="removeSelection()"
+              [disabled]="!selectedElement"
+              ngbTooltip="remove current selection"
+              container="body"
+            >
+              <i class="bi bi-dash-square-dotted"></i>
+            </button>
+
+            <span class="vl mx-2"></span>
+
+            <button
+              class="button"
+              (click)="onDeleteSelected()"
+              ngbTooltip="remove the currently selected activity"
+              container="body"
+              [disabled]="emptyVariant || !selectedElement"
+            >
+              <i
+                class="bi bi-trash"
+                [ngClass]="{
+                  'text-warning': !emptyVariant
+                }"
+              ></i>
+
+              <div @collapseText class="button-text px-1" *ngIf="!collapse">
+                remove selected chevron(s)
+              </div>
+            </button>
+
+            <span class="vl mx-2"></span>
+
+            <button
+              class="button"
+              (click)="onDeleteVariant()"
+              ngbTooltip="remove the current variant"
+              container="body"
+              [disabled]="emptyVariant"
+            >
+              <i
+                class="bi bi-x-octagon"
+                [ngClass]="{
+                  'text-danger': !emptyVariant
+                }"
+              ></i>
+              <div @collapseText class="button-text px-1" *ngIf="!collapse">
+                remove current variant
+              </div>
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="toolbox-area bg-dark" *ngIf="showToolbox">
-        <div class="d-flex">
+        <div class="d-flex flex-column">
           <app-activity-button-area
             [activityNames]="activityNames"
             (activityButtonClick)="editLeafNode($event)"
@@ -530,3 +529,7 @@
     </div>
   </div>
 </div>
+
+<app-cardinality-modal
+  (cardiConfirmed)="handleCardiInput($event)"
+></app-cardinality-modal>

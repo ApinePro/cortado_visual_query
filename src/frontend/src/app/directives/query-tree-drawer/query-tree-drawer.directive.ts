@@ -284,6 +284,7 @@ export class QueryTreeDrawerDirective {
       })
       .text((d: any) => {
         if (d.data.pattern) {
+          console.log("start draw pattern in node");
           this.variantRedraw(
             d.data.id,
             d.data.pattern,
@@ -295,6 +296,7 @@ export class QueryTreeDrawerDirective {
           }
           return '';
         } else {
+          console.log(d.data);
           if (d.data.operator) {
             return d.data.operator;
           }

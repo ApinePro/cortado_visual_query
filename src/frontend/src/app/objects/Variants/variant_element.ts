@@ -161,7 +161,13 @@ export abstract class VariantElement {
 
   // Creates a deep copy of a Variant Element
   public copy(): VariantElement {
-    if (this instanceof ParallelGroup) {
+    if (this instanceof SequencePattern) {
+      return this.asSequencePattern().copy()
+    } else if (this instanceof ParallelPattern) {
+      return this.asParallelPattern().copy();
+    } else if (this instanceof LeafPattern) {
+      return this.asLeafPattern().copy();
+    } else if (this instanceof ParallelGroup) {
       return this.asParallelGroup().copy();
     } else if (this instanceof SequenceGroup) {
       return this.asSequenceGroup().copy();
@@ -1574,7 +1580,6 @@ interface QueryPattern {
   horizontalCardi: number;
   verticalCardiOp: CardinalityOperator;
   horizontalCardiOp: CardinalityOperator;
-  eventually: boolean;
 }
 
 export class LeafPattern extends LeafNode implements QueryPattern {
@@ -1588,14 +1593,12 @@ export class LeafPattern extends LeafNode implements QueryPattern {
     this.horizontalCardi = 0;
     this.verticalCardiOp = CardinalityOperator.equal;
     this.horizontalCardiOp = CardinalityOperator.equal;
-    this.eventually = false;
   }
 
   public verticalCardi: number;
   public horizontalCardi: number;
   public verticalCardiOp: CardinalityOperator;
   public horizontalCardiOp: CardinalityOperator;
-  public eventually: boolean;
 
   public serialize(l = 1) {
     return {
@@ -1645,6 +1648,15 @@ export class LeafPattern extends LeafNode implements QueryPattern {
     );
     return this.width;
   }
+  public copy(): LeafPattern {
+    const res = new LeafPattern([...this.activity]);
+    res.expanded = this.expanded;
+    res.verticalCardi = this.verticalCardi;
+    res.horizontalCardi = this.horizontalCardi;
+    res.verticalCardiOp = this.verticalCardiOp
+    res.horizontalCardiOp = this.horizontalCardiOp;
+    return res;
+  }
 }
 
 export class SequencePattern extends SequenceGroup implements QueryPattern {
@@ -1654,13 +1666,11 @@ export class SequencePattern extends SequenceGroup implements QueryPattern {
     this.horizontalCardi = 0;
     this.verticalCardiOp = CardinalityOperator.equal;
     this.horizontalCardiOp = CardinalityOperator.equal;
-    this.eventually = false;
   }
   public verticalCardi: number;
   public horizontalCardi: number;
   public verticalCardiOp: CardinalityOperator;
   public horizontalCardiOp: CardinalityOperator;
-  public eventually: boolean;
 
   public getHeight(): number {
     if (this.height) {
@@ -1720,6 +1730,16 @@ export class SequencePattern extends SequenceGroup implements QueryPattern {
       horizontalCardiOp: this.horizontalCardiOp,
     };
   }
+
+  public copy(): SequencePattern {
+    const res = new SequencePattern(this.elements.map((e) => e.copy()));
+    res.expanded = this.expanded;
+    res.verticalCardi = this.verticalCardi;
+    res.horizontalCardi = this.horizontalCardi;
+    res.verticalCardiOp = this.verticalCardiOp
+    res.horizontalCardiOp = this.horizontalCardiOp;
+    return res;
+  }
 }
 
 export class ParallelPattern extends ParallelGroup implements QueryPattern {
@@ -1729,13 +1749,11 @@ export class ParallelPattern extends ParallelGroup implements QueryPattern {
     this.horizontalCardi = 0;
     this.verticalCardiOp = CardinalityOperator.equal;
     this.horizontalCardiOp = CardinalityOperator.equal;
-    this.eventually = false;
   }
   public verticalCardi: number;
   public horizontalCardi: number;
   public verticalCardiOp: CardinalityOperator;
   public horizontalCardiOp: CardinalityOperator;
-  public eventually: boolean;
 
   public getHeight(): number {
     if (this.height) {
@@ -1793,6 +1811,16 @@ export class ParallelPattern extends ParallelGroup implements QueryPattern {
       verticalCardiOp: this.verticalCardiOp,
       horizontalCardiOp: this.horizontalCardiOp,
     };
+  }
+
+  public copy(): ParallelPattern {
+    const res = new ParallelPattern(this.elements.map((e) => e.copy()));
+    res.expanded = this.expanded;
+    res.verticalCardi = this.verticalCardi;
+    res.horizontalCardi = this.horizontalCardi;
+    res.verticalCardiOp = this.verticalCardiOp
+    res.horizontalCardiOp = this.horizontalCardiOp;
+    return res;
   }
 }
 

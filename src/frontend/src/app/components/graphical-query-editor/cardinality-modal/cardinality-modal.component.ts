@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, EventEmitter, Output} from '@angular/core';
 import { VariantService } from 'src/app/services/variantService/variant.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -10,6 +10,9 @@ declare var $;
   styleUrls: ['./cardinality-modal.component.css'],
 })
 export class CardinalityModalComponent implements OnInit, OnDestroy {
+
+  @Output() cardiConfirmed = new EventEmitter();
+
   redundancyWarning = false;
   public cardinality: number = 0;
   private _destroy$ = new Subject();
@@ -39,5 +42,10 @@ export class CardinalityModalComponent implements OnInit, OnDestroy {
     $('#cardinalityModalDialog').modal('hide');
   }
 
-  applyCardinality() {}
+  applyCardinality() {
+    this.cardiConfirmed.emit({
+      cardinality: this.cardinality
+    });
+    this.hideModal();
+  }
 }

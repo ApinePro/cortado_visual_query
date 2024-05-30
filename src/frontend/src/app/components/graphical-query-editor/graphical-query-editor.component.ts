@@ -82,6 +82,7 @@ import {
 } from '../../objects/ProcessTree/ProcessTree';
 import { QueryTree } from 'src/app/objects/ProcessTree/QueryTree';
 import { log } from 'console';
+import { ProcessEnvOptions } from 'child_process';
 @Component({
   selector: 'app-graphical-query-editor',
   templateUrl: './graphical-query-editor.component.html',
@@ -168,7 +169,7 @@ export class GraphicalQueryEditorComponent
   //public colorMap: Map<string, string>;
 
   currentVariant: VariantElement = null;
-  cachedTrees: VariantElement[] = [null];
+  cachedTrees: QueryTree[] = [null];
   cacheSize = 100;
   cacheIdx = 0;
 
@@ -196,6 +197,8 @@ export class GraphicalQueryEditorComponent
 
   savedPatterns: VariantElement[] = [];
 
+  activityGroups: Map<string, string[]>;
+
   ///////////////////Tree Part
   queryTreeOperators: QueryTreeOperator[];
 
@@ -218,9 +221,6 @@ export class GraphicalQueryEditorComponent
 
   tree_syntax_string: string;
   tree_syntax_result: any;
-
-  treeCacheLength: number = 0;
-  treeCacheIndex: number = 0;
 
   activitiesOccurringInLog: string[];
 
@@ -278,17 +278,6 @@ export class GraphicalQueryEditorComponent
   private _destroy$ = new Subject();
 
   ngOnInit(): void {
-    this.processTreeService.treeCacheIndex$
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((idx) => {
-        this.treeCacheIndex = idx;
-      });
-
-    this.processTreeService.treeCacheLength$
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((len) => {
-        this.treeCacheLength = len;
-      });
 
     this.modelViewModeService.viewMode$
       .pipe(takeUntil(this._destroy$))
@@ -512,10 +501,10 @@ export class GraphicalQueryEditorComponent
   }
 
   handleActivityButtonClick(event, nodevariant) {
-    console.log(this.selectedElement);
-    console.log(this.emptyVariant);
-    console.log(nodevariant.pattern);
-    console.log(this.currentVariant)
+    //console.log(this.selectedElement);
+    //console.log(this.emptyVariant);
+    //console.log(nodevariant.pattern);
+    //console.log(this.currentVariant)
     if (this.selectedElement || this.emptyVariant || !nodevariant.pattern) {
       const leaf = new LeafPattern([event.activityName]);
       this.newLeaf = leaf;
@@ -525,9 +514,6 @@ export class GraphicalQueryEditorComponent
         nodevariant.pattern.setExpanded(true);
         this.emptyVariant = false;
         this.selectedElement = true;
-        //this.editor.centerContent(250);
-        //console.log("aaaa");
-        //console.log(this.selectedStrategy);
       } else {
         leaf.setExpanded(true);
         const selectedElement = this.variantEnrichedSelection
@@ -610,7 +596,7 @@ export class GraphicalQueryEditorComponent
         this.triggerRedraw();
       }
       //console.log(nodevariant.pattern);
-      //this.cacheCurrentTree();
+      this.cacheCurrentTree();
     }
   }
 
@@ -1034,9 +1020,8 @@ export class GraphicalQueryEditorComponent
     if (this.cacheIdx < this.cachedTrees.length - 1) {
       this.cachedTrees = this.cachedTrees.slice(0, this.cacheIdx + 1);
     }
-    // Weiran edited
     if (this.currentlyDisplayedTreeInEditor) {
-      this.cachedTrees.push(this.currentlyDisplayedTreeInEditor.copy());
+      this.cachedTrees.push(this.currentlyDisplayedTreeInEditor.copy() as QueryTree);
     } else {
       this.cachedTrees.push(null);
     }
@@ -1049,31 +1034,36 @@ export class GraphicalQueryEditorComponent
         this.cacheIdx = this.cachedTrees.length - 1;
       }
     }
+    console.log(this.cachedTrees);
   }
+
   redo() {
     this.selectedElement = false;
     this.cacheIdx++;
     if (this.cachedTrees[this.cacheIdx] === null) {
       this.currentlyDisplayedTreeInEditor = null;
     } else {
-      this.currentVariant = this.cachedTrees[this.cacheIdx].copy();
+      this.currentlyDisplayedTreeInEditor = this.cachedTrees[this.cacheIdx].copy() as QueryTree;
     }
     this.newLeaf = null;
+    this.redraw(this.currentlyDisplayedTreeInEditor);
   }
 
   undo() {
     this.selectedElement = false;
     this.emptyVariant = false;
-
     this.cacheIdx--;
+    console.log(this.currentlyDisplayedTreeInEditor);
     if (this.cachedTrees[this.cacheIdx] === null) {
-      this.currentVariant = null;
-      this.emptyVariant = true;
+      //this.currentVariant = null;
+      //this.emptyVariant = true;
     }
     else {
-      this.currentVariant = this.cachedTrees[this.cacheIdx].copy();
+      this.currentlyDisplayedTreeInEditor = this.cachedTrees[this.cacheIdx].copy();
     }
     this.newLeaf = null;
+    console.log(this.currentlyDisplayedTreeInEditor);
+    this.redraw(this.currentlyDisplayedTreeInEditor);
   }
 
   onDeleteSelected() {
@@ -1334,7 +1324,9 @@ export class GraphicalQueryEditorComponent
 
   openPatternList() {}
 
-  openCardinality() {
+  openGroupNameEditor() {}
+
+  openCardinalityEditor() {
     console.log('start!');
     this.variantService.showCardinalityDialog.next();
   }
@@ -1368,6 +1360,79 @@ export class GraphicalQueryEditorComponent
       }
     }
     this.triggerRedraw();
+  }
+
+  handleCardiInput(event){
+    const selectedElement = this.variantEnrichedSelection
+      .selectAll('.selected-variant-g')
+      .data();
+      if (selectedElement.length > 1) {
+        let parent = this.findParent(
+          (this.selectedRootNode?.data as QueryTree).pattern,
+          selectedElement[0]
+        );
+        const parentChildren = parent.getElements();
+        let selectionIndex = 0;
+        let firstSelectIdx = 0;
+        let lastSelectIdx = 0;
+        while (
+          selectionIndex < selectedElement.length &&
+          parentChildren.indexOf(selectedElement[selectionIndex]) > -1
+        ) {
+          // ALSO NEED DETERMINE SAME PARENT!!!!!!!!!!!!!!!!!!!!!!!!
+          if (selectionIndex == 0) {
+            firstSelectIdx = parentChildren.indexOf(
+              selectedElement[selectionIndex]
+            );
+          }
+          lastSelectIdx = parentChildren.indexOf(selectedElement[selectionIndex]);
+          selectionIndex += 1;
+        }
+  
+        if (lastSelectIdx - firstSelectIdx + 1 == selectedElement.length) {
+          //Only allow adjecent groups when doing multiple selection --> how about in parallel group??
+          if (parentChildren.length != selectedElement.length) {
+            console.log('create outer');
+            console.log(selectedElement);
+            parent = this.insertOuterPattern(parent, selectedElement);
+          }
+          if (this.cardiDirect == this.cardinalityDirection.vertical) {
+            parent.asPattern().verticalCardi = event.cardinality;
+          } else {
+            parent.asPattern().horizontalCardi = event.cardinality;
+          }
+        }
+      } else if (selectedElement[0] instanceof LeafPattern) {
+        // Single selection, leaf
+        if (this.cardiDirect == this.cardinalityDirection.vertical) {
+          (selectedElement[0] as any).asPattern().verticalCardi = event.cardinality;
+        } else {
+          (selectedElement[0] as any).asPattern().horizontalCardi = event.cardinality;
+        }
+      } else if ((selectedElement[0] as any).getElements().length > 1) {
+        // Single selection, for seq and para
+        console.log("Single selection, for seq and para")
+        if (this.cardiDirect == this.cardinalityDirection.vertical) {
+          (selectedElement[0] as any).asPattern().verticalCardi = event.cardinality;
+        } else {
+          (selectedElement[0] as any).asPattern().horizontalCardi = event.cardinality;
+        }
+      } else {
+        if (this.cardiDirect == this.cardinalityDirection.vertical) {
+          // single selection for???
+          console.log("Else?");
+          (selectedElement[0] as any)
+            .getElements()[0]
+            .asPattern().verticalCardi = event.cardinality;
+        } else {
+          (selectedElement[0] as any)
+            .getElements()[0]
+            .asPattern().horizontalCardi = event.cardinality;
+        }
+      }
+      console.log((this.selectedRootNode?.data as QueryTree).pattern);
+      console.log('Added cardinality by modal');
+      this.triggerRedraw();
   }
 
   addCardinality() {
@@ -1481,6 +1546,7 @@ export class GraphicalQueryEditorComponent
     const selectedElement = this.variantEnrichedSelection
       .selectAll('.selected-variant-g')
       .data();
+    //console.log(this.variantEnrichedSelection);
     if (
       selectedElement.length > 1 ||
       ((selectedElement[0] as any).asPattern().horizontalCardi == 0 &&
@@ -1625,14 +1691,6 @@ export class GraphicalQueryEditorComponent
     this.processTreeService.shiftSubtreeToRight(this.selectedRootNode.data);
   }
 
-  tree_undo(): void {
-    this.processTreeService.undo();
-  }
-
-  tree_redo(): void {
-    this.processTreeService.redo();
-  }
-
   centerTree(): void {
     this.mainSvgGroup.attr(
       'transform',
@@ -1663,6 +1721,7 @@ export class GraphicalQueryEditorComponent
   }
 
   afterInsertNode(): void {
+    this.cacheCurrentTree();
     this.searchText = undefined;
   }
 
@@ -2127,6 +2186,30 @@ export class GraphicalQueryEditorComponent
             ? node.children.map((child) => this.serializeNode(child))
             : [],
       };
+    }
+  }
+
+  groupActivity(){
+    if(this.multipleSelected){
+    const selectedElements = this.variantEnrichedSelection
+                .selectAll('.selected-variant-g')
+                .data();
+    let activityNames = []
+    for(let elem of selectedElements){
+      if(elem instanceof LeafNode){
+        activityNames.push(elem.activity[0]);
+      }
+      else{
+        break;
+      }
+      }
+      if(activityNames.length == selectedElements.length){
+        let name = "aaa"
+        this.activityGroups.set(name, activityNames)
+      }
+      else{
+        console.log("Not all leaves");
+      }
     }
   }
 
