@@ -168,7 +168,7 @@ export class GraphicalQueryEditorComponent
   //public colorMap: Map<string, string>;
 
   currentVariant: VariantElement = null;
-  cachedVariants: VariantElement[] = [null];
+  cachedTrees: VariantElement[] = [null];
   cacheSize = 100;
   cacheIdx = 0;
 
@@ -233,6 +233,8 @@ export class GraphicalQueryEditorComponent
   svg;
   mainSvgGroup;
   nodeEnter;
+
+  showToolbox: boolean = false;
 
   readonly NodeInsertionStrategy = NodeInsertionStrategy;
   //nodeInsertionStrategy: NodeInsertionStrategy = NodeInsertionStrategy.ABOVE;
@@ -608,7 +610,7 @@ export class GraphicalQueryEditorComponent
         this.triggerRedraw();
       }
       //console.log(nodevariant.pattern);
-      //this.cacheCurrentVariant();
+      //this.cacheCurrentTree();
     }
   }
 
@@ -1028,36 +1030,33 @@ export class GraphicalQueryEditorComponent
     this.multiSelect = false;
   }
 
-  cacheCurrentVariant() {
-    if (this.cacheIdx < this.cachedVariants.length - 1) {
-      this.cachedVariants = this.cachedVariants.slice(0, this.cacheIdx + 1);
+  cacheCurrentTree() {
+    if (this.cacheIdx < this.cachedTrees.length - 1) {
+      this.cachedTrees = this.cachedTrees.slice(0, this.cacheIdx + 1);
     }
     // Weiran edited
-    if (this.currentVariant) {
-      this.cachedVariants.push(this.currentVariant.copy());
+    if (this.currentlyDisplayedTreeInEditor) {
+      this.cachedTrees.push(this.currentlyDisplayedTreeInEditor.copy());
     } else {
-      this.cachedVariants.push(null);
+      this.cachedTrees.push(null);
     }
-    if (this.cachedVariants.length > this.cacheSize) {
-      this.cachedVariants.shift();
+    if (this.cachedTrees.length > this.cacheSize) {
+      this.cachedTrees.shift();
     } else {
       if (!(this.cacheIdx == null)) {
         this.cacheIdx += 1;
       } else {
-        this.cacheIdx = this.cachedVariants.length - 1;
+        this.cacheIdx = this.cachedTrees.length - 1;
       }
     }
   }
   redo() {
     this.selectedElement = false;
-    this.emptyVariant = false;
-
     this.cacheIdx++;
-    if (this.cachedVariants[this.cacheIdx] === null) {
-      this.currentVariant = null;
-      this.emptyVariant = true;
+    if (this.cachedTrees[this.cacheIdx] === null) {
+      this.currentlyDisplayedTreeInEditor = null;
     } else {
-      this.currentVariant = this.cachedVariants[this.cacheIdx].copy();
+      this.currentVariant = this.cachedTrees[this.cacheIdx].copy();
     }
     this.newLeaf = null;
   }
@@ -1067,12 +1066,12 @@ export class GraphicalQueryEditorComponent
     this.emptyVariant = false;
 
     this.cacheIdx--;
-    if (this.cachedVariants[this.cacheIdx] === null) {
+    if (this.cachedTrees[this.cacheIdx] === null) {
       this.currentVariant = null;
       this.emptyVariant = true;
-    } // edited
+    }
     else {
-      this.currentVariant = this.cachedVariants[this.cacheIdx].copy();
+      this.currentVariant = this.cachedTrees[this.cacheIdx].copy();
     }
     this.newLeaf = null;
   }
@@ -1099,7 +1098,7 @@ export class GraphicalQueryEditorComponent
       this.multiSelect = false;
       this.multipleSelected = false;
 
-      this.cacheCurrentVariant();
+      this.cacheCurrentTree();
 
       this.triggerRedraw();
     }
@@ -1197,7 +1196,7 @@ export class GraphicalQueryEditorComponent
     this.multiSelect = false;
     this.multipleSelected = false;
 
-    this.cacheCurrentVariant();
+    this.cacheCurrentTree();
     this.triggerRedraw();
   }
   removeSelection() {

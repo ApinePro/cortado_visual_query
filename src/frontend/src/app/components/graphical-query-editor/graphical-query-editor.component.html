@@ -1,462 +1,491 @@
 <div class="query-editor-mainblock h-100 d-flex flex-column">
   <div class="graphical-query-editor-container" #variantMiner>
-    <div class="pattern-table-container flex-column">
-      <div #ToolBar class="bg-dark btn-tool-bar">
-        <span class="vl mx-2"></span>
-        <div class="btn-group round-corners" role="group">
-          <button
-            type="button"
-            class="button"
-            (click)="savePattern()"
-            ngbTooltip="group the activities"
-            container="body"
-          >
-            Group activities
-          </button>
-          <button
-            type="button"
-            class="button"
-            (click)="savePattern()"
-            ngbTooltip="save pattern to list"
-            container="body"
-          >
-            Save Pattern
-          </button>
-          <button
-            type="button"
-            class="button"
-            (click)="openPatternList()"
-            ngbTooltip="save pattern to list"
-            container="body"
-          >
-            Open Pattern List
-          </button>
-          <button
-            type="button"
-            class="button"
-            (click)="openCardinality()"
-            ngbTooltip="type cardinality counts"
-            container="body"
-          >
-            Add Cardinality
-          </button>
-          <button
-            type="button"
-            class="button"
-            (click)="addCardinality()"
-            ngbTooltip="add cardinality"
-            container="body"
-          >
-            <i class="bi bi-arrow-up"></i>
-          </button>
-          <button
-            type="button"
-            class="button"
-            (click)="reduceCardinality()"
-            ngbTooltip="reduce cardinality"
-            container="body"
-          >
-            <i class="bi bi-arrow-down"></i>
-          </button>
-          <button
-            type="button"
-            class="button"
-            (click)="cardiDirect = cardinalityDirection.vertical"
-            [ngClass]="
-              cardiDirect === cardinalityDirection.vertical
-                ? 'strategy-selected'
-                : ''
-            "
-            ngbTooltip="Add cardinality in vertical direction"
-            container="body"
-          >
-            <i class="bi bi-arrows-vertical"></i>
-          </button>
+    <div class="pattern-table-container d-flex flex-column">
+      <div class="d-flex">
+        <div class="editor-toolbox d-flex flex-column">
+          <div #ToolBar class="bg-dark btn-tool-bar">
+            <span class="vl mx-2"></span>
+            <div class="d-flex">
+              <div class="btn-group round-corners" role="group">
+                <button
+                  type="button"
+                  class="button"
+                  (click)="selectedStrategy = insertionStrategy.infront"
+                  [ngClass]="
+                    selectedStrategy === insertionStrategy.infront
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  ngbTooltip="insert new activities infront the selected activtiy"
+                  container="body"
+                >
+                  <i class="bi bi-arrow-bar-left"></i>
+                </button>
 
-          <button
-            type="button"
-            class="button"
-            (click)="cardiDirect = cardinalityDirection.horizontal"
-            [ngClass]="
-              cardiDirect === cardinalityDirection.horizontal
-                ? 'strategy-selected'
-                : ''
-            "
-            ngbTooltip="Add cardinality in horizontal direction"
-            container="body"
-          >
-            <i class="bi bi-arrows"></i>
-          </button>
+                <button
+                  type="button"
+                  class="button"
+                  (click)="selectedStrategy = insertionStrategy.behind"
+                  [ngClass]="
+                    selectedStrategy === insertionStrategy.behind
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  ngbTooltip="insert new activities behind of the selected activtiy"
+                  container="body"
+                >
+                  <i class="bi bi-arrow-bar-right"></i>
+                </button>
 
-          <button
-            type="button"
-            class="button"
-            (click)="changeCardinalityOp('less')"
-            [ngClass]="
-              !canSwitchCardinality('less') ? 'button-area-disabled' : ''
-            "
-            ngbTooltip="Add cardinality in horizontal direction"
-            container="body"
-          >
-            <i>≤</i>
-          </button>
-          <button
-            type="button"
-            class="button"
-            (click)="changeCardinalityOp('equal')"
-            [ngClass]="
-              !canSwitchCardinality('equal') ? 'button-area-disabled' : ''
-            "
-            ngbTooltip="Add cardinality in horizontal direction"
-            container="body"
-          >
-            <i>=</i>
-          </button>
-          <button
-            type="button"
-            class="button"
-            (click)="changeCardinalityOp('more')"
-            [ngClass]="
-              !canSwitchCardinality('more') ? 'button-area-disabled' : ''
-            "
-            ngbTooltip="Add cardinality in horizontal direction"
-            container="body"
-          >
-            <i>≥</i>
-          </button>
-        </div>
-      </div>
-      <div #ToolBar class="bg-dark btn-tool-bar">
-        <span class="vl mx-2"></span>
+                <button
+                  type="button"
+                  class="button"
+                  (click)="selectedStrategy = insertionStrategy.parallel"
+                  [ngClass]="
+                    selectedStrategy === insertionStrategy.parallel
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  ngbTooltip="insert new activities parallel of the selected activtiy"
+                  container="body"
+                >
+                  <i class="bi bi-arrows-expand"></i>
+                </button>
 
-        <div class="btn-group round-corners" role="group">
-          <button
-            type="button"
-            class="button"
-            (click)="selectedStrategy = insertionStrategy.infront"
-            [ngClass]="
-              selectedStrategy === insertionStrategy.infront
-                ? 'strategy-selected'
-                : ''
-            "
-            ngbTooltip="insert new activities infront the selected activtiy"
-            container="body"
-          >
-            <i class="bi bi-arrow-bar-left"></i>
-          </button>
+                <button
+                  type="button"
+                  class="button"
+                  (click)="selectedStrategy = insertionStrategy.choice"
+                  [ngClass]="
+                    selectedStrategy === insertionStrategy.choice
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  ngbTooltip="add an activity as an alternative candidate to the currently selected activity"
+                  container="body"
+                >
+                  <i class="bi bi-slash"></i>
+                </button>
 
-          <button
-            type="button"
-            class="button"
-            (click)="selectedStrategy = insertionStrategy.behind"
-            [ngClass]="
-              selectedStrategy === insertionStrategy.behind
-                ? 'strategy-selected'
-                : ''
-            "
-            ngbTooltip="insert new activities behind of the selected activtiy"
-            container="body"
-          >
-            <i class="bi bi-arrow-bar-right"></i>
-          </button>
+                <button
+                  type="button"
+                  class="button"
+                  (click)="selectedStrategy = insertionStrategy.fallthrough"
+                  [ngClass]="
+                    selectedStrategy === insertionStrategy.fallthrough
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  ngbTooltip="create fallthrough using an activity"
+                  container="body"
+                >
+                  <i class="bi bi-arrow-down"></i>
+                </button>
 
-          <button
-            type="button"
-            class="button"
-            (click)="selectedStrategy = insertionStrategy.parallel"
-            [ngClass]="
-              selectedStrategy === insertionStrategy.parallel
-                ? 'strategy-selected'
-                : ''
-            "
-            ngbTooltip="insert new activities parallel of the selected activtiy"
-            container="body"
-          >
-            <i class="bi bi-arrows-expand"></i>
-          </button>
+                <button
+                  type="button"
+                  class="button"
+                  (click)="selectedStrategy = insertionStrategy.replace"
+                  [ngClass]="
+                    selectedStrategy === insertionStrategy.replace
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  ngbTooltip="replace the currently selected activity"
+                  container="body"
+                >
+                  <i class="bi bi-arrow-repeat"></i>
+                </button>
 
-          <button
-            type="button"
-            class="button"
-            (click)="selectedStrategy = insertionStrategy.choice"
-            [ngClass]="
-              selectedStrategy === insertionStrategy.choice
-                ? 'strategy-selected'
-                : ''
-            "
-            ngbTooltip="add an activity as an alternative candidate to the currently selected activity"
-            container="body"
-          >
-            <i class="bi bi-slash"></i>
-          </button>
+                <button
+                  type="button"
+                  class="button"
+                  (click)="selectedStrategy = insertionStrategy.replace"
+                  ngbTooltip="switch pattern to eventual mode"
+                  container="body"
+                >
+                  <i class="bi bi-chevron-double-right"></i>
+                </button>
+              </div>
+            </div>
 
-          <button
-            type="button"
-            class="button"
-            (click)="selectedStrategy = insertionStrategy.fallthrough"
-            [ngClass]="
-              selectedStrategy === insertionStrategy.fallthrough
-                ? 'strategy-selected'
-                : ''
-            "
-            ngbTooltip="create fallthrough using an activity"
-            container="body"
-          >
-            <i class="bi bi-arrow-down"></i>
-          </button>
+            <span class="vl mx-2"></span>
 
-          <button
-            type="button"
-            class="button"
-            (click)="selectedStrategy = insertionStrategy.replace"
-            [ngClass]="
-              selectedStrategy === insertionStrategy.replace
-                ? 'strategy-selected'
-                : ''
-            "
-            ngbTooltip="replace the currently selected activity"
-            container="body"
-          >
-            <i class="bi bi-arrow-repeat"></i>
-          </button>
+            <button
+              class="button btn-fixed-width"
+              (click)="undo()"
+              [disabled]="!(cachedTrees.length - 1 > 0 && cacheIdx !== 0)"
+              ngbTooltip="undo"
+              container="body"
+            >
+              <i class="bi bi-arrow-counterclockwise btn-icon"></i>
+              <span
+                class="text-secondary"
+                *ngIf="cachedTrees.length - 1 > 0 && cacheIdx !== 0"
+              >
+                ({{ cacheIdx }})
+              </span>
+            </button>
 
-          <button
-            type="button"
-            class="button"
-            (click)="selectedStrategy = insertionStrategy.replace"
-            ngbTooltip="switch pattern to eventual mode"
-            container="body"
-          >
-            <i class="bi bi-chevron-double-right"></i>
-          </button>
+            <button
+              class="button btn-fixed-width"
+              (click)="redo()"
+              [disabled]="!(cacheIdx < cachedTrees.length - 1)"
+              ngbTooltip="redo"
+              container="body"
+            >
+              <i class="bi bi-arrow-clockwise btn-icon"></i>
+              <span
+                class="text-secondary"
+                *ngIf="cacheIdx < cachedTrees.length - 1"
+              >
+                ({{ cachedTrees.length - 1 - cacheIdx }})
+              </span>
+            </button>
+
+            <span class="vl mx-2"></span>
+
+            <button
+              class="button"
+              (click)="removeSelection()"
+              [disabled]="!selectedElement"
+              ngbTooltip="remove current selection"
+              container="body"
+            >
+              <i class="bi bi-dash-square-dotted"></i>
+            </button>
+
+            <span class="vl mx-2"></span>
+
+            <button
+              class="button"
+              (click)="onDeleteSelected()"
+              ngbTooltip="remove the currently selected activity"
+              container="body"
+              [disabled]="emptyVariant || !selectedElement"
+            >
+              <i
+                class="bi bi-trash"
+                [ngClass]="{
+                  'text-warning': !emptyVariant
+                }"
+              ></i>
+
+              <div @collapseText class="button-text px-1" *ngIf="!collapse">
+                remove selected chevron(s)
+              </div>
+            </button>
+
+            <span class="vl mx-2"></span>
+
+            <button
+              class="button"
+              (click)="onDeleteVariant()"
+              ngbTooltip="remove the current variant"
+              container="body"
+              [disabled]="emptyVariant"
+            >
+              <i
+                class="bi bi-x-octagon"
+                [ngClass]="{
+                  'text-danger': !emptyVariant
+                }"
+              ></i>
+              <div @collapseText class="button-text px-1" *ngIf="!collapse">
+                remove current variant
+              </div>
+            </button>
+          </div>
         </div>
 
-        <span class="vl mx-2"></span>
+        <div class="editor-toolbox d-flex flex-column">
+          <div #ToolBar class="bg-dark btn-tool-bar">
+            <div class="d-flex">
+              <div class="btn-group round-corners" role="group">
+                <button
+                  type="button"
+                  class="button"
+                  (click)="savePattern()"
+                  ngbTooltip="group the activities"
+                  container="body"
+                >
+                  Group activities
+                </button>
+                <button
+                  type="button"
+                  class="button"
+                  (click)="savePattern()"
+                  ngbTooltip="save pattern to list"
+                  container="body"
+                >
+                  Save Pattern
+                </button>
+                <button
+                  type="button"
+                  class="button"
+                  (click)="openPatternList()"
+                  ngbTooltip="save pattern to list"
+                  container="body"
+                >
+                  Open Pattern List
+                </button>
+                <button
+                  type="button"
+                  class="button"
+                  (click)="openCardinality()"
+                  ngbTooltip="type cardinality counts"
+                  container="body"
+                >
+                  Add Cardinality
+                </button>
+                <button
+                  type="button"
+                  class="button"
+                  (click)="addCardinality()"
+                  ngbTooltip="add cardinality"
+                  container="body"
+                >
+                  <i class="bi bi-arrow-up"></i>
+                </button>
+                <button
+                  type="button"
+                  class="button"
+                  (click)="reduceCardinality()"
+                  ngbTooltip="reduce cardinality"
+                  container="body"
+                >
+                  <i class="bi bi-arrow-down"></i>
+                </button>
+                <button
+                  type="button"
+                  class="button"
+                  (click)="cardiDirect = cardinalityDirection.vertical"
+                  [ngClass]="
+                    cardiDirect === cardinalityDirection.vertical
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  ngbTooltip="Add cardinality in vertical direction"
+                  container="body"
+                >
+                  <i class="bi bi-arrows-vertical"></i>
+                </button>
 
-        <button
-          class="button btn-fixed-width"
-          (click)="undo()"
-          [disabled]="!(cachedVariants.length - 1 > 0 && cacheIdx !== 0)"
-          ngbTooltip="undo"
-          container="body"
-        >
-          <i class="bi bi-arrow-counterclockwise btn-icon"></i>
-          <span
-            class="text-secondary"
-            *ngIf="cachedVariants.length - 1 > 0 && cacheIdx !== 0"
-          >
-            ({{ cacheIdx }})
-          </span>
-        </button>
+                <button
+                  type="button"
+                  class="button"
+                  (click)="cardiDirect = cardinalityDirection.horizontal"
+                  [ngClass]="
+                    cardiDirect === cardinalityDirection.horizontal
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  ngbTooltip="Add cardinality in horizontal direction"
+                  container="body"
+                >
+                  <i class="bi bi-arrows"></i>
+                </button>
 
-        <button
-          class="button btn-fixed-width"
-          (click)="redo()"
-          [disabled]="!(cacheIdx < cachedVariants.length - 1)"
-          ngbTooltip="redo"
-          container="body"
-        >
-          <i class="bi bi-arrow-clockwise btn-icon"></i>
-          <span
-            class="text-secondary"
-            *ngIf="cacheIdx < cachedVariants.length - 1"
-          >
-            ({{ cachedVariants.length - 1 - cacheIdx }})
-          </span>
-        </button>
-
-        <span class="vl mx-2"></span>
-
-        <button
-          class="button"
-          (click)="removeSelection()"
-          [disabled]="!selectedElement"
-          ngbTooltip="remove current selection"
-          container="body"
-        >
-          <i class="bi bi-dash-square-dotted"></i>
-        </button>
-
-        <span class="vl mx-2"></span>
-
-        <button
-          class="button"
-          (click)="onDeleteSelected()"
-          ngbTooltip="remove the currently selected activity"
-          container="body"
-          [disabled]="emptyVariant || !selectedElement"
-        >
-          <i
-            class="bi bi-trash"
-            [ngClass]="{
-              'text-warning': !emptyVariant
-            }"
-          ></i>
-
-          <div @collapseText class="button-text px-1" *ngIf="!collapse">
-            remove selected chevron(s)
+                <button
+                  type="button"
+                  class="button"
+                  (click)="changeCardinalityOp('less')"
+                  [ngClass]="
+                    !canSwitchCardinality('less') ? 'button-area-disabled' : ''
+                  "
+                  ngbTooltip="Add cardinality in horizontal direction"
+                  container="body"
+                >
+                  <i>≤</i>
+                </button>
+                <button
+                  type="button"
+                  class="button"
+                  (click)="changeCardinalityOp('equal')"
+                  [ngClass]="
+                    !canSwitchCardinality('equal') ? 'button-area-disabled' : ''
+                  "
+                  ngbTooltip="Add cardinality in horizontal direction"
+                  container="body"
+                >
+                  <i>=</i>
+                </button>
+                <button
+                  type="button"
+                  class="button"
+                  (click)="changeCardinalityOp('more')"
+                  [ngClass]="
+                    !canSwitchCardinality('more') ? 'button-area-disabled' : ''
+                  "
+                  ngbTooltip="Add cardinality in horizontal direction"
+                  container="body"
+                >
+                  <i>≥</i>
+                </button>
+              </div>
+            </div>
           </div>
-        </button>
+          <div #ToolBar class="bg-dark btn-tool-bar">
+            <span class="vl mx-2"></span>
+            <div class="d-flex">
+              <div class="btn-group round-corners" role="group">
+                <button
+                  class="button text-warning"
+                  (click)="deleteSubtree()"
+                  [disabled]="!selectedRootNode"
+                  ngbTooltip="remove selected node(s)"
+                  triggers="hover"
+                  container="body"
+                >
+                  <i class="bi bi-trash btn-icon"></i>
+                </button>
+                <button
+                  type="button"
+                  class="button"
+                  [disabled]="disabledInsertPositions.above"
+                  (click)="nodeInsertionStrategy = NodeInsertionStrategy.ABOVE"
+                  [ngClass]="
+                    nodeInsertionStrategy === NodeInsertionStrategy.ABOVE
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  container="body"
+                >
+                  <i class="bi bi-chevron-left"></i>
+                </button>
 
-        <span class="vl mx-2"></span>
+                <button
+                  type="button"
+                  class="button"
+                  [disabled]="disabledInsertPositions.below"
+                  (click)="nodeInsertionStrategy = NodeInsertionStrategy.BELOW"
+                  [ngClass]="
+                    nodeInsertionStrategy === NodeInsertionStrategy.BELOW
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  container="body"
+                >
+                  <i class="bi bi-chevron-right"></i>
+                </button>
 
-        <button
-          class="button"
-          (click)="onDeleteVariant()"
-          ngbTooltip="remove the current variant"
-          container="body"
-          [disabled]="emptyVariant"
-        >
-          <i
-            class="bi bi-x-octagon"
-            [ngClass]="{
-              'text-danger': !emptyVariant
-            }"
-          ></i>
-          <div @collapseText class="button-text px-1" *ngIf="!collapse">
-            remove current variant
+                <button
+                  type="button"
+                  class="button"
+                  [disabled]="disabledInsertPositions.leftRight"
+                  (click)="nodeInsertionStrategy = NodeInsertionStrategy.LEFT"
+                  [ngClass]="
+                    nodeInsertionStrategy === NodeInsertionStrategy.LEFT
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  container="body"
+                >
+                  <i class="bi bi-chevron-up"></i>
+                </button>
+
+                <button
+                  type="button"
+                  class="button"
+                  [disabled]="disabledInsertPositions.leftRight"
+                  (click)="nodeInsertionStrategy = NodeInsertionStrategy.RIGHT"
+                  [ngClass]="
+                    nodeInsertionStrategy === NodeInsertionStrategy.RIGHT
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  container="body"
+                >
+                  <i class="bi bi-chevron-down"></i>
+                </button>
+
+                <button
+                  type="button"
+                  class="button"
+                  (click)="nodeInsertionStrategy = NodeInsertionStrategy.CHANGE"
+                  [ngClass]="
+                    nodeInsertionStrategy === NodeInsertionStrategy.CHANGE
+                      ? 'strategy-selected'
+                      : ''
+                  "
+                  ngbTooltip="replace the currently selected node"
+                  container="body"
+                >
+                  <i class="bi bi-arrow-repeat"></i>
+                </button>
+              </div>
+              <div
+                class="d-flex flex-wrap justify-content-end align-self-start operator-buttons"
+              >
+                <button
+                  *ngFor="let op of queryTreeOperators"
+                  type="button"
+                  (click)="insertNewNode(op, null)"
+                  [ngbTooltip]="op"
+                  [ngClass]="
+                    checkNodeButtonDisabled(op) ? 'button-area-disabled' : ''
+                  "
+                  container="body"
+                  placement="bottom"
+                  class="btn btn-sm node-btn"
+                >
+                  {{ op }}
+                </button>
+                <button
+                  type="button"
+                  (click)="negateNode()"
+                  container="body"
+                  placement="bottom"
+                  class="btn btn-sm node-btn"
+                >
+                  NOT
+                </button>
+                <button
+                  type="button"
+                  (click)="queryApply()"
+                  container="body"
+                  placement="bottom"
+                  class="btn btn-sm node-btn"
+                >
+                  Apply graphical query
+                </button>
+              </div>
+            </div>
           </div>
-        </button>
+        </div>
       </div>
-      <span class="vl mx-2"></span>
-      <div #ToolBar class="bg-dark btn-tool-bar">
-        <span class="vl mx-2"></span>
+
+      <div class="toolbox-area bg-dark" *ngIf="showToolbox">
         <div class="d-flex">
-          <div class="btn-group round-corners" role="group">
-            <button
-              class="button text-warning"
-              (click)="deleteSubtree()"
-              [disabled]="!selectedRootNode"
-              ngbTooltip="remove selected node(s)"
-              triggers="hover"
-              container="body"
-            >
-              <i class="bi bi-trash btn-icon"></i>
-            </button>
-            <button
-              type="button"
-              class="button"
-              [disabled]="disabledInsertPositions.above"
-              (click)="nodeInsertionStrategy = NodeInsertionStrategy.ABOVE"
-              [ngClass]="
-                nodeInsertionStrategy === NodeInsertionStrategy.ABOVE
-                  ? 'strategy-selected'
-                  : ''
-              "
-              container="body"
-            >
-              <i class="bi bi-chevron-left"></i>
-            </button>
-
-            <button
-              type="button"
-              class="button"
-              [disabled]="disabledInsertPositions.below"
-              (click)="nodeInsertionStrategy = NodeInsertionStrategy.BELOW"
-              [ngClass]="
-                nodeInsertionStrategy === NodeInsertionStrategy.BELOW
-                  ? 'strategy-selected'
-                  : ''
-              "
-              container="body"
-            >
-              <i class="bi bi-chevron-right"></i>
-            </button>
-
-            <button
-              type="button"
-              class="button"
-              [disabled]="disabledInsertPositions.leftRight"
-              (click)="nodeInsertionStrategy = NodeInsertionStrategy.LEFT"
-              [ngClass]="
-                nodeInsertionStrategy === NodeInsertionStrategy.LEFT
-                  ? 'strategy-selected'
-                  : ''
-              "
-              container="body"
-            >
-              <i class="bi bi-chevron-up"></i>
-            </button>
-
-            <button
-              type="button"
-              class="button"
-              [disabled]="disabledInsertPositions.leftRight"
-              (click)="nodeInsertionStrategy = NodeInsertionStrategy.RIGHT"
-              [ngClass]="
-                nodeInsertionStrategy === NodeInsertionStrategy.RIGHT
-                  ? 'strategy-selected'
-                  : ''
-              "
-              container="body"
-            >
-              <i class="bi bi-chevron-down"></i>
-            </button>
-
-            <button
-              type="button"
-              class="button"
-              (click)="nodeInsertionStrategy = NodeInsertionStrategy.CHANGE"
-              [ngClass]="
-                nodeInsertionStrategy === NodeInsertionStrategy.CHANGE
-                  ? 'strategy-selected'
-                  : ''
-              "
-              ngbTooltip="replace the currently selected node"
-              container="body"
-            >
-              <i class="bi bi-arrow-repeat"></i>
-            </button>
-          </div>
-          <div
-            class="d-flex flex-wrap justify-content-end align-self-start operator-buttons"
+          <app-activity-button-area
+            [activityNames]="activityNames"
+            (activityButtonClick)="editLeafNode($event)"
+            [ngClass]="
+              selectedRootNode?.data.operator === 'AND' ||
+              selectedRootNode?.data.operator === 'OR'
+                ? 'button-area-disabled'
+                : ''
+            "
           >
-            <button
-              *ngFor="let op of queryTreeOperators"
-              type="button"
-              (click)="insertNewNode(op, null)"
-              [ngbTooltip]="op"
-              [ngClass]="
-                checkNodeButtonDisabled(op) ? 'button-area-disabled' : ''
-              "
-              container="body"
-              placement="bottom"
-              class="btn btn-sm node-btn"
-            >
-              {{ op }}
-            </button>
-            <button
-              type="button"
-              (click)="negateNode()"
-              container="body"
-              placement="bottom"
-              class="btn btn-sm node-btn"
-            >
-              NOT
-            </button>
-            <button
-              type="button"
-              (click)="queryApply()"
-              container="body"
-              placement="bottom"
-              class="btn btn-sm node-btn"
-            >
-              Apply graphical query
-            </button>
-          </div>
+          </app-activity-button-area>
         </div>
       </div>
-      <app-activity-button-area
-        [activityNames]="activityNames"
-        (activityButtonClick)="editLeafNode($event)"
-        [ngClass]="
-          selectedRootNode?.data.operator === 'AND' ||
-          selectedRootNode?.data.operator === 'OR'
-            ? 'button-area-disabled'
-            : ''
-        "
-      >
-      </app-activity-button-area>
+      <div class="d-flex justify-content-center">
+        <button
+          class="button"
+          id="collapse-button"
+          (click)="showToolbox = !showToolbox"
+        >
+          <i
+            class="btn-icon bi"
+            [ngClass]="{
+              'bi-chevron-bar-up': showToolbox,
+              'bi-chevron-bar-down': !showToolbox
+            }"
+          ></i>
+        </button>
+      </div>
+
       <div
         #d3container
         id="d3-container"
