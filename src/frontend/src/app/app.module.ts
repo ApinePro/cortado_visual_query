@@ -109,6 +109,7 @@ import { VariantActionButtonsComponent } from './components/variant-explorer/var
 import { ArcDiagramDirective } from './directives/arc-diagram/arc-diagram.directive';
 import { ArcDiagramFilterComponent } from './components/variant-explorer/arc-diagram/filter/filter.component';
 import { VariantVisualisationComponent } from './components/variant-explorer/variant/subcomponents/variant-visualisation/variant-visualisation.component';
+import { ActivityGroupInputModalComponent } from './components/graphical-query-editor/activity-group-input-modal/activity-group-input-modal.component';
 
 @NgModule({
   declarations: [
@@ -199,6 +200,7 @@ import { VariantVisualisationComponent } from './components/variant-explorer/var
     ArcDiagramDirective,
     ArcDiagramFilterComponent,
     VariantVisualisationComponent,
+    ActivityGroupInputModalComponent,
   ],
   imports: [
     BrowserModule,

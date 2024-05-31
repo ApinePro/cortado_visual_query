@@ -21,6 +21,8 @@ import {
   ElementRef,
   Inject,
   OnDestroy,
+  OnChanges,
+  SimpleChanges,
   OnInit,
   QueryList,
   Renderer2,
@@ -104,7 +106,7 @@ import { ProcessEnvOptions } from 'child_process';
 })
 export class GraphicalQueryEditorComponent
   extends LayoutChangeDirective
-  implements OnInit, AfterViewInit, OnDestroy
+  implements OnInit, OnChanges, AfterViewInit, OnDestroy
 {
   selectedPerformanceIndicator: string;
   selectedStatistic: string;
@@ -197,7 +199,7 @@ export class GraphicalQueryEditorComponent
 
   savedPatterns: VariantElement[] = [];
 
-  activityGroups: Map<string, string[]>;
+  activityGroups: Map<string, string[]> = new Map();
 
   ///////////////////Tree Part
   queryTreeOperators: QueryTreeOperator[];
@@ -278,7 +280,6 @@ export class GraphicalQueryEditorComponent
   private _destroy$ = new Subject();
 
   ngOnInit(): void {
-
     this.modelViewModeService.viewMode$
       .pipe(takeUntil(this._destroy$))
       .subscribe((viewMode) => {
@@ -340,6 +341,12 @@ export class GraphicalQueryEditorComponent
       });
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.activityNames) {
+      console.log('activityNames updated:', changes.activityNames.currentValue);
+    }
+  }
+
   ngAfterViewInit(): void {
     this.logService.activitiesInEventLog$
       .pipe(takeUntil(this._destroy$))
@@ -379,10 +386,10 @@ export class GraphicalQueryEditorComponent
         } else {
           this.clearDisplayedSelection();
         }
-
         this.selectedRootNodeId = id;
         //add some?
       });
+      console.log(this.activityColorMap);
   }
 
   computeActivityColor = (
@@ -394,10 +401,16 @@ export class GraphicalQueryEditorComponent
 
     if (element instanceof LeafNode) {
       color = this.activityColorMap.get(element.asLeafNode().activity[0]);
-
-      if (element.activity.length > 1) {
+      if(color === undefined){
+        if(element.asLeafNode().activity[0] == "S" || element.asLeafNode().activity[0] == "E" || element.asLeafNode().activity[0] == "?" || element.asLeafNode().activity[0] == "..."){
+            return '#d3d3d3';
+          }
+        else if(element.activity.length == 1){
+          return '#DAA520';
+        }
+      else if (element.activity.length > 1) {
         color = '#d3d3d3'; // lightgray
-      }
+      }}
     } else {
       color = '#d3d3d3';
     }
@@ -504,7 +517,6 @@ export class GraphicalQueryEditorComponent
     //console.log(this.selectedElement);
     //console.log(this.emptyVariant);
     //console.log(nodevariant.pattern);
-    //console.log(this.currentVariant)
     if (this.selectedElement || this.emptyVariant || !nodevariant.pattern) {
       const leaf = new LeafPattern([event.activityName]);
       this.newLeaf = leaf;
@@ -566,7 +578,7 @@ export class GraphicalQueryEditorComponent
                 .selectAll('.selected-variant-g')
                 .data();
               this.handleMultiParallelInsert(
-                this.currentVariant,
+                nodevariant.pattern,
                 leaf,
                 selectedElements
               );
@@ -595,6 +607,7 @@ export class GraphicalQueryEditorComponent
         }
         this.triggerRedraw();
       }
+      console.log(this.currentVariant);
       //console.log(nodevariant.pattern);
       this.cacheCurrentTree();
     }
@@ -823,14 +836,21 @@ export class GraphicalQueryEditorComponent
 
   handleBehindInsert(variant: VariantElement, leaf: LeafNode, selectedElement) {
     const children = variant.getElements();
-    //console.log("come behind");
-    //console.log(variant);
-    //console.log(leaf);
-    //console.log(selectedElement);
     if (children) {
       const index = children.indexOf(selectedElement);
+      console.log(selectedElement);
       if (variant && variant === selectedElement) {
-        children.splice(children.length, 0, leaf);
+        if(variant instanceof SequencePattern && (variant.asPattern().verticalCardi > 0 || variant.asPattern().horizontalCardi > 0)){
+          console.log("comehar");
+          children.splice(
+            index,
+            1,
+            new SequencePattern([selectedElement, leaf])
+          );
+        }
+        else{
+          children.splice(children.length, 0, leaf);
+        }
       } else if (index > -1) {
         // Handling Parent Parallel Group Cases
         if (variant instanceof ParallelGroup) {
@@ -881,7 +901,16 @@ export class GraphicalQueryEditorComponent
     if (children) {
       const index = children.indexOf(selectedElement);
       if (variant && variant === selectedElement) {
-        children.splice(0, 0, leaf);
+        if(variant instanceof SequencePattern && ((variant as SequencePattern).verticalCardi > 0 || (variant as SequencePattern).horizontalCardi > 0)){
+          children.splice(
+            index,
+            1,
+            new SequencePattern([leaf, selectedElement])
+          );
+        }
+        else{
+          children.splice(0, 0, leaf);
+        }
       } else if (index > -1) {
         if (variant instanceof ParallelGroup) {
           // Inserting infront a leafNode inside a ParallelGroup
@@ -1070,12 +1099,14 @@ export class GraphicalQueryEditorComponent
     const ElementsToDelete = this.variantEnrichedSelection
       .selectAll('.selected-variant-g')
       .data();
-
+    console.log(ElementsToDelete);
+    console.log(this.currentVariant);
     if (
       ElementsToDelete.length === 1 &&
       ElementsToDelete[0] instanceof SequenceGroup &&
       this.currentVariant === ElementsToDelete[0]
     ) {
+      console.log("come 1");
       this.onDeleteVariant();
     } // need further check. Is this nested function allowed?
     else {
@@ -1189,6 +1220,7 @@ export class GraphicalQueryEditorComponent
     this.cacheCurrentTree();
     this.triggerRedraw();
   }
+
   removeSelection() {
     this.selectedElement = false;
     this.multiSelect = false;
@@ -1324,7 +1356,9 @@ export class GraphicalQueryEditorComponent
 
   openPatternList() {}
 
-  openGroupNameEditor() {}
+  openGroupNameEditor() {
+    this.variantService.showGroupNameDialog.next();
+  }
 
   openCardinalityEditor() {
     console.log('start!');
@@ -1440,9 +1474,10 @@ export class GraphicalQueryEditorComponent
       .selectAll('.selected-variant-g')
       .data();
     //console.log(selectedElement);
+    const rootPattern = (this.selectedRootNode?.data as QueryTree).pattern;
     if (selectedElement.length > 1) {
       let parent = this.findParent(
-        (this.selectedRootNode?.data as QueryTree).pattern,
+        rootPattern,
         selectedElement[0]
       );
       const parentChildren = parent.getElements();
@@ -1465,7 +1500,7 @@ export class GraphicalQueryEditorComponent
 
       if (lastSelectIdx - firstSelectIdx + 1 == selectedElement.length) {
         //Only allow adjecent groups when doing multiple selection --> how about in parallel group??
-        if (parentChildren.length != selectedElement.length) {
+        if (parentChildren.length != selectedElement.length || parent == rootPattern) {
           console.log('create outer');
           console.log(selectedElement);
           parent = this.insertOuterPattern(parent, selectedElement);
@@ -1601,12 +1636,14 @@ export class GraphicalQueryEditorComponent
     const node = selectedRoot.data()[0];
     if (id && node) {
       this.setSelectedRootNode(node);
+      console.log(this.selectedRootNode.data)
       this.selectSubtreeFromRoot(selectedRoot.node(), node);
 
       this.checkNodeInsertionStrategy(this.selectedRootNode.data);
       //added
       this.currentVariant = node.data.pattern;
       this.emptyVariant = node.data.pattern == null;
+      console.log(this.currentVariant);
       //this.selectedElement = null; //clear selection?
       //this.multiSelect = false;
       //this.multipleSelected = false;
@@ -1717,6 +1754,8 @@ export class GraphicalQueryEditorComponent
     );
     //console.log("the whole tree");
     //console.log(this.currentlyDisplayedTreeInEditor);
+    console.log(this.selectedRootNodeId);
+    console.log(this.selectedRootNode);
     this.afterInsertNode();
   }
 
@@ -1732,6 +1771,7 @@ export class GraphicalQueryEditorComponent
     if (selectedNode instanceof QueryTree) {
       //console.log('start insert');
       this.handleActivityButtonClick(event, selectedNode as QueryTree);
+      this.currentVariant = (selectedNode as QueryTree).pattern;
       //console.log((selectedNode as QueryTree).pattern);
     }
     this.processTreeDrawer.redraw(this.currentlyDisplayedTreeInEditor);
@@ -2189,36 +2229,47 @@ export class GraphicalQueryEditorComponent
     }
   }
 
-  groupActivity(){
+  handleGroupNameInput(event){
     if(this.multipleSelected){
-    const selectedElements = this.variantEnrichedSelection
-                .selectAll('.selected-variant-g')
-                .data();
-    let activityNames = []
-    for(let elem of selectedElements){
-      if(elem instanceof LeafNode){
-        activityNames.push(elem.activity[0]);
+      const selectedElements = this.variantEnrichedSelection
+                  .selectAll('.selected-variant-g')
+                  .data();
+      let activityNames = []
+      for(let elem of selectedElements){
+        if(elem instanceof LeafNode){
+          activityNames.push(elem.activity[0]);
+        }
+        else{
+          break;
+        }
+        }
+        if(activityNames.length == selectedElements.length){
+          this.activityGroups.set(event.groupName, activityNames)
+        }
+        else{
+          console.log("Not all leaves");
+        }
       }
-      else{
-        break;
-      }
-      }
-      if(activityNames.length == selectedElements.length){
-        let name = "aaa"
-        this.activityGroups.set(name, activityNames)
-      }
-      else{
-        console.log("Not all leaves");
-      }
-    }
+      this.activityNames = [...this.activityNames, event.groupName];
+      console.log(this.activityGroups);
+      console.log(this.activityNames);
   }
+
+  serializeGroupMap(map: Map<string, string[]>){
+    const obj: { [key: string]: string[] } = {};
+    map.forEach((value, key) => {
+      obj[key] = value;
+    });
+    return JSON.stringify(obj);
+  };
 
   queryApply(): void {
     console.log(this.serializeNode(this.currentlyDisplayedTreeInEditor));
     const serializedTree = this.serializeNode(
       this.currentlyDisplayedTreeInEditor
     );
-    this.backendService.applyGraphicalQuery(serializedTree);
+    console.log(this.activityGroups);
+    this.backendService.applyGraphicalQuery(serializedTree, this.serializeGroupMap(this.activityGroups));
   }
 }
 

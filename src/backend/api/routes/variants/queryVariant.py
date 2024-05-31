@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Any
 import copy
+import json
 
 from cortado_core.models.infix_type import InfixType
 from endpoints.load_event_log import (
@@ -22,6 +23,7 @@ class variantQuery(BaseModel):
 
 class graphicalVariantQuery(BaseModel):
     queryTree: Any = None
+    activityGroups: Any = None
 
 
 @router.post("/variant-query")
@@ -37,7 +39,7 @@ def variant_query(query: variantQuery):
     return res
 
 
-
+group_dic = {}
 
 def generate_variant_info(infix_type, traces):
     user_defined = len(traces) == 0
@@ -48,13 +50,18 @@ def generate_variant_info(infix_type, traces):
 def graphical_variant_query(graphical_query: graphicalVariantQuery):
     res = []
     print(graphical_query)
+    
     #print(cache.variants.items())
     query = deserialize_query(graphical_query)
+    global group_dic
+    group_dic = json.loads(graphical_query.activityGroups)
+    print(group_dic)
     variant_list = defaultdict(list)
     count = 0
 
     
     variant_list = []
+    
     for bid, (variant, _, _, info) in cache.variants.items():
         #if check_node(query, variant):
         #    res.append(bid + 1)
@@ -68,6 +75,7 @@ def graphical_variant_query(graphical_query: graphicalVariantQuery):
     print("Variant list:")
     print(variant_list)
     variant_list = defaultdict(list)
+    
     
     '''
     variants = cache.variants
@@ -276,7 +284,7 @@ def match_head(p_head, v_head):
 
     if "parallel" in p_head and "leaf" in v_head:
         return False
-    elif "leaf" in p_head and "parallel" in v_head:
+    elif "leaf" in p_head and "parallel" in v_head: #Need implementation...
         #return compare(p_head, v_head)
         return False
     elif "parallel" in p_head and "parallel" in v_head:
@@ -384,7 +392,11 @@ def compare_parallel_dics(p_dic, v_dic):
                     return False  
 
 def compare_leaf(p_head, v_head):
+    print("group_dic")
+    print(group_dic)
     if p_head["leaf"][0] == "?" or p_head["leaf"][0] == v_head["leaf"][0]:
+        return True
+    elif p_head["leaf"][0] in group_dic and v_head["leaf"][0] in group_dic[p_head["leaf"][0]]:
         return True
     else:
         return False

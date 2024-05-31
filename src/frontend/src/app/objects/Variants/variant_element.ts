@@ -1732,6 +1732,7 @@ export class SequencePattern extends SequenceGroup implements QueryPattern {
   }
 
   public copy(): SequencePattern {
+    console.log(this.elements)
     const res = new SequencePattern(this.elements.map((e) => e.copy()));
     res.expanded = this.expanded;
     res.verticalCardi = this.verticalCardi;

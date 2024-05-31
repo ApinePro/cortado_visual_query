@@ -656,11 +656,11 @@ export class BackendService {
     );
   }
 
-  public applyGraphicalQuery(queryTree) {
+  public applyGraphicalQuery(queryTree, activityGroups) {
     this.httpClient
       .post(ROUTES.HTTP_BASE_URL + ROUTES.QUERY + 'graphical-variant-query', {
         queryTree: queryTree,
-        //queryTree: "apine",
+        activityGroups: activityGroups,
       })
       .pipe(mapVariants())
       .subscribe((res) => {

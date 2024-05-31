@@ -54,7 +54,7 @@ export class QueryTree extends ProcessTree {
       this.performance,
       this.conformance,
       null,
-      this.pattern.copy(),
+      this.pattern ? this.pattern.copy() : null,
     );
 
     if (parentRelation)
