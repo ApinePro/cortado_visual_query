@@ -250,6 +250,7 @@
                 <button
                   type="button"
                   class="button"
+                  [disabled]="!currentlyDisplayedTreeInEditor"
                   (click)="queryApply()"
                   container="body"
                   placement="bottom"
@@ -455,6 +456,7 @@
               </div>
             </button>
           </div>
+          <div #ToolBar class="bg-dark btn-tool-bar"></div>
         </div>
       </div>
 

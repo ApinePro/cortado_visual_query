@@ -1646,6 +1646,7 @@ export class LeafPattern extends LeafNode implements QueryPattern {
       this.width * 0.75 + this.getHeadLength() * 2,
       this.width - this.getHeadLength() * 2
     );
+
     return this.width;
   }
   public copy(): LeafPattern {

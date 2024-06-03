@@ -389,7 +389,7 @@ export class GraphicalQueryEditorComponent
         this.selectedRootNodeId = id;
         //add some?
       });
-      console.log(this.activityColorMap);
+      //console.log(this.activityColorMap);
   }
 
   computeActivityColor = (
@@ -403,9 +403,11 @@ export class GraphicalQueryEditorComponent
       color = this.activityColorMap.get(element.asLeafNode().activity[0]);
       if(color === undefined){
         if(element.asLeafNode().activity[0] == "S" || element.asLeafNode().activity[0] == "E" || element.asLeafNode().activity[0] == "?" || element.asLeafNode().activity[0] == "..."){
-            return '#d3d3d3';
+          this.colorMapService.changeActivityColor(element.asLeafNode().activity[0], "#d3d3d3")  
+          return '#d3d3d3';
           }
         else if(element.activity.length == 1){
+          this.colorMapService.changeActivityColor(element.asLeafNode().activity[0], "#DAA520")
           return '#DAA520';
         }
       else if (element.activity.length > 1) {
@@ -496,6 +498,28 @@ export class GraphicalQueryEditorComponent
     }
   } // check is node is a child of parent
 
+  findRootFromVariant(tree, variant){
+    if (tree && tree.operator != "X") {
+      let searchResult = null;
+      for (let child of tree.children){
+          searchResult = this.findRootFromVariant(child, variant)
+          if (searchResult) {
+            return searchResult;
+          }
+      }
+      return null;
+    } else if(tree) {
+        if (tree.pattern && this.findParent(tree.pattern, variant) != null){
+          return tree
+        } else {
+          return null;
+        }
+      }
+      else{
+        return null;
+      }
+  }
+
   reconstructVariant(variant: VariantElement) {
     const children = variant.getElements();
     if (!children) {
@@ -514,9 +538,6 @@ export class GraphicalQueryEditorComponent
   }
 
   handleActivityButtonClick(event, nodevariant) {
-    //console.log(this.selectedElement);
-    //console.log(this.emptyVariant);
-    //console.log(nodevariant.pattern);
     if (this.selectedElement || this.emptyVariant || !nodevariant.pattern) {
       const leaf = new LeafPattern([event.activityName]);
       this.newLeaf = leaf;
@@ -1229,16 +1250,17 @@ export class GraphicalQueryEditorComponent
     this.triggerRedraw();
     this.newLeaf = null;
   }
+
   handleRedraw(selection: Selection<any, any, any, any>) {
     selection.selectAll('g').on('click', function (event, d) {
       event.stopPropagation();
       const select = d3.select(this as SVGElement);
-      //console.log(select);
       toogleSelect(select);
     });
 
     const toogleSelect = function (svgSelection) {
       if (!this.multiSelect) {
+
         d3.selectAll('.node-variant-svg')
           .selectAll('.selected-polygon')
           .classed('selected-polygon', false)
@@ -1260,17 +1282,12 @@ export class GraphicalQueryEditorComponent
 
         svgSelection.classed('selected-variant-g', true);
         
-        //console.log(svgSelection);
-        const poly = svgSelection.select('polygon');
-        //const poly = svgSelection.selectAll('polygon'); really?
+
+        const poly = svgSelection.selectAll(":scope > polygon");
         poly.classed('selected-polygon', true);
 
         
-        // Add new.
         const rect = svgSelection.selectAll('rect');
-        //console.log(svgSelection);
-        //console.log(rect);
-        //console.log(rect.data().length);
         if(rect.data().length != 0){
           poly.classed('selected-polygon', false);
           rect.classed('selected-dashbox', true);
@@ -1303,6 +1320,7 @@ export class GraphicalQueryEditorComponent
       this.selectedElement = true;
     }.bind(this);
 
+
     selection.selectAll('g').classed('selected-variant-g', (d) => {
       return d === this.newLeaf;
     });
@@ -1322,6 +1340,12 @@ export class GraphicalQueryEditorComponent
     this.variantEnrichedSelection = selection;
     //this.selectedRootNodeId = null; //added newly
     //this.selectedRootNode = null;
+    //console.log(poly)
+    //const treeNode = this.findRootFromVariant(this.currentlyDisplayedTreeInEditor, poly.data()[0]);
+    //console.log(treeNode)
+    //console.log(treeNode.id)
+    //this.processTreeService.selectedRootNodeID = treeNode.id;
+    
   }
 
   insertOuterPattern(parent: VariantElement, selectedElement) {
@@ -1464,6 +1488,7 @@ export class GraphicalQueryEditorComponent
             .asPattern().horizontalCardi = event.cardinality;
         }
       }
+      this.cacheCurrentTree();
       console.log((this.selectedRootNode?.data as QueryTree).pattern);
       console.log('Added cardinality by modal');
       this.triggerRedraw();
@@ -1540,6 +1565,7 @@ export class GraphicalQueryEditorComponent
       }
     }
     console.log((this.selectedRootNode?.data as QueryTree).pattern);
+    this.cacheCurrentTree();
     console.log('Added cardinality');
     this.triggerRedraw();
   }
@@ -1569,7 +1595,7 @@ export class GraphicalQueryEditorComponent
           parentChildren.splice(index, 0, elem);
         }
         parent.setElements(parentChildren);
-      }
+      }VariantElement
     }
     this.triggerRedraw();
   }
@@ -1581,37 +1607,43 @@ export class GraphicalQueryEditorComponent
     const selectedElement = this.variantEnrichedSelection
       .selectAll('.selected-variant-g')
       .data();
-    //console.log(this.variantEnrichedSelection);
-    if (
-      selectedElement.length > 1 ||
-      ((selectedElement[0] as any).asPattern().horizontalCardi == 0 &&
-        (selectedElement[0] as any).asPattern().verticalCardi == 0)
-    ) {
+    
+    if (selectedElement.length > 0){
+      //console.log(this.variantEnrichedSelection);
+      //console.log((selectedElement[0] as VariantElement));
+      if (
+        selectedElement.length > 1 ||
+        ((selectedElement[0] as VariantElement).asPattern().horizontalCardi == 0 &&
+          (selectedElement[0] as VariantElement).asPattern().verticalCardi == 0)
+      ) {
+        return false;
+      }
+      if (op == 'less') {
+        return (
+          (selectedElement[0] as VariantElement).asPattern().horizontalCardiOp !=
+            CardinalityOperator.lessequal ||
+          (selectedElement[0] as VariantElement).asPattern().verticalCardiOp !=
+            CardinalityOperator.lessequal
+        );
+      }
+      if (op == 'equal') {
+        return (
+          (selectedElement[0] as any).asPattern().horizontalCardiOp !=
+            CardinalityOperator.equal ||
+          (selectedElement[0] as any).asPattern().verticalCardiOp !=
+            CardinalityOperator.equal
+        );
+      }
+      if (op == 'more') {
+        return (
+          (selectedElement[0] as any).asPattern().horizontalCardiOp !=
+            CardinalityOperator.moreequal ||
+          (selectedElement[0] as any).asPattern().verticalCardiOp !=
+            CardinalityOperator.moreequal
+        );
+      }
+    } else {
       return false;
-    }
-    if (op == 'less') {
-      return (
-        (selectedElement[0] as any).asPattern().horizontalCardiOp !=
-          CardinalityOperator.lessequal ||
-        (selectedElement[0] as any).asPattern().verticalCardiOp !=
-          CardinalityOperator.lessequal
-      );
-    }
-    if (op == 'equal') {
-      return (
-        (selectedElement[0] as any).asPattern().horizontalCardiOp !=
-          CardinalityOperator.equal ||
-        (selectedElement[0] as any).asPattern().verticalCardiOp !=
-          CardinalityOperator.equal
-      );
-    }
-    if (op == 'more') {
-      return (
-        (selectedElement[0] as any).asPattern().horizontalCardiOp !=
-          CardinalityOperator.moreequal ||
-        (selectedElement[0] as any).asPattern().verticalCardiOp !=
-          CardinalityOperator.moreequal
-      );
     }
   }
 
@@ -1636,14 +1668,13 @@ export class GraphicalQueryEditorComponent
     const node = selectedRoot.data()[0];
     if (id && node) {
       this.setSelectedRootNode(node);
-      console.log(this.selectedRootNode.data)
       this.selectSubtreeFromRoot(selectedRoot.node(), node);
 
       this.checkNodeInsertionStrategy(this.selectedRootNode.data);
       //added
       this.currentVariant = node.data.pattern;
       this.emptyVariant = node.data.pattern == null;
-      console.log(this.currentVariant);
+      //console.log(this.currentVariant);
       //this.selectedElement = null; //clear selection?
       //this.multiSelect = false;
       //this.multipleSelected = false;
@@ -1996,6 +2027,8 @@ export class GraphicalQueryEditorComponent
         d.data.selected = false;
       });
 
+    this.removeSelection(); //remove chevron selection
+
     this.mainSvgGroup
       .selectAll('rect')
       .filter((d: any) => {
@@ -2006,7 +2039,6 @@ export class GraphicalQueryEditorComponent
 
     // Select the node, if it isn't selected yet
     d.data.selected = true;
-
     d3.select(svgGroup).select('.node').classed('selected-node', true);
   };
 

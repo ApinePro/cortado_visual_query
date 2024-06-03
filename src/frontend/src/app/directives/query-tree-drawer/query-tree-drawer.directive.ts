@@ -296,7 +296,7 @@ export class QueryTreeDrawerDirective {
           }
           return '';
         } else {
-          console.log(d.data);
+          //console.log(d.data);
           if (d.data.operator) {
             return d.data.operator;
           }
@@ -537,12 +537,13 @@ export class QueryTreeDrawerDirective {
 
   //Variant drawer part
   variantRedraw(id, variant, x, y): void {
-    //console.log('variant redraw');
+    console.log('variant redraw');
     //console.log(variant);
     this.mainSvgGroup
       .select(`[id='${id}']`)
       .selectAll('node-variant-svg')
       .remove();
+
     if (variant) {
       const height = variant.recalculateHeight(
         !this.keepStandardView &&
@@ -909,10 +910,14 @@ export class QueryTreeDrawerDirective {
       );
       const childHeight = child.getHeight();
       const yOffset = height / 2 - childHeight / 2;
+
+      if (child.asLeafPattern().verticalCardi > 0 ||
+      child.asPattern().horizontalCardi > 0) {
+        xOffset += 10;
+      }
       const g = parent
         .append('g')
         .attr('transform', `translate(${xOffset}, ${yOffset})`);
-
       this.draw(child, g, false, nodeVariant);
       xOffset += childWidth;
     }
@@ -1366,7 +1371,7 @@ export class QueryTreeDrawerDirective {
       element.asLeafPattern().verticalCardi > 0 ||
       element.asPattern().horizontalCardi > 0
     ) {
-      //console.log("draw leaf cardi");
+
       const lightColor = this.fadeColor(color);
       let stackPolygon = this.createPolygon(
         parent,
