@@ -9,7 +9,7 @@
                 type="button"
                 class="button"
                 (click)="openGroupNameEditor()"
-                ngbTooltip="group the activities"
+                ngbTooltip="group selected activities into one category"
                 container="body"
               >
                 <i class="bi bi-diagram-3"></i>Group activities
@@ -39,7 +39,7 @@
                 type="button"
                 class="button"
                 (click)="openCardinalityEditor()"
-                ngbTooltip="type cardinality counts"
+                ngbTooltip="edit cardinality counts by keyboard"
                 container="body"
               >
                 <i class="bi bi-plus-slash-minus"></i> Edit Cardinality
@@ -71,7 +71,7 @@
                     ? 'strategy-selected'
                     : ''
                 "
-                ngbTooltip="Add cardinality in vertical direction"
+                ngbTooltip="add cardinality in vertical direction"
                 container="body"
               >
                 <i class="bi bi-arrows-vertical"></i>
@@ -86,7 +86,7 @@
                     ? 'strategy-selected'
                     : ''
                 "
-                ngbTooltip="Add cardinality in horizontal direction"
+                ngbTooltip="add cardinality in horizontal direction"
                 container="body"
               >
                 <i class="bi bi-arrows"></i>
@@ -99,7 +99,7 @@
                 [ngClass]="
                   !canSwitchCardinality('less') ? 'button-area-disabled' : ''
                 "
-                ngbTooltip="Add cardinality in horizontal direction"
+                ngbTooltip="change cardinality operator to less/equal"
                 container="body"
               >
                 ≤
@@ -111,7 +111,7 @@
                 [ngClass]="
                   !canSwitchCardinality('equal') ? 'button-area-disabled' : ''
                 "
-                ngbTooltip="Add cardinality in horizontal direction"
+                ngbTooltip="change cardinality operator to equal"
                 container="body"
               >
                 =
@@ -123,7 +123,7 @@
                 [ngClass]="
                   !canSwitchCardinality('more') ? 'button-area-disabled' : ''
                 "
-                ngbTooltip="Add cardinality in horizontal direction"
+                ngbTooltip="change cardinality operator to more/equal"
                 container="body"
               >
                 ≥
@@ -149,6 +149,7 @@
                   class="button"
                   [disabled]="disabledInsertPositions.above"
                   (click)="nodeInsertionStrategy = NodeInsertionStrategy.ABOVE"
+                  ngbTooltip="insert the new node as the parent of selected node"
                   [ngClass]="
                     nodeInsertionStrategy === NodeInsertionStrategy.ABOVE
                       ? 'strategy-selected'
@@ -164,6 +165,7 @@
                   class="button"
                   [disabled]="disabledInsertPositions.below"
                   (click)="nodeInsertionStrategy = NodeInsertionStrategy.BELOW"
+                  ngbTooltip="insert the new node as a child of selected node"
                   [ngClass]="
                     nodeInsertionStrategy === NodeInsertionStrategy.BELOW
                       ? 'strategy-selected'
@@ -179,6 +181,7 @@
                   class="button"
                   [disabled]="disabledInsertPositions.leftRight"
                   (click)="nodeInsertionStrategy = NodeInsertionStrategy.LEFT"
+                  ngbTooltip="insert the new node as a sibling of selected node"
                   [ngClass]="
                     nodeInsertionStrategy === NodeInsertionStrategy.LEFT
                       ? 'strategy-selected'
@@ -194,6 +197,7 @@
                   class="button"
                   [disabled]="disabledInsertPositions.leftRight"
                   (click)="nodeInsertionStrategy = NodeInsertionStrategy.RIGHT"
+                  ngbTooltip="insert the new node as a sibling of selected node"
                   [ngClass]="
                     nodeInsertionStrategy === NodeInsertionStrategy.RIGHT
                       ? 'strategy-selected'
@@ -226,7 +230,7 @@
                   *ngFor="let op of queryTreeOperators"
                   type="button"
                   (click)="insertNewNode(op, null)"
-                  [ngbTooltip]="op"
+                  [ngbTooltip]="'insert ' + op + ' node'"
                   [ngClass]="
                     checkNodeButtonDisabled(op) ? 'button-area-disabled' : ''
                   "
@@ -239,6 +243,7 @@
                 <button
                   type="button"
                   (click)="negateNode()"
+                  [ngbTooltip]="'negate the selected node'"
                   container="body"
                   placement="bottom"
                   class="btn btn-sm node-btn"
@@ -254,16 +259,16 @@
                   (click)="queryApply()"
                   container="body"
                   placement="bottom"
-                  ngbTooltip="Apply graphical query"
+                  ngbTooltip="apply graphical query on variants"
                 >
                   <i class="bi bi-search"></i>
-                  Apply graphical query
+                  apply graphical query
                 </button>
               </div>
             </div>
           </div>
         </div>
-        <div class="editor-toolbox d-flex flex-column">
+        <div class="editor-toolbox bg-dark d-flex flex-column">
           <div #ToolBar class="bg-dark btn-tool-bar">
             <div class="d-flex">
               <div class="btn-group round-corners" role="group">
@@ -456,7 +461,7 @@
               </div>
             </button>
           </div>
-          <div #ToolBar class="bg-dark btn-tool-bar"></div>
+          <hr style="color: black" />
         </div>
       </div>
 

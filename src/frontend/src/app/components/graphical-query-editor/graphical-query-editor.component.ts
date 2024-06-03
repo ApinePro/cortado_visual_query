@@ -300,7 +300,7 @@ export class GraphicalQueryEditorComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe((colorMap) => {
         this.activityColorMap = colorMap;
-
+        console.log(this.activityColorMap);
         if (this.currentlyDisplayedTreeInEditor) {
           this.redraw(this.currentlyDisplayedTreeInEditor);
         }
@@ -360,6 +360,16 @@ export class GraphicalQueryEditorComponent
         this.activityNames.unshift('?');
         this.activityNames.unshift('...');
         this.activityNames.push('E');
+      });
+
+      this.colorMapService.colorMap$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((colorMap) => {
+        this.activityColorMap = colorMap;
+
+        if (this.currentlyDisplayedTreeInEditor) {
+          this.redraw(this.currentlyDisplayedTreeInEditor);
+        }
       });
 
     this.logService.loadedEventLog$
@@ -1295,7 +1305,7 @@ export class GraphicalQueryEditorComponent
         
 
         this.multipleSelected = false;
-      } else {
+      } else { //poly here??
         this.multipleSelected = true;
 
         svgSelection.classed(
@@ -1333,9 +1343,17 @@ export class GraphicalQueryEditorComponent
     }
 
     const poly = selection
+    .selectAll('.selected-variant-g')
+    .select('rect')
+
+    if (poly.data().length > 0) {
+      poly.classed("selected-dashbox", true);
+    } else {
+      selection
       .selectAll('.selected-variant-g')
-      .select('polygon')
+      .selectAll(':scope > polygon')
       .classed('selected-polygon', true);
+    }
 
     this.variantEnrichedSelection = selection;
     //this.selectedRootNodeId = null; //added newly
@@ -1535,6 +1553,7 @@ export class GraphicalQueryEditorComponent
         } else {
           parent.asPattern().horizontalCardi += 1;
         }
+        this.newLeaf = parent;
       }
     } else if (selectedElement[0] instanceof LeafPattern) {
       // Single selection, leaf
@@ -1543,6 +1562,7 @@ export class GraphicalQueryEditorComponent
       } else {
         (selectedElement[0] as any).asPattern().horizontalCardi += 1;
       }
+      this.newLeaf = selectedElement[0];
     } else if ((selectedElement[0] as any).getElements().length > 1) {
       // Single selection, for seq and para
       console.log("Single selection, for seq and para")
@@ -1551,6 +1571,7 @@ export class GraphicalQueryEditorComponent
       } else {
         (selectedElement[0] as any).asPattern().horizontalCardi += 1;
       }
+      this.newLeaf = selectedElement[0];
     } else {
       if (this.cardiDirect == this.cardinalityDirection.vertical) {
         // single selection for???
@@ -1563,6 +1584,7 @@ export class GraphicalQueryEditorComponent
           .getElements()[0]
           .asPattern().horizontalCardi += 1;
       }
+      this.newLeaf = (selectedElement[0] as any).getElements()[0];
     }
     console.log((this.selectedRootNode?.data as QueryTree).pattern);
     this.cacheCurrentTree();
@@ -2276,7 +2298,8 @@ export class GraphicalQueryEditorComponent
         }
         }
         if(activityNames.length == selectedElements.length){
-          this.activityGroups.set(event.groupName, activityNames)
+          this.activityGroups.set(event.groupName, activityNames);
+          this.activityColorMap.set(event.groupName, "#DAA520");
         }
         else{
           console.log("Not all leaves");
