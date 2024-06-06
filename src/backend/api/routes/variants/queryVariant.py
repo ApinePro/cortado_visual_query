@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from typing import Any
 import copy
 import json
+import random
 
 from cortado_core.models.infix_type import InfixType
 from endpoints.load_event_log import (
@@ -451,3 +452,23 @@ def add_start_end_wildcard(pattern):
     elif "leaf" in pattern["follows"][0] and pattern["follows"][-1]["leaf"][0] == "E":
         pattern["follows"].pop(-1) #any error if nothing after pop?
     return pattern
+
+def generate_tree(activities):
+    pass
+
+def generate_query(pattern, activities):
+    if len(pattern) == 0:
+        pattern = random.choice(activities)
+    if_seq = random.random()
+    if if_seq < 0.3:
+        # return leaf
+        leaf = {"leaf": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+        leaf["leaf"].append(random.choice(activities))
+        if random.random() < 0.2:
+            if random.random() < 0.5:
+                leaf["horizontalCardi"] = random.choice(list(range(1, 11)))
+            else:
+                leaf["verticalCardi"] = random.choice(list(range(1, 11)))
+        return 
+    random_number = random.random()
+    while random_number < 0.3:
