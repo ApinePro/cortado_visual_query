@@ -457,18 +457,59 @@ def generate_tree(activities):
     pass
 
 def generate_query(pattern, activities):
-    if len(pattern) == 0:
-        pattern = random.choice(activities)
-    if_seq = random.random()
-    if if_seq < 0.3:
+    cardi_ops = ["=", ">", "<"]
+    if_leaf = random.random()
+    if if_leaf > 0.3:
         # return leaf
         leaf = {"leaf": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
         leaf["leaf"].append(random.choice(activities))
-        if random.random() < 0.2:
+        op_rand = random.random()
+        if op_rand < 0.2:
             if random.random() < 0.5:
                 leaf["horizontalCardi"] = random.choice(list(range(1, 11)))
             else:
                 leaf["verticalCardi"] = random.choice(list(range(1, 11)))
-        return 
-    random_number = random.random()
-    while random_number < 0.3:
+        return leaf 
+    else:
+        if_seq = random.random()
+        if if_seq <= 0.5:
+            seq = {"follows": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+            child_num = random.choice(list(range(2, 11)))
+            for i in range(child_num):
+                seq["follows"].append(generate_query(pattern, activities))
+            op_rand = random.random() # choose if it is not "="
+            if op_rand < 0.2:
+                # No vertical cardi for seq
+                seq["horizontalCardi"] = random.choice(list(range(1, 11)))
+                if random.random() < 0.5:
+                    seq["horizontalCardiOp"] = "<"
+                else:
+                    seq["horizontalCardiOp"] = ">"
+            return seq
+        else:
+            para = {"parallel": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+            child_num = random.choice(list(range(2, 11)))
+            seq_exist = 0
+            for i in range(child_num):
+                child = generate_query(pattern, activities)
+                # Ensure only one sequence child
+                while seq_exist == 1 and "follows" in child:
+                    child = generate_query(pattern, activities)
+                if "follows" in child:
+                    seq_exist = 1
+                para["parallel"].append(child)
+            op_rand = random.random() # choose if it is not "="
+            if op_rand < 0.2:
+                if random.random() < 0.5 and seq_exist == 0:
+                    para["horizontalCardi"] = random.choice(list(range(1, 4)))
+                    if random.random() < 0.5:
+                        para["horizontalCardiOp"] = "<"
+                    else:
+                        para["horizontalCardiOp"] = ">"
+                else:
+                    para["verticalCardi"] = random.choice(list(range(1, 4)))
+                    if random.random() < 0.5:
+                        para["horizontalCardiOp"] = "<"
+                    else:
+                        para["horizontalCardiOp"] = ">"
+            return para
