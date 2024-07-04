@@ -2342,7 +2342,7 @@ export enum activityInsertionStrategy {
 }
 
 export enum QueryTreeOperator {
-  and = 'AND',
-  or = 'OR',
-  default = 'X',
+  and = 'and',
+  or = 'or',
+  default = 'v',
 }
