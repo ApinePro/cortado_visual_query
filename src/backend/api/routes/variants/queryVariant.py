@@ -71,11 +71,11 @@ def graphical_variant_query(graphical_query: graphicalVariantQuery):
         if count >= 1 and count <= 31:
             print("ID:", count,"\n")
             if check_node(query, variant):
-                variant_list.append(count)
+                variant_list.append(count - 1)
             print("########################################################################################################")
     print("Variant list:")
-    print(variant_list)
-    variant_list = defaultdict(list)
+    print([x + 1 for x in variant_list])
+    #variant_list = defaultdict(list)
     
     
     '''
@@ -128,8 +128,8 @@ def graphical_variant_query(graphical_query: graphicalVariantQuery):
     }
     '''
 
-    return {"res": variant_list}
-    #return res
+    #return {"res": variant_list}
+    return {"ids": variant_list}
 
 def deserialize_query(graphical_query):
     query_tree = {}
@@ -142,18 +142,21 @@ def deserialize_query(graphical_query):
     return query_tree
 
 def check_node(node, variant):
-    print(add_start_end_wildcard(node["pattern"]))
-    result = True
-    if node["operator"] == 'AND':
+    print(node["operator"])
+    if node["operator"] == 'and':
+        result = True
         for child in node["children"]: 
             result = result & check_node(child, variant)
-    if node["operator"] == 'OR':
+    if node["operator"] == 'or':
+        result = False
         for child in node["children"]: 
             result = result | check_node(child, variant)
-    if node["operator"] == 'X':
+    # Ware: v or X?
+    if node["operator"] == 'v':
         #print("Original Variant:")
         #print(variant)
         pattern = add_start_end_wildcard(node["pattern"])
+        print(pattern)
         result = pattern_match_variant(pattern, variant.serialize())
     if node["negation"] == True:
         return not result
@@ -228,13 +231,20 @@ def pattern_match_variant(pattern, variant):
             pattern = add_head(pattern, p_head)
             return (pattern_match_variant(new_pattern, variant) or
                     (pattern_match_variant(pattern, variant) if len(variant) > 0 else False))
-        else:   
+        else:    
             pattern = add_head(pattern, p_head)
         # I think no else case
         return pattern_match_variant(pattern, variant)
     
-    elif check_have_cardi(p_head) and p_head["verticalCardi"] > 0: # resolve vertical
-        pass
+    elif check_have_cardi(p_head) and p_head["verticalCardi"] > 0: # resolve vertical (only =)
+        if "parallel" in p_head:
+            for element in p_head["parallel"]:
+                element["verticalCardi"] *= p_head["verticalCardi"]
+            p_head["verticalCardi"] = 0
+        if "leaf" in p_head:
+            p_head = {"parallel": [{"leaf": p_head["leaf"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": p_head["verticalCardi"], "verticalCardiOp": '='}], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+            print("ppp")
+            print(p_head)
 
     else:
         # p_head: para, leaf (may have vertical...)
@@ -441,15 +451,15 @@ def check_have_cardi(pattern):
 
 def add_start_end_wildcard(pattern):
     pattern = copy.deepcopy(pattern)
-    if not ("leaf" in pattern["follows"][0] and (pattern["follows"][0]["leaf"][0] == "S" or pattern["follows"][0]["leaf"][0] == "...")):
+    if not ("leaf" in pattern["follows"][0] and (pattern["follows"][0]["leaf"][0] == "▷" or pattern["follows"][0]["leaf"][0] == "...")):
         head = {"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
         pattern["follows"].insert(0, head)
-    elif "leaf" in pattern["follows"][0] and pattern["follows"][0]["leaf"][0] == "S":
+    elif "leaf" in pattern["follows"][0] and pattern["follows"][0]["leaf"][0] == "▷":
         pattern["follows"].pop(0)
-    if not ("leaf" in pattern["follows"][-1] and (pattern["follows"][-1]["leaf"][0] == "E" or pattern["follows"][-1]["leaf"][0] == "...")):
+    if not ("leaf" in pattern["follows"][-1] and (pattern["follows"][-1]["leaf"][0] == "▢" or pattern["follows"][-1]["leaf"][0] == "...")):
         tail = {"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
         pattern["follows"].append(tail)
-    elif "leaf" in pattern["follows"][0] and pattern["follows"][-1]["leaf"][0] == "E":
+    elif "leaf" in pattern["follows"][0] and pattern["follows"][-1]["leaf"][0] == "▢":
         pattern["follows"].pop(-1) #any error if nothing after pop?
     return pattern
 
@@ -513,3 +523,14 @@ def generate_query(pattern, activities):
                     else:
                         para["horizontalCardiOp"] = ">"
             return para
+        
+def test_patterns():
+    test_list = []
+    # Test <= 2
+    example = {"follows": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+    test_list.append(example)
+    # Test >= 3
+    # Test = 3
+    # Test parallel
+    # Test = 3
+    # Test group outside

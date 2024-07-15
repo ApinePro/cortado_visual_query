@@ -25,16 +25,17 @@
                 >
                   Save Pattern
                 </button>
-                <button
-                  type="button"
-                  class="button"
-                  (click)="openPatternList()"
-                  ngbTooltip="save pattern to list"
-                  container="body"
-                >
-                  Open Pattern List
-                </button>
-                -->
+                
+              <button
+                type="button"
+                class="button"
+                (click)="openGroupList()"
+                ngbTooltip="Open Group List"
+                container="body"
+              >
+                <i class="bi bi-list-nested"></i>Open Group List
+              </button>
+              -->
               <button
                 type="button"
                 class="button"
@@ -442,7 +443,7 @@
             </button>
 
             <div class="vr mx-2"></div>
-
+            <!--
             <button
               class="button"
               (click)="onDeleteVariant()"
@@ -460,6 +461,7 @@
                 remove current variant
               </div>
             </button>
+            -->
           </div>
           <hr style="color: black" />
         </div>
@@ -548,3 +550,7 @@
 <app-activity-group-input-modal
   (nameConfirmed)="handleGroupNameInput($event)"
 ></app-activity-group-input-modal>
+
+<app-group-display-modal>
+  [activityGroups]="activityGroups"
+</app-group-display-modal>

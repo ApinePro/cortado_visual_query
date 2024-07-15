@@ -1,5 +1,9 @@
 <div class="query-container">
-  <form [formGroup]="variantQueryInput" (ngSubmit)="onSubmit()" class="form d-flex flex-column">
+  <form
+    [formGroup]="variantQueryInput"
+    (ngSubmit)="onSubmit()"
+    class="form d-flex flex-column"
+  >
     <div class="form-container">
       <app-editor-zone
         (editor)="onEditorChange($event)"

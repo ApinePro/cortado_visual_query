@@ -253,8 +253,8 @@ export class QueryTreeDrawerDirective {
       .classed('negation', (d: any) => {
         return d.data.negation === true;
       })
-      .attr('width', PT_Constant.BASE_HEIGHT_WIDTH)
-      .attr('height', PT_Constant.BASE_HEIGHT_WIDTH)
+      .attr('width', PT_Constant.QNODE_HEIGHT_WIDTH)
+      .attr('height', PT_Constant.QNODE_HEIGHT_WIDTH)
       .attr('font-size', (d: any) => {
         if (d.data.label === ProcessTreeOperator.tau)
           return PT_Constant.INVISIBLE_FONT_SIZE;
@@ -264,7 +264,7 @@ export class QueryTreeDrawerDirective {
         return d.y;
       })
       .attr('y', function (d: any) {
-        return d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2;
+        return d.x - PT_Constant.QNODE_HEIGHT_WIDTH / 2;
       });
 
     // add node text
@@ -289,7 +289,7 @@ export class QueryTreeDrawerDirective {
             d.data.id,
             d.data.pattern,
             d.y,
-            d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2
+            d.x - PT_Constant.QNODE_HEIGHT_WIDTH / 2
           );
           if (d.parent) {
             this.translateNextSiblings(d);
@@ -311,7 +311,8 @@ export class QueryTreeDrawerDirective {
         }
       })
       .attr('x', function (d: any) {
-        return d.y + PT_Constant.BASE_HEIGHT_WIDTH / 2 + 3;
+        //return d.y + PT_Constant.QNODE_HEIGHT_WIDTH / 2 + 3;
+        return d.y + PT_Constant.QNODE_HEIGHT_WIDTH / 2;
       })
       .attr('y', function (d: any) {
         return d.x;
@@ -326,21 +327,21 @@ export class QueryTreeDrawerDirective {
         if (d.data.pattern) {
           return d.data.pattern.getWidth() + 2 * VARIANT_Constants.MARGIN_X;
         } else {
-          return PT_Constant.BASE_HEIGHT_WIDTH;
+          return PT_Constant.QNODE_HEIGHT_WIDTH;
         }
       })
       .attr('height', (d: any) => {
         if (d.data.pattern) {
           return d.data.pattern.getHeight() + 2 * VARIANT_Constants.MARGIN_Y;
         } else {
-          return PT_Constant.BASE_HEIGHT_WIDTH;
+          return PT_Constant.QNODE_HEIGHT_WIDTH;
         }
       })
       .attr('x', function (d: any) {
         return d.y;
       })
       .attr('y', function (d: any) {
-        return d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2;
+        return d.x - PT_Constant.QNODE_HEIGHT_WIDTH / 2;
       });
 
     this.nodeEnter
@@ -357,11 +358,11 @@ export class QueryTreeDrawerDirective {
           width = d.data.pattern.getWidth() + 2 * VARIANT_Constants.MARGIN_X;
           length = d.data.pattern.getHeight() + 2 * VARIANT_Constants.MARGIN_Y;
         } else {
-          width = PT_Constant.BASE_HEIGHT_WIDTH;
-          length = PT_Constant.BASE_HEIGHT_WIDTH;
+          width = PT_Constant.QNODE_HEIGHT_WIDTH;
+          length = PT_Constant.QNODE_HEIGHT_WIDTH;
         }
         let baseWid = d.y;
-        let baseLen = d.x - PT_Constant.BASE_HEIGHT_WIDTH / 2;
+        let baseLen = d.x - PT_Constant.QNODE_HEIGHT_WIDTH / 2;
 
         return d3.line()([
           [baseWid, baseLen],
@@ -380,7 +381,7 @@ export class QueryTreeDrawerDirective {
         return (
           d.x -
           Math.max(
-            PT_Constant.BASE_HEIGHT_WIDTH,
+            PT_Constant.QNODE_HEIGHT_WIDTH,
             this.nextSibling.getComputedTextLength() + 10
           ) /
             2
@@ -388,7 +389,7 @@ export class QueryTreeDrawerDirective {
       })
       .attr('width', function () {
         return Math.max(
-          PT_Constant.BASE_HEIGHT_WIDTH,
+          PT_Constant.QNODE_HEIGHT_WIDTH,
           this.nextSibling.getComputedTextLength() + 10
         );
       });
@@ -399,15 +400,13 @@ export class QueryTreeDrawerDirective {
 
   translateNextSiblings(node) {
     const siblings = node.parent.children;
-    //console.log('siblings');
-    //console.log(siblings);
     const nodeIndex = siblings.indexOf(node);
     let i = siblings.length - 1;
     while (i > nodeIndex) {
       siblings[i].x =
         siblings[i].x +
         node.data.pattern.getHeight() -
-        PT_Constant.BASE_HEIGHT_WIDTH;
+        PT_Constant.QNODE_HEIGHT_WIDTH;
       i -= 1;
     }
   }
@@ -428,7 +427,7 @@ export class QueryTreeDrawerDirective {
       .merge(edges)
       // .transition()
       .attr('x1', function (d: any) {
-        return d.source.y + PT_Constant.BASE_HEIGHT_WIDTH;
+        return d.source.y + PT_Constant.QNODE_HEIGHT_WIDTH;
       })
       .attr('y1', function (d: any) {
         return d.source.x;
@@ -441,7 +440,7 @@ export class QueryTreeDrawerDirective {
           return (
             d.target.x +
             (d.target.data.pattern.getHeight() -
-              PT_Constant.BASE_HEIGHT_WIDTH) /
+              PT_Constant.QNODE_HEIGHT_WIDTH) /
               2
           );
         } else {
@@ -495,14 +494,14 @@ export class QueryTreeDrawerDirective {
       flextreeLayout.nodeSize((node) => {
         if (node.data.operator || node.data.label === ProcessTreeOperator.tau) {
           return [
-            PT_Constant.BASE_HEIGHT_WIDTH,
-            2 * PT_Constant.BASE_HEIGHT_WIDTH,
+            PT_Constant.QNODE_HEIGHT_WIDTH,
+            2 * PT_Constant.QNODE_HEIGHT_WIDTH,
           ];
         }
 
         return [
           this.processTreeService.nodeWidthCache[node.data.label],
-          2 * PT_Constant.BASE_HEIGHT_WIDTH,
+          2 * PT_Constant.QNODE_HEIGHT_WIDTH,
         ];
       });
 
@@ -837,8 +836,9 @@ export class QueryTreeDrawerDirective {
       element.asPattern().verticalCardi > 0 ||
       element.asPattern().horizontalCardi > 0
     ) {
-      xOffset =
-        xOffset + VARIANT_Constants.MARGIN_X + VARIANT_Constants.CARDI_MARGIN_X;
+      //xOffset = xOffset + VARIANT_Constants.MARGIN_X + VARIANT_Constants.CARDI_MARGIN_X;
+      xOffset = xOffset + VARIANT_Constants.CARDI_MARGIN_X / 2;
+      xOffset = xOffset - element.getHeadLength() / 2;
     }
 
     if (!outerElement) {
@@ -882,6 +882,7 @@ export class QueryTreeDrawerDirective {
           'cursor-pointer',
           (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
         );
+
       if(element.asPattern().verticalCardi > 0){
         tspan.text('⇕ ' +
         element.asPattern().verticalCardiOp +
@@ -915,6 +916,7 @@ export class QueryTreeDrawerDirective {
       child.asPattern().horizontalCardi > 0) {
         xOffset += 10;
       }
+
       const g = parent
         .append('g')
         .attr('transform', `translate(${xOffset}, ${yOffset})`);

@@ -20,4 +20,6 @@ export class PT_Constant {
   public static OPERATOR_COLOR = '#404040';
   public static VISIBILE_ACTIVITY_DEFAULT_COLOR = '#8f8f8f';
   public static INVISIBLE_ACTIVTIY_COLOR = '#181818';
+
+  public static QNODE_HEIGHT_WIDTH = 50;
 }

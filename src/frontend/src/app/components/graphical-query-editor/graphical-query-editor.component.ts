@@ -141,10 +141,10 @@ export class GraphicalQueryEditorComponent
       this.activityNames.push(activity);
       this.activityNames.sort();
     }
-    this.activityNames.unshift('S');
+    this.activityNames.unshift('▷');
     this.activityNames.unshift('?');
     this.activityNames.unshift('...');
-    this.activityNames.push('E');
+    this.activityNames.push('▢');
     this.queryTreeOperators = [
       QueryTreeOperator.or,
       QueryTreeOperator.and,
@@ -356,10 +356,10 @@ export class GraphicalQueryEditorComponent
           this.activityNames.push(activity);
           this.activityNames.sort();
         }
-        this.activityNames.unshift('S');
+        this.activityNames.unshift('▷');
         this.activityNames.unshift('?');
         this.activityNames.unshift('...');
-        this.activityNames.push('E');
+        this.activityNames.push('▢');
       });
 
       this.colorMapService.colorMap$
@@ -412,7 +412,7 @@ export class GraphicalQueryEditorComponent
     if (element instanceof LeafNode) {
       color = this.activityColorMap.get(element.asLeafNode().activity[0]);
       if(color === undefined){
-        if(element.asLeafNode().activity[0] == "S" || element.asLeafNode().activity[0] == "E" || element.asLeafNode().activity[0] == "?" || element.asLeafNode().activity[0] == "..."){
+        if(element.asLeafNode().activity[0] == "▷" || element.asLeafNode().activity[0] == "▢" || element.asLeafNode().activity[0] == "?" || element.asLeafNode().activity[0] == "..."){
           this.colorMapService.changeActivityColor(element.asLeafNode().activity[0], "#d3d3d3")  
           return '#d3d3d3';
           }
@@ -426,7 +426,6 @@ export class GraphicalQueryEditorComponent
     } else {
       color = '#d3d3d3';
     }
-
     return color;
   };
 
@@ -1398,12 +1397,15 @@ export class GraphicalQueryEditorComponent
 
   openPatternList() {}
 
+  openGroupList() {
+    this.variantService.showGroupListDialog.next();
+  }
+
   openGroupNameEditor() {
     this.variantService.showGroupNameDialog.next();
   }
 
   openCardinalityEditor() {
-    console.log('start!');
     this.variantService.showCardinalityDialog.next();
   }
 
@@ -2323,8 +2325,21 @@ export class GraphicalQueryEditorComponent
     const serializedTree = this.serializeNode(
       this.currentlyDisplayedTreeInEditor
     );
-    console.log(this.activityGroups);
-    this.backendService.applyGraphicalQuery(serializedTree, this.serializeGroupMap(this.activityGroups));
+    this.backendService
+      .applyGraphicalQuery(serializedTree, this.serializeGroupMap(this.activityGroups))
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((res) => {
+        console.log(res);
+        if (!res.error) {
+          this.variantFilterService.addVariantFilter(
+            'query filter',
+            new Set(res.ids as Array<number>),
+            'Visual Query'
+          );
+        } else {
+          console.log("Error");
+        }
+      });
   }
 }
 

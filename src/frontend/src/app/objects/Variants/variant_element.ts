@@ -1680,6 +1680,10 @@ export class SequencePattern extends SequenceGroup implements QueryPattern {
     return this.recalculateHeight();
   }
 
+  public getCardiHeight(): number {
+    return this.getHeight();
+  }
+
   public getWidth(includeWaiting = false): number {
     if (this.width) {
       return this.width;
@@ -1689,9 +1693,9 @@ export class SequencePattern extends SequenceGroup implements QueryPattern {
 
   public recalculateHeight(): number {
     this.elements.forEach((el) => (el.height = undefined));
+    //Edited height
     this.height = Math.max(
-      ...this.elements.map((el: VariantElement) => el.getHeight())
-    );
+      ...this.elements.map((el: VariantElement) => (el.asPattern().verticalCardi > 0 || el.asPattern().horizontalCardi > 0) ? el.getHeight() + 30 : el.getHeight()));
     if (!(this.parent instanceof SkipGroup))
       this.height += this.getMarginY() * 2;
 
@@ -1762,6 +1766,10 @@ export class ParallelPattern extends ParallelGroup implements QueryPattern {
       return this.height;
     }
     return this.recalculateHeight();
+  }
+
+  public getCardiHeight(): number {
+    return this.getHeight();
   }
 
   public getWidth(includeWaiting = false): number {
