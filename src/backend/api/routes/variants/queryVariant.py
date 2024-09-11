@@ -6,6 +6,8 @@ from typing import Any
 import copy
 import json
 import random
+from enum import Enum
+from collections import deque
 
 from cortado_core.models.infix_type import InfixType
 from endpoints.load_event_log import (
@@ -534,3 +536,129 @@ def test_patterns():
     # Test parallel
     # Test = 3
     # Test group outside
+
+import ahocorasick
+
+class NodeType(Enum):
+    NORMAL = 1
+    CARDINALITY = 2
+    GROUP = 3
+    ANY = 4
+    WILDCARD = 5
+    SEQ = 6
+    PARA = 7
+
+class VariantTree:
+    def __init__(self, id):
+        self.id = id
+        self.label = ""
+        self.children = []
+        self.type = NodeType.NORMAL
+        self.cardinality = 0
+        self.cardiOp = "="
+        self.match_id = []
+        self.determined = True
+
+#para = {"parallel": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+
+def variant_to_tree(variant, group_id_list):
+    tree =  VariantTree(random.randint(1, 10000))
+    if "follows" in variant:
+        tree.type = NodeType.SEQ
+        for child in variant["follows"]:
+            tree.children.append(variant_to_tree(child))
+    elif "parallel" in variant:
+        tree.type = NodeType.PARA
+        for child in variant["parallel"]:
+            tree.children.append(variant_to_tree(child))
+    elif "leaf" in variant:
+        # Possible cases: cardinality, group, any, wildcard, normal. Only consider horizontal cardinality now
+        tree.label = variant["leaf"][0]
+        if variant["horizontalCardi"] > 0 or variant["verticalCardi"] > 0:
+            tree.type = NodeType.CARDINALITY
+            tree.cardiOp = variant["horizontalCardiOp"]
+            if tree.cardiOp != "=":
+                tree.determined = False
+        elif variant["leaf"][0] in group_id_list:
+            tree.type = NodeType.GROUP
+        elif variant["leaf"][0] == "?":
+            tree.type = NodeType.ANY
+        elif variant["leaf"][0] == "...":
+            tree.type = NodeType.WILDCARD
+            tree.determined = False
+        else:
+            tree.type = NodeType.NORMAL
+    return tree
+
+def match_para():
+    pass
+
+def match_seq():
+    pass
+
+# match p and v nodes in step 1
+def single_node_match(p_node, v_node, group_id_list):
+    if p_node.type == NodeType.WILDCARD:
+        return True
+    elif p_node.type == NodeType.GROUP:
+        if v_node.type == NodeType.NORMAL and v_node.label in group_id_list:
+            return True
+        else:
+            return False
+    elif p_node.type == NodeType.ANY:
+        if v_node.type == NodeType.NORMAL:
+            return True
+        else:
+            return False
+    elif p_node.type == NodeType.PARA:
+        if v_node.type != NodeType.PARA:
+            return False
+        else:
+            return match_para()
+    elif p_node.type == NodeType.SEQ:
+        if v_node.type != NodeType.SEQ:
+            return False
+        else:
+            return match_seq()
+    else:
+        # Case: normal or cardinality
+        if v_node.type == NodeType.NORMAL and v_node.label == p_node.label:
+            return True
+        else:
+            return False
+
+
+def expand_tree(tree):
+    # return a deque
+    queue = deque([tree])
+    visited = set()
+
+    #Expand tree by BFS
+    '''
+    while queue:
+        node = queue.popleft()
+        if node in visited:
+            continue
+        print(node)
+
+        visited.add(node)
+
+        for child in node.children:
+            if child not in visited:
+                queue.append(child)
+    '''
+    index = 0
+    while index < len(queue):
+        for child in queue[index].children:
+            if child not in visited:
+                queue.append(child) 
+        index += 1
+    return queue
+
+def dynamic_tree_matching(p_tree, v_tree):
+    p_queue = expand_tree(p_tree)
+    v_queue = expand_tree(v_tree)
+    for p_node in reversed(p_queue):
+        for v_node in reversed(v_queue):
+            if single_node_match(p_node, v_node):
+                p_node.match_id.append(v_node.id)
