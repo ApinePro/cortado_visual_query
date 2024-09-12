@@ -465,6 +465,8 @@ def add_start_end_wildcard(pattern):
         pattern["follows"].pop(-1) #any error if nothing after pop?
     return pattern
 
+### Generate testing code ###
+
 def generate_tree(activities):
     pass
 
@@ -537,6 +539,9 @@ def test_patterns():
     # Test = 3
     # Test group outside
 
+
+### New algorithm ###
+
 import ahocorasick
 
 class NodeType(Enum):
@@ -561,14 +566,18 @@ class VariantTree:
 
 #para = {"parallel": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
 
+#TODO process equal!
+
 def variant_to_tree(variant, group_id_list):
     tree =  VariantTree(random.randint(1, 10000))
     if "follows" in variant:
         tree.type = NodeType.SEQ
+        tree.determined = False
         for child in variant["follows"]:
             tree.children.append(variant_to_tree(child))
     elif "parallel" in variant:
         tree.type = NodeType.PARA
+        tree.determined = False
         for child in variant["parallel"]:
             tree.children.append(variant_to_tree(child))
     elif "leaf" in variant:
@@ -581,8 +590,10 @@ def variant_to_tree(variant, group_id_list):
                 tree.determined = False
         elif variant["leaf"][0] in group_id_list:
             tree.type = NodeType.GROUP
+            tree.determined = False
         elif variant["leaf"][0] == "?":
             tree.type = NodeType.ANY
+            tree.determined = False
         elif variant["leaf"][0] == "...":
             tree.type = NodeType.WILDCARD
             tree.determined = False
@@ -590,11 +601,100 @@ def variant_to_tree(variant, group_id_list):
             tree.type = NodeType.NORMAL
     return tree
 
-def match_para():
+def match_para(p_children, v_children, group_id_list):
     pass
 
-def match_seq():
-    pass
+class PartialOrderNode:
+    def __init__(self, label):
+        self.label = label
+        self.children = []
+        self.type = NodeType.NORMAL
+        self.cardinality = 0
+        self.cardiOp = "="
+        self.match_id = []
+        self.determined = True
+
+import networkx as nx
+
+def match_seq(p_children, v_children, group_id_list):
+    subpattern_set = set()
+    subpattern_dic = {} # abbr to subpattern
+    subpattern_reverse_dic = {}
+    subpattern_order = []
+    subpattern_tmp = ""
+    pattern_segments = []
+    is_determined = True
+    index = 0
+    # Segment the pattern
+    for node in p_children:
+        if len(pattern_segments) == 0:
+            pattern_segments.append([[node], node.determined])
+            is_determined = node.determined
+            if is_determined:
+                subpattern_tmp += node.label
+        if node.determined != is_determined:
+            # Get a subpattern
+            if is_determined:
+                subpattern_order.append(subpattern_tmp)
+                if subpattern_tmp not in subpattern_set:
+                    subpattern_set.add(subpattern_tmp)
+                    subpattern_dic[str(index)] = subpattern_tmp
+                    subpattern_reverse_dic[subpattern_tmp] = str(index)
+                subpattern_tmp = ""
+            pattern_segments.append([[node], not is_determined])
+            index += 1
+            is_determined = not is_determined
+        else:
+            pattern_segments[index][0].append(node)
+            if is_determined:
+                subpattern_tmp += node.label
+    # Deal with last subpattern if there is one
+    if is_determined:
+        subpattern_order.append(subpattern_tmp)
+        if subpattern_tmp not in subpattern_set:
+            subpattern_set.add(subpattern_tmp)
+            subpattern_dic[str(index)] = subpattern_tmp
+            subpattern_reverse_dic[subpattern_tmp] = str(index)
+
+    #TODO How to deal with para/seq in variant?
+    variant_str = ""
+    for v_node in v_children:
+        if v_node.type == NodeType.PARA:
+            variant_str += "∧"
+        elif v_node.type == NodeType.SEQ:
+            variant_str += "→"
+        else:
+            variant_str += v_node.label
+
+    ac = ahocorasick.Automaton()
+
+    for idx, subpattern in enumerate(subpattern_order):
+        ac.add_word(subpattern, (idx, subpattern))
+
+    ac.make_automaton()
+
+    partial_graph = nx.DiGraph()
+    subpattern_order_abbr = [subpattern_reverse_dic[x] for x in subpattern_order]
+
+    for end_index, (idx, original_value) in ac.iter(variant_str):
+        start_index = end_index - len(original_value) + 1
+        new_node = subpattern_reverse_dic[original_value] # abbr, but should be id here i think
+        partial_graph.add_node(new_node, orders=[], start_index=start_index, end_index=end_index)
+        if new_node == subpattern_order_abbr[0]:
+            partial_graph.nodes[new_node]["orders"].append([0, ""])
+        for node in partial_graph:
+            if node["end_index"] < start_index: # should not be equal here
+                partial_graph.add_edge(node, new_node)
+                #order[index, node]
+                for order in node["orders"]:
+                    if subpattern_order_abbr[order[0] + 1] == new_node:
+                        partial_graph.nodes[new_node]["orders"].append([order[0] + 1, node])
+    # After getting partial graph
+    for node in partial_graph:
+        for order in node["orders"]:
+            if len(subpattern_order_abbr) == order[0] + 1:
+                success = 1
+
 
 # match p and v nodes in step 1
 def single_node_match(p_node, v_node, group_id_list):
@@ -614,12 +714,12 @@ def single_node_match(p_node, v_node, group_id_list):
         if v_node.type != NodeType.PARA:
             return False
         else:
-            return match_para()
+            return match_para(p_node.children, v_node.children, group_id_list)
     elif p_node.type == NodeType.SEQ:
         if v_node.type != NodeType.SEQ:
             return False
         else:
-            return match_seq()
+            return match_seq(p_node.children, v_node.children, group_id_list)
     else:
         # Case: normal or cardinality
         if v_node.type == NodeType.NORMAL and v_node.label == p_node.label:
