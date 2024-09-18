@@ -8,6 +8,7 @@ import json
 import random
 from enum import Enum
 from collections import deque
+import networkx as nx
 
 from cortado_core.models.infix_type import InfixType
 from endpoints.load_event_log import (
@@ -574,12 +575,12 @@ def variant_to_tree(variant, group_id_list):
         tree.type = NodeType.SEQ
         tree.determined = False
         for child in variant["follows"]:
-            tree.children.append(variant_to_tree(child))
+            tree.children = tree.children + variant_to_tree(child)
     elif "parallel" in variant:
         tree.type = NodeType.PARA
         tree.determined = False
         for child in variant["parallel"]:
-            tree.children.append(variant_to_tree(child))
+            tree.children = tree.children + variant_to_tree(child)
     elif "leaf" in variant:
         # Possible cases: cardinality, group, any, wildcard, normal. Only consider horizontal cardinality now
         tree.label = variant["leaf"][0]
@@ -599,7 +600,7 @@ def variant_to_tree(variant, group_id_list):
             tree.determined = False
         else:
             tree.type = NodeType.NORMAL
-    return tree
+    return [tree]
 
 def match_para(p_children, v_children, group_id_list):
     pass
@@ -614,12 +615,10 @@ class PartialOrderNode:
         self.match_id = []
         self.determined = True
 
-import networkx as nx
-
 def match_seq(p_children, v_children, group_id_list):
     subpattern_set = set()
     subpattern_dic = {} # abbr to subpattern
-    subpattern_reverse_dic = {}
+    subpattern_reverse_dic = {} # subpattern to abbr
     subpattern_order = []
     subpattern_tmp = ""
     pattern_segments = []
