@@ -471,63 +471,82 @@ def add_start_end_wildcard(pattern):
 def generate_tree(activities):
     pass
 
-def generate_query(pattern, activities):
+
+# The query cannot generate group?
+activities = ["..."] + [str(x) for x in range(10)]
+
+def generate_query(activities, parent_type):
     cardi_ops = ["=", ">", "<"]
     if_leaf = random.random()
     if if_leaf > 0.3:
-        # return leaf
+        # return leaf, 70% probability
         leaf = {"leaf": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
         leaf["leaf"].append(random.choice(activities))
-        op_rand = random.random()
-        if op_rand < 0.2:
-            if random.random() < 0.5:
-                leaf["horizontalCardi"] = random.choice(list(range(1, 11)))
-            else:
-                leaf["verticalCardi"] = random.choice(list(range(1, 11)))
-        return leaf 
+        if leaf["leaf"][0] != "...":
+            if random.random() < 0.2:
+                # Cardinality 1-5
+                if random.random() < 0.5:
+                    leaf["horizontalCardi"] = random.choice(list(range(1, 6)))
+                    op_type_rand = random.random()
+                    if op_type_rand < 1/3:
+                        leaf["horizontalCardiOp"] = "="
+                    elif op_type_rand < 2/3:
+                        leaf["horizontalCardiOp"] = ">"
+                    else:
+                        leaf["horizontalCardiOp"] = "<"
+                else:
+                    leaf["verticalCardi"] = random.choice(list(range(1, 6)))
+                    op_type_rand = random.random()
+                    if op_type_rand < 1/3:
+                        leaf["verticalCardiOp"] = "<"
+                    elif op_type_rand < 2/3:
+                        leaf["verticalCardiOp"] = ">"
+        return leaf
     else:
+        #Non-leafnode, including 15% seq and 15% parallel group 
         if_seq = random.random()
-        if if_seq <= 0.5:
+        if if_seq <= 0.5 or parent_type == "para":
             seq = {"follows": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
-            child_num = random.choice(list(range(2, 11)))
+            child_num = random.choice(list(range(2, 5)))
             for i in range(child_num):
-                seq["follows"].append(generate_query(pattern, activities))
+                seq["follows"].append(generate_query(activities, "seq"))
             op_rand = random.random() # choose if it is not "="
             if op_rand < 0.2:
-                # No vertical cardi for seq
-                seq["horizontalCardi"] = random.choice(list(range(1, 11)))
-                if random.random() < 0.5:
+                # No vertical cardi for seq, max 3 cardinality
+                seq["horizontalCardi"] = random.choice(list(range(1, 4)))
+                op_type_rand = random.random()
+                if op_type_rand < 1/3:
                     seq["horizontalCardiOp"] = "<"
-                else:
+                elif op_type_rand < 2/3:
                     seq["horizontalCardiOp"] = ">"
+
             return seq
         else:
             para = {"parallel": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
-            child_num = random.choice(list(range(2, 11)))
+            child_num = random.choice(list(range(2, 5)))
             seq_exist = 0
             for i in range(child_num):
-                child = generate_query(pattern, activities)
+                child = generate_query(activities, "para")
                 # Ensure only one sequence child
                 while seq_exist == 1 and "follows" in child:
-                    child = generate_query(pattern, activities)
+                    # If double seq, generate again
+                    child = generate_query(activities, "para")
                 if "follows" in child:
                     seq_exist = 1
                 para["parallel"].append(child)
             op_rand = random.random() # choose if it is not "="
             if op_rand < 0.2:
-                if random.random() < 0.5 and seq_exist == 0:
-                    para["horizontalCardi"] = random.choice(list(range(1, 4)))
-                    if random.random() < 0.5:
-                        para["horizontalCardiOp"] = "<"
-                    else:
-                        para["horizontalCardiOp"] = ">"
-                else:
-                    para["verticalCardi"] = random.choice(list(range(1, 4)))
-                    if random.random() < 0.5:
-                        para["horizontalCardiOp"] = "<"
-                    else:
-                        para["horizontalCardiOp"] = ">"
+                # Currently no vertical cardi for para
+                para["horizontalCardi"] = random.choice(list(range(1, 4))) #注意一下这个 等于号等于1的时候是？
+                op_type_rand = random.random()
+                if op_type_rand < 1/3:
+                    para["horizontalCardiOp"] = "<"
+                elif op_type_rand < 2/3:
+                    para["horizontalCardiOp"] = ">"
             return para
+     
+a = [generate_query(activities, "") for x in range(3)]
+print(a)
         
 def test_patterns():
     test_list = []
@@ -571,6 +590,9 @@ class VariantTree:
 
 def variant_to_tree(variant, group_id_list):
     tree =  VariantTree(random.randint(1, 10000))
+    if variant["verticalCardi"] > 0 or variant["horizontalCardiOp"] == "≥" or variant["horizontalCardiOp"] == "≤":
+        pass
+
     if "follows" in variant:
         tree.type = NodeType.SEQ
         tree.determined = False
