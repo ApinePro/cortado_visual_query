@@ -50,6 +50,26 @@ def generate_variant_info(infix_type, traces):
 
     return VariantInformation(infix_type=infix_type, is_user_defined=user_defined)
 
+@router.post("/generate-query-test")
+def generate_query_test(graphical_query: graphicalVariantQuery):
+    print("Test start")
+    test_variants = []
+    trees = []
+    for x in range(7):
+        test_variants.append(generate_query(activities, ""))
+    
+    for variant in test_variants:
+        print(variant)
+        print("")
+        trees.appned(variant_to_tree(variant))
+    
+    return 0
+
+def calculate_v_stat(variant):
+    if "leaf" in variant:
+        pass
+    return 1
+
 @router.post("/graphical-variant-query")
 def graphical_variant_query(graphical_query: graphicalVariantQuery):
     res = []
@@ -216,7 +236,7 @@ def pattern_match_variant(pattern, variant):
         #print("PHEAD AFTER REDUCE")
         #print(p_head)
         print("##########################################################################\n")
-        if p_head["horizontalCardiOp"] == '≤':
+        if p_head["horizontalCardiOp"] == '<':
             if p_head["horizontalCardi"] == 0:
                 pattern = replace_head(pattern, p_head) # Remove the cardinality characteristics of the head
             else:   
@@ -228,7 +248,7 @@ def pattern_match_variant(pattern, variant):
                 return pattern_match_variant(p_body, variant)
         elif p_head["horizontalCardiOp"] == '=' and p_head["horizontalCardi"] == 0: # 1->0, done
             pattern = replace_head(pattern, p_head)
-        elif p_head["horizontalCardiOp"] == '≥' and p_head["horizontalCardi"] == 0:
+        elif p_head["horizontalCardiOp"] == '>' and p_head["horizontalCardi"] == 0:
             new_pattern = replace_head(pattern, p_head)
             pattern = add_head_cardinality(pattern, 1)
             pattern = add_head(pattern, p_head)
@@ -316,9 +336,9 @@ def compare_para(p_head, v_head): # No cardinality now
                 return True
             if element["leaf"][0] not in p_dic["leafs"]:
                 p_dic["leafs"][element["leaf"][0]] = [element["verticalCardi"], element["verticalCardi"]] #[min, max]
-                if element["verticalCardiOp"] == "≤":
+                if element["verticalCardiOp"] == "<":
                     p_dic["leafs"][element["leaf"][0]][0] = -1
-                elif element["verticalCardiOp"] == "≥":
+                elif element["verticalCardiOp"] == ">":
                     p_dic["leafs"][element["leaf"][0]][1] = -1
                 elif element["verticalCardiOp"] == "=" and element["verticalCardi"] == 0:
                     p_dic["leafs"][element["leaf"][0]][0] = 1
@@ -327,9 +347,9 @@ def compare_para(p_head, v_head): # No cardinality now
                 shift = 0
                 if element["verticalCardi"] == 0:
                     shift = 1
-                if element["verticalCardiOp"] == "≤" and p_dic["leafs"][element["leaf"][0]][1] > element["verticalCardi"] + shift:
+                if element["verticalCardiOp"] == "<" and p_dic["leafs"][element["leaf"][0]][1] > element["verticalCardi"] + shift:
                     p_dic["leafs"][element["leaf"][0]][1] = element["verticalCardi"] + shift
-                elif element["verticalCardiOp"] == "≥" and p_dic["leafs"][element["leaf"][0]][0] < element["verticalCardi"] + shift:
+                elif element["verticalCardiOp"] == ">" and p_dic["leafs"][element["leaf"][0]][0] < element["verticalCardi"] + shift:
                     p_dic["leafs"][element["leaf"][0]][0] = element["verticalCardi"] + shift
                 elif element["verticalCardiOp"] == "=":
                     #if element["verticalCardi"] == 0:
@@ -473,7 +493,7 @@ def generate_tree(activities):
 
 
 # The query cannot generate group?
-activities = ["..."] + [str(x) for x in range(10)]
+activities = ["...", "?"] + [str(x) for x in range(10)]
 
 def generate_query(activities, parent_type):
     cardi_ops = ["=", ">", "<"]
@@ -485,8 +505,8 @@ def generate_query(activities, parent_type):
         if leaf["leaf"][0] != "...":
             if random.random() < 0.2:
                 # Cardinality 1-5
-                if random.random() < 0.5:
-                    leaf["horizontalCardi"] = random.choice(list(range(1, 6)))
+                if  random.random() > 0.5:
+                    leaf["horizontalCardi"] = random.choices(list(range(1, 6)), weights=list(reversed(range(1, 6))), k=1)[0]
                     op_type_rand = random.random()
                     if op_type_rand < 1/3:
                         leaf["horizontalCardiOp"] = "="
@@ -495,25 +515,26 @@ def generate_query(activities, parent_type):
                     else:
                         leaf["horizontalCardiOp"] = "<"
                 else:
-                    leaf["verticalCardi"] = random.choice(list(range(1, 6)))
+                    leaf["verticalCardi"] = random.choices(list(range(1, 6)), weights=list(reversed(range(1, 6))), k=1)[0]
                     op_type_rand = random.random()
                     if op_type_rand < 1/3:
                         leaf["verticalCardiOp"] = "<"
                     elif op_type_rand < 2/3:
                         leaf["verticalCardiOp"] = ">"
+
         return leaf
     else:
         #Non-leafnode, including 15% seq and 15% parallel group 
         if_seq = random.random()
         if if_seq <= 0.5 or parent_type == "para":
             seq = {"follows": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
-            child_num = random.choice(list(range(2, 5)))
+            child_num = random.choices(list(range(2, 5)), weights=list(reversed(range(2, 5))), k=1)[0]
             for i in range(child_num):
                 seq["follows"].append(generate_query(activities, "seq"))
             op_rand = random.random() # choose if it is not "="
             if op_rand < 0.2:
                 # No vertical cardi for seq, max 3 cardinality
-                seq["horizontalCardi"] = random.choice(list(range(1, 4)))
+                seq["horizontalCardi"] = random.choices(list(range(1, 4)), weights=list(reversed(range(1, 4))), k=1)[0]
                 op_type_rand = random.random()
                 if op_type_rand < 1/3:
                     seq["horizontalCardiOp"] = "<"
@@ -523,7 +544,8 @@ def generate_query(activities, parent_type):
             return seq
         else:
             para = {"parallel": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
-            child_num = random.choice(list(range(2, 5)))
+            child_num = random.choices(list(range(2, 5)), weights=list(reversed(range(2, 5))), k=1)[0]
+            #print(child_num = random.choices(list(range(2, 5)), weights=list(reversed(range(2, 5))), k=1))
             seq_exist = 0
             for i in range(child_num):
                 child = generate_query(activities, "para")
@@ -537,16 +559,13 @@ def generate_query(activities, parent_type):
             op_rand = random.random() # choose if it is not "="
             if op_rand < 0.2:
                 # Currently no vertical cardi for para
-                para["horizontalCardi"] = random.choice(list(range(1, 4))) #注意一下这个 等于号等于1的时候是？
+                para["horizontalCardi"] = random.choices(list(range(1, 4)), weights=list(reversed(range(1, 4))), k=1)[0] #注意一下这个 等于号等于1的时候是？
                 op_type_rand = random.random()
                 if op_type_rand < 1/3:
                     para["horizontalCardiOp"] = "<"
                 elif op_type_rand < 2/3:
                     para["horizontalCardiOp"] = ">"
             return para
-     
-a = [generate_query(activities, "") for x in range(3)]
-print(a)
         
 def test_patterns():
     test_list = []
@@ -566,12 +585,11 @@ import ahocorasick
 
 class NodeType(Enum):
     NORMAL = 1
-    CARDINALITY = 2
-    GROUP = 3
-    ANY = 4
-    WILDCARD = 5
-    SEQ = 6
-    PARA = 7
+    GROUP = 2
+    ANY = 3
+    WILDCARD = 4
+    SEQ = 5
+    PARA = 6 # Parallel and also Vertical cardi
 
 class VariantTree:
     def __init__(self, id):
@@ -582,36 +600,66 @@ class VariantTree:
         self.cardinality = 0
         self.cardiOp = "="
         self.match_id = []
-        self.determined = True
+        self.determined = False
 
-#para = {"parallel": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
-
-#TODO process equal!
-
-def variant_to_tree(variant, group_id_list):
+def variant_to_tree(variant, group_id_list, parent_type):
+    # Convert process variant to variant tree.
+    # Including the expansion of vertical and parallel cardinality
     tree =  VariantTree(random.randint(1, 10000))
-    if variant["verticalCardi"] > 0 or variant["horizontalCardiOp"] == "≥" or variant["horizontalCardiOp"] == "≤":
-        pass
 
     if "follows" in variant:
         tree.type = NodeType.SEQ
-        tree.determined = False
+        tree.determined = True # default is true, if any child is false, it becomes false
         for child in variant["follows"]:
-            tree.children = tree.children + variant_to_tree(child)
+            # Process wildcard simplification.
+            # ... can simplify cardinality "<" and ">", and also "..." could be merged.
+            if len(tree.children) > 0 and tree.children[-1].type == NodeType.WILDCARD:
+                # wildcard before node
+                if child["horizontalCardiOp"] == "<" or child["verticalCardiOp"] == "<" or ("leaf" in child and child["leaf"][0] == "..."):
+                    continue
+                elif child["horizontalCardiOp"] == ">":
+                    child["horizontalCardiOp"] == "="
+                    if child["horizontalCardi"] == 1:
+                        child["horizontalCardi"] = 0
+            child_node = variant_to_tree(child, parent_type)
+            if child_node.type == NodeType.WILDCARD:
+                # this is wildcard, simplify last node.
+                if len(tree.children) > 0:
+                    if tree.children[-1].type == NodeType.WILDCARD or tree.children[-1].cardiOp == "<":
+                        continue
+                    elif tree.children[-1].cardiOp == ">":
+                        tree.children[-1].cardiOp == "="
+                        if tree.children[-1].cardinality == 1:
+                            tree.children[-1].cardinality = 0
+                            tree.children[-1].type = NodeType.NORMAL #难说 唯一办法就是去掉cardinality这个分类
+            tree.children = tree.children + child_node
+        for child in tree.children:
+            tree.determined = tree.determined & child.determined
     elif "parallel" in variant:
         tree.type = NodeType.PARA
-        tree.determined = False
+        tree.determined = True
+        wildcard_exist = False
         for child in variant["parallel"]:
-            tree.children = tree.children + variant_to_tree(child)
+            child_node = variant_to_tree(child, parent_type)
+            if child_node.type == NodeType.WILDCARD:
+                wildcard_exist = True
+            tree.children = tree.children + child_node
+        merged_children = []
+        for child in tree.children:
+            if wildcard_exist:
+                if child.cardiOp == "<":
+                    continue
+                elif child.cardiOp == ">":
+                    child.cardiOp = "="
+                    if child.cardinality == 1:
+                        child.cardinality = 0
+            merged_children.append(child)
+            tree.determined = tree.determined & child.determined
+        tree.children = merged_children
     elif "leaf" in variant:
-        # Possible cases: cardinality, group, any, wildcard, normal. Only consider horizontal cardinality now
+        # Possible cases: cardinality, group, any, wildcard, normal.
         tree.label = variant["leaf"][0]
-        if variant["horizontalCardi"] > 0 or variant["verticalCardi"] > 0:
-            tree.type = NodeType.CARDINALITY
-            tree.cardiOp = variant["horizontalCardiOp"]
-            if tree.cardiOp != "=":
-                tree.determined = False
-        elif variant["leaf"][0] in group_id_list:
+        if variant["leaf"][0] in group_id_list:
             tree.type = NodeType.GROUP
             tree.determined = False
         elif variant["leaf"][0] == "?":
@@ -622,7 +670,57 @@ def variant_to_tree(variant, group_id_list):
             tree.determined = False
         else:
             tree.type = NodeType.NORMAL
-    return [tree]
+            tree.determined = True
+    
+    # Keep "<" cardi, expand "=", simplify ">" cardinality
+    # Handle horizontal
+    if variant["horizontalCardiOp"] == "<":
+        tree.cardiOp = "<"
+        tree.cardinality = variant["horizontalCardi"]
+        tree.type = NodeType.CARDINALITY
+        tree.determined = False
+        return [tree]
+    elif variant["horizontalCardi"] > 1 or variant["horizontalCardiOp"] == ">":
+        expanded_node = []
+        tree.cardiOp = "="
+        # unzip sequence without cardinality. Only applied to original sequence with cardinality
+        if tree.type == NodeType.SEQ:
+            for i in range(variant["horizontalCardi"] - 1):
+                expanded_node.append(copy.deepcopy(tree.children))
+            expanded_node.append(copy.deepcopy(tree))
+            if variant["horizontalCardiOp"] == "=":
+                # Cardinality > 1
+                return expanded_node
+            else:
+                expanded_node[-1].cardiOp = ">"
+                expanded_node[-1].cardinality = 1
+                expanded_node[-1].type = NodeType.CARDINALITY
+                if len(expanded_node) > 1:
+                    return expanded_node
+                else:
+                    return [expanded_node[0]]
+        else:
+            for i in range(variant["horizontalCardi"]):
+                expanded_node.append(copy.deepcopy(tree))
+            if variant["horizontalCardiOp"] == "=":
+                # Cardinality > 1
+                return expanded_node
+            else:
+                expanded_node[-1].cardiOp = ">"
+                expanded_node[-1].cardinality = 1
+                expanded_node[-1].type = NodeType.CARDINALITY
+                if len(expanded_node) > 1:
+                    return expanded_node
+                else:
+                    return [expanded_node[0]]
+            
+        
+    # We don't need to handle vertical
+    elif variant["verticalCardi"] > 1 or variant["verticalCardiOp"] == ">" or variant["verticalCardiOp"] == "<":
+        tree.type = NodeType.PARA # Could compare para and vertical
+
+    else:
+        return [tree]
 
 def match_para(p_children, v_children, group_id_list):
     pass
@@ -677,7 +775,6 @@ def match_seq(p_children, v_children, group_id_list):
             subpattern_dic[str(index)] = subpattern_tmp
             subpattern_reverse_dic[subpattern_tmp] = str(index)
 
-    #TODO How to deal with para/seq in variant?
     variant_str = ""
     for v_node in v_children:
         if v_node.type == NodeType.PARA:
