@@ -594,6 +594,9 @@ class NodeType(Enum):
     PARA = 6 # Parallel and also Vertical cardi
 
 class VariantTree:
+    label_to_char = {}
+    label_index = 0
+    preserved_char = ["(", ")", "→", "∧"]
     def __init__(self, id):
         self.id = id
         self.label = ""
@@ -604,6 +607,11 @@ class VariantTree:
         self.cardiOp = "="
         self.match_id = []
         self.determined = False
+    
+    def increase_label_index(self):
+        VariantTree.increase_label_index()
+        if chr(VariantTree.label_index) in VariantTree.preserved_char:
+            VariantTree.increase_label_index()
 
 def variant_to_tree(variant, group_id_list):
     # Convert process variant to variant tree.
@@ -746,7 +754,29 @@ class PartialOrderNode:
         self.match_id = []
         self.determined = True
 
-def brutal_match(p, v, group_id_list):
+def serialize_determined_tree(tree):
+    #谨记这个要判断的 如果seq para node的label已经不止一位了，那就直接返回就行了
+    if len(tree.label) > 1:
+        return tree
+    else:
+        if tree.label[0] == "→":
+            tree.label += "("
+            for child in tree.children:
+                # child's label is already in label_to_char
+                tree.label += VariantTree.label_to_char[child.label]
+            tree.label += ")"
+        else:
+            #∧
+            tree.label += "("
+            ordered_children = sorted([VariantTree.label_to_char[child.label] for child in tree.children])
+            tree.label += ''.join(ordered_children)
+            tree.label += ")"
+        if tree.label not in VariantTree.label_to_char:
+                VariantTree.label_to_char[tree.label] = chr(VariantTree.label_index)
+                VariantTree.increase_label_index()
+        return tree
+
+def brutal_match(p_list, v_list, group_id_list):
     pass
 
 def match_para(p_children, v_children, group_id_list):
@@ -758,13 +788,6 @@ def match_seq(p, v, group_id_list):
     # 还需要能够把同构的determined tree给转化为字符串的能力
     p_children = p.children # p is seq
     v_children = v.children
-    '''
-    if v.type != NodeType.SEQ:
-        v_children = [v] #理论上说，这个算法靠的是children全都匹配了然后匹配这个根节点，但是这里v并没有被匹配，所以还要看
-        return False # 暂时先写不match吧 看看这个match的结果是如何应用的
-    else:
-        v_children = v.children
-    '''
 
     if p.determined:
         # if p is determined, all p_children are determined. So we could directly compare
@@ -776,8 +799,8 @@ def match_seq(p, v, group_id_list):
                     return False
             return True
     else:
-        label_to_char = {}
-        label_index = 0
+        if v.type != NodeType.SEQ:
+            v_children = [v]
         subpattern_set = set()
         subpattern_dic = {} # abbr to subpattern
         subpattern_reverse_dic = {} # subpattern to abbr
@@ -786,17 +809,17 @@ def match_seq(p, v, group_id_list):
         pattern_segments = []
         is_determined = True
         index = 0
-        # Segment the pattern
+        # Segment the pattern. The result at least has one segment
         for node in p_children:
             if len(pattern_segments) == 0:
                 pattern_segments.append([[node], node.determined])
                 is_determined = node.determined
                 if is_determined:
-                    if node.label not in label_to_char:
-                        label_to_char[node.label] = chr(label_index)
-                        label_index += 1
-                    label_to_char[node.label] = label_to_char[node.label]
-                    subpattern_tmp += label_to_char[node.label] #如果是确定的seq或者para呢？
+                    if node.label not in VariantTree.label_to_char:
+                        VariantTree.label_to_char[node.label] = chr(VariantTree.label_index)
+                        VariantTree.increase_label_index()
+                    VariantTree.label_to_char[node.label] = VariantTree.label_to_char[node.label]
+                    subpattern_tmp += VariantTree.label_to_char[node.label]
             if node.determined != is_determined:
                 # Get a subpattern
                 if is_determined:
@@ -812,10 +835,10 @@ def match_seq(p, v, group_id_list):
             else:
                 pattern_segments[index][0].append(node)
                 if is_determined:
-                    if node.label not in label_to_char:
-                        label_to_char[node.label] = chr(label_index)
-                        label_index += 1
-                    subpattern_tmp += label_to_char[node.label]
+                    if node.label not in VariantTree.label_to_char:
+                        VariantTree.label_to_char[node.label] = chr(VariantTree.label_index)
+                        VariantTree.increase_label_index()
+                    subpattern_tmp += VariantTree.label_to_char[node.label]
         # Deal with last subpattern if there is one
         if is_determined:
             subpattern_order.append(subpattern_tmp)
@@ -823,13 +846,16 @@ def match_seq(p, v, group_id_list):
                 subpattern_set.add(subpattern_tmp)
                 subpattern_dic[chr(index)] = subpattern_tmp
                 subpattern_reverse_dic[subpattern_tmp] = chr(index)
+        elif len(pattern_segments) == 1:
+            # Deal with case: pattern has only 1 non-determined part.
+            return brutal_match(p_children, v_children, group_id_list)
 
         variant_str = ""
         for v_node in v_children:
-            if v_node.label not in label_to_char:
-                label_to_char[v_node.label] = chr(label_index)
-                label_index += 1
-            variant_str += label_to_char[v_node.label]
+            if v_node.label not in VariantTree.label_to_char:
+                VariantTree.label_to_char[v_node.label] = chr(VariantTree.label_index)
+                VariantTree.increase_label_index()
+            variant_str += VariantTree.label_to_char[v_node.label]
 
         ac = ahocorasick.Automaton()
 
@@ -842,28 +868,43 @@ def match_seq(p, v, group_id_list):
         subpattern_order_abbr = [subpattern_reverse_dic[x] for x in subpattern_order]
 
         for end_index, (idx, original_value) in ac.iter(variant_str):
+            # the subpattern include the char at end_index
             start_index = end_index - len(original_value) + 1
-            new_node = subpattern_reverse_dic[original_value] # abbr, but should be id here i think
+            new_node = subpattern_reverse_dic[original_value]
             partial_graph.add_node(new_node, orders=[], start_index=start_index, end_index=end_index)
             if new_node == subpattern_order_abbr[0]:
+                # Initialize a new string if applies
                 partial_graph.nodes[new_node]["orders"].append([0, ""])
             for node in partial_graph:
+                # Connect old nodes with the new node 
                 if node["end_index"] < start_index: # should not be equal here
                     partial_graph.add_edge(node, new_node)
-                    #order[index, node]
+                    # Order: [index, node]
                     for order in node["orders"]:
                         if subpattern_order_abbr[order[0] + 1] == new_node:
                             partial_graph.nodes[new_node]["orders"].append([order[0] + 1, node])
+
         # After getting partial graph
+        # 这里还需要改进一下
         for node in partial_graph:
             for order in node["orders"]:
-                if len(subpattern_order_abbr) == order[0] + 1:
-                    success = 1
-
+                if len(subpattern_order_abbr) == order[0] + 1 and match_rest(order, pattern_segments, subpattern_order, group_id_list):
+                    return True
+                
+        return False
+    
+def match_rest(order, pattern_segments, subpattern_order, group_id_list):
+    for one_order in order:
+        pass
+    return 1
 
 # match p and v nodes in step 1
 def single_node_match(p_node, v_node, group_id_list):
     # For variant, only NORMAL, SEQ, PARA
+    if p_node.determined:
+        p_node = serialize_determined_tree(p_node)
+    if v_node.determined:
+        v_node = serialize_determined_tree(v_node)
     if p_node.type == NodeType.WILDCARD:
         return True
     elif p_node.type == NodeType.GROUP:
@@ -877,15 +918,9 @@ def single_node_match(p_node, v_node, group_id_list):
         else:
             return False
     elif p_node.type == NodeType.PARA:
-        if v_node.type != NodeType.PARA:
-            return False
-        else:
-            return match_para(p_node, v_node, group_id_list)
+        return match_para(p_node, v_node, group_id_list)
     elif p_node.type == NodeType.SEQ:
-        if v_node.type != NodeType.SEQ:
-            return False
-        else:
-            return match_seq(p_node, v_node, group_id_list)
+        return match_seq(p_node, v_node, group_id_list)
     else:
         # Case: NORMAL
         if v_node.type == NodeType.NORMAL and v_node.label == p_node.label:
