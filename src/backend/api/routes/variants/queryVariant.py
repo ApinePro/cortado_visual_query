@@ -57,11 +57,13 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
     trees = []
     for x in range(7):
         test_variants.append(generate_query(activities, ""))
-    
+
+    group_id_list = []
+
     for variant in test_variants:
         print(variant)
         print("")
-        trees.appned(variant_to_tree(variant))
+        trees.append(variant_to_tree(variant, group_id_list))
     
     return 0
 
@@ -578,7 +580,7 @@ def test_patterns():
     # Test = 3
     # Test group outside
 
-
+########################################################################################################
 ### New algorithm ###
 
 import ahocorasick
@@ -597,12 +599,13 @@ class VariantTree:
         self.label = ""
         self.children = []
         self.type = NodeType.NORMAL
+        self.cardiDirect = "vertical"
         self.cardinality = 0
         self.cardiOp = "="
         self.match_id = []
         self.determined = False
 
-def variant_to_tree(variant, group_id_list, parent_type):
+def variant_to_tree(variant, group_id_list):
     # Convert process variant to variant tree.
     # Including the expansion of vertical and parallel cardinality
     tree =  VariantTree(random.randint(1, 10000))
@@ -610,52 +613,63 @@ def variant_to_tree(variant, group_id_list, parent_type):
     if "follows" in variant:
         tree.type = NodeType.SEQ
         tree.determined = True # default is true, if any child is false, it becomes false
+        tree.label = "→"
         for child in variant["follows"]:
             # Process wildcard simplification.
             # ... can simplify cardinality "<" and ">", and also "..." could be merged.
+            child_node = variant_to_tree(child, group_id_list) # Could be a list
             if len(tree.children) > 0 and tree.children[-1].type == NodeType.WILDCARD:
                 # wildcard before node
-                if child["horizontalCardiOp"] == "<" or child["verticalCardiOp"] == "<" or ("leaf" in child and child["leaf"][0] == "..."):
-                    continue
-                elif child["horizontalCardiOp"] == ">":
-                    child["horizontalCardiOp"] == "="
-                    if child["horizontalCardi"] == 1:
-                        child["horizontalCardi"] = 0
-            child_node = variant_to_tree(child, parent_type)
-            if child_node.type == NodeType.WILDCARD:
-                # this is wildcard, simplify last node.
+                i = 0
+                while child_node[i].cardiOp == "<" or child_node[i].type == NodeType.WILDCARD:
+                    i += 1
+                child_node = child_node[i:]
+                if len(child_node) > 0 and child_node[0].cardiOp == ">" and child_node[0].cardiDirect == "horizontal":
+                    child_node[0].cardiOp == "="
+                    child_node[0].determined = True
+                    if child_node[0].cardinality == 1:
+                        child_node[0].cardinality = 0
+            
+            if child_node[0].type == NodeType.WILDCARD:
+                # first child is wildcard, simplify the last node.
                 if len(tree.children) > 0:
-                    if tree.children[-1].type == NodeType.WILDCARD or tree.children[-1].cardiOp == "<":
-                        continue
-                    elif tree.children[-1].cardiOp == ">":
+                    while len(tree.children) > 0 and (tree.children[-1].type == NodeType.WILDCARD or tree.children[-1].cardiOp == "<"):
+                        tree.children.pop(-1) # Don't need to change tree.determined. Because the new node is wildcard
+                    if len(tree.children) > 0 and tree.children[-1].cardiOp == ">":
                         tree.children[-1].cardiOp == "="
+                        tree.children[-1].determined = True
                         if tree.children[-1].cardinality == 1:
                             tree.children[-1].cardinality = 0
-                            tree.children[-1].type = NodeType.NORMAL #难说 唯一办法就是去掉cardinality这个分类
             tree.children = tree.children + child_node
         for child in tree.children:
             tree.determined = tree.determined & child.determined
+        if len(tree.children) == 1:
+            tree = tree.children[0]
     elif "parallel" in variant:
         tree.type = NodeType.PARA
         tree.determined = True
+        tree.label = "∧"
         wildcard_exist = False
         for child in variant["parallel"]:
-            child_node = variant_to_tree(child, parent_type)
-            if child_node.type == NodeType.WILDCARD:
+            child_node = variant_to_tree(child, group_id_list)
+            if child_node[0].type == NodeType.WILDCARD:
                 wildcard_exist = True
             tree.children = tree.children + child_node
         merged_children = []
         for child in tree.children:
             if wildcard_exist:
+                # 记得限制在UI里对para里多个...的限制
                 if child.cardiOp == "<":
                     continue
-                elif child.cardiOp == ">":
+                elif child.cardiOp == ">" and child.cardiDirect == "vertical":
                     child.cardiOp = "="
                     if child.cardinality == 1:
                         child.cardinality = 0
             merged_children.append(child)
             tree.determined = tree.determined & child.determined
         tree.children = merged_children
+        if len(tree.children) == 1:
+            tree = tree.children[0]
     elif "leaf" in variant:
         # Possible cases: cardinality, group, any, wildcard, normal.
         tree.label = variant["leaf"][0]
@@ -673,12 +687,13 @@ def variant_to_tree(variant, group_id_list, parent_type):
             tree.determined = True
     
     # Keep "<" cardi, expand "=", simplify ">" cardinality
+    # After simplification, "=" -> NORMAL (no cardinality) and we could use self.cardinality to know if there's cardinality
     # Handle horizontal
     if variant["horizontalCardiOp"] == "<":
         tree.cardiOp = "<"
         tree.cardinality = variant["horizontalCardi"]
-        tree.type = NodeType.CARDINALITY
         tree.determined = False
+        tree.cardiDirect = "horizontal"
         return [tree]
     elif variant["horizontalCardi"] > 1 or variant["horizontalCardiOp"] == ">":
         expanded_node = []
@@ -686,19 +701,18 @@ def variant_to_tree(variant, group_id_list, parent_type):
         # unzip sequence without cardinality. Only applied to original sequence with cardinality
         if tree.type == NodeType.SEQ:
             for i in range(variant["horizontalCardi"] - 1):
-                expanded_node.append(copy.deepcopy(tree.children))
-            expanded_node.append(copy.deepcopy(tree))
+                expanded_node += copy.deepcopy(tree.children)
             if variant["horizontalCardiOp"] == "=":
                 # Cardinality > 1
+                expanded_node += copy.deepcopy(tree.children)
                 return expanded_node
             else:
+                expanded_node.append(copy.deepcopy(tree))
                 expanded_node[-1].cardiOp = ">"
                 expanded_node[-1].cardinality = 1
-                expanded_node[-1].type = NodeType.CARDINALITY
-                if len(expanded_node) > 1:
-                    return expanded_node
-                else:
-                    return [expanded_node[0]]
+                expanded_node[-1].cardiDirect = "horizontal"
+                expanded_node[-1].determined = False
+                return expanded_node
         else:
             for i in range(variant["horizontalCardi"]):
                 expanded_node.append(copy.deepcopy(tree))
@@ -708,22 +722,19 @@ def variant_to_tree(variant, group_id_list, parent_type):
             else:
                 expanded_node[-1].cardiOp = ">"
                 expanded_node[-1].cardinality = 1
-                expanded_node[-1].type = NodeType.CARDINALITY
-                if len(expanded_node) > 1:
-                    return expanded_node
-                else:
-                    return [expanded_node[0]]
-            
+                expanded_node[-1].cardiDirect = "horizontal"
+                expanded_node[-1].determined = False
+                return expanded_node
         
     # We don't need to handle vertical
     elif variant["verticalCardi"] > 1 or variant["verticalCardiOp"] == ">" or variant["verticalCardiOp"] == "<":
-        tree.type = NodeType.PARA # Could compare para and vertical
+        tree.type = NodeType.PARA # Could compare para and vertical. Only leaf node (Normal, G, Any) could have vertical cardinality!
+        tree.cardiDirect = "vertital"
+        tree.cardiOp = variant["verticalCardiOp"]
+        tree.cardinality = variant["verticalCardiOp"]
 
     else:
         return [tree]
-
-def match_para(p_children, v_children, group_id_list):
-    pass
 
 class PartialOrderNode:
     def __init__(self, label):
@@ -735,87 +746,124 @@ class PartialOrderNode:
         self.match_id = []
         self.determined = True
 
-def match_seq(p_children, v_children, group_id_list):
-    subpattern_set = set()
-    subpattern_dic = {} # abbr to subpattern
-    subpattern_reverse_dic = {} # subpattern to abbr
-    subpattern_order = []
-    subpattern_tmp = ""
-    pattern_segments = []
-    is_determined = True
-    index = 0
-    # Segment the pattern
-    for node in p_children:
-        if len(pattern_segments) == 0:
-            pattern_segments.append([[node], node.determined])
-            is_determined = node.determined
-            if is_determined:
-                subpattern_tmp += node.label
-        if node.determined != is_determined:
-            # Get a subpattern
-            if is_determined:
-                subpattern_order.append(subpattern_tmp)
-                if subpattern_tmp not in subpattern_set:
-                    subpattern_set.add(subpattern_tmp)
-                    subpattern_dic[str(index)] = subpattern_tmp
-                    subpattern_reverse_dic[subpattern_tmp] = str(index)
-                subpattern_tmp = ""
-            pattern_segments.append([[node], not is_determined])
-            index += 1
-            is_determined = not is_determined
+def brutal_match(p, v, group_id_list):
+    pass
+
+def match_para(p_children, v_children, group_id_list):
+    pass
+
+def match_seq(p, v, group_id_list):
+    # 在这个seq match算法里是只考虑了NORMAL的，因为只有这个可以用在aho里面...
+    # 要不要分成determined这种来做呢
+    # 还需要能够把同构的determined tree给转化为字符串的能力
+    p_children = p.children # p is seq
+    v_children = v.children
+    '''
+    if v.type != NodeType.SEQ:
+        v_children = [v] #理论上说，这个算法靠的是children全都匹配了然后匹配这个根节点，但是这里v并没有被匹配，所以还要看
+        return False # 暂时先写不match吧 看看这个match的结果是如何应用的
+    else:
+        v_children = v.children
+    '''
+
+    if p.determined:
+        # if p is determined, all p_children are determined. So we could directly compare
+        if len(p_children) != len(v_children):
+            return False
         else:
-            pattern_segments[index][0].append(node)
-            if is_determined:
-                subpattern_tmp += node.label
-    # Deal with last subpattern if there is one
-    if is_determined:
-        subpattern_order.append(subpattern_tmp)
-        if subpattern_tmp not in subpattern_set:
-            subpattern_set.add(subpattern_tmp)
-            subpattern_dic[str(index)] = subpattern_tmp
-            subpattern_reverse_dic[subpattern_tmp] = str(index)
+            for p_child, v_child in zip(p_children, v_children):
+                if v_child.id not in p_child.match_id:
+                    return False
+            return True
+    else:
+        label_to_char = {}
+        label_index = 0
+        subpattern_set = set()
+        subpattern_dic = {} # abbr to subpattern
+        subpattern_reverse_dic = {} # subpattern to abbr
+        subpattern_order = []
+        subpattern_tmp = ""
+        pattern_segments = []
+        is_determined = True
+        index = 0
+        # Segment the pattern
+        for node in p_children:
+            if len(pattern_segments) == 0:
+                pattern_segments.append([[node], node.determined])
+                is_determined = node.determined
+                if is_determined:
+                    if node.label not in label_to_char:
+                        label_to_char[node.label] = chr(label_index)
+                        label_index += 1
+                    label_to_char[node.label] = label_to_char[node.label]
+                    subpattern_tmp += label_to_char[node.label] #如果是确定的seq或者para呢？
+            if node.determined != is_determined:
+                # Get a subpattern
+                if is_determined:
+                    subpattern_order.append(subpattern_tmp)
+                    if subpattern_tmp not in subpattern_set:
+                        subpattern_set.add(subpattern_tmp)
+                        subpattern_dic[chr(index)] = subpattern_tmp
+                        subpattern_reverse_dic[subpattern_tmp] = chr(index)
+                    subpattern_tmp = ""
+                pattern_segments.append([[node], not is_determined])
+                index += 1
+                is_determined = not is_determined
+            else:
+                pattern_segments[index][0].append(node)
+                if is_determined:
+                    if node.label not in label_to_char:
+                        label_to_char[node.label] = chr(label_index)
+                        label_index += 1
+                    subpattern_tmp += label_to_char[node.label]
+        # Deal with last subpattern if there is one
+        if is_determined:
+            subpattern_order.append(subpattern_tmp)
+            if subpattern_tmp not in subpattern_set:
+                subpattern_set.add(subpattern_tmp)
+                subpattern_dic[chr(index)] = subpattern_tmp
+                subpattern_reverse_dic[subpattern_tmp] = chr(index)
 
-    variant_str = ""
-    for v_node in v_children:
-        if v_node.type == NodeType.PARA:
-            variant_str += "∧"
-        elif v_node.type == NodeType.SEQ:
-            variant_str += "→"
-        else:
-            variant_str += v_node.label
+        variant_str = ""
+        for v_node in v_children:
+            if v_node.label not in label_to_char:
+                label_to_char[v_node.label] = chr(label_index)
+                label_index += 1
+            variant_str += label_to_char[v_node.label]
 
-    ac = ahocorasick.Automaton()
+        ac = ahocorasick.Automaton()
 
-    for idx, subpattern in enumerate(subpattern_order):
-        ac.add_word(subpattern, (idx, subpattern))
+        for idx, subpattern in enumerate(subpattern_order):
+            ac.add_word(subpattern, (idx, subpattern))
 
-    ac.make_automaton()
+        ac.make_automaton()
 
-    partial_graph = nx.DiGraph()
-    subpattern_order_abbr = [subpattern_reverse_dic[x] for x in subpattern_order]
+        partial_graph = nx.DiGraph()
+        subpattern_order_abbr = [subpattern_reverse_dic[x] for x in subpattern_order]
 
-    for end_index, (idx, original_value) in ac.iter(variant_str):
-        start_index = end_index - len(original_value) + 1
-        new_node = subpattern_reverse_dic[original_value] # abbr, but should be id here i think
-        partial_graph.add_node(new_node, orders=[], start_index=start_index, end_index=end_index)
-        if new_node == subpattern_order_abbr[0]:
-            partial_graph.nodes[new_node]["orders"].append([0, ""])
+        for end_index, (idx, original_value) in ac.iter(variant_str):
+            start_index = end_index - len(original_value) + 1
+            new_node = subpattern_reverse_dic[original_value] # abbr, but should be id here i think
+            partial_graph.add_node(new_node, orders=[], start_index=start_index, end_index=end_index)
+            if new_node == subpattern_order_abbr[0]:
+                partial_graph.nodes[new_node]["orders"].append([0, ""])
+            for node in partial_graph:
+                if node["end_index"] < start_index: # should not be equal here
+                    partial_graph.add_edge(node, new_node)
+                    #order[index, node]
+                    for order in node["orders"]:
+                        if subpattern_order_abbr[order[0] + 1] == new_node:
+                            partial_graph.nodes[new_node]["orders"].append([order[0] + 1, node])
+        # After getting partial graph
         for node in partial_graph:
-            if node["end_index"] < start_index: # should not be equal here
-                partial_graph.add_edge(node, new_node)
-                #order[index, node]
-                for order in node["orders"]:
-                    if subpattern_order_abbr[order[0] + 1] == new_node:
-                        partial_graph.nodes[new_node]["orders"].append([order[0] + 1, node])
-    # After getting partial graph
-    for node in partial_graph:
-        for order in node["orders"]:
-            if len(subpattern_order_abbr) == order[0] + 1:
-                success = 1
+            for order in node["orders"]:
+                if len(subpattern_order_abbr) == order[0] + 1:
+                    success = 1
 
 
 # match p and v nodes in step 1
 def single_node_match(p_node, v_node, group_id_list):
+    # For variant, only NORMAL, SEQ, PARA
     if p_node.type == NodeType.WILDCARD:
         return True
     elif p_node.type == NodeType.GROUP:
@@ -832,14 +880,14 @@ def single_node_match(p_node, v_node, group_id_list):
         if v_node.type != NodeType.PARA:
             return False
         else:
-            return match_para(p_node.children, v_node.children, group_id_list)
+            return match_para(p_node, v_node, group_id_list)
     elif p_node.type == NodeType.SEQ:
         if v_node.type != NodeType.SEQ:
             return False
         else:
-            return match_seq(p_node.children, v_node.children, group_id_list)
+            return match_seq(p_node, v_node, group_id_list)
     else:
-        # Case: normal or cardinality
+        # Case: NORMAL
         if v_node.type == NodeType.NORMAL and v_node.label == p_node.label:
             return True
         else:
@@ -874,9 +922,13 @@ def expand_tree(tree):
     return queue
 
 def dynamic_tree_matching(p_tree, v_tree):
-    p_queue = expand_tree(p_tree)
-    v_queue = expand_tree(v_tree)
-    for p_node in reversed(p_queue):
-        for v_node in reversed(v_queue):
+    p_queue = reversed(expand_tree(p_tree))
+    v_queue = reversed(expand_tree(v_tree))
+    for p_node in p_queue:
+        for v_node in v_queue:
             if single_node_match(p_node, v_node):
                 p_node.match_id.append(v_node.id)
+        if p_node.determined and len(p_node.match_id) == 0:
+            # No match result for a determined node in pattern
+            return False
+    return len(p_queue[-1].match_id) > 0 # Really???
