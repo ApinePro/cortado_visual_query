@@ -804,7 +804,7 @@ def match_seq(p, v, group_id_list):
         subpattern_set = set()
         subpattern_dic = {} # abbr to subpattern
         subpattern_reverse_dic = {} # subpattern to abbr
-        subpattern_order = []
+        subpattern_order = [] # A list about the order of subpatterns in pattern.
         subpattern_tmp = ""
         pattern_segments = []
         is_determined = True
@@ -859,43 +859,55 @@ def match_seq(p, v, group_id_list):
 
         ac = ahocorasick.Automaton()
 
+        #TODO 处理什么都没找到的情况
         for idx, subpattern in enumerate(subpattern_order):
             ac.add_word(subpattern, (idx, subpattern))
 
         ac.make_automaton()
 
         partial_graph = nx.DiGraph()
-        subpattern_order_abbr = [subpattern_reverse_dic[x] for x in subpattern_order]
+        subpattern_order_abbr = [subpattern_reverse_dic[x] for x in subpattern_order] # A list shows the order of subpatterns in pattern, but in abbr form
 
+        new_node_id = str(0)
+
+        # Handle discovered pattern as partial order graph vertices
         for end_index, (idx, original_value) in ac.iter(variant_str):
             # the subpattern include the char at end_index
             start_index = end_index - len(original_value) + 1
-            new_node = subpattern_reverse_dic[original_value]
-            partial_graph.add_node(new_node, orders=[], start_index=start_index, end_index=end_index)
-            if new_node == subpattern_order_abbr[0]:
+            #there might be several same subpattern in a pattern, so new_node here should be an id
+            partial_graph.add_node(new_node_id, pattern=subpattern_reverse_dic[original_value], orders=[], start_index=start_index, end_index=end_index)
+            if partial_graph[new_node_id]["pattern"] == subpattern_order_abbr[0]:
                 # Initialize a new string if applies
-                partial_graph.nodes[new_node]["orders"].append([0, ""])
+                partial_graph.nodes[new_node_id]["orders"].append([0, ""]) #[current position, last node id]
             for node in partial_graph:
                 # Connect old nodes with the new node 
                 if node["end_index"] < start_index: # should not be equal here
-                    partial_graph.add_edge(node, new_node)
+                    partial_graph.add_edge(node, new_node_id)
                     # Order: [index, node]
                     for order in node["orders"]:
-                        if subpattern_order_abbr[order[0] + 1] == new_node:
-                            partial_graph.nodes[new_node]["orders"].append([order[0] + 1, node])
+                        if subpattern_order_abbr[order[0] + 1] == partial_graph.nodes[new_node_id]["pattern"]:
+                            partial_graph.nodes[new_node_id]["orders"].append([order[0] + 1, node])
+            new_node_id = str(int(new_node_id) + 1)
 
         # After getting partial graph
-        # 这里还需要改进一下
         for node in partial_graph:
             for order in node["orders"]:
-                if len(subpattern_order_abbr) == order[0] + 1 and match_rest(order, pattern_segments, subpattern_order, group_id_list):
-                    return True
-                
+                if len(subpattern_order_abbr) == order[0] + 1:
+                    current_node = node
+                    subpattern_index_list = [[current_node["start_index"], current_node["end_index"]]]
+                    while order[1] != "":
+                        current_node = order[1]
+                        subpattern_index_list = [[current_node["start_index"], current_node["end_index"]]] + subpattern_index_list
+                    variant_segments = [v_children[:subpattern_index_list[0][0]]]
+                    segment_end_index = subpattern_index_list[0][1]
+                    for segment_index in subpattern_index_list:
+                        variant_segments.append(v_children[segment_end_index + 1:segment_index[0]])
+                        segment_end_index = segment_index[1]
+                    non_determined_pattern_seg = [s[0] for s in pattern_segments if s[1]==True]
+                    match_rest(non_determined_pattern_seg, variant_segments, subpattern_order, group_id_list)
         return False
     
-def match_rest(order, pattern_segments, subpattern_order, group_id_list):
-    for one_order in order:
-        pass
+def match_rest(pattern_segments, variant_segments, subpattern_order, group_id_list):
     return 1
 
 # match p and v nodes in step 1
