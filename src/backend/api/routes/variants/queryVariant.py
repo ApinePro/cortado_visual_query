@@ -65,17 +65,32 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
     query["follows"].append({"leaf": ["pay"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
     query["follows"].append({"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
 
-    '''
-    for x in range(7):
-        test_variants.append(generate_query(activities, ""))
     
+    for x in range(1000):
+        if x % 20 == 0:
+            print(x + 1)
+        #test_variants.append(generate_query(activities, ""))
+        query = generate_query(activities, "", 1)
+        if x == 0:
+            result_stat = calculate_query_stat(query)
+        else:
+            stat = calculate_query_stat(query)
+            for key in result_stat.keys():
+                result_stat[key] += stat[key]
 
+    for key in result_stat.keys():
+        result_stat[key] /= 1000
+
+    print(result_stat)
+    
+    '''
     group_id_list = []
     for variant in test_variants:
         print(variant)
         print("")
         trees.append(variant_to_tree(variant, group_id_list))
-    '''
+    
+
     m_l = []
     group_id_list = []
     count = 0
@@ -89,8 +104,12 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
                 print("Matched: ", count)
                 m_l.append(count)
                 variant_list.append(count-1)
+    
     print(m_l)
-    return {"ids": variant_list}
+    '''
+    
+    return 0
+    #return {"ids": variant_list}
 
 def calculate_v_stat(variant):
     if "leaf" in variant:
@@ -522,15 +541,24 @@ def generate_tree(activities):
 # The query cannot generate group?
 activities = ["...", "?"] + [str(x) for x in range(10)]
 
-def generate_query(activities, parent_type):
+def generate_query(activities, parent_type, depth):
+    THRES_LEAF = 0.2
+    THRES_CARDI = 0.2
+    MAX_SEQ_GROUP = 10
+    MAX_PARA_GROUP = 3
+    MAX_GROUP_CARDI = 3
+    
+    THRES_LEAF *= 0.5 ** (depth - 1)
+    depth += 1
+
     cardi_ops = ["=", ">", "<"]
     if_leaf = random.random()
-    if if_leaf > 0.3:
+    if if_leaf > THRES_LEAF and depth - 1 != 1:
         # return leaf, 70% probability
         leaf = {"leaf": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
         leaf["leaf"].append(random.choice(activities))
         if leaf["leaf"][0] != "...":
-            if random.random() < 0.2:
+            if random.random() < THRES_CARDI:
                 # Cardinality 1-5
                 if  random.random() > 0.5:
                     leaf["horizontalCardi"] = random.choices(list(range(1, 6)), weights=list(reversed(range(1, 6))), k=1)[0]
@@ -551,17 +579,17 @@ def generate_query(activities, parent_type):
 
         return leaf
     else:
-        #Non-leafnode, including 15% seq and 15% parallel group 
+        #Non-leafnode, including half seq and half parallel group 
         if_seq = random.random()
-        if if_seq <= 0.5 or parent_type == "para":
+        if if_seq <= 0.5 or parent_type == "para" or depth - 1 == 1:
             seq = {"follows": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
-            child_num = random.choices(list(range(2, 5)), weights=list(reversed(range(2, 5))), k=1)[0]
+            child_num = random.choices(list(range(2, MAX_SEQ_GROUP + 1)), weights=list(reversed(range(2, MAX_SEQ_GROUP + 1))), k=1)[0]
             for i in range(child_num):
-                seq["follows"].append(generate_query(activities, "seq"))
+                seq["follows"].append(generate_query(activities, "seq", depth))
             op_rand = random.random() # choose if it is not "="
             if op_rand < 0.2:
                 # No vertical cardi for seq, max 3 cardinality
-                seq["horizontalCardi"] = random.choices(list(range(1, 4)), weights=list(reversed(range(1, 4))), k=1)[0]
+                seq["horizontalCardi"] = random.choices(list(range(1, MAX_GROUP_CARDI + 1)), weights=list(reversed(range(1, 4))), k=1)[0]
                 op_type_rand = random.random()
                 if op_type_rand < 1/3:
                     seq["horizontalCardiOp"] = "<"
@@ -571,22 +599,22 @@ def generate_query(activities, parent_type):
             return seq
         else:
             para = {"parallel": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
-            child_num = random.choices(list(range(2, 5)), weights=list(reversed(range(2, 5))), k=1)[0]
+            child_num = random.choices(list(range(2, MAX_PARA_GROUP + 1)), weights=list(reversed(range(2, MAX_PARA_GROUP + 1))), k=1)[0]
             #print(child_num = random.choices(list(range(2, 5)), weights=list(reversed(range(2, 5))), k=1))
             seq_exist = 0
             for i in range(child_num):
-                child = generate_query(activities, "para")
+                child = generate_query(activities, "para", depth)
                 # Ensure only one sequence child
                 while seq_exist == 1 and "follows" in child:
                     # If double seq, generate again
-                    child = generate_query(activities, "para")
+                    child = generate_query(activities, "para", depth)
                 if "follows" in child:
                     seq_exist = 1
                 para["parallel"].append(child)
             op_rand = random.random() # choose if it is not "="
             if op_rand < 0.2:
                 # Currently no vertical cardi for para
-                para["horizontalCardi"] = random.choices(list(range(1, 4)), weights=list(reversed(range(1, 4))), k=1)[0] #注意一下这个 等于号等于1的时候是？
+                para["horizontalCardi"] = random.choices(list(range(1, MAX_GROUP_CARDI)), weights=list(reversed(range(1, MAX_GROUP_CARDI))), k=1)[0] #注意一下这个 等于号等于1的时候是？
                 op_type_rand = random.random()
                 if op_type_rand < 1/3:
                     para["horizontalCardiOp"] = "<"
@@ -1097,3 +1125,71 @@ def tree_to_variant(tree):
             variant.pop("leaf", None)
             variant["parallel"] = [tree_to_variant(child) for child in tree.children]
         return variant
+
+# query["follows"].append({"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
+def calculate_query_stat(query):
+    stat = {"depth": 0,
+    "max_length": 0,
+    "cardi_more_num": 0,
+    "cardi_less_num": 0,
+    "cardi_equal_num": 0,
+    "non_cardi_num": 0,
+    "horizontal_cardi_num": 0,
+    "vertical_cardi_num": 0,
+    "leaf_num": 0,
+    "para_num": 0,
+    "seq_num": 0,
+    "avg_seq_len": 0,
+    "avg_para_len": 0}
+
+    if "leaf" in query:
+        stat["depth"] = 1
+        stat["max_length"] = 1
+        stat["leaf_num"] += 1
+    elif "follows" in query:
+        stat["max_length"] = max([len(query["follows"]), max([calculate_query_stat(c)["max_length"] for c in query["follows"]])])
+        stat["depth"] = max([calculate_query_stat(c)["depth"] for c in query["follows"]]) + 1
+        stat["cardi_more_num"] = sum([calculate_query_stat(c)["cardi_more_num"] for c in query["follows"]])
+        stat["cardi_less_num"] = sum([calculate_query_stat(c)["cardi_less_num"] for c in query["follows"]])
+        stat["cardi_equal_num"] = sum([calculate_query_stat(c)["cardi_equal_num"] for c in query["follows"]])
+        stat["non_cardi_num"] = sum([calculate_query_stat(c)["non_cardi_num"] for c in query["follows"]])
+        stat["horizontal_cardi_num"] = sum([calculate_query_stat(c)["horizontal_cardi_num"] for c in query["follows"]])
+        stat["vertical_cardi_num"] = sum([calculate_query_stat(c)["vertical_cardi_num"] for c in query["follows"]])
+        stat["para_num"] = sum([calculate_query_stat(c)["para_num"] for c in query["follows"]])
+        stat["seq_num"] = sum([calculate_query_stat(c)["seq_num"] for c in query["follows"]]) + 1
+    elif "parallel" in query:
+        stat["max_length"] = max([len(query["parallel"]), max([calculate_query_stat(c)["max_length"] for c in query["parallel"]])])
+        stat["depth"] = max([calculate_query_stat(c)["depth"] for c in query["parallel"]]) + 1
+        stat["cardi_more_num"] = sum([calculate_query_stat(c)["cardi_more_num"] for c in query["parallel"]])
+        stat["cardi_less_num"] = sum([calculate_query_stat(c)["cardi_less_num"] for c in query["parallel"]])
+        stat["cardi_equal_num"] = sum([calculate_query_stat(c)["cardi_equal_num"] for c in query["parallel"]])
+        stat["non_cardi_num"] = sum([calculate_query_stat(c)["non_cardi_num"] for c in query["parallel"]])
+        stat["horizontal_cardi_num"] = sum([calculate_query_stat(c)["horizontal_cardi_num"] for c in query["parallel"]])
+        stat["vertical_cardi_num"] = sum([calculate_query_stat(c)["vertical_cardi_num"] for c in query["parallel"]])
+        stat["para_num"] = sum([calculate_query_stat(c)["para_num"] for c in query["parallel"]]) + 1
+        stat["seq_num"] = sum([calculate_query_stat(c)["seq_num"] for c in query["parallel"]])
+
+
+    # Handle cardinality in this node    
+    if query["horizontalCardiOp"] == ">" or query["horizontalCardiOp"] == "<" or query["horizontalCardi"] > 0:
+        stat["horizontal_cardi_num"] += 1
+        if query["horizontalCardiOp"] == ">":
+            stat["cardi_more_num"] += 1
+        elif query["horizontalCardiOp"] == "<":
+            stat["cardi_less_num"] += 1
+        elif query["horizontalCardiOp"] == "=":
+            stat["cardi_equal_num"] += 1
+    elif query["verticalCardiOp"] == ">" or query["verticalCardiOp"] == "<" or query["verticalCardi"] > 0:
+        stat["vertical_cardi_num"] += 1
+        if query["verticalCardiOp"] == ">":
+            stat["cardi_more_num"] += 1
+        elif query["verticalCardiOp"] == "<":
+            stat["cardi_less_num"] += 1
+        elif query["verticalCardiOp"] == "=":
+            stat["cardi_equal_num"] += 1
+    else:
+        stat["non_cardi_num"] += 1
+
+    return stat
+
+
