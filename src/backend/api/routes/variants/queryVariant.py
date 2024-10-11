@@ -534,12 +534,41 @@ def add_start_end_wildcard(pattern):
 
 ### Generate testing code ###
 
-def generate_tree(activities):
-    pass
-
+"""query_tree["pattern"] = graphical_query["pattern"]
+    query_tree["operator"] = graphical_query["operator"]
+    query_tree["negation"] = graphical_query["negation"]
+    query_tree["children"]"""
 
 # The query cannot generate group?
 activities = ["...", "?"] + [str(x) for x in range(10)]
+
+def generate_query_tree_node(activities, depth):
+    THRES_NEGATE = 0.3
+    THRES_LEAF = 0.3
+    MAX_CHILD_NUM = 4
+
+    THRES_LEAF *= 0.5 ** (depth - 1)
+    depth += 1
+    node = {}
+    if_leaf = random.random()
+    if if_leaf > THRES_LEAF:
+        node["pattern"] = generate_query(activities, "", 1)
+        node["operator"] == "v"
+    else:
+        if random.random() > 0.5:
+            node["operator"] == "and"
+        else:
+            node["operator"] == "or"
+        node["children"] = []
+        child_num = random.choices(list(range(2, MAX_CHILD_NUM + 1)), weights=list(reversed(range(2, MAX_CHILD_NUM+ 1))), k=1)[0]
+        for i in range(child_num):
+            node["children"].append(generate_query_tree_node(activities, depth))
+    if random.random() < THRES_NEGATE:
+        node["negation"] = True
+    else:
+        node["negation"] = False
+    return node
+        
 
 def generate_query(activities, parent_type, depth):
     THRES_LEAF = 0.2
@@ -560,7 +589,7 @@ def generate_query(activities, parent_type, depth):
         if leaf["leaf"][0] != "...":
             if random.random() < THRES_CARDI:
                 # Cardinality 1-5
-                if  random.random() > 0.5:
+                if random.random() > 0.5:
                     leaf["horizontalCardi"] = random.choices(list(range(1, 6)), weights=list(reversed(range(1, 6))), k=1)[0]
                     op_type_rand = random.random()
                     if op_type_rand < 1/3:
