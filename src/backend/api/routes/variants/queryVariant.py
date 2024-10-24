@@ -9,6 +9,8 @@ import random
 from enum import Enum
 from collections import deque
 import networkx as nx
+import time
+import ahocorasick
 
 from cortado_core.models.infix_type import InfixType
 from endpoints.load_event_log import (
@@ -29,7 +31,7 @@ class graphicalVariantQuery(BaseModel):
     queryTree: Any = None
     activityGroups: Any = None
 
-
+# The real variant query function
 @router.post("/variant-query")
 def variant_query(query: variantQuery):
     res = evaluate_query_against_variant_graphs(
@@ -42,55 +44,21 @@ def variant_query(query: variantQuery):
     '''
     return res
 
-
-group_dic = {}
-
 def generate_variant_info(infix_type, traces):
     user_defined = len(traces) == 0
 
     return VariantInformation(infix_type=infix_type, is_user_defined=user_defined)
 
-@router.post("/generate-query-test")
-def generate_query_test(graphical_query: graphicalVariantQuery):
-    print("Test start")
-    test_variants = []
-    trees = []
-    activities = ["cancel order", "confirm payment", "make delivery", "pay",
-                  "place order", "prepare delivery", "send invoice", "send reminder"]
-    
-    query = {"follows": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
-    query["follows"].append({"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
-    query["follows"].append({"leaf": ["send invoice"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
-    query["follows"].append({"leaf": ["send reminder"], "horizontalCardi": 2, "horizontalCardiOp": '>', "verticalCardi": 0, "verticalCardiOp": '='})
-    query["follows"].append({"leaf": ["pay"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
-    query["follows"].append({"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
 
-    
-    for x in range(1000):
-        if x % 20 == 0:
-            print(x + 1)
-        #test_variants.append(generate_query(activities, ""))
-        query = generate_query(activities, "", 1)
-        if x == 0:
-            result_stat = calculate_query_stat(query)
-        else:
-            stat = calculate_query_stat(query)
-            for key in result_stat.keys():
-                result_stat[key] += stat[key]
-
-    for key in result_stat.keys():
-        result_stat[key] /= 1000
-
-    print(result_stat)
-    
-    '''
+def query_variants(query, variants):
     group_id_list = []
-    for variant in test_variants:
-        print(variant)
-        print("")
+    trees = []
+
+    for variant in variants:
+        #print(variant)
+        #print("")
         trees.append(variant_to_tree(variant, group_id_list))
     
-
     m_l = []
     group_id_list = []
     count = 0
@@ -101,12 +69,99 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
             #print("ID:", count,"\n")
             match_result = dynamic_tree_matching(variant_to_tree(query, group_id_list)[0], variant_to_tree(variant.serialize(), group_id_list)[0], group_id_list)
             if match_result:
-                print("Matched: ", count)
+                #print("Matched: ", count)
                 m_l.append(count)
                 variant_list.append(count-1)
+        if len(m_l) > 0 and len(m_l) < 14:
+            print("Matched: ", m_l)
+    return 0
+
+@router.post("/generate-query-test")
+def generate_query_test(graphical_query: graphicalVariantQuery):
+    print("Test start")
     
-    print(m_l)
+    activities = ["cancel order", "confirm payment", "make delivery", "pay",
+                  "place order", "prepare delivery", "send invoice", "send reminder"]
+    
+    query = {"follows": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+    query["follows"].append({"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
+    query["follows"].append({"leaf": ["send invoice"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
+    query["follows"].append({"leaf": ["send reminder"], "horizontalCardi": 2, "horizontalCardiOp": '>', "verticalCardi": 0, "verticalCardiOp": '='})
+    query["follows"].append({"leaf": ["pay"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
+    query["follows"].append({"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
+
+    execution_time = []
+    TOTAL_TEST_NUM = 1000
+    test_num = 0
+    
+    while test_num < TOTAL_TEST_NUM:
+        #test_variants.append(generate_query(activities, ""))
+        query = generate_query_tree_node(activities, 1)
+        '''
+        if test_num == 0:
+            result_stat = calculate_query_stat(query)
+        else:
+            stat = calculate_query_stat(query)
+            for key in result_stat.keys():
+                result_stat[key] += stat[key]
+        '''
+        
+        m_l = []
+        leaf_num_list = []
+        group_id_list = []
+        count = 0
+        variant_list = []
+        start_time = time.time()
+        num_variants = len(cache.variants.items())
+        for bid, (variant, _, _, info) in cache.variants.items():
+            count += 1
+            if count >= 1 and count <= 14:
+                #print("ID:", count,"\n")
+                match_result = check_node(query, variant, group_id_list)
+                if match_result:
+                    #print("Matched: ", count)
+                    m_l.append(count)
+                    variant_list.append(count-1)
+        end_time = time.time()
+        if len(variant_list) != 0 and len(variant_list) != num_variants:
+            execution_time.append((end_time - start_time) / num_variants) # average execution time for variant in the dataset
+            leaf_num_list.append(calculate_leaf_num(query))
+            if test_num % 50 == 0:
+                print("Test num: ", test_num  + 1)
+            test_num += 1
+    
+    a = [0, 0, 0, 0]
+    c = [0, 0, 0, 0]
+
+    for t, n in zip(execution_time, leaf_num_list):
+        if n <= 5:
+            a[0] += t
+            c[0] += 1
+        elif n <= 15:
+            a[1] += t
+            c[1] += 1
+        elif n <= 30:
+            a[2] += t
+            c[2] += 1
+        else:
+            a[3] += t
+            c[3] += 1
+
+    print("Average execution result for each group: ")
+    for i in range(4):
+        if c[i] == 0:
+            print("0" + " ")
+        else:
+            print(str(a[i]/c[i]) + " ")
+
     '''
+    for key in result_stat.keys():
+        result_stat[key] /= TOTAL_TEST_NUM
+
+    print(result_stat)
+    print("Average execution time: ", execution_time / TOTAL_TEST_NUM)
+    '''
+    print(execution_time)
     
     return 0
     #return {"ids": variant_list}
@@ -114,12 +169,35 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
 def calculate_v_stat(variant):
     if "leaf" in variant:
         pass
-    return 1
+
+def generate_categories(activities):
+    MAX_CATEGORY = 3
+    TOTAL_LEVEL = 3
+    group_dic = {}
+    for i in range(MAX_CATEGORY):
+        cate_label = "cate" + str(i)
+        group_dic[cate_label] = generate_one_category(activities, cate_label)
+    return 0
+
+def generate_one_category(activities, root_label):
+    # 可以一开始生成一系列cate（就最多三个吧...有20%的概率生成一个），然后每个最多三层，可以重复使用
+    MAX_CATEGORY = 3
+    TOTAL_LEVEL = 3
+    DEEPER_THRESHOLD = 0.2
+    group_dic = {}
+    for i in range(MAX_CATEGORY):
+        if random.random() < DEEPER_THRESHOLD:
+            cate_label = "cate" + str(i)
+            if len(cate_label - 1) < TOTAL_LEVEL:
+                generate_one_category()
+        i += 1
+
+    return 0
 
 @router.post("/graphical-variant-query")
 def graphical_variant_query(graphical_query: graphicalVariantQuery):
     res = []
-    print(graphical_query)
+    #print(graphical_query)
     
     #print(cache.variants.items())
     query = deserialize_query(graphical_query)
@@ -135,11 +213,10 @@ def graphical_variant_query(graphical_query: graphicalVariantQuery):
     for bid, (variant, _, _, info) in cache.variants.items():
         #if check_node(query, variant):
         #    res.append(bid + 1)
-        #print("")
         count += 1
         if count >= 1 and count <= 31:
             print("ID:", count,"\n")
-            if check_node(query, variant):
+            if check_node(query, variant, []):
                 variant_list.append(count - 1)
             print("########################################################################################################")
     print("Variant list:")
@@ -210,23 +287,22 @@ def deserialize_query(graphical_query):
     query_tree["children"] = [c for c in graphical_query["children"]]
     return query_tree
 
-def check_node(node, variant):
-    print(node["operator"])
+def check_node(node, variant, group_id_list):
     if node["operator"] == 'and':
         result = True
         for child in node["children"]: 
-            result = result & check_node(child, variant)
+            result = result & check_node(child, variant, group_id_list)
     if node["operator"] == 'or':
         result = False
         for child in node["children"]: 
-            result = result | check_node(child, variant)
+            result = result | check_node(child, variant, group_id_list)
     # Ware: v or X?
     if node["operator"] == 'v':
         #print("Original Variant:")
         #print(variant)
         pattern = add_start_end_wildcard(node["pattern"])
-        print(pattern)
-        result = pattern_match_variant(pattern, variant.serialize())
+        #print(pattern)
+        result = dynamic_tree_matching(variant_to_tree(pattern, group_id_list)[0], variant_to_tree(variant.serialize(), group_id_list)[0], group_id_list)
     if node["negation"] == True:
         return not result
     else:
@@ -235,10 +311,12 @@ def check_node(node, variant):
 ############################################################
 
 def pattern_match_variant(pattern, variant):
+    '''
     print("Pattern is:")
     print(pattern, '\n')
     print("Variant is:")
     print(variant, '\n')
+    '''
 
     if len(pattern) == 0 and len(variant) == 0: # check for []
         return True
@@ -260,28 +338,32 @@ def pattern_match_variant(pattern, variant):
 
     p_head = find_head(pattern) #seq with cardi, leaf, para
     v_head = find_head(variant)
+    '''
     print("p_head is:")
     print(p_head, '\n')
     print("v_head is:")
     print(v_head, '\n')
+    '''
     p_body = cut_head(pattern)
     v_body = cut_head(variant)
+    '''
     print("p_body is:")
     print(p_body, '\n')
     print("v_body is:")
     print(v_body, '\n')
+    '''
 
     if "leaf" in p_head and p_head["leaf"][0] == '...':
         any_head = {"leaf": ["??"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='} #?? for any group. ? is for any activity
         pattern_with_any = add_head(pattern, any_head)
-        print("##########################################################################\n")
+        #print("##########################################################################\n")
         return pattern_match_variant(p_body, variant) or pattern_match_variant(pattern_with_any, variant)
     elif check_have_cardi(p_head) and p_head["horizontalCardi"] > 0: # resolve horizontal
         pattern = add_head_cardinality(pattern, -1)
         p_head = find_head(pattern)
         #print("PHEAD AFTER REDUCE")
         #print(p_head)
-        print("##########################################################################\n")
+        #print("##########################################################################\n")
         if p_head["horizontalCardiOp"] == '<':
             if p_head["horizontalCardi"] == 0:
                 pattern = replace_head(pattern, p_head) # Remove the cardinality characteristics of the head
@@ -312,12 +394,12 @@ def pattern_match_variant(pattern, variant):
             p_head["verticalCardi"] = 0
         if "leaf" in p_head:
             p_head = {"parallel": [{"leaf": p_head["leaf"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": p_head["verticalCardi"], "verticalCardiOp": '='}], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
-            print("ppp")
-            print(p_head)
+            #print("ppp")
+            #print(p_head)
 
     else:
         # p_head: para, leaf (may have vertical...)
-        print("HEAD IS PARA OR LEAF")
+        #print("HEAD IS PARA OR LEAF")
         return match_head(p_head, v_head) and pattern_match_variant(p_body, v_body)
 
 def add_head_cardinality(pattern, num):
@@ -434,10 +516,12 @@ def compare_para(p_head, v_head): # No cardinality now
         return pattern_match_variant(p_dic["sequence"], v_dic["sequence"]) and compare_parallel_dics(p_dic["leafs"], v_dic["leafs"])
 
 def compare_parallel_dics(p_dic, v_dic):
+    '''
     print("P_DIC")
     print(p_dic)
     print("V_DIC")
     print(v_dic)
+    '''
     for p_key in p_dic.keys():
         if p_dic[p_key][0] > p_dic[p_key][1]:
             return False
@@ -451,15 +535,17 @@ def compare_parallel_dics(p_dic, v_dic):
             elif v_dic[v_key] > p_dic[v_key][1]:
                 diff_count += (v_dic[v_key] - p_dic[v_key][1])
             del p_dic[v_key] #potential error?
+    '''
     print("After process")
     print("P_DIC")
     print(p_dic)
     print("V_DIC")
     print(v_dic)
     print(diff_count)
+    '''
 
     if len(p_dic) == 0 and diff_count == 0:
-        print("PARA TRUE")
+        #print("PARA TRUE")
         return True
     else:
         for p_key in p_dic.keys():
@@ -472,8 +558,9 @@ def compare_parallel_dics(p_dic, v_dic):
                     return False  
 
 def compare_leaf(p_head, v_head):
-    print("group_dic")
-    print(group_dic)
+    group_dic = {}
+    #print("group_dic")
+    #print(group_dic)
     if p_head["leaf"][0] == "?" or p_head["leaf"][0] == v_head["leaf"][0]:
         return True
     elif p_head["leaf"][0] in group_dic and v_head["leaf"][0] in group_dic[p_head["leaf"][0]]:
@@ -553,12 +640,12 @@ def generate_query_tree_node(activities, depth):
     if_leaf = random.random()
     if if_leaf > THRES_LEAF:
         node["pattern"] = generate_query(activities, "", 1)
-        node["operator"] == "v"
+        node["operator"] = "v"
     else:
         if random.random() > 0.5:
-            node["operator"] == "and"
+            node["operator"] = "and"
         else:
-            node["operator"] == "or"
+            node["operator"] = "or"
         node["children"] = []
         child_num = random.choices(list(range(2, MAX_CHILD_NUM + 1)), weights=list(reversed(range(2, MAX_CHILD_NUM+ 1))), k=1)[0]
         for i in range(child_num):
@@ -665,8 +752,6 @@ def test_patterns():
 ########################################################################################################
 ### New algorithm ###
 
-import ahocorasick
-
 class NodeType(Enum):
     NORMAL = 1
     GROUP = 2
@@ -697,6 +782,11 @@ class VariantTree:
         while chr(VariantTree.label_index) in VariantTree.preserved_char:
             VariantTree.label_index += 1
 
+    @staticmethod
+    def clear_dic():
+        VariantTree.label_index = 0
+        VariantTree.label_to_char = {}
+
 def variant_to_tree(variant, group_id_list):
     # Convert process variant to variant tree.
     # Including the expansion of vertical and parallel cardinality
@@ -709,11 +799,11 @@ def variant_to_tree(variant, group_id_list):
         for child in variant["follows"]:
             # Process wildcard simplification.
             # ... can simplify cardinality "<" and ">", and also "..." could be merged.
-            child_node = variant_to_tree(child, group_id_list) # Could be a list
+            child_node = variant_to_tree(child, group_id_list) # Could be a list ##这个什么时候会返回一个空值？
             if len(tree.children) > 0 and tree.children[-1].type == NodeType.WILDCARD:
                 # wildcard before node
                 i = 0
-                while child_node[i].cardiOp == "<" or child_node[i].type == NodeType.WILDCARD:
+                while i < len(child_node) and (child_node[i].cardiOp == "<" or child_node[i].type == NodeType.WILDCARD):
                     i += 1
                 child_node = child_node[i:]
                 if len(child_node) > 0 and child_node[0].cardiOp == ">" and child_node[0].cardiDirect == "horizontal":
@@ -722,17 +812,22 @@ def variant_to_tree(variant, group_id_list):
                     if child_node[0].cardinality == 1:
                         child_node[0].cardinality = 0
             
-            if child_node[0].type == NodeType.WILDCARD:
-                # first child is wildcard, simplify the last node.
-                if len(tree.children) > 0:
-                    while len(tree.children) > 0 and (tree.children[-1].type == NodeType.WILDCARD or tree.children[-1].cardiOp == "<"):
-                        tree.children.pop(-1) # Don't need to change tree.determined. Because the new node is wildcard
-                    if len(tree.children) > 0 and tree.children[-1].cardiOp == ">":
-                        tree.children[-1].cardiOp = "="
-                        tree.children[-1].determined = True
-                        if tree.children[-1].cardinality == 1:
-                            tree.children[-1].cardinality = 0
-            tree.children = tree.children + child_node
+        
+            if child_node is not None and len(child_node) > 0:
+                if child_node[0].type == NodeType.WILDCARD:
+                    # first child is wildcard, simplify the last node.
+                    if len(tree.children) > 0:
+                        while len(tree.children) > 0 and (tree.children[-1].type == NodeType.WILDCARD or tree.children[-1].cardiOp == "<"):
+                            tree.children.pop(-1) # Don't need to change tree.determined. Because the new node is wildcard
+                        if len(tree.children) > 0 and tree.children[-1].cardiOp == ">":
+                            tree.children[-1].cardiOp = "="
+                            tree.children[-1].determined = True
+                            if tree.children[-1].cardinality == 1:
+                                tree.children[-1].cardinality = 0
+                tree.children = tree.children + child_node
+            else:
+                #print("eeeerrorr")
+                l = 1
         for child in tree.children:
             tree.determined = tree.determined & child.determined
         if len(tree.children) == 1:
@@ -776,7 +871,11 @@ def variant_to_tree(variant, group_id_list):
             tree.determined = False
         else:
             tree.type = NodeType.NORMAL
-            tree.determined = True
+            if tree.cardiOp == "=" and tree.cardinality == 0:
+                tree.determined = True
+            else:
+                tree.determined = False
+
     if "horizontalCardiOp" in variant:
         # Keep "<" cardi, expand "=", simplify ">" cardinality
         # After simplification, "=" -> NORMAL (no cardinality) and we could use self.cardinality to know if there's cardinality
@@ -821,11 +920,15 @@ def variant_to_tree(variant, group_id_list):
         # We don't need to handle vertical
         elif variant["verticalCardi"] > 1 or variant["verticalCardiOp"] == ">" or variant["verticalCardiOp"] == "<":
             tree.type = NodeType.PARA # Could compare para and vertical. Only leaf node (Normal, G, Any) could have vertical cardinality!
-            tree.cardiDirect = "vertital"
+            tree.cardiDirect = "vertical"
             tree.cardiOp = variant["verticalCardiOp"]
-            tree.cardinality = variant["verticalCardiOp"]
-
+            tree.cardinality = variant["verticalCardi"]
+            tree.determined = False
+            return [tree]
+        
         else:
+            if (tree.label[0] == "→" or tree.label[0] == "∧") and tree.determined:
+                print("CHECK")
             return [tree]
     else:
         return [tree]
@@ -852,12 +955,19 @@ def serialize_determined_tree(tree):
             tree.label += "("
             for child in tree.children:
                 # child's label is already in label_to_char
-                tree.label += VariantTree.label_to_char[child.label]
+                if child.label in VariantTree.label_to_char:
+                    tree.label += VariantTree.label_to_char[child.label]
+                else:
+                    print(child.label) #
             tree.label += ")"
         else:
             #∧
             tree.label += "("
+            for child in tree.children:
+                if child.label not in VariantTree.label_to_char:
+                    print(child.label) #
             ordered_children = sorted([VariantTree.label_to_char[child.label] for child in tree.children])
+
             tree.label += ''.join(ordered_children)
             tree.label += ")"
 
@@ -971,7 +1081,8 @@ def match_seq(p, v, group_id_list):
                 subpattern_reverse_dic[subpattern_tmp] = chr(index)
         elif len(pattern_segments) == 1:
             # Deal with case: pattern has only 1 non-determined part.
-            return brutal_match(p_children, v_children, group_id_list)
+            #return brutal_match(p_children, v_children, group_id_list)
+            return brutal_match(p_children, v_children)
         
         # Following lines: at least find one determined segment in pattern
 
@@ -1015,12 +1126,12 @@ def match_seq(p, v, group_id_list):
                     partial_graph.add_edge(node, new_node_id)
                     # Order: [index, node]
                     for order in attributes["orders"]:
-                        if subpattern_order_abbr[order[0] + 1] == partial_graph.nodes[new_node_id]["pattern"]:
+                        if order[0] + 1 < len(subpattern_order_abbr) and (subpattern_order_abbr[order[0] + 1] == partial_graph.nodes[new_node_id]["pattern"]):
                             partial_graph.nodes[new_node_id]["orders"].append([order[0] + 1, node, order[2] + [new_node_id]])
             new_node_id = str(int(new_node_id) + 1)
             #new_node_id += 1
 
-        print("Start partial graph")
+        #print("Start partial graph")
 
         # After getting partial graph
         for node, attributes in partial_graph.nodes(data=True):
@@ -1119,6 +1230,7 @@ def dynamic_tree_matching(p_tree, v_tree, group_id_list):
         if p_node.determined and len(p_node.match_id) == 0:
             # No match result for a determined node in pattern
             return False
+    VariantTree.clear_dic()
     return len(p_queue[-1].match_id) > 0 # Really???
 
 '''
@@ -1154,6 +1266,15 @@ def tree_to_variant(tree):
             variant.pop("leaf", None)
             variant["parallel"] = [tree_to_variant(child) for child in tree.children]
         return variant
+
+def calculate_leaf_num(query):
+    if "leaf" in query:
+        return 1
+    elif "follows" in query:
+        return sum([calculate_leaf_num(c) for c in query["follows"]])
+    elif "parallel" in query:
+        return sum([calculate_leaf_num(c) for c in query["parallel"]])
+    return 0
 
 # query["follows"].append({"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
 def calculate_query_stat(query):
