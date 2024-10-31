@@ -12,6 +12,11 @@ import networkx as nx
 import time
 import ahocorasick
 
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+
 from cortado_core.models.infix_type import InfixType
 from endpoints.load_event_log import (
     create_variant_object,
@@ -80,9 +85,9 @@ def query_variants(query, variants):
 def generate_query_test(graphical_query: graphicalVariantQuery):
     print("Test start")
     
-    activities = ["cancel order", "confirm payment", "make delivery", "pay",
-                  "place order", "prepare delivery", "send invoice", "send reminder"]
-    
+    #activities = ["cancel order", "confirm payment", "make delivery", "pay",
+    #              "place order", "prepare delivery", "send invoice", "send reminder"]
+    activities = list(cache.parameters["activites"])
     query = {"follows": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
     query["follows"].append({"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
     query["follows"].append({"leaf": ["send invoice"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
@@ -91,6 +96,7 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
     query["follows"].append({"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
 
     execution_time = []
+    leaf_num_list = []
     TOTAL_TEST_NUM = 1000
     test_num = 0
     
@@ -107,52 +113,82 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
         '''
         
         m_l = []
-        leaf_num_list = []
+        
         group_id_list = []
         count = 0
         variant_list = []
         start_time = time.time()
         num_variants = len(cache.variants.items())
+        leaf_num_list_for_one_query = []
         for bid, (variant, _, _, info) in cache.variants.items():
-            count += 1
-            if count >= 1 and count <= 14:
-                #print("ID:", count,"\n")
-                match_result = check_node(query, variant, group_id_list)
-                if match_result:
-                    #print("Matched: ", count)
-                    m_l.append(count)
-                    variant_list.append(count-1)
+            #print("ID:", count,"\n")
+            match_result, leaf_count = check_node(query, variant, group_id_list)
+            leaf_num_list_for_one_query.append(leaf_count)
+            if match_result:
+                #print("Matched: ", count)
+                m_l.append(count)
+                variant_list.append(count-1)
         end_time = time.time()
+        leaf_median = np.median(leaf_num_list_for_one_query)
         if len(variant_list) != 0 and len(variant_list) != num_variants:
             execution_time.append((end_time - start_time) / num_variants) # average execution time for variant in the dataset
-            leaf_num_list.append(calculate_leaf_num(query))
+            leaf_num_list.append(leaf_median)
             if test_num % 50 == 0:
                 print("Test num: ", test_num  + 1)
             test_num += 1
     
-    a = [0, 0, 0, 0]
-    c = [0, 0, 0, 0]
+    query_count = [0, 0, 0, 0]
+    accumulated_time = [[], [], [], []]
+    thredhold_list = [5, 15, 30]
 
     for t, n in zip(execution_time, leaf_num_list):
-        if n <= 5:
-            a[0] += t
-            c[0] += 1
-        elif n <= 15:
-            a[1] += t
-            c[1] += 1
-        elif n <= 30:
-            a[2] += t
-            c[2] += 1
+        if n <= thredhold_list[0]:
+            accumulated_time[0].append(t)
+            query_count[0] += 1
+        elif n <= thredhold_list[1]:
+            accumulated_time[1].append(t)
+            query_count[1] += 1
+        elif n <= thredhold_list[2]:
+            accumulated_time[2].append(t)
+            query_count[2] += 1
         else:
-            a[3] += t
-            c[3] += 1
+            accumulated_time[3].append(t)
+            query_count[3] += 1
 
     print("Average execution result for each group: ")
+    real_query_count = []
+    real_times = []
+    labels = ["<=5", "<=15", "<=30", ">30"]
+    real_label = []
     for i in range(4):
-        if c[i] == 0:
+        if query_count[i] == 0:
             print("0" + " ")
         else:
-            print(str(a[i]/c[i]) + " ")
+            print(str(sum(accumulated_time[i])/query_count[i]) + " ")
+            real_query_count.append(query_count[i])
+            real_times.append(accumulated_time[i])
+            real_label.append(labels[i])
+
+    data = {
+        'Median Number of Leaves Evaluated': real_label,
+        'Runtime (seconds)': real_times
+    }
+
+    df = pd.DataFrame({
+        'Median Number of Leaves Evaluated': sum([[i]*len(rt) for i, rt in zip(data['Median Number of Leaves Evaluated'], data['Runtime (seconds)'])], []),
+        'Runtime (seconds)': sum(data['Runtime (seconds)'], [])
+    })
+    custom_palette = sns.color_palette("husl", len(df['Median Number of Leaves Evaluated'].unique()))
+    plt.figure(figsize=(8, 6))
+    sns.boxplot(x='Median Number of Leaves Evaluated', y='Runtime (seconds)', data=df, palette=custom_palette)
+
+
+    plt.title('Runtime vs. Median Number of Leaves Evaluated')
+    plt.xlabel('Median Number of Leaves Evaluated')
+    plt.ylabel('Runtime (seconds)')
+    plt.show()
+    plt.savefig("./result.png")
+    
 
     '''
     for key in result_stat.keys():
@@ -161,7 +197,7 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
     print(result_stat)
     print("Average execution time: ", execution_time / TOTAL_TEST_NUM)
     '''
-    print(execution_time)
+    #print(execution_time)
     
     return 0
     #return {"ids": variant_list}
@@ -288,14 +324,23 @@ def deserialize_query(graphical_query):
     return query_tree
 
 def check_node(node, variant, group_id_list):
+    count = 0
     if node["operator"] == 'and':
         result = True
-        for child in node["children"]: 
-            result = result & check_node(child, variant, group_id_list)
+        i = 0
+        while result and i < len(node["children"]):
+            child = node["children"][i]
+            child_result, child_count = check_node(child, variant, group_id_list)
+            count += child_count
+            result = result & child_result
+            i += 1
+
     if node["operator"] == 'or':
         result = False
         for child in node["children"]: 
-            result = result | check_node(child, variant, group_id_list)
+            child_result, child_count = check_node(child, variant, group_id_list)
+            count += child_count
+            result = result | child_result
     # Ware: v or X?
     if node["operator"] == 'v':
         #print("Original Variant:")
@@ -303,10 +348,11 @@ def check_node(node, variant, group_id_list):
         pattern = add_start_end_wildcard(node["pattern"])
         #print(pattern)
         result = dynamic_tree_matching(variant_to_tree(pattern, group_id_list)[0], variant_to_tree(variant.serialize(), group_id_list)[0], group_id_list)
+        count += calculate_leaf_num_pattern(pattern)
     if node["negation"] == True:
-        return not result
+        return (not result, count)
     else:
-        return result
+        return (result, count)
 
 ############################################################
 
@@ -775,6 +821,7 @@ class VariantTree:
         self.cardiOp = "="
         self.match_id = []
         self.determined = False
+        self.variant = 0
     
     @staticmethod
     def increase_label_index():
@@ -791,6 +838,7 @@ def variant_to_tree(variant, group_id_list):
     # Convert process variant to variant tree.
     # Including the expansion of vertical and parallel cardinality
     tree =  VariantTree(random.randint(1, 10000))
+    tree.variant = variant
 
     if "follows" in variant:
         tree.type = NodeType.SEQ
@@ -829,7 +877,7 @@ def variant_to_tree(variant, group_id_list):
                 #print("eeeerrorr")
                 l = 1
         for child in tree.children:
-            tree.determined = tree.determined & child.determined
+            tree.determined = (tree.determined & child.determined)
         if len(tree.children) == 1:
             tree = tree.children[0]
     elif "parallel" in variant:
@@ -853,7 +901,7 @@ def variant_to_tree(variant, group_id_list):
                     if child.cardinality == 1:
                         child.cardinality = 0
             merged_children.append(child)
-            tree.determined = tree.determined & child.determined
+            tree.determined = (tree.determined & child.determined)
         tree.children = merged_children
         if len(tree.children) == 1:
             tree = tree.children[0]
@@ -875,6 +923,13 @@ def variant_to_tree(variant, group_id_list):
                 tree.determined = True
             else:
                 tree.determined = False
+
+    if (tree.label[0] == "→" or tree.label[0] == "∧") and tree.determined:
+        tt = True
+        for child in tree.children:
+            tt = tt and child.determined
+        if not tt:
+            print("CHECK")
 
     if "horizontalCardiOp" in variant:
         # Keep "<" cardi, expand "=", simplify ">" cardinality
@@ -927,8 +982,6 @@ def variant_to_tree(variant, group_id_list):
             return [tree]
         
         else:
-            if (tree.label[0] == "→" or tree.label[0] == "∧") and tree.determined:
-                print("CHECK")
             return [tree]
     else:
         return [tree]
@@ -1165,6 +1218,16 @@ def match_rest(p_list, v_list): # Need group or not?
 # match p and v nodes in step 1
 def single_node_match(p_node, v_node, group_id_list):
     # For variant, only NORMAL, SEQ, PARA
+
+    #下面是临时举措！
+    for child in p_node.children:
+        if child.determined == False:
+            p_node.determined = False
+    for child in v_node.children:
+        if child.determined == False:
+            v_node.determined = False
+    #到此为止
+
     if p_node.determined:
         p_node = serialize_determined_tree(p_node)
     if v_node.determined:
@@ -1267,13 +1330,13 @@ def tree_to_variant(tree):
             variant["parallel"] = [tree_to_variant(child) for child in tree.children]
         return variant
 
-def calculate_leaf_num(query):
-    if "leaf" in query:
+def calculate_leaf_num_pattern(pattern):
+    if "leaf" in pattern:
         return 1
-    elif "follows" in query:
-        return sum([calculate_leaf_num(c) for c in query["follows"]])
-    elif "parallel" in query:
-        return sum([calculate_leaf_num(c) for c in query["parallel"]])
+    elif "follows" in pattern:
+        return sum([calculate_leaf_num_pattern(c) for c in pattern["follows"]])
+    elif "parallel" in pattern:
+        return sum([calculate_leaf_num_pattern(c) for c in pattern["parallel"]])
     return 0
 
 # query["follows"].append({"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
