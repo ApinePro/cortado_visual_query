@@ -99,7 +99,8 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
     leaf_num_list = []
     TOTAL_TEST_NUM = 1000
     test_num = 0
-    
+    print("Total variants", len(cache.variants.items()))
+
     while test_num < TOTAL_TEST_NUM:
         #test_variants.append(generate_query(activities, ""))
         query = generate_query_tree_node(activities, 1)
@@ -141,6 +142,27 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
     accumulated_time = [[], [], [], []]
     thredhold_list = [5, 15, 30]
 
+    time_df = pd.DataFrame({
+     'runtime': execution_time,
+     "number_of_leaves": leaf_num_list
+ })
+    
+    def leaf_num_cate(row):
+        n = row["number_of_leaves"]
+        thredhold_list = [5, 15, 30]
+        labels = ["<=5", "<=15", "<=30", ">30"]
+        if n <= thredhold_list[0]:
+            return labels[0]
+        elif n <= thredhold_list[1]:
+            return labels[1]
+        elif n <= thredhold_list[2]:
+            return labels[2]
+        else:
+            return labels[3]
+
+    time_df['leaves_evaluated'] = time_df.apply(leaf_num_cate, axis=1)
+
+
     for t, n in zip(execution_time, leaf_num_list):
         if n <= thredhold_list[0]:
             accumulated_time[0].append(t)
@@ -179,15 +201,39 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
         'Runtime (seconds)': sum(data['Runtime (seconds)'], [])
     })
     custom_palette = sns.color_palette("husl", len(df['Median Number of Leaves Evaluated'].unique()))
-    plt.figure(figsize=(8, 6))
-    sns.boxplot(x='Median Number of Leaves Evaluated', y='Runtime (seconds)', data=df, palette=custom_palette)
 
 
-    plt.title('Runtime vs. Median Number of Leaves Evaluated')
-    plt.xlabel('Median Number of Leaves Evaluated')
-    plt.ylabel('Runtime (seconds)')
-    plt.show()
-    plt.savefig("./result.png")
+    def get_bar_fig(df):
+        plt.figure(figsize=(8, 6))
+        sns.boxplot(x='Median Number of Leaves Evaluated', y='Runtime (seconds)', data=df, palette=custom_palette)
+
+
+        plt.title('Runtime vs. Median Number of Leaves Evaluated')
+        plt.xlabel('Median Number of Leaves Evaluated')
+        plt.ylabel('Runtime (seconds)')
+        plt.show()
+        plt.savefig("./bar_result.png")
+
+    def get_runtime_count_fig(time_df):
+        plt.figure(figsize=(10, 6))
+        sns.histplot(
+            data=time_df,
+            x='runtime',
+            hue='leaves_evaluated',
+            multiple='stack',  
+            bins=30,           
+            palette='magma',  
+            edgecolor='black'  
+        )
+        plt.title('Runtime Distribution by Median Number of Leaves Evaluated')
+        plt.xlabel('Runtime (seconds)')
+        plt.ylabel('Count')
+        plt.show()
+        plt.savefig("./runtime_count.png")
+
+    get_bar_fig(df)
+    get_runtime_count_fig(time_df)
+    
     
 
     '''
