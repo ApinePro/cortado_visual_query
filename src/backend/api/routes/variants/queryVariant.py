@@ -85,19 +85,20 @@ def query_variants(query, variants):
 def generate_query_test(graphical_query: graphicalVariantQuery):
     print("Test start")
     
-    #activities = ["cancel order", "confirm payment", "make delivery", "pay",
-    #              "place order", "prepare delivery", "send invoice", "send reminder"]
     activities = list(cache.parameters["activites"])
+    '''
     query = {"follows": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
     query["follows"].append({"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
     query["follows"].append({"leaf": ["send invoice"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
     query["follows"].append({"leaf": ["send reminder"], "horizontalCardi": 2, "horizontalCardiOp": '>', "verticalCardi": 0, "verticalCardiOp": '='})
     query["follows"].append({"leaf": ["pay"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
     query["follows"].append({"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
+    '''
 
     execution_time = []
     leaf_num_list = []
-    TOTAL_TEST_NUM = 1000
+    early_stop_list = []
+    TOTAL_TEST_NUM = 200
     test_num = 0
     print("Total variants", len(cache.variants.items()))
 
@@ -111,29 +112,29 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
             stat = calculate_query_stat(query)
             for key in result_stat.keys():
                 result_stat[key] += stat[key]
-        '''
-        
-        m_l = []
-        
+        '''        
         group_id_list = []
         count = 0
-        variant_list = []
+        filtered_variant_list = []
         start_time = time.time()
         num_variants = len(cache.variants.items())
-        leaf_num_list_for_one_query = []
+        leaf_num_list_one_query = []
+        if_early_stopping_one_query = []
         for bid, (variant, _, _, info) in cache.variants.items():
             #print("ID:", count,"\n")
-            match_result, leaf_count = check_node(query, variant, group_id_list)
-            leaf_num_list_for_one_query.append(leaf_count)
+            match_result, leaf_count, early_stopping = check_node(query, variant, group_id_list)
+            leaf_num_list_one_query.append(leaf_count)
+            if_early_stopping_one_query.append(early_stopping)
             if match_result:
                 #print("Matched: ", count)
-                m_l.append(count)
-                variant_list.append(count-1)
+                filtered_variant_list.append(count-1)
         end_time = time.time()
-        leaf_median = np.median(leaf_num_list_for_one_query)
-        if len(variant_list) != 0 and len(variant_list) != num_variants:
-            execution_time.append((end_time - start_time) / num_variants) # average execution time for variant in the dataset
-            leaf_num_list.append(leaf_median)
+        leaf_median = np.median(leaf_num_list_one_query)
+        query_early_stop = any(if_early_stopping_one_query) # If there is one variant with early stopping
+        if len(filtered_variant_list) != 0 and len(filtered_variant_list) != num_variants:
+            execution_time.append((end_time - start_time) / num_variants) # average execution time for querying all variants in the dataset
+            leaf_num_list.append(leaf_median) # median leaf number which is visited when querying all variants in the dataset
+            early_stop_list.append(query_early_stop) # If there is one early stopping for this query
             if test_num % 50 == 0:
                 print("Test num: ", test_num  + 1)
             test_num += 1
@@ -144,10 +145,11 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
 
     time_df = pd.DataFrame({
      'runtime': execution_time,
-     "number_of_leaves": leaf_num_list
+     "number_of_leaves": leaf_num_list,
+     "early_stop": early_stop_list
  })
     
-    def leaf_num_cate(row):
+    def categorize_leaf_num(row):
         n = row["number_of_leaves"]
         thredhold_list = [5, 15, 30]
         labels = ["<=5", "<=15", "<=30", ">30"]
@@ -160,7 +162,7 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
         else:
             return labels[3]
 
-    time_df['leaves_evaluated'] = time_df.apply(leaf_num_cate, axis=1)
+    time_df['leaves_evaluated'] = time_df.apply(categorize_leaf_num, axis=1)
 
 
     for t, n in zip(execution_time, leaf_num_list):
@@ -178,7 +180,7 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
             query_count[3] += 1
 
     print("Average execution result for each group: ")
-    real_query_count = []
+    real_query_count = [] # filter out one group if there is no content
     real_times = []
     labels = ["<=5", "<=15", "<=30", ">30"]
     real_label = []
@@ -231,8 +233,26 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
         plt.show()
         plt.savefig("./runtime_count.png")
 
+    def get_early_stop_runtime_count_fig(time_df):
+        plt.figure(figsize=(10, 6))
+        sns.histplot(
+            data=time_df,
+            x='runtime',
+            hue='early_stop',
+            multiple='stack',  
+            bins=30,           
+            palette='magma',  
+            edgecolor='black'  
+        )
+        plt.title('Runtime Distribution of early stopped and non-early stopped query')
+        plt.xlabel('Runtime (seconds)')
+        plt.ylabel('Count')
+        plt.show()
+        plt.savefig("./early_runtime_count.png")
+
     get_bar_fig(df)
     get_runtime_count_fig(time_df)
+    get_early_stop_runtime_count_fig(time_df)
     
     
 
@@ -371,20 +391,25 @@ def deserialize_query(graphical_query):
 
 def check_node(node, variant, group_id_list):
     count = 0
+    early_stopping = False
     if node["operator"] == 'and':
         result = True
         i = 0
         while result and i < len(node["children"]):
             child = node["children"][i]
-            child_result, child_count = check_node(child, variant, group_id_list)
+            child_result, child_count, child_early_stopping = check_node(child, variant, group_id_list)
             count += child_count
+            early_stopping = early_stopping | child_early_stopping
             result = result & child_result
             i += 1
+        if not result and i < len(node["children"]) - 1:
+            early_stopping = True
 
     if node["operator"] == 'or':
         result = False
         for child in node["children"]: 
-            child_result, child_count = check_node(child, variant, group_id_list)
+            child_result, child_count, child_early_stopping = check_node(child, variant, group_id_list)
+            early_stopping = early_stopping | child_early_stopping
             count += child_count
             result = result | child_result
     # Ware: v or X?
@@ -396,9 +421,9 @@ def check_node(node, variant, group_id_list):
         result = dynamic_tree_matching(variant_to_tree(pattern, group_id_list)[0], variant_to_tree(variant.serialize(), group_id_list)[0], group_id_list)
         count += calculate_leaf_num_pattern(pattern)
     if node["negation"] == True:
-        return (not result, count)
+        return (not result, count, early_stopping)
     else:
-        return (result, count)
+        return (result, count, early_stopping)
 
 ############################################################
 
@@ -881,8 +906,8 @@ class VariantTree:
         VariantTree.label_to_char = {}
 
 def variant_to_tree(variant, group_id_list):
-    # Convert process variant to variant tree.
-    # Including the expansion of vertical and parallel cardinality
+    # Convert process variant to pattern/variant tree.
+    # Including the expansion of vertical and parallel cardinality(Simplification 1)
     tree =  VariantTree(random.randint(1, 10000))
     tree.variant = variant
 
@@ -1076,14 +1101,16 @@ def serialize_determined_tree(tree):
         return tree
 
 def get_parent(p_list):
+    # Create a parent
     p_tree = VariantTree(random.randint(1, 10000))
     p_tree.children = p_list.copy()
     p_tree.cardiDirect = "horizontal"
     p_tree.type = NodeType.SEQ
     return p_tree
 
-def could_be_non(list):
-    for l in list:
+def could_be_non(node_list):
+    # Return if a list of nodes could be none theoretically
+    for l in node_list:
         if not(l.type==NodeType.WILDCARD or l.cardiOp == "<"):
             return False
     return True
@@ -1100,8 +1127,155 @@ def brutal_match(p_children, v_children):
     v = tree_to_variant(get_parent(v_children))
     return pattern_match_variant(p, v)
 
-def match_para(p_children, v_children, group_id_list):
-    return True
+def match_para(p, v, group_id_list):
+    '''
+    可以做一个是否含有determined seq的判断做提前退出 如果说潜在的成员类型OK的话再继续
+    直接分成determined和undetermined。然后做直接比较也就是找determined的内容是否在v里面有。有的话从v弹出。剩下的做暴力求解。不过好像暴力求解那里的para本身就有问题?
+    有一个non determined串联环节,这个环节看看有没有简化的办法。如果没有的话就直接暴力求解和seq一样
+    其实暴力求解有一个可以优化的点 就是暴力打开以后里面的部分有determined的话也用这个简便方法循环来。不过这个看我的时间吧如果最后还有十天可以试试
+    '''
+    p_children = p.children # p is seq
+    v_children = v.children
+    p_have_seq = False
+    v_have_seq = False
+
+    for c in p_children:
+        if c.determined and c.type == NodeType.SEQ:
+            p_have_seq = True
+            break
+    if p_have_seq:
+        for c in v_children:
+            if c.type == NodeType.SEQ:
+                v_have_seq = True
+                break
+        if not v_have_seq:
+            return False
+        
+    if p.determined:
+        # if p is determined, all p_children are determined. So we could directly compare
+        if len(p_children) != len(v_children):
+            return False
+        else:
+            # Need Compare content!
+            return True
+    else:
+        if v.type != NodeType.SEQ:
+            v_children = [v]
+
+        determined_part = []
+        undetermined_part = []
+        is_determined = True
+        index = 0
+        # Segment the pattern. The result at least has one segment
+        for node in p_children:
+            if len(pattern_segments) == 0:
+                # Initialize when there is no segment
+                pattern_segments.append([[node], node.determined])
+                is_determined = node.determined
+                if is_determined:
+                    if node.label not in VariantTree.label_to_char:
+                        VariantTree.label_to_char[node.label] = chr(VariantTree.label_index)
+                        VariantTree.increase_label_index()
+                    VariantTree.label_to_char[node.label] = VariantTree.label_to_char[node.label]
+                    subpattern_tmp += VariantTree.label_to_char[node.label]
+            elif node.determined != is_determined:
+                # Change segment
+                if is_determined:
+                    # Get a subpattern
+                    subpattern_order.append(subpattern_tmp)
+                    if subpattern_tmp not in subpattern_set:
+                        subpattern_set.add(subpattern_tmp)
+                        subpattern_dic[chr(index)] = subpattern_tmp
+                        subpattern_reverse_dic[subpattern_tmp] = chr(index)
+                else:
+                    # Initialize the new determined segment
+                    subpattern_tmp = ""
+                    if node.label not in VariantTree.label_to_char:
+                        VariantTree.label_to_char[node.label] = chr(VariantTree.label_index)
+                        VariantTree.increase_label_index()
+                    VariantTree.label_to_char[node.label] = VariantTree.label_to_char[node.label]
+                    subpattern_tmp += VariantTree.label_to_char[node.label]
+                pattern_segments.append([[node], not is_determined])
+                index += 1 # Handle new segment
+                is_determined = not is_determined
+            else:
+                pattern_segments[index][0].append(node)
+                if is_determined:
+                    if node.label not in VariantTree.label_to_char:
+                        VariantTree.label_to_char[node.label] = chr(VariantTree.label_index)
+                        VariantTree.increase_label_index()
+                    subpattern_tmp += VariantTree.label_to_char[node.label]
+
+        # Deal with last subpattern if there is one
+        if is_determined:
+            subpattern_order.append(subpattern_tmp)
+            if subpattern_tmp not in subpattern_set:
+                subpattern_set.add(subpattern_tmp)
+                subpattern_dic[chr(index)] = subpattern_tmp
+                subpattern_reverse_dic[subpattern_tmp] = chr(index)
+        elif len(pattern_segments) == 1:
+            # Deal with case: pattern has only 1 non-determined part.
+            #return brutal_match(p_children, v_children, group_id_list)
+            return brutal_match(p_children, v_children)
+        
+        # Following lines: at least find one determined segment in pattern
+
+        variant_str = ""
+        for v_node in v_children:
+            if v_node.label not in VariantTree.label_to_char:
+                VariantTree.label_to_char[v_node.label] = chr(VariantTree.label_index)
+                VariantTree.increase_label_index()
+            variant_str += VariantTree.label_to_char[v_node.label]
+        
+        subpattern_order_abbr = [subpattern_reverse_dic[x] for x in subpattern_order] # A list shows the order of subpatterns in pattern, but in abbr form
+
+        new_node_id = str(0)
+        #new_node_id = 0
+
+        # Handle discovered pattern as partial order graph vertices
+        for end_index, (idx, original_value) in ac.iter(variant_str):
+            # the subpattern include the char at end_index
+            start_index = end_index - len(original_value) + 1
+            #there might be several same subpattern in a pattern, so new_node here should be an id
+            determined_part.append(subpattern_reverse_dic[original_value])
+            partial_graph.add_node(new_node_id, pattern=subpattern_reverse_dic[original_value], orders=[], start_index=start_index, end_index=end_index)
+            if partial_graph.nodes[new_node_id]["pattern"] == subpattern_order_abbr[0]:
+                # Initialize a new string if applies
+                partial_graph.nodes[new_node_id]["orders"].append([0, "", [new_node_id]]) #[current position, last node id, path]
+            for node, attributes in partial_graph.nodes(data=True):
+                # Connect old nodes with the new node 
+                if attributes["end_index"] < start_index: # should not be equal here
+                    partial_graph.add_edge(node, new_node_id)
+                    # Order: [index, node]
+                    for order in attributes["orders"]:
+                        if order[0] + 1 < len(subpattern_order_abbr) and (subpattern_order_abbr[order[0] + 1] == partial_graph.nodes[new_node_id]["pattern"]):
+                            partial_graph.nodes[new_node_id]["orders"].append([order[0] + 1, node, order[2] + [new_node_id]])
+            new_node_id = str(int(new_node_id) + 1)
+            #new_node_id += 1
+
+        #print("Start partial graph")
+
+        # After getting partial graph
+        for node, attributes in partial_graph.nodes(data=True):
+            for order in attributes["orders"]:
+                if len(subpattern_order_abbr) == order[0] + 1:
+                    subpattern_index_list = [[partial_graph.nodes[current_node]["start_index"], partial_graph.nodes[current_node]["end_index"]] for current_node in order[2]]
+                    extended_subpattern_index_list = [-1]
+                    for indices in subpattern_index_list:
+                        extended_subpattern_index_list.append(indices[0])
+                        extended_subpattern_index_list.append(indices[1])
+                    extended_subpattern_index_list.append(len(v_children))
+                    subvariant_index_list = [[extended_subpattern_index_list[i]+1, extended_subpattern_index_list[i+1]] for i in range(0, len(extended_subpattern_index_list)-1, 2)]
+
+                    variant_segments = [v_children[subvariant_index[0]:subvariant_index[1]] for subvariant_index in subvariant_index_list]
+                    non_determined_pattern_seg = [s[0] for s in pattern_segments if s[1]==False]
+                    if pattern_segments[0][1]:
+                        non_determined_pattern_seg = [[]] + non_determined_pattern_seg
+                    if pattern_segments[-1][1]:
+                        non_determined_pattern_seg = non_determined_pattern_seg + [[]]
+                    if match_rest(non_determined_pattern_seg, variant_segments):
+                        return True
+        return False
 
 def match_seq(p, v, group_id_list):
     # Match sequence node p
@@ -1255,6 +1429,7 @@ def match_seq(p, v, group_id_list):
         return False
     
 def match_rest(p_list, v_list): # Need group or not?
+    # Match the undetermined segments
     for p_segment, v_segment in zip(p_list, v_list):
         result = brutal_match(p_segment, v_segment)
         if not result:
@@ -1377,6 +1552,7 @@ def tree_to_variant(tree):
         return variant
 
 def calculate_leaf_num_pattern(pattern):
+    # return all leaves of one pattern variant
     if "leaf" in pattern:
         return 1
     elif "follows" in pattern:
