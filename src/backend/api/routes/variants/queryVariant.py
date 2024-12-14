@@ -11,6 +11,7 @@ from collections import deque
 import networkx as nx
 import time
 import ahocorasick
+from pulp import LpProblem, LpVariable, lpSum, LpBinary, LpStatusOptimal
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -504,15 +505,16 @@ def pattern_match_variant(pattern, variant):
         # I think no else case
         return pattern_match_variant(pattern, variant)
     
+
+    # Not horizontal cardinality
     elif check_have_cardi(p_head) and p_head["verticalCardi"] > 0: # resolve vertical (only =)
         if "parallel" in p_head:
             for element in p_head["parallel"]:
                 element["verticalCardi"] *= p_head["verticalCardi"]
             p_head["verticalCardi"] = 0
         if "leaf" in p_head:
+            # Expand leaf with cardi
             p_head = {"parallel": [{"leaf": p_head["leaf"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": p_head["verticalCardi"], "verticalCardiOp": '='}], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
-            #print("ppp")
-            #print(p_head)
 
     else:
         # p_head: para, leaf (may have vertical...)
@@ -555,23 +557,39 @@ def replace_head(pattern, head): # For '=' and '<;, when 1->0
                 pattern["follows"].insert(0, p)
     return pattern
 
+def variant_can_be_none(variant):
+    # return if a variant can be nothing. 不过还有一个函数是判断一个node list的叫could be none的
+    if variant["horizontalCardiOp"] == "<" or variant["verticalCardiOp"] == "<":
+        return True
+    else:
+        if "leaf" in variant:
+            return variant["leaf"] == "??" or variant["leaf"] == "..."
+        elif "follows" in variant:
+            for child in variant["follows"]:
+                if not variant_can_be_none(child):
+                    return False
+        elif "parallel" in variant:
+            for child in variant["parallel"]:
+                if not variant_can_be_none(child):
+                    return False
+        return True
 
 def match_head(p_head, v_head):
-    # ??
+    # ?? Wildcard case
     if "leaf" in p_head and p_head["leaf"][0] == "??":
         return True
 
     if "parallel" in p_head and "leaf" in v_head:
-        return False
-    elif "leaf" in p_head and "parallel" in v_head: #Need implementation...
-        #return compare(p_head, v_head)
-        return False
+        return False #?
+    elif "leaf" in p_head and "parallel" in v_head:
+        return compare_leaf_para(p_head, v_head)
     elif "parallel" in p_head and "parallel" in v_head:
         return compare_para(p_head, v_head)
     elif "leaf" in p_head and "leaf" in v_head:
         return compare_leaf(p_head, v_head)
     return False
 
+'''
 def compare_para(p_head, v_head): # No cardinality now
     p_dic = {"leafs": {}}
     v_dic = {"leafs": {}}
@@ -607,12 +625,12 @@ def compare_para(p_head, v_head): # No cardinality now
                         p_dic["leafs"][element["leaf"][0]][0] += element["verticalCardi"] + shift
                         p_dic["leafs"][element["leaf"][0]][1] += element["verticalCardi"] + shift
                     #Not sure about this...
-                    '''
-                    elif p_dic["leafs"][element["leaf"][0]][1] > element["verticalCardi"]:
-                        p_dic["leafs"][element["leaf"][0]][1] = element["verticalCardi"]
-                    elif p_dic["leafs"][element["leaf"][0]][0] < element["verticalCardi"]:
-                        p_dic["leafs"][element["leaf"][0]][0] = element["verticalCardi"]
-                    '''
+                    
+                    #elif p_dic["leafs"][element["leaf"][0]][1] > element["verticalCardi"]:
+                    #    p_dic["leafs"][element["leaf"][0]][1] = element["verticalCardi"]
+                    #elif p_dic["leafs"][element["leaf"][0]][0] < element["verticalCardi"]:
+                    #    p_dic["leafs"][element["leaf"][0]][0] = element["verticalCardi"]
+                    
         if "follows" in element: # How about ["...", "?"]
             p_dic["sequence"] = element
 
@@ -631,6 +649,194 @@ def compare_para(p_head, v_head): # No cardinality now
         return compare_parallel_dics(p_dic["leafs"], v_dic["leafs"])
     else:
         return pattern_match_variant(p_dic["sequence"], v_dic["sequence"]) and compare_parallel_dics(p_dic["leafs"], v_dic["leafs"])
+'''
+def compare_para(p_head, v_head): # With cardinality
+    # 有vertical是不能里面有seq的。seq也一定需要匹配seq的，可能变成none(这点确定一下，目前就选不管里面吧，看看是不是hori <这个组合...)，但是变成leaf就不要考虑了
+    # 但是也需要考虑...可以匹配任何的情况
+    v_seq_child = None
+    p_seq_child = None
+    wildcard_in_p = False
+    for c in v_head["parallel"]:
+        if "follows" in c:
+            v_seq_child = copy.deepcopy(c)
+            break
+    for c in p_head["parallel"]:
+        if "follows" in c:
+            p_seq_child = copy.deepcopy(c)
+        elif "leaf" in c and c["leaf"] == "...":
+            wildcard_in_p = True
+
+    #First handle seq
+    if v_seq_child:
+        # 先判断follows的那个有没有，不过具体内容要等进去了再判断了因为cardi的问题
+        if not p_seq_child and not wildcard_in_p:
+            return False
+        elif p_seq_child and not pattern_match_variant(p_seq_child["follows"], v_seq_child["follows"]):
+            # 判断以后，如果说v包含follows，那么下面的部分不可能没有匹配的p["follows"]。不过就算这关过了，下面也有可能不匹配因为还有cardi
+            return False
+        else:
+            # p and v's seq are removed.
+            p_head["parallel"] = [copy.deepcopy(c) for c in p_head["parallel"] if "follows" not in c]
+            v_head["parallel"] = [copy.deepcopy(c) for c in v_head["parallel"] if "follows" not in c]
+            if p_seq_child:
+                return compare_para_no_cardi(p_head, v_head, 1)
+    else:
+        if p_seq_child:
+            if not variant_can_be_none(p_seq_child):
+                return False
+            else:
+                # with seq, para could only cardi = 1
+                p_head["parallel"] = [c for c in p_head["parallel"] if "follows" not in c]
+                return compare_para_no_cardi(p_head, v_head, 1)
+            
+    # Both do not have seq now, but can have vertical cardi
+    if p_head["verticalCardiOp"] == "=":
+        if p_head["verticalCardi"] == 0:
+            return compare_para_no_cardi(p_head, v_head, 1)
+        else:
+            return compare_para_no_cardi(p_head, v_head, p_head["verticalCardi"])
+    elif p_head["verticalCardiOp"] == "<":
+        for i in range(p_head["verticalCardiOp"] + 1):
+            result = compare_para_no_cardi(p_head, v_head, i)
+            if result:
+                return True
+        return False
+    elif p_head["verticalCardiOp"] == ">":
+        determined_count = 0 # Minimum leafs needed in variant
+        for c in p_head["parallel"]:
+            if "leaf" in c and (c["verticalCardiOp"] == "=" or c["verticalCardiOp"] == ">") and c["leaf"][0] != "...":
+                determined_count += c["verticalCardi"]
+        v_count = len(v_head["parallel"])
+        i = p_head["verticalCardi"]
+        if determined_count > 0:
+            while i * determined_count <= v_count:
+                result = compare_para_no_cardi(p_head, v_head, i)
+                if result:
+                    return True
+                i += 1
+            return False
+        else:
+            # Only count leaf, there are only <
+            minimum_leaf = 0
+            for c in p_head["parallel"]:
+                if "leaf" in c and c["verticalCardiOp"] == "<" and c["leaf"][0] != "...":
+                    if minimum_leaf == 0:
+                        minimum_leaf = c["verticalCardi"]
+                    else:
+                        if c["verticalCardi"] < minimum_leaf:
+                            minimum_leaf = c["verticalCardi"]
+
+            v_count = len(v_head["parallel"])
+            while i * minimum_leaf <= v_count:
+                result = compare_para_no_cardi(p_head, v_head, i)
+                if result:
+                    return True
+                i += 1
+            return False
+    else:
+        return False
+    
+
+def compare_para_no_cardi(p_head, v_head, count, cate_list=[]):
+    # Only leaves in both heads
+    p_dic = {}
+    v_dic = {}
+    border_dic = {}
+    for c in p_head["parallel"]:
+        label = c["leaf"]
+        if label not in p_dic:
+            p_dic[label] = [0, 0, 0]
+        if c["verticalCardiOp"] == "=":
+            if c["verticalCardi"] == 0:
+                p_dic[label][1] += 1
+            else:  
+                p_dic[label][1] += c["verticalCardi"]
+        elif c["verticalCardiOp"] == "<":
+            p_dic[label][2] += c["verticalCardi"]
+        else:
+            p_dic[label][1] += (c["verticalCardi"] - 1)
+            p_dic[label][0] += 1
+
+    for c in v_head["parallel"]:
+        label = c["leaf"]
+        if label not in p_dic:
+            p_dic[label] = 0
+        p_dic[label] += 1
+
+    if "..." in p_dic:
+        for k in p_dic.keys():
+            p_dic[k][2] = 0
+
+    for k in p_dic.keys():
+        for i in range(2):
+            p_dic[k][i] *= count
+        cardi = p_dic[k][1]
+        if cardi > 0 and k != "?" and k not in cate_list:
+            if k not in v_dic.keys() or v_dic[k] < cardi:
+                return False
+            else:
+                v_dic[k] -= cardi
+                if v_dic[k] == 0:
+                    v_dic.pop(k)
+                if p_dic[k][0] == 0 and p_dic[k][2] == 0:
+                    p_dic.pop(k)
+                else:
+                    p_dic[k][1] = 0
+        border = [p_dic[k][1], p_dic[k][1]]
+        if p_dic[k][0] > 0:
+            border[0] += p_dic[k][0]
+            border[1] = -1
+        if p_dic[k][2] > 0:
+            if border[1] >= 0:
+                border[1] += p_dic[k][2]
+        border_dic[k] = border
+
+    problem = LpProblem("Element_Classification")
+    # 定义元素和分类
+    elements = []
+    for k in v_dic.keys():
+        for i in range(v_dic[k]):
+            elements.append(k + "_" + str(i))
+    classifications = border_dic.keys()
+
+    # 定义决策变量
+    z = LpVariable.dicts("assign", (elements, classifications), cat=LpBinary)
+
+    def element_in_category(e, c, cate_list):
+        if c == "?" or c == "wildcard":
+            return True
+        e_label = e.split("_")[0]
+        if c not in cate_list:
+            pass
+        else:
+
+    # 添加约束：每个元素只能分配到一个分类
+    for e in elements:
+        problem += lpSum(z[e][c] for c in classifications if element_in_category(e, c, cate_list)) <= 1
+        problem += lpSum(z[e][c] for c in classifications if not element_in_category(e, c, cate_list)) == 0
+
+    # 添加分类限制（假设 C1 至少要有 1 个元素，C2 至多有 2 个元素）
+    problem += lpSum(z['a1']['C1'] + z['a2']['C1'] + z['b1']['C1'] + z['b2']['C1']) >= 1  # C1 至少有一个元素
+    problem += lpSum(z['a1']['C2'] + z['a2']['C2'] + z['b1']['C2'] + z['b2']['C2']) <= 2  # C2 最多有两个元素
+
+    # 定义目标函数（可以是任意值，因为只需判断可行性）
+    problem += lpSum(0)  # 不关心优化目标
+
+    # 求解问题
+    problem.solve()
+
+    # 输出结果
+    if problem.status == LpStatusOptimal:
+        print("存在可行解")
+        for e in elements:
+            for c in classifications:
+                if z[e][c].value() == 1:
+                    print(f"{e} 被分配到 {c}")
+    else:
+        print("没有可行解")
+
+    select_matrix = []
+    return True
 
 def compare_parallel_dics(p_dic, v_dic):
     '''
@@ -686,7 +892,9 @@ def compare_leaf(p_head, v_head):
         return False
     
 def compare_leaf_para(p_head, v_head):
-    pass
+    # p is leaf and v is para
+    extend_p = {"parallel": [copy.deepcopy(p_head)], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+    return compare_para(extend_p, v_head)
 
 def find_head(variant):
     if "follows" in variant:
@@ -793,7 +1001,8 @@ def generate_query(activities, parent_type, depth):
         if leaf["leaf"][0] != "...":
             if random.random() < THRES_CARDI:
                 # Cardinality 1-5
-                if random.random() > 0.5:
+                if random.random() > 0.5 and parent_type != "para":
+                    # No horizontal leaf for para group
                     leaf["horizontalCardi"] = random.choices(list(range(1, 6)), weights=list(reversed(range(1, 6))), k=1)[0]
                     op_type_rand = random.random()
                     if op_type_rand < 1/3:
@@ -1100,7 +1309,7 @@ def serialize_determined_tree(tree):
                 VariantTree.increase_label_index()
         return tree
 
-def get_parent(p_list):
+def get_seq_parent(p_list):
     # Create a parent
     p_tree = VariantTree(random.randint(1, 10000))
     p_tree.children = p_list.copy()
@@ -1108,23 +1317,43 @@ def get_parent(p_list):
     p_tree.type = NodeType.SEQ
     return p_tree
 
-def could_be_non(node_list):
+def get_para_parent(p_list):
+    # Create a parent
+    p_tree = VariantTree(random.randint(1, 10000))
+    p_tree.children = p_list.copy()
+    p_tree.cardiDirect = "horizontal"
+    p_tree.type = NodeType.PARA
+    return p_tree
+
+def node_list_could_be_non(node_list):
     # Return if a list of nodes could be none theoretically
     for l in node_list:
         if not(l.type==NodeType.WILDCARD or l.cardiOp == "<"):
             return False
     return True
 
-def brutal_match(p_children, v_children):
+def brutal_match_seq(p_children, v_children):
     if len(p_children) == 0:
         if len(v_children) == 0:
             return True
         else:
             return False
     elif len(v_children) == 0:
-        return could_be_non(p_children)
-    p = tree_to_variant(get_parent(p_children))
-    v = tree_to_variant(get_parent(v_children))
+        return node_list_could_be_non(p_children)
+    p = tree_to_variant(get_seq_parent(p_children))
+    v = tree_to_variant(get_seq_parent(v_children))
+    return pattern_match_variant(p, v)
+
+def brutal_match_para(p_children, v_children):
+    if len(p_children) == 0:
+        if len(v_children) == 0:
+            return True
+        else:
+            return False
+    elif len(v_children) == 0:
+        return node_list_could_be_non(p_children)
+    p = tree_to_variant(get_seq_parent(p_children))
+    v = tree_to_variant(get_seq_parent(v_children))
     return pattern_match_variant(p, v)
 
 def match_para(p, v, group_id_list):
@@ -1152,7 +1381,7 @@ def match_para(p, v, group_id_list):
             return False
         
     if p.determined:
-        # if p is determined, all p_children are determined. So we could directly compare
+        # if p is determined, all p_children are determined. So we could directly compare (这里包括了打开的EQ这种吗？)
         if len(p_children) != len(v_children):
             return False
         else:
@@ -1164,118 +1393,37 @@ def match_para(p, v, group_id_list):
 
         determined_part = []
         undetermined_part = []
-        is_determined = True
-        index = 0
         # Segment the pattern. The result at least has one segment
         for node in p_children:
-            if len(pattern_segments) == 0:
-                # Initialize when there is no segment
-                pattern_segments.append([[node], node.determined])
-                is_determined = node.determined
-                if is_determined:
-                    if node.label not in VariantTree.label_to_char:
-                        VariantTree.label_to_char[node.label] = chr(VariantTree.label_index)
-                        VariantTree.increase_label_index()
-                    VariantTree.label_to_char[node.label] = VariantTree.label_to_char[node.label]
-                    subpattern_tmp += VariantTree.label_to_char[node.label]
-            elif node.determined != is_determined:
-                # Change segment
-                if is_determined:
-                    # Get a subpattern
-                    subpattern_order.append(subpattern_tmp)
-                    if subpattern_tmp not in subpattern_set:
-                        subpattern_set.add(subpattern_tmp)
-                        subpattern_dic[chr(index)] = subpattern_tmp
-                        subpattern_reverse_dic[subpattern_tmp] = chr(index)
-                else:
-                    # Initialize the new determined segment
-                    subpattern_tmp = ""
-                    if node.label not in VariantTree.label_to_char:
-                        VariantTree.label_to_char[node.label] = chr(VariantTree.label_index)
-                        VariantTree.increase_label_index()
-                    VariantTree.label_to_char[node.label] = VariantTree.label_to_char[node.label]
-                    subpattern_tmp += VariantTree.label_to_char[node.label]
-                pattern_segments.append([[node], not is_determined])
-                index += 1 # Handle new segment
-                is_determined = not is_determined
+            if node.determined:
+                determined_part.append(node)
             else:
-                pattern_segments[index][0].append(node)
-                if is_determined:
-                    if node.label not in VariantTree.label_to_char:
-                        VariantTree.label_to_char[node.label] = chr(VariantTree.label_index)
-                        VariantTree.increase_label_index()
-                    subpattern_tmp += VariantTree.label_to_char[node.label]
-
-        # Deal with last subpattern if there is one
-        if is_determined:
-            subpattern_order.append(subpattern_tmp)
-            if subpattern_tmp not in subpattern_set:
-                subpattern_set.add(subpattern_tmp)
-                subpattern_dic[chr(index)] = subpattern_tmp
-                subpattern_reverse_dic[subpattern_tmp] = chr(index)
-        elif len(pattern_segments) == 1:
-            # Deal with case: pattern has only 1 non-determined part.
-            #return brutal_match(p_children, v_children, group_id_list)
-            return brutal_match(p_children, v_children)
+                undetermined_part.append(node)
         
-        # Following lines: at least find one determined segment in pattern
-
-        variant_str = ""
-        for v_node in v_children:
-            if v_node.label not in VariantTree.label_to_char:
-                VariantTree.label_to_char[v_node.label] = chr(VariantTree.label_index)
-                VariantTree.increase_label_index()
-            variant_str += VariantTree.label_to_char[v_node.label]
+        if len(determined_part) > len(v_children):
+            # Not enough variant nodes
+            return False
         
-        subpattern_order_abbr = [subpattern_reverse_dic[x] for x in subpattern_order] # A list shows the order of subpatterns in pattern, but in abbr form
+        if len(undetermined_part) == 0:
+            # Only have determined pattern nodes
+            if len(determined_part) != len(v_children):
+                return False
+            else:
+                return brutal_match_para(determined_part, v_children)
+        
+        v_copy = copy.deepcopy(v_children)
 
-        new_node_id = str(0)
-        #new_node_id = 0
+        for node in determined_part:
+            found = False
+            for i, v in enumerate(v_copy):
+                if v.id in node.match_id:
+                    v_copy.pop(i)
+                    found = True
+                    break
+            if not found:
+                return False
 
-        # Handle discovered pattern as partial order graph vertices
-        for end_index, (idx, original_value) in ac.iter(variant_str):
-            # the subpattern include the char at end_index
-            start_index = end_index - len(original_value) + 1
-            #there might be several same subpattern in a pattern, so new_node here should be an id
-            determined_part.append(subpattern_reverse_dic[original_value])
-            partial_graph.add_node(new_node_id, pattern=subpattern_reverse_dic[original_value], orders=[], start_index=start_index, end_index=end_index)
-            if partial_graph.nodes[new_node_id]["pattern"] == subpattern_order_abbr[0]:
-                # Initialize a new string if applies
-                partial_graph.nodes[new_node_id]["orders"].append([0, "", [new_node_id]]) #[current position, last node id, path]
-            for node, attributes in partial_graph.nodes(data=True):
-                # Connect old nodes with the new node 
-                if attributes["end_index"] < start_index: # should not be equal here
-                    partial_graph.add_edge(node, new_node_id)
-                    # Order: [index, node]
-                    for order in attributes["orders"]:
-                        if order[0] + 1 < len(subpattern_order_abbr) and (subpattern_order_abbr[order[0] + 1] == partial_graph.nodes[new_node_id]["pattern"]):
-                            partial_graph.nodes[new_node_id]["orders"].append([order[0] + 1, node, order[2] + [new_node_id]])
-            new_node_id = str(int(new_node_id) + 1)
-            #new_node_id += 1
-
-        #print("Start partial graph")
-
-        # After getting partial graph
-        for node, attributes in partial_graph.nodes(data=True):
-            for order in attributes["orders"]:
-                if len(subpattern_order_abbr) == order[0] + 1:
-                    subpattern_index_list = [[partial_graph.nodes[current_node]["start_index"], partial_graph.nodes[current_node]["end_index"]] for current_node in order[2]]
-                    extended_subpattern_index_list = [-1]
-                    for indices in subpattern_index_list:
-                        extended_subpattern_index_list.append(indices[0])
-                        extended_subpattern_index_list.append(indices[1])
-                    extended_subpattern_index_list.append(len(v_children))
-                    subvariant_index_list = [[extended_subpattern_index_list[i]+1, extended_subpattern_index_list[i+1]] for i in range(0, len(extended_subpattern_index_list)-1, 2)]
-
-                    variant_segments = [v_children[subvariant_index[0]:subvariant_index[1]] for subvariant_index in subvariant_index_list]
-                    non_determined_pattern_seg = [s[0] for s in pattern_segments if s[1]==False]
-                    if pattern_segments[0][1]:
-                        non_determined_pattern_seg = [[]] + non_determined_pattern_seg
-                    if pattern_segments[-1][1]:
-                        non_determined_pattern_seg = non_determined_pattern_seg + [[]]
-                    if match_rest(non_determined_pattern_seg, variant_segments):
-                        return True
-        return False
+        return brutal_match_para(undetermined_part, v_copy)
 
 def match_seq(p, v, group_id_list):
     # Match sequence node p
@@ -1355,7 +1503,7 @@ def match_seq(p, v, group_id_list):
         elif len(pattern_segments) == 1:
             # Deal with case: pattern has only 1 non-determined part.
             #return brutal_match(p_children, v_children, group_id_list)
-            return brutal_match(p_children, v_children)
+            return brutal_match_seq(p_children, v_children)
         
         # Following lines: at least find one determined segment in pattern
 
@@ -1431,7 +1579,7 @@ def match_seq(p, v, group_id_list):
 def match_rest(p_list, v_list): # Need group or not?
     # Match the undetermined segments
     for p_segment, v_segment in zip(p_list, v_list):
-        result = brutal_match(p_segment, v_segment)
+        result = brutal_match_seq(p_segment, v_segment)
         if not result:
             return False
     return True
