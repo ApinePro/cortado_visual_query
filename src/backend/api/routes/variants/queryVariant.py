@@ -429,7 +429,7 @@ def check_node(node, variant, cate_list):
         return (result, count, early_stopping)
 
 ############################################################
-def pattern_match_variant(pattern, variant):
+def pattern_match_variant(pattern, variant, cate_list):
     '''
     print("Pattern is:")
     print(pattern, '\n')
@@ -476,7 +476,7 @@ def pattern_match_variant(pattern, variant):
         any_head = {"leaf": ["??"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='} #?? for any group. ? is for any activity
         pattern_with_any = add_head(pattern, any_head)
         #print("##########################################################################\n")
-        return pattern_match_variant(p_body, variant) or pattern_match_variant(pattern_with_any, variant)
+        return pattern_match_variant(p_body, variant, cate_list) or pattern_match_variant(pattern_with_any, variant, cate_list)
     elif check_have_cardi(p_head) and p_head["horizontalCardi"] > 0: # resolve horizontal
         pattern = add_head_cardinality(pattern, -1)
         p_head = find_head(pattern)
@@ -488,23 +488,23 @@ def pattern_match_variant(pattern, variant):
                 pattern = replace_head(pattern, p_head) # Remove the cardinality characteristics of the head
             else:   
                 pattern = add_head(pattern, p_head)
-            result =  pattern_match_variant(pattern, variant)
+            result =  pattern_match_variant(pattern, variant, cate_list)
             if result:
                 return result
             if not result: # Another chance: should it match at least once here? Now 0 head is allowed
-                return pattern_match_variant(p_body, variant)
+                return pattern_match_variant(p_body, variant, cate_list)
         elif p_head["horizontalCardiOp"] == '=' and p_head["horizontalCardi"] == 0: # 1->0, done
             pattern = replace_head(pattern, p_head)
         elif p_head["horizontalCardiOp"] == '>' and p_head["horizontalCardi"] == 0:
             new_pattern = replace_head(pattern, p_head)
             pattern = add_head_cardinality(pattern, 1)
             pattern = add_head(pattern, p_head)
-            return (pattern_match_variant(new_pattern, variant) or
-                    (pattern_match_variant(pattern, variant) if len(variant) > 0 else False))
+            return (pattern_match_variant(new_pattern, variant, cate_list) or
+                    (pattern_match_variant(pattern, variant, cate_list) if len(variant) > 0 else False))
         else:    
             pattern = add_head(pattern, p_head)
         # I think no else case
-        return pattern_match_variant(pattern, variant)
+        return pattern_match_variant(pattern, variant, cate_list)
     
 
     # Not horizontal cardinality
@@ -520,7 +520,7 @@ def pattern_match_variant(pattern, variant):
     else:
         # p_head: para, leaf (may have vertical...)
         #print("HEAD IS PARA OR LEAF")
-        return match_head(p_head, v_head) and pattern_match_variant(p_body, v_body)
+        return match_head(p_head, v_head, cate_list) and pattern_match_variant(p_body, v_body, cate_list)
 
 def add_head_cardinality(pattern, num):
     pattern = copy.deepcopy(pattern)
@@ -575,19 +575,19 @@ def variant_can_be_none(variant):
                     return False
         return True
 
-def match_head(p_head, v_head):
+def match_head(p_head, v_head, cate_list):
     # ?? Wildcard case
     if "leaf" in p_head and p_head["leaf"][0] == "??":
         return True
 
     if "parallel" in p_head and "leaf" in v_head:
-        return False #?
+        return compare_para_leaf(p_head, v_head, cate_list)
     elif "leaf" in p_head and "parallel" in v_head:
-        return compare_leaf_para(p_head, v_head)
+        return compare_leaf_para(p_head, v_head, cate_list)
     elif "parallel" in p_head and "parallel" in v_head:
-        return compare_para(p_head, v_head)
+        return compare_para(p_head, v_head, cate_list)
     elif "leaf" in p_head and "leaf" in v_head:
-        return compare_leaf(p_head, v_head)
+        return compare_leaf(p_head, v_head, cate_list)
     return False
 
 '''
@@ -651,7 +651,7 @@ def compare_para(p_head, v_head): # No cardinality now
     else:
         return pattern_match_variant(p_dic["sequence"], v_dic["sequence"]) and compare_parallel_dics(p_dic["leafs"], v_dic["leafs"])
 '''
-def compare_para(p_head, v_head): # With cardinality
+def compare_para(p_head, v_head, cate_list): # With cardinality
     # 有vertical是不能里面有seq的。seq也一定需要匹配seq的，可能变成none(这点确定一下，目前就选不管里面吧，看看是不是hori <这个组合...)，但是变成leaf就不要考虑了
     # 但是也需要考虑...可以匹配任何的情况
     v_seq_child = None
@@ -769,10 +769,12 @@ def compare_para_no_cardi(p_head, v_head, count, cate_list):
             p_dic[k][2] = 0
 
     for k in p_dic.keys():
+        # Build border dictionary
         for i in range(2):
             p_dic[k][i] *= count
         cardi = p_dic[k][1]
         if cardi > 0 and k != "?" and k not in cate_list:
+            # determined leaves, match these first and delete them
             if k not in v_dic.keys() or v_dic[k] < cardi:
                 return False
             else:
@@ -817,7 +819,8 @@ def compare_para_no_cardi(p_head, v_head, count, cate_list):
             else:
                 return False
         else:
-            return True #TODO!!!
+            # c is group
+            return cate_member(e_label, c, cate_list)
         
     # 添加约束：每个元素只能分配到一个分类
     for e in elements:
@@ -889,21 +892,23 @@ def compare_parallel_dics(p_dic, v_dic):
                 else:
                     return False  
 
-def compare_leaf(p_head, v_head):
-    group_dic = {}
-    #print("group_dic")
-    #print(group_dic)
-    if p_head["leaf"][0] == "?" or p_head["leaf"][0] == v_head["leaf"][0]:
+def compare_leaf(p_head, v_head, cate_list):
+    if p_head["leaf"][0] == "?" or p_head["leaf"][0] == "..." or p_head["leaf"][0] == v_head["leaf"][0]:
         return True
-    elif p_head["leaf"][0] in group_dic and v_head["leaf"][0] in group_dic[p_head["leaf"][0]]:
+    elif p_head["leaf"][0] in cate_list and cate_member(v_head["leaf"][0], p_head["leaf"][0], cate_list):
         return True
     else:
         return False
     
-def compare_leaf_para(p_head, v_head):
+def compare_leaf_para(p_head, v_head, cate_list):
     # p is leaf and v is para
     extend_p = {"parallel": [copy.deepcopy(p_head)], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
-    return compare_para(extend_p, v_head)
+    return compare_para(extend_p, v_head, cate_list)
+
+def compare_para_leaf(p_head, v_head, cate_list):
+    # p is leaf and v is para
+    extend_v = {"parallel": [copy.deepcopy(v_head)], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+    return compare_para(p_head, extend_v, cate_list)
 
 def find_head(variant):
     if "follows" in variant:
@@ -1366,9 +1371,9 @@ def brutal_match_seq(p_children, v_children, cate_list):
         return node_list_could_be_non(p_children)
     p = tree_to_variant(get_seq_parent(p_children))
     v = tree_to_variant(get_seq_parent(v_children))
-    return pattern_match_variant(p, v)
+    return pattern_match_variant(p, v, cate_list)
 
-def brutal_match_para(p_children, v_children):
+def brutal_match_para(p_children, v_children, cate_list):
     if len(p_children) == 0:
         if len(v_children) == 0:
             return True
@@ -1378,7 +1383,7 @@ def brutal_match_para(p_children, v_children):
         return node_list_could_be_non(p_children)
     p = tree_to_variant(get_seq_parent(p_children))
     v = tree_to_variant(get_seq_parent(v_children))
-    return pattern_match_variant(p, v)
+    return pattern_match_variant(p, v, cate_list)
 
 def match_para(p, v, cate_list):
     '''
@@ -1433,7 +1438,7 @@ def match_para(p, v, cate_list):
             if len(determined_part) != len(v_children):
                 return False
             else:
-                return brutal_match_para(determined_part, v_children)
+                return brutal_match_para(determined_part, v_children, cate_list)
         
         v_copy = copy.deepcopy(v_children)
 
@@ -1447,7 +1452,7 @@ def match_para(p, v, cate_list):
             if not found:
                 return False
 
-        return brutal_match_para(undetermined_part, v_copy)
+        return brutal_match_para(undetermined_part, v_copy, cate_list)
 
 def match_seq(p, v, cate_list):
     # Match sequence node p
