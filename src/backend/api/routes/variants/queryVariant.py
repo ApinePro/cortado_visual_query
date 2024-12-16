@@ -17,6 +17,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import gc
 
 from cortado_core.models.infix_type import InfixType
 from endpoints.load_event_log import (
@@ -55,7 +56,7 @@ def generate_variant_info(infix_type, traces):
 
     return VariantInformation(infix_type=infix_type, is_user_defined=user_defined)
 
-
+'''
 def query_variants(query, variants):
     cate_list = []
     trees = []
@@ -81,6 +82,7 @@ def query_variants(query, variants):
         if len(m_l) > 0 and len(m_l) < 14:
             print("Matched: ", m_l)
     return 0
+'''
 
 @router.post("/generate-query-test")
 def generate_query_test(graphical_query: graphicalVariantQuery):
@@ -301,29 +303,30 @@ def cate_member(activity, category, cate_list):
 
 @router.post("/graphical-variant-query")
 def graphical_variant_query(graphical_query: graphicalVariantQuery):
-    res = []
-    #print(graphical_query)
-    
-    #print(cache.variants.items())
     query = deserialize_query(graphical_query)
     global group_dic
     group_dic = json.loads(graphical_query.activityGroups)
-    print(group_dic)
     variant_list = defaultdict(list)
     count = 0
 
     
     variant_list = []
-    
+    time_list = []
+
     for bid, (variant, _, _, info) in cache.variants.items():
         #if check_node(query, variant):
         #    res.append(bid + 1)
         count += 1
-        if count >= 1 and count <= 31:
-            print("ID:", count,"\n")
-            if check_node(query, variant, []):
-                variant_list.append(count - 1)
-            print("########################################################################################################")
+        start_time = time.time()
+        if count >= 1:
+            if count:
+                print("ID:", count,"\n")
+                if check_node(query, variant, [])[0]:
+                    variant_list.append(count - 1)
+                print("########################################################################################################")
+        end_time = time.time()
+        time_list.append(end_time - start_time)
+    print(time_list)
     print("Variant list:")
     print([x + 1 for x in variant_list])
     #variant_list = defaultdict(list)
@@ -420,7 +423,9 @@ def check_node(node, variant, cate_list):
         #print("Original Variant:")
         #print(variant)
         pattern = add_start_end_wildcard(node["pattern"])
-        #print(pattern)
+        print("Pattern is:")
+        print(pattern)
+        print("")
         result = dynamic_tree_matching(variant_to_tree(pattern, cate_list)[0], variant_to_tree(variant.serialize(), cate_list)[0], cate_list)
         count += calculate_leaf_num_pattern(pattern)
     if node["negation"] == True:
@@ -430,6 +435,7 @@ def check_node(node, variant, cate_list):
 
 ############################################################
 def pattern_match_variant(pattern, variant, cate_list):
+
     '''
     print("Pattern is:")
     print(pattern, '\n')
@@ -564,7 +570,7 @@ def variant_can_be_none(variant):
         return True
     else:
         if "leaf" in variant:
-            return variant["leaf"] == "??" or variant["leaf"] == "..."
+            return variant["leaf"][0] == "??" or variant["leaf"][0] == "..."
         elif "follows" in variant:
             for child in variant["follows"]:
                 if not variant_can_be_none(child):
@@ -654,6 +660,13 @@ def compare_para(p_head, v_head): # No cardinality now
 def compare_para(p_head, v_head, cate_list): # With cardinality
     # 有vertical是不能里面有seq的。seq也一定需要匹配seq的，可能变成none(这点确定一下，目前就选不管里面吧，看看是不是hori <这个组合...)，但是变成leaf就不要考虑了
     # 但是也需要考虑...可以匹配任何的情况
+    '''
+    print("Previous step")
+    print(p_head)
+    print(v_head)
+    print("")
+    '''
+
     v_seq_child = None
     p_seq_child = None
     wildcard_in_p = False
@@ -664,7 +677,7 @@ def compare_para(p_head, v_head, cate_list): # With cardinality
     for c in p_head["parallel"]:
         if "follows" in c:
             p_seq_child = copy.deepcopy(c)
-        elif "leaf" in c and c["leaf"] == "...":
+        elif "leaf" in c and c["leaf"][0] == "...":
             wildcard_in_p = True
 
     #First handle seq
@@ -672,7 +685,7 @@ def compare_para(p_head, v_head, cate_list): # With cardinality
         # 先判断follows的那个有没有，不过具体内容要等进去了再判断了因为cardi的问题
         if not p_seq_child and not wildcard_in_p:
             return False
-        elif p_seq_child and not pattern_match_variant(p_seq_child["follows"], v_seq_child["follows"]):
+        elif p_seq_child and not pattern_match_variant(p_seq_child["follows"], v_seq_child["follows"], cate_list):
             # 判断以后，如果说v包含follows，那么下面的部分不可能没有匹配的p["follows"]。不过就算这关过了，下面也有可能不匹配因为还有cardi
             return False
         else:
@@ -680,7 +693,7 @@ def compare_para(p_head, v_head, cate_list): # With cardinality
             p_head["parallel"] = [copy.deepcopy(c) for c in p_head["parallel"] if "follows" not in c]
             v_head["parallel"] = [copy.deepcopy(c) for c in v_head["parallel"] if "follows" not in c]
             if p_seq_child:
-                return compare_para_no_cardi(p_head, v_head, 1)
+                return compare_para_no_cardi(p_head, v_head, 1, cate_list)
     else:
         if p_seq_child:
             if not variant_can_be_none(p_seq_child):
@@ -688,30 +701,38 @@ def compare_para(p_head, v_head, cate_list): # With cardinality
             else:
                 # with seq, para could only cardi = 1
                 p_head["parallel"] = [c for c in p_head["parallel"] if "follows" not in c]
-                return compare_para_no_cardi(p_head, v_head, 1)
-            
+                return compare_para_no_cardi(p_head, v_head, 1, cate_list)
+    
     # Both do not have seq now, but can have vertical cardi
+
+    determined_count = 0
+    v_count = len(v_head["parallel"])
+    for c in p_head["parallel"]:
+        if "leaf" in c and (c["verticalCardiOp"] == "=" or c["verticalCardiOp"] == ">") and c["leaf"][0] != "...":
+            determined_count += c["verticalCardi"]
+            if c["verticalCardiOp"] == "=" and c["verticalCardi"] == 0:
+                determined_count += 1
+    
     if p_head["verticalCardiOp"] == "=":
         if p_head["verticalCardi"] == 0:
-            return compare_para_no_cardi(p_head, v_head, 1)
+            i = 1
         else:
-            return compare_para_no_cardi(p_head, v_head, p_head["verticalCardi"])
+            i = p_head["verticalCardi"]
+        if determined_count * i > v_count:
+            return False
+        else:
+            return compare_para_no_cardi(p_head, v_head, i, cate_list)
     elif p_head["verticalCardiOp"] == "<":
         for i in range(p_head["verticalCardiOp"] + 1):
-            result = compare_para_no_cardi(p_head, v_head, i)
+            result = compare_para_no_cardi(p_head, v_head, i, cate_list)
             if result:
                 return True
         return False
     elif p_head["verticalCardiOp"] == ">":
-        determined_count = 0 # Minimum leafs needed in variant
-        for c in p_head["parallel"]:
-            if "leaf" in c and (c["verticalCardiOp"] == "=" or c["verticalCardiOp"] == ">") and c["leaf"][0] != "...":
-                determined_count += c["verticalCardi"]
-        v_count = len(v_head["parallel"])
         i = p_head["verticalCardi"]
         if determined_count > 0:
             while i * determined_count <= v_count:
-                result = compare_para_no_cardi(p_head, v_head, i)
+                result = compare_para_no_cardi(p_head, v_head, i, cate_list)
                 if result:
                     return True
                 i += 1
@@ -729,7 +750,7 @@ def compare_para(p_head, v_head, cate_list): # With cardinality
 
             v_count = len(v_head["parallel"])
             while i * minimum_leaf <= v_count:
-                result = compare_para_no_cardi(p_head, v_head, i)
+                result = compare_para_no_cardi(p_head, v_head, i, cate_list)
                 if result:
                     return True
                 i += 1
@@ -739,12 +760,14 @@ def compare_para(p_head, v_head, cate_list): # With cardinality
     
 
 def compare_para_no_cardi(p_head, v_head, count, cate_list):
+    print(p_head)
+    print(v_head)
     # Only leaves in both heads
     p_dic = {}
     v_dic = {}
     border_dic = {}
     for c in p_head["parallel"]:
-        label = c["leaf"]
+        label = c["leaf"][0]
         if label not in p_dic:
             p_dic[label] = [0, 0, 0]
         if c["verticalCardiOp"] == "=":
@@ -759,10 +782,10 @@ def compare_para_no_cardi(p_head, v_head, count, cate_list):
             p_dic[label][0] += 1
 
     for c in v_head["parallel"]:
-        label = c["leaf"]
-        if label not in p_dic:
-            p_dic[label] = 0
-        p_dic[label] += 1
+        label = c["leaf"][0]
+        if label not in v_dic:
+            v_dic[label] = 0
+        v_dic[label] += 1
 
     if "..." in p_dic:
         for k in p_dic.keys():
@@ -770,7 +793,7 @@ def compare_para_no_cardi(p_head, v_head, count, cate_list):
 
     for k in p_dic.keys():
         # Build border dictionary
-        for i in range(2):
+        for i in range(3):
             p_dic[k][i] *= count
         cardi = p_dic[k][1]
         if cardi > 0 and k != "?" and k not in cate_list:
@@ -792,11 +815,12 @@ def compare_para_no_cardi(p_head, v_head, count, cate_list):
         if p_dic[k][2] > 0:
             if border[1] >= 0:
                 border[1] += p_dic[k][2]
-        if border[0] > border[1]:
+        if border[1] != -1 and border[0] > border[1]:
             return False
         border_dic[k] = border
-
-    border_dic["..."] = [0, -1]
+    
+    if "..." in p_dic:
+        border_dic["..."] = [0, -1]
 
     problem = LpProblem("Element_Classification")
     # 定义元素和分类
@@ -821,16 +845,21 @@ def compare_para_no_cardi(p_head, v_head, count, cate_list):
         else:
             # c is group
             return cate_member(e_label, c, cate_list)
-        
+    print("")
+    print("Solve this:")
+    print(classifications)
+    print(elements)
+    print(border_dic)
+    print("")
     # 添加约束：每个元素只能分配到一个分类
     for e in elements:
-        problem += lpSum(z[e][c] for c in classifications if element_in_category(e, c, cate_list)) <= 1
+        problem += lpSum(z[e][c] for c in classifications if element_in_category(e, c, cate_list)) == 1
         problem += lpSum(z[e][c] for c in classifications if not element_in_category(e, c, cate_list)) == 0
 
     for c in classifications:
-        problem += lpSum(z[e][c] for e in elements) >= border[c][0]  # c 至少有n个元素
-        if border[c][1] != -1:
-            problem += lpSum(z[e][c] for e in elements) <= border[c][1]  # c 最多有n元素
+        problem += lpSum(z[e][c] for e in elements) >= border_dic[c][0]  # c 至少有n个元素
+        if border_dic[c][1] != -1:
+            problem += lpSum(z[e][c] for e in elements) <= border_dic[c][1]  # c 最多有n元素
 
     # 定义目标函数（可以是任意值，因为只需判断可行性）
     problem += lpSum(0)  # 不关心优化目标
@@ -902,8 +931,17 @@ def compare_leaf(p_head, v_head, cate_list):
     
 def compare_leaf_para(p_head, v_head, cate_list):
     # p is leaf and v is para
-    extend_p = {"parallel": [copy.deepcopy(p_head)], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
-    return compare_para(extend_p, v_head, cate_list)
+    if p_head["leaf"][0] == "...":
+        return True
+    elif p_head["horizontalCardi"] > 1 or p_head["horizontalCardiOp"] != "=":
+        return False
+    elif p_head["verticalCardiOp"] != "<" and p_head["verticalCardi"] > len(v_head["parallel"]):
+        return False
+    elif p_head["verticalCardiOp"] != ">" and p_head["verticalCardi"] < len(v_head["parallel"]):
+        return False
+    else:
+        extend_p = {"parallel": [copy.deepcopy(p_head)], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+        return compare_para(extend_p, v_head, cate_list)
 
 def compare_para_leaf(p_head, v_head, cate_list):
     # p is leaf and v is para
@@ -1118,6 +1156,7 @@ class NodeType(Enum):
 class VariantTree:
     label_to_char = {}
     label_index = 0
+    id_used = []
     preserved_char = ["(", ")", "→", "∧"]
 
     def __init__(self, id):
@@ -1131,6 +1170,23 @@ class VariantTree:
         self.match_id = []
         self.determined = False
         self.variant = 0
+        while id in VariantTree.id_used:
+            id += 1
+        VariantTree.id_used.append(id)
+
+    def copy(self):
+        # copy everything except id
+        new_node = VariantTree(random.randint(1, 10000))
+        new_node.label = self.label 
+        new_node.type = self.type
+        new_node.cardiDirect = self.cardiDirect
+        new_node.cardinality = self.cardinality
+        new_node.cardiOp = self.cardiOp
+        new_node.match_id = self.match_id
+        new_node.determined = self.determined
+        new_node.variant = self.variant
+        new_node.children = [c.copy() for c in self.children]
+        return new_node
     
     @staticmethod
     def increase_label_index():
@@ -1196,9 +1252,20 @@ def variant_to_tree(variant, cate_list):
         wildcard_exist = False
         for child in variant["parallel"]:
             child_node = variant_to_tree(child, cate_list)
-            if child_node[0].type == NodeType.WILDCARD:
-                wildcard_exist = True
-            tree.children = tree.children + child_node
+            if len(child_node) > 1:
+                # is a seq child node
+                seq_child = VariantTree(random.randint(1, 10000))
+                seq_child.determined = all([c.determined for c in child_node])
+                seq_child.children = [c.copy() for c in child_node]
+                tree.children = tree.children + seq_child
+            else:
+                # leaf node or para (expanded vertical cardi node) as child
+                if child_node[0].type == NodeType.PARA:
+                    child_node = [c for c in child_node[0].children]
+                    wildcard_exist = any([c.type == NodeType.WILDCARD for c in child_node])
+                else:
+                    wildcard_exist = child_node[0].type == NodeType.WILDCARD
+                tree.children = tree.children + child_node
         merged_children = []
         for child in tree.children:
             if wildcard_exist:
@@ -1225,18 +1292,21 @@ def variant_to_tree(variant, cate_list):
             tree.determined = False
         elif variant["leaf"][0] == "...":
             tree.type = NodeType.WILDCARD
+            tree.cardinality = 0 # newly added
             tree.determined = False
         else:
             tree.type = NodeType.NORMAL
             if tree.cardiOp == "=" and tree.cardinality == 0:
+                # EQ1 is determined. Other cases are determined elsewhere
                 tree.determined = True
             else:
                 tree.determined = False
 
+    # I don't know what's happending in this part Warning
     if (tree.label[0] == "→" or tree.label[0] == "∧") and tree.determined:
         tt = True
         for child in tree.children:
-            tt = tt and child.determined
+            tt = (tt and child.determined)
         if not tt:
             print("CHECK")
 
@@ -1253,16 +1323,16 @@ def variant_to_tree(variant, cate_list):
         elif variant["horizontalCardi"] > 1 or variant["horizontalCardiOp"] == ">":
             expanded_node = []
             tree.cardiOp = "="
-            # unzip sequence without cardinality. Only applied to original sequence with cardinality
+            # expand(unzip) sequence without cardinality. Only applied to original sequence with cardinality
             if tree.type == NodeType.SEQ:
                 for i in range(variant["horizontalCardi"] - 1):
-                    expanded_node += copy.deepcopy(tree.children)
+                    expanded_node += [c.copy() for c in tree.children]
                 if variant["horizontalCardiOp"] == "=":
                     # Cardinality > 1
-                    expanded_node += copy.deepcopy(tree.children)
+                    expanded_node += [c.copy() for c in tree.children]
                     return expanded_node
                 else:
-                    expanded_node.append(copy.deepcopy(tree))
+                    expanded_node.append(tree.copy())
                     expanded_node[-1].cardiOp = ">"
                     expanded_node[-1].cardinality = 1
                     expanded_node[-1].cardiDirect = "horizontal"
@@ -1270,7 +1340,7 @@ def variant_to_tree(variant, cate_list):
                     return expanded_node
             else:
                 for i in range(variant["horizontalCardi"]):
-                    expanded_node.append(copy.deepcopy(tree))
+                    expanded_node.append(tree.copy())
                 if variant["horizontalCardiOp"] == "=":
                     # Cardinality > 1
                     return expanded_node
@@ -1281,13 +1351,45 @@ def variant_to_tree(variant, cate_list):
                     expanded_node[-1].determined = False
                     return expanded_node
             
-        # We don't need to handle vertical
         elif variant["verticalCardi"] > 1 or variant["verticalCardiOp"] == ">" or variant["verticalCardiOp"] == "<":
-            tree.type = NodeType.PARA # Could compare para and vertical. Only leaf node (Normal, G, Any) could have vertical cardinality!
-            tree.cardiDirect = "vertical"
-            tree.cardiOp = variant["verticalCardiOp"]
-            tree.cardinality = variant["verticalCardi"]
-            tree.determined = False
+            # Handle vertical cardi, only PARA and LEAF have vertical cardi
+            # Vertical node does not need to be expanded because it will match as parallel group(?)
+            # Warning: maybe wrong here
+            if tree.type == NodeType.SEQ:
+                print("SEQ vertical error!")
+            elif tree.type != NodeType.PARA:
+                # Single node
+                # Expand the node with a new PARA outside? How about serialization?
+                outer_para_node = VariantTree(random.randint(1, 10000))
+                outer_para_node.type = NodeType.PARA
+                outer_para_node.label = "∧"
+                if variant["verticalCardiOp"] == "=":
+                    outer_para_node.determined = (tree.type == NodeType.NORMAL)
+                    if outer_para_node.determined:
+                        tree.cardiOp = "="
+                        tree.cardinality = 0
+                        tree.cardiDirect = "vertical"
+                        for i in range(variant["verticalCardi"]):
+                            outer_para_node.children.append(tree.copy())
+                    else:
+                        tree.cardiOp = variant["verticalCardiOp"]
+                        tree.cardinality = variant["verticalCardi"]
+                        tree.cardiDirect = "vertical"
+                        outer_para_node.children.append(tree)
+                else:
+                    tree.cardiOp = variant["verticalCardiOp"]
+                    tree.cardinality = variant["verticalCardi"]
+                    tree.cardiDirect = "vertical"
+                    tree.determined = False
+                    outer_para_node.children.append(tree)
+                return [outer_para_node]
+
+            else:
+                # If it is already para node, no need to 
+                tree.cardiDirect = "vertical"
+                tree.cardiOp = variant["verticalCardiOp"]
+                tree.cardinality = variant["verticalCardi"]
+                tree.determined = False
             return [tree]
         
         else:
@@ -1391,6 +1493,8 @@ def match_para(p, v, cate_list):
     直接分成determined和undetermined。然后做直接比较也就是找determined的内容是否在v里面有。有的话从v弹出。剩下的做暴力求解。不过好像暴力求解那里的para本身就有问题?
     有一个non determined串联环节,这个环节看看有没有简化的办法。如果没有的话就直接暴力求解和seq一样
     其实暴力求解有一个可以优化的点 就是暴力打开以后里面的部分有determined的话也用这个简便方法循环来。不过这个看我的时间吧如果最后还有十天可以试试
+
+    注意vertical leaf node的type也是PARA(用cardi这个数值来区分)所以匹配的时候时候注意
     '''
     p_children = p.children # p is seq
     v_children = v.children
@@ -1643,8 +1747,10 @@ def single_node_match(p_node, v_node, cate_list):
         else:
             return False
     elif p_node.type == NodeType.PARA:
+        return True
         return match_para(p_node, v_node, cate_list)
     elif p_node.type == NodeType.SEQ:
+        return True
         return match_seq(p_node, v_node, cate_list)
     else:
         # Case: NORMAL

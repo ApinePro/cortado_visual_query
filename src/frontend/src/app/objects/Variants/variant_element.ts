@@ -1928,9 +1928,9 @@ export function injectWaitingTimeNodesVariant(variant: VariantElement) {
 }
 
 export enum CardinalityOperator {
-  lessequal = '≤',
+  lessequal = '<',
   equal = '=',
-  moreequal = '≥',
+  moreequal = '>',
 }
 
 export enum CardinalityDirection {
