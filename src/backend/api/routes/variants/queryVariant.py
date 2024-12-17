@@ -11,13 +11,13 @@ from collections import deque
 import networkx as nx
 import time
 import ahocorasick
-from pulp import LpProblem, LpVariable, lpSum, LpBinary, LpStatusOptimal
+from pulp import LpProblem, LpVariable, lpSum, LpBinary, LpStatusOptimal, PULP_CBC_CMD
 
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-import gc
+from viztracer import VizTracer
 
 from cortado_core.models.infix_type import InfixType
 from endpoints.load_event_log import (
@@ -117,7 +117,7 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
             stat = calculate_query_stat(query)
             for key in result_stat.keys():
                 result_stat[key] += stat[key]
-        '''        
+        '''
         count = 0
         filtered_variant_list = []
         start_time = time.time()
@@ -131,15 +131,17 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
             if_early_stopping_one_query.append(early_stopping)
             if match_result:
                 #print("Matched: ", count)
-                filtered_variant_list.append(count-1)
+                filtered_variant_list.append(count)
+            count += 1
         end_time = time.time()
         leaf_median = np.median(leaf_num_list_one_query)
         query_early_stop = any(if_early_stopping_one_query) # If there is one variant with early stopping
+        #print(filtered_variant_list)
         if len(filtered_variant_list) != 0 and len(filtered_variant_list) != num_variants:
             execution_time.append((end_time - start_time) / num_variants) # average execution time for querying all variants in the dataset
             leaf_num_list.append(leaf_median) # median leaf number which is visited when querying all variants in the dataset
             early_stop_list.append(query_early_stop) # If there is one early stopping for this query
-            if test_num % 50 == 0:
+            if test_num % 1 == 0:
                 print("Test num: ", test_num  + 1)
             test_num += 1
     
@@ -284,8 +286,8 @@ def generate_categories(activities):
         cate_label = "cate" + str(i)
         act_num = random.choices(list(range(2, MAX_ACT_IN_CATEGORY + 1)), weights=list(reversed(range(2, MAX_ACT_IN_CATEGORY+ 1))), k=1)[0]
         if len(activities) < act_num:
-            act_num = len(activities + cate_dic.keys())
-        cate_dic[cate_label] = random.sample(activities + cate_dic.keys(), act_num)
+            act_num = len(activities + list(cate_dic.keys()))
+        cate_dic[cate_label] = random.sample(activities + list(cate_dic.keys()), act_num)
     return cate_dic
 
 def cate_member(activity, category, cate_list):
@@ -423,9 +425,6 @@ def check_node(node, variant, cate_list):
         #print("Original Variant:")
         #print(variant)
         pattern = add_start_end_wildcard(node["pattern"])
-        print("Pattern is:")
-        print(pattern)
-        print("")
         result = dynamic_tree_matching(variant_to_tree(pattern, cate_list)[0], variant_to_tree(variant.serialize(), cate_list)[0], cate_list)
         count += calculate_leaf_num_pattern(pattern)
     if node["negation"] == True:
@@ -760,8 +759,8 @@ def compare_para(p_head, v_head, cate_list): # With cardinality
     
 
 def compare_para_no_cardi(p_head, v_head, count, cate_list):
-    print(p_head)
-    print(v_head)
+    #print(p_head)
+    #print(v_head)
     # Only leaves in both heads
     p_dic = {}
     v_dic = {}
@@ -806,6 +805,7 @@ def compare_para_no_cardi(p_head, v_head, count, cate_list):
                     v_dic.pop(k)
                 if p_dic[k][0] == 0 and p_dic[k][2] == 0:
                     p_dic.pop(k)
+                    break
                 else:
                     p_dic[k][1] = 0
         border = [p_dic[k][1], p_dic[k][1]]
@@ -827,7 +827,7 @@ def compare_para_no_cardi(p_head, v_head, count, cate_list):
     elements = []
     for k in v_dic.keys():
         for i in range(v_dic[k]):
-            elements.append(k + "_" + str(i))
+            elements.append(k + "\u2237\u2980" + str(i))
     classifications = border_dic.keys()
 
     # 定义决策变量
@@ -836,7 +836,7 @@ def compare_para_no_cardi(p_head, v_head, count, cate_list):
     def element_in_category(e, c, cate_list):
         if c == "?" or c == "wildcard":
             return True
-        e_label = e.split("_")[0]
+        e_label = e.split("\u2237\u2980")[0]
         if c not in cate_list:
             if e_label == c:
                 return True
@@ -845,12 +845,14 @@ def compare_para_no_cardi(p_head, v_head, count, cate_list):
         else:
             # c is group
             return cate_member(e_label, c, cate_list)
+    '''
     print("")
     print("Solve this:")
     print(classifications)
     print(elements)
     print(border_dic)
     print("")
+    '''
     # 添加约束：每个元素只能分配到一个分类
     for e in elements:
         problem += lpSum(z[e][c] for c in classifications if element_in_category(e, c, cate_list)) == 1
@@ -865,18 +867,21 @@ def compare_para_no_cardi(p_head, v_head, count, cate_list):
     problem += lpSum(0)  # 不关心优化目标
 
     # 求解问题
-    problem.solve()
+    solver = PULP_CBC_CMD(msg=False)
+    problem.solve(solver)
 
     # 输出结果
     if problem.status == LpStatusOptimal:
+        '''
         print("exist solution")
         for e in elements:
             for c in classifications:
                 if z[e][c].value() == 1:
                     print(f"{e} 被分配到 {c}")
+        '''
         return True
     else:
-        print("No solution")
+        #print("No solution")
         return False
 
 def compare_parallel_dics(p_dic, v_dic):
@@ -1008,7 +1013,7 @@ def add_start_end_wildcard(pattern):
 
 def generate_query_tree_node(activities, depth, cate_list):
     THRES_NEGATE = 0.3
-    THRES_LEAF = 0.3
+    THRES_LEAF = 0.2
     THRES_START_END = 0.3
     MAX_CHILD_NUM = 4
     
@@ -1018,7 +1023,7 @@ def generate_query_tree_node(activities, depth, cate_list):
     node = {}
     if_leaf = random.random()
     if if_leaf > THRES_LEAF:
-        node["pattern"] = generate_query(activities + ["...", "?"] + cate_list.keys(), "", 1)
+        node["pattern"] = generate_query(activities + ["...", "?"] + list(cate_list.keys()), "", 1)
         node["operator"] = "v"
         if random.random() > THRES_START_END:
             node["pattern"]["follows"].insert(0, {"leaf": ["▷"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
@@ -1041,10 +1046,10 @@ def generate_query_tree_node(activities, depth, cate_list):
         
 
 def generate_query(activities, parent_type, depth):
-    THRES_LEAF = 0.2
+    THRES_LEAF = 0.15
     THRES_CARDI = 0.2
-    MAX_SEQ_GROUP = 10
-    MAX_PARA_GROUP = 3
+    MAX_SEQ_GROUP = 7
+    MAX_PARA_GROUP = 4
     MAX_GROUP_CARDI = 3
     
     THRES_LEAF *= 0.5 ** (depth - 1)
@@ -1052,7 +1057,7 @@ def generate_query(activities, parent_type, depth):
 
     cardi_ops = ["=", ">", "<"]
     if_leaf = random.random()
-    if if_leaf > THRES_LEAF and depth - 1 != 1:
+    if (if_leaf > THRES_LEAF and depth - 1 != 1) or depth == 3:
         # return leaf, 70% probability
         leaf = {"leaf": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
         leaf["leaf"].append(random.choice(activities))
@@ -1176,7 +1181,7 @@ class VariantTree:
 
     def copy(self):
         # copy everything except id
-        new_node = VariantTree(random.randint(1, 10000))
+        new_node = VariantTree(random.randint(1, 100000))
         new_node.label = self.label 
         new_node.type = self.type
         new_node.cardiDirect = self.cardiDirect
@@ -1198,11 +1203,13 @@ class VariantTree:
     def clear_dic():
         VariantTree.label_index = 0
         VariantTree.label_to_char = {}
+        VariantTree.id_used = []
 
 def variant_to_tree(variant, cate_list):
     # Convert process variant to pattern/variant tree.
     # Including the expansion of vertical and parallel cardinality(Simplification 1)
-    tree =  VariantTree(random.randint(1, 10000))
+    #return True
+    tree =  VariantTree(random.randint(1, 100000))
     tree.variant = variant
 
     if "follows" in variant:
@@ -1254,7 +1261,7 @@ def variant_to_tree(variant, cate_list):
             child_node = variant_to_tree(child, cate_list)
             if len(child_node) > 1:
                 # is a seq child node
-                seq_child = VariantTree(random.randint(1, 10000))
+                seq_child = VariantTree(random.randint(1, 100000))
                 seq_child.determined = all([c.determined for c in child_node])
                 seq_child.children = [c.copy() for c in child_node]
                 tree.children = tree.children + seq_child
@@ -1360,7 +1367,7 @@ def variant_to_tree(variant, cate_list):
             elif tree.type != NodeType.PARA:
                 # Single node
                 # Expand the node with a new PARA outside? How about serialization?
-                outer_para_node = VariantTree(random.randint(1, 10000))
+                outer_para_node = VariantTree(random.randint(1, 100000))
                 outer_para_node.type = NodeType.PARA
                 outer_para_node.label = "∧"
                 if variant["verticalCardiOp"] == "=":
@@ -1442,7 +1449,7 @@ def serialize_determined_tree(tree):
 
 def get_seq_parent(p_list):
     # Create a parent
-    p_tree = VariantTree(random.randint(1, 10000))
+    p_tree = VariantTree(random.randint(1, 100000))
     p_tree.children = p_list.copy()
     p_tree.cardiDirect = "horizontal"
     p_tree.type = NodeType.SEQ
@@ -1450,7 +1457,7 @@ def get_seq_parent(p_list):
 
 def get_para_parent(p_list):
     # Create a parent
-    p_tree = VariantTree(random.randint(1, 10000))
+    p_tree = VariantTree(random.randint(1, 100000))
     p_tree.children = p_list.copy()
     p_tree.cardiDirect = "horizontal"
     p_tree.type = NodeType.PARA
@@ -1518,8 +1525,8 @@ def match_para(p, v, cate_list):
         if len(p_children) != len(v_children):
             return False
         else:
-            # Need Compare content!
-            return True
+            # Need Compare content!????? Just edited
+            brutal_match_para(p_children, v_children, cate_list)
     else:
         if v.type != NodeType.SEQ:
             v_children = [v]
@@ -1747,10 +1754,8 @@ def single_node_match(p_node, v_node, cate_list):
         else:
             return False
     elif p_node.type == NodeType.PARA:
-        return True
         return match_para(p_node, v_node, cate_list)
     elif p_node.type == NodeType.SEQ:
-        return True
         return match_seq(p_node, v_node, cate_list)
     else:
         # Case: NORMAL
@@ -1796,19 +1801,10 @@ def dynamic_tree_matching(p_tree, v_tree, cate_list):
                 p_node.match_id.append(v_node.id)
         if p_node.determined and len(p_node.match_id) == 0:
             # No match result for a determined node in pattern
+            VariantTree.clear_dic()
             return False
     VariantTree.clear_dic()
     return len(p_queue[-1].match_id) > 0 # Really???
-
-'''
-    NORMAL = 1
-    GROUP = 2
-    ANY = 3
-    WILDCARD = 4
-    SEQ = 5
-    PARA = 6 # Parallel and also Vertical cardi
-    {"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
-    '''
 
 def tree_to_variant(tree):
     if tree.type == NodeType.WILDCARD:
