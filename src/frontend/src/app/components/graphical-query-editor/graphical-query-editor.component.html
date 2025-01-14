@@ -473,8 +473,8 @@
             [activityNames]="activityNames"
             (activityButtonClick)="editLeafNode($event)"
             [ngClass]="
-              selectedRootNode?.data.operator === 'AND' ||
-              selectedRootNode?.data.operator === 'OR'
+              selectedRootNode?.data.operator === 'and' ||
+              selectedRootNode?.data.operator === 'or'
                 ? 'button-area-disabled'
                 : ''
             "

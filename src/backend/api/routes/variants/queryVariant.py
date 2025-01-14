@@ -97,7 +97,7 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
     query["follows"].append({"leaf": ["pay"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
     query["follows"].append({"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
     '''
-    TOTAL_TEST_NUM = 200
+    TOTAL_TEST_NUM = 250
 
     execution_time = []
     leaf_num_list = []
@@ -105,9 +105,13 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
     test_num = 0
     cate_list = generate_categories(activities)
 
+    query_count = [0, 0, 0, 0]
+    accumulated_time = [[], [], [], []]
+    thredhold_list = [5, 10, 15]
+
     print("Total variants", len(cache.variants.items()))
 
-    while test_num < TOTAL_TEST_NUM:
+    while query_count[0] < TOTAL_TEST_NUM or query_count[1] < TOTAL_TEST_NUM or query_count[2] < TOTAL_TEST_NUM or query_count[3] < TOTAL_TEST_NUM:
         #test_variants.append(generate_query(activities, ""))
         query = generate_query_tree_node(activities, 1, cate_list)
         '''
@@ -138,16 +142,28 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
         query_early_stop = any(if_early_stopping_one_query) # If there is one variant with early stopping
         #print(filtered_variant_list)
         if len(filtered_variant_list) != 0 and len(filtered_variant_list) != num_variants:
-            execution_time.append((end_time - start_time) / num_variants) # average execution time for querying all variants in the dataset
+            avg_time = (end_time - start_time) / num_variants
+
+            if leaf_median <= thredhold_list[0] and query_count[0] < TOTAL_TEST_NUM:
+                accumulated_time[0].append(avg_time)
+                query_count[0] += 1
+            elif leaf_median > thredhold_list[0] and leaf_median <= thredhold_list[1] and query_count[1] < TOTAL_TEST_NUM:
+                accumulated_time[1].append(avg_time)
+                query_count[1] += 1
+            elif leaf_median > thredhold_list[1] and leaf_median <= thredhold_list[2] and query_count[2] < TOTAL_TEST_NUM:
+                accumulated_time[2].append(avg_time)
+                query_count[2] += 1
+            elif leaf_median > thredhold_list[2] and query_count[3] < TOTAL_TEST_NUM:
+                accumulated_time[3].append(avg_time)
+                query_count[3] += 1
+            else:
+                continue
+            
+            execution_time.append(avg_time) # average execution time for querying all variants in the dataset
             leaf_num_list.append(leaf_median) # median leaf number which is visited when querying all variants in the dataset
             early_stop_list.append(query_early_stop) # If there is one early stopping for this query
-            if test_num % 1 == 0:
-                print("Test num: ", test_num  + 1)
-            test_num += 1
-    
-    query_count = [0, 0, 0, 0]
-    accumulated_time = [[], [], [], []]
-    thredhold_list = [5, 15, 30]
+            if query_count[0] % 25 == 0 or query_count[1] % 25 == 0 or query_count[2] % 25 == 0 or query_count[3] % 25 == 0:
+                print(query_count)
 
     time_df = pd.DataFrame({
      'runtime': execution_time,
@@ -157,8 +173,8 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
     
     def categorize_leaf_num(row):
         n = row["number_of_leaves"]
-        thredhold_list = [5, 15, 30]
-        labels = ["<=5", "<=15", "<=30", ">30"]
+        thredhold_list = [5, 10, 15]
+        labels = ["(0,5]", "(5,10]", "(10,15]", "(15, ∞)"]
         if n <= thredhold_list[0]:
             return labels[0]
         elif n <= thredhold_list[1]:
@@ -170,7 +186,7 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
 
     time_df['leaves_evaluated'] = time_df.apply(categorize_leaf_num, axis=1)
 
-
+    '''
     for t, n in zip(execution_time, leaf_num_list):
         if n <= thredhold_list[0]:
             accumulated_time[0].append(t)
@@ -184,11 +200,12 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
         else:
             accumulated_time[3].append(t)
             query_count[3] += 1
+    '''
 
     print("Average execution result for each group: ")
     real_query_count = [] # filter out one group if there is no content
     real_times = []
-    labels = ["<=5", "<=15", "<=30", ">30"]
+    labels = ["(0,5]", "(5,10]", "(10,15]", "(15, ∞)"]
     real_label = []
     for i in range(4):
         if query_count[i] == 0:
@@ -213,14 +230,14 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
 
     def get_bar_fig(df):
         plt.figure(figsize=(8, 6))
-        sns.boxplot(x='Median Number of Leaves Evaluated', y='Runtime (seconds)', data=df, palette=custom_palette)
-
+        sns.boxplot(x='Median Number of Leaves Evaluated', y='Runtime (seconds)', data=df, palette=custom_palette, showfliers=False)
 
         plt.title('Runtime vs. Median Number of Leaves Evaluated')
         plt.xlabel('Median Number of Leaves Evaluated')
         plt.ylabel('Runtime (seconds)')
+        plt.savefig("./bar_result.png")  # Save before plt.show()
         plt.show()
-        plt.savefig("./bar_result.png")
+        plt.close()  # Close the figure to avoid duplication
 
     def get_runtime_count_fig(time_df):
         plt.figure(figsize=(10, 6))
@@ -228,16 +245,17 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
             data=time_df,
             x='runtime',
             hue='leaves_evaluated',
-            multiple='stack',  
-            bins=30,           
-            palette='magma',  
-            edgecolor='black'  
+            multiple='stack',
+            bins=100,
+            palette='magma',
+            edgecolor='black'
         )
         plt.title('Runtime Distribution by Median Number of Leaves Evaluated')
         plt.xlabel('Runtime (seconds)')
         plt.ylabel('Count')
+        plt.savefig("./runtime_count.png")  # Save before plt.show()
         plt.show()
-        plt.savefig("./runtime_count.png")
+        plt.close()
 
     def get_early_stop_runtime_count_fig(time_df):
         plt.figure(figsize=(10, 6))
@@ -245,16 +263,17 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
             data=time_df,
             x='runtime',
             hue='early_stop',
-            multiple='stack',  
-            bins=30,           
-            palette='magma',  
-            edgecolor='black'  
+            multiple='stack',
+            bins=100,
+            palette='magma',
+            edgecolor='black'
         )
         plt.title('Runtime Distribution of early stopped and non-early stopped query')
         plt.xlabel('Runtime (seconds)')
         plt.ylabel('Count')
+        plt.savefig("./early_runtime_count.png")  # Save before plt.show()
         plt.show()
-        plt.savefig("./early_runtime_count.png")
+        plt.close()
 
     get_bar_fig(df)
     get_runtime_count_fig(time_df)
