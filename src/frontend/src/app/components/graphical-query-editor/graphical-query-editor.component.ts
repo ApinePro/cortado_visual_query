@@ -1796,8 +1796,8 @@ export class GraphicalQueryEditorComponent
   }
 
   checkNodeButtonDisabled(op){
-    return this.selectedRootNode && op === 'X' && (this.nodeInsertionStrategy === NodeInsertionStrategy.ABOVE ||
-              ((this.selectedRootNode.data?.operator) as any === 'X' && this.nodeInsertionStrategy === NodeInsertionStrategy.BELOW));
+    return this.selectedRootNode && op === 'v' && (this.nodeInsertionStrategy === NodeInsertionStrategy.ABOVE ||
+              ((this.selectedRootNode.data?.operator) as any === 'v' && this.nodeInsertionStrategy === NodeInsertionStrategy.BELOW));
   }
 
   insertNewNode(operator, label) {

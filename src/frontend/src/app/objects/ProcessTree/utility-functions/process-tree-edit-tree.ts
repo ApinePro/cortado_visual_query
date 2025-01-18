@@ -96,7 +96,8 @@ export function createNewRandomQueryNode(
     null,
     null,
     null,
-    null
+    null,
+    0
   );
 }
 

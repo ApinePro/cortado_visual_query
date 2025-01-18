@@ -5,11 +5,13 @@ import {
   TreeConformance,
 } from './ProcessTree';
 import { VariantElement } from '../Variants/variant_element';
+import { PT_Constant } from './../../constants/process_tree_drawer_constants';
 
 export class QueryTree extends ProcessTree {
   public pattern: VariantElement;
   public isLeaf: boolean = false;
   public negation: boolean = false;
+  public offset: number = 0;
   constructor(
     label: string,
     operator: ProcessTreeOperator,
@@ -20,7 +22,8 @@ export class QueryTree extends ProcessTree {
     performance: TreePerformance,
     conformance: TreeConformance,
     parent: ProcessTree,
-    pattern: VariantElement
+    pattern: VariantElement,
+    offset: number,
   ) {
     super(
       label,
@@ -30,10 +33,11 @@ export class QueryTree extends ProcessTree {
       frozen,
       performance,
       conformance,
-      parent
+      parent,
     );
     this.pattern = pattern;
     this.negation = negation;
+    this.offset = offset;
   }
 
   public copy(
@@ -55,6 +59,7 @@ export class QueryTree extends ProcessTree {
       this.conformance,
       null,
       this.pattern ? this.pattern.copy() : null,
+      this.offset,
     );
 
     if (parentRelation)
@@ -63,4 +68,33 @@ export class QueryTree extends ProcessTree {
       });
     return treeCopy;
   }
+
+  public computeOffset(): number {
+    let offset = 0;
+    if (this.pattern){
+      if (this.children.length == 0) {
+        offset = this.pattern.getHeight() - PT_Constant.QNODE_HEIGHT_WIDTH;
+        this.offset = offset;
+      }
+      else {
+        for (const child of this.children) {
+          offset = offset + (child as QueryTree).computeOffset();
+        }
+        this.offset = offset;
+      }
+    }
+    return offset;
+  }
 }
+
+/*
+const siblings = node.parent.children;
+const nodeIndex = siblings.indexOf(node);
+let i = siblings.length - 1;
+while (i > nodeIndex) {
+  siblings[i].x =
+    siblings[i].x +
+    node.data.pattern.getHeight() -
+    PT_Constant.QNODE_HEIGHT_WIDTH;
+  i -= 1;
+}*/

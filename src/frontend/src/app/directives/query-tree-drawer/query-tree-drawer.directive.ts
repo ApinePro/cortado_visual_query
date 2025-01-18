@@ -62,6 +62,7 @@ import { IVariant } from 'src/app/objects/Variants/variant_interface';
 import { threadId } from 'worker_threads';
 import { ConformanceCheckingService } from 'src/app/services/conformanceChecking/conformance-checking.service';
 import { QueryTree } from 'src/app/objects/ProcessTree/QueryTree';
+import { last } from 'lodash';
 
 @Directive({
   selector: '[appQueryTreeDrawer]',
@@ -156,6 +157,7 @@ export class QueryTreeDrawerDirective {
   redraw(tree: ProcessTree) {
     //console.log(tree);
     if (tree) {
+      (tree as QueryTree).computeOffset()//grad new
       this.root = d3.hierarchy(tree, (d) => {
         // @ts-ignore
         return d.children;
@@ -285,18 +287,20 @@ export class QueryTreeDrawerDirective {
       .text((d: any) => {
         if (d.data.pattern) {
           console.log("start draw pattern in node");
+          if (d.parent) {
+            this.translateAllSiblings(d);
+          }
           this.variantRedraw(
             d.data.id,
             d.data.pattern,
             d.y,
             d.x - PT_Constant.QNODE_HEIGHT_WIDTH / 2
           );
-          if (d.parent) {
-            this.translateNextSiblings(d);
-          }
           return '';
         } else {
-          //console.log(d.data);
+          if (d.parent) {
+            this.translateAllSiblings(d);
+          }
           if (d.data.operator) {
             return d.data.operator;
           }
@@ -398,6 +402,7 @@ export class QueryTreeDrawerDirective {
     node.exit().transition().duration(50).remove();
   }
 
+  
   translateNextSiblings(node) {
     const siblings = node.parent.children;
     const nodeIndex = siblings.indexOf(node);
@@ -410,6 +415,145 @@ export class QueryTreeDrawerDirective {
       i -= 1;
     }
   }
+
+  translateTree(node, offset){
+    node.x = node.x + offset;
+    if (node.children){
+      for (const child of node.children){
+        this.translateTree(child, offset);
+      }
+    }
+  }
+
+  translateAllSiblings(node) {
+    let siblings = node.parent.children;
+    let nodeIndex = siblings.indexOf(node);
+    let upOffset = 0;
+    let downOffset = 0;
+    if (nodeIndex != 0){
+      let lastSibling = siblings[nodeIndex - 1];
+      console.log(lastSibling);
+      while (lastSibling.children && lastSibling.children.length > 0){
+        lastSibling = lastSibling.children[lastSibling.children.length - 1];
+      }
+      let lastSiblingX = lastSibling.x + PT_Constant.QNODE_HEIGHT_WIDTH;
+
+      if (lastSibling.data.pattern){
+        lastSiblingX = lastSiblingX + lastSibling.data.pattern.getHeight() - PT_Constant.QNODE_HEIGHT_WIDTH;
+      }
+
+      let currentNode = node;
+      while(currentNode.children){
+        currentNode = currentNode.children[0];
+      }
+
+      let i = 0;
+      upOffset = lastSiblingX - currentNode.x + PT_Constant.NODE_SPACING
+      while (i < nodeIndex){
+        this.translateTree(siblings[i], -upOffset);
+        i += 1;
+      }
+    }
+    
+    if (nodeIndex != siblings.length - 1){
+      let nextSibling = siblings[nodeIndex + 1];
+      while (nextSibling.children && nextSibling.children.length > 0){
+        nextSibling = nextSibling.children[0];
+      }
+      let nextSiblingX = nextSibling.x;
+
+      let currentNode = node;
+      while(currentNode.children){
+        currentNode = currentNode.children[currentNode.children.length - 1];
+      }
+
+      if(currentNode.data.pattern){
+      downOffset = (currentNode.x + currentNode.data.pattern.getHeight() - nextSiblingX) + PT_Constant.NODE_SPACING
+      }
+      else{
+        downOffset = (currentNode.x + PT_Constant.QNODE_HEIGHT_WIDTH - nextSiblingX) + PT_Constant.NODE_SPACING
+      }
+      let i = nodeIndex + 1;
+      while (i < siblings.length){
+        this.translateTree(siblings[i], downOffset);
+        i += 1;
+      }
+    }
+    
+
+    if (node.parent.parent){
+      this.translateAllSiblings(node.parent);
+    }
+  }
+
+  /*
+  translateAllSiblings(node) {
+    let siblings = node.parent.children;
+    const nodeIndex = siblings.indexOf(node);
+    let upOffset = 0;
+    let downOffset = 0;
+    if (nodeIndex != 0){
+      let lastSibling = siblings[nodeIndex - 1];
+      console.log(lastSibling);
+      while (lastSibling.children && lastSibling.children.length > 0){
+        lastSibling = lastSibling.children[lastSibling.children.length - 1];
+      }
+      let lastSiblingX = lastSibling.x + PT_Constant.QNODE_HEIGHT_WIDTH;
+
+      if (lastSibling.data.pattern){
+        lastSiblingX = lastSiblingX + lastSibling.data.pattern.getHeight() - PT_Constant.QNODE_HEIGHT_WIDTH;
+      }
+
+      let i = 0;
+      upOffset = lastSiblingX - siblings[nodeIndex].x + PT_Constant.NODE_SPACING
+      while (i < nodeIndex){
+        this.translateTree(siblings[i], -upOffset);
+        i += 1;
+      }
+    }
+    
+    if (nodeIndex != siblings.length - 1){
+      let nextSibling = siblings[nodeIndex + 1];
+      while (nextSibling.children && nextSibling.children.length > 0){
+        nextSibling = nextSibling.children[0];
+      }
+      let nextSiblingX = nextSibling.x;
+
+      if(node.data.pattern){
+      downOffset = (siblings[nodeIndex].x + node.data.pattern.getHeight() - nextSiblingX) + PT_Constant.NODE_SPACING
+      }
+      else{
+        downOffset = (siblings[nodeIndex].x + PT_Constant.QNODE_HEIGHT_WIDTH - nextSiblingX) + PT_Constant.NODE_SPACING
+      }
+      let i = nodeIndex + 1;
+      while (i < siblings.length){
+        this.translateTree(siblings[i], downOffset);
+        i += 1;
+      }
+    }
+
+    let currentNode = node;
+    let currentIndex = 0
+    
+    while(currentNode.parent){
+      currentNode = currentNode.parent;
+      if (currentNode.parent){
+        siblings = currentNode.parent.children;
+        currentIndex = siblings.indexOf(currentNode);
+        let i = 0;
+        while (i < currentIndex){
+          this.translateTree(siblings[i], -upOffset);
+          i += 1;
+        }
+        i = currentIndex + 1;
+        while (i < siblings.length){
+          this.translateTree(siblings[i], downOffset);
+          i += 1;
+        }
+      }
+    }
+  }*/
+  
 
   drawEdges(root) {
     const edges = this.mainSvgGroup.selectAll('line').data(root.links());
@@ -466,6 +610,7 @@ export class QueryTreeDrawerDirective {
         });
       // Draw Nodes
       this.drawNodes(node);
+      //console.log(root.data);
 
       // Draw Edges
       this.drawEdges(root);
