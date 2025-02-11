@@ -658,22 +658,23 @@ export class BackendService {
 
   
   // Test version
+  /*
   public applyGraphicalQuery(queryTree, activityGroups): Observable<any> {
     return this.httpClient
       .post(ROUTES.HTTP_BASE_URL + ROUTES.QUERY + 'generate-query-test', {
         queryTree: queryTree,
         activityGroups: activityGroups,
       })
-  }
+  }*/
 
-  /*
+  
   public applyGraphicalQuery(queryTree, activityGroups): Observable<any> {
     return this.httpClient
       .post(ROUTES.HTTP_BASE_URL + ROUTES.QUERY + 'graphical-variant-query', {
         queryTree: queryTree,
         activityGroups: activityGroups,
       })
-  }*/
+  }
 
   get _cancelOtherBgTasks$(): Observable<any> {
     return this.cancelOtherBgTasks.asObservable();
