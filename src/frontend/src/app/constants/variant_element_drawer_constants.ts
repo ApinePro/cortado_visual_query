@@ -24,4 +24,6 @@ export class VARIANT_Constants {
 
   public static CARDI_MARGIN_X = 15;
   public static CARDI_MARGIN_Y = 15;
+
+  public static STACK_HEIGHT = 10;
 }

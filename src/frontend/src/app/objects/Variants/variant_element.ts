@@ -1783,7 +1783,7 @@ export class ParallelPattern extends ParallelGroup implements QueryPattern {
     this.elements.forEach((el) => (el.height = undefined));
     this.height =
       this.elements
-        .map((el: VariantElement) => el.getHeight() + this.getMarginY())
+        .map((el: VariantElement) => el.getHeight() + this.getMarginY() + ((el.asPattern().verticalCardi > 0 || el.asPattern().horizontalCardi > 0) ?  VARIANT_Constants.STACK_HEIGHT + 10 : 0))  
         .reduce((a: number, b: number) => a + b) + VARIANT_Constants.MARGIN_Y;
 
     if (this.verticalCardi > 0 || this.horizontalCardi > 0) {
@@ -1799,7 +1799,7 @@ export class ParallelPattern extends ParallelGroup implements QueryPattern {
       Math.max(
         ...this.elements
           .filter((el) => !(el instanceof WaitingTimeNode) || includeWaiting)
-          .map((el: VariantElement) => el.getWidth(includeWaiting))
+          .map((el: VariantElement) => (el.asPattern().verticalCardi > 0 || el.asPattern().horizontalCardi > 0) ? el.getWidth(includeWaiting) + 10 : el.getWidth(includeWaiting))
       ) +
       VARIANT_Constants.MARGIN_X +
       2 * headLength;

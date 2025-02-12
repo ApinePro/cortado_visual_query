@@ -432,7 +432,7 @@ export class QueryTreeDrawerDirective {
     let downOffset = 0;
     if (nodeIndex != 0){
       let lastSibling = siblings[nodeIndex - 1];
-      console.log(lastSibling);
+      //console.log(lastSibling);
       while (lastSibling.children && lastSibling.children.length > 0){
         lastSibling = lastSibling.children[lastSibling.children.length - 1];
       }
@@ -1027,16 +1027,29 @@ export class QueryTreeDrawerDirective {
           'cursor-pointer',
           (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
         );
-
+      
+      let cardiOpLabel = "="
       if(element.asPattern().verticalCardi > 0){
+        if(element.asPattern().verticalCardiOp == ">"){
+          cardiOpLabel = "≥"
+        }
+        else if(element.asPattern().verticalCardiOp == "<"){
+          cardiOpLabel = "≤"
+        }
         tspan.text('⇕ ' +
-        element.asPattern().verticalCardiOp +
+        cardiOpLabel +
         ' ' +
         element.asPattern().verticalCardi)
       }
       else {
+        if(element.asPattern().horizontalCardiOp == ">"){
+          cardiOpLabel = "≥"
+        }
+        else if(element.asPattern().horizontalCardiOp == "<"){
+          cardiOpLabel = "≤"
+        }
         tspan.text('⇔ ' +
-        element.asPattern().horizontalCardiOp +
+        cardiOpLabel +
         ' ' +
         element.asPattern().horizontalCardi)
       }
@@ -1151,7 +1164,6 @@ export class QueryTreeDrawerDirective {
       });
     }
 
-    //.attr('y', -VARIANT_Constants.FONT_SIZE)
     if (
       element.asPattern().verticalCardi > 0 ||
       element.asPattern().horizontalCardi > 0
@@ -1179,19 +1191,36 @@ export class QueryTreeDrawerDirective {
           'cursor-pointer',
           (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
         );
+
+      let cardiOpLabel = "="
       if(element.asPattern().verticalCardi > 0){
+        if(element.asPattern().verticalCardiOp == ">"){
+          cardiOpLabel = "≥"
+        }
+        else if(element.asPattern().verticalCardiOp == "<"){
+          cardiOpLabel = "≤"
+        }
         tspan.text('⇕ ' +
-        element.asPattern().verticalCardiOp +
+        cardiOpLabel +
         ' ' +
         element.asPattern().verticalCardi)
       }
       else {
+        if(element.asPattern().horizontalCardiOp == ">"){
+          cardiOpLabel = "≥"
+        }
+        else if(element.asPattern().horizontalCardiOp == "<"){
+          cardiOpLabel = "≤"
+        }
         tspan.text('⇔ ' +
-        element.asPattern().horizontalCardiOp +
+        cardiOpLabel +
         ' ' +
         element.asPattern().horizontalCardi)
       }
     }
+
+    // Draw children
+    let xoffset = element.elements.some(el => (el.asPattern().verticalCardi > 0 || el.asPattern().horizontalCardi > 0)) ? 5 : 0;
 
     let y = VARIANT_Constants.MARGIN_Y;
     if (
@@ -1200,7 +1229,7 @@ export class QueryTreeDrawerDirective {
     ) {
       y += VARIANT_Constants.CARDI_MARGIN_Y;
     }
-
+  
     for (const child of element.elements) {
       if (
         child instanceof WaitingTimeNode &&
@@ -1210,11 +1239,13 @@ export class QueryTreeDrawerDirective {
         continue;
       }
 
-      const height = child.getHeight();
-      const x = element.getHeadLength() + 0.5 * VARIANT_Constants.MARGIN_X;
+      const height = child.asPattern().getHeight(); //newly added
+      console.log(height);
+      const x = element.getHeadLength() + 0.5 * VARIANT_Constants.MARGIN_X + xoffset;
+      y += ((child.asPattern().verticalCardi > 0 || child.asPattern().horizontalCardi > 0) ?  VARIANT_Constants.STACK_HEIGHT + 10 : 0)
       const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);
       this.draw(child, g, false, nodeVariant);
-      y += height + VARIANT_Constants.MARGIN_Y;
+      y += height + VARIANT_Constants.MARGIN_Y; 
     }
 
     if (this.onMouseOverCbFc) {
@@ -1526,8 +1557,9 @@ export class QueryTreeDrawerDirective {
         lightColor,
         actionable
       );
-      stackPolygon.attr('transform', `translate(-10, -10)`);
+      stackPolygon.attr('transform', `translate(-${VARIANT_Constants.STACK_HEIGHT}, -${VARIANT_Constants.STACK_HEIGHT})`);
     }
+
     let polygon = this.createPolygon(parent, polygonPoints, color, actionable);
 
     if (this.traceInfixSelectionMode) {
@@ -1571,15 +1603,29 @@ export class QueryTreeDrawerDirective {
           'cursor-pointer',
           (!this.traceInfixSelectionMode || actionable) && this.addCursorPointer
         );
+        
+        let cardiOpLabel = "="
         if(element.asPattern().verticalCardi > 0){
+          if(element.asPattern().verticalCardiOp == ">"){
+            cardiOpLabel = "≥"
+          }
+          else if(element.asPattern().verticalCardiOp == "<"){
+            cardiOpLabel = "≤"
+          }
           tspan.text('⇕ ' +
-          element.asPattern().verticalCardiOp +
+          cardiOpLabel +
           ' ' +
           element.asPattern().verticalCardi)
         }
         else {
+          if(element.asPattern().horizontalCardiOp == ">"){
+            cardiOpLabel = "≥"
+          }
+          else if(element.asPattern().horizontalCardiOp == "<"){
+            cardiOpLabel = "≤"
+          }
           tspan.text('⇔ ' +
-          element.asPattern().horizontalCardiOp +
+            cardiOpLabel +
           ' ' +
           element.asPattern().horizontalCardi)
         }

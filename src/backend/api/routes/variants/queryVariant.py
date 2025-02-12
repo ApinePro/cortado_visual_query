@@ -468,6 +468,8 @@ def pattern_match_variant(pattern, variant, cate_list):
 
     if pattern.type == NodeType.SEQ and len(pattern.children) == 1 and not check_have_cardi(pattern):
         pattern = pattern.children[0]
+    elif pattern.type == NodeType.PARA and len(pattern.children) == 1 and pattern.children[0].type == NodeType.SEQ: #newly added, only single seq child inside para for "matching rest"
+        pattern = pattern.children[0]
     
     if pattern.type == NodeType.WILDCARD: # newly added. Don't know why did not implement before
         return True
@@ -488,17 +490,18 @@ def pattern_match_variant(pattern, variant, cate_list):
     p_body = cut_head(pattern)
     v_body = cut_head(variant)
 
-    print(node_content(pattern))
-    print(node_content(variant))
-    print("########################################################################")
-
+    #print(node_content(pattern))
+    #print(node_content(variant))
+    #print("########################################################################")
+    #print("PMV")
+    #print(len(VariantTree.id_used))
     if p_head.type == NodeType.WILDCARD:
         any_head = VariantTree(label="??", node_type=NodeType.ANYGROUP)
         pattern_with_any = add_head(pattern, any_head)
         #print("##########################################################################\n")
         #return single_node_match(p_body, variant, cate_list) or single_node_match(pattern_with_any, variant, cate_list)
         return pattern_match_variant(p_body, variant, cate_list) or pattern_match_variant(pattern_with_any, variant, cate_list)
-    elif check_have_cardi(p_head) and p_head.cardiDirect == "horizontal" and p_head.cardiOp > 0:
+    elif check_have_cardi(p_head) and p_head.cardiDirect == "horizontal" and p_head.cardinality > 0:
         # resolve "horizontal" case
         pattern = add_head_cardinality(pattern, -1)
         p_head = find_head(pattern)
@@ -532,7 +535,7 @@ def pattern_match_variant(pattern, variant, cate_list):
     
 
     # Not horizontal cardinality
-    elif check_have_cardi(p_head) and p_head.cardiDirect == "vertical" and p_head.cardiOp > 0: # resolve vertical (only =)
+    elif check_have_cardi(p_head) and p_head.cardiDirect == "vertical" and p_head.cardinality > 0: # resolve vertical (only =)
         if p_head.type == NodeType.PARA:
             for element in p_head.children:
                 element.cardinality *= p_head.cardinality
@@ -541,6 +544,7 @@ def pattern_match_variant(pattern, variant, cate_list):
             # Expand leaf with cardi
             child = VariantTree(label=p_head.label, node_type=p_head.type, cardinality=p_head.cardinality, cardiDirect="vertical")
             p_head = VariantTree(node_type=NodeType.PARA, children=[child])
+            p_head.update_determined()
 
     else:
         # p_head: para, leaf (may have vertical...)
@@ -569,19 +573,23 @@ def add_head(pattern, head):
         new_head.cardinality = 0
         new_head.cardiOp = "="
         pattern.children.insert(0, new_head)
+    pattern.update_determined()
     return pattern
 
 def replace_head(pattern, head): # For '=' and '<;, when 1->0
     pattern = pattern.copy()
     if pattern.type != NodeType.SEQ: # pattern is leaf / para. head == pattern
         pattern.cardiOp = '='
+        pattern.update_determined() # newly added
     else:
         if head.type != NodeType.SEQ: # pattern is seq, head is leaf/para
-            head.children[0].cardiOp = '='
+            pattern.children[0].cardiOp = '='
+            pattern.children[0].update_determined()
         else: # pattern is seq, head is seq
             pattern.children.pop(0)
             for p in reversed(head.children):
                 pattern.children.insert(0, p)
+    pattern.update_determined()
     return pattern
 
 def variant_can_be_none(variant):
@@ -662,7 +670,7 @@ def compare_para(p_head, v_head, cate_list): # With cardinality
     v_count = len(v_head.children)
     for c in p_head.children:
         # These children only have vertical cardinality
-        if c.type == NodeType.WILDCARD and (c.cardiOp == "=" or c.cardiOp == ">"):
+        if c.type != NodeType.WILDCARD and (c.cardiOp == "=" or c.cardiOp == ">"):
             determined_count += c.cardinality
             if c.cardiOp == "=" and c.cardinality == 0:
                 determined_count += 1
@@ -777,6 +785,9 @@ def compare_para_no_cardi(p_head, v_head, count, cate_list):
     if "..." in p_dic:
         border_dic["..."] = [0, -1]
 
+    if(not p_dic and not v_dic): #newly added for the case that p_dic and v_dic are both cleared
+        return True
+
     problem = LpProblem("Element_Classification")
     # 定义元素和分类
     elements = []
@@ -826,6 +837,7 @@ def compare_para_no_cardi(p_head, v_head, count, cate_list):
     # 求解问题
     solver = PULP_CBC_CMD(msg=False)
     problem.solve(solver)
+    #print("LP")
 
     # 输出结果
     if problem.status == LpStatusOptimal:
@@ -882,20 +894,23 @@ def compare_leaf_para(p_head, v_head, cate_list):
     # p is leaf and v is para
     if p_head.type == NodeType.WILDCARD:
         return True
-    elif (p_head.cardiDirect == "horizontal" and p_head.cardiOp > 1) or p_head.cardiOp != "=":
+    elif (p_head.cardiDirect == "horizontal" and p_head.cardinality > 1) or p_head.cardiOp != "=":
         return False
     elif p_head.cardiDirect == "vertical" and p_head.cardiOp != "<" and p_head.cardinality > len(v_head.children):
         return False
-    elif p_head.cardiDirect == "vertical" and p_head.cardiOp != ">" and p_head.cardinality < len(v_head.children):
+    elif p_head.cardiDirect == "vertical" and p_head.cardiOp != ">" and p_head.cardinality < len(v_head.children) and len(v_head.children) > 1:
+        # newly added. When p_head.cardi = 0 and there is a problem when len(v.chilren) == 1
         return False
     else:
         # to here
         extend_p = VariantTree(node_type=NodeType.PARA, children=[p_head.copy()])
+        extend_p.update_determined()
         return compare_para(extend_p, v_head, cate_list)
 
 def compare_para_leaf(p_head, v_head, cate_list):
     # p is leaf and v is para
     extend_v = VariantTree(node_type=NodeType.PARA, children=[v_head.copy()])
+    extend_v.update_determined()
     return compare_para(p_head, extend_v, cate_list)
 
 def find_head(variant):
@@ -934,7 +949,9 @@ def check_have_cardi(pattern):
 
 def add_start_end_wildcard(pattern):
     pattern = pattern.copy()
-    # Pattern is for sure a seq
+    # Pattern is for sure a seq?
+    if pattern.type != NodeType.SEQ:
+        pattern = get_seq_parent([pattern])
     if not (node_is_leaf(pattern.children[0]) and (pattern.children[0].label == "▷" or pattern.children[0].type == NodeType.WILDCARD)):
         head = VariantTree(node_type=NodeType.WILDCARD)
         pattern.children.insert(0, head)
@@ -945,6 +962,7 @@ def add_start_end_wildcard(pattern):
         pattern.children.append(tail)
     elif node_is_leaf(pattern.children[0]) and pattern.children[-1].label == "▢":
         pattern.children.pop(-1) #any error if nothing after pop?
+    pattern.update_determined()
     return pattern
 
 ### Generate testing code ###
@@ -1109,15 +1127,15 @@ class VariantTree:
     id_used = []
     preserved_char = ["(", ")", "→", "∧"]
 
-    def __init__(self, id=random.randint(1, 100000), label = "", children = [], node_type = NodeType.NORMAL, cardiDirect = "vertical"
+    def __init__(self, id=random.randint(1, 1000000), label = "", children = [], node_type = NodeType.NORMAL, cardiDirect = "vertical"
                  , cardinality = 0, cardiOp = "=", match_id = [], determined = False, variant = 0):
         self.label = label
-        self.children = children
+        self.children = [c for c in children]
         self.type = node_type
         self.cardiDirect = cardiDirect
         self.cardinality = cardinality
         self.cardiOp = cardiOp
-        self.match_id = match_id
+        self.match_id = [id for id in match_id]
         self.determined = determined
         self.variant = variant
         while id in VariantTree.id_used:
@@ -1142,6 +1160,36 @@ class VariantTree:
             new_node.children = [c.copy() for c in self.children]
         return new_node
     
+    def realcopy(self):
+        # Also copy id...
+        new_node = VariantTree()
+        new_node.id = self.id
+        new_node.label = self.label 
+        new_node.type = self.type
+        new_node.cardiDirect = self.cardiDirect
+        new_node.cardinality = self.cardinality
+        new_node.cardiOp = self.cardiOp
+        new_node.match_id = [id for id in self.match_id]
+        new_node.determined = self.determined
+        new_node.variant = self.variant
+        if len(self.children) == 0:
+            new_node.children = []
+        else:
+            new_node.children = [c.copy() for c in self.children]
+        return new_node
+    
+    def update_determined(self): #re-calculate "determined" according to the children
+        if self.type == NodeType.NORMAL and self.cardinality == 0:
+            self.determined = True
+        elif self.type == NodeType.SEQ or self.type == NodeType.PARA:
+            self.determined = True
+            for c in self.children:
+                if not c.update_determined():
+                    self.determined = False
+        else:
+            self.determined = False
+        return self.determined
+    
     @staticmethod
     def increase_label_index():
         VariantTree.label_index += 1
@@ -1159,7 +1207,7 @@ def variant_to_tree(variant, cate_list):
     # Convert process variant to pattern/variant tree.
     # Including the expansion of vertical and parallel cardinality(Simplification 1)
     #return True
-    tree =  VariantTree()
+    tree = VariantTree()
     tree.variant = variant
 
     if "follows" in variant:
@@ -1196,8 +1244,7 @@ def variant_to_tree(variant, cate_list):
                                 tree.children[-1].cardinality = 0
                 tree.children = tree.children + child_node
             else:
-                #print("eeeerrorr")
-                l = 1
+                print("eeeerrorr")
         for child in tree.children:
             tree.determined = (tree.determined & child.determined)
         if len(tree.children) == 1:
@@ -1258,7 +1305,7 @@ def variant_to_tree(variant, cate_list):
                 tree.determined = True
             else:
                 tree.determined = False
-    if len(tree.label)==0:
+    if len(tree.label) == 0:
         print("sad")
     # I don't know what's happending in this part Warning
     if (tree.label[0] == "→" or tree.label[0] == "∧") and tree.determined:
@@ -1404,7 +1451,9 @@ def get_seq_parent(p_list):
     p_tree.children = p_list.copy()
     p_tree.cardiDirect = "horizontal"
     p_tree.type = NodeType.SEQ
+    p_tree.update_determined()
     return p_tree
+
 
 def get_para_parent(p_list):
     # Create a parent
@@ -1412,7 +1461,9 @@ def get_para_parent(p_list):
     p_tree.children = p_list.copy()
     p_tree.cardiDirect = "horizontal"
     p_tree.type = NodeType.PARA
+    p_tree.update_determined()
     return p_tree
+
 
 def node_list_could_be_non(node_list):
     # Return if a list of nodes could be none theoretically
@@ -1450,11 +1501,11 @@ def match_para(p, v, cate_list):
     可以做一个是否含有determined seq的判断做提前退出 如果说潜在的成员类型OK的话再继续
     直接分成determined和undetermined。然后做直接比较也就是找determined的内容是否在v里面有。有的话从v弹出。剩下的做暴力求解。不过好像暴力求解那里的para本身就有问题?
     有一个non determined串联环节,这个环节看看有没有简化的办法。如果没有的话就直接暴力求解和seq一样
-    其实暴力求解有一个可以优化的点 就是暴力打开以后里面的部分有determined的话也用这个简便方法循环来。不过这个看我的时间吧如果最后还有十天可以试试
 
     注意vertical leaf node的type也是PARA(用cardi这个数值来区分)所以匹配的时候时候注意
+    pattern is of PARA. vatriant maybe not
     '''
-    p_children = p.children # p is seq
+    p_children = p.children # p is para
     v_children = v.children
     p_have_seq = False
     v_have_seq = False
@@ -1462,6 +1513,7 @@ def match_para(p, v, cate_list):
     if len(p.label) > 1 and p.label == v.label: # Serialized para
         return True
 
+    # Check if there is a determined seq in pattern, and check if there is also a seq in variant. -> early stopping
     for c in p_children:
         if c.determined and c.type == NodeType.SEQ:
             p_have_seq = True
@@ -1482,8 +1534,9 @@ def match_para(p, v, cate_list):
             # Need Compare content!????? Just edited
             brutal_match_para(p_children, v_children, cate_list)
     else:
-        if v.type != NodeType.SEQ:
-            v_children = [v]
+        #if v.type != NodeType.SEQ and v.type != NodeType.PARA:
+        if v.type != NodeType.PARA:
+            v_children = [v] # if v is seq or leaf, pack it
 
         determined_part = []
         undetermined_part = []
@@ -1505,7 +1558,7 @@ def match_para(p, v, cate_list):
             else:
                 return brutal_match_para(determined_part, v_children, cate_list)
         
-        v_copy = copy.deepcopy(v_children)
+        v_copy = [v.realcopy() for v in v_children]
 
         for node in determined_part:
             found = False
@@ -1599,7 +1652,7 @@ def match_seq(p, v, cate_list):
         elif len(pattern_segments) == 1:
             # Deal with case: pattern has only 1 non-determined part.
             #return brutal_match(p_children, v_children, cate_list)
-            return brutal_match_seq(p_children, v_children, cate_list)
+            return match_rest([p_children], [v_children], cate_list)
         
         # Following lines: at least find one determined segment in pattern
 
@@ -1616,6 +1669,7 @@ def match_seq(p, v, cate_list):
             ac.add_word(subpattern, (idx, subpattern))
 
         ac.make_automaton()
+        #print("AC")
 
         partial_graph = nx.DiGraph()
         subpattern_order_abbr = [subpattern_reverse_dic[x] for x in subpattern_order] # A list shows the order of subpatterns in pattern, but in abbr form
@@ -1675,10 +1729,31 @@ def match_seq(p, v, cate_list):
 def match_rest(p_list, v_list, cate_list): # Need group or not?
     # Match the undetermined segments
     for p_segment, v_segment in zip(p_list, v_list):
+        if not check_rest_matching_id(p_segment, v_segment):
+            return False
+        if speed_wildcard(p_segment, v_segment):
+            return True
         result = brutal_match_seq(p_segment, v_segment, cate_list)
         if not result:
             return False
     return True
+
+def check_rest_matching_id(p_segment, v_segment):
+    for p in p_segment:
+        match = False
+        for v in v_segment:
+            if v.id in p.match_id:
+                match = True
+        if not match and not variant_can_be_none(p):
+            return False
+    return True
+
+def speed_wildcard(p_segment, v_segment):
+    if len(p_segment) == 3 and p_segment[0].type == NodeType.WILDCARD and p_segment[-1].type == NodeType.WILDCARD:
+        for v in v_segment:
+            if v.id in p_segment[1].match_id:
+                return True
+    return False
 
 # match p and v nodes in step 1
 def single_node_match(p_node, v_node, cate_list):
@@ -1723,28 +1798,14 @@ def single_node_match(p_node, v_node, cate_list):
 
 def expand_tree(tree):
     # return a deque
-    queue = deque([tree])
-    visited = set()
+    queue = [tree]
 
     #Expand tree by BFS
-    '''
-    while queue:
-        node = queue.popleft()
-        if node in visited:
-            continue
-        print(node)
 
-        visited.add(node)
-
-        for child in node.children:
-            if child not in visited:
-                queue.append(child)
-    '''
     index = 0
     while index < len(queue):
         for child in queue[index].children:
-            if child not in visited:
-                queue.append(child) 
+            queue.append(child) 
         index += 1
     return queue
 
@@ -1755,9 +1816,9 @@ def dynamic_tree_matching(p_tree, v_tree, cate_list):
         for v_node in v_queue:
             if single_node_match(p_node, v_node, cate_list):
                 p_node.match_id.append(v_node.id)
-        if variant_can_be_none(p_node) and len(p_node.match_id) == 0:     
-        #if p_node.determined and len(p_node.match_id) == 0:
-            # No match result for a determined node in pattern
+        if not variant_can_be_none(p_node) and not p_node.match_id:     
+        #if p has some content inside but len(p_node.match_id) == 0:
+            # No match result, early stop
             VariantTree.clear_dic()
             return False
     VariantTree.clear_dic()
@@ -1865,6 +1926,8 @@ def calculate_query_stat(query):
 '''
 
 def node_content(node):
+    if node == []:
+        return(str(node))
     if node.cardiDirect == "vertical":
         di = "↕"
     else:

@@ -300,7 +300,7 @@ export class GraphicalQueryEditorComponent
       .pipe(takeUntil(this._destroy$))
       .subscribe((colorMap) => {
         this.activityColorMap = colorMap;
-        console.log(this.activityColorMap);
+        //console.log(this.activityColorMap);
         if (this.currentlyDisplayedTreeInEditor) {
           this.redraw(this.currentlyDisplayedTreeInEditor);
         }
@@ -508,7 +508,7 @@ export class GraphicalQueryEditorComponent
   } // check is node is a child of parent
 
   findRootFromVariant(tree, variant){
-    if (tree && tree.operator != "X") {
+    if (tree && tree.operator != QueryTreeOperator.default) {
       let searchResult = null;
       for (let child of tree.children){
           searchResult = this.findRootFromVariant(child, variant)
@@ -561,8 +561,8 @@ export class GraphicalQueryEditorComponent
         const selectedElement = this.variantEnrichedSelection
           .selectAll('.selected-variant-g')
           .data()[0];
-          console.log("Selected element:");
-        console.log(selectedElement);
+        //console.log("Selected element:");
+        //console.log(selectedElement);
         switch (this.selectedStrategy) {
           case this.insertionStrategy.infront:
             if (!this.multipleSelected) {
@@ -637,7 +637,7 @@ export class GraphicalQueryEditorComponent
         }
         this.triggerRedraw();
       }
-      console.log(this.currentVariant);
+      //console.log(this.currentVariant);
       //console.log(nodevariant.pattern);
       this.cacheCurrentTree();
     }
@@ -868,10 +868,8 @@ export class GraphicalQueryEditorComponent
     const children = variant.getElements();
     if (children) {
       const index = children.indexOf(selectedElement);
-      console.log(selectedElement);
       if (variant && variant === selectedElement) {
         if(variant instanceof SequencePattern && (variant.asPattern().verticalCardi > 0 || variant.asPattern().horizontalCardi > 0)){
-          console.log("comehar");
           children.splice(
             index,
             1,
@@ -1093,7 +1091,6 @@ export class GraphicalQueryEditorComponent
         this.cacheIdx = this.cachedTrees.length - 1;
       }
     }
-    console.log(this.cachedTrees);
   }
 
   redo() {
@@ -1112,7 +1109,6 @@ export class GraphicalQueryEditorComponent
     this.selectedElement = false;
     this.emptyVariant = false;
     this.cacheIdx--;
-    console.log(this.currentlyDisplayedTreeInEditor);
     if (this.cachedTrees[this.cacheIdx] === null) {
       //this.currentVariant = null;
       //this.emptyVariant = true;
@@ -1121,7 +1117,6 @@ export class GraphicalQueryEditorComponent
       this.currentlyDisplayedTreeInEditor = this.cachedTrees[this.cacheIdx].copy();
     }
     this.newLeaf = null;
-    console.log(this.currentlyDisplayedTreeInEditor);
     this.redraw(this.currentlyDisplayedTreeInEditor);
   }
 
@@ -1129,14 +1124,13 @@ export class GraphicalQueryEditorComponent
     const ElementsToDelete = this.variantEnrichedSelection
       .selectAll('.selected-variant-g')
       .data();
-    console.log(ElementsToDelete);
-    console.log(this.currentVariant);
+    //console.log(ElementsToDelete);
+    //console.log(this.currentVariant);
     if (
       ElementsToDelete.length === 1 &&
       ElementsToDelete[0] instanceof SequenceGroup &&
       this.currentVariant === ElementsToDelete[0]
     ) {
-      console.log("come 1");
       this.onDeleteVariant();
     } // need further check. Is this nested function allowed?
     else {
@@ -1384,8 +1378,6 @@ export class GraphicalQueryEditorComponent
       new SequencePattern(selectedElement)
     );
     parent.setElements(parentChildren);
-    console.log('insert outer');
-    console.log(parent);
     return parent.getElements()[index];
   }
 
@@ -1470,8 +1462,6 @@ export class GraphicalQueryEditorComponent
         if (lastSelectIdx - firstSelectIdx + 1 == selectedElement.length) {
           //Only allow adjecent groups when doing multiple selection --> how about in parallel group??
           if (parentChildren.length != selectedElement.length) {
-            console.log('create outer');
-            console.log(selectedElement);
             parent = this.insertOuterPattern(parent, selectedElement);
           }
           if (this.cardiDirect == this.cardinalityDirection.vertical) {
@@ -1489,7 +1479,7 @@ export class GraphicalQueryEditorComponent
         }
       } else if ((selectedElement[0] as any).getElements().length > 1) {
         // Single selection, for seq and para
-        console.log("Single selection, for seq and para")
+        //console.log("Single selection, for seq and para")
         if (this.cardiDirect == this.cardinalityDirection.vertical) {
           (selectedElement[0] as any).asPattern().verticalCardi = event.cardinality;
         } else {
@@ -1498,7 +1488,6 @@ export class GraphicalQueryEditorComponent
       } else {
         if (this.cardiDirect == this.cardinalityDirection.vertical) {
           // single selection for???
-          console.log("Else?");
           (selectedElement[0] as any)
             .getElements()[0]
             .asPattern().verticalCardi = event.cardinality;
@@ -1509,8 +1498,8 @@ export class GraphicalQueryEditorComponent
         }
       }
       this.cacheCurrentTree();
-      console.log((this.selectedRootNode?.data as QueryTree).pattern);
-      console.log('Added cardinality by modal');
+      //console.log((this.selectedRootNode?.data as QueryTree).pattern);
+      //console.log('Added cardinality by modal');
       this.triggerRedraw();
   }
 
@@ -1546,8 +1535,6 @@ export class GraphicalQueryEditorComponent
       if (lastSelectIdx - firstSelectIdx + 1 == selectedElement.length) {
         //Only allow adjecent groups when doing multiple selection --> how about in parallel group??
         if (parentChildren.length != selectedElement.length || parent == rootPattern) {
-          console.log('create outer');
-          console.log(selectedElement);
           parent = this.insertOuterPattern(parent, selectedElement);
         }
         if (this.cardiDirect == this.cardinalityDirection.vertical) {
@@ -1567,7 +1554,6 @@ export class GraphicalQueryEditorComponent
       this.newLeaf = selectedElement[0];
     } else if ((selectedElement[0] as any).getElements().length > 1) {
       // Single selection, for seq and para
-      console.log("Single selection, for seq and para")
       if (this.cardiDirect == this.cardinalityDirection.vertical) {
         (selectedElement[0] as any).asPattern().verticalCardi += 1;
       } else {
@@ -1577,7 +1563,6 @@ export class GraphicalQueryEditorComponent
     } else {
       if (this.cardiDirect == this.cardinalityDirection.vertical) {
         // single selection for???
-        console.log("Else?");
         (selectedElement[0] as any)
           .getElements()[0]
           .asPattern().verticalCardi += 1;
@@ -1588,9 +1573,7 @@ export class GraphicalQueryEditorComponent
       }
       this.newLeaf = (selectedElement[0] as any).getElements()[0];
     }
-    console.log((this.selectedRootNode?.data as QueryTree).pattern);
     this.cacheCurrentTree();
-    console.log('Added cardinality');
     this.triggerRedraw();
   }
 
@@ -1633,8 +1616,6 @@ export class GraphicalQueryEditorComponent
       .data();
     
     if (selectedElement.length > 0){
-      //console.log(this.variantEnrichedSelection);
-      //console.log((selectedElement[0] as VariantElement));
       if (
         selectedElement.length > 1 ||
         ((selectedElement[0] as VariantElement).asPattern().horizontalCardi == 0 &&
@@ -1698,7 +1679,6 @@ export class GraphicalQueryEditorComponent
       //added
       this.currentVariant = node.data.pattern;
       this.emptyVariant = node.data.pattern == null;
-      //console.log(this.currentVariant);
       //this.selectedElement = null; //clear selection?
       //this.multiSelect = false;
       //this.multipleSelected = false;
@@ -1796,8 +1776,8 @@ export class GraphicalQueryEditorComponent
   }
 
   checkNodeButtonDisabled(op){
-    return this.selectedRootNode && op === 'v' && (this.nodeInsertionStrategy === NodeInsertionStrategy.ABOVE ||
-              ((this.selectedRootNode.data?.operator) as any === 'v' && this.nodeInsertionStrategy === NodeInsertionStrategy.BELOW));
+    return this.selectedRootNode && op === QueryTreeOperator.default && (this.nodeInsertionStrategy === NodeInsertionStrategy.ABOVE ||
+              ((this.selectedRootNode.data?.operator) as any === QueryTreeOperator.default && this.nodeInsertionStrategy === NodeInsertionStrategy.BELOW));
   }
 
   insertNewNode(operator, label) {
@@ -1809,8 +1789,6 @@ export class GraphicalQueryEditorComponent
     );
     //console.log("the whole tree");
     //console.log(this.currentlyDisplayedTreeInEditor);
-    console.log(this.selectedRootNodeId);
-    console.log(this.selectedRootNode);
     this.afterInsertNode();
   }
 
@@ -2103,9 +2081,10 @@ export class GraphicalQueryEditorComponent
   clearDisplayedSelection(): void {
     this.selectedRootNode = null;
     this.processTreeService.selectedTree = undefined;
-
     this.mainSvgGroup.selectAll('rect').each((d) => {
+      if (d.data) { // cardinality rect is also a rect
       d.data.selected = false;
+      }
     });
 
     this.mainSvgGroup.selectAll('rect').classed('selected-node', false);
@@ -2117,7 +2096,7 @@ export class GraphicalQueryEditorComponent
   }
 
   initializeSvg(): void {
-    console.log('Ini svg');
+    //console.log('Ini svg');
     this.svg = d3.select('#query-d3-svg');
     // add svg group for zooming
     this.mainSvgGroup = this.svg.select('#queryTreeZoomGroup');
@@ -2211,7 +2190,7 @@ export class GraphicalQueryEditorComponent
     // Disable insertions above on non-root nodes
     this.disabledInsertPositions.above = rootNode.parent != null;
     // Disable insertions below non-operator nodes, i.e. activities
-    this.disabledInsertPositions.below = rootNode.operator == null || (rootNode.operator as any) == 'X';
+    this.disabledInsertPositions.below = rootNode.operator == null || (rootNode.operator as any) == QueryTreeOperator.default;
     // Disable insertions left/right of root node
     if (rootNode.parent == null) this.disabledInsertPositions.leftRight = true;
     // Disable insertions left/right of child from loop node that already has 2 childs
@@ -2308,8 +2287,8 @@ export class GraphicalQueryEditorComponent
         }
       }
       this.activityNames = [...this.activityNames, event.groupName];
-      console.log(this.activityGroups);
-      console.log(this.activityNames);
+      //onsole.log(this.activityGroups);
+      //console.log(this.activityNames);
   }
 
   serializeGroupMap(map: Map<string, string[]>){
@@ -2321,7 +2300,6 @@ export class GraphicalQueryEditorComponent
   };
 
   queryApply(): void {
-    console.log(this.serializeNode(this.currentlyDisplayedTreeInEditor));
     const serializedTree = this.serializeNode(
       this.currentlyDisplayedTreeInEditor
     );
@@ -2329,7 +2307,6 @@ export class GraphicalQueryEditorComponent
       .applyGraphicalQuery(serializedTree, this.serializeGroupMap(this.activityGroups))
       .pipe(takeUntil(this._destroy$))
       .subscribe((res) => {
-        console.log(res);
         if (!res.error) {
           this.variantFilterService.addVariantFilter(
             'query filter',
