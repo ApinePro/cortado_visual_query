@@ -960,7 +960,7 @@ def add_start_end_wildcard(pattern):
     if not ("leaf" in pattern["follows"][-1] and (pattern["follows"][-1]["leaf"][0] == "▢" or pattern["follows"][-1]["leaf"][0] == "...")):
         tail = {"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
         pattern["follows"].append(tail)
-    elif "leaf" in pattern["follows"][0] and pattern["follows"][-1]["leaf"][0] == "▢":
+    elif "leaf" in pattern["follows"][-1] and pattern["follows"][-1]["leaf"][0] == "▢":
         pattern["follows"].pop(-1) #any error if nothing after pop?
     return pattern
 
