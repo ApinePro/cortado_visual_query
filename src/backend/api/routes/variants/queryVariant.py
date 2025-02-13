@@ -97,7 +97,7 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
     query["follows"].append({"leaf": ["pay"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
     query["follows"].append({"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
     '''
-    TOTAL_TEST_NUM = 50
+    TOTAL_TEST_NUM = 25
 
     execution_time = []
     leaf_num_list = []
@@ -1344,6 +1344,8 @@ class VariantTree:
         return new_node
     
     def update_determined(self): #re-calculate "determined" according to the children
+        if check_have_cardi(self):
+            return False
         if self.type == NodeType.NORMAL and self.cardinality == 0:
             self.determined = True
         elif self.type == NodeType.SEQ or self.type == NodeType.PARA:
@@ -1910,7 +1912,6 @@ def speed_wildcard(p_segment, v_segment):
 # match p and v nodes in step 1
 def single_node_match(p_node, v_node, cate_list):
     # For variant, only NORMAL, SEQ, PARA
-
     #temp
     for child in p_node.children:
         if child.determined == False:
