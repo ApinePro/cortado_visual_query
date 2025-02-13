@@ -155,7 +155,6 @@ export class QueryTreeDrawerDirective {
   svgSelection!: Selection<any, any, any, any>;
 
   redraw(tree: ProcessTree) {
-    //console.log(tree);
     if (tree) {
       (tree as QueryTree).computeOffset()//grad new
       this.root = d3.hierarchy(tree, (d) => {
@@ -285,8 +284,7 @@ export class QueryTreeDrawerDirective {
         return PT_Constant.VISIBLE_FONT_SIZE;
       })
       .text((d: any) => {
-        if (d.data.pattern) {
-          console.log("start draw pattern in node");
+        if (d.data.pattern && d.data.pattern.elements.length > 0) { //newly added
           if (d.parent) {
             this.translateAllSiblings(d);
           }
@@ -328,14 +326,14 @@ export class QueryTreeDrawerDirective {
     //update the width, height and siblings positions according to variant after insertion
     d3.selectAll('.node')
       .attr('width', (d: any) => {
-        if (d.data.pattern) {
+        if (d.data.pattern && d.data.pattern.elements.length > 0) {
           return d.data.pattern.getWidth() + 2 * VARIANT_Constants.MARGIN_X;
         } else {
           return PT_Constant.QNODE_HEIGHT_WIDTH;
         }
       })
       .attr('height', (d: any) => {
-        if (d.data.pattern) {
+        if (d.data.pattern && d.data.pattern.elements.length > 0) {
           return d.data.pattern.getHeight() + 2 * VARIANT_Constants.MARGIN_Y;
         } else {
           return PT_Constant.QNODE_HEIGHT_WIDTH;
@@ -870,9 +868,7 @@ export class QueryTreeDrawerDirective {
   ): void {
     //console.log(svgElement);
     svgElement.datum(element).classed('variant-element-group', true);
-
     if (outerElement) {
-      //what is outerelement here?
       svgElement.datum(element);
     }
 
@@ -975,7 +971,7 @@ export class QueryTreeDrawerDirective {
       }
     }
 
-    let xOffset = VARIANT_Constants.MARGIN_X; //edited
+    let xOffset = 0;
 
     if (
       element.asPattern().verticalCardi > 0 ||
@@ -986,12 +982,10 @@ export class QueryTreeDrawerDirective {
       xOffset = xOffset - element.getHeadLength() / 2;
     }
 
-    if (!outerElement) {
       xOffset +=
         element.getHeadLength() +
         element.getMarginX() -
         element.elements[0].getHeadLength();
-    }
 
     if (
       element.asPattern().verticalCardi > 0 ||
@@ -1240,7 +1234,6 @@ export class QueryTreeDrawerDirective {
       }
 
       const height = child.asPattern().getHeight(); //newly added
-      console.log(height);
       const x = element.getHeadLength() + 0.5 * VARIANT_Constants.MARGIN_X + xoffset;
       y += ((child.asPattern().verticalCardi > 0 || child.asPattern().horizontalCardi > 0) ?  VARIANT_Constants.STACK_HEIGHT + 10 : 0)
       const g = parent.append('g').attr('transform', `translate(${x}, ${y})`);

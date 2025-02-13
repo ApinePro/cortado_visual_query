@@ -97,7 +97,7 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
     query["follows"].append({"leaf": ["pay"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
     query["follows"].append({"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
     '''
-    TOTAL_TEST_NUM = 250
+    TOTAL_TEST_NUM = 5
 
     execution_time = []
     leaf_num_list = []
@@ -140,7 +140,7 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
         end_time = time.time()
         leaf_median = np.median(leaf_num_list_one_query)
         query_early_stop = any(if_early_stopping_one_query) # If there is one variant with early stopping
-        #print(filtered_variant_list)
+        print(len(filtered_variant_list))
         if len(filtered_variant_list) != 0 and len(filtered_variant_list) != num_variants:
             avg_time = (end_time - start_time) / num_variants
 
@@ -416,7 +416,10 @@ def check_node(node, variant, cate_list):
     count = 0
     early_stopping = False
     if node["operator"] == 'and':
-        result = True
+        if len(node["children"]) > 0:
+            result = True
+        else:
+            result = False
         i = 0
         while result and i < len(node["children"]):
             child = node["children"][i]
@@ -437,12 +440,13 @@ def check_node(node, variant, cate_list):
             result = result | child_result
     # Ware: v or X?
     if node["operator"] == 'v':
-        #print("Original Variant:")
-        #print(variant)
-        pattern = add_start_end_wildcard(variant_to_tree(node["pattern"], cate_list)[0])
-        variant = variant_to_tree(variant.serialize(), cate_list)[0]
-        result = dynamic_tree_matching(pattern, variant, cate_list)
-        count += calculate_leaf_num_pattern(pattern)
+        if "pattern" not in node or len(node["pattern"]) == 0:
+            return(False, count, early_stopping)
+        else:
+            pattern = variant_to_tree(add_start_end_wildcard(node["pattern"]), cate_list)[0] # do add start end first in order to clear the marks
+            variant = variant_to_tree(variant.serialize(), cate_list)[0]
+            result = dynamic_tree_matching(pattern, variant, cate_list)
+            count += calculate_leaf_num_pattern(pattern)
     if node["negation"] == True:
         return (not result, count, early_stopping)
     else:
@@ -535,15 +539,16 @@ def pattern_match_variant(pattern, variant, cate_list):
     
 
     # Not horizontal cardinality
-    elif check_have_cardi(p_head) and p_head.cardiDirect == "vertical" and p_head.cardinality > 0: # resolve vertical (only =)
+    elif check_have_cardi(p_head) and p_head.cardiDirect == "vertical" and p_head.cardinality > 0: # resolve vertical (only =) (only EQ for para, right?)
         if p_head.type == NodeType.PARA:
             for element in p_head.children:
+                if element.cardinality == 0: # newly added
+                    element.cardinality = 1
                 element.cardinality *= p_head.cardinality
             p_head.cardinality = 0
         if node_is_leaf(p_head):
-            # Expand leaf with cardi
-            child = VariantTree(label=p_head.label, node_type=p_head.type, cardinality=p_head.cardinality, cardiDirect="vertical")
-            p_head = VariantTree(node_type=NodeType.PARA, children=[child])
+            # Add a para parent for leaf with cardi
+            p_head = get_para_parent([p_head]) #newly added
             p_head.update_determined()
 
     else:
@@ -593,7 +598,7 @@ def replace_head(pattern, head): # For '=' and '<;, when 1->0
     return pattern
 
 def variant_can_be_none(variant):
-    # return if a variant can be nothing. 不过还有一个函数是判断一个node list的叫could be none的
+    # return if a variant can be nothing. But there is also a function "could be none" to check node list
     if variant.cardiOp == "<":
         return True
     else:
@@ -625,8 +630,8 @@ def match_head(p_head, v_head, cate_list):
     return False
 
 def compare_para(p_head, v_head, cate_list): # With cardinality
-    # 有vertical是不能里面有seq的。seq也一定需要匹配seq的，可能变成none(这点确定一下，目前就选不管里面吧，看看是不是hori <这个组合...)，但是变成leaf就不要考虑了
-    # 但是也需要考虑...可以匹配任何的情况
+    # If vertical there is no seq inside. seq need to match seq，sometimes to be none (but don't consider to be leaf?)
+    # Need to consider the case that ... can match everything
 
     v_seq_child = None
     p_seq_child = None
@@ -643,11 +648,10 @@ def compare_para(p_head, v_head, cate_list): # With cardinality
 
     #First handle seq
     if v_seq_child:
-        # 先判断follows的那个有没有，不过具体内容要等进去了再判断了因为cardi的问题
         if not p_seq_child and not wildcard_in_p:
             return False
         elif p_seq_child and not pattern_match_variant(get_seq_parent(p_seq_child.children), get_seq_parent(v_seq_child.children), cate_list):
-            # 判断以后，如果说v包含follows，那么下面的部分不可能没有匹配的p["follows"]。不过就算这关过了，下面也有可能不匹配因为还有cardi
+            # ckeck follows
             return False
         else:
             # p and v's seq are removed.
@@ -789,14 +793,14 @@ def compare_para_no_cardi(p_head, v_head, count, cate_list):
         return True
 
     problem = LpProblem("Element_Classification")
-    # 定义元素和分类
+    # elements, categories
     elements = []
     for k in v_dic.keys():
         for i in range(v_dic[k]):
             elements.append(k + "\u2237\u2980" + str(i))
     classifications = border_dic.keys()
 
-    # 定义决策变量
+    # Define variable
     z = LpVariable.dicts("assign", (elements, classifications), cat=LpBinary)
 
     def element_in_category(e, c, cate_list):
@@ -821,7 +825,7 @@ def compare_para_no_cardi(p_head, v_head, count, cate_list):
     #print(border_dic)
     #print("")
     
-    # 添加约束：每个元素只能分配到一个分类
+    # Add restrictions：one element - one category
     for e in elements:
         problem += lpSum(z[e][c] for c in classifications if element_in_category(e, c, cate_list)) == 1
         problem += lpSum(z[e][c] for c in classifications if not element_in_category(e, c, cate_list)) == 0
@@ -831,22 +835,21 @@ def compare_para_no_cardi(p_head, v_head, count, cate_list):
         if border_dic[c][1] != -1:
             problem += lpSum(z[e][c] for e in elements) <= border_dic[c][1]  # c 最多有n元素
 
-    # 定义目标函数（可以是任意值，因为只需判断可行性）
-    problem += lpSum(0)  # 不关心优化目标
+    problem += lpSum(0)  # No optimization target. It's no an optmization problem
 
-    # 求解问题
+    # solve problem
     solver = PULP_CBC_CMD(msg=False)
     problem.solve(solver)
     #print("LP")
 
-    # 输出结果
+    # output
     if problem.status == LpStatusOptimal:
         
         #print("exist solution")
         #for e in elements:
         #    for c in classifications:
         #        if z[e][c].value() == 1:
-        #            print(f"{e} 被分配到 {c}")
+        #            print(f"{e} is assigned to {c}")
         
         return True
     else:
@@ -948,22 +951,43 @@ def check_have_cardi(pattern):
         return False
 
 def add_start_end_wildcard(pattern):
+    pattern = copy.deepcopy(pattern)
+    if not ("leaf" in pattern["follows"][0] and (pattern["follows"][0]["leaf"][0] == "▷" or pattern["follows"][0]["leaf"][0] == "...")):
+        head = {"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+        pattern["follows"].insert(0, head)
+    elif "leaf" in pattern["follows"][0] and pattern["follows"][0]["leaf"][0] == "▷":
+        pattern["follows"].pop(0)
+    if not ("leaf" in pattern["follows"][-1] and (pattern["follows"][-1]["leaf"][0] == "▢" or pattern["follows"][-1]["leaf"][0] == "...")):
+        tail = {"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+        pattern["follows"].append(tail)
+    elif "leaf" in pattern["follows"][0] and pattern["follows"][-1]["leaf"][0] == "▢":
+        pattern["follows"].pop(-1) #any error if nothing after pop?
+    return pattern
+
+'''
+def add_start_end_wildcard(pattern):
     pattern = pattern.copy()
+    t = pattern.copy()
+    if len(pattern.children) == 0:
+        print(1)
     # Pattern is for sure a seq?
     if pattern.type != NodeType.SEQ:
         pattern = get_seq_parent([pattern])
     if not (node_is_leaf(pattern.children[0]) and (pattern.children[0].label == "▷" or pattern.children[0].type == NodeType.WILDCARD)):
-        head = VariantTree(node_type=NodeType.WILDCARD)
+        head = VariantTree(label="...", node_type=NodeType.WILDCARD)
         pattern.children.insert(0, head)
     elif node_is_leaf(pattern.children[0]) and pattern.children[0].label == "▷":
         pattern.children.pop(0)
+    if len(pattern.children) == 0:
+        print(1)
     if not (node_is_leaf(pattern.children[-1]) and (pattern.children[-1].label == "▢" or pattern.children[-1].type == NodeType.WILDCARD)):
-        tail = VariantTree(node_type=NodeType.WILDCARD)
+        tail = VariantTree(label="...", node_type=NodeType.WILDCARD)
         pattern.children.append(tail)
     elif node_is_leaf(pattern.children[0]) and pattern.children[-1].label == "▢":
         pattern.children.pop(-1) #any error if nothing after pop?
     pattern.update_determined()
     return pattern
+'''
 
 ### Generate testing code ###
 
@@ -975,6 +999,7 @@ def add_start_end_wildcard(pattern):
 # The query cannot generate group?
 #activities = ["...", "?"] + [str(x) for x in range(10)]
 
+'''
 def generate_query_tree_node(activities, depth, cate_list):
     THRES_NEGATE = 0.3
     THRES_LEAF = 0.2
@@ -1007,8 +1032,150 @@ def generate_query_tree_node(activities, depth, cate_list):
     else:
         node["negation"] = False
     return node
-        
+'''
 
+def generate_query_tree_node(activities, depth, cate_list):
+    THRES_NEGATE = 0.3
+    THRES_LEAF = 0.2
+    THRES_START_END = 0.3
+    MAX_CHILD_NUM = 4
+    
+
+    THRES_LEAF *= 0.5 ** (depth - 1)
+    depth += 1
+    node = {}
+    if_leaf = random.random()
+    if if_leaf > THRES_LEAF:
+        node["pattern"] = generate_query(activities + ["...", "?"] + list(cate_list.keys()), "", 1)
+        node["operator"] = "v"
+        if len(node["pattern"]["follows"]) == 0:
+            print(1)
+        if random.random() > THRES_START_END:
+            node["pattern"]["follows"].insert(0, {"leaf": ["▷"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
+        if random.random() > THRES_START_END:
+            node["pattern"]["follows"].append({"leaf": ["▢"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
+    else:
+        if random.random() > 0.5:
+            node["operator"] = "and"
+        else:
+            node["operator"] = "or"
+        node["children"] = []
+        child_num = random.choices(list(range(2, MAX_CHILD_NUM + 1)), weights=list(reversed(range(2, MAX_CHILD_NUM+ 1))), k=1)[0]
+        for i in range(child_num):
+            node["children"].append(generate_query_tree_node(activities, depth, cate_list))
+    if random.random() < THRES_NEGATE:
+        node["negation"] = True
+    else:
+        node["negation"] = False
+    return node
+
+def generate_query(activities, parent_type, depth):
+    THRES_LEAF = 0.15
+    THRES_CARDI = 0.2
+    MAX_SEQ_GROUP = 7
+    MAX_PARA_GROUP = 4
+    MAX_GROUP_CARDI = 3
+    
+    THRES_LEAF *= 0.5 ** (depth - 1)
+    depth += 1
+
+    cardi_ops = ["=", ">", "<"]
+    if_leaf = random.random()
+    if (if_leaf > THRES_LEAF and depth - 1 != 1) or depth == 3:
+        # return leaf, 70% probability
+        leaf = {"leaf": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+        leaf["leaf"].append(random.choice(activities))
+        if leaf["leaf"][0] != "...":
+            if random.random() < THRES_CARDI:
+                # Cardinality 1-5
+                if random.random() > 0.5 and parent_type != "para":
+                    # No horizontal leaf for para group!
+                    leaf["horizontalCardi"] = random.choices(list(range(1, 6)), weights=list(reversed(range(1, 6))), k=1)[0]
+                    op_type_rand = random.random()
+                    if op_type_rand < 1/3:
+                        leaf["horizontalCardiOp"] = "="
+                        if leaf["horizontalCardi"] == 1:
+                            leaf["horizontalCardi"] = 0
+                    elif op_type_rand < 2/3:
+                        leaf["horizontalCardiOp"] = ">"
+                    else:
+                        leaf["horizontalCardiOp"] = "<"
+                else:
+                    leaf["verticalCardi"] = random.choices(list(range(1, 6)), weights=list(reversed(range(1, 6))), k=1)[0]
+                    op_type_rand = random.random()
+                    if op_type_rand < 1/3:
+                        leaf["verticalCardiOp"] = "<"
+                    elif op_type_rand < 2/3:
+                        leaf["verticalCardiOp"] = ">"
+                    else:
+                        if leaf["verticalCardi"] == 1:
+                            leaf["verticalCardi"] = 0
+        if depth == 1:
+            return {"follows": [leaf], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+        else:
+            return leaf
+    else:
+        #Non-leafnode, including half seq and half parallel group 
+        if_seq = random.random()
+        if if_seq <= 0.5 or parent_type == "para" or depth - 1 == 1:
+            seq = {"follows": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+            child_num = random.choices(list(range(2, MAX_SEQ_GROUP + 1)), weights=list(reversed(range(2, MAX_SEQ_GROUP + 1))), k=1)[0]
+            for i in range(child_num):
+                seq["follows"].append(generate_query(activities, "seq", depth))
+            op_rand = random.random() # choose if it is not "="
+            if op_rand < 0.2:
+                # No vertical cardi for seq, max 3 cardinality
+                seq["horizontalCardi"] = random.choices(list(range(1, MAX_GROUP_CARDI + 1)), weights=list(reversed(range(1, 4))), k=1)[0]
+                op_type_rand = random.random()
+                if op_type_rand < 1/3:
+                    seq["horizontalCardiOp"] = "<"
+                elif op_type_rand < 2/3:
+                    seq["horizontalCardiOp"] = ">"
+                else:
+                    if seq["horizontalCardi"] == 1:
+                        seq["horizontalCardi"] = 0
+            return seq
+        else:
+            para = {"parallel": [], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+            child_num = random.choices(list(range(2, MAX_PARA_GROUP + 1)), weights=list(reversed(range(2, MAX_PARA_GROUP + 1))), k=1)[0]
+            seq_exist = True
+            for i in range(child_num):
+                child = generate_query(activities, "para", depth)
+                # Ensure only one sequence child
+                while seq_exist and "follows" in child:
+                    # If double seq, generate again
+                    child = generate_query(activities, "para", depth)
+                if "follows" in child:
+                    seq_exist = True
+                para["parallel"].append(child)
+            op_rand = random.random() # choose if it is not "="
+            if op_rand < 0.2:
+                # No vertical cardi for para if there is seq child
+                cardi = random.choices(list(range(1, MAX_GROUP_CARDI)), weights=list(reversed(range(1, MAX_GROUP_CARDI))), k=1)[0] #注意一下这个 等于号等于1的时候是？
+                if random.random() > 0.5 or seq_exist:
+                    para["horizontalCardi"] = cardi
+                    op_type_rand = random.random()
+                    if op_type_rand < 1/3:
+                        para["horizontalCardiOp"] = "<"
+                    elif op_type_rand < 2/3:
+                        para["horizontalCardiOp"] = ">"
+                    else:
+                        if para["horizontalCardi"] == 1:
+                            para["horizontalCardi"] = 0
+                else:
+                    para["verticalCardi"] = cardi
+                    op_type_rand = random.random()
+                    if op_type_rand < 1/3:
+                        para["verticalCardiOp"] = "<"
+                    elif op_type_rand < 2/3:
+                        para["verticalCardiOp"] = ">"
+                    else:
+                        if para["verticalCardi"] == 1:
+                            para["verticalCardi"] = 0
+
+            return {"follows": [para], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='}
+        
+'''
 def generate_query(activities, parent_type, depth):
     THRES_LEAF = 0.15
     THRES_CARDI = 0.2
@@ -1099,15 +1266,13 @@ def generate_query(activities, parent_type, depth):
                 else:
                     para.cardiDirect = "vertical"
                     para.cardinality = cardi
-                    op_type_rand = random.random()
-                    if op_type_rand < 1/3:
-                        para.cardiOp = "<"
-                    elif op_type_rand < 2/3:
-                        para.cardiOp = ">"
+                    # edited: for vertical cardi only = exists
+                    para.cardiOp = "="
 
             tree = VariantTree(node_type=NodeType.SEQ)
             tree.children = [para]
             return tree
+'''
 
 ########################################################################################################
 ### New algorithm ###
@@ -1243,8 +1408,7 @@ def variant_to_tree(variant, cate_list):
                             if tree.children[-1].cardinality == 1:
                                 tree.children[-1].cardinality = 0
                 tree.children = tree.children + child_node
-            else:
-                print("eeeerrorr")
+            # if child_node is only a wildcard and it was reduced, do nothing
         for child in tree.children:
             tree.determined = (tree.determined & child.determined)
         if len(tree.children) == 1:
@@ -1273,7 +1437,7 @@ def variant_to_tree(variant, cate_list):
         merged_children = []
         for child in tree.children:
             if wildcard_exist:
-                # 记得限制在UI里对para里多个...的限制
+                # need to restrict only 1 ... in GUI
                 if child.cardiOp == "<":
                     continue
                 elif child.cardiOp == ">" and child.cardiDirect == "vertical":
@@ -1413,7 +1577,7 @@ class PartialOrderNode:
         self.determined = True
 
 def serialize_determined_tree(tree):
-    #谨记这个要判断的 如果seq para node的label已经不止一位了，那就直接返回就行了. 如果是leaf也是在这里返回
+    #If seq para node is already serialized, or it is a leaf
     if len(tree.label) > 1:
         if tree.label not in VariantTree.label_to_char:
             VariantTree.label_to_char[tree.label] = chr(VariantTree.label_index)
@@ -1497,14 +1661,6 @@ def brutal_match_para(p_children, v_children, cate_list):
     return pattern_match_variant(p, v, cate_list)
 
 def match_para(p, v, cate_list):
-    '''
-    可以做一个是否含有determined seq的判断做提前退出 如果说潜在的成员类型OK的话再继续
-    直接分成determined和undetermined。然后做直接比较也就是找determined的内容是否在v里面有。有的话从v弹出。剩下的做暴力求解。不过好像暴力求解那里的para本身就有问题?
-    有一个non determined串联环节,这个环节看看有没有简化的办法。如果没有的话就直接暴力求解和seq一样
-
-    注意vertical leaf node的type也是PARA(用cardi这个数值来区分)所以匹配的时候时候注意
-    pattern is of PARA. vatriant maybe not
-    '''
     p_children = p.children # p is para
     v_children = v.children
     p_have_seq = False
@@ -1573,10 +1729,6 @@ def match_para(p, v, cate_list):
         return brutal_match_para(undetermined_part, v_copy, cate_list)
 
 def match_seq(p, v, cate_list):
-    # Match sequence node p
-    # 在这个seq match算法里是只考虑了NORMAL的，因为只有这个可以用在aho里面...
-    # 要不要分成determined这种来做呢
-    # 还需要能够把同构的determined tree给转化为字符串的能力
     p_children = p.children # p is seq
     v_children = v.children
 
@@ -1759,14 +1911,14 @@ def speed_wildcard(p_segment, v_segment):
 def single_node_match(p_node, v_node, cate_list):
     # For variant, only NORMAL, SEQ, PARA
 
-    #下面是临时举措！
+    #temp
     for child in p_node.children:
         if child.determined == False:
             p_node.determined = False
     for child in v_node.children:
         if child.determined == False:
             v_node.determined = False
-    #到此为止
+    #temp
 
     if p_node.determined:
         p_node = serialize_determined_tree(p_node)

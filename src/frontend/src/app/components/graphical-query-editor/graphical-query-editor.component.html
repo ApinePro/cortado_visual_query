@@ -51,6 +51,7 @@
                 (click)="addCardinality()"
                 ngbTooltip="add cardinality"
                 container="body"
+                [disabled]="checkCardinalityForParallelChild()"
               >
                 +
               </button>
@@ -60,6 +61,7 @@
                 (click)="reduceCardinality()"
                 ngbTooltip="reduce cardinality"
                 container="body"
+                [disabled]="checkCardinalityForParallelChild()"
               >
                 -
               </button>
@@ -98,7 +100,9 @@
                 class="button"
                 (click)="changeCardinalityOp('less')"
                 [ngClass]="
-                  !canSwitchCardinality('less') ? 'button-area-disabled' : ''
+                  !canSwitchCardinality('less') || checkCardinalityForParallel()
+                    ? 'button-area-disabled'
+                    : ''
                 "
                 ngbTooltip="change cardinality operator to less/equal"
                 container="body"
@@ -122,7 +126,9 @@
                 class="button"
                 (click)="changeCardinalityOp('more')"
                 [ngClass]="
-                  !canSwitchCardinality('more') ? 'button-area-disabled' : ''
+                  !canSwitchCardinality('more') || checkCardinalityForParallel()
+                    ? 'button-area-disabled'
+                    : ''
                 "
                 ngbTooltip="change cardinality operator to more/equal"
                 container="body"
@@ -473,6 +479,7 @@
             [activityNames]="activityNames"
             (activityButtonClick)="editLeafNode($event)"
             [ngClass]="
+              checkActivityDisable() ||
               selectedRootNode?.data.operator === 'and' ||
               selectedRootNode?.data.operator === 'or'
                 ? 'button-area-disabled'

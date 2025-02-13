@@ -712,7 +712,43 @@ export class GraphicalQueryEditorComponent
     }
   }
 
-  checkOverlapInsert() {
+  checkCardinalityForParallelChild() { // True for disable the horizontal cardinality in parallel group
+    if (this.emptyVariant || !this.variantEnrichedSelection || this.cardiDirect == this.cardinalityDirection.vertical) {
+      return false;
+    } else {
+      const selectedElement = this.variantEnrichedSelection
+        .selectAll('.selected-variant-g')
+        .data()[0];
+      const parent = this.findParent(this.currentVariant, selectedElement);
+      if (parent && !(parent instanceof ParallelGroup)) {
+        return false;
+      } else {
+        if (!parent) {
+          return false;
+        } else {
+          return true;
+        }
+      }
+    }
+  }
+
+  checkCardinalityForParallel() { // True for disable the vertical cardinality in parallel group
+    if (this.emptyVariant || !this.variantEnrichedSelection || this.cardiDirect == this.cardinalityDirection.horizontal) {
+      return false;
+    } else {
+      const selectedElement = this.variantEnrichedSelection
+        .selectAll('.selected-variant-g')
+        .data()[0];
+      if (selectedElement && selectedElement instanceof ParallelGroup) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+  }
+
+  checkOverlapInsert() { //If True then disable
     if (this.emptyVariant || !this.variantEnrichedSelection) {
       return false;
     } else {
@@ -1154,6 +1190,7 @@ export class GraphicalQueryEditorComponent
     parent: VariantElement,
     elementsToDelete
   ) {
+    console.log(this.currentVariant)
     const children = variant.getElements();
 
     if (children) {
@@ -1222,6 +1259,8 @@ export class GraphicalQueryEditorComponent
           childrenParent.splice(childrenParent.indexOf(variant), 1);
           parent.setElements(childrenParent);
         } else {
+          console.log("clear")
+          console.log(this.currentVariant)
           this.currentVariant = null;
           this.emptyVariant = true;
         }
@@ -1235,6 +1274,7 @@ export class GraphicalQueryEditorComponent
   }
 
   onDeleteVariant() {
+    this.currentVariant.setElements([])
     this.currentVariant = null;
     this.emptyVariant = true;
 
@@ -1507,7 +1547,6 @@ export class GraphicalQueryEditorComponent
     const selectedElement = this.variantEnrichedSelection
       .selectAll('.selected-variant-g')
       .data();
-    //console.log(selectedElement);
     const rootPattern = (this.selectedRootNode?.data as QueryTree).pattern;
     if (selectedElement.length > 1) {
       let parent = this.findParent(
@@ -1624,10 +1663,10 @@ export class GraphicalQueryEditorComponent
         return false;
       }
       if (op == 'less') {
-        return (
-          (selectedElement[0] as VariantElement).asPattern().horizontalCardiOp !=
+        return !(
+          (selectedElement[0] as VariantElement).asPattern().horizontalCardiOp ==
             CardinalityOperator.lessequal ||
-          (selectedElement[0] as VariantElement).asPattern().verticalCardiOp !=
+          (selectedElement[0] as VariantElement).asPattern().verticalCardiOp ==
             CardinalityOperator.lessequal
         );
       }
@@ -1640,10 +1679,10 @@ export class GraphicalQueryEditorComponent
         );
       }
       if (op == 'more') {
-        return (
-          (selectedElement[0] as any).asPattern().horizontalCardiOp !=
+        return !(
+          (selectedElement[0] as any).asPattern().horizontalCardiOp ==
             CardinalityOperator.moreequal ||
-          (selectedElement[0] as any).asPattern().verticalCardiOp !=
+          (selectedElement[0] as any).asPattern().verticalCardiOp ==
             CardinalityOperator.moreequal
         );
       }
