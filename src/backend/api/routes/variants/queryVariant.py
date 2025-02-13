@@ -97,7 +97,7 @@ def generate_query_test(graphical_query: graphicalVariantQuery):
     query["follows"].append({"leaf": ["pay"], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
     query["follows"].append({"leaf": ["..."], "horizontalCardi": 0, "horizontalCardiOp": '=', "verticalCardi": 0, "verticalCardiOp": '='})
     '''
-    TOTAL_TEST_NUM = 5
+    TOTAL_TEST_NUM = 50
 
     execution_time = []
     leaf_num_list = []
